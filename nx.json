@@ -9,5 +9,13 @@
     "tsconfig.json": "*",
     "nx.json": "*"
   },
-  "projects": {}
+  "projects": {
+    "player": {
+      "tags": []
+    },
+    "player-e2e": {
+      "tags": [],
+      "implicitDependencies": ["player"]
+    }
+  }
 }
