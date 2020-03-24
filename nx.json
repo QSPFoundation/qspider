@@ -16,6 +16,9 @@
     "player-e2e": {
       "tags": [],
       "implicitDependencies": ["player"]
+    },
+    "qsp-wasm": {
+      "tags": []
     }
   }
 }

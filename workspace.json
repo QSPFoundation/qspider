@@ -106,6 +106,34 @@
           }
         }
       }
+    },
+    "qsp-wasm": {
+      "root": "libs/qsp-wasm",
+      "sourceRoot": "libs/qsp-wasm/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "linter": "eslint",
+            "config": "libs/qsp-wasm/.eslintrc",
+            "tsConfig": [
+              "libs/qsp-wasm/tsconfig.lib.json",
+              "libs/qsp-wasm/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!libs/qsp-wasm/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "libs/qsp-wasm/jest.config.js",
+            "tsConfig": "libs/qsp-wasm/tsconfig.spec.json",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   },
   "cli": {
