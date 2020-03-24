@@ -7,7 +7,6 @@
       "devDependencies": "*"
     },
     "tsconfig.json": "*",
-    "tslint.json": "*",
     "nx.json": "*"
   },
   "projects": {}
