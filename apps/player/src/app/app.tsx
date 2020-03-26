@@ -1,11 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { init } from '@qspider/qsp-wasm';
 
 import './app.css';
 
 import { ReactComponent as Logo } from './logo.svg';
 import star from './star.svg';
 
+async function initApi() {
+  const api = await init();
+  console.log(api.version());
+}
+
 export const App = () => {
+  useEffect(() => {
+    initApi();
+  }, []);
   /*
    * Replace the elements below with your own.
    *

@@ -55,6 +55,12 @@ Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new
 
 Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
+## Compile WASM
+
+Get the Emscripten SDK, using these instructions: <https://emscripten.org/docs/getting_started/downloads.html>.
+
+Run `npm run compile:wasm` to compile wasm module. Compiled js amd wasm files are committed to repository. So every time you change C code you need to recompile and commit updated files.
+
 ## Running unit tests
 
 Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).

@@ -18,7 +18,7 @@
             "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
             "styles": ["apps/player/src/styles.css"],
             "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
+            "webpackConfig": "apps/player/webpack.config.js"
           },
           "configurations": {
             "production": {
@@ -131,6 +131,17 @@
             "jestConfig": "libs/qsp-wasm/jest.config.js",
             "tsConfig": "libs/qsp-wasm/tsconfig.spec.json",
             "passWithNoTests": true
+          }
+        },
+        "compile": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "../../tools/build-wasm.sh"
+              }
+            ],
+            "cwd": "libs/qsp-wasm"
           }
         }
       }
