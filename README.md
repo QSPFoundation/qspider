@@ -6,7 +6,7 @@
 
 <hr />
 
-[![MIT License](https://img.shields.io/npm/l/qSpider.svg)](https://github.com/srg-kostyrko/qSpider/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 [![Roadmap](https://img.shields.io/badge/%F0%9F%93%94-roadmap-CD9523.svg)](https://github.com/srg-kostyrko/qSpider/blob/master/docs/ROADMAP.md)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
