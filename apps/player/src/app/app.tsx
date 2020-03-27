@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { init } from '@qspider/qsp-wasm';
 
 import './app.css';
+import { Player } from './player/player';
 
 async function initApi() {
   const api = await init();
@@ -12,5 +13,5 @@ export const App = () => {
   useEffect(() => {
     initApi();
   }, []);
-  return <div></div>;
+  return <Player></Player>;
 };
