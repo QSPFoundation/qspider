@@ -219,8 +219,8 @@ var Module = (function () {
     }
     var wasmMemory;
     var wasmTable = new WebAssembly.Table({
-      initial: 1,
-      maximum: 1 + 20,
+      initial: 4,
+      maximum: 4 + 20,
       element: 'anyfunc',
     });
     var ABORT = false;
@@ -461,8 +461,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5244624,
-      DYNAMICTOP_PTR = 1584;
+    var DYNAMIC_BASE = 5253376,
+      DYNAMICTOP_PTR = 10336;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];
@@ -1856,20 +1856,28 @@ var Module = (function () {
       return (_QSPGetVersion = Module['_QSPGetVersion'] =
         Module['asm']['f']).apply(null, arguments);
     });
+    var _QSPLoadGameWorld = (Module['_QSPLoadGameWorld'] = function () {
+      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] =
+        Module['asm']['g']).apply(null, arguments);
+    });
+    var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
+      return (_QSPGetLastError = Module['_QSPGetLastError'] =
+        Module['asm']['h']).apply(null, arguments);
+    });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['g']).apply(
+      return (stackSave = Module['stackSave'] = Module['asm']['i']).apply(
         null,
         arguments
       );
     });
     var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['h']).apply(
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['j']).apply(
         null,
         arguments
       );
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['i']).apply(
+      return (stackRestore = Module['stackRestore'] = Module['asm']['k']).apply(
         null,
         arguments
       );
@@ -1878,21 +1886,21 @@ var Module = (function () {
       '_asyncify_start_unwind'
     ] = function () {
       return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] =
-        Module['asm']['j']).apply(null, arguments);
+        Module['asm']['l']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
       return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] =
-        Module['asm']['k']).apply(null, arguments);
+        Module['asm']['m']).apply(null, arguments);
     });
     var _asyncify_start_rewind = (Module[
       '_asyncify_start_rewind'
     ] = function () {
       return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] =
-        Module['asm']['l']).apply(null, arguments);
+        Module['asm']['n']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
       return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] =
-        Module['asm']['m']).apply(null, arguments);
+        Module['asm']['o']).apply(null, arguments);
     });
     Module['asm'] = asm;
     Module['cwrap'] = cwrap;

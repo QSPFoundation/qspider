@@ -29,7 +29,10 @@
   "private": true,
   "dependencies": {
     "document-register-element": "1.13.1",
+    "eventemitter3": "^4.0.0",
     "evergreen-ui": "^4.24.0",
+    "mobx": "^5.15.4",
+    "mobx-react-lite": "^1.5.2",
     "react": "16.12.0",
     "react-dom": "16.12.0"
   },

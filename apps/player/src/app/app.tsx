@@ -1,17 +1,16 @@
-import React, { useEffect } from 'react';
-import { init } from '@qspider/qsp-wasm';
+import React from 'react';
 
 import './app.css';
 import { Player } from './player/player';
-
-async function initApi() {
-  const api = await init();
-  console.log(api.version());
-}
+import { Game } from './game';
+import { GameManagerProvider } from './game/manager';
 
 export const App = () => {
-  useEffect(() => {
-    initApi();
-  }, []);
-  return <Player></Player>;
+  return (
+    <GameManagerProvider>
+      <Game>
+        <Player />
+      </Game>
+    </GameManagerProvider>
+  );
 };
