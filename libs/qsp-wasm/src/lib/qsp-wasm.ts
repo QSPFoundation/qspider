@@ -1,7 +1,8 @@
 import qsp from '../wasm/qsp';
 import qspModule from '../wasm/qsp.wasm';
 
-import { QspApi } from './contracts';
+import { QspAPI } from './contracts';
+import { QspAPIImpl } from './qsp-api';
 
 // Since webpack will change the name and potentially the path of the
 // `.wasm` file, we have to provide a `locateFile()` hook to redirect
@@ -16,16 +17,10 @@ const module = qsp({
   },
 });
 
-export function init(): Promise<QspApi> {
+export function init(): Promise<QspAPI> {
   return new Promise((resolve) => {
     module.onRuntimeInitialized = () => {
-      const api: QspApi = {
-        version(): string {
-          return module.UTF32ToString(module._QSPGetVersion());
-        },
-      };
-
-      resolve(api);
+      resolve(new QspAPIImpl(module));
     };
   });
 }

@@ -15,7 +15,11 @@
             "main": "apps/player/src/main.tsx",
             "polyfills": "apps/player/src/polyfills.ts",
             "tsConfig": "apps/player/tsconfig.app.json",
-            "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
+            "assets": [
+              "apps/player/src/favicon.ico",
+              "apps/player/src/assets",
+              "apps/player/src/game"
+            ],
             "styles": ["apps/player/src/styles.css"],
             "scripts": [],
             "webpackConfig": "apps/player/webpack.config.js"
