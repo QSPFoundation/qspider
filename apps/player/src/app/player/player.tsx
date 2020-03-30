@@ -7,8 +7,11 @@ import { ObjectsPanel } from '../components/objects/objects.panel';
 import { StatsPanel } from '../components/stats/stats.panel';
 import { UserInputPanel } from '../components/user-input/user-input.panel';
 import { ErrorDialog } from '../components/dialogs/error/error.dialog';
+import { observer } from 'mobx-react-lite';
+import { useLayout } from '../game/layout';
 
-export function Player() {
+export const Player: React.FC = observer(() => {
+  const { templateAreas } = useLayout();
   return (
     <>
       <Pane
@@ -18,9 +21,7 @@ export function Player() {
         gridGap="8px"
         gridTemplateRows="1fr 300px 50px"
         gridTemplateColumns="1fr 150px 300px"
-        gridTemplateAreas={`"main main objects"
-         "actions stats stats"
-         "user-input user-input user-input"`}
+        gridTemplateAreas={templateAreas}
       >
         <MainPanel />
         <ActionsPanel />
@@ -31,4 +32,4 @@ export function Player() {
       <ErrorDialog />
     </>
   );
-}
+});

@@ -1,7 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import { QspAPI, QspErrorData, QspEvents, QspListItem } from './contracts';
 import { QspModule } from '../wasm/qsp';
-import { Ptr, CharsPtr, QspCallType } from '../wasm/types';
+import { Ptr, CharsPtr, QspCallType, QspPanel } from '../wasm/types';
 
 export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
@@ -57,6 +57,9 @@ export class QspAPIImpl implements QspAPI {
   private registerCallbacks() {
     const onRefreshInt = this.module.addFunction(this.onRefresh, 'ii');
     this.module._qspSetCallBack(QspCallType.REFRESHINT, onRefreshInt);
+
+    const onShowWindow = this.module.addFunction(this.onShowWindow, 'iii');
+    this.module._qspSetCallBack(QspCallType.SHOWWINDOW, onShowWindow);
   }
 
   private emit<
@@ -95,6 +98,10 @@ export class QspAPIImpl implements QspAPI {
       this.module._free(ptr);
       this.emit('objects_changed', actions);
     }
+  };
+
+  onShowWindow = (type: QspPanel, isShown: boolean) => {
+    this.emit('panel_visibility', type, isShown);
   };
 
   private onCalled(isSuccessfull: boolean): boolean {

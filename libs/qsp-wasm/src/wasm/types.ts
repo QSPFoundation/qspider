@@ -25,3 +25,10 @@ export enum QspCallType {
   INPUTBOX /* void func(QSPString text, QSP_CHAR *buffer, int maxLen) */,
   DUMMY,
 }
+
+export enum QspPanel {
+  ACTS,
+  OBJS,
+  VARS,
+  INPUT,
+}
