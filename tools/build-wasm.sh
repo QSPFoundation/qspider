@@ -17,5 +17,6 @@ emcc -Wno-parentheses \
     qsp/qsp/onig/enc/*.c \
     qsp/qsp/onig/*.c \
     qsp/qsp/**.c \
+    src/wasm/qsp_wasm_callbacks.c \
     src/wasm/qsp_wasm.c \
     -o src/wasm/qsp.js
