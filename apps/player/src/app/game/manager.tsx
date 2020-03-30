@@ -2,9 +2,15 @@ import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
 import { fetchGameDescriptor, GameDescriptor, fetchGameSource } from './loader';
-import { QspAPI, init, QspErrorData, QspListItem } from '@qspider/qsp-wasm';
+import {
+  QspAPI,
+  init,
+  QspErrorData,
+  QspListItem,
+  QspEvents,
+} from '@qspider/qsp-wasm';
 
-class GameManager {
+export class GameManager {
   descriptor: GameDescriptor;
   errorData: QspErrorData;
   isInitialized = false;
@@ -14,10 +20,19 @@ class GameManager {
   actions: QspListItem[] = [];
   objects: QspListItem[] = [];
 
+  apiInitialized: Promise<boolean>;
+
+  constructor() {
+    this.apiInitialized = new Promise((resolve) => {
+      this.initialize(resolve);
+    });
+  }
+
   private api: QspAPI;
 
-  async initialize() {
+  async initialize(onApiInitialized: () => void) {
     this.api = await init();
+    onApiInitialized();
     console.log(`QSP version: ${this.api.version()}`);
     this.setupQspCallbacks();
 
@@ -39,6 +54,10 @@ class GameManager {
     this.api.on('stats_changed', this.updateStats);
     this.api.on('actions_changed', this.updateActions);
     this.api.on('objects_changed', this.updateObjects);
+  }
+
+  on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
+    this.api.on(event, listener);
   }
 
   markInitialized() {
@@ -97,9 +116,7 @@ decorate(GameManager, {
 });
 
 function createGameManager() {
-  const manager = new GameManager();
-  manager.initialize();
-  return manager;
+  return new GameManager();
 }
 
 const gameManagerContext = React.createContext<GameManager | null>(null);

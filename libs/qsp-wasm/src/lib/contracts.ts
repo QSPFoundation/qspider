@@ -1,8 +1,11 @@
+import { QspPanel } from '../wasm/types';
+
 export type QspEvents = {
   main_changed: (text: string) => void;
   stats_changed: (text: string) => void;
   actions_changed: (actions: QspListItem[]) => void;
   objects_changed: (objects: QspListItem[]) => void;
+  panel_visibility: (type: QspPanel, isShown: boolean) => void;
   error: (errorData: QspErrorData) => void;
   menu: () => void;
 };
