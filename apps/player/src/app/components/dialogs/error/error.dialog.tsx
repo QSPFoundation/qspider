@@ -1,25 +1,34 @@
-import React, { useState } from 'react';
-import { Pane, Dialog, Button } from 'evergreen-ui';
+import React, { useCallback } from 'react';
+import { Dialog } from 'evergreen-ui';
+import { observer } from 'mobx-react-lite';
+import { useGameManager } from '../../../game/manager';
 
-export const ErrorDialog: React.FC = () => {
-  const [isShown, setIsShown] = useState(false);
+export const ErrorDialog: React.FC = observer(() => {
+  const gameManager = useGameManager();
+  const onClose = useCallback(() => gameManager.clearError(), [gameManager]);
+  const { errorData } = gameManager;
+  const isShown = Boolean(errorData);
   return (
-    <Pane>
-      <Dialog
-        isShown={isShown}
-        title="Error"
-        hasCancel={false}
-        confirmLabel="OK"
-        onCloseComplete={() => setIsShown(false)}
-      >
-        Location: 1<br />
-        Line: 3<br />
-        Error code: 119
-        <br />
-        Error: Unknown action
-      </Dialog>
-
-      <Button onClick={() => setIsShown(true)}>Show Error</Button>
-    </Pane>
+    <Dialog
+      isShown={isShown}
+      title="Error"
+      hasCancel={false}
+      confirmLabel="OK"
+      onCloseComplete={onClose}
+    >
+      {errorData ? (
+        <>
+          Location: {errorData.location}
+          <br />
+          Line: {errorData.line}
+          <br />
+          Error code: {errorData.code}
+          <br />
+          Error: {errorData.description}
+        </>
+      ) : (
+        ''
+      )}
+    </Dialog>
   );
-};
+});

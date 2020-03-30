@@ -2,18 +2,24 @@ import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
 import { fetchGameDescriptor, GameDescriptor, fetchGameSource } from './loader';
-import { QspAPI, init, QspErrorData } from '@qspider/qsp-wasm';
+import { QspAPI, init, QspErrorData, QspListItem } from '@qspider/qsp-wasm';
 
 class GameManager {
   descriptor: GameDescriptor;
   errorData: QspErrorData;
   isInitialized = false;
 
+  main = '';
+  stats = '';
+  actions: QspListItem[] = [];
+  objects: QspListItem[] = [];
+
   private api: QspAPI;
 
   async initialize() {
     this.api = await init();
     console.log(`QSP version: ${this.api.version()}`);
+    this.setupQspCallbacks();
 
     const gameDescriptor = await fetchGameDescriptor();
     this.updateDescriptor(gameDescriptor);
@@ -22,12 +28,17 @@ class GameManager {
     const gameSource = await fetchGameSource(gameDescriptor.file);
 
     this.api.createGameWorld(gameSource, gameDescriptor.file);
+    this.api.restartGame();
 
     this.markInitialized();
   }
 
   setupQspCallbacks() {
     this.api.on('error', this.updateErrorDescription);
+    this.api.on('main_changed', this.updateMain);
+    this.api.on('stats_changed', this.updateStats);
+    this.api.on('actions_changed', this.updateActions);
+    this.api.on('objects_changed', this.updateObjects);
   }
 
   markInitialized() {
@@ -39,15 +50,50 @@ class GameManager {
   updateErrorDescription = (errorData: QspErrorData) => {
     this.errorData = errorData;
   };
+  clearError() {
+    this.errorData = null;
+  }
+
+  updateMain = (text: string) => {
+    this.main = text;
+  };
+  updateStats = (text: string) => {
+    this.stats = text;
+  };
+  updateActions = (list: QspListItem[]) => {
+    this.actions = list;
+  };
+  updateObjects = (list: QspListItem[]) => {
+    this.objects = list;
+  };
+
+  selectAction(index: number) {
+    this.api.selectAction(index);
+  }
+
+  selectObject(index: number) {
+    this.api.selectObject(index);
+  }
 }
 
 decorate(GameManager, {
   descriptor: observable,
   isInitialized: observable,
 
+  main: observable,
+  stats: observable,
+  actions: observable.ref,
+  objects: observable.ref,
+
   markInitialized: action,
   updateDescriptor: action,
   updateErrorDescription: action,
+  clearError: action,
+
+  updateMain: action,
+  updateStats: action,
+  updateActions: action,
+  updateObjects: action,
 });
 
 function createGameManager() {
