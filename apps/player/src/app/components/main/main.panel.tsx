@@ -1,7 +1,8 @@
 import React from 'react';
-import { Pane, Paragraph, minorScale } from 'evergreen-ui';
+import { Pane, minorScale } from 'evergreen-ui';
 import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
+import { Content } from '../content/content';
 
 export const MainPanel: React.FC = observer(() => {
   const gameManager = useGameManager();
@@ -12,7 +13,7 @@ export const MainPanel: React.FC = observer(() => {
       padding={minorScale(2)}
       whiteSpace="pre-wrap"
     >
-      <Paragraph size={500}>{gameManager.main}</Paragraph>
+      <Content content={gameManager.main} />
     </Pane>
   );
 });

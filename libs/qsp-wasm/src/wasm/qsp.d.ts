@@ -5,7 +5,8 @@ type IRType = 'i8' | 'i16' | 'i32' | 'i64' | 'float' | 'double';
 
 export interface QspModule extends EmscriptenModule {
   UTF32ToString(ptr: CharsPtr): string;
-  stringToUTF32(str: string): CharsPtr;
+  stringToUTF32(str: string, outPtr: CharsPtr): number;
+  lengthBytesUTF32(str: string): number;
   getValue(ptr: Ptr, type: IRType): number;
   addFunction(fn: Function, signature: string): FunctionPtr;
   _QSPInit(): void;
@@ -25,6 +26,10 @@ export interface QspModule extends EmscriptenModule {
   _QSPIsObjectsChanged(): boolean;
   _QSPGetObjects(count: IntPointer): Ptr;
   _QSPSelectObject(index: number): boolean;
+  _QSPGetVarValuesCount(name: CharsPtr): number;
+  _QSPGetVarNumValue(name: CharsPtr, index: number): number;
+  _QSPGetVarStrValue(name: CharsPtr, index: number): CharsPtr;
+  _QSPExecString(code: CharsPtr): boolean;
 }
 
 export default function Module(emscriptenArgs: any): QspModule;

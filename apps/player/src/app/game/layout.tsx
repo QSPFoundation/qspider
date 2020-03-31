@@ -2,9 +2,11 @@ import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action, computed } from 'mobx';
 import { useGameManager, GameManager } from './manager';
-import { QspPanel } from '@qspider/qsp-wasm';
+import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 
 class Layout {
+  useHtml = false;
+
   isStatsPanelVisible = true;
   isObjectPanelVisible = true;
   isActionsPanelVisible = true;
@@ -59,7 +61,12 @@ class Layout {
 
   initCallbacks(manager: GameManager) {
     manager.on('panel_visibility', this.updatePanalVisibility);
+    manager.on('layout', this.updateLayoutSettings);
   }
+
+  updateLayoutSettings = (settings: LayoutSettings) => {
+    this.useHtml = settings.useHtml;
+  };
 
   updatePanalVisibility = (type: QspPanel, isShown: boolean) => {
     switch (type) {
@@ -79,6 +86,8 @@ class Layout {
 }
 
 decorate(Layout, {
+  useHtml: observable,
+
   isStatsPanelVisible: observable,
   isObjectPanelVisible: observable,
   isActionsPanelVisible: observable,
@@ -86,6 +95,7 @@ decorate(Layout, {
 
   templateAreas: computed,
 
+  updateLayoutSettings: action,
   updatePanalVisibility: action,
 });
 
