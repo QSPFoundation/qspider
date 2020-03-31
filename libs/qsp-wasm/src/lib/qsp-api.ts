@@ -23,13 +23,15 @@ export class QspAPIImpl implements QspAPI {
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
 
-    return this.onCalled(
-      this.module._QSPLoadGameWorld(
-        ptr,
-        bytes.length,
-        this.module.stringToUTF32(fileName)
-      )
+    const namePtr = this.stringToPTr(fileName);
+
+    const result = this.onCalled(
+      this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr)
     );
+    this.module._free(ptr);
+    this.module._free(namePtr);
+
+    return result;
   }
 
   restartGame(): boolean {
@@ -46,6 +48,29 @@ export class QspAPIImpl implements QspAPI {
 
   version(): string {
     return this.readString(this.module._QSPGetVersion());
+  }
+
+  readVariableNumber(name: string, index = 0): number {
+    const ptr = this.stringToPTr(name);
+    const value = this.module._QSPGetVarNumValue(ptr, index);
+    this.module._free(ptr);
+    return value;
+  }
+
+  readVariableString(name: string, index = 0): string {
+    const ptr = this.stringToPTr(name);
+    const resultPtr = this.module._QSPGetVarStrValue(ptr, index);
+    this.module._free(ptr);
+    const value = this.readString(resultPtr);
+    this.module._free(resultPtr);
+    return value;
+  }
+
+  execCode(code: string): boolean {
+    const ptr = this.stringToPTr(code);
+    const result = this.module._QSPExecString(ptr);
+    this.module._free(ptr);
+    return this.onCalled(result);
   }
 
   private init() {
@@ -71,6 +96,11 @@ export class QspAPIImpl implements QspAPI {
   }
 
   onRefresh = (isRedraw: boolean) => {
+    const useHtml = Boolean(this.readVariableNumber('USEHTML'));
+    this.emit('layout', {
+      useHtml,
+    });
+
     if (isRedraw || this.module._QSPIsMainDescChanged()) {
       const mainDesc = this.readString(this.module._QSPGetMainDesc());
       this.emit('main_changed', mainDesc);
@@ -117,6 +147,13 @@ export class QspAPIImpl implements QspAPI {
 
   private readString(ptr: CharsPtr): string {
     return this.module.UTF32ToString(ptr);
+  }
+
+  private stringToPTr(value: string): CharsPtr {
+    const length = this.module.lengthBytesUTF32(value);
+    const ptr = this.module._malloc(length);
+    this.module.stringToUTF32(value, ptr);
+    return ptr;
   }
 
   private readInt(ptr: Ptr): number {

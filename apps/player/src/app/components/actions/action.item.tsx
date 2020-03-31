@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { Menu } from 'evergreen-ui';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { useGameManager } from '../../game/manager';
+import { Content } from '../content/content';
 
 // TODO action image
 export const ActionItem: React.FC<{ action: QspListItem; index: number }> = ({
@@ -13,5 +14,9 @@ export const ActionItem: React.FC<{ action: QspListItem; index: number }> = ({
     index,
     gameManager,
   ]);
-  return <Menu.Item onSelect={onActionSelect}>{action.name}</Menu.Item>;
+  return (
+    <Menu.Item onSelect={onActionSelect}>
+      <Content content={action.name} />
+    </Menu.Item>
+  );
 };

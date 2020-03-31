@@ -1,8 +1,9 @@
 import React from 'react';
-import { Pane, minorScale, Paragraph } from 'evergreen-ui';
+import { Pane, minorScale } from 'evergreen-ui';
 import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
 import { useLayout } from '../../game/layout';
+import { Content } from '../content/content';
 
 export const StatsPanel: React.FC = observer(() => {
   const gameManager = useGameManager();
@@ -10,7 +11,7 @@ export const StatsPanel: React.FC = observer(() => {
   if (!isStatsPanelVisible) return null;
   return (
     <Pane gridArea="stats" border="default" padding={minorScale(2)}>
-      <Paragraph size={500}>{gameManager.stats}</Paragraph>
+      <Content content={gameManager.stats} />
     </Pane>
   );
 });

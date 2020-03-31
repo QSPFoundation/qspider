@@ -60,6 +60,10 @@ export class GameManager {
     this.api.on(event, listener);
   }
 
+  execCode(code: string) {
+    this.api.execCode(code);
+  }
+
   markInitialized() {
     this.isInitialized = true;
   }

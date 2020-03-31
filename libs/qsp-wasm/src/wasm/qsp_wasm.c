@@ -19,6 +19,7 @@ typedef int (*QSP_CALLBACK)();
 #include "../../qsp/qsp/coding.h"
 #include "../../qsp/qsp/statements.h"
 #include "../../qsp/qsp/mathops.h"
+#include "../../qsp/qsp/variables.h"
 #include "../../qsp/qsp/errors.h"
 
 typedef struct
@@ -218,5 +219,60 @@ QSP_BOOL QSPSelectObject(int index)
       return QSP_FALSE;
     qspCallRefreshInt(QSP_FALSE);
   }
+  return QSP_TRUE;
+}
+
+/* variables */
+EMSCRIPTEN_KEEPALIVE
+int QSPGetVarValuesCount(QSP_CHAR *name)
+{
+  QSPVar *var;
+  if (qspIsExitOnError && qspErrorNum)
+    return 0;
+  qspResetError();
+  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
+  if (qspErrorNum)
+    return 0;
+  return var->ValsCount;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int QSPGetVarNumValue(QSP_CHAR *name, int ind)
+{
+  QSPVar *var;
+  if (qspIsExitOnError && qspErrorNum)
+    return 0;
+  qspResetError();
+  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
+  if (qspErrorNum || ind < 0 || ind >= var->ValsCount)
+    return 0;
+  return var->Values[ind].Num;
+}
+
+EMSCRIPTEN_KEEPALIVE
+QSP_CHAR *QSPGetVarStrValue(QSP_CHAR *name, int ind)
+{
+  QSPVar *var;
+  if (qspIsExitOnError && qspErrorNum)
+    return qspStringToC(qspEmptyString);
+  qspResetError();
+  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
+  if (qspErrorNum || ind < 0 || ind >= var->ValsCount)
+    return qspStringToC(qspEmptyString);
+  return qspStringToC(var->Values[ind].Str);
+}
+
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL QSPExecString(QSP_CHAR *s)
+{
+  if (qspIsExitOnError && qspErrorNum)
+    return QSP_FALSE;
+  qspPrepareExecution();
+  if (qspIsDisableCodeExec)
+    return QSP_FALSE;
+  qspExecStringAsCodeWithArgs(qspStringFromC(s), 0, 0, 0);
+  if (qspErrorNum)
+    return QSP_FALSE;
+  qspCallRefreshInt(QSP_FALSE);
   return QSP_TRUE;
 }

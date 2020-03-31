@@ -1,5 +1,9 @@
 import { QspPanel } from '../wasm/types';
 
+export interface LayoutSettings {
+  useHtml: boolean;
+}
+
 export type QspEvents = {
   main_changed: (text: string) => void;
   stats_changed: (text: string) => void;
@@ -7,6 +11,7 @@ export type QspEvents = {
   objects_changed: (objects: QspListItem[]) => void;
   panel_visibility: (type: QspPanel, isShown: boolean) => void;
   error: (errorData: QspErrorData) => void;
+  layout: (settings: LayoutSettings) => void;
   menu: () => void;
 };
 
@@ -18,6 +23,9 @@ export interface QspAPI {
   restartGame(): boolean;
   selectAction(index: number): boolean;
   selectObject(index: number): boolean;
+  readVariableNumber(name: string, index?: number): number;
+  readVariableString(name: string, index?: number): string;
+  execCode(code: string): boolean;
 }
 
 export interface QspErrorData {
