@@ -85,6 +85,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onShowWindow = this.module.addFunction(this.onShowWindow, 'iii');
     this.module._qspSetCallBack(QspCallType.SHOWWINDOW, onShowWindow);
+
+    const onMenu = this.module.addFunction(this.onMenu, 'iii');
+    this.module._qspSetCallBack(QspCallType.SHOWMENU, onMenu);
   }
 
   private emit<
@@ -114,7 +117,8 @@ export class QspAPIImpl implements QspAPI {
     if (isRedraw || this.module._QSPIsActionsChanged()) {
       const countPtr = this.module._malloc(4);
       const ptr = this.module._QSPGetActions(countPtr);
-      const actions = this.readListItems(countPtr, ptr);
+      const count = this.module.getValue(countPtr, 'i32');
+      const actions = this.readListItems(ptr, count);
       this.module._free(countPtr);
       this.module._free(ptr);
       this.emit('actions_changed', actions);
@@ -123,7 +127,8 @@ export class QspAPIImpl implements QspAPI {
     if (isRedraw || this.module._QSPIsObjectsChanged()) {
       const countPtr = this.module._malloc(4);
       const ptr = this.module._QSPGetObjects(countPtr);
-      const actions = this.readListItems(countPtr, ptr);
+      const count = this.module.getValue(countPtr, 'i32');
+      const actions = this.readListItems(ptr, count);
       this.module._free(countPtr);
       this.module._free(ptr);
       this.emit('objects_changed', actions);
@@ -132,6 +137,19 @@ export class QspAPIImpl implements QspAPI {
 
   onShowWindow = (type: QspPanel, isShown: boolean) => {
     this.emit('panel_visibility', type, isShown);
+  };
+
+  onMenu = (listPtr: Ptr, count: number) => {
+    const items = this.readListItems(listPtr, count);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      new Promise<number>((resolve) => {
+        this.emit('menu', items, resolve);
+      }).then((index) => {
+        console.log(index);
+        wakeUp(index);
+      });
+    });
   };
 
   private onCalled(isSuccessfull: boolean): boolean {
@@ -188,9 +206,8 @@ export class QspAPIImpl implements QspAPI {
     };
   }
 
-  private readListItems(countPtr: Ptr, listPtr: Ptr): QspListItem[] {
+  private readListItems(listPtr: Ptr, count: number): QspListItem[] {
     const list: QspListItem[] = [];
-    const count = this.module.getValue(countPtr, 'i32');
     let ptr = listPtr;
     for (let i = 0; i < count; i++) {
       const namePtr = this.getCharsPtr(ptr);
