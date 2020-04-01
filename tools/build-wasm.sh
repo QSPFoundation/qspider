@@ -8,7 +8,7 @@ emcc -Wno-parentheses \
     -s WASM=1 \
     -s RESERVED_FUNCTION_POINTERS=20 \
     -s ASYNCIFY \
-    -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "getValue", "UTF32ToString", "stringToUTF32", "lengthBytesUTF32", "addFunction"]' \
+    -s EXTRA_EXPORTED_RUNTIME_METHODS='["cwrap", "getValue", "UTF32ToString", "stringToUTF32", "lengthBytesUTF32", "addFunction", "Asyncify"]' \
     -s TOTAL_MEMORY=32MB \
     -s ENVIRONMENT='web' \
     -s MODULARIZE=1 \

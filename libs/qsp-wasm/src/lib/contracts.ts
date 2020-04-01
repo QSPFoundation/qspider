@@ -12,7 +12,7 @@ export type QspEvents = {
   panel_visibility: (type: QspPanel, isShown: boolean) => void;
   error: (errorData: QspErrorData) => void;
   layout: (settings: LayoutSettings) => void;
-  menu: () => void;
+  menu: (items: QspListItem[], result: (index: number) => void) => void;
 };
 
 export interface QspAPI {

@@ -10,6 +10,12 @@ typedef int (*QSP_CALLBACK)();
 #include "../../qsp/qsp/callbacks.h"
 #include "../../qsp/qsp/text.h"
 
+typedef struct
+{
+  QSP_CHAR *Name;
+  QSP_CHAR *Image;
+} QSPListItemC;
+
 EMSCRIPTEN_KEEPALIVE
 void qspInitCallBacks()
 {
@@ -126,14 +132,21 @@ void qspCallShowMessage(QSPString text)
   }
 }
 
-int qspCallShowMenu(QSPListItem *items, int count)
+int qspCallShowMenu(QSPListItem *list, int count)
 {
   QSPCallState state;
   int index;
   if (qspCallBacks[QSP_CALL_SHOWMENU])
   {
+    QSPListItemC *items = (QSPListItemC *)malloc(count * sizeof(QSPListItemC));
+    for (int i = 0; i < count; ++i)
+    {
+      items[i].Name = qspStringToC(list[i].Name);
+      items[i].Image = qspStringToC(list[i].Image);
+    }
     qspSaveCallState(&state, QSP_FALSE, QSP_TRUE);
     index = qspCallBacks[QSP_CALL_SHOWMENU](items, count);
+    free(items);
     qspRestoreCallState(&state);
     return index;
   }

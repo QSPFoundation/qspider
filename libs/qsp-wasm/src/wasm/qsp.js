@@ -4940,6 +4940,7 @@ var Module = (function () {
     Module['cwrap'] = cwrap;
     Module['getValue'] = getValue;
     Module['addFunction'] = addFunction;
+    Module['Asyncify'] = Asyncify;
     Module['UTF32ToString'] = UTF32ToString;
     Module['stringToUTF32'] = stringToUTF32;
     Module['lengthBytesUTF32'] = lengthBytesUTF32;

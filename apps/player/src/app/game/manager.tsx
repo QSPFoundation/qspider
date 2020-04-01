@@ -20,6 +20,10 @@ export class GameManager {
   actions: QspListItem[] = [];
   objects: QspListItem[] = [];
 
+  isMenuShown = false;
+  menu: QspListItem[] = [];
+  menuResult: (index: number) => void;
+
   apiInitialized: Promise<boolean>;
 
   constructor() {
@@ -54,6 +58,7 @@ export class GameManager {
     this.api.on('stats_changed', this.updateStats);
     this.api.on('actions_changed', this.updateActions);
     this.api.on('objects_changed', this.updateObjects);
+    this.api.on('menu', this.updateMenu);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -61,6 +66,7 @@ export class GameManager {
   }
 
   execCode(code: string) {
+    console.log(code);
     this.api.execCode(code);
   }
 
@@ -89,6 +95,11 @@ export class GameManager {
   updateObjects = (list: QspListItem[]) => {
     this.objects = list;
   };
+  updateMenu = (list: QspListItem[], result: (index: number) => void) => {
+    this.menu = list;
+    this.menuResult = result;
+    this.isMenuShown = true;
+  };
 
   selectAction(index: number) {
     this.api.selectAction(index);
@@ -96,6 +107,12 @@ export class GameManager {
 
   selectObject(index: number) {
     this.api.selectObject(index);
+  }
+
+  selectMenu(index: number) {
+    this.menuResult(index);
+    this.menuResult = null;
+    this.isMenuShown = false;
   }
 }
 
@@ -108,6 +125,9 @@ decorate(GameManager, {
   actions: observable.ref,
   objects: observable.ref,
 
+  menu: observable.ref,
+  isMenuShown: observable,
+
   markInitialized: action,
   updateDescriptor: action,
   updateErrorDescription: action,
@@ -117,6 +137,8 @@ decorate(GameManager, {
   updateStats: action,
   updateActions: action,
   updateObjects: action,
+  updateMenu: action,
+  selectMenu: action,
 });
 
 function createGameManager() {

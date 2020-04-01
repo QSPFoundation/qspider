@@ -9,6 +9,9 @@ export interface QspModule extends EmscriptenModule {
   lengthBytesUTF32(str: string): number;
   getValue(ptr: Ptr, type: IRType): number;
   addFunction(fn: Function, signature: string): FunctionPtr;
+  Asyncify: {
+    handleSleep(cb: (wakeUp: (ret: number) => void) => void): void;
+  };
   _QSPInit(): void;
   _qspInitCallBacks(): void;
   _qspSetCallBack(type: QspCallType, fnPtr: FunctionPtr): void;
