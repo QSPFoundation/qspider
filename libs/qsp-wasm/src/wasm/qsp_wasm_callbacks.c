@@ -35,6 +35,7 @@ void qspSetCallBack(int type, QSP_CALLBACK func)
 
 void qspCallDebug(QSPString str)
 {
+  printf("qspCallDebug\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_DEBUG])
   {
@@ -46,6 +47,7 @@ void qspCallDebug(QSPString str)
 
 void qspCallSetTimer(int msecs)
 {
+  printf("qspCallDebug\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SETTIMER])
   {
@@ -57,6 +59,7 @@ void qspCallSetTimer(int msecs)
 
 void qspCallRefreshInt(QSP_BOOL isRedraw)
 {
+  printf("qspCallRefreshInt\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_REFRESHINT])
   {
@@ -68,6 +71,7 @@ void qspCallRefreshInt(QSP_BOOL isRedraw)
 
 void qspCallSetInputStrText(QSPString text)
 {
+  printf("qspCallSetInputStrText\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SETINPUTSTRTEXT])
   {
@@ -79,6 +83,7 @@ void qspCallSetInputStrText(QSPString text)
 
 void qspCallSystem(QSPString cmd)
 {
+  printf("qspCallSystem\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SYSTEM])
   {
@@ -90,6 +95,7 @@ void qspCallSystem(QSPString cmd)
 
 void qspCallOpenGame(QSPString file, QSP_BOOL isNewGame)
 {
+  printf("qspCallOpenGame\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_OPENGAME])
   {
@@ -101,6 +107,7 @@ void qspCallOpenGame(QSPString file, QSP_BOOL isNewGame)
 
 void qspCallOpenGameStatus(QSPString file)
 {
+  printf("qspCallOpenGameStatus\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_OPENGAMESTATUS])
   {
@@ -112,6 +119,7 @@ void qspCallOpenGameStatus(QSPString file)
 
 void qspCallSaveGameStatus(QSPString file)
 {
+  printf("qspCallSaveGameStatus\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SAVEGAMESTATUS])
   {
@@ -123,17 +131,19 @@ void qspCallSaveGameStatus(QSPString file)
 
 void qspCallShowMessage(QSPString text)
 {
+  printf("qspCallShowMessage\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SHOWMSGSTR])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_SHOWMSGSTR](text);
+    qspCallBacks[QSP_CALL_SHOWMSGSTR](qspStringToC(text));
     qspRestoreCallState(&state);
   }
 }
 
 int qspCallShowMenu(QSPListItem *list, int count)
 {
+  printf("qspCallShowMenu\n");
   QSPCallState state;
   int index;
   if (qspCallBacks[QSP_CALL_SHOWMENU])
@@ -155,6 +165,7 @@ int qspCallShowMenu(QSPListItem *list, int count)
 
 void qspCallShowPicture(QSPString file)
 {
+  printf("qspCallShowPicture\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SHOWIMAGE])
   {
@@ -166,6 +177,7 @@ void qspCallShowPicture(QSPString file)
 
 void qspCallShowWindow(int type, QSP_BOOL isShow)
 {
+  printf("qspCallShowWindow\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SHOWWINDOW])
   {
@@ -177,6 +189,7 @@ void qspCallShowWindow(int type, QSP_BOOL isShow)
 
 void qspCallPlayFile(QSPString file, int volume)
 {
+  printf("qspCallPlayFile\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_PLAYFILE])
   {
@@ -188,6 +201,7 @@ void qspCallPlayFile(QSPString file, int volume)
 
 QSP_BOOL qspCallIsPlayingFile(QSPString file)
 {
+  printf("qspCallIsPlayingFile\n");
   QSPCallState state;
   QSP_BOOL isPlaying;
   if (qspCallBacks[QSP_CALL_ISPLAYINGFILE])
@@ -202,6 +216,7 @@ QSP_BOOL qspCallIsPlayingFile(QSPString file)
 
 void qspCallSleep(int msecs)
 {
+  printf("qspCallSleep\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SLEEP])
   {
@@ -213,6 +228,7 @@ void qspCallSleep(int msecs)
 
 int qspCallGetMSCount()
 {
+  printf("qspCallGetMSCount\n");
   QSPCallState state;
   int count;
   if (qspCallBacks[QSP_CALL_GETMSCOUNT])
@@ -227,6 +243,7 @@ int qspCallGetMSCount()
 
 void qspCallCloseFile(QSPString file)
 {
+  printf("qspCallCloseFile\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_CLOSEFILE])
   {
@@ -238,6 +255,7 @@ void qspCallCloseFile(QSPString file)
 
 QSPString qspCallInputBox(QSPString text)
 {
+  printf("qspCallInputBox\n");
   QSPCallState state;
   QSP_CHAR *buffer;
   int maxLen = 511;
@@ -248,8 +266,9 @@ QSPString qspCallInputBox(QSPString text)
     buffer = (QSP_CHAR *)malloc((maxLen + 1) * sizeof(QSP_CHAR));
     *buffer = 0;
     /* Process input */
-    qspCallBacks[QSP_CALL_INPUTBOX](text, buffer, maxLen);
+    qspCallBacks[QSP_CALL_INPUTBOX](qspStringToC(text), buffer, maxLen);
     buffer[maxLen] = 0;
+    printf("%i\n", qspStrLen(qspStringFromC(buffer)));
     /* Clean up */
     qspRestoreCallState(&state);
     return qspStringFromC(buffer);

@@ -193,7 +193,7 @@ QSP_BOOL QSPIsObjectsChanged()
 EMSCRIPTEN_KEEPALIVE
 QSPListItemC *QSPGetObjects(int *count)
 {
-  *count = qspCurActionsCount;
+  *count = qspCurObjectsCount;
   QSPListItemC *items = (QSPListItemC *)malloc(qspCurObjectsCount * sizeof(QSPListItemC));
   for (int i = 0; i < qspCurObjectsCount; ++i)
   {

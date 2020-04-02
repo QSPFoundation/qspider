@@ -24,6 +24,14 @@ export class GameManager {
   menu: QspListItem[] = [];
   menuResult: (index: number) => void;
 
+  isMsgShown = false;
+  msg = '';
+  onMsg: () => void;
+
+  isInputShown = false;
+  input = '';
+  onInput: (text: string) => void;
+
   apiInitialized: Promise<boolean>;
 
   constructor() {
@@ -59,6 +67,8 @@ export class GameManager {
     this.api.on('actions_changed', this.updateActions);
     this.api.on('objects_changed', this.updateObjects);
     this.api.on('menu', this.updateMenu);
+    this.api.on('msg', this.updateMsg);
+    this.api.on('input', this.updateInput);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -66,7 +76,7 @@ export class GameManager {
   }
 
   execCode(code: string) {
-    console.log(code);
+    console.log('EXEC: ', code);
     this.api.execCode(code);
   }
 
@@ -101,6 +111,32 @@ export class GameManager {
     this.isMenuShown = true;
   };
 
+  updateMsg = (text: string, onMsg: () => void) => {
+    this.msg = text;
+    this.onMsg = onMsg;
+    this.isMsgShown = true;
+  };
+
+  closeMsg = () => {
+    this.isMenuShown = false;
+    this.onMsg();
+    this.msg = '';
+    this.onMsg = null;
+  };
+
+  updateInput = (text: string, onInput: (text: string) => void) => {
+    this.input = text;
+    this.onInput = onInput;
+    this.isInputShown = true;
+  };
+
+  closeInput = (text: string) => {
+    this.isInputShown = false;
+    this.onInput(text);
+    this.input = '';
+    this.onInput = null;
+  };
+
   selectAction(index: number) {
     this.api.selectAction(index);
   }
@@ -125,8 +161,16 @@ decorate(GameManager, {
   actions: observable.ref,
   objects: observable.ref,
 
-  menu: observable.ref,
   isMenuShown: observable,
+  menu: observable.ref,
+  updateMsg: action,
+  closeMsg: action,
+
+  isMsgShown: observable,
+  msg: observable,
+
+  isInputShown: observable,
+  input: observable,
 
   markInitialized: action,
   updateDescriptor: action,

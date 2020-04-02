@@ -10,6 +10,8 @@ import { ErrorDialog } from '../components/dialogs/error/error.dialog';
 import { observer } from 'mobx-react-lite';
 import { useLayout } from '../game/layout';
 import { Menu } from '../components/menu/menu';
+import { MsgDialog } from '../components/dialogs/msg/msg.dialog';
+import { InputDialog } from '../components/dialogs/input/input.dialog';
 
 export const Player: React.FC = observer(() => {
   const { templateAreas } = useLayout();
@@ -31,6 +33,8 @@ export const Player: React.FC = observer(() => {
         <UserInputPanel />
       </Pane>
       <ErrorDialog />
+      <MsgDialog />
+      <InputDialog />
       <Menu />
     </>
   );

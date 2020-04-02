@@ -88,6 +88,12 @@ export class QspAPIImpl implements QspAPI {
 
     const onMenu = this.module.addFunction(this.onMenu, 'iii');
     this.module._qspSetCallBack(QspCallType.SHOWMENU, onMenu);
+
+    const onMsg = this.module.addFunction(this.onMsg, 'ii');
+    this.module._qspSetCallBack(QspCallType.SHOWMSGSTR, onMsg);
+
+    const onInput = this.module.addFunction(this.onInput, 'iiii');
+    this.module._qspSetCallBack(QspCallType.INPUTBOX, onInput);
   }
 
   private emit<
@@ -128,10 +134,10 @@ export class QspAPIImpl implements QspAPI {
       const countPtr = this.module._malloc(4);
       const ptr = this.module._QSPGetObjects(countPtr);
       const count = this.module.getValue(countPtr, 'i32');
-      const actions = this.readListItems(ptr, count);
+      const objects = this.readListItems(ptr, count);
       this.module._free(countPtr);
       this.module._free(ptr);
-      this.emit('objects_changed', actions);
+      this.emit('objects_changed', objects);
     }
   };
 
@@ -143,20 +149,43 @@ export class QspAPIImpl implements QspAPI {
     const items = this.readListItems(listPtr, count);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      new Promise<number>((resolve) => {
-        this.emit('menu', items, resolve);
-      }).then((index) => {
-        console.log(index);
+      const onSelect = (index: number) => {
         wakeUp(index);
-      });
+      };
+      this.emit('menu', items, onSelect);
+    });
+  };
+
+  onMsg = (textPtr: CharsPtr) => {
+    this.onRefresh(false);
+    const text = this.readString(textPtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const closed = () => {
+        wakeUp(0);
+      };
+      this.emit('msg', text, closed);
+    });
+  };
+
+  onInput = (textPtr: CharsPtr, retPtr: Ptr, maxSize: number) => {
+    this.onRefresh(false);
+    const text = this.readString(textPtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onInput = (inputText: string) => {
+        this.module.stringToUTF32(inputText, retPtr, maxSize);
+        wakeUp(0);
+      };
+      this.emit('input', text, onInput);
     });
   };
 
   private onCalled(isSuccessfull: boolean): boolean {
     if (!isSuccessfull) {
       const errorData = this.readError();
-      console.log(errorData);
       if (errorData.code > 0) {
+        console.log(errorData);
         this.emit('error', errorData);
       }
     }

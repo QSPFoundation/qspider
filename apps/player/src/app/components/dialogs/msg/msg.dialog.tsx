@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import { Dialog, Button, Pane } from 'evergreen-ui';
+import React, { useCallback } from 'react';
+import { Dialog } from 'evergreen-ui';
+import { observer } from 'mobx-react-lite';
+import { useGameManager } from '../../../game/manager';
+import { Content } from '../../content/content';
 
-export const MsgDialog: React.FC = ({ children }) => {
-  const [isShown, setIsShown] = useState(false);
+export const MsgDialog: React.FC = observer(() => {
+  const manager = useGameManager();
+  const onClose = useCallback(() => {
+    manager.closeMsg();
+  }, [manager]);
   return (
-    <Pane>
-      <Dialog
-        isShown={isShown}
-        title="Msg title"
-        hasCancel={false}
-        confirmLabel="OK"
-        onCloseComplete={() => setIsShown(false)}
-      >
-        Msg content
-        {children}
-      </Dialog>
-
-      <Button onClick={() => setIsShown(true)}>Show Msg</Button>
-    </Pane>
+    <Dialog
+      isShown={manager.isMsgShown}
+      title="Msg title"
+      hasCancel={false}
+      confirmLabel="OK"
+      onCloseComplete={onClose}
+    >
+      {manager.msg && <Content content={manager.msg} />}
+    </Dialog>
   );
-};
+});
