@@ -1,33 +1,40 @@
 import React, { useState } from 'react';
-import { Pane, Dialog, Button, TextInput, majorScale } from 'evergreen-ui';
+import { Dialog, TextInput, majorScale } from 'evergreen-ui';
+import { observer } from 'mobx-react-lite';
+import { useGameManager } from '../../../game/manager';
 
-export const InputDialog: React.FC = () => {
-  const [isShown, setIsShown] = useState(false);
+export const InputDialog: React.FC = observer(() => {
+  const manager = useGameManager();
   const [inputText, setInputText] = useState('');
-  return (
-    <Pane>
-      <Dialog
-        isShown={isShown}
-        title="Input title"
-        confirmLabel="OK"
-        onCloseComplete={() => setIsShown(false)}
-      >
-        {({ close }) => (
-          <form onSubmit={() => close()}>
-            <TextInput
-              autofocus
-              tabindex={0}
-              name="input"
-              value={inputText}
-              width="100%"
-              height={majorScale(6)}
-              onChange={(e) => setInputText(e.target.value)}
-            />
-          </form>
-        )}
-      </Dialog>
 
-      <Button onClick={() => setIsShown(true)}>Show Input</Button>
-    </Pane>
+  return (
+    <Dialog
+      isShown={manager.isInputShown}
+      title="Data Input"
+      confirmLabel="OK"
+      onCloseComplete={() => manager.closeInput(inputText)}
+    >
+      {({ close }) => (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            close();
+          }}
+        >
+          <TextInput
+            autoFocus
+            autoComplete="never"
+            tabIndex={0}
+            name="input"
+            value={inputText}
+            width="100%"
+            height={majorScale(6)}
+            onChange={(e) => {
+              setInputText(e.target.value);
+            }}
+          />
+        </form>
+      )}
+    </Dialog>
   );
-};
+});

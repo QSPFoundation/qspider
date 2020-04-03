@@ -5,7 +5,7 @@ type IRType = 'i8' | 'i16' | 'i32' | 'i64' | 'float' | 'double';
 
 export interface QspModule extends EmscriptenModule {
   UTF32ToString(ptr: CharsPtr): string;
-  stringToUTF32(str: string, outPtr: CharsPtr): number;
+  stringToUTF32(str: string, outPtr: CharsPtr, maxBytes?: number): number;
   lengthBytesUTF32(str: string): number;
   getValue(ptr: Ptr, type: IRType): number;
   addFunction(fn: Function, signature: string): FunctionPtr;

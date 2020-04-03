@@ -299,8 +299,8 @@ var Module = (function () {
     }
     var wasmMemory;
     var wasmTable = new WebAssembly.Table({
-      initial: 95,
-      maximum: 95 + 20,
+      initial: 98,
+      maximum: 98 + 20,
       element: 'anyfunc',
     });
     var ABORT = false;
@@ -622,8 +622,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5759184,
-      DYNAMICTOP_PTR = 516144;
+    var DYNAMIC_BASE = 5760672,
+      DYNAMICTOP_PTR = 517632;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];
@@ -3606,6 +3606,18 @@ var Module = (function () {
       HEAP32[penviron_buf_size >> 2] = bufSize;
       return 0;
     }
+    function _fd_write(fd, iov, iovcnt, pnum) {
+      try {
+        var stream = SYSCALLS.getStreamFromFD(fd);
+        var num = SYSCALLS.doWritev(stream, iov, iovcnt);
+        HEAP32[pnum >> 2] = num;
+        return 0;
+      } catch (e) {
+        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError))
+          abort(e);
+        return e.errno;
+      }
+    }
     function _time(ptr) {
       var ret = (Date.now() / 1e3) | 0;
       if (ptr) {
@@ -4774,144 +4786,145 @@ var Module = (function () {
       return u8array;
     }
     var asmLibraryArg = {
-      f: ___map_file,
-      e: ___syscall91,
-      a: _emscripten_memcpy_big,
-      b: _emscripten_resize_heap,
-      c: _environ_get,
-      d: _environ_sizes_get,
+      g: ___map_file,
+      f: ___syscall91,
+      b: _emscripten_memcpy_big,
+      c: _emscripten_resize_heap,
+      d: _environ_get,
+      e: _environ_sizes_get,
+      a: _fd_write,
       memory: wasmMemory,
       table: wasmTable,
-      g: _time,
+      h: _time,
     };
     var asm = createWasm();
     Module['asm'] = asm;
     var ___wasm_call_ctors = (Module['___wasm_call_ctors'] = function () {
       return (___wasm_call_ctors = Module['___wasm_call_ctors'] =
-        Module['asm']['h']).apply(null, arguments);
+        Module['asm']['i']).apply(null, arguments);
     });
     var _malloc = (Module['_malloc'] = function () {
-      return (_malloc = Module['_malloc'] = Module['asm']['i']).apply(
+      return (_malloc = Module['_malloc'] = Module['asm']['j']).apply(
         null,
         arguments
       );
     });
     var _free = (Module['_free'] = function () {
-      return (_free = Module['_free'] = Module['asm']['j']).apply(
+      return (_free = Module['_free'] = Module['asm']['k']).apply(
         null,
         arguments
       );
     });
     var _qspInitCallBacks = (Module['_qspInitCallBacks'] = function () {
       return (_qspInitCallBacks = Module['_qspInitCallBacks'] =
-        Module['asm']['k']).apply(null, arguments);
+        Module['asm']['l']).apply(null, arguments);
     });
     var _qspSetCallBack = (Module['_qspSetCallBack'] = function () {
       return (_qspSetCallBack = Module['_qspSetCallBack'] =
-        Module['asm']['l']).apply(null, arguments);
+        Module['asm']['m']).apply(null, arguments);
     });
     var _QSPGetVersion = (Module['_QSPGetVersion'] = function () {
       return (_QSPGetVersion = Module['_QSPGetVersion'] =
-        Module['asm']['m']).apply(null, arguments);
+        Module['asm']['n']).apply(null, arguments);
     });
     var _QSPInit = (Module['_QSPInit'] = function () {
-      return (_QSPInit = Module['_QSPInit'] = Module['asm']['n']).apply(
+      return (_QSPInit = Module['_QSPInit'] = Module['asm']['o']).apply(
         null,
         arguments
       );
     });
     var _QSPLoadGameWorld = (Module['_QSPLoadGameWorld'] = function () {
       return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] =
-        Module['asm']['o']).apply(null, arguments);
+        Module['asm']['p']).apply(null, arguments);
     });
     var _QSPRestartGame = (Module['_QSPRestartGame'] = function () {
       return (_QSPRestartGame = Module['_QSPRestartGame'] =
-        Module['asm']['p']).apply(null, arguments);
+        Module['asm']['q']).apply(null, arguments);
     });
     var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
       return (_QSPGetLastError = Module['_QSPGetLastError'] =
-        Module['asm']['q']).apply(null, arguments);
+        Module['asm']['r']).apply(null, arguments);
     });
     var _QSPIsMainDescChanged = (Module['_QSPIsMainDescChanged'] = function () {
       return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] =
-        Module['asm']['r']).apply(null, arguments);
+        Module['asm']['s']).apply(null, arguments);
     });
     var _QSPGetMainDesc = (Module['_QSPGetMainDesc'] = function () {
       return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] =
-        Module['asm']['s']).apply(null, arguments);
+        Module['asm']['t']).apply(null, arguments);
     });
     var _QSPIsVarsDescChanged = (Module['_QSPIsVarsDescChanged'] = function () {
       return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] =
-        Module['asm']['t']).apply(null, arguments);
+        Module['asm']['u']).apply(null, arguments);
     });
     var _QSPGetVarsDesc = (Module['_QSPGetVarsDesc'] = function () {
       return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] =
-        Module['asm']['u']).apply(null, arguments);
+        Module['asm']['v']).apply(null, arguments);
     });
     var _QSPIsActionsChanged = (Module['_QSPIsActionsChanged'] = function () {
       return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] =
-        Module['asm']['v']).apply(null, arguments);
+        Module['asm']['w']).apply(null, arguments);
     });
     var _QSPGetActions = (Module['_QSPGetActions'] = function () {
       return (_QSPGetActions = Module['_QSPGetActions'] =
-        Module['asm']['w']).apply(null, arguments);
+        Module['asm']['x']).apply(null, arguments);
     });
     var _QSPSelectAction = (Module['_QSPSelectAction'] = function () {
       return (_QSPSelectAction = Module['_QSPSelectAction'] =
-        Module['asm']['x']).apply(null, arguments);
+        Module['asm']['y']).apply(null, arguments);
     });
     var _QSPIsObjectsChanged = (Module['_QSPIsObjectsChanged'] = function () {
       return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] =
-        Module['asm']['y']).apply(null, arguments);
+        Module['asm']['z']).apply(null, arguments);
     });
     var _QSPGetObjects = (Module['_QSPGetObjects'] = function () {
       return (_QSPGetObjects = Module['_QSPGetObjects'] =
-        Module['asm']['z']).apply(null, arguments);
+        Module['asm']['A']).apply(null, arguments);
     });
     var _QSPSelectObject = (Module['_QSPSelectObject'] = function () {
       return (_QSPSelectObject = Module['_QSPSelectObject'] =
-        Module['asm']['A']).apply(null, arguments);
+        Module['asm']['B']).apply(null, arguments);
     });
     var _QSPGetVarValuesCount = (Module['_QSPGetVarValuesCount'] = function () {
       return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] =
-        Module['asm']['B']).apply(null, arguments);
+        Module['asm']['C']).apply(null, arguments);
     });
     var _QSPGetVarNumValue = (Module['_QSPGetVarNumValue'] = function () {
       return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] =
-        Module['asm']['C']).apply(null, arguments);
+        Module['asm']['D']).apply(null, arguments);
     });
     var _QSPGetVarStrValue = (Module['_QSPGetVarStrValue'] = function () {
       return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] =
-        Module['asm']['D']).apply(null, arguments);
+        Module['asm']['E']).apply(null, arguments);
     });
     var _QSPExecString = (Module['_QSPExecString'] = function () {
       return (_QSPExecString = Module['_QSPExecString'] =
-        Module['asm']['E']).apply(null, arguments);
+        Module['asm']['F']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
       return (___errno_location = Module['___errno_location'] =
-        Module['asm']['F']).apply(null, arguments);
+        Module['asm']['G']).apply(null, arguments);
     });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['G']).apply(
+      return (stackSave = Module['stackSave'] = Module['asm']['H']).apply(
         null,
         arguments
       );
     });
     var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['H']).apply(
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['I']).apply(
         null,
         arguments
       );
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['I']).apply(
+      return (stackRestore = Module['stackRestore'] = Module['asm']['J']).apply(
         null,
         arguments
       );
     });
     var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['J']).apply(
+      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['K']).apply(
         null,
         arguments
       );
@@ -4920,21 +4933,21 @@ var Module = (function () {
       '_asyncify_start_unwind'
     ] = function () {
       return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] =
-        Module['asm']['K']).apply(null, arguments);
+        Module['asm']['L']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
       return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] =
-        Module['asm']['L']).apply(null, arguments);
+        Module['asm']['M']).apply(null, arguments);
     });
     var _asyncify_start_rewind = (Module[
       '_asyncify_start_rewind'
     ] = function () {
       return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] =
-        Module['asm']['M']).apply(null, arguments);
+        Module['asm']['N']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
       return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] =
-        Module['asm']['N']).apply(null, arguments);
+        Module['asm']['O']).apply(null, arguments);
     });
     Module['asm'] = asm;
     Module['cwrap'] = cwrap;
