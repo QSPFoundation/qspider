@@ -12,6 +12,7 @@ import { useLayout } from '../game/layout';
 import { Menu } from '../components/menu/menu';
 import { MsgDialog } from '../components/dialogs/msg/msg.dialog';
 import { InputDialog } from '../components/dialogs/input/input.dialog';
+import { WaitLock } from '../components/wait-lock';
 
 export const Player: React.FC = observer(() => {
   const { templateAreas } = useLayout();
@@ -36,6 +37,7 @@ export const Player: React.FC = observer(() => {
       <MsgDialog />
       <InputDialog />
       <Menu />
+      <WaitLock />
     </>
   );
 });

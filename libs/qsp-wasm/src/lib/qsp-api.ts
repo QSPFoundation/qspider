@@ -94,6 +94,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onInput = this.module.addFunction(this.onInput, 'iiii');
     this.module._qspSetCallBack(QspCallType.INPUTBOX, onInput);
+
+    const onWait = this.module.addFunction(this.onWait, 'ii');
+    this.module._qspSetCallBack(QspCallType.SLEEP, onWait);
   }
 
   private emit<
@@ -178,6 +181,13 @@ export class QspAPIImpl implements QspAPI {
         wakeUp(0);
       };
       this.emit('input', text, onInput);
+    });
+  };
+
+  onWait = (ms: number) => {
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onWait = () => wakeUp(0);
+      this.emit('wait', ms, onWait);
     });
   };
 
