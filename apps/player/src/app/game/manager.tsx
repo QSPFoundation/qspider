@@ -36,6 +36,9 @@ export class GameManager {
   waitTimeout: ReturnType<typeof setTimeout>;
   onWait: () => void;
 
+  counterDelay = 500;
+  counterTimeout: ReturnType<typeof setTimeout>;
+
   apiInitialized: Promise<boolean>;
 
   constructor() {
@@ -74,6 +77,7 @@ export class GameManager {
     this.api.on('msg', this.updateMsg);
     this.api.on('input', this.updateInput);
     this.api.on('wait', this.startWaiting);
+    this.api.on('timer', this.updateTimer);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -162,11 +166,26 @@ export class GameManager {
     clearTimeout(this.waitTimeout);
     this.waitTimeout = setTimeout(() => this.completeWaiting(), ms);
   };
+
   completeWaiting = () => {
     clearTimeout(this.waitTimeout);
     this.isWaiting = false;
     this.onWait();
     this.onWait = null;
+  };
+
+  updateTimer = (ms: number) => {
+    this.counterDelay = ms;
+    clearTimeout(this.counterTimeout);
+    this.scheduleCounter();
+  };
+
+  scheduleCounter = () => {
+    this.counterTimeout = setTimeout(() => {
+      console.log('counter');
+      this.api.execCounter();
+      this.scheduleCounter();
+    }, this.counterDelay);
   };
 }
 

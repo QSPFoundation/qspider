@@ -276,3 +276,17 @@ QSP_BOOL QSPExecString(QSP_CHAR *s)
   qspCallRefreshInt(QSP_FALSE);
   return QSP_TRUE;
 }
+
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL QSPExecCounter()
+{
+  if (!qspIsInCallBack)
+  {
+    qspPrepareExecution();
+    qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("COUNTER")), 0, 0);
+    if (qspErrorNum)
+      return QSP_FALSE;
+    qspCallRefreshInt(QSP_FALSE);
+  }
+  return QSP_TRUE;
+}

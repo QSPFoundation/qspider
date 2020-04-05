@@ -33,6 +33,7 @@ export interface QspModule extends EmscriptenModule {
   _QSPGetVarNumValue(name: CharsPtr, index: number): number;
   _QSPGetVarStrValue(name: CharsPtr, index: number): CharsPtr;
   _QSPExecString(code: CharsPtr): boolean;
+  _QSPExecCounter(): boolean;
 }
 
 export default function Module(emscriptenArgs: any): QspModule;
