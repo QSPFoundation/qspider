@@ -19,6 +19,7 @@ export class GameManager {
   stats = '';
   actions: QspListItem[] = [];
   objects: QspListItem[] = [];
+  userInput = '';
 
   isMenuShown = false;
   menu: QspListItem[] = [];
@@ -73,6 +74,7 @@ export class GameManager {
     this.api.on('stats_changed', this.updateStats);
     this.api.on('actions_changed', this.updateActions);
     this.api.on('objects_changed', this.updateObjects);
+    this.api.on('user_input', this.updateUserInput);
     this.api.on('menu', this.updateMenu);
     this.api.on('msg', this.updateMsg);
     this.api.on('input', this.updateInput);
@@ -146,6 +148,14 @@ export class GameManager {
     this.onInput = null;
   };
 
+  updateUserInput = (text: string) => {
+    this.userInput = text;
+  };
+
+  submitUserInput = () => {
+    this.api.execUserInput(this.userInput);
+  };
+
   selectAction(index: number) {
     this.api.selectAction(index);
   }
@@ -182,7 +192,6 @@ export class GameManager {
 
   scheduleCounter = () => {
     this.counterTimeout = setTimeout(() => {
-      console.log('counter');
       this.api.execCounter();
       this.scheduleCounter();
     }, this.counterDelay);
@@ -197,6 +206,7 @@ decorate(GameManager, {
   stats: observable,
   actions: observable.ref,
   objects: observable.ref,
+  userInput: observable,
 
   isMenuShown: observable,
   menu: observable.ref,
@@ -222,6 +232,7 @@ decorate(GameManager, {
   updateStats: action,
   updateActions: action,
   updateObjects: action,
+  updateUserInput: action,
   updateMenu: action,
   selectMenu: action,
 });

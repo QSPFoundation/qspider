@@ -76,7 +76,7 @@ void qspCallSetInputStrText(QSPString text)
   if (qspCallBacks[QSP_CALL_SETINPUTSTRTEXT])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_SETINPUTSTRTEXT](text);
+    qspCallBacks[QSP_CALL_SETINPUTSTRTEXT](qspStringToC(text));
     qspRestoreCallState(&state);
   }
 }
@@ -268,7 +268,6 @@ QSPString qspCallInputBox(QSPString text)
     /* Process input */
     qspCallBacks[QSP_CALL_INPUTBOX](qspStringToC(text), buffer, maxLen);
     buffer[maxLen] = 0;
-    printf("%i\n", qspStrLen(qspStringFromC(buffer)));
     /* Clean up */
     qspRestoreCallState(&state);
     return qspStringFromC(buffer);
