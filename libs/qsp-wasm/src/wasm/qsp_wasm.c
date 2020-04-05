@@ -290,3 +290,19 @@ QSP_BOOL QSPExecCounter()
   }
   return QSP_TRUE;
 }
+
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL QSPExecUserInput(QSP_CHAR *text)
+{
+  if (qspIsExitOnError && qspErrorNum)
+    return QSP_FALSE;
+  qspUpdateText(&qspCurInput, qspStringFromC(text));
+  qspPrepareExecution();
+  if (qspIsDisableCodeExec)
+    return QSP_FALSE;
+  qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("USERCOM")), 0, 0);
+  if (qspErrorNum)
+    return QSP_FALSE;
+  qspCallRefreshInt(QSP_FALSE);
+  return QSP_TRUE;
+}

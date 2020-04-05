@@ -10,6 +10,7 @@ export type QspEvents = {
   actions_changed: (actions: QspListItem[]) => void;
   objects_changed: (objects: QspListItem[]) => void;
   panel_visibility: (type: QspPanel, isShown: boolean) => void;
+  user_input: (text: string) => void;
   error: (errorData: QspErrorData) => void;
   layout: (settings: LayoutSettings) => void;
   menu: (items: QspListItem[], select: (index: number) => void) => void;
@@ -31,6 +32,7 @@ export interface QspAPI {
   readVariableString(name: string, index?: number): string;
   execCode(code: string): boolean;
   execCounter(): void;
+  execUserInput(code: string): boolean;
 }
 
 export interface QspErrorData {

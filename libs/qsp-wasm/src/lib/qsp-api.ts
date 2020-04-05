@@ -77,6 +77,13 @@ export class QspAPIImpl implements QspAPI {
     return this.onCalled(this.module._QSPExecCounter());
   }
 
+  execUserInput(code: string): boolean {
+    const ptr = this.stringToPTr(code);
+    const result = this.module._QSPExecUserInput(ptr);
+    this.module._free(ptr);
+    return this.onCalled(result);
+  }
+
   private init() {
     this.module._QSPInit();
     this.module._qspInitCallBacks();
@@ -104,6 +111,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onSetTimer = this.module.addFunction(this.onSetTimer, 'ii');
     this.module._qspSetCallBack(QspCallType.SETTIMER, onSetTimer);
+
+    const onSetUserInput = this.module.addFunction(this.onSerUserInput, 'ii');
+    this.module._qspSetCallBack(QspCallType.SETINPUTSTRTEXT, onSetUserInput);
   }
 
   private emit<
@@ -200,6 +210,12 @@ export class QspAPIImpl implements QspAPI {
 
   onSetTimer = (ms: number) => {
     this.emit('timer', ms);
+  };
+
+  onSerUserInput = (textPtr: CharsPtr) => {
+    const text = this.readString(textPtr);
+    this.module._free(textPtr);
+    this.emit('user_input', text);
   };
 
   private onCalled(isSuccessfull: boolean): boolean {
