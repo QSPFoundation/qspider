@@ -15,6 +15,7 @@ export type QspEvents = {
   menu: (items: QspListItem[], select: (index: number) => void) => void;
   msg: (text: string, closed: () => void) => void;
   input: (text: string, onInput: (text: string) => void) => void;
+  wait: (ms: number, onComplete: () => void) => void;
 };
 
 export interface QspAPI {

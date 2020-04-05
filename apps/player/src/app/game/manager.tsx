@@ -32,6 +32,10 @@ export class GameManager {
   input = '';
   onInput: (text: string) => void;
 
+  isWaiting = false;
+  waitTimeout: ReturnType<typeof setTimeout>;
+  onWait: () => void;
+
   apiInitialized: Promise<boolean>;
 
   constructor() {
@@ -69,6 +73,7 @@ export class GameManager {
     this.api.on('menu', this.updateMenu);
     this.api.on('msg', this.updateMsg);
     this.api.on('input', this.updateInput);
+    this.api.on('wait', this.startWaiting);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -150,6 +155,19 @@ export class GameManager {
     this.menuResult = null;
     this.isMenuShown = false;
   }
+
+  startWaiting = (ms: number, onComplete: () => void) => {
+    this.isWaiting = true;
+    this.onWait = onComplete;
+    clearTimeout(this.waitTimeout);
+    this.waitTimeout = setTimeout(() => this.completeWaiting(), ms);
+  };
+  completeWaiting = () => {
+    clearTimeout(this.waitTimeout);
+    this.isWaiting = false;
+    this.onWait();
+    this.onWait = null;
+  };
 }
 
 decorate(GameManager, {
@@ -171,6 +189,10 @@ decorate(GameManager, {
 
   isInputShown: observable,
   input: observable,
+
+  isWaiting: observable,
+  startWaiting: action,
+  completeWaiting: action,
 
   markInitialized: action,
   updateDescriptor: action,
