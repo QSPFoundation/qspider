@@ -16,6 +16,7 @@ export type QspEvents = {
   msg: (text: string, closed: () => void) => void;
   input: (text: string, onInput: (text: string) => void) => void;
   wait: (ms: number, onComplete: () => void) => void;
+  timer: (ms: number) => void;
 };
 
 export interface QspAPI {
@@ -29,6 +30,7 @@ export interface QspAPI {
   readVariableNumber(name: string, index?: number): number;
   readVariableString(name: string, index?: number): string;
   execCode(code: string): boolean;
+  execCounter(): void;
 }
 
 export interface QspErrorData {

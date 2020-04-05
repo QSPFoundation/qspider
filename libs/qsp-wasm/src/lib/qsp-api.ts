@@ -73,6 +73,10 @@ export class QspAPIImpl implements QspAPI {
     return this.onCalled(result);
   }
 
+  execCounter(): boolean {
+    return this.onCalled(this.module._QSPExecCounter());
+  }
+
   private init() {
     this.module._QSPInit();
     this.module._qspInitCallBacks();
@@ -97,6 +101,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onWait = this.module.addFunction(this.onWait, 'ii');
     this.module._qspSetCallBack(QspCallType.SLEEP, onWait);
+
+    const onSetTimer = this.module.addFunction(this.onSetTimer, 'ii');
+    this.module._qspSetCallBack(QspCallType.SETTIMER, onSetTimer);
   }
 
   private emit<
@@ -189,6 +196,10 @@ export class QspAPIImpl implements QspAPI {
       const onWait = () => wakeUp(0);
       this.emit('wait', ms, onWait);
     });
+  };
+
+  onSetTimer = (ms: number) => {
+    this.emit('timer', ms);
   };
 
   private onCalled(isSuccessfull: boolean): boolean {
