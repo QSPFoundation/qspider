@@ -1,9 +1,10 @@
-const GAME_PATH = '/game';
+export const GAME_PATH = '/game';
 const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.json`;
 
 export interface GameDescriptor {
   title: string;
   file: string;
+  folder: string;
 }
 
 export const fetchGameDescriptor = async (): Promise<GameDescriptor> => {
@@ -11,7 +12,8 @@ export const fetchGameDescriptor = async (): Promise<GameDescriptor> => {
 };
 
 export const fetchGameSource = async (
-  fileName: string
+  fileName: string,
+  folder = '/'
 ): Promise<ArrayBuffer> => {
-  return fetch(`${GAME_PATH}/${fileName}`).then((r) => r.arrayBuffer());
+  return fetch(`${GAME_PATH}${folder}${fileName}`).then((r) => r.arrayBuffer());
 };
