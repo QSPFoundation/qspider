@@ -1,7 +1,12 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
-import { fetchGameDescriptor, GameDescriptor, fetchGameSource } from './loader';
+import {
+  fetchGameDescriptor,
+  GameDescriptor,
+  fetchGameSource,
+  GAME_PATH,
+} from './loader';
 import {
   QspAPI,
   init,
@@ -60,12 +65,21 @@ export class GameManager {
     this.updateDescriptor(gameDescriptor);
     document.title = gameDescriptor.title;
 
-    const gameSource = await fetchGameSource(gameDescriptor.file);
+    const gameSource = await fetchGameSource(
+      gameDescriptor.file,
+      gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
+    );
 
     this.api.createGameWorld(gameSource, gameDescriptor.file);
     this.api.restartGame();
 
     this.markInitialized();
+  }
+
+  get resourcePrefix(): string {
+    return `${GAME_PATH}/${
+      this.descriptor.folder ? this.descriptor.folder + '/' : ''
+    }`;
   }
 
   setupQspCallbacks() {
