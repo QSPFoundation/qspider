@@ -15,7 +15,7 @@ import { InputDialog } from '../components/dialogs/input/input.dialog';
 import { WaitLock } from '../components/wait-lock';
 
 export const Player: React.FC = observer(() => {
-  const { templateAreas } = useLayout();
+  const { templateAreas, background, color, fontSize, fontName } = useLayout();
   return (
     <>
       <Pane
@@ -26,6 +26,10 @@ export const Player: React.FC = observer(() => {
         gridTemplateRows="1fr 300px 50px"
         gridTemplateColumns="1fr 150px 300px"
         gridTemplateAreas={templateAreas}
+        background={background}
+        color={color}
+        fontSize={fontSize || 16}
+        fontFamily={fontName}
       >
         <MainPanel />
         <ActionsPanel />

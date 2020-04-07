@@ -125,10 +125,7 @@ export class QspAPIImpl implements QspAPI {
   }
 
   onRefresh = (isRedraw: boolean) => {
-    const useHtml = Boolean(this.readVariableNumber('USEHTML'));
-    this.emit('layout', {
-      useHtml,
-    });
+    this.updateLayout();
 
     if (isRedraw || this.module._QSPIsMainDescChanged()) {
       const mainDesc = this.readString(this.module._QSPGetMainDesc());
@@ -218,6 +215,23 @@ export class QspAPIImpl implements QspAPI {
     this.emit('user_input', text);
   };
 
+  private updateLayout() {
+    const useHtml = Boolean(this.readVariableNumber('USEHTML'));
+    const background = this.convertColor(this.readVariableNumber('BCOLOR'));
+    const color = this.convertColor(this.readVariableNumber('FCOLOR'));
+    const linkColor = this.convertColor(this.readVariableNumber('LCOLOR'));
+    const fontSize = this.readVariableNumber('FSIZE');
+    const fontName = this.readVariableString('$FNAME');
+    this.emit('layout', {
+      useHtml,
+      background,
+      color,
+      linkColor,
+      fontSize,
+      fontName,
+    });
+  }
+
   private onCalled(isSuccessfull: boolean): boolean {
     if (!isSuccessfull) {
       const errorData = this.readError();
@@ -298,6 +312,15 @@ export class QspAPIImpl implements QspAPI {
 
   private movePtr(ptr: Ptr): Ptr {
     return ptr + 4; // pointers are 4 bytes in C
+  }
+
+  private convertColor(value: number): string {
+    if (!value) return '';
+    const arr = new Uint8Array(4);
+    const view = new DataView(arr.buffer);
+    view.setInt32(0, value);
+    const [a, b, g, r] = arr;
+    return `rgba(${r},${g},${b},${a})`;
   }
 
   toJSON() {
