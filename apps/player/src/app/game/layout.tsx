@@ -6,6 +6,11 @@ import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 
 class Layout {
   useHtml = false;
+  background: string;
+  color: string;
+  linkColor: string;
+  fontSize: number;
+  fontName: string;
 
   isStatsPanelVisible = true;
   isObjectPanelVisible = true;
@@ -66,6 +71,11 @@ class Layout {
 
   updateLayoutSettings = (settings: LayoutSettings) => {
     this.useHtml = settings.useHtml;
+    this.background = settings.background;
+    this.color = settings.color;
+    this.linkColor = settings.linkColor;
+    this.fontSize = settings.fontSize;
+    this.fontName = settings.fontName;
   };
 
   updatePanalVisibility = (type: QspPanel, isShown: boolean) => {
@@ -87,6 +97,11 @@ class Layout {
 
 decorate(Layout, {
   useHtml: observable,
+  background: observable,
+  color: observable,
+  linkColor: observable,
+  fontSize: observable,
+  fontName: observable,
 
   isStatsPanelVisible: observable,
   isObjectPanelVisible: observable,

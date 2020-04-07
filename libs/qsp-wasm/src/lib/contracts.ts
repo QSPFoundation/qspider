@@ -2,6 +2,11 @@ import { QspPanel } from '../wasm/types';
 
 export interface LayoutSettings {
   useHtml: boolean;
+  background: string;
+  color: string;
+  linkColor: string;
+  fontSize: number;
+  fontName: string;
 }
 
 export type QspEvents = {
