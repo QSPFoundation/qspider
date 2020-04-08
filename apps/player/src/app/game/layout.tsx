@@ -6,7 +6,8 @@ import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 
 class Layout {
   useHtml = false;
-  background: string;
+  backgroundColor: string;
+  backgroundImage: string;
   color: string;
   linkColor: string;
   fontSize: number;
@@ -71,7 +72,8 @@ class Layout {
 
   updateLayoutSettings = (settings: LayoutSettings) => {
     this.useHtml = settings.useHtml;
-    this.background = settings.background;
+    this.backgroundColor = settings.backgroundColor;
+    this.backgroundImage = settings.backgroundImage;
     this.color = settings.color;
     this.linkColor = settings.linkColor;
     this.fontSize = settings.fontSize;
@@ -97,7 +99,8 @@ class Layout {
 
 decorate(Layout, {
   useHtml: observable,
-  background: observable,
+  backgroundColor: observable,
+  backgroundImage: observable,
   color: observable,
   linkColor: observable,
   fontSize: observable,

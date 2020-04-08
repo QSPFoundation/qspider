@@ -20,6 +20,12 @@ export const ActionItem: React.FC<{
   return (
     <Menu.Item onSelect={onActionSelect}>
       <Pane color={color}>
+        {action.image && (
+          <img
+            src={`${gameManager.resourcePrefix}${action.image}`}
+            alt={action.name}
+          />
+        )}
         <Content content={action.name} />
       </Pane>
     </Menu.Item>

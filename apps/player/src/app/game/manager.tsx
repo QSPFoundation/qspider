@@ -38,6 +38,9 @@ export class GameManager {
   input = '';
   onInput: (text: string) => void;
 
+  isViewShown = false;
+  viewSrc = '';
+
   isWaiting = false;
   waitTimeout: ReturnType<typeof setTimeout>;
   onWait: () => void;
@@ -94,6 +97,7 @@ export class GameManager {
     this.api.on('input', this.updateInput);
     this.api.on('wait', this.startWaiting);
     this.api.on('timer', this.updateTimer);
+    this.api.on('view', this.updateView);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -210,6 +214,20 @@ export class GameManager {
       this.scheduleCounter();
     }, this.counterDelay);
   };
+
+  updateView = (path: string) => {
+    if (path) {
+      this.viewSrc = `${this.resourcePrefix}${path}`;
+      this.isViewShown = true;
+    } else {
+      this.closeView();
+    }
+  };
+
+  closeView = () => {
+    this.isViewShown = false;
+    this.viewSrc = '';
+  };
 }
 
 decorate(GameManager, {
@@ -232,6 +250,11 @@ decorate(GameManager, {
 
   isInputShown: observable,
   input: observable,
+
+  isViewShown: observable,
+  viewSrc: observable,
+  updateView: action,
+  closeView: action,
 
   isWaiting: observable,
   startWaiting: action,

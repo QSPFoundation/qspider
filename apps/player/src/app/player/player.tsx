@@ -13,9 +13,16 @@ import { Menu } from '../components/menu/menu';
 import { MsgDialog } from '../components/dialogs/msg/msg.dialog';
 import { InputDialog } from '../components/dialogs/input/input.dialog';
 import { WaitLock } from '../components/wait-lock';
+import { ViewImagePanel } from '../components/view-image/view-image.panel';
 
 export const Player: React.FC = observer(() => {
-  const { templateAreas, background, color, fontSize, fontName } = useLayout();
+  const {
+    templateAreas,
+    backgroundColor: background,
+    color,
+    fontSize,
+    fontName,
+  } = useLayout();
   return (
     <>
       <Pane
@@ -41,6 +48,7 @@ export const Player: React.FC = observer(() => {
       <MsgDialog />
       <InputDialog />
       <Menu />
+      <ViewImagePanel />
       <WaitLock />
     </>
   );

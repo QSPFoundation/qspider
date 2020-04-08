@@ -2,7 +2,8 @@ import { QspPanel } from '../wasm/types';
 
 export interface LayoutSettings {
   useHtml: boolean;
-  background: string;
+  backgroundColor: string;
+  backgroundImage: string;
   color: string;
   linkColor: string;
   fontSize: number;
@@ -23,6 +24,7 @@ export type QspEvents = {
   input: (text: string, onInput: (text: string) => void) => void;
   wait: (ms: number, onComplete: () => void) => void;
   timer: (ms: number) => void;
+  view: (path: string) => void;
 };
 
 export interface QspAPI {
