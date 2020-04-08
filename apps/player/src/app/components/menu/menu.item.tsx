@@ -16,6 +16,12 @@ export const MenuItem: React.FC<{ menu: QspListItem; index: number }> = ({
   ]);
   return (
     <Menu.Item onSelect={onMenuSelect}>
+      {menu.image && (
+        <img
+          src={`${gameManager.resourcePrefix}${menu.image}`}
+          alt={menu.name}
+        />
+      )}
       <Content content={menu.name} />
     </Menu.Item>
   );

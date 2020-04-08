@@ -170,7 +170,7 @@ void qspCallShowPicture(QSPString file)
   if (qspCallBacks[QSP_CALL_SHOWIMAGE])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_SHOWIMAGE](file);
+    qspCallBacks[QSP_CALL_SHOWIMAGE](qspStringToC(file));
     qspRestoreCallState(&state);
   }
 }

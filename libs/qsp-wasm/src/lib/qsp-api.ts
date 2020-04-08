@@ -114,6 +114,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onSetUserInput = this.module.addFunction(this.onSerUserInput, 'ii');
     this.module._qspSetCallBack(QspCallType.SETINPUTSTRTEXT, onSetUserInput);
+
+    const onView = this.module.addFunction(this.onView, 'ii');
+    this.module._qspSetCallBack(QspCallType.SHOWIMAGE, onView);
   }
 
   private emit<
@@ -215,16 +218,26 @@ export class QspAPIImpl implements QspAPI {
     this.emit('user_input', text);
   };
 
+  onView = (pathPtr: CharsPtr) => {
+    const path = this.readString(pathPtr);
+    this.module._free(pathPtr);
+    this.emit('view', path);
+  };
+
   private updateLayout() {
     const useHtml = Boolean(this.readVariableNumber('USEHTML'));
-    const background = this.convertColor(this.readVariableNumber('BCOLOR'));
+    const backgroundColor = this.convertColor(
+      this.readVariableNumber('BCOLOR')
+    );
     const color = this.convertColor(this.readVariableNumber('FCOLOR'));
     const linkColor = this.convertColor(this.readVariableNumber('LCOLOR'));
     const fontSize = this.readVariableNumber('FSIZE');
     const fontName = this.readVariableString('$FNAME');
+    const backgroundImage = this.readVariableString('$BACKIMAGE');
     this.emit('layout', {
       useHtml,
-      background,
+      backgroundColor,
+      backgroundImage,
       color,
       linkColor,
       fontSize,

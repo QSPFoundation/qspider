@@ -1,6 +1,7 @@
 import React from 'react';
 import { Node } from 'interweave';
 import { Link } from './link';
+import { Image } from './image';
 
 const attributeToStyle = {
   size: 'fontSize',
@@ -9,6 +10,8 @@ const attributeToStyle = {
   align: 'float',
   bgcolor: 'backgroundColor',
   cellpadding: 'borderSpacing',
+  width: 'width',
+  height: 'height',
   // cellspacing: '--cellspacing', // todo add
 };
 
@@ -61,6 +64,11 @@ const transformers: Record<
   },
   table: (node, children) => {
     return <table style={attributesToStyle(node)}>{children}</table>;
+  },
+  img: (node) => {
+    return (
+      <Image src={node.getAttribute('src')} style={attributesToStyle(node)} />
+    );
   },
 };
 

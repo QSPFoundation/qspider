@@ -7,7 +7,11 @@ import { useGameManager } from '../../game/manager';
 export const UserInputPanel: React.FC = observer(() => {
   const manager = useGameManager();
   // TODO background color not working
-  const { isUserInputPanelVisible, background, color } = useLayout();
+  const {
+    isUserInputPanelVisible,
+    backgroundColor: background,
+    color,
+  } = useLayout();
   if (!isUserInputPanelVisible) return null;
   return (
     <Pane gridArea="user-input" border="default" padding={minorScale(1)}>
