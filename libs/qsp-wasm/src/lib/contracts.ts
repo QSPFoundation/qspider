@@ -25,13 +25,18 @@ export type QspEvents = {
   wait: (ms: number, onComplete: () => void) => void;
   timer: (ms: number) => void;
   view: (path: string) => void;
+  open_game: (path: string, isNewGame: boolean, onOpened: () => void) => void;
+  save_game: (path: string, onSaved: () => void) => void;
+  load_save: (path: string, onLoaded: () => void) => void;
 };
 
 export interface QspAPI {
   on<E extends keyof QspEvents>(event: E, callback: QspEvents[E]): void;
   off<E extends keyof QspEvents>(event: E, callback: QspEvents[E]): void;
   version(): string;
-  createGameWorld(data: ArrayBuffer, fileName: string): boolean;
+  openGame(data: ArrayBuffer, fileName: string, isNewGame: boolean): void;
+  saveGame(): ArrayBuffer;
+  loadSave(data: ArrayBuffer): void;
   restartGame(): boolean;
   selectAction(index: number): boolean;
   selectObject(index: number): boolean;

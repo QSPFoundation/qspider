@@ -5,6 +5,7 @@ import { Ptr, CharsPtr, QspCallType, QspPanel } from '../wasm/types';
 
 export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
+  private time: number;
 
   constructor(private module: QspModule) {
     this.init();
@@ -18,7 +19,7 @@ export class QspAPIImpl implements QspAPI {
     this.events.off(event, listener);
   }
 
-  createGameWorld(data: ArrayBuffer, fileName: string): boolean {
+  openGame(data: ArrayBuffer, fileName: string, isNewGame: boolean): boolean {
     const bytes = new Uint8Array(data);
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
@@ -26,7 +27,7 @@ export class QspAPIImpl implements QspAPI {
     const namePtr = this.stringToPTr(fileName);
 
     const result = this.onCalled(
-      this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr)
+      this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr, isNewGame)
     );
     this.module._free(ptr);
     this.module._free(namePtr);
@@ -34,7 +35,33 @@ export class QspAPIImpl implements QspAPI {
     return result;
   }
 
+  saveGame(): ArrayBuffer {
+    const sizePtr = this.module._malloc(4);
+    const ptr = this.module._QSPSaveGame(sizePtr);
+    const size = this.module.getValue(sizePtr, 'i32');
+
+    if (!size) {
+      this.onCalled(false);
+    }
+
+    const data = this.module.HEAPU8.slice(ptr, size);
+
+    this.module._free(sizePtr);
+    this.module._free(ptr);
+
+    return data.buffer;
+  }
+
+  loadSave(data: ArrayBuffer) {
+    const bytes = new Uint8Array(data);
+    const ptr = this.module._malloc(bytes.length);
+    this.module.HEAPU8.set(bytes, ptr);
+    this.onCalled(this.module._QSPOpenSavedGame(ptr, bytes.length));
+    this.module._free(ptr);
+  }
+
   restartGame(): boolean {
+    this.time = Date.now();
     return this.onCalled(this.module._QSPRestartGame());
   }
 
@@ -117,6 +144,27 @@ export class QspAPIImpl implements QspAPI {
 
     const onView = this.module.addFunction(this.onView, 'ii');
     this.module._qspSetCallBack(QspCallType.SHOWIMAGE, onView);
+
+    const onDebug = this.module.addFunction(this.onDebug, 'ii');
+    this.module._qspSetCallBack(QspCallType.DEBUG, onDebug);
+
+    const onGetMS = this.module.addFunction(this.onGetMS, 'i');
+    this.module._qspSetCallBack(QspCallType.GETMSCOUNT, onGetMS);
+
+    const onOpenGame = this.module.addFunction(this.onOpenGame, 'iii');
+    this.module._qspSetCallBack(QspCallType.OPENGAME, onOpenGame);
+
+    const onOpenGameStatus = this.module.addFunction(
+      this.onOpenGameStatus,
+      'ii'
+    );
+    this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onOpenGameStatus);
+
+    const onSaveGameStatus = this.module.addFunction(
+      this.onSaveGameStatus,
+      'ii'
+    );
+    this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onSaveGameStatus);
   }
 
   private emit<
@@ -222,6 +270,54 @@ export class QspAPIImpl implements QspAPI {
     const path = this.readString(pathPtr);
     this.module._free(pathPtr);
     this.emit('view', path);
+  };
+
+  onDebug = (strPtr: CharsPtr) => {
+    const text = this.readString(strPtr);
+    this.module._free(strPtr);
+    console.log('DEBUG:', text);
+  };
+
+  onGetMS = () => {
+    const elapsed = Date.now() - this.time;
+    this.time = Date.now();
+    return elapsed;
+  };
+
+  onOpenGame = (pathPtr: CharsPtr, isNewGame: boolean) => {
+    const path = this.readString(pathPtr);
+    this.module._free(pathPtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onOpened = () => {
+        wakeUp(0);
+      };
+      this.emit('open_game', path, isNewGame, onOpened);
+    });
+  };
+
+  onOpenGameStatus = (pathPtr: CharsPtr) => {
+    const path = this.readString(pathPtr);
+    this.module._free(pathPtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onLoaded = () => {
+        wakeUp(0);
+      };
+      this.emit('load_save', path, onLoaded);
+    });
+  };
+
+  onSaveGameStatus = (pathPtr: CharsPtr) => {
+    const path = this.readString(pathPtr);
+    this.module._free(pathPtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onSaved = () => {
+        wakeUp(0);
+      };
+      this.emit('save_game', path, onSaved);
+    });
   };
 
   private updateLayout() {

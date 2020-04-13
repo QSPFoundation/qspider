@@ -73,7 +73,7 @@ export class GameManager {
       gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
     );
 
-    this.api.createGameWorld(gameSource, gameDescriptor.file);
+    this.api.openGame(gameSource, gameDescriptor.file, true);
     this.api.restartGame();
 
     this.markInitialized();
@@ -98,6 +98,7 @@ export class GameManager {
     this.api.on('wait', this.startWaiting);
     this.api.on('timer', this.updateTimer);
     this.api.on('view', this.updateView);
+    this.api.on('open_game', this.onOpenGame);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -227,6 +228,59 @@ export class GameManager {
   closeView = () => {
     this.isViewShown = false;
     this.viewSrc = '';
+  };
+
+  onOpenGame = async (
+    path: string,
+    isNewGame: boolean,
+    onOpened: () => void
+  ) => {
+    const gameSource = await fetchGameSource(
+      path,
+      this.descriptor.folder ? `/${this.descriptor.folder}/` : '/'
+    );
+    this.api.openGame(gameSource, path, isNewGame);
+    onOpened();
+  };
+
+  onLoadSave = async (path: string, onLoaded: () => void) => {
+    // if (file) {
+    //   QSPOpenSavedGame(file, QSP_FALSE);
+    // } else {
+    //   dialog(
+    //     m_frame,
+    //     _('Select saved game file'),
+    //     wxEmptyString,
+    //     wxEmptyString,
+    //     _('Saved game files (*.sav)|*.sav'),
+    //     wxFD_OPEN
+    //   );
+    //   if (res == wxID_OK) {
+    //     path(dialog.GetPath());
+    //     QSPOpenSavedGame(
+    //       qspStringFromLen(path.c_str(), path.Length()),
+    //       QSP_FALSE
+    //     );
+    //   }
+    // }
+  };
+
+  onSaveGame = async (path: string, onSaved: () => void) => {
+    // if (file) QSPSaveGame(file, QSP_FALSE);
+    // else {
+    //   dialog(
+    //     m_frame,
+    //     _('Select file to save'),
+    //     wxEmptyString,
+    //     wxEmptyString,
+    //     _('Saved game files (*.sav)|*.sav'),
+    //     wxFD_SAVE
+    //   );
+    //   if (res == wxID_OK) {
+    //     path(dialog.GetPath());
+    //     QSPSaveGame(qspStringFromLen(path.c_str(), path.Length()), QSP_FALSE);
+    //   }
+    // }
   };
 }
 

@@ -622,8 +622,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5760736,
-      DYNAMICTOP_PTR = 517696;
+    var DYNAMIC_BASE = 5760928,
+      DYNAMICTOP_PTR = 517888;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];
@@ -4837,102 +4837,112 @@ var Module = (function () {
       return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] =
         Module['asm']['p']).apply(null, arguments);
     });
+    var _QSPSaveGame = (Module['_QSPSaveGame'] = function () {
+      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['q']).apply(
+        null,
+        arguments
+      );
+    });
+    var _QSPOpenSavedGame = (Module['_QSPOpenSavedGame'] = function () {
+      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] =
+        Module['asm']['r']).apply(null, arguments);
+    });
     var _QSPRestartGame = (Module['_QSPRestartGame'] = function () {
       return (_QSPRestartGame = Module['_QSPRestartGame'] =
-        Module['asm']['q']).apply(null, arguments);
+        Module['asm']['s']).apply(null, arguments);
     });
     var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
       return (_QSPGetLastError = Module['_QSPGetLastError'] =
-        Module['asm']['r']).apply(null, arguments);
+        Module['asm']['t']).apply(null, arguments);
     });
     var _QSPIsMainDescChanged = (Module['_QSPIsMainDescChanged'] = function () {
       return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] =
-        Module['asm']['s']).apply(null, arguments);
+        Module['asm']['u']).apply(null, arguments);
     });
     var _QSPGetMainDesc = (Module['_QSPGetMainDesc'] = function () {
       return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] =
-        Module['asm']['t']).apply(null, arguments);
+        Module['asm']['v']).apply(null, arguments);
     });
     var _QSPIsVarsDescChanged = (Module['_QSPIsVarsDescChanged'] = function () {
       return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] =
-        Module['asm']['u']).apply(null, arguments);
+        Module['asm']['w']).apply(null, arguments);
     });
     var _QSPGetVarsDesc = (Module['_QSPGetVarsDesc'] = function () {
       return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] =
-        Module['asm']['v']).apply(null, arguments);
+        Module['asm']['x']).apply(null, arguments);
     });
     var _QSPIsActionsChanged = (Module['_QSPIsActionsChanged'] = function () {
       return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] =
-        Module['asm']['w']).apply(null, arguments);
+        Module['asm']['y']).apply(null, arguments);
     });
     var _QSPGetActions = (Module['_QSPGetActions'] = function () {
       return (_QSPGetActions = Module['_QSPGetActions'] =
-        Module['asm']['x']).apply(null, arguments);
+        Module['asm']['z']).apply(null, arguments);
     });
     var _QSPSelectAction = (Module['_QSPSelectAction'] = function () {
       return (_QSPSelectAction = Module['_QSPSelectAction'] =
-        Module['asm']['y']).apply(null, arguments);
+        Module['asm']['A']).apply(null, arguments);
     });
     var _QSPIsObjectsChanged = (Module['_QSPIsObjectsChanged'] = function () {
       return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] =
-        Module['asm']['z']).apply(null, arguments);
+        Module['asm']['B']).apply(null, arguments);
     });
     var _QSPGetObjects = (Module['_QSPGetObjects'] = function () {
       return (_QSPGetObjects = Module['_QSPGetObjects'] =
-        Module['asm']['A']).apply(null, arguments);
+        Module['asm']['C']).apply(null, arguments);
     });
     var _QSPSelectObject = (Module['_QSPSelectObject'] = function () {
       return (_QSPSelectObject = Module['_QSPSelectObject'] =
-        Module['asm']['B']).apply(null, arguments);
+        Module['asm']['D']).apply(null, arguments);
     });
     var _QSPGetVarValuesCount = (Module['_QSPGetVarValuesCount'] = function () {
       return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] =
-        Module['asm']['C']).apply(null, arguments);
+        Module['asm']['E']).apply(null, arguments);
     });
     var _QSPGetVarNumValue = (Module['_QSPGetVarNumValue'] = function () {
       return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] =
-        Module['asm']['D']).apply(null, arguments);
+        Module['asm']['F']).apply(null, arguments);
     });
     var _QSPGetVarStrValue = (Module['_QSPGetVarStrValue'] = function () {
       return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] =
-        Module['asm']['E']).apply(null, arguments);
+        Module['asm']['G']).apply(null, arguments);
     });
     var _QSPExecString = (Module['_QSPExecString'] = function () {
       return (_QSPExecString = Module['_QSPExecString'] =
-        Module['asm']['F']).apply(null, arguments);
+        Module['asm']['H']).apply(null, arguments);
     });
     var _QSPExecCounter = (Module['_QSPExecCounter'] = function () {
       return (_QSPExecCounter = Module['_QSPExecCounter'] =
-        Module['asm']['G']).apply(null, arguments);
+        Module['asm']['I']).apply(null, arguments);
     });
     var _QSPExecUserInput = (Module['_QSPExecUserInput'] = function () {
       return (_QSPExecUserInput = Module['_QSPExecUserInput'] =
-        Module['asm']['H']).apply(null, arguments);
+        Module['asm']['J']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
       return (___errno_location = Module['___errno_location'] =
-        Module['asm']['I']).apply(null, arguments);
+        Module['asm']['K']).apply(null, arguments);
     });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['J']).apply(
+      return (stackSave = Module['stackSave'] = Module['asm']['L']).apply(
         null,
         arguments
       );
     });
     var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['K']).apply(
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['M']).apply(
         null,
         arguments
       );
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['L']).apply(
+      return (stackRestore = Module['stackRestore'] = Module['asm']['N']).apply(
         null,
         arguments
       );
     });
     var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['M']).apply(
+      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['O']).apply(
         null,
         arguments
       );
@@ -4941,21 +4951,21 @@ var Module = (function () {
       '_asyncify_start_unwind'
     ] = function () {
       return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] =
-        Module['asm']['N']).apply(null, arguments);
+        Module['asm']['P']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
       return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] =
-        Module['asm']['O']).apply(null, arguments);
+        Module['asm']['Q']).apply(null, arguments);
     });
     var _asyncify_start_rewind = (Module[
       '_asyncify_start_rewind'
     ] = function () {
       return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] =
-        Module['asm']['P']).apply(null, arguments);
+        Module['asm']['R']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
       return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] =
-        Module['asm']['Q']).apply(null, arguments);
+        Module['asm']['S']).apply(null, arguments);
     });
     Module['asm'] = asm;
     Module['cwrap'] = cwrap;
