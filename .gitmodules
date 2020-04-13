@@ -1,3 +1,0 @@
-[submodule "libs/qsp-wasm/qsp"]
-	path = libs/qsp-wasm/qsp
-	url = https://github.com/QSPFoundation/qsp.git
