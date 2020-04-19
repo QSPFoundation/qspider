@@ -40,14 +40,14 @@ void qspCallDebug(QSPString str)
   if (qspCallBacks[QSP_CALL_DEBUG])
   {
     qspSaveCallState(&state, QSP_FALSE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_DEBUG](str);
+    qspCallBacks[QSP_CALL_DEBUG](qspStringToC(str));
     qspRestoreCallState(&state);
   }
 }
 
 void qspCallSetTimer(int msecs)
 {
-  printf("qspCallDebug\n");
+  printf("qspCallSetTimer\n");
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_SETTIMER])
   {
@@ -99,8 +99,8 @@ void qspCallOpenGame(QSPString file, QSP_BOOL isNewGame)
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_OPENGAME])
   {
-    qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_OPENGAME](file, isNewGame);
+    qspSaveCallState(&state, QSP_FALSE, QSP_FALSE);
+    qspCallBacks[QSP_CALL_OPENGAME](qspStringToC(file), isNewGame);
     qspRestoreCallState(&state);
   }
 }
@@ -112,7 +112,7 @@ void qspCallOpenGameStatus(QSPString file)
   if (qspCallBacks[QSP_CALL_OPENGAMESTATUS])
   {
     qspSaveCallState(&state, QSP_FALSE, QSP_TRUE);
-    qspCallBacks[QSP_CALL_OPENGAMESTATUS](file);
+    qspCallBacks[QSP_CALL_OPENGAMESTATUS](qspStringToC(file));
     qspRestoreCallState(&state);
   }
 }
@@ -124,7 +124,7 @@ void qspCallSaveGameStatus(QSPString file)
   if (qspCallBacks[QSP_CALL_SAVEGAMESTATUS])
   {
     qspSaveCallState(&state, QSP_FALSE, QSP_TRUE);
-    qspCallBacks[QSP_CALL_SAVEGAMESTATUS](file);
+    qspCallBacks[QSP_CALL_SAVEGAMESTATUS](qspStringToC(file));
     qspRestoreCallState(&state);
   }
 }

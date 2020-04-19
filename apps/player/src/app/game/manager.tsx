@@ -6,6 +6,8 @@ import {
   GameDescriptor,
   fetchGameSource,
   GAME_PATH,
+  saveGameToFile,
+  readGameFromFile,
 } from './loader';
 import {
   QspAPI,
@@ -50,6 +52,8 @@ export class GameManager {
 
   apiInitialized: Promise<boolean>;
 
+  isPaused = false;
+
   constructor() {
     this.apiInitialized = new Promise((resolve) => {
       this.initialize(resolve);
@@ -73,7 +77,7 @@ export class GameManager {
       gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
     );
 
-    this.api.createGameWorld(gameSource, gameDescriptor.file);
+    this.api.openGame(gameSource, gameDescriptor.file, true);
     this.api.restartGame();
 
     this.markInitialized();
@@ -98,6 +102,9 @@ export class GameManager {
     this.api.on('wait', this.startWaiting);
     this.api.on('timer', this.updateTimer);
     this.api.on('view', this.updateView);
+    this.api.on('open_game', this.onOpenGame);
+    this.api.on('save_game', this.onSaveGame);
+    this.api.on('load_save', this.onLoadSave);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -210,7 +217,9 @@ export class GameManager {
 
   scheduleCounter = () => {
     this.counterTimeout = setTimeout(() => {
-      this.api.execCounter();
+      if (!this.isPaused) {
+        this.api.execCounter();
+      }
       this.scheduleCounter();
     }, this.counterDelay);
   };
@@ -227,6 +236,59 @@ export class GameManager {
   closeView = () => {
     this.isViewShown = false;
     this.viewSrc = '';
+  };
+
+  onOpenGame = async (
+    path: string,
+    isNewGame: boolean,
+    onOpened: () => void
+  ) => {
+    const gameSource = await fetchGameSource(
+      path,
+      this.descriptor.folder ? `/${this.descriptor.folder}/` : '/'
+    );
+    this.api.openGame(gameSource, path, isNewGame);
+    onOpened();
+  };
+
+  onLoadSave = async (path: string, onLoaded: () => void) => {
+    this.isPaused = true;
+    onLoaded();
+    if (path) {
+      const saveData = await readGameFromFile(path);
+      if (saveData) {
+        this.api.loadSave(saveData);
+      }
+    } else {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.click();
+    }
+    this.isPaused = false;
+  };
+
+  onSaveGame = async (path: string, onSaved: () => void) => {
+    this.isPaused = true;
+    const saveData = this.api.saveGame();
+    if (path) {
+      await saveGameToFile(path, saveData);
+    } else {
+      const blob = new Blob([saveData], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+
+      link.download = `${this.descriptor.title}.sav`;
+      link.rel = 'noopener';
+
+      link.href = URL.createObjectURL(blob);
+      setTimeout(function () {
+        URL.revokeObjectURL(link.href);
+      }, 4e4); // 40s
+      setTimeout(function () {
+        link.dispatchEvent(new MouseEvent('click'));
+      }, 0);
+    }
+    onSaved();
+    this.isPaused = false;
   };
 }
 

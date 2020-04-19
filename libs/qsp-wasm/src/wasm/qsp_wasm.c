@@ -70,8 +70,9 @@ void QSPInit()
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName)
+QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName, QSP_BOOL isNewGame)
 {
+  printf("QSPLoadGameWorld\n");
   if (qspIsExitOnError && qspErrorNum)
   {
     return QSP_FALSE;
@@ -81,15 +82,57 @@ QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName)
   {
     return QSP_FALSE;
   }
-  qspOpenQuestFromData((char *)data, dataSize, qspStringFromC(fileName), QSP_TRUE);
+  qspOpenQuestFromData((char *)data, dataSize, qspStringFromC(fileName), isNewGame);
   if (qspErrorNum)
     return QSP_FALSE;
   return QSP_TRUE;
 }
 
 EMSCRIPTEN_KEEPALIVE
+void *QSPSaveGame(int *realSize)
+{
+  QSPString data;
+  int size;
+  if (qspIsExitOnError && qspErrorNum)
+    return qspStringToC(qspEmptyString);
+  qspPrepareExecution();
+  if (qspIsDisableCodeExec)
+    return qspStringToC(qspEmptyString);
+  data = qspSaveGameStatusToString();
+  if (!data.Str)
+  {
+    *realSize = 0;
+    return qspStringToC(qspEmptyString);
+  }
+  size = qspStrLen(data) * sizeof(QSP_CHAR);
+  *realSize = size;
+  char *buf = malloc(size);
+  memcpy(buf, data.Str, size);
+  qspFreeString(data);
+  qspCallRefreshInt(QSP_FALSE);
+  return buf;
+}
+
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL QSPOpenSavedGame(const void *data, int dataSize)
+{
+  printf("QSPOpenSavedGame\n");
+  if (qspIsExitOnError && qspErrorNum)
+    return QSP_FALSE;
+  qspPrepareExecution();
+  if (qspIsDisableCodeExec)
+    return QSP_FALSE;
+  qspOpenGameStatusFromString(qspStringFromLen((QSP_CHAR *)data, dataSize / sizeof(QSP_CHAR)));
+  if (qspErrorNum)
+    return QSP_FALSE;
+  qspCallRefreshInt(QSP_FALSE);
+  return QSP_TRUE;
+}
+
+EMSCRIPTEN_KEEPALIVE
 QSP_BOOL QSPRestartGame()
 {
+  printf("QSPRestartGame\n");
   if (qspIsExitOnError && qspErrorNum)
     return QSP_FALSE;
   qspPrepareExecution();
