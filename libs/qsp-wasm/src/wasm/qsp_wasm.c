@@ -72,6 +72,7 @@ void QSPInit()
 EMSCRIPTEN_KEEPALIVE
 QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName, QSP_BOOL isNewGame)
 {
+  printf("QSPLoadGameWorld\n");
   if (qspIsExitOnError && qspErrorNum)
   {
     return QSP_FALSE;
@@ -109,12 +110,13 @@ void *QSPSaveGame(int *realSize)
   memcpy(buf, data.Str, size);
   qspFreeString(data);
   qspCallRefreshInt(QSP_FALSE);
-  return qspStringToC(data);
+  return buf;
 }
 
 EMSCRIPTEN_KEEPALIVE
 QSP_BOOL QSPOpenSavedGame(const void *data, int dataSize)
 {
+  printf("QSPOpenSavedGame\n");
   if (qspIsExitOnError && qspErrorNum)
     return QSP_FALSE;
   qspPrepareExecution();
@@ -130,6 +132,7 @@ QSP_BOOL QSPOpenSavedGame(const void *data, int dataSize)
 EMSCRIPTEN_KEEPALIVE
 QSP_BOOL QSPRestartGame()
 {
+  printf("QSPRestartGame\n");
   if (qspIsExitOnError && qspErrorNum)
     return QSP_FALSE;
   qspPrepareExecution();

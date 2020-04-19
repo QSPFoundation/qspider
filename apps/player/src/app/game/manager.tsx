@@ -6,6 +6,8 @@ import {
   GameDescriptor,
   fetchGameSource,
   GAME_PATH,
+  saveGameToFile,
+  readGameFromFile,
 } from './loader';
 import {
   QspAPI,
@@ -49,6 +51,8 @@ export class GameManager {
   counterTimeout: ReturnType<typeof setTimeout>;
 
   apiInitialized: Promise<boolean>;
+
+  isPaused = false;
 
   constructor() {
     this.apiInitialized = new Promise((resolve) => {
@@ -99,6 +103,8 @@ export class GameManager {
     this.api.on('timer', this.updateTimer);
     this.api.on('view', this.updateView);
     this.api.on('open_game', this.onOpenGame);
+    this.api.on('save_game', this.onSaveGame);
+    this.api.on('load_save', this.onLoadSave);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -211,7 +217,9 @@ export class GameManager {
 
   scheduleCounter = () => {
     this.counterTimeout = setTimeout(() => {
-      this.api.execCounter();
+      if (!this.isPaused) {
+        this.api.execCounter();
+      }
       this.scheduleCounter();
     }, this.counterDelay);
   };
@@ -244,43 +252,43 @@ export class GameManager {
   };
 
   onLoadSave = async (path: string, onLoaded: () => void) => {
-    // if (file) {
-    //   QSPOpenSavedGame(file, QSP_FALSE);
-    // } else {
-    //   dialog(
-    //     m_frame,
-    //     _('Select saved game file'),
-    //     wxEmptyString,
-    //     wxEmptyString,
-    //     _('Saved game files (*.sav)|*.sav'),
-    //     wxFD_OPEN
-    //   );
-    //   if (res == wxID_OK) {
-    //     path(dialog.GetPath());
-    //     QSPOpenSavedGame(
-    //       qspStringFromLen(path.c_str(), path.Length()),
-    //       QSP_FALSE
-    //     );
-    //   }
-    // }
+    this.isPaused = true;
+    onLoaded();
+    if (path) {
+      const saveData = await readGameFromFile(path);
+      if (saveData) {
+        this.api.loadSave(saveData);
+      }
+    } else {
+      const input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.click();
+    }
+    this.isPaused = false;
   };
 
   onSaveGame = async (path: string, onSaved: () => void) => {
-    // if (file) QSPSaveGame(file, QSP_FALSE);
-    // else {
-    //   dialog(
-    //     m_frame,
-    //     _('Select file to save'),
-    //     wxEmptyString,
-    //     wxEmptyString,
-    //     _('Saved game files (*.sav)|*.sav'),
-    //     wxFD_SAVE
-    //   );
-    //   if (res == wxID_OK) {
-    //     path(dialog.GetPath());
-    //     QSPSaveGame(qspStringFromLen(path.c_str(), path.Length()), QSP_FALSE);
-    //   }
-    // }
+    this.isPaused = true;
+    const saveData = this.api.saveGame();
+    if (path) {
+      await saveGameToFile(path, saveData);
+    } else {
+      const blob = new Blob([saveData], { type: 'application/octet-stream' });
+      const link = document.createElement('a');
+
+      link.download = `${this.descriptor.title}.sav`;
+      link.rel = 'noopener';
+
+      link.href = URL.createObjectURL(blob);
+      setTimeout(function () {
+        URL.revokeObjectURL(link.href);
+      }, 4e4); // 40s
+      setTimeout(function () {
+        link.dispatchEvent(new MouseEvent('click'));
+      }, 0);
+    }
+    onSaved();
+    this.isPaused = false;
   };
 }
 

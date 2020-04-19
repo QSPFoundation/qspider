@@ -39,12 +39,10 @@ export class QspAPIImpl implements QspAPI {
     const sizePtr = this.module._malloc(4);
     const ptr = this.module._QSPSaveGame(sizePtr);
     const size = this.module.getValue(sizePtr, 'i32');
-
     if (!size) {
       this.onCalled(false);
     }
-
-    const data = this.module.HEAPU8.slice(ptr, size);
+    const data = this.module.HEAPU8.slice(ptr, ptr + size);
 
     this.module._free(sizePtr);
     this.module._free(ptr);
@@ -158,7 +156,7 @@ export class QspAPIImpl implements QspAPI {
       this.onOpenGameStatus,
       'ii'
     );
-    this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onOpenGameStatus);
+    this.module._qspSetCallBack(QspCallType.OPENGAMESTATUS, onOpenGameStatus);
 
     const onSaveGameStatus = this.module.addFunction(
       this.onSaveGameStatus,

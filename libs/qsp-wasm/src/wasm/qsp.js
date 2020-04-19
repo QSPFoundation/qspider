@@ -622,8 +622,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5761040,
-      DYNAMICTOP_PTR = 518e3;
+    var DYNAMIC_BASE = 5761088,
+      DYNAMICTOP_PTR = 518048;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];

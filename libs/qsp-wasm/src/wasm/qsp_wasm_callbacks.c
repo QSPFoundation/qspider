@@ -99,7 +99,7 @@ void qspCallOpenGame(QSPString file, QSP_BOOL isNewGame)
   QSPCallState state;
   if (qspCallBacks[QSP_CALL_OPENGAME])
   {
-    qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
+    qspSaveCallState(&state, QSP_FALSE, QSP_FALSE);
     qspCallBacks[QSP_CALL_OPENGAME](qspStringToC(file), isNewGame);
     qspRestoreCallState(&state);
   }
