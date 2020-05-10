@@ -19,6 +19,9 @@
     },
     "qsp-wasm": {
       "tags": []
+    },
+    "fmod": {
+      "tags": []
     }
   }
 }

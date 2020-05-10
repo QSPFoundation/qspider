@@ -194,7 +194,7 @@ void qspCallPlayFile(QSPString file, int volume)
   if (qspCallBacks[QSP_CALL_PLAYFILE])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_PLAYFILE](file, volume);
+    qspCallBacks[QSP_CALL_PLAYFILE](qspStringToC(file), volume);
     qspRestoreCallState(&state);
   }
 }
@@ -248,7 +248,7 @@ void qspCallCloseFile(QSPString file)
   if (qspCallBacks[QSP_CALL_CLOSEFILE])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    qspCallBacks[QSP_CALL_CLOSEFILE](file);
+    qspCallBacks[QSP_CALL_CLOSEFILE](qspStringToC(file));
     qspRestoreCallState(&state);
   }
 }

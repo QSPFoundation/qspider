@@ -16,6 +16,7 @@ import {
   QspListItem,
   QspEvents,
 } from '@qspider/qsp-wasm';
+import { SoundManager } from '@qspider/fmod';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -54,6 +55,8 @@ export class GameManager {
 
   isPaused = false;
 
+  private soundManager = new SoundManager();
+
   constructor() {
     this.apiInitialized = new Promise((resolve) => {
       this.initialize(resolve);
@@ -71,6 +74,12 @@ export class GameManager {
     const gameDescriptor = await fetchGameDescriptor();
     this.updateDescriptor(gameDescriptor);
     document.title = gameDescriptor.title;
+
+    this.soundManager.init(
+      `${GAME_PATH}${
+        gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
+      }`
+    );
 
     const gameSource = await fetchGameSource(
       gameDescriptor.file,
@@ -105,6 +114,9 @@ export class GameManager {
     this.api.on('open_game', this.onOpenGame);
     this.api.on('save_game', this.onSaveGame);
     this.api.on('load_save', this.onLoadSave);
+    this.api.on('is_play', this.isPlay);
+    this.api.on('play_file', this.playFile);
+    this.api.on('close_file', this.closeFile);
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]) {
@@ -289,6 +301,29 @@ export class GameManager {
     }
     onSaved();
     this.isPaused = false;
+  };
+
+  isPlay = (file: string, onResult: (result: boolean) => void) => {
+    const isPlay = this.soundManager.isPlaying(file);
+    onResult(isPlay);
+  };
+
+  closeFile = (file: string, onReady: () => void) => {
+    try {
+      this.soundManager.closeFile(file);
+    } catch (e) {
+      console.error(e);
+    }
+    onReady();
+  };
+
+  playFile = async (file: string, volume: number, onReady: () => void) => {
+    try {
+      await this.soundManager.playFile(file, volume);
+    } catch (e) {
+      console.error(e);
+    }
+    onReady();
   };
 }
 
