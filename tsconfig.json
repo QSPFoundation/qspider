@@ -17,7 +17,8 @@
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"]
+      "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"],
+      "@qspider/fmod": ["libs/fmod/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

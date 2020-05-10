@@ -149,6 +149,34 @@
           }
         }
       }
+    },
+    "fmod": {
+      "root": "libs/fmod",
+      "sourceRoot": "libs/fmod/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "lint": {
+          "builder": "@nrwl/linter:lint",
+          "options": {
+            "linter": "eslint",
+            "config": "libs/fmod/.eslintrc",
+            "tsConfig": [
+              "libs/fmod/tsconfig.lib.json",
+              "libs/fmod/tsconfig.spec.json"
+            ],
+            "exclude": ["**/node_modules/**", "!libs/fmod/**"]
+          }
+        },
+        "test": {
+          "builder": "@nrwl/jest:jest",
+          "options": {
+            "jestConfig": "libs/fmod/jest.config.js",
+            "tsConfig": "libs/fmod/tsconfig.spec.json",
+            "passWithNoTests": true
+          }
+        }
+      }
     }
   },
   "cli": {

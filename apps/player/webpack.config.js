@@ -11,5 +11,13 @@ module.exports = (config, context) => {
       name: '[name]-[hash].[ext]',
     },
   });
+  updatedConfig.module.rules.push({
+    test: /\.dls$/,
+    type: 'javascript/auto',
+    loader: 'file-loader',
+    options: {
+      name: '[name]-[hash].[ext]',
+    },
+  });
   return updatedConfig;
 };

@@ -28,6 +28,13 @@ export type QspEvents = {
   open_game: (path: string, isNewGame: boolean, onOpened: () => void) => void;
   save_game: (path: string, onSaved: () => void) => void;
   load_save: (path: string, onLoaded: () => void) => void;
+  is_play: (file: string, onResult: (result: boolean) => void) => void;
+  play_file: (
+    path: string,
+    volume: number,
+    onReady: () => void
+  ) => Promise<void>;
+  close_file: (path: string, onReady: () => void) => void;
 };
 
 export interface QspAPI {

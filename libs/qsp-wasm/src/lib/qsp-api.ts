@@ -163,6 +163,15 @@ export class QspAPIImpl implements QspAPI {
       'ii'
     );
     this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onSaveGameStatus);
+
+    const onIsPLay = this.module.addFunction(this.onIsPlay, 'ii');
+    this.module._qspSetCallBack(QspCallType.ISPLAYINGFILE, onIsPLay);
+
+    const onPlayFile = this.module.addFunction(this.onPlayFile, 'iii');
+    this.module._qspSetCallBack(QspCallType.PLAYFILE, onPlayFile);
+
+    const onCLoseFile = this.module.addFunction(this.onCloseFile, 'ii');
+    this.module._qspSetCallBack(QspCallType.CLOSEFILE, onCLoseFile);
   }
 
   private emit<
@@ -315,6 +324,39 @@ export class QspAPIImpl implements QspAPI {
         wakeUp(0);
       };
       this.emit('save_game', path, onSaved);
+    });
+  };
+
+  onIsPlay = (filePtr: CharsPtr) => {
+    const file = this.readString(filePtr);
+    this.module._free(filePtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      this.emit('is_play', file, (result) => wakeUp(result ? 1 : 0));
+    });
+  };
+
+  onPlayFile = (filePtr: CharsPtr, volume: number) => {
+    const file = this.readString(filePtr);
+    this.module._free(filePtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onReady = () => {
+        wakeUp(0);
+      };
+      this.emit('play_file', file, volume, onReady);
+    });
+  };
+
+  onCloseFile = (filePtr: CharsPtr) => {
+    const file = this.readString(filePtr);
+    this.module._free(filePtr);
+
+    return this.module.Asyncify.handleSleep((wakeUp) => {
+      const onReady = () => {
+        wakeUp(0);
+      };
+      this.emit('close_file', file, onReady);
     });
   };
 
