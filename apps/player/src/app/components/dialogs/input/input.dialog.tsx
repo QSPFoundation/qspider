@@ -10,7 +10,7 @@ export const InputDialog: React.FC = observer(() => {
   return (
     <Dialog
       isShown={manager.isInputShown}
-      title="Data Input"
+      title={manager.input}
       confirmLabel="OK"
       onCloseComplete={() => manager.closeInput(inputText)}
     >

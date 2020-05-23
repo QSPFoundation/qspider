@@ -17,6 +17,7 @@ import {
   QspEvents,
 } from '@qspider/qsp-wasm';
 import { SoundManager } from '@qspider/fmod';
+import { prepareContent, prepareList, preparePath } from './helpers';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -46,7 +47,6 @@ export class GameManager {
 
   isWaiting = false;
   waitTimeout: ReturnType<typeof setTimeout>;
-  onWait: () => void;
 
   counterDelay = 500;
   counterTimeout: ReturnType<typeof setTimeout>;
@@ -142,19 +142,19 @@ export class GameManager {
   }
 
   updateMain = (text: string) => {
-    this.main = text;
+    this.main = prepareContent(text);
   };
   updateStats = (text: string) => {
-    this.stats = text;
+    this.stats = prepareContent(text);
   };
   updateActions = (list: QspListItem[]) => {
-    this.actions = list;
+    this.actions = prepareList(list);
   };
   updateObjects = (list: QspListItem[]) => {
-    this.objects = list;
+    this.objects = prepareList(list);
   };
   updateMenu = (list: QspListItem[], result: (index: number) => void) => {
-    this.menu = list;
+    this.menu = prepareList(list);
     this.menuResult = result;
     this.isMenuShown = true;
   };
@@ -166,7 +166,7 @@ export class GameManager {
   };
 
   closeMsg = () => {
-    this.isMenuShown = false;
+    this.isMsgShown = false;
     this.onMsg();
     this.msg = '';
     this.onMsg = null;
@@ -209,16 +209,16 @@ export class GameManager {
 
   startWaiting = (ms: number, onComplete: () => void) => {
     this.isWaiting = true;
-    this.onWait = onComplete;
     clearTimeout(this.waitTimeout);
-    this.waitTimeout = setTimeout(() => this.completeWaiting(), ms);
+    this.waitTimeout = setTimeout(() => {
+      this.completeWaiting(onComplete);
+    }, ms);
   };
 
-  completeWaiting = () => {
+  completeWaiting = (onComplete: () => void) => {
     clearTimeout(this.waitTimeout);
+    onComplete();
     this.isWaiting = false;
-    this.onWait();
-    this.onWait = null;
   };
 
   updateTimer = (ms: number) => {
@@ -229,7 +229,7 @@ export class GameManager {
 
   scheduleCounter = () => {
     this.counterTimeout = setTimeout(() => {
-      if (!this.isPaused) {
+      if (!this.isPaused && !this.isWaiting) {
         this.api.execCounter();
       }
       this.scheduleCounter();
@@ -238,7 +238,7 @@ export class GameManager {
 
   updateView = (path: string) => {
     if (path) {
-      this.viewSrc = `${this.resourcePrefix}${path}`;
+      this.viewSrc = `${this.resourcePrefix}${preparePath(path)}`;
       this.isViewShown = true;
     } else {
       this.closeView();

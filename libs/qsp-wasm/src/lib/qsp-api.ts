@@ -1,11 +1,19 @@
 import EventEmitter from 'eventemitter3';
-import { QspAPI, QspErrorData, QspEvents, QspListItem } from './contracts';
+import {
+  QspAPI,
+  QspErrorData,
+  QspEvents,
+  QspListItem,
+  LayoutSettings,
+} from './contracts';
 import { QspModule } from '../wasm/qsp';
 import { Ptr, CharsPtr, QspCallType, QspPanel } from '../wasm/types';
+import { shallowEqual } from './helpers';
 
 export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
   private time: number;
+  private layout: LayoutSettings = null;
 
   constructor(private module: QspModule) {
     this.init();
@@ -370,7 +378,8 @@ export class QspAPIImpl implements QspAPI {
     const fontSize = this.readVariableNumber('FSIZE');
     const fontName = this.readVariableString('$FNAME');
     const backgroundImage = this.readVariableString('$BACKIMAGE');
-    this.emit('layout', {
+
+    const layout = {
       useHtml,
       backgroundColor,
       backgroundImage,
@@ -378,7 +387,12 @@ export class QspAPIImpl implements QspAPI {
       linkColor,
       fontSize,
       fontName,
-    });
+    };
+
+    if (!this.layout || !shallowEqual(this.layout, layout)) {
+      this.layout = layout;
+      this.emit('layout', this.layout);
+    }
   }
 
   private onCalled(isSuccessfull: boolean): boolean {

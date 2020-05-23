@@ -1,5 +1,6 @@
 import React from 'react';
 import { useGameManager } from '../../game/manager';
+import { preparePath } from '../../game/helpers';
 
 export const Image: React.FC<{
   src: string;
@@ -7,5 +8,11 @@ export const Image: React.FC<{
 }> = ({ src, style }) => {
   const manager = useGameManager();
 
-  return <img src={`${manager.resourcePrefix}${src}`} style={style} alt="" />;
+  return (
+    <img
+      src={`${manager.resourcePrefix}${preparePath(src)}`}
+      style={style}
+      alt=""
+    />
+  );
 };

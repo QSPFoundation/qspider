@@ -8,15 +8,7 @@ export const Content: React.FC<{ content: string }> = observer(
   ({ content }) => {
     const { useHtml } = useLayout();
     if (useHtml) {
-      // this solves a problem in 1812 where link contain &gt without space and this is parsed wrong\
-      // todo find a way to handle this in parser
-      return (
-        <Markup
-          content={content.replace(/&gt /g, '& gt ')}
-          transform={transform}
-          noWrap
-        />
-      );
+      return <Markup content={content} transform={transform} noWrap />;
     }
     return <>{content}</>;
   }
