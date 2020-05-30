@@ -22,6 +22,9 @@
     },
     "fmod": {
       "tags": []
+    },
+    "qplayer": {
+      "tags": []
     }
   }
 }
