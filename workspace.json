@@ -198,7 +198,7 @@
             ],
             "styles": [],
             "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
+            "webpackConfig": "apps/qplayer/webpack.config.js"
           },
           "configurations": {
             "production": {

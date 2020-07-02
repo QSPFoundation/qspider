@@ -28,16 +28,18 @@
   },
   "private": true,
   "dependencies": {
+    "@emotion/core": "10.0.27",
+    "@emotion/styled": "10.0.27",
+    "color": "^3.1.2",
     "document-register-element": "1.13.1",
+    "emotion-theming": "^10.0.27",
     "eventemitter3": "^4.0.0",
     "evergreen-ui": "^4.24.0",
     "interweave": "^12.5.0",
     "mobx": "^5.15.4",
     "mobx-react-lite": "^1.5.2",
     "react": "16.12.0",
-    "react-dom": "16.12.0",
-    "@emotion/styled": "10.0.27",
-    "@emotion/core": "10.0.27"
+    "react-dom": "16.12.0"
   },
   "devDependencies": {
     "@nrwl/cypress": "9.1.2",
@@ -47,6 +49,7 @@
     "@nrwl/web": "9.1.2",
     "@nrwl/workspace": "9.1.2",
     "@testing-library/react": "9.4.0",
+    "@types/color": "^3.0.1",
     "@types/emscripten": "^1.39.3",
     "@types/jest": "24.9.1",
     "@types/node": "~8.9.4",
