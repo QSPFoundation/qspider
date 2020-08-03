@@ -136,15 +136,15 @@ decorate(Layout, {
   updatePanalVisibility: action,
 });
 
-function createLayout(manager: GameManager) {
-  return new Layout(manager);
+function createLayout(source: { manager: GameManager }) {
+  return new Layout(source.manager);
 }
 
 const layoutContext = React.createContext<Layout | null>(null);
 
 export const LayoutProvider = ({ children }) => {
   const manager = useGameManager();
-  const store = useLocalStore(createLayout, manager);
+  const store = useLocalStore(createLayout, { manager });
   return (
     <layoutContext.Provider value={store}>{children}</layoutContext.Provider>
   );
