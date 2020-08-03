@@ -142,7 +142,7 @@ function createLayout(source: { manager: GameManager }) {
 
 const layoutContext = React.createContext<Layout | null>(null);
 
-export const LayoutProvider = ({ children }) => {
+export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const store = useLocalStore(createLayout, { manager });
   return (
@@ -150,7 +150,7 @@ export const LayoutProvider = ({ children }) => {
   );
 };
 
-export const useLayout = () => {
+export const useLayout = (): Layout => {
   const layout = React.useContext(layoutContext);
   if (!layout) {
     // this is especially useful in TypeScript so you don't need to be checking for null all the time

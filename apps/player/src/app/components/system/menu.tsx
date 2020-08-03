@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
 import { useClickCoordinates } from '../../hooks/click-coordinates';

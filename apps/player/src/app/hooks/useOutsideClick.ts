@@ -1,18 +1,23 @@
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, MutableRefObject } from 'react';
 
-export function useOutsideClick(onOutsideClick: () => void) {
+export function useOutsideClick(
+  onOutsideClick: () => void
+): MutableRefObject<HTMLDivElement> {
   const node = useRef<HTMLDivElement>();
 
-  const handleClick = useCallback((e) => {
-    if (!node.current) return;
-    if (node.current.contains(e.target)) {
-      // inside click
-      return;
-    }
-    console.log('outside click');
-    // outside click
-    onOutsideClick();
-  }, []);
+  const handleClick = useCallback(
+    (e) => {
+      if (!node.current) return;
+      if (node.current.contains(e.target)) {
+        // inside click
+        return;
+      }
+      console.log('outside click');
+      // outside click
+      onOutsideClick();
+    },
+    [onOutsideClick]
+  );
 
   useEffect(() => {
     // add when mounted
@@ -21,7 +26,7 @@ export function useOutsideClick(onOutsideClick: () => void) {
     return () => {
       document.removeEventListener('mousedown', handleClick);
     };
-  }, []);
+  }, [handleClick]);
 
   return node;
 }

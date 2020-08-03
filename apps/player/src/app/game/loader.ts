@@ -18,7 +18,10 @@ export const fetchGameSource = async (
   return fetch(`${GAME_PATH}${folder}${fileName}`).then((r) => r.arrayBuffer());
 };
 
-export const saveGameToFile = async (path: string, data: ArrayBuffer) => {
+export const saveGameToFile = async (
+  path: string,
+  data: ArrayBuffer
+): Promise<void> => {
   const preparedData = await binaryToDataUri(data);
   localStorage.setItem(path, preparedData);
 };
