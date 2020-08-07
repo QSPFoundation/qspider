@@ -1,8 +1,6 @@
 import { useRef, useCallback, useEffect, MutableRefObject } from 'react';
 
-export function useOutsideClick(
-  onOutsideClick: () => void
-): MutableRefObject<HTMLDivElement> {
+export function useOutsideClick(onOutsideClick: () => void): MutableRefObject<HTMLDivElement> {
   const node = useRef<HTMLDivElement>();
 
   const handleClick = useCallback(
@@ -12,7 +10,6 @@ export function useOutsideClick(
         // inside click
         return;
       }
-      console.log('outside click');
       // outside click
       onOutsideClick();
     },

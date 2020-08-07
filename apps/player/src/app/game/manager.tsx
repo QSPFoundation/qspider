@@ -8,21 +8,21 @@ import {
   GAME_PATH,
   saveGameToFile,
   readGameFromFile,
+  fetchGameCongig,
 } from './loader';
-import {
-  QspAPI,
-  init,
-  QspErrorData,
-  QspListItem,
-  QspEvents,
-} from '@qspider/qsp-wasm';
+import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { SoundManager } from '@qspider/fmod';
 import { prepareContent, prepareList, preparePath } from './helpers';
+import { extractLayoutData, LayoutDock } from './cfg-converter';
+import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 
 export class GameManager {
   descriptor: GameDescriptor;
   errorData: QspErrorData;
   isInitialized = false;
+
+  layout: LayoutDock[] = [];
+  floating: [string, number, number][];
 
   main = '';
   stats = '';
@@ -74,13 +74,21 @@ export class GameManager {
 
     const gameDescriptor = await fetchGameDescriptor();
     this.updateDescriptor(gameDescriptor);
+
     document.title = gameDescriptor.title;
 
-    this.soundManager.init(
-      `${GAME_PATH}${
-        gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
-      }`
-    );
+    try {
+      const gameConfig = await fetchGameCongig(gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/');
+      const { layout, floating } = extractLayoutData(gameConfig);
+      console.log(JSON.stringify({ layout, floating }));
+      this.layout = layout;
+      this.floating = floating;
+    } catch (_) {
+      this.layout = DEFAULT_LAYOUT;
+      this.floating = DEFAULT_FLOATING;
+    }
+
+    this.soundManager.init(`${GAME_PATH}${gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'}`);
 
     const gameSource = await fetchGameSource(
       gameDescriptor.file,
@@ -94,9 +102,7 @@ export class GameManager {
   }
 
   get resourcePrefix(): string {
-    return `${GAME_PATH}/${
-      this.descriptor.folder ? this.descriptor.folder + '/' : ''
-    }`;
+    return `${GAME_PATH}/${this.descriptor.folder ? this.descriptor.folder + '/' : ''}`;
   }
 
   setupQspCallbacks(): void {
@@ -255,15 +261,8 @@ export class GameManager {
     this.viewSrc = '';
   };
 
-  onOpenGame = async (
-    path: string,
-    isNewGame: boolean,
-    onOpened: () => void
-  ): Promise<void> => {
-    const gameSource = await fetchGameSource(
-      path,
-      this.descriptor.folder ? `/${this.descriptor.folder}/` : '/'
-    );
+  onOpenGame = async (path: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
+    const gameSource = await fetchGameSource(path, this.descriptor.folder ? `/${this.descriptor.folder}/` : '/');
     this.api.openGame(gameSource, path, isNewGame);
     onOpened();
   };
@@ -322,11 +321,7 @@ export class GameManager {
     onReady();
   };
 
-  playFile = async (
-    file: string,
-    volume: number,
-    onReady: () => void
-  ): Promise<void> => {
+  playFile = async (file: string, volume: number, onReady: () => void): Promise<void> => {
     try {
       await this.soundManager.playFile(file, volume);
     } catch (e) {
@@ -388,11 +383,7 @@ const gameManagerContext = React.createContext<GameManager | null>(null);
 
 export const GameManagerProvider: React.FC = ({ children }) => {
   const store = useLocalStore(createGameManager);
-  return (
-    <gameManagerContext.Provider value={store}>
-      {children}
-    </gameManagerContext.Provider>
-  );
+  return <gameManagerContext.Provider value={store}>{children}</gameManagerContext.Provider>;
 };
 
 export const useGameManager = (): GameManager => {

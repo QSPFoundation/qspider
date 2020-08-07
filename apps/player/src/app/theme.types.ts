@@ -1,5 +1,4 @@
 export interface PlayerTheme {
-  templateAreas: string;
   backgroundColor: string;
   backgroundImage: string;
   textColor: string;

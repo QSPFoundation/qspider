@@ -20,7 +20,7 @@ export const UserInputPanel: React.FC = observer(() => {
   const { isUserInputPanelVisible } = useLayout();
   if (!isUserInputPanelVisible) return null;
   return (
-    <Panel gridArea="user-input">
+    <Panel>
       <form
         onSubmit={(e) => {
           e.preventDefault();

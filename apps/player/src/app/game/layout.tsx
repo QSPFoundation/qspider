@@ -4,6 +4,8 @@ import { decorate, observable, action, computed } from 'mobx';
 import { useGameManager, GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { PlayerTheme } from '../theme.types';
+import { LayoutDock, LayoutPanel } from './cfg-converter';
+import { QspGUIPanel } from '../constants';
 
 class Layout {
   useHtml = false;
@@ -23,52 +25,10 @@ class Layout {
     this.initialized(manager);
   }
 
-  // TODO find better way to manage layout
-  get templateAreas(): string {
-    const rows = [];
-    if (this.isObjectPanelVisible) {
-      rows.push('main main objects');
-    } else {
-      rows.push('main main main');
-    }
-    if (!this.isActionsPanelVisible && !this.isStatsPanelVisible) {
-      rows.push('main main main');
-      if (!this.isUserInputPanelVisible) {
-        rows.push('main main main');
-      }
-    } else if (this.isActionsPanelVisible && this.isStatsPanelVisible) {
-      rows.push('actions stats stats');
-      if (!this.isUserInputPanelVisible) {
-        rows.push('actions stats stats');
-      }
-    } else {
-      if (this.isActionsPanelVisible) {
-        rows.push('actions actions actions');
-        if (!this.isUserInputPanelVisible) {
-          rows.push('actions actions actions');
-        }
-      } else {
-        rows.push('stats stats stats');
-        if (!this.isUserInputPanelVisible) {
-          rows.push('stats stats stats');
-        }
-      }
-    }
-    if (this.isUserInputPanelVisible) {
-      rows.push('user-input user-input user-input');
-    }
-
-    return rows.map((row) => `"${row}"`).join(' ');
-  }
-
   get theme(): PlayerTheme {
-    console.log(this.backgroundImage);
     return {
-      templateAreas: this.templateAreas,
       backgroundColor: this.backgroundColor || '#efefef',
-      backgroundImage: this.backgroundImage
-        ? `url(${this.manager.resourcePrefix}${this.backgroundImage})`
-        : 'none',
+      backgroundImage: this.backgroundImage ? `url(${this.manager.resourcePrefix}${this.backgroundImage})` : 'none',
       textColor: this.color,
       fontSize: this.fontSize || 16,
       fontName: this.fontName,
@@ -113,6 +73,44 @@ class Layout {
         this.isUserInputPanelVisible = isShown;
     }
   };
+
+  get visibleLayout(): LayoutDock[] {
+    return this.manager.layout.map(this.processDock).filter(Boolean);
+  }
+
+  processDock = (dock: LayoutDock): LayoutDock => {
+    if ((dock[0] as QspGUIPanel) === QspGUIPanel.Main) {
+      return dock;
+    }
+    if (dock[0] === 'center') {
+      return [dock[0], dock[1], (dock[2] as LayoutDock[]).map(this.processDock).filter(Boolean)];
+    }
+    const filteredChildren = this.filterPanels(dock[2] as LayoutPanel[]);
+    if (filteredChildren && filteredChildren.length > 0) {
+      return [dock[0], dock[1], filteredChildren];
+    }
+    return null;
+  };
+
+  filterPanels = (panels: LayoutPanel[]): LayoutPanel[] => {
+    return panels && panels.filter(([name]) => this.isPanelVisible(name));
+  };
+
+  isPanelVisible(name: QspGUIPanel): boolean {
+    switch (name) {
+      case QspGUIPanel.Actions:
+        return this.isActionsPanelVisible;
+      case QspGUIPanel.ImageView:
+        return this.manager.isViewShown;
+      case QspGUIPanel.Objects:
+        return this.isObjectPanelVisible;
+      case QspGUIPanel.Stats:
+        return this.isStatsPanelVisible;
+      case QspGUIPanel.Input:
+        return this.isUserInputPanelVisible;
+    }
+    return true;
+  }
 }
 
 decorate(Layout, {
@@ -130,7 +128,7 @@ decorate(Layout, {
   isUserInputPanelVisible: observable,
 
   theme: computed,
-  templateAreas: computed,
+  visibleLayout: computed,
 
   updateLayoutSettings: action,
   updatePanalVisibility: action,
@@ -145,9 +143,7 @@ const layoutContext = React.createContext<Layout | null>(null);
 export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const store = useLocalStore(createLayout, { manager });
-  return (
-    <layoutContext.Provider value={store}>{children}</layoutContext.Provider>
-  );
+  return <layoutContext.Provider value={store}>{children}</layoutContext.Provider>;
 };
 
 export const useLayout = (): Layout => {

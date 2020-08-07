@@ -8,17 +8,11 @@ import { ActionList } from '../../ui-blocks/action-list/action-list';
 export const ActionsPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const { isActionsPanelVisible } = useLayout();
-  const onActionSelect = useCallback(
-    (index: number) => manager.selectAction(index),
-    [manager]
-  );
+  const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
   if (!isActionsPanelVisible) return null;
   return (
-    <Panel gridArea="actions">
-      <ActionList
-        actions={manager.actions}
-        onSelect={onActionSelect}
-      ></ActionList>
+    <Panel>
+      <ActionList actions={manager.actions} onSelect={onActionSelect}></ActionList>
     </Panel>
   );
 });

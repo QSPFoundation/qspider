@@ -10,7 +10,7 @@ export const StatsPanel: React.FC = observer(() => {
   const { isStatsPanelVisible } = useLayout();
   if (!isStatsPanelVisible) return null;
   return (
-    <Panel gridArea="stats" withPadding>
+    <Panel withPadding>
       <Content content={gameManager.stats} />
     </Panel>
   );

@@ -7,7 +7,7 @@ import { Content } from '../../content/content';
 export const MainPanel: React.FC = observer(() => {
   const manager = useGameManager();
   return (
-    <PanelWithBackground gridArea="main" withPadding>
+    <PanelWithBackground withPadding>
       <Content content={manager.main} />
     </PanelWithBackground>
   );

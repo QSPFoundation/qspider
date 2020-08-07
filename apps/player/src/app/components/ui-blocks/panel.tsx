@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
 import { WithTheme } from '../../theme.types';
 
-type PanelProps = { gridArea: string; withPadding?: boolean } & WithTheme;
+type PanelProps = { withPadding?: boolean } & WithTheme;
 
 export const Panel = styled.div<PanelProps>`
-  grid-area: ${(props) => props.gridArea};
+  width: 100%;
+  height: 100%;
   border: 1px solid ${(props) => props.theme.borderColor};
   padding: ${(props) => (props.withPadding ? `8px` : 0)};
 `;
