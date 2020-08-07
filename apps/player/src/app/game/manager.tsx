@@ -80,7 +80,6 @@ export class GameManager {
     try {
       const gameConfig = await fetchGameCongig(gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/');
       const { layout, floating } = extractLayoutData(gameConfig);
-      console.log(JSON.stringify({ layout, floating }));
       this.layout = layout;
       this.floating = floating;
     } catch (_) {

@@ -64,7 +64,6 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
       const mainSizeKey = isHorizontal(dock as DirectionKey) ? 'height' : 'width';
       const wrappingSizeKey = isHorizontal(dock as DirectionKey) ? 'width' : 'height';
       const proportion = (size / dimensions[mainSizeKey]) * 100;
-      console.log('!!!', dock, size, mainSizeKey, dimensions[mainSizeKey], dockPannels);
       layout.push([
         dock as DirectionKey,
         proportion,

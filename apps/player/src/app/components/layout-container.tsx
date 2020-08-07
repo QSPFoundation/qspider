@@ -82,10 +82,10 @@ function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
   const verticalElements = vertical.map(renderDock);
   if (horizontalElements.length && verticalElements.length) {
     return [
-      ...verticalElements,
+      ...horizontalElements,
       <Fill key="wrapper">
         {centerElement}
-        {horizontalElements}
+        {verticalElements}
       </Fill>,
     ];
   }
