@@ -1,6 +1,6 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-/apps/player/src/game
+/apps/player/src/assets/game
 
 # compiled output
 /dist

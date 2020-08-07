@@ -15,14 +15,11 @@
             "main": "apps/player/src/main.tsx",
             "polyfills": "apps/player/src/polyfills.ts",
             "tsConfig": "apps/player/tsconfig.app.json",
-            "assets": [
-              "apps/player/src/favicon.ico",
-              "apps/player/src/assets",
-              "apps/player/src/game"
-            ],
-            "styles": ["apps/player/src/styles.css"],
+            "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
+            "styles": [],
             "scripts": [],
-            "webpackConfig": "apps/player/webpack.config.js"
+            "webpackConfig": "apps/player/webpack.config.js",
+            "buildLibsFromSource": true
           },
           "configurations": {
             "production": {
@@ -64,19 +61,17 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "apps/player/.eslintrc",
             "tsConfig": [
               "apps/player/tsconfig.app.json",
               "apps/player/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!apps/player/**"]
+            "exclude": ["**/node_modules/**", "!apps/player/**/*"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "apps/player/jest.config.js",
-            "tsConfig": "apps/player/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }
@@ -104,9 +99,8 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "apps/player-e2e/.eslintrc",
             "tsConfig": ["apps/player-e2e/tsconfig.e2e.json"],
-            "exclude": ["**/node_modules/**", "!apps/player-e2e/**"]
+            "exclude": ["**/node_modules/**", "!apps/player-e2e/**/*"]
           }
         }
       }
@@ -121,19 +115,17 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "libs/qsp-wasm/.eslintrc",
             "tsConfig": [
               "libs/qsp-wasm/tsconfig.lib.json",
               "libs/qsp-wasm/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/qsp-wasm/**"]
+            "exclude": ["**/node_modules/**", "!libs/qsp-wasm/**/*"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "libs/qsp-wasm/jest.config.js",
-            "tsConfig": "libs/qsp-wasm/tsconfig.spec.json",
             "passWithNoTests": true
           }
         },
@@ -160,19 +152,17 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "config": "libs/fmod/.eslintrc",
             "tsConfig": [
               "libs/fmod/tsconfig.lib.json",
               "libs/fmod/tsconfig.spec.json"
             ],
-            "exclude": ["**/node_modules/**", "!libs/fmod/**"]
+            "exclude": ["**/node_modules/**", "!libs/fmod/**/*"]
           }
         },
         "test": {
           "builder": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "libs/fmod/jest.config.js",
-            "tsConfig": "libs/fmod/tsconfig.spec.json",
             "passWithNoTests": true
           }
         }
@@ -200,10 +190,10 @@
         "babel": true
       },
       "component": {
-        "style": "css"
+        "style": "@emotion/styled"
       },
       "library": {
-        "style": "css",
+        "style": "@emotion/styled",
         "linter": "eslint"
       }
     },

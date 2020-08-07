@@ -1,5 +1,9 @@
-export const GAME_PATH = '/game';
-const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.json`;
+import TOMLparse from '@iarna/toml/parse-string';
+import { parseCfg, CfgData } from './cfg-parser';
+
+export const GAME_PATH = '/assets/game';
+const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.cfg`;
+const GAME_FONFIG_FILE = 'qspgui.cfg';
 
 export interface GameDescriptor {
   title: string;
@@ -8,17 +12,22 @@ export interface GameDescriptor {
 }
 
 export const fetchGameDescriptor = async (): Promise<GameDescriptor> => {
-  return fetch(GAME_DESCRIPTOR_PATH).then((r) => r.json());
+  return fetch(GAME_DESCRIPTOR_PATH)
+    .then((r) => r.text())
+    .then((text) => (TOMLparse(text) as unknown) as GameDescriptor);
 };
 
-export const fetchGameSource = async (
-  fileName: string,
-  folder = '/'
-): Promise<ArrayBuffer> => {
+export const fetchGameCongig = async (folder = '/'): Promise<CfgData> => {
+  return fetch(`${GAME_PATH}${folder}${GAME_FONFIG_FILE}`)
+    .then((r) => r.text())
+    .then((text) => parseCfg<CfgData>(text));
+};
+
+export const fetchGameSource = async (fileName: string, folder = '/'): Promise<ArrayBuffer> => {
   return fetch(`${GAME_PATH}${folder}${fileName}`).then((r) => r.arrayBuffer());
 };
 
-export const saveGameToFile = async (path: string, data: ArrayBuffer) => {
+export const saveGameToFile = async (path: string, data: ArrayBuffer): Promise<void> => {
   const preparedData = await binaryToDataUri(data);
   localStorage.setItem(path, preparedData);
 };
@@ -31,9 +40,7 @@ export const readGameFromFile = async (path: string): Promise<ArrayBuffer> => {
   return null;
 };
 
-export const dataURItoBinary = async (
-  dataUri: string
-): Promise<ArrayBuffer> => {
+export const dataURItoBinary = async (dataUri: string): Promise<ArrayBuffer> => {
   const [, dataPart] = dataUri.split(',');
   const bstr = atob(dataPart);
   let n = bstr.length;

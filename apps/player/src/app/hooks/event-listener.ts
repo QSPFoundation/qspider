@@ -4,8 +4,8 @@ export function useEventListener<E extends Event>(
   eventName: string,
   handler: (e: E) => void,
   element: HTMLElement | Window | Document = window
-) {
-  const savedHandler = useRef<Function>();
+): void {
+  const savedHandler = useRef<(e: E) => void>();
 
   useEffect(() => {
     savedHandler.current = handler;

@@ -8,7 +8,7 @@ import { QspAPIImpl } from './qsp-api';
 // `.wasm` file, we have to provide a `locateFile()` hook to redirect
 // to the appropriate URL.
 // More details: https://kripken.github.io/emscripten-site/docs/api_reference/module.html
-const module = qsp({
+const moduleWasm = qsp({
   locateFile(path) {
     if (path.endsWith('.wasm')) {
       return qspModule;
@@ -19,8 +19,8 @@ const module = qsp({
 
 export function init(): Promise<QspAPI> {
   return new Promise((resolve) => {
-    module.onRuntimeInitialized = () => {
-      resolve(new QspAPIImpl(module));
+    moduleWasm.onRuntimeInitialized = () => {
+      resolve(new QspAPIImpl(moduleWasm));
     };
   });
 }
