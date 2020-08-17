@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { ViewPort, Fill } from 'react-spaces';
+import { ViewPort, Fill, Top } from 'react-spaces';
 import { LayoutDock, LayoutPanel, isHorizontal, isCenter } from '../game/cfg-converter';
 import { Row } from './layout/row';
 import { Column } from './layout/column';
@@ -14,6 +14,7 @@ import { ViewImagePanel } from './panels/view-image/view-image.panel';
 import { observer } from 'mobx-react-lite';
 import { QspGUIPanel } from '../constants';
 import { useLayout } from '../game/layout';
+import { PlayerToolbar } from './system/player-toolbar';
 
 const docksMap = {
   top: TopDock,
@@ -94,5 +95,12 @@ function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
 
 export const LayoutContainer: React.FC = observer(() => {
   const { visibleLayout } = useLayout();
-  return <ViewPort>{renderLayoutGroup(visibleLayout)}</ViewPort>;
+  return (
+    <ViewPort>
+      <Top size={32}>
+        <PlayerToolbar />
+      </Top>
+      <Fill>{renderLayoutGroup(visibleLayout)}</Fill>
+    </ViewPort>
+  );
 });
