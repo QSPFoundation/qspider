@@ -1,4 +1,3 @@
 [submodule "libs/qsp-wasm/qsp"]
 	path = libs/qsp-wasm/qsp
-	url = https://github.com/srg-kostyrko/qsp.git
-  branch = backward-compatible
+	url = https://github.com/QSPFoundation/qsp

@@ -1,13 +1,15 @@
 var Module = (function () {
-  var _scriptDir =
-    typeof document !== 'undefined' && document.currentScript
-      ? document.currentScript.src
-      : undefined;
+  var _scriptDir = typeof document !== 'undefined' && document.currentScript ? document.currentScript.src : undefined;
 
   return function (Module) {
     Module = Module || {};
 
     var Module = typeof Module !== 'undefined' ? Module : {};
+    var readyPromiseResolve, readyPromiseReject;
+    Module['ready'] = new Promise(function (resolve, reject) {
+      readyPromiseResolve = resolve;
+      readyPromiseReject = reject;
+    });
     var moduleOverrides = {};
     var key;
     for (key in Module) {
@@ -40,10 +42,7 @@ var Module = (function () {
         scriptDirectory = _scriptDir;
       }
       if (scriptDirectory.indexOf('blob:') !== 0) {
-        scriptDirectory = scriptDirectory.substr(
-          0,
-          scriptDirectory.lastIndexOf('/') + 1
-        );
+        scriptDirectory = scriptDirectory.substr(0, scriptDirectory.lastIndexOf('/') + 1);
       } else {
         scriptDirectory = '';
       }
@@ -94,42 +93,10 @@ var Module = (function () {
     if (Module['arguments']) arguments_ = Module['arguments'];
     if (Module['thisProgram']) thisProgram = Module['thisProgram'];
     if (Module['quit']) quit_ = Module['quit'];
-    function dynamicAlloc(size) {
-      var ret = HEAP32[DYNAMICTOP_PTR >> 2];
-      var end = (ret + size + 15) & -16;
-      HEAP32[DYNAMICTOP_PTR >> 2] = end;
-      return ret;
-    }
-    function getNativeTypeSize(type) {
-      switch (type) {
-        case 'i1':
-        case 'i8':
-          return 1;
-        case 'i16':
-          return 2;
-        case 'i32':
-          return 4;
-        case 'i64':
-          return 8;
-        case 'float':
-          return 4;
-        case 'double':
-          return 8;
-        default: {
-          if (type[type.length - 1] === '*') {
-            return 4;
-          } else if (type[0] === 'i') {
-            var bits = Number(type.substr(1));
-            assert(
-              bits % 8 === 0,
-              'getNativeTypeSize invalid bits ' + bits + ', type ' + type
-            );
-            return bits / 8;
-          } else {
-            return 0;
-          }
-        }
-      }
+    var STACK_ALIGN = 16;
+    function alignMemory(size, factor) {
+      if (!factor) factor = STACK_ALIGN;
+      return Math.ceil(size / factor) * factor;
     }
     function warnOnce(text) {
       if (!warnOnce.shown) warnOnce.shown = {};
@@ -141,10 +108,7 @@ var Module = (function () {
     function convertJsFunctionToWasm(func, sig) {
       if (typeof WebAssembly.Function === 'function') {
         var typeNames = { i: 'i32', j: 'i64', f: 'f32', d: 'f64' };
-        var type = {
-          parameters: [],
-          results: sig[0] == 'v' ? [] : [typeNames[sig[0]]],
-        };
+        var type = { parameters: [], results: sig[0] == 'v' ? [] : [typeNames[sig[0]]] };
         for (var i = 1; i < sig.length; ++i) {
           type.parameters.push(typeNames[sig[i]]);
         }
@@ -165,24 +129,7 @@ var Module = (function () {
       }
       typeSection[1] = typeSection.length - 2;
       var bytes = new Uint8Array(
-        [0, 97, 115, 109, 1, 0, 0, 0].concat(typeSection, [
-          2,
-          7,
-          1,
-          1,
-          101,
-          1,
-          102,
-          0,
-          0,
-          7,
-          5,
-          1,
-          1,
-          102,
-          0,
-          0,
-        ])
+        [0, 97, 115, 109, 1, 0, 0, 0].concat(typeSection, [2, 7, 1, 1, 101, 1, 102, 0, 0, 7, 5, 1, 1, 102, 0, 0])
       );
       var module = new WebAssembly.Module(bytes);
       var instance = new WebAssembly.Instance(module, { e: { f: func } });
@@ -190,8 +137,21 @@ var Module = (function () {
       return wrappedFunc;
     }
     var freeTableIndexes = [];
+    var functionsInTableMap;
     function addFunctionWasm(func, sig) {
       var table = wasmTable;
+      if (!functionsInTableMap) {
+        functionsInTableMap = new WeakMap();
+        for (var i = 0; i < table.length; i++) {
+          var item = table.get(i);
+          if (item) {
+            functionsInTableMap.set(item, i);
+          }
+        }
+      }
+      if (functionsInTableMap.has(func)) {
+        return functionsInTableMap.get(func);
+      }
       var ret;
       if (freeTableIndexes.length) {
         ret = freeTableIndexes.pop();
@@ -212,13 +172,10 @@ var Module = (function () {
         if (!(err instanceof TypeError)) {
           throw err;
         }
-        assert(
-          typeof sig !== 'undefined',
-          'Missing signature argument to addFunction'
-        );
         var wrapped = convertJsFunctionToWasm(func, sig);
         table.set(ret, wrapped);
       }
+      functionsInTableMap.set(func, ret);
       return ret;
     }
     function addFunction(func, sig) {
@@ -229,50 +186,7 @@ var Module = (function () {
     var noExitRuntime;
     if (Module['noExitRuntime']) noExitRuntime = Module['noExitRuntime'];
     if (typeof WebAssembly !== 'object') {
-      err('no native wasm support detected');
-    }
-    function setValue(ptr, value, type, noSafe) {
-      type = type || 'i8';
-      if (type.charAt(type.length - 1) === '*') type = 'i32';
-      switch (type) {
-        case 'i1':
-          HEAP8[ptr >> 0] = value;
-          break;
-        case 'i8':
-          HEAP8[ptr >> 0] = value;
-          break;
-        case 'i16':
-          HEAP16[ptr >> 1] = value;
-          break;
-        case 'i32':
-          HEAP32[ptr >> 2] = value;
-          break;
-        case 'i64':
-          (tempI64 = [
-            value >>> 0,
-            ((tempDouble = value),
-            +Math_abs(tempDouble) >= 1
-              ? tempDouble > 0
-                ? (Math_min(+Math_floor(tempDouble / 4294967296), 4294967295) |
-                    0) >>>
-                  0
-                : ~~+Math_ceil(
-                    (tempDouble - +(~~tempDouble >>> 0)) / 4294967296
-                  ) >>> 0
-              : 0),
-          ]),
-            (HEAP32[ptr >> 2] = tempI64[0]),
-            (HEAP32[(ptr + 4) >> 2] = tempI64[1]);
-          break;
-        case 'float':
-          HEAPF32[ptr >> 2] = value;
-          break;
-        case 'double':
-          HEAPF64[ptr >> 3] = value;
-          break;
-        default:
-          abort('invalid type for setValue: ' + type);
-      }
+      abort('no native wasm support detected');
     }
     function getValue(ptr, type, noSafe) {
       type = type || 'i8';
@@ -298,11 +212,7 @@ var Module = (function () {
       return null;
     }
     var wasmMemory;
-    var wasmTable = new WebAssembly.Table({
-      initial: 98,
-      maximum: 98 + 20,
-      element: 'anyfunc',
-    });
+    var wasmTable = new WebAssembly.Table({ initial: 98, element: 'anyfunc' });
     var ABORT = false;
     var EXITSTATUS = 0;
     function assert(condition, text) {
@@ -312,10 +222,7 @@ var Module = (function () {
     }
     function getCFunc(ident) {
       var func = Module['_' + ident];
-      assert(
-        func,
-        'Cannot call unknown function ' + ident + ', make sure it is exported'
-      );
+      assert(func, 'Cannot call unknown function ' + ident + ', make sure it is exported');
       return func;
     }
     function ccall(ident, returnType, argTypes, args, opts) {
@@ -357,8 +264,7 @@ var Module = (function () {
       var ret = func.apply(null, cArgs);
       var asyncMode = opts && opts.async;
       var runningAsync = typeof Asyncify === 'object' && Asyncify.currData;
-      var prevRunningAsync =
-        typeof Asyncify === 'object' && Asyncify.asyncFinalizers.length > 0;
+      var prevRunningAsync = typeof Asyncify === 'object' && Asyncify.asyncFinalizers.length > 0;
       if (runningAsync && !prevRunningAsync) {
         return new Promise(function (resolve) {
           Asyncify.asyncFinalizers.push(function (ret) {
@@ -385,95 +291,31 @@ var Module = (function () {
         return ccall(ident, returnType, argTypes, arguments, opts);
       };
     }
-    var ALLOC_NONE = 3;
-    function allocate(slab, types, allocator, ptr) {
-      var zeroinit, size;
-      if (typeof slab === 'number') {
-        zeroinit = true;
-        size = slab;
-      } else {
-        zeroinit = false;
-        size = slab.length;
-      }
-      var singleType = typeof types === 'string' ? types : null;
-      var ret;
-      if (allocator == ALLOC_NONE) {
-        ret = ptr;
-      } else {
-        ret = [_malloc, stackAlloc, dynamicAlloc][allocator](
-          Math.max(size, singleType ? 1 : types.length)
-        );
-      }
-      if (zeroinit) {
-        var stop;
-        ptr = ret;
-        assert((ret & 3) == 0);
-        stop = ret + (size & ~3);
-        for (; ptr < stop; ptr += 4) {
-          HEAP32[ptr >> 2] = 0;
-        }
-        stop = ret + size;
-        while (ptr < stop) {
-          HEAP8[ptr++ >> 0] = 0;
-        }
-        return ret;
-      }
-      if (singleType === 'i8') {
-        if (slab.subarray || slab.slice) {
-          HEAPU8.set(slab, ret);
-        } else {
-          HEAPU8.set(new Uint8Array(slab), ret);
-        }
-        return ret;
-      }
-      var i = 0,
-        type,
-        typeSize,
-        previousType;
-      while (i < size) {
-        var curr = slab[i];
-        type = singleType || types[i];
-        if (type === 0) {
-          i++;
-          continue;
-        }
-        if (type == 'i64') type = 'i32';
-        setValue(ret + i, curr, type);
-        if (previousType !== type) {
-          typeSize = getNativeTypeSize(type);
-          previousType = type;
-        }
-        i += typeSize;
-      }
-      return ret;
-    }
-    var UTF8Decoder =
-      typeof TextDecoder !== 'undefined' ? new TextDecoder('utf8') : undefined;
-    function UTF8ArrayToString(u8Array, idx, maxBytesToRead) {
+    var UTF8Decoder = typeof TextDecoder !== 'undefined' ? new TextDecoder('utf8') : undefined;
+    function UTF8ArrayToString(heap, idx, maxBytesToRead) {
       var endIdx = idx + maxBytesToRead;
       var endPtr = idx;
-      while (u8Array[endPtr] && !(endPtr >= endIdx)) ++endPtr;
-      if (endPtr - idx > 16 && u8Array.subarray && UTF8Decoder) {
-        return UTF8Decoder.decode(u8Array.subarray(idx, endPtr));
+      while (heap[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+      if (endPtr - idx > 16 && heap.subarray && UTF8Decoder) {
+        return UTF8Decoder.decode(heap.subarray(idx, endPtr));
       } else {
         var str = '';
         while (idx < endPtr) {
-          var u0 = u8Array[idx++];
+          var u0 = heap[idx++];
           if (!(u0 & 128)) {
             str += String.fromCharCode(u0);
             continue;
           }
-          var u1 = u8Array[idx++] & 63;
+          var u1 = heap[idx++] & 63;
           if ((u0 & 224) == 192) {
             str += String.fromCharCode(((u0 & 31) << 6) | u1);
             continue;
           }
-          var u2 = u8Array[idx++] & 63;
+          var u2 = heap[idx++] & 63;
           if ((u0 & 240) == 224) {
             u0 = ((u0 & 15) << 12) | (u1 << 6) | u2;
           } else {
-            u0 =
-              ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (u8Array[idx++] & 63);
+            u0 = ((u0 & 7) << 18) | (u1 << 12) | (u2 << 6) | (heap[idx++] & 63);
           }
           if (u0 < 65536) {
             str += String.fromCharCode(u0);
@@ -488,7 +330,7 @@ var Module = (function () {
     function UTF8ToString(ptr, maxBytesToRead) {
       return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : '';
     }
-    function stringToUTF8Array(str, outU8Array, outIdx, maxBytesToWrite) {
+    function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
       if (!(maxBytesToWrite > 0)) return 0;
       var startIdx = outIdx;
       var endIdx = outIdx + maxBytesToWrite - 1;
@@ -500,25 +342,25 @@ var Module = (function () {
         }
         if (u <= 127) {
           if (outIdx >= endIdx) break;
-          outU8Array[outIdx++] = u;
+          heap[outIdx++] = u;
         } else if (u <= 2047) {
           if (outIdx + 1 >= endIdx) break;
-          outU8Array[outIdx++] = 192 | (u >> 6);
-          outU8Array[outIdx++] = 128 | (u & 63);
+          heap[outIdx++] = 192 | (u >> 6);
+          heap[outIdx++] = 128 | (u & 63);
         } else if (u <= 65535) {
           if (outIdx + 2 >= endIdx) break;
-          outU8Array[outIdx++] = 224 | (u >> 12);
-          outU8Array[outIdx++] = 128 | ((u >> 6) & 63);
-          outU8Array[outIdx++] = 128 | (u & 63);
+          heap[outIdx++] = 224 | (u >> 12);
+          heap[outIdx++] = 128 | ((u >> 6) & 63);
+          heap[outIdx++] = 128 | (u & 63);
         } else {
           if (outIdx + 3 >= endIdx) break;
-          outU8Array[outIdx++] = 240 | (u >> 18);
-          outU8Array[outIdx++] = 128 | ((u >> 12) & 63);
-          outU8Array[outIdx++] = 128 | ((u >> 6) & 63);
-          outU8Array[outIdx++] = 128 | (u & 63);
+          heap[outIdx++] = 240 | (u >> 18);
+          heap[outIdx++] = 128 | ((u >> 12) & 63);
+          heap[outIdx++] = 128 | ((u >> 6) & 63);
+          heap[outIdx++] = 128 | (u & 63);
         }
       }
-      outU8Array[outIdx] = 0;
+      heap[outIdx] = 0;
       return outIdx - startIdx;
     }
     function stringToUTF8(str, outPtr, maxBytesToWrite) {
@@ -528,8 +370,7 @@ var Module = (function () {
       var len = 0;
       for (var i = 0; i < str.length; ++i) {
         var u = str.charCodeAt(i);
-        if (u >= 55296 && u <= 57343)
-          u = (65536 + ((u & 1023) << 10)) | (str.charCodeAt(++i) & 1023);
+        if (u >= 55296 && u <= 57343) u = (65536 + ((u & 1023) << 10)) | (str.charCodeAt(++i) & 1023);
         if (u <= 127) ++len;
         else if (u <= 2047) len += 2;
         else if (u <= 65535) len += 3;
@@ -537,16 +378,12 @@ var Module = (function () {
       }
       return len;
     }
-    var UTF16Decoder =
-      typeof TextDecoder !== 'undefined'
-        ? new TextDecoder('utf-16le')
-        : undefined;
-    function UTF32ToString(ptr) {
+    function UTF32ToString(ptr, maxBytesToRead) {
       var i = 0;
       var str = '';
-      while (1) {
+      while (!(i >= maxBytesToRead / 4)) {
         var utf32 = HEAP32[(ptr + i * 4) >> 2];
-        if (utf32 == 0) return str;
+        if (utf32 == 0) break;
         ++i;
         if (utf32 >= 65536) {
           var ch = utf32 - 65536;
@@ -555,6 +392,7 @@ var Module = (function () {
           str += String.fromCharCode(utf32);
         }
       }
+      return str;
     }
     function stringToUTF32(str, outPtr, maxBytesToWrite) {
       if (maxBytesToWrite === undefined) {
@@ -567,8 +405,7 @@ var Module = (function () {
         var codeUnit = str.charCodeAt(i);
         if (codeUnit >= 55296 && codeUnit <= 57343) {
           var trailSurrogate = str.charCodeAt(++i);
-          codeUnit =
-            (65536 + ((codeUnit & 1023) << 10)) | (trailSurrogate & 1023);
+          codeUnit = (65536 + ((codeUnit & 1023) << 10)) | (trailSurrogate & 1023);
         }
         HEAP32[outPtr >> 2] = codeUnit;
         outPtr += 4;
@@ -602,15 +439,7 @@ var Module = (function () {
       }
       return x;
     }
-    var buffer,
-      HEAP8,
-      HEAPU8,
-      HEAP16,
-      HEAPU16,
-      HEAP32,
-      HEAPU32,
-      HEAPF32,
-      HEAPF64;
+    var buffer, HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
     function updateGlobalBufferAndViews(buf) {
       buffer = buf;
       Module['HEAP8'] = HEAP8 = new Int8Array(buf);
@@ -630,6 +459,7 @@ var Module = (function () {
     } else {
       wasmMemory = new WebAssembly.Memory({
         initial: INITIAL_INITIAL_MEMORY / WASM_PAGE_SIZE,
+        maximum: 2147483648 / WASM_PAGE_SIZE,
       });
     }
     if (wasmMemory) {
@@ -642,7 +472,7 @@ var Module = (function () {
       while (callbacks.length > 0) {
         var callback = callbacks.shift();
         if (typeof callback == 'function') {
-          callback();
+          callback(Module);
           continue;
         }
         var func = callback.func;
@@ -664,8 +494,7 @@ var Module = (function () {
     var runtimeInitialized = false;
     function preRun() {
       if (Module['preRun']) {
-        if (typeof Module['preRun'] == 'function')
-          Module['preRun'] = [Module['preRun']];
+        if (typeof Module['preRun'] == 'function') Module['preRun'] = [Module['preRun']];
         while (Module['preRun'].length) {
           addOnPreRun(Module['preRun'].shift());
         }
@@ -684,8 +513,7 @@ var Module = (function () {
     }
     function postRun() {
       if (Module['postRun']) {
-        if (typeof Module['postRun'] == 'function')
-          Module['postRun'] = [Module['postRun']];
+        if (typeof Module['postRun'] == 'function') Module['postRun'] = [Module['postRun']];
         while (Module['postRun'].length) {
           addOnPostRun(Module['postRun'].shift());
         }
@@ -738,18 +566,20 @@ var Module = (function () {
         Module['onAbort'](what);
       }
       what += '';
-      out(what);
       err(what);
       ABORT = true;
       EXITSTATUS = 1;
       what = 'abort(' + what + '). Build with -s ASSERTIONS=1 for more info.';
-      throw new WebAssembly.RuntimeError(what);
+      var e = new WebAssembly.RuntimeError(what);
+      readyPromiseReject(e);
+      throw e;
+    }
+    function hasPrefix(str, prefix) {
+      return String.prototype.startsWith ? str.startsWith(prefix) : str.indexOf(prefix) === 0;
     }
     var dataURIPrefix = 'data:application/octet-stream;base64,';
     function isDataURI(filename) {
-      return String.prototype.startsWith
-        ? filename.startsWith(dataURIPrefix)
-        : filename.indexOf(dataURIPrefix) === 0;
+      return hasPrefix(filename, dataURIPrefix);
     }
     var wasmBinaryFile = 'qsp.wasm';
     if (!isDataURI(wasmBinaryFile)) {
@@ -770,17 +600,11 @@ var Module = (function () {
       }
     }
     function getBinaryPromise() {
-      if (
-        !wasmBinary &&
-        (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) &&
-        typeof fetch === 'function'
-      ) {
+      if (!wasmBinary && (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) && typeof fetch === 'function') {
         return fetch(wasmBinaryFile, { credentials: 'same-origin' })
           .then(function (response) {
             if (!response['ok']) {
-              throw (
-                "failed to load wasm binary file at '" + wasmBinaryFile + "'"
-              );
+              throw "failed to load wasm binary file at '" + wasmBinaryFile + "'";
             }
             return response['arrayBuffer']();
           })
@@ -788,9 +612,7 @@ var Module = (function () {
             return getBinary();
           });
       }
-      return new Promise(function (resolve, reject) {
-        resolve(getBinary());
-      });
+      return Promise.resolve().then(getBinary);
     }
     function createWasm() {
       var info = { a: asmLibraryArg };
@@ -821,14 +643,12 @@ var Module = (function () {
           !isDataURI(wasmBinaryFile) &&
           typeof fetch === 'function'
         ) {
-          fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function (
-            response
-          ) {
+          fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function (response) {
             var result = WebAssembly.instantiateStreaming(response, info);
             return result.then(receiveInstantiatedSource, function (reason) {
               err('wasm streaming compile failed: ' + reason);
               err('falling back to ArrayBuffer instantiation');
-              instantiateArrayBuffer(receiveInstantiatedSource);
+              return instantiateArrayBuffer(receiveInstantiatedSource);
             });
           });
         } else {
@@ -884,13 +704,12 @@ var Module = (function () {
       if (Module['extraStackTrace']) js += '\n' + Module['extraStackTrace']();
       return demangleAll(js);
     }
-    function ___setErrNo(value) {
-      if (Module['___errno_location'])
-        HEAP32[Module['___errno_location']() >> 2] = value;
+    function setErrNo(value) {
+      HEAP32[___errno_location() >> 2] = value;
       return value;
     }
     function ___map_file(pathname, size) {
-      ___setErrNo(63);
+      setErrNo(63);
       return -1;
     }
     var PATH = {
@@ -950,6 +769,8 @@ var Module = (function () {
       },
       basename: function (path) {
         if (path === '/') return '/';
+        path = PATH.normalize(path);
+        path = path.replace(/\/$/, '');
         var lastSlash = path.lastIndexOf('/');
         if (lastSlash === -1) return path;
         return path.substr(lastSlash + 1);
@@ -1088,10 +909,7 @@ var Module = (function () {
         get_char: function (tty) {
           if (!tty.input.length) {
             var result = null;
-            if (
-              typeof window != 'undefined' &&
-              typeof window.prompt == 'function'
-            ) {
+            if (typeof window != 'undefined' && typeof window.prompt == 'function') {
               result = window.prompt('Input: ');
               if (result !== null) {
                 result += '\n';
@@ -1167,10 +985,7 @@ var Module = (function () {
               stream: { llseek: MEMFS.stream_ops.llseek },
             },
             file: {
-              node: {
-                getattr: MEMFS.node_ops.getattr,
-                setattr: MEMFS.node_ops.setattr,
-              },
+              node: { getattr: MEMFS.node_ops.getattr, setattr: MEMFS.node_ops.setattr },
               stream: {
                 llseek: MEMFS.stream_ops.llseek,
                 read: MEMFS.stream_ops.read,
@@ -1189,10 +1004,7 @@ var Module = (function () {
               stream: {},
             },
             chrdev: {
-              node: {
-                getattr: MEMFS.node_ops.getattr,
-                setattr: MEMFS.node_ops.setattr,
-              },
+              node: { getattr: MEMFS.node_ops.getattr, setattr: MEMFS.node_ops.setattr },
               stream: FS.chrdev_stream_ops,
             },
           };
@@ -1230,24 +1042,18 @@ var Module = (function () {
       },
       getFileDataAsTypedArray: function (node) {
         if (!node.contents) return new Uint8Array(0);
-        if (node.contents.subarray)
-          return node.contents.subarray(0, node.usedBytes);
+        if (node.contents.subarray) return node.contents.subarray(0, node.usedBytes);
         return new Uint8Array(node.contents);
       },
       expandFileStorage: function (node, newCapacity) {
         var prevCapacity = node.contents ? node.contents.length : 0;
         if (prevCapacity >= newCapacity) return;
         var CAPACITY_DOUBLING_MAX = 1024 * 1024;
-        newCapacity = Math.max(
-          newCapacity,
-          (prevCapacity * (prevCapacity < CAPACITY_DOUBLING_MAX ? 2 : 1.125)) |
-            0
-        );
+        newCapacity = Math.max(newCapacity, (prevCapacity * (prevCapacity < CAPACITY_DOUBLING_MAX ? 2 : 1.125)) >>> 0);
         if (prevCapacity != 0) newCapacity = Math.max(newCapacity, 256);
         var oldContents = node.contents;
         node.contents = new Uint8Array(newCapacity);
-        if (node.usedBytes > 0)
-          node.contents.set(oldContents.subarray(0, node.usedBytes), 0);
+        if (node.usedBytes > 0) node.contents.set(oldContents.subarray(0, node.usedBytes), 0);
         return;
       },
       resizeFileStorage: function (node, newSize) {
@@ -1261,9 +1067,7 @@ var Module = (function () {
           var oldContents = node.contents;
           node.contents = new Uint8Array(newSize);
           if (oldContents) {
-            node.contents.set(
-              oldContents.subarray(0, Math.min(newSize, node.usedBytes))
-            );
+            node.contents.set(oldContents.subarray(0, Math.min(newSize, node.usedBytes)));
           }
           node.usedBytes = newSize;
           return;
@@ -1373,8 +1177,7 @@ var Module = (function () {
           if (size > 8 && contents.subarray) {
             buffer.set(contents.subarray(position, position + size), offset);
           } else {
-            for (var i = 0; i < size; i++)
-              buffer[offset + i] = contents[position + i];
+            for (var i = 0; i < size; i++) buffer[offset + i] = contents[position + i];
           }
           return size;
         },
@@ -1395,20 +1198,14 @@ var Module = (function () {
               node.usedBytes = length;
               return length;
             } else if (position + length <= node.usedBytes) {
-              node.contents.set(
-                buffer.subarray(offset, offset + length),
-                position
-              );
+              node.contents.set(buffer.subarray(offset, offset + length), position);
               return length;
             }
           }
           MEMFS.expandFileStorage(node, position + length);
-          if (node.contents.subarray && buffer.subarray)
-            node.contents.set(
-              buffer.subarray(offset, offset + length),
-              position
-            );
-          else {
+          if (node.contents.subarray && buffer.subarray) {
+            node.contents.set(buffer.subarray(offset, offset + length), position);
+          } else {
             for (var i = 0; i < length; i++) {
               node.contents[position + i] = buffer[offset + i];
             }
@@ -1432,19 +1229,17 @@ var Module = (function () {
         },
         allocate: function (stream, offset, length) {
           MEMFS.expandFileStorage(stream.node, offset + length);
-          stream.node.usedBytes = Math.max(
-            stream.node.usedBytes,
-            offset + length
-          );
+          stream.node.usedBytes = Math.max(stream.node.usedBytes, offset + length);
         },
-        mmap: function (stream, buffer, offset, length, position, prot, flags) {
+        mmap: function (stream, address, length, position, prot, flags) {
+          assert(address === 0);
           if (!FS.isFile(stream.node.mode)) {
             throw new FS.ErrnoError(43);
           }
           var ptr;
           var allocated;
           var contents = stream.node.contents;
-          if (!(flags & 2) && contents.buffer === buffer.buffer) {
+          if (!(flags & 2) && contents.buffer === buffer) {
             allocated = false;
             ptr = contents.byteOffset;
           } else {
@@ -1452,20 +1247,15 @@ var Module = (function () {
               if (contents.subarray) {
                 contents = contents.subarray(position, position + length);
               } else {
-                contents = Array.prototype.slice.call(
-                  contents,
-                  position,
-                  position + length
-                );
+                contents = Array.prototype.slice.call(contents, position, position + length);
               }
             }
             allocated = true;
-            var fromHeap = buffer.buffer == HEAP8.buffer;
-            ptr = _malloc(length);
+            ptr = FS.mmapAlloc(length);
             if (!ptr) {
               throw new FS.ErrnoError(48);
             }
-            (fromHeap ? HEAP8 : buffer).set(contents, ptr);
+            HEAP8.set(contents, ptr);
           }
           return { ptr: ptr, allocated: allocated };
         },
@@ -1476,14 +1266,7 @@ var Module = (function () {
           if (mmapFlags & 2) {
             return 0;
           }
-          var bytesWritten = MEMFS.stream_ops.write(
-            stream,
-            buffer,
-            0,
-            length,
-            offset,
-            false
-          );
+          var bytesWritten = MEMFS.stream_ops.write(stream, buffer, 0, length, offset, false);
           return 0;
         },
       },
@@ -1506,7 +1289,7 @@ var Module = (function () {
       syncFSRequests: 0,
       handleFSError: function (e) {
         if (!(e instanceof FS.ErrnoError)) throw e + ' : ' + stackTrace();
-        return ___setErrNo(e.errno);
+        return setErrNo(e.errno);
       },
       lookupPath: function (path, opts) {
         path = PATH_FS.resolve(FS.cwd(), path);
@@ -1546,9 +1329,7 @@ var Module = (function () {
             while (FS.isLink(current.mode)) {
               var link = FS.readlink(current_path);
               current_path = PATH_FS.resolve(PATH.dirname(current_path), link);
-              var lookup = FS.lookupPath(current_path, {
-                recurse_count: opts.recurse_count,
-              });
+              var lookup = FS.lookupPath(current_path, { recurse_count: opts.recurse_count });
               current = lookup.node;
               if (count++ > 40) {
                 throw new FS.ErrnoError(32);
@@ -1564,9 +1345,7 @@ var Module = (function () {
           if (FS.isRoot(node)) {
             var mount = node.mount.mountpoint;
             if (!path) return mount;
-            return mount[mount.length - 1] !== '/'
-              ? mount + '/' + path
-              : mount + path;
+            return mount[mount.length - 1] !== '/' ? mount + '/' + path : mount + path;
           }
           path = path ? node.name + '/' + path : node.name;
           node = node.parent;
@@ -1844,9 +1623,7 @@ var Module = (function () {
         FS.syncFSRequests++;
         if (FS.syncFSRequests > 1) {
           err(
-            'warning: ' +
-              FS.syncFSRequests +
-              ' FS.syncfs operations in flight at once, probably just doing extra work'
+            'warning: ' + FS.syncFSRequests + ' FS.syncfs operations in flight at once, probably just doing extra work'
           );
         }
         var mounts = FS.getMounts(FS.root.mount);
@@ -1891,12 +1668,7 @@ var Module = (function () {
             throw new FS.ErrnoError(54);
           }
         }
-        var mount = {
-          type: type,
-          opts: opts,
-          mountpoint: mountpoint,
-          mounts: [],
-        };
+        var mount = { type: type, opts: opts, mountpoint: mountpoint, mounts: [] };
         var mountRoot = type.mount(mount);
         mountRoot.mount = mount;
         mount.root = mountRoot;
@@ -2009,14 +1781,10 @@ var Module = (function () {
         var old_name = PATH.basename(old_path);
         var new_name = PATH.basename(new_path);
         var lookup, old_dir, new_dir;
-        try {
-          lookup = FS.lookupPath(old_path, { parent: true });
-          old_dir = lookup.node;
-          lookup = FS.lookupPath(new_path, { parent: true });
-          new_dir = lookup.node;
-        } catch (e) {
-          throw new FS.ErrnoError(10);
-        }
+        lookup = FS.lookupPath(old_path, { parent: true });
+        old_dir = lookup.node;
+        lookup = FS.lookupPath(new_path, { parent: true });
+        new_dir = lookup.node;
         if (!old_dir || !new_dir) throw new FS.ErrnoError(44);
         if (old_dir.mount !== new_dir.mount) {
           throw new FS.ErrnoError(75);
@@ -2042,19 +1810,14 @@ var Module = (function () {
         if (errCode) {
           throw new FS.ErrnoError(errCode);
         }
-        errCode = new_node
-          ? FS.mayDelete(new_dir, new_name, isdir)
-          : FS.mayCreate(new_dir, new_name);
+        errCode = new_node ? FS.mayDelete(new_dir, new_name, isdir) : FS.mayCreate(new_dir, new_name);
         if (errCode) {
           throw new FS.ErrnoError(errCode);
         }
         if (!old_dir.node_ops.rename) {
           throw new FS.ErrnoError(63);
         }
-        if (
-          FS.isMountpoint(old_node) ||
-          (new_node && FS.isMountpoint(new_node))
-        ) {
+        if (FS.isMountpoint(old_node) || (new_node && FS.isMountpoint(new_node))) {
           throw new FS.ErrnoError(10);
         }
         if (new_dir !== old_dir) {
@@ -2086,16 +1849,10 @@ var Module = (function () {
           FS.hashAddNode(old_node);
         }
         try {
-          if (FS.trackingDelegate['onMovePath'])
-            FS.trackingDelegate['onMovePath'](old_path, new_path);
+          if (FS.trackingDelegate['onMovePath']) FS.trackingDelegate['onMovePath'](old_path, new_path);
         } catch (e) {
           err(
-            "FS.trackingDelegate['onMovePath']('" +
-              old_path +
-              "', '" +
-              new_path +
-              "') threw an exception: " +
-              e.message
+            "FS.trackingDelegate['onMovePath']('" + old_path + "', '" + new_path + "') threw an exception: " + e.message
           );
         }
       },
@@ -2119,25 +1876,14 @@ var Module = (function () {
             FS.trackingDelegate['willDeletePath'](path);
           }
         } catch (e) {
-          err(
-            "FS.trackingDelegate['willDeletePath']('" +
-              path +
-              "') threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['willDeletePath']('" + path + "') threw an exception: " + e.message);
         }
         parent.node_ops.rmdir(parent, name);
         FS.destroyNode(node);
         try {
-          if (FS.trackingDelegate['onDeletePath'])
-            FS.trackingDelegate['onDeletePath'](path);
+          if (FS.trackingDelegate['onDeletePath']) FS.trackingDelegate['onDeletePath'](path);
         } catch (e) {
-          err(
-            "FS.trackingDelegate['onDeletePath']('" +
-              path +
-              "') threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['onDeletePath']('" + path + "') threw an exception: " + e.message);
         }
       },
       readdir: function (path) {
@@ -2168,25 +1914,14 @@ var Module = (function () {
             FS.trackingDelegate['willDeletePath'](path);
           }
         } catch (e) {
-          err(
-            "FS.trackingDelegate['willDeletePath']('" +
-              path +
-              "') threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['willDeletePath']('" + path + "') threw an exception: " + e.message);
         }
         parent.node_ops.unlink(parent, name);
         FS.destroyNode(node);
         try {
-          if (FS.trackingDelegate['onDeletePath'])
-            FS.trackingDelegate['onDeletePath'](path);
+          if (FS.trackingDelegate['onDeletePath']) FS.trackingDelegate['onDeletePath'](path);
         } catch (e) {
-          err(
-            "FS.trackingDelegate['onDeletePath']('" +
-              path +
-              "') threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['onDeletePath']('" + path + "') threw an exception: " + e.message);
         }
       },
       readlink: function (path) {
@@ -2198,10 +1933,7 @@ var Module = (function () {
         if (!link.node_ops.readlink) {
           throw new FS.ErrnoError(28);
         }
-        return PATH_FS.resolve(
-          FS.getPath(link.parent),
-          link.node_ops.readlink(link)
-        );
+        return PATH_FS.resolve(FS.getPath(link.parent), link.node_ops.readlink(link));
       },
       stat: function (path, dontFollow) {
         var lookup = FS.lookupPath(path, { follow: !dontFollow });
@@ -2228,10 +1960,7 @@ var Module = (function () {
         if (!node.node_ops.setattr) {
           throw new FS.ErrnoError(63);
         }
-        node.node_ops.setattr(node, {
-          mode: (mode & 4095) | (node.mode & ~4095),
-          timestamp: Date.now(),
-        });
+        node.node_ops.setattr(node, { mode: (mode & 4095) | (node.mode & ~4095), timestamp: Date.now() });
       },
       lchmod: function (path, mode) {
         FS.chmod(path, mode, true);
@@ -2357,7 +2086,7 @@ var Module = (function () {
         if (flags & 512) {
           FS.truncate(node, 0);
         }
-        flags &= ~(128 | 512);
+        flags &= ~(128 | 512 | 131072);
         var stream = FS.createStream(
           {
             node: node,
@@ -2394,12 +2123,7 @@ var Module = (function () {
             FS.trackingDelegate['onOpenFile'](path, trackingFlags);
           }
         } catch (e) {
-          err(
-            "FS.trackingDelegate['onOpenFile']('" +
-              path +
-              "', flags) threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['onOpenFile']('" + path + "', flags) threw an exception: " + e.message);
         }
         return stream;
       },
@@ -2458,13 +2182,7 @@ var Module = (function () {
         } else if (!stream.seekable) {
           throw new FS.ErrnoError(70);
         }
-        var bytesRead = stream.stream_ops.read(
-          stream,
-          buffer,
-          offset,
-          length,
-          position
-        );
+        var bytesRead = stream.stream_ops.read(stream, buffer, offset, length, position);
         if (!seeking) stream.position += bytesRead;
         return bytesRead;
       },
@@ -2484,7 +2202,7 @@ var Module = (function () {
         if (!stream.stream_ops.write) {
           throw new FS.ErrnoError(28);
         }
-        if (stream.flags & 1024) {
+        if (stream.seekable && stream.flags & 1024) {
           FS.llseek(stream, 0, 2);
         }
         var seeking = typeof position !== 'undefined';
@@ -2493,25 +2211,12 @@ var Module = (function () {
         } else if (!stream.seekable) {
           throw new FS.ErrnoError(70);
         }
-        var bytesWritten = stream.stream_ops.write(
-          stream,
-          buffer,
-          offset,
-          length,
-          position,
-          canOwn
-        );
+        var bytesWritten = stream.stream_ops.write(stream, buffer, offset, length, position, canOwn);
         if (!seeking) stream.position += bytesWritten;
         try {
-          if (stream.path && FS.trackingDelegate['onWriteToFile'])
-            FS.trackingDelegate['onWriteToFile'](stream.path);
+          if (stream.path && FS.trackingDelegate['onWriteToFile']) FS.trackingDelegate['onWriteToFile'](stream.path);
         } catch (e) {
-          err(
-            "FS.trackingDelegate['onWriteToFile']('" +
-              stream.path +
-              "') threw an exception: " +
-              e.message
-          );
+          err("FS.trackingDelegate['onWriteToFile']('" + stream.path + "') threw an exception: " + e.message);
         }
         return bytesWritten;
       },
@@ -2533,12 +2238,8 @@ var Module = (function () {
         }
         stream.stream_ops.allocate(stream, offset, length);
       },
-      mmap: function (stream, buffer, offset, length, position, prot, flags) {
-        if (
-          (prot & 2) !== 0 &&
-          (flags & 2) === 0 &&
-          (stream.flags & 2097155) !== 2
-        ) {
+      mmap: function (stream, address, length, position, prot, flags) {
+        if ((prot & 2) !== 0 && (flags & 2) === 0 && (stream.flags & 2097155) !== 2) {
           throw new FS.ErrnoError(2);
         }
         if ((stream.flags & 2097155) === 1) {
@@ -2547,27 +2248,13 @@ var Module = (function () {
         if (!stream.stream_ops.mmap) {
           throw new FS.ErrnoError(43);
         }
-        return stream.stream_ops.mmap(
-          stream,
-          buffer,
-          offset,
-          length,
-          position,
-          prot,
-          flags
-        );
+        return stream.stream_ops.mmap(stream, address, length, position, prot, flags);
       },
       msync: function (stream, buffer, offset, length, mmapFlags) {
         if (!stream || !stream.stream_ops.msync) {
           return 0;
         }
-        return stream.stream_ops.msync(
-          stream,
-          buffer,
-          offset,
-          length,
-          mmapFlags
-        );
+        return stream.stream_ops.msync(stream, buffer, offset, length, mmapFlags);
       },
       munmap: function (stream) {
         return 0;
@@ -2652,10 +2339,7 @@ var Module = (function () {
         FS.mkdev('/dev/tty', FS.makedev(5, 0));
         FS.mkdev('/dev/tty1', FS.makedev(6, 0));
         var random_device;
-        if (
-          typeof crypto === 'object' &&
-          typeof crypto['getRandomValues'] === 'function'
-        ) {
+        if (typeof crypto === 'object' && typeof crypto['getRandomValues'] === 'function') {
           var randomBuffer = new Uint8Array(1);
           random_device = function () {
             crypto.getRandomValues(randomBuffer);
@@ -2794,7 +2478,7 @@ var Module = (function () {
         if (ret.exists) {
           return ret.object;
         } else {
-          ___setErrNo(ret.error);
+          setErrNo(ret.error);
           return null;
         }
       },
@@ -2832,10 +2516,7 @@ var Module = (function () {
         return ret;
       },
       createFolder: function (parent, name, canRead, canWrite) {
-        var path = PATH.join2(
-          typeof parent === 'string' ? parent : FS.getPath(parent),
-          name
-        );
+        var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(canRead, canWrite);
         return FS.mkdir(path, mode);
       },
@@ -2854,27 +2535,18 @@ var Module = (function () {
         return current;
       },
       createFile: function (parent, name, properties, canRead, canWrite) {
-        var path = PATH.join2(
-          typeof parent === 'string' ? parent : FS.getPath(parent),
-          name
-        );
+        var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(canRead, canWrite);
         return FS.create(path, mode);
       },
       createDataFile: function (parent, name, data, canRead, canWrite, canOwn) {
-        var path = name
-          ? PATH.join2(
-              typeof parent === 'string' ? parent : FS.getPath(parent),
-              name
-            )
-          : parent;
+        var path = name ? PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name) : parent;
         var mode = FS.getMode(canRead, canWrite);
         var node = FS.create(path, mode);
         if (data) {
           if (typeof data === 'string') {
             var arr = new Array(data.length);
-            for (var i = 0, len = data.length; i < len; ++i)
-              arr[i] = data.charCodeAt(i);
+            for (var i = 0, len = data.length; i < len; ++i) arr[i] = data.charCodeAt(i);
             data = arr;
           }
           FS.chmod(node, mode | 146);
@@ -2886,10 +2558,7 @@ var Module = (function () {
         return node;
       },
       createDevice: function (parent, name, input, output) {
-        var path = PATH.join2(
-          typeof parent === 'string' ? parent : FS.getPath(parent),
-          name
-        );
+        var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         var mode = FS.getMode(!!input, !!output);
         if (!FS.createDevice.major) FS.createDevice.major = 64;
         var dev = FS.makedev(FS.createDevice.major++, 0);
@@ -2940,15 +2609,11 @@ var Module = (function () {
         return FS.mkdev(path, mode, dev);
       },
       createLink: function (parent, name, target, canRead, canWrite) {
-        var path = PATH.join2(
-          typeof parent === 'string' ? parent : FS.getPath(parent),
-          name
-        );
+        var path = PATH.join2(typeof parent === 'string' ? parent : FS.getPath(parent), name);
         return FS.symlink(target, path);
       },
       forceLoadFile: function (obj) {
-        if (obj.isDevice || obj.isFolder || obj.link || obj.contents)
-          return true;
+        if (obj.isDevice || obj.isFolder || obj.link || obj.contents) return true;
         var success = true;
         if (typeof XMLHttpRequest !== 'undefined') {
           throw new Error(
@@ -2964,7 +2629,7 @@ var Module = (function () {
         } else {
           throw new Error('Cannot load without read() or XMLHttpRequest.');
         }
-        if (!success) ___setErrNo(29);
+        if (!success) setErrNo(29);
         return success;
       },
       createLazyFile: function (parent, name, url, canRead, canWrite) {
@@ -2980,9 +2645,7 @@ var Module = (function () {
           var chunkNum = (idx / this.chunkSize) | 0;
           return this.getter(chunkNum)[chunkOffset];
         };
-        LazyUint8Array.prototype.setDataGetter = function LazyUint8Array_setDataGetter(
-          getter
-        ) {
+        LazyUint8Array.prototype.setDataGetter = function LazyUint8Array_setDataGetter(getter) {
           this.getter = getter;
         };
         LazyUint8Array.prototype.cacheLength = function LazyUint8Array_cacheLength() {
@@ -2993,43 +2656,23 @@ var Module = (function () {
             throw new Error("Couldn't load " + url + '. Status: ' + xhr.status);
           var datalength = Number(xhr.getResponseHeader('Content-length'));
           var header;
-          var hasByteServing =
-            (header = xhr.getResponseHeader('Accept-Ranges')) &&
-            header === 'bytes';
-          var usesGzip =
-            (header = xhr.getResponseHeader('Content-Encoding')) &&
-            header === 'gzip';
+          var hasByteServing = (header = xhr.getResponseHeader('Accept-Ranges')) && header === 'bytes';
+          var usesGzip = (header = xhr.getResponseHeader('Content-Encoding')) && header === 'gzip';
           var chunkSize = 1024 * 1024;
           if (!hasByteServing) chunkSize = datalength;
           var doXHR = function (from, to) {
-            if (from > to)
-              throw new Error(
-                'invalid range (' +
-                  from +
-                  ', ' +
-                  to +
-                  ') or no bytes requested!'
-              );
-            if (to > datalength - 1)
-              throw new Error(
-                'only ' + datalength + ' bytes available! programmer error!'
-              );
+            if (from > to) throw new Error('invalid range (' + from + ', ' + to + ') or no bytes requested!');
+            if (to > datalength - 1) throw new Error('only ' + datalength + ' bytes available! programmer error!');
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url, false);
-            if (datalength !== chunkSize)
-              xhr.setRequestHeader('Range', 'bytes=' + from + '-' + to);
-            if (typeof Uint8Array != 'undefined')
-              xhr.responseType = 'arraybuffer';
+            if (datalength !== chunkSize) xhr.setRequestHeader('Range', 'bytes=' + from + '-' + to);
+            if (typeof Uint8Array != 'undefined') xhr.responseType = 'arraybuffer';
             if (xhr.overrideMimeType) {
               xhr.overrideMimeType('text/plain; charset=x-user-defined');
             }
             xhr.send(null);
-            if (
-              !((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304)
-            )
-              throw new Error(
-                "Couldn't load " + url + '. Status: ' + xhr.status
-              );
+            if (!((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304))
+              throw new Error("Couldn't load " + url + '. Status: ' + xhr.status);
             if (xhr.response !== undefined) {
               return new Uint8Array(xhr.response || []);
             } else {
@@ -3044,17 +2687,14 @@ var Module = (function () {
             if (typeof lazyArray.chunks[chunkNum] === 'undefined') {
               lazyArray.chunks[chunkNum] = doXHR(start, end);
             }
-            if (typeof lazyArray.chunks[chunkNum] === 'undefined')
-              throw new Error('doXHR failed!');
+            if (typeof lazyArray.chunks[chunkNum] === 'undefined') throw new Error('doXHR failed!');
             return lazyArray.chunks[chunkNum];
           });
           if (usesGzip || !datalength) {
             chunkSize = datalength = 1;
             datalength = this.getter(0).length;
             chunkSize = datalength;
-            out(
-              'LazyFiles on gzip forces download of the whole file when length is accessed'
-            );
+            out('LazyFiles on gzip forces download of the whole file when length is accessed');
           }
           this._length = datalength;
           this._chunkSize = chunkSize;
@@ -3111,13 +2751,7 @@ var Module = (function () {
             return fn.apply(null, arguments);
           };
         });
-        stream_ops.read = function stream_ops_read(
-          stream,
-          buffer,
-          offset,
-          length,
-          position
-        ) {
+        stream_ops.read = function stream_ops_read(stream, buffer, offset, length, position) {
           if (!FS.forceLoadFile(node)) {
             throw new FS.ErrnoError(29);
           }
@@ -3151,22 +2785,13 @@ var Module = (function () {
         preFinish
       ) {
         Browser.init();
-        var fullname = name
-          ? PATH_FS.resolve(PATH.join2(parent, name))
-          : parent;
+        var fullname = name ? PATH_FS.resolve(PATH.join2(parent, name)) : parent;
         var dep = getUniqueRunDependency('cp ' + fullname);
         function processData(byteArray) {
           function finish(byteArray) {
             if (preFinish) preFinish();
             if (!dontCreateFile) {
-              FS.createDataFile(
-                parent,
-                name,
-                byteArray,
-                canRead,
-                canWrite,
-                canOwn
-              );
+              FS.createDataFile(parent, name, byteArray, canRead, canWrite, canOwn);
             }
             if (onload) onload();
             removeRunDependency(dep);
@@ -3198,12 +2823,7 @@ var Module = (function () {
         }
       },
       indexedDB: function () {
-        return (
-          window.indexedDB ||
-          window.mozIndexedDB ||
-          window.webkitIndexedDB ||
-          window.msIndexedDB
-        );
+        return window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
       },
       DB_NAME: function () {
         return 'EM_FS_' + window.location.pathname;
@@ -3236,10 +2856,7 @@ var Module = (function () {
             else onerror();
           }
           paths.forEach(function (path) {
-            var putRequest = files.put(
-              FS.analyzePath(path).object.contents,
-              path
-            );
+            var putRequest = files.put(FS.analyzePath(path).object.contents, path);
             putRequest.onsuccess = function putRequest_onsuccess() {
               ok++;
               if (ok + fail == total) finish();
@@ -3285,14 +2902,7 @@ var Module = (function () {
               if (FS.analyzePath(path).exists) {
                 FS.unlink(path);
               }
-              FS.createDataFile(
-                PATH.dirname(path),
-                PATH.basename(path),
-                getRequest.result,
-                true,
-                true,
-                true
-              );
+              FS.createDataFile(PATH.dirname(path), PATH.basename(path), getRequest.result, true, true, true);
               ok++;
               if (ok + fail == total) finish();
             };
@@ -3304,6 +2914,12 @@ var Module = (function () {
           transaction.onerror = onerror;
         };
         openRequest.onerror = onerror;
+      },
+      mmapAlloc: function (size) {
+        var alignedSize = alignMemory(size, 16384);
+        var ptr = _malloc(alignedSize);
+        while (size < alignedSize) HEAP8[ptr + size++] = 0;
+        return ptr;
       },
     };
     var SYSCALLS = {
@@ -3328,11 +2944,7 @@ var Module = (function () {
         try {
           var stat = func(path);
         } catch (e) {
-          if (
-            e &&
-            e.node &&
-            PATH.normalize(path) !== PATH.normalize(FS.getPath(e.node))
-          ) {
+          if (e && e.node && PATH.normalize(path) !== PATH.normalize(FS.getPath(e.node))) {
             return -54;
           }
           throw e;
@@ -3351,12 +2963,8 @@ var Module = (function () {
           ((tempDouble = stat.size),
           +Math_abs(tempDouble) >= 1
             ? tempDouble > 0
-              ? (Math_min(+Math_floor(tempDouble / 4294967296), 4294967295) |
-                  0) >>>
-                0
-              : ~~+Math_ceil(
-                  (tempDouble - +(~~tempDouble >>> 0)) / 4294967296
-                ) >>> 0
+              ? (Math_min(+Math_floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0
+              : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0
             : 0),
         ]),
           (HEAP32[(buf + 40) >> 2] = tempI64[0]),
@@ -3374,12 +2982,8 @@ var Module = (function () {
           ((tempDouble = stat.ino),
           +Math_abs(tempDouble) >= 1
             ? tempDouble > 0
-              ? (Math_min(+Math_floor(tempDouble / 4294967296), 4294967295) |
-                  0) >>>
-                0
-              : ~~+Math_ceil(
-                  (tempDouble - +(~~tempDouble >>> 0)) / 4294967296
-                ) >>> 0
+              ? (Math_min(+Math_floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0
+              : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0
             : 0),
         ]),
           (HEAP32[(buf + 80) >> 2] = tempI64[0]),
@@ -3392,8 +2996,7 @@ var Module = (function () {
       },
       doMkdir: function (path, mode) {
         path = PATH.normalize(path);
-        if (path[path.length - 1] === '/')
-          path = path.substr(0, path.length - 1);
+        if (path[path.length - 1] === '/') path = path.substr(0, path.length - 1);
         FS.mkdir(path, mode, 0);
         return 0;
       },
@@ -3487,14 +3090,16 @@ var Module = (function () {
       },
     };
     function syscallMunmap(addr, len) {
-      if (addr === -1 || len === 0) {
+      if ((addr | 0) === -1 || len === 0) {
         return -28;
       }
       var info = SYSCALLS.mappings[addr];
       if (!info) return 0;
       if (len === info.len) {
         var stream = FS.getStream(info.fd);
-        SYSCALLS.doMsync(addr, stream, len, info.flags, info.offset);
+        if (info.prot & 2) {
+          SYSCALLS.doMsync(addr, stream, len, info.flags, info.offset);
+        }
         FS.munmap(stream);
         SYSCALLS.mappings[addr] = null;
         if (info.allocated) {
@@ -3503,12 +3108,11 @@ var Module = (function () {
       }
       return 0;
     }
-    function ___syscall91(addr, len) {
+    function ___sys_munmap(addr, len) {
       try {
         return syscallMunmap(addr, len);
       } catch (e) {
-        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError))
-          abort(e);
+        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
         return -e.errno;
       }
     }
@@ -3520,31 +3124,26 @@ var Module = (function () {
     }
     function emscripten_realloc_buffer(size) {
       try {
-        wasmMemory.grow((size - buffer.byteLength + 65535) >> 16);
+        wasmMemory.grow((size - buffer.byteLength + 65535) >>> 16);
         updateGlobalBufferAndViews(wasmMemory.buffer);
         return 1;
       } catch (e) {}
     }
     function _emscripten_resize_heap(requestedSize) {
+      requestedSize = requestedSize >>> 0;
       var oldSize = _emscripten_get_heap_size();
       var PAGE_MULTIPLE = 65536;
-      var maxHeapSize = 2147483648 - PAGE_MULTIPLE;
+      var maxHeapSize = 2147483648;
       if (requestedSize > maxHeapSize) {
         return false;
       }
       var minHeapSize = 16777216;
       for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
         var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown);
-        overGrownHeapSize = Math.min(
-          overGrownHeapSize,
-          requestedSize + 100663296
-        );
+        overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296);
         var newSize = Math.min(
           maxHeapSize,
-          alignUp(
-            Math.max(minHeapSize, requestedSize, overGrownHeapSize),
-            PAGE_MULTIPLE
-          )
+          alignUp(Math.max(minHeapSize, requestedSize, overGrownHeapSize), PAGE_MULTIPLE)
         );
         var replacement = emscripten_realloc_buffer(newSize);
         if (replacement) {
@@ -3554,25 +3153,22 @@ var Module = (function () {
       return false;
     }
     var ENV = {};
-    function __getExecutableName() {
+    function getExecutableName() {
       return thisProgram || './this.program';
     }
-    function _emscripten_get_environ() {
-      if (!_emscripten_get_environ.strings) {
+    function getEnvStrings() {
+      if (!getEnvStrings.strings) {
+        var lang =
+          ((typeof navigator === 'object' && navigator.languages && navigator.languages[0]) || 'C').replace('-', '_') +
+          '.UTF-8';
         var env = {
           USER: 'web_user',
           LOGNAME: 'web_user',
           PATH: '/',
           PWD: '/',
           HOME: '/home/web_user',
-          LANG:
-            (
-              (typeof navigator === 'object' &&
-                navigator.languages &&
-                navigator.languages[0]) ||
-              'C'
-            ).replace('-', '_') + '.UTF-8',
-          _: __getExecutableName(),
+          LANG: lang,
+          _: getExecutableName(),
         };
         for (var x in ENV) {
           env[x] = ENV[x];
@@ -3581,14 +3177,13 @@ var Module = (function () {
         for (var x in env) {
           strings.push(x + '=' + env[x]);
         }
-        _emscripten_get_environ.strings = strings;
+        getEnvStrings.strings = strings;
       }
-      return _emscripten_get_environ.strings;
+      return getEnvStrings.strings;
     }
     function _environ_get(__environ, environ_buf) {
-      var strings = _emscripten_get_environ();
       var bufSize = 0;
-      strings.forEach(function (string, i) {
+      getEnvStrings().forEach(function (string, i) {
         var ptr = environ_buf + bufSize;
         HEAP32[(__environ + i * 4) >> 2] = ptr;
         writeAsciiToMemory(string, ptr);
@@ -3597,7 +3192,7 @@ var Module = (function () {
       return 0;
     }
     function _environ_sizes_get(penviron_count, penviron_buf_size) {
-      var strings = _emscripten_get_environ();
+      var strings = getEnvStrings();
       HEAP32[penviron_count >> 2] = strings.length;
       var bufSize = 0;
       strings.forEach(function (string) {
@@ -3613,8 +3208,7 @@ var Module = (function () {
         HEAP32[pnum >> 2] = num;
         return 0;
       } catch (e) {
-        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError))
-          abort(e);
+        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
         return e.errno;
       }
     }
@@ -3633,11 +3227,7 @@ var Module = (function () {
       }
       if (mode == 0) {
         Browser.mainLoop.scheduler = function Browser_mainLoop_scheduler_setTimeout() {
-          var timeUntilNextTick =
-            Math.max(
-              0,
-              Browser.mainLoop.tickStartTime + value - _emscripten_get_now()
-            ) | 0;
+          var timeUntilNextTick = Math.max(0, Browser.mainLoop.tickStartTime + value - _emscripten_get_now()) | 0;
           setTimeout(Browser.mainLoop.runner, timeUntilNextTick);
         };
         Browser.mainLoop.method = 'timeout';
@@ -3651,24 +3241,16 @@ var Module = (function () {
           var setImmediates = [];
           var emscriptenMainLoopMessageId = 'setimmediate';
           var Browser_setImmediate_messageHandler = function (event) {
-            if (
-              event.data === emscriptenMainLoopMessageId ||
-              event.data.target === emscriptenMainLoopMessageId
-            ) {
+            if (event.data === emscriptenMainLoopMessageId || event.data.target === emscriptenMainLoopMessageId) {
               event.stopPropagation();
               setImmediates.shift()();
             }
           };
-          addEventListener(
-            'message',
-            Browser_setImmediate_messageHandler,
-            true
-          );
+          addEventListener('message', Browser_setImmediate_messageHandler, true);
           setImmediate = function Browser_emulated_setImmediate(func) {
             setImmediates.push(func);
             if (ENVIRONMENT_IS_WORKER) {
-              if (Module['setImmediates'] === undefined)
-                Module['setImmediates'] = [];
+              if (Module['setImmediates'] === undefined) Module['setImmediates'] = [];
               Module['setImmediates'].push(func);
               postMessage({ target: emscriptenMainLoopMessageId });
             } else postMessage(emscriptenMainLoopMessageId, '*');
@@ -3685,13 +3267,7 @@ var Module = (function () {
     _emscripten_get_now = function () {
       return performance.now();
     };
-    function _emscripten_set_main_loop(
-      func,
-      fps,
-      simulateInfiniteLoop,
-      arg,
-      noSetTiming
-    ) {
+    function _emscripten_set_main_loop(func, fps, simulateInfiniteLoop, arg, noSetTiming) {
       noExitRuntime = true;
       assert(
         !Browser.mainLoop.func,
@@ -3718,8 +3294,7 @@ var Module = (function () {
           blocker.func(blocker.arg);
           if (Browser.mainLoop.remainingBlockers) {
             var remaining = Browser.mainLoop.remainingBlockers;
-            var next =
-              remaining % 1 == 0 ? remaining - 1 : Math.floor(remaining);
+            var next = remaining % 1 == 0 ? remaining - 1 : Math.floor(remaining);
             if (blocker.counted) {
               Browser.mainLoop.remainingBlockers = next;
             } else {
@@ -3727,27 +3302,18 @@ var Module = (function () {
               Browser.mainLoop.remainingBlockers = (8 * remaining + next) / 9;
             }
           }
-          console.log(
-            'main loop blocker "' +
-              blocker.name +
-              '" took ' +
-              (Date.now() - start) +
-              ' ms'
-          );
+          console.log('main loop blocker "' + blocker.name + '" took ' + (Date.now() - start) + ' ms');
           Browser.mainLoop.updateStatus();
-          if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop)
-            return;
+          if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
           setTimeout(Browser.mainLoop.runner, 0);
           return;
         }
         if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
-        Browser.mainLoop.currentFrameNumber =
-          (Browser.mainLoop.currentFrameNumber + 1) | 0;
+        Browser.mainLoop.currentFrameNumber = (Browser.mainLoop.currentFrameNumber + 1) | 0;
         if (
           Browser.mainLoop.timingMode == 1 &&
           Browser.mainLoop.timingValue > 1 &&
-          Browser.mainLoop.currentFrameNumber % Browser.mainLoop.timingValue !=
-            0
+          Browser.mainLoop.currentFrameNumber % Browser.mainLoop.timingValue != 0
         ) {
           Browser.mainLoop.scheduler();
           return;
@@ -3756,8 +3322,7 @@ var Module = (function () {
         }
         Browser.mainLoop.runIter(browserIterationFunc);
         if (thisMainLoopId < Browser.mainLoop.currentlyRunningMainloop) return;
-        if (typeof SDL === 'object' && SDL.audio && SDL.audio.queueNewAudioData)
-          SDL.audio.queueNewAudioData();
+        if (typeof SDL === 'object' && SDL.audio && SDL.audio.queueNewAudioData) SDL.audio.queueNewAudioData();
         Browser.mainLoop.scheduler();
       };
       if (!noSetTiming) {
@@ -3801,9 +3366,7 @@ var Module = (function () {
             var expected = Browser.mainLoop.expectedBlockers;
             if (remaining) {
               if (remaining < expected) {
-                Module['setStatus'](
-                  message + ' (' + (expected - remaining) + '/' + expected + ')'
-                );
+                Module['setStatus'](message + ' (' + (expected - remaining) + '/' + expected + ')');
               } else {
                 Module['setStatus'](message);
               }
@@ -3825,9 +3388,10 @@ var Module = (function () {
           } catch (e) {
             if (e instanceof ExitStatus) {
               return;
+            } else if (e == 'unwind') {
+              return;
             } else {
-              if (e && typeof e === 'object' && e.stack)
-                err('exception thrown: ' + [e, e.stack]);
+              if (e && typeof e === 'object' && e.stack) err('exception thrown: ' + [e, e.stack]);
               throw e;
             }
           }
@@ -3847,9 +3411,7 @@ var Module = (function () {
           Browser.hasBlobConstructor = true;
         } catch (e) {
           Browser.hasBlobConstructor = false;
-          console.log(
-            'warning: no blob constructor, cannot create blobs with mimetypes'
-          );
+          console.log('warning: no blob constructor, cannot create blobs with mimetypes');
         }
         Browser.BlobBuilder =
           typeof MozBlobBuilder != 'undefined'
@@ -3859,16 +3421,8 @@ var Module = (function () {
             : !Browser.hasBlobConstructor
             ? console.log('warning: no BlobBuilder')
             : null;
-        Browser.URLObject =
-          typeof window != 'undefined'
-            ? window.URL
-              ? window.URL
-              : window.webkitURL
-            : undefined;
-        if (
-          !Module.noImageDecoding &&
-          typeof Browser.URLObject === 'undefined'
-        ) {
+        Browser.URLObject = typeof window != 'undefined' ? (window.URL ? window.URL : window.webkitURL) : undefined;
+        if (!Module.noImageDecoding && typeof Browser.URLObject === 'undefined') {
           console.log(
             'warning: Browser does not support creating object URLs. Built-in browser image decoding will not be available.'
           );
@@ -3878,27 +3432,16 @@ var Module = (function () {
         imagePlugin['canHandle'] = function imagePlugin_canHandle(name) {
           return !Module.noImageDecoding && /\.(jpg|jpeg|png|bmp)$/i.test(name);
         };
-        imagePlugin['handle'] = function imagePlugin_handle(
-          byteArray,
-          name,
-          onload,
-          onerror
-        ) {
+        imagePlugin['handle'] = function imagePlugin_handle(byteArray, name, onload, onerror) {
           var b = null;
           if (Browser.hasBlobConstructor) {
             try {
               b = new Blob([byteArray], { type: Browser.getMimetype(name) });
               if (b.size !== byteArray.length) {
-                b = new Blob([new Uint8Array(byteArray).buffer], {
-                  type: Browser.getMimetype(name),
-                });
+                b = new Blob([new Uint8Array(byteArray).buffer], { type: Browser.getMimetype(name) });
               }
             } catch (e) {
-              warnOnce(
-                'Blob constructor present but fails: ' +
-                  e +
-                  '; falling back to blob builder'
-              );
+              warnOnce('Blob constructor present but fails: ' + e + '; falling back to blob builder');
             }
           }
           if (!b) {
@@ -3928,17 +3471,9 @@ var Module = (function () {
         Module['preloadPlugins'].push(imagePlugin);
         var audioPlugin = {};
         audioPlugin['canHandle'] = function audioPlugin_canHandle(name) {
-          return (
-            !Module.noAudioDecoding &&
-            name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 }
-          );
+          return !Module.noAudioDecoding && name.substr(-4) in { '.ogg': 1, '.wav': 1, '.mp3': 1 };
         };
-        audioPlugin['handle'] = function audioPlugin_handle(
-          byteArray,
-          name,
-          onload,
-          onerror
-        ) {
+        audioPlugin['handle'] = function audioPlugin_handle(byteArray, name, onload, onerror) {
           var done = false;
           function finish(audio) {
             if (done) return;
@@ -3954,9 +3489,7 @@ var Module = (function () {
           }
           if (Browser.hasBlobConstructor) {
             try {
-              var b = new Blob([byteArray], {
-                type: Browser.getMimetype(name),
-              });
+              var b = new Blob([byteArray], { type: Browser.getMimetype(name) });
             } catch (e) {
               return fail();
             }
@@ -3971,14 +3504,9 @@ var Module = (function () {
             );
             audio.onerror = function audio_onerror(event) {
               if (done) return;
-              console.log(
-                'warning: browser could not fully decode audio ' +
-                  name +
-                  ', trying slower base64 approach'
-              );
+              console.log('warning: browser could not fully decode audio ' + name + ', trying slower base64 approach');
               function encode64(data) {
-                var BASE =
-                  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+                var BASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
                 var PAD = '=';
                 var ret = '';
                 var leftchar = 0;
@@ -4001,11 +3529,7 @@ var Module = (function () {
                 }
                 return ret;
               }
-              audio.src =
-                'data:audio/x-' +
-                name.substr(-3) +
-                ';base64,' +
-                encode64(byteArray);
+              audio.src = 'data:audio/x-' + name.substr(-3) + ';base64,' + encode64(byteArray);
               finish(audio);
             };
             audio.src = url;
@@ -4039,34 +3563,15 @@ var Module = (function () {
             document['msExitPointerLock'] ||
             function () {};
           canvas.exitPointerLock = canvas.exitPointerLock.bind(document);
-          document.addEventListener(
-            'pointerlockchange',
-            pointerLockChange,
-            false
-          );
-          document.addEventListener(
-            'mozpointerlockchange',
-            pointerLockChange,
-            false
-          );
-          document.addEventListener(
-            'webkitpointerlockchange',
-            pointerLockChange,
-            false
-          );
-          document.addEventListener(
-            'mspointerlockchange',
-            pointerLockChange,
-            false
-          );
+          document.addEventListener('pointerlockchange', pointerLockChange, false);
+          document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+          document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
+          document.addEventListener('mspointerlockchange', pointerLockChange, false);
           if (Module['elementPointerLock']) {
             canvas.addEventListener(
               'click',
               function (ev) {
-                if (
-                  !Browser.pointerLock &&
-                  Module['canvas'].requestPointerLock
-                ) {
+                if (!Browser.pointerLock && Module['canvas'].requestPointerLock) {
                   Module['canvas'].requestPointerLock();
                   ev.preventDefault();
                 }
@@ -4076,22 +3581,12 @@ var Module = (function () {
           }
         }
       },
-      createContext: function (
-        canvas,
-        useWebGL,
-        setInModule,
-        webGLContextAttributes
-      ) {
-        if (useWebGL && Module.ctx && canvas == Module.canvas)
-          return Module.ctx;
+      createContext: function (canvas, useWebGL, setInModule, webGLContextAttributes) {
+        if (useWebGL && Module.ctx && canvas == Module.canvas) return Module.ctx;
         var ctx;
         var contextHandle;
         if (useWebGL) {
-          var contextAttributes = {
-            antialias: false,
-            alpha: false,
-            majorVersion: 1,
-          };
+          var contextAttributes = { antialias: false, alpha: false, majorVersion: 1 };
           if (webGLContextAttributes) {
             for (var attribute in webGLContextAttributes) {
               contextAttributes[attribute] = webGLContextAttributes[attribute];
@@ -4130,10 +3625,8 @@ var Module = (function () {
       requestFullscreen: function (lockPointer, resizeCanvas) {
         Browser.lockPointer = lockPointer;
         Browser.resizeCanvas = resizeCanvas;
-        if (typeof Browser.lockPointer === 'undefined')
-          Browser.lockPointer = true;
-        if (typeof Browser.resizeCanvas === 'undefined')
-          Browser.resizeCanvas = false;
+        if (typeof Browser.lockPointer === 'undefined') Browser.lockPointer = true;
+        if (typeof Browser.resizeCanvas === 'undefined') Browser.resizeCanvas = false;
         var canvas = Module['canvas'];
         function fullscreenChange() {
           Browser.isFullscreen = false;
@@ -4162,33 +3655,15 @@ var Module = (function () {
               Browser.updateCanvasDimensions(canvas);
             }
           }
-          if (Module['onFullScreen'])
-            Module['onFullScreen'](Browser.isFullscreen);
-          if (Module['onFullscreen'])
-            Module['onFullscreen'](Browser.isFullscreen);
+          if (Module['onFullScreen']) Module['onFullScreen'](Browser.isFullscreen);
+          if (Module['onFullscreen']) Module['onFullscreen'](Browser.isFullscreen);
         }
         if (!Browser.fullscreenHandlersInstalled) {
           Browser.fullscreenHandlersInstalled = true;
-          document.addEventListener(
-            'fullscreenchange',
-            fullscreenChange,
-            false
-          );
-          document.addEventListener(
-            'mozfullscreenchange',
-            fullscreenChange,
-            false
-          );
-          document.addEventListener(
-            'webkitfullscreenchange',
-            fullscreenChange,
-            false
-          );
-          document.addEventListener(
-            'MSFullscreenChange',
-            fullscreenChange,
-            false
-          );
+          document.addEventListener('fullscreenchange', fullscreenChange, false);
+          document.addEventListener('mozfullscreenchange', fullscreenChange, false);
+          document.addEventListener('webkitfullscreenchange', fullscreenChange, false);
+          document.addEventListener('MSFullscreenChange', fullscreenChange, false);
         }
         var canvasContainer = document.createElement('div');
         canvas.parentNode.insertBefore(canvasContainer, canvas);
@@ -4199,16 +3674,12 @@ var Module = (function () {
           canvasContainer['msRequestFullscreen'] ||
           (canvasContainer['webkitRequestFullscreen']
             ? function () {
-                canvasContainer['webkitRequestFullscreen'](
-                  Element['ALLOW_KEYBOARD_INPUT']
-                );
+                canvasContainer['webkitRequestFullscreen'](Element['ALLOW_KEYBOARD_INPUT']);
               }
             : null) ||
           (canvasContainer['webkitRequestFullScreen']
             ? function () {
-                canvasContainer['webkitRequestFullScreen'](
-                  Element['ALLOW_KEYBOARD_INPUT']
-                );
+                canvasContainer['webkitRequestFullScreen'](Element['ALLOW_KEYBOARD_INPUT']);
               }
             : null);
         canvasContainer.requestFullscreen();
@@ -4311,26 +3782,15 @@ var Module = (function () {
       },
       getUserMedia: function (func) {
         if (!window.getUserMedia) {
-          window.getUserMedia =
-            navigator['getUserMedia'] || navigator['mozGetUserMedia'];
+          window.getUserMedia = navigator['getUserMedia'] || navigator['mozGetUserMedia'];
         }
         window.getUserMedia(func);
       },
       getMovementX: function (event) {
-        return (
-          event['movementX'] ||
-          event['mozMovementX'] ||
-          event['webkitMovementX'] ||
-          0
-        );
+        return event['movementX'] || event['mozMovementX'] || event['webkitMovementX'] || 0;
       },
       getMovementY: function (event) {
-        return (
-          event['movementY'] ||
-          event['mozMovementY'] ||
-          event['webkitMovementY'] ||
-          0
-        );
+        return event['movementY'] || event['mozMovementY'] || event['webkitMovementY'] || 0;
       },
       getMouseWheelDelta: function (event) {
         var delta = 0;
@@ -4387,19 +3847,9 @@ var Module = (function () {
           var rect = Module['canvas'].getBoundingClientRect();
           var cw = Module['canvas'].width;
           var ch = Module['canvas'].height;
-          var scrollX =
-            typeof window.scrollX !== 'undefined'
-              ? window.scrollX
-              : window.pageXOffset;
-          var scrollY =
-            typeof window.scrollY !== 'undefined'
-              ? window.scrollY
-              : window.pageYOffset;
-          if (
-            event.type === 'touchstart' ||
-            event.type === 'touchend' ||
-            event.type === 'touchmove'
-          ) {
+          var scrollX = typeof window.scrollX !== 'undefined' ? window.scrollX : window.pageXOffset;
+          var scrollY = typeof window.scrollY !== 'undefined' ? window.scrollY : window.pageYOffset;
+          if (event.type === 'touchstart' || event.type === 'touchend' || event.type === 'touchmove') {
             var touch = event.touch;
             if (touch === undefined) {
               return;
@@ -4412,10 +3862,7 @@ var Module = (function () {
             if (event.type === 'touchstart') {
               Browser.lastTouches[touch.identifier] = coords;
               Browser.touches[touch.identifier] = coords;
-            } else if (
-              event.type === 'touchend' ||
-              event.type === 'touchmove'
-            ) {
+            } else if (event.type === 'touchend' || event.type === 'touchmove') {
               var last = Browser.touches[touch.identifier];
               if (!last) last = coords;
               Browser.lastTouches[touch.identifier] = last;
@@ -4438,10 +3885,7 @@ var Module = (function () {
         readAsync(
           url,
           function (arrayBuffer) {
-            assert(
-              arrayBuffer,
-              'Loading data file "' + url + '" failed (no arrayBuffer).'
-            );
+            assert(arrayBuffer, 'Loading data file "' + url + '" failed (no arrayBuffer).');
             onload(new Uint8Array(arrayBuffer));
             if (dep) removeRunDependency(dep);
           },
@@ -4686,6 +4130,11 @@ var Module = (function () {
         }
         return Asyncify.handleSleepReturnValue;
       },
+      handleAsync: function (startAsync) {
+        return Asyncify.handleSleep(function (wakeUp) {
+          startAsync().then(wakeUp);
+        });
+      },
     };
     var FSNode = function (parent, name, mode, rdev) {
       if (!parent) {
@@ -4733,22 +4182,13 @@ var Module = (function () {
     });
     FS.FSNode = FSNode;
     FS.staticInit();
-    Module['requestFullscreen'] = function Module_requestFullscreen(
-      lockPointer,
-      resizeCanvas
-    ) {
+    Module['requestFullscreen'] = function Module_requestFullscreen(lockPointer, resizeCanvas) {
       Browser.requestFullscreen(lockPointer, resizeCanvas);
     };
-    Module['requestAnimationFrame'] = function Module_requestAnimationFrame(
-      func
-    ) {
+    Module['requestAnimationFrame'] = function Module_requestAnimationFrame(func) {
       Browser.requestAnimationFrame(func);
     };
-    Module['setCanvasSize'] = function Module_setCanvasSize(
-      width,
-      height,
-      noUpdates
-    ) {
+    Module['setCanvasSize'] = function Module_setCanvasSize(width, height, noUpdates) {
       Browser.setCanvasSize(width, height, noUpdates);
     };
     Module['pauseMainLoop'] = function Module_pauseMainLoop() {
@@ -4760,34 +4200,19 @@ var Module = (function () {
     Module['getUserMedia'] = function Module_getUserMedia() {
       Browser.getUserMedia();
     };
-    Module['createContext'] = function Module_createContext(
-      canvas,
-      useWebGL,
-      setInModule,
-      webGLContextAttributes
-    ) {
-      return Browser.createContext(
-        canvas,
-        useWebGL,
-        setInModule,
-        webGLContextAttributes
-      );
+    Module['createContext'] = function Module_createContext(canvas, useWebGL, setInModule, webGLContextAttributes) {
+      return Browser.createContext(canvas, useWebGL, setInModule, webGLContextAttributes);
     };
     function intArrayFromString(stringy, dontAddNull, length) {
       var len = length > 0 ? length : lengthBytesUTF8(stringy) + 1;
       var u8array = new Array(len);
-      var numBytesWritten = stringToUTF8Array(
-        stringy,
-        u8array,
-        0,
-        u8array.length
-      );
+      var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
       if (dontAddNull) u8array.length = numBytesWritten;
       return u8array;
     }
     var asmLibraryArg = {
       g: ___map_file,
-      f: ___syscall91,
+      f: ___sys_munmap,
       b: _emscripten_memcpy_big,
       c: _emscripten_resize_heap,
       d: _environ_get,
@@ -4798,176 +4223,117 @@ var Module = (function () {
       h: _time,
     };
     var asm = createWasm();
-    Module['asm'] = asm;
     var ___wasm_call_ctors = (Module['___wasm_call_ctors'] = function () {
-      return (___wasm_call_ctors = Module['___wasm_call_ctors'] =
-        Module['asm']['i']).apply(null, arguments);
+      return (___wasm_call_ctors = Module['___wasm_call_ctors'] = Module['asm']['i']).apply(null, arguments);
     });
     var _malloc = (Module['_malloc'] = function () {
-      return (_malloc = Module['_malloc'] = Module['asm']['j']).apply(
-        null,
-        arguments
-      );
+      return (_malloc = Module['_malloc'] = Module['asm']['j']).apply(null, arguments);
     });
     var _free = (Module['_free'] = function () {
-      return (_free = Module['_free'] = Module['asm']['k']).apply(
-        null,
-        arguments
-      );
+      return (_free = Module['_free'] = Module['asm']['k']).apply(null, arguments);
     });
     var _qspInitCallBacks = (Module['_qspInitCallBacks'] = function () {
-      return (_qspInitCallBacks = Module['_qspInitCallBacks'] =
-        Module['asm']['l']).apply(null, arguments);
+      return (_qspInitCallBacks = Module['_qspInitCallBacks'] = Module['asm']['l']).apply(null, arguments);
     });
     var _qspSetCallBack = (Module['_qspSetCallBack'] = function () {
-      return (_qspSetCallBack = Module['_qspSetCallBack'] =
-        Module['asm']['m']).apply(null, arguments);
+      return (_qspSetCallBack = Module['_qspSetCallBack'] = Module['asm']['m']).apply(null, arguments);
     });
     var _QSPGetVersion = (Module['_QSPGetVersion'] = function () {
-      return (_QSPGetVersion = Module['_QSPGetVersion'] =
-        Module['asm']['n']).apply(null, arguments);
+      return (_QSPGetVersion = Module['_QSPGetVersion'] = Module['asm']['n']).apply(null, arguments);
     });
     var _QSPInit = (Module['_QSPInit'] = function () {
-      return (_QSPInit = Module['_QSPInit'] = Module['asm']['o']).apply(
-        null,
-        arguments
-      );
+      return (_QSPInit = Module['_QSPInit'] = Module['asm']['o']).apply(null, arguments);
     });
     var _QSPLoadGameWorld = (Module['_QSPLoadGameWorld'] = function () {
-      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] =
-        Module['asm']['p']).apply(null, arguments);
+      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] = Module['asm']['p']).apply(null, arguments);
     });
     var _QSPSaveGame = (Module['_QSPSaveGame'] = function () {
-      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['q']).apply(
-        null,
-        arguments
-      );
+      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['q']).apply(null, arguments);
     });
     var _QSPOpenSavedGame = (Module['_QSPOpenSavedGame'] = function () {
-      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] =
-        Module['asm']['r']).apply(null, arguments);
+      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] = Module['asm']['r']).apply(null, arguments);
     });
     var _QSPRestartGame = (Module['_QSPRestartGame'] = function () {
-      return (_QSPRestartGame = Module['_QSPRestartGame'] =
-        Module['asm']['s']).apply(null, arguments);
+      return (_QSPRestartGame = Module['_QSPRestartGame'] = Module['asm']['s']).apply(null, arguments);
     });
     var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
-      return (_QSPGetLastError = Module['_QSPGetLastError'] =
-        Module['asm']['t']).apply(null, arguments);
+      return (_QSPGetLastError = Module['_QSPGetLastError'] = Module['asm']['t']).apply(null, arguments);
     });
     var _QSPIsMainDescChanged = (Module['_QSPIsMainDescChanged'] = function () {
-      return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] =
-        Module['asm']['u']).apply(null, arguments);
+      return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] = Module['asm']['u']).apply(null, arguments);
     });
     var _QSPGetMainDesc = (Module['_QSPGetMainDesc'] = function () {
-      return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] =
-        Module['asm']['v']).apply(null, arguments);
+      return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] = Module['asm']['v']).apply(null, arguments);
     });
     var _QSPIsVarsDescChanged = (Module['_QSPIsVarsDescChanged'] = function () {
-      return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] =
-        Module['asm']['w']).apply(null, arguments);
+      return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] = Module['asm']['w']).apply(null, arguments);
     });
     var _QSPGetVarsDesc = (Module['_QSPGetVarsDesc'] = function () {
-      return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] =
-        Module['asm']['x']).apply(null, arguments);
+      return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] = Module['asm']['x']).apply(null, arguments);
     });
     var _QSPIsActionsChanged = (Module['_QSPIsActionsChanged'] = function () {
-      return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] =
-        Module['asm']['y']).apply(null, arguments);
+      return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] = Module['asm']['y']).apply(null, arguments);
     });
     var _QSPGetActions = (Module['_QSPGetActions'] = function () {
-      return (_QSPGetActions = Module['_QSPGetActions'] =
-        Module['asm']['z']).apply(null, arguments);
+      return (_QSPGetActions = Module['_QSPGetActions'] = Module['asm']['z']).apply(null, arguments);
     });
     var _QSPSelectAction = (Module['_QSPSelectAction'] = function () {
-      return (_QSPSelectAction = Module['_QSPSelectAction'] =
-        Module['asm']['A']).apply(null, arguments);
+      return (_QSPSelectAction = Module['_QSPSelectAction'] = Module['asm']['A']).apply(null, arguments);
     });
     var _QSPIsObjectsChanged = (Module['_QSPIsObjectsChanged'] = function () {
-      return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] =
-        Module['asm']['B']).apply(null, arguments);
+      return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] = Module['asm']['B']).apply(null, arguments);
     });
     var _QSPGetObjects = (Module['_QSPGetObjects'] = function () {
-      return (_QSPGetObjects = Module['_QSPGetObjects'] =
-        Module['asm']['C']).apply(null, arguments);
+      return (_QSPGetObjects = Module['_QSPGetObjects'] = Module['asm']['C']).apply(null, arguments);
     });
     var _QSPSelectObject = (Module['_QSPSelectObject'] = function () {
-      return (_QSPSelectObject = Module['_QSPSelectObject'] =
-        Module['asm']['D']).apply(null, arguments);
+      return (_QSPSelectObject = Module['_QSPSelectObject'] = Module['asm']['D']).apply(null, arguments);
     });
     var _QSPGetVarValuesCount = (Module['_QSPGetVarValuesCount'] = function () {
-      return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] =
-        Module['asm']['E']).apply(null, arguments);
+      return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] = Module['asm']['E']).apply(null, arguments);
     });
     var _QSPGetVarNumValue = (Module['_QSPGetVarNumValue'] = function () {
-      return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] =
-        Module['asm']['F']).apply(null, arguments);
+      return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] = Module['asm']['F']).apply(null, arguments);
     });
     var _QSPGetVarStrValue = (Module['_QSPGetVarStrValue'] = function () {
-      return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] =
-        Module['asm']['G']).apply(null, arguments);
+      return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] = Module['asm']['G']).apply(null, arguments);
     });
     var _QSPExecString = (Module['_QSPExecString'] = function () {
-      return (_QSPExecString = Module['_QSPExecString'] =
-        Module['asm']['H']).apply(null, arguments);
+      return (_QSPExecString = Module['_QSPExecString'] = Module['asm']['H']).apply(null, arguments);
     });
     var _QSPExecCounter = (Module['_QSPExecCounter'] = function () {
-      return (_QSPExecCounter = Module['_QSPExecCounter'] =
-        Module['asm']['I']).apply(null, arguments);
+      return (_QSPExecCounter = Module['_QSPExecCounter'] = Module['asm']['I']).apply(null, arguments);
     });
     var _QSPExecUserInput = (Module['_QSPExecUserInput'] = function () {
-      return (_QSPExecUserInput = Module['_QSPExecUserInput'] =
-        Module['asm']['J']).apply(null, arguments);
+      return (_QSPExecUserInput = Module['_QSPExecUserInput'] = Module['asm']['J']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
-      return (___errno_location = Module['___errno_location'] =
-        Module['asm']['K']).apply(null, arguments);
+      return (___errno_location = Module['___errno_location'] = Module['asm']['K']).apply(null, arguments);
     });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['L']).apply(
-        null,
-        arguments
-      );
-    });
-    var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['M']).apply(
-        null,
-        arguments
-      );
+      return (stackSave = Module['stackSave'] = Module['asm']['L']).apply(null, arguments);
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['N']).apply(
-        null,
-        arguments
-      );
+      return (stackRestore = Module['stackRestore'] = Module['asm']['M']).apply(null, arguments);
+    });
+    var stackAlloc = (Module['stackAlloc'] = function () {
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['N']).apply(null, arguments);
     });
     var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['O']).apply(
-        null,
-        arguments
-      );
+      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['O']).apply(null, arguments);
     });
-    var _asyncify_start_unwind = (Module[
-      '_asyncify_start_unwind'
-    ] = function () {
-      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] =
-        Module['asm']['P']).apply(null, arguments);
+    var _asyncify_start_unwind = (Module['_asyncify_start_unwind'] = function () {
+      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] = Module['asm']['P']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
-      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] =
-        Module['asm']['Q']).apply(null, arguments);
+      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] = Module['asm']['Q']).apply(null, arguments);
     });
-    var _asyncify_start_rewind = (Module[
-      '_asyncify_start_rewind'
-    ] = function () {
-      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] =
-        Module['asm']['R']).apply(null, arguments);
+    var _asyncify_start_rewind = (Module['_asyncify_start_rewind'] = function () {
+      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] = Module['asm']['R']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
-      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] =
-        Module['asm']['S']).apply(null, arguments);
+      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] = Module['asm']['S']).apply(null, arguments);
     });
-    Module['asm'] = asm;
     Module['cwrap'] = cwrap;
     Module['getValue'] = getValue;
     Module['addFunction'] = addFunction;
@@ -4976,18 +4342,6 @@ var Module = (function () {
     Module['stringToUTF32'] = stringToUTF32;
     Module['lengthBytesUTF32'] = lengthBytesUTF32;
     var calledRun;
-    Module['then'] = function (func) {
-      if (calledRun) {
-        func(Module);
-      } else {
-        var old = Module['onRuntimeInitialized'];
-        Module['onRuntimeInitialized'] = function () {
-          if (old) old();
-          func(Module);
-        };
-      }
-      return Module;
-    };
     function ExitStatus(status) {
       this.name = 'ExitStatus';
       this.message = 'Program terminated with exit(' + status + ')';
@@ -5011,6 +4365,7 @@ var Module = (function () {
         if (ABORT) return;
         initRuntime();
         preMain();
+        readyPromiseResolve(Module);
         if (Module['onRuntimeInitialized']) Module['onRuntimeInitialized']();
         postRun();
       }
@@ -5028,8 +4383,7 @@ var Module = (function () {
     }
     Module['run'] = run;
     if (Module['preInit']) {
-      if (typeof Module['preInit'] == 'function')
-        Module['preInit'] = [Module['preInit']];
+      if (typeof Module['preInit'] == 'function') Module['preInit'] = [Module['preInit']];
       while (Module['preInit'].length > 0) {
         Module['preInit'].pop()();
       }
@@ -5037,11 +4391,10 @@ var Module = (function () {
     noExitRuntime = true;
     run();
 
-    return Module;
+    return Module.ready;
   };
 })();
-if (typeof exports === 'object' && typeof module === 'object')
-  module.exports = Module;
+if (typeof exports === 'object' && typeof module === 'object') module.exports = Module;
 else if (typeof define === 'function' && define['amd'])
   define([], function () {
     return Module;
