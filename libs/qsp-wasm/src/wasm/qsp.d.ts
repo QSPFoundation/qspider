@@ -16,12 +16,7 @@ export interface QspModule extends EmscriptenModule {
   _qspInitCallBacks(): void;
   _qspSetCallBack(type: QspCallType, fnPtr: FunctionPtr): void;
   _QSPGetVersion(): CharsPtr;
-  _QSPLoadGameWorld(
-    data: BufferPtr,
-    size: number,
-    fileName: CharsPtr,
-    isNewGame: boolean
-  ): boolean;
+  _QSPLoadGameWorld(data: BufferPtr, size: number, fileName: CharsPtr, isNewGame: boolean): boolean;
   _QSPSaveGame(count: IntPointer): CharsPtr;
   _QSPOpenSavedGame(data: BufferPtr, size: number): boolean;
   _QSPRestartGame(): boolean;
@@ -44,4 +39,4 @@ export interface QspModule extends EmscriptenModule {
   _QSPExecUserInput(code: CharsPtr): boolean;
 }
 
-export default function Module(emscriptenArgs: any): QspModule;
+export default function Module(emscriptenArgs: any): Promise<QspModule>;
