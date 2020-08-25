@@ -3,6 +3,7 @@ const getWebpackConfig = require('@nrwl/react/plugins/webpack');
 
 module.exports = (config, context) => {
   const updatedConfig = getWebpackConfig(config, context);
+  updatedConfig.module.rules.pop();
   updatedConfig.module.rules.push({
     test: /\.wasm$/,
     type: 'javascript/auto',
@@ -18,6 +19,17 @@ module.exports = (config, context) => {
     options: {
       name: '[name]-[hash].[ext]',
     },
+  });
+  updatedConfig.module.rules.push({
+    test: /\.svg$/,
+    use: [
+      {
+        loader: 'svg-sprite-loader',
+        options: {},
+      },
+      'svg-transform-loader',
+      'svgo-loader',
+    ],
   });
   return updatedConfig;
 };

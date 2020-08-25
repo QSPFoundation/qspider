@@ -1,20 +1,13 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
-import {
-  fetchGameDescriptor,
-  GameDescriptor,
-  fetchGameSource,
-  GAME_PATH,
-  saveGameToFile,
-  readGameFromFile,
-  fetchGameCongig,
-} from './loader';
+import { fetchGameDescriptor, GameDescriptor, fetchGameSource, GAME_PATH, fetchGameCongig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { SoundManager } from '@qspider/fmod';
 import { prepareContent, prepareList, preparePath } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
+import { SaveManager, SaveAction } from './save-manager';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -49,6 +42,8 @@ export class GameManager {
   waitTimeout: ReturnType<typeof setTimeout>;
   onWait: () => void;
 
+  saveAction: SaveAction | null = null;
+
   counterDelay = 500;
   counterTimeout: ReturnType<typeof setTimeout>;
 
@@ -57,6 +52,7 @@ export class GameManager {
   isPaused = false;
 
   private soundManager = new SoundManager();
+  private saveManager = new SaveManager();
 
   constructor() {
     this.apiInitialized = new Promise((resolve) => {
@@ -160,12 +156,14 @@ export class GameManager {
     this.objects = prepareList(list);
   };
   updateMenu = (list: QspListItem[], result: (index: number) => void): void => {
+    this.isPaused = true;
     this.menu = prepareList(list);
     this.menuResult = result;
     this.isMenuShown = true;
   };
 
   updateMsg = (text: string, onMsg: () => void): void => {
+    this.isPaused = true;
     this.msg = text;
     this.onMsg = onMsg;
     this.isMsgShown = true;
@@ -173,12 +171,15 @@ export class GameManager {
 
   closeMsg = (): void => {
     this.isMsgShown = false;
-    this.onMsg();
+    const onMsg = this.onMsg;
     this.msg = '';
     this.onMsg = null;
+    this.isPaused = false;
+    onMsg();
   };
 
   updateInput = (text: string, onInput: (text: string) => void): void => {
+    this.isPaused = true;
     this.input = text;
     this.onInput = onInput;
     this.isInputShown = true;
@@ -186,9 +187,11 @@ export class GameManager {
 
   closeInput = (text: string): void => {
     this.isInputShown = false;
-    this.onInput(text);
+    const onInput = this.onInput;
     this.input = '';
     this.onInput = null;
+    this.isPaused = false;
+    onInput(text);
   };
 
   updateUserInput = (text: string): void => {
@@ -204,16 +207,20 @@ export class GameManager {
   }
 
   selectObject(index: number): void {
+    console.log(index);
     this.api.selectObject(index);
   }
 
   selectMenu(index: number): void {
+    const menuResult = this.menuResult;
     this.isMenuShown = false;
-    this.menuResult(index);
     this.menuResult = null;
+    this.isPaused = false;
+    menuResult(index);
   }
 
   startWaiting = (ms: number, onComplete: () => void): void => {
+    this.isPaused = true;
     clearTimeout(this.waitTimeout);
     this.isWaiting = true;
     this.onWait = onComplete;
@@ -225,9 +232,11 @@ export class GameManager {
   completeWaiting = (): void => {
     clearTimeout(this.waitTimeout);
     if (this.isWaiting && this.onWait) {
-      this.onWait();
+      const onWait = this.onWait;
       this.onWait = null;
       this.isWaiting = false;
+      this.isPaused = false;
+      onWait();
     }
   };
 
@@ -239,7 +248,7 @@ export class GameManager {
 
   scheduleCounter = (): void => {
     this.counterTimeout = setTimeout(() => {
-      if (!this.isPaused && !this.isWaiting) {
+      if (!this.isPaused) {
         this.api.execCounter();
       }
       this.scheduleCounter();
@@ -267,43 +276,29 @@ export class GameManager {
   };
 
   onLoadSave = async (path: string, onLoaded: () => void): Promise<void> => {
-    this.isPaused = true;
-    onLoaded();
     if (path) {
-      const saveData = await readGameFromFile(path);
+      this.isPaused = true;
+      onLoaded();
+      const saveData = await this.saveManager.loadByPath(this.descriptor.id, path);
       if (saveData) {
         this.api.loadSave(saveData);
       }
+      this.isPaused = false;
     } else {
-      const input = document.createElement('input');
-      input.setAttribute('type', 'file');
-      input.click();
+      this.requestRestore(onLoaded);
     }
-    this.isPaused = false;
   };
 
   onSaveGame = async (path: string, onSaved: () => void): Promise<void> => {
-    this.isPaused = true;
-    const saveData = this.api.saveGame();
     if (path) {
-      await saveGameToFile(path, saveData);
+      this.isPaused = true;
+      const saveData = this.api.saveGame();
+      await this.saveManager.saveByPath(this.descriptor.id, path, saveData);
+      this.isPaused = false;
+      onSaved();
     } else {
-      const blob = new Blob([saveData], { type: 'application/octet-stream' });
-      const link = document.createElement('a');
-
-      link.download = `${this.descriptor.title}.sav`;
-      link.rel = 'noopener';
-
-      link.href = URL.createObjectURL(blob);
-      setTimeout(function () {
-        URL.revokeObjectURL(link.href);
-      }, 4e4); // 40s
-      setTimeout(function () {
-        link.dispatchEvent(new MouseEvent('click'));
-      }, 0);
+      this.requestSave(onSaved);
     }
-    onSaved();
-    this.isPaused = false;
   };
 
   isPlay = (file: string, onResult: (result: boolean) => void): void => {
@@ -327,6 +322,56 @@ export class GameManager {
       console.error(e);
     }
     onReady();
+  };
+
+  requestSave = async (onResult?: () => void): Promise<void> => {
+    this.isPaused = true;
+    const saveData = this.api.saveGame();
+    const slots = await this.saveManager.getSlots(this.descriptor.id);
+    this.saveAction = {
+      type: 'save',
+      slots,
+      data: saveData,
+      callback: this.saveToSlot,
+      onResult,
+    };
+  };
+  saveToSlot = async (slot: number): Promise<void> => {
+    if (this.saveAction.type === 'save') {
+      await this.saveManager.updateSlot(this.descriptor.id, slot, this.saveAction.data);
+    }
+    this.clearSaveAction();
+  };
+
+  requestRestore = async (onResult?: () => void): Promise<void> => {
+    this.isPaused = true;
+    const slots = await this.saveManager.getSlots(this.descriptor.id);
+    this.saveAction = {
+      type: 'restore',
+      slots,
+      callback: this.restoreFromSlot,
+      onResult,
+    };
+  };
+
+  restoreFromSlot = async (slot: number): Promise<void> => {
+    const saveData = await this.saveManager.getSlotData(this.descriptor.id, slot);
+    if (this.saveAction.onResult) {
+      this.saveAction.onResult();
+    }
+    this.saveAction.onResult = null;
+    if (saveData) {
+      this.api.loadSave(saveData);
+    }
+    this.clearSaveAction();
+  };
+
+  clearSaveAction = (): void => {
+    if (this.saveAction.onResult) {
+      this.saveAction.onResult();
+    }
+    this.saveAction = null;
+    this.isPaused = false;
   };
 }
 
@@ -359,6 +404,11 @@ decorate(GameManager, {
   isWaiting: observable,
   startWaiting: action,
   completeWaiting: action,
+
+  saveAction: observable.ref,
+  clearSaveAction: action,
+  requestSave: action,
+  requestRestore: action,
 
   markInitialized: action,
   updateDescriptor: action,

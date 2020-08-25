@@ -8,6 +8,7 @@ export const Panel = styled.div<PanelProps>`
   height: 100%;
   border: 1px solid ${(props) => props.theme.borderColor};
   padding: ${(props) => (props.withPadding ? `8px` : 0)};
+  white-space: pre-wrap;
 `;
 
 export const PanelWithBackground = styled(Panel)<PanelProps>`
