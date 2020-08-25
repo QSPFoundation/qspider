@@ -2,6 +2,7 @@ import React from 'react';
 import { Node } from 'interweave';
 import { Link } from './link';
 import { Image } from './image';
+import { Center } from './center';
 
 const attributeToStyle = {
   size: 'fontSize',
@@ -26,10 +27,7 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
   return style;
 };
 
-const transformers: Record<
-  string,
-  (node: HTMLElement, children: Node[]) => React.ReactNode | null
-> = {
+const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   font: (node, children) => {
     return <span style={attributesToStyle(node)}>{children}</span>;
   },
@@ -40,8 +38,11 @@ const transformers: Record<
     return <b>{children}</b>;
   },
   center: (_, children) => {
-    // todo check
-    return <>{children}</>;
+    return (
+      <Center>
+        <div>{children}</div>
+      </Center>
+    );
   },
   a: (node, children) => {
     const href = node.getAttribute('href');
@@ -66,16 +67,11 @@ const transformers: Record<
     return <table style={attributesToStyle(node)}>{children}</table>;
   },
   img: (node) => {
-    return (
-      <Image src={node.getAttribute('src')} style={attributesToStyle(node)} />
-    );
+    return <Image src={node.getAttribute('src')} style={attributesToStyle(node)} />;
   },
 };
 
-export const transform = (
-  node: HTMLElement,
-  children: Node[]
-): React.ReactNode | null => {
+export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {
   const transformer = transformers[node.tagName.toLowerCase()];
   if (transformer) {
     return transformer(node, children);

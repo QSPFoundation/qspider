@@ -171,10 +171,11 @@ export class GameManager {
 
   closeMsg = (): void => {
     this.isMsgShown = false;
-    this.onMsg();
+    const onMsg = this.onMsg;
     this.msg = '';
     this.onMsg = null;
     this.isPaused = false;
+    onMsg();
   };
 
   updateInput = (text: string, onInput: (text: string) => void): void => {
@@ -186,10 +187,11 @@ export class GameManager {
 
   closeInput = (text: string): void => {
     this.isInputShown = false;
-    this.onInput(text);
+    const onInput = this.onInput;
     this.input = '';
     this.onInput = null;
     this.isPaused = false;
+    onInput(text);
   };
 
   updateUserInput = (text: string): void => {
@@ -205,14 +207,16 @@ export class GameManager {
   }
 
   selectObject(index: number): void {
+    console.log(index);
     this.api.selectObject(index);
   }
 
   selectMenu(index: number): void {
+    const menuResult = this.menuResult;
     this.isMenuShown = false;
-    this.menuResult(index);
     this.menuResult = null;
     this.isPaused = false;
+    menuResult(index);
   }
 
   startWaiting = (ms: number, onComplete: () => void): void => {
@@ -228,11 +232,12 @@ export class GameManager {
   completeWaiting = (): void => {
     clearTimeout(this.waitTimeout);
     if (this.isWaiting && this.onWait) {
-      this.onWait();
+      const onWait = this.onWait;
       this.onWait = null;
       this.isWaiting = false;
+      this.isPaused = false;
+      onWait();
     }
-    this.isPaused = false;
   };
 
   updateTimer = (ms: number): void => {
@@ -289,8 +294,8 @@ export class GameManager {
       this.isPaused = true;
       const saveData = this.api.saveGame();
       await this.saveManager.saveByPath(this.descriptor.id, path, saveData);
-      onSaved();
       this.isPaused = false;
+      onSaved();
     } else {
       this.requestSave(onSaved);
     }
