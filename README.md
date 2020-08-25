@@ -14,6 +14,10 @@
 
 # Qspider
 
+## Cloning repository
+
+This repository is using git submodules so you need to use `--recursive` option while cloning.
+
 ## Development server
 
 Run `nx serve player` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
