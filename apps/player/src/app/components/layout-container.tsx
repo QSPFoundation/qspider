@@ -44,7 +44,7 @@ function renderPanel([name, size]: LayoutPanel): ReactElement {
 function renderCenter(panels: LayoutPanel[] | LayoutDock[]): ReactElement {
   if (panels[0][0] === QspGUIPanel.Main) {
     return (
-      <Fill key="center" scrollable>
+      <Fill key="center">
         <MainPanel />
       </Fill>
     );

@@ -3,17 +3,23 @@ import { Node } from 'interweave';
 import { Link } from './link';
 import { Image } from './image';
 import { Center } from './center';
+import { Big } from './big';
+import { Hr } from './hr';
+import { Strike } from './strike';
+import { Tt } from './tt';
+import { Area } from './area';
+import { Table } from './table';
+import { Font } from './font';
 
 const attributeToStyle = {
   size: 'fontSize',
   color: 'color',
   face: 'fontFace',
-  align: 'float',
+  align: 'textAlign',
+  valign: 'verticalAlign',
   bgcolor: 'backgroundColor',
-  cellpadding: 'borderSpacing',
   width: 'width',
   height: 'height',
-  // cellspacing: '--cellspacing', // todo add
 };
 
 const attributesToStyle = (node: HTMLElement): Record<string, string> => {
@@ -29,7 +35,11 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
 
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   font: (node, children) => {
-    return <span style={attributesToStyle(node)}>{children}</span>;
+    return (
+      <Font size={node.getAttribute('size')} style={attributesToStyle(node)}>
+        {children}
+      </Font>
+    );
   },
   i: (_, children) => {
     return <i>{children}</i>;
@@ -37,11 +47,19 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   b: (_, children) => {
     return <b>{children}</b>;
   },
+  big: (_, children) => {
+    return <Big>{children}</Big>;
+  },
   center: (_, children) => {
     return (
       <Center>
         <div>{children}</div>
       </Center>
+    );
+  },
+  hr: (node) => {
+    return (
+      <Hr width={node.getAttribute('width')} size={node.getAttribute('size')} noshade={node.hasAttribute('noshade')} />
     );
   },
   a: (node, children) => {
@@ -63,11 +81,62 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   div: (node, children) => {
     return <div style={attributesToStyle(node)}>{children}</div>;
   },
-  table: (node, children) => {
-    return <table style={attributesToStyle(node)}>{children}</table>;
+  p: (node, children) => {
+    return <p style={attributesToStyle(node)}>{children}</p>;
   },
+  tt: (_, children) => {
+    return <Tt>{children}</Tt>;
+  },
+  strike: (_, children) => {
+    return <Strike>{children}</Strike>;
+  },
+  table: (node, children) => {
+    return (
+      <Table
+        border={Number(node.getAttribute('border'))}
+        cellspacing={Number(node.getAttribute('cellspacing'))}
+        cellpadding={Number(node.getAttribute('cellpadding'))}
+        style={attributesToStyle(node)}
+      >
+        {children}
+      </Table>
+    );
+  },
+  tr: (node, children) => <tr style={attributesToStyle(node)}>{children}</tr>,
+  th: (node, children) => (
+    <th
+      colSpan={Number(node.getAttribute('colspan')) || 1}
+      rowSpan={Number(node.getAttribute('rowspan')) || 1}
+      style={attributesToStyle(node)}
+    >
+      {children}
+    </th>
+  ),
+  td: (node, children) => (
+    <td
+      colSpan={Number(node.getAttribute('colspan')) || 1}
+      rowSpan={Number(node.getAttribute('rowspan')) || 1}
+      style={attributesToStyle(node)}
+    >
+      {children}
+    </td>
+  ),
   img: (node) => {
-    return <Image src={node.getAttribute('src')} style={attributesToStyle(node)} />;
+    return (
+      <Image src={node.getAttribute('src')} style={attributesToStyle(node)} useMap={node.getAttribute('usemap')} />
+    );
+  },
+  map: (node, children) => {
+    return <map name={node.getAttribute('name')}>{children}</map>;
+  },
+  area: (node) => {
+    return (
+      <Area
+        href={node.getAttribute('href')}
+        shape={node.getAttribute('shape')}
+        coords={node.getAttribute('coords')}
+      ></Area>
+    );
   },
 };
 
