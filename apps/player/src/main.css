@@ -1,0 +1,13 @@
+a.plain {
+  text-decoration: none;
+}
+
+ol,
+ul,
+pre {
+  margin: 0;
+}
+
+area:focus {
+  outline: none;
+}
