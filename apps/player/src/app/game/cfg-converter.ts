@@ -79,7 +79,9 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
   return layout;
 }
 
-export function extractLayoutData(config: CfgData): { layout: LayoutDock[]; floating: [string, number, number][] } {
+export function extractLayoutData(
+  config: CfgData
+): { layout: LayoutDock[]; floating: [QspGUIPanel, number, number][] } {
   const maxLayer = getMaxLayer(config.General.Panels);
 
   const floating: PanelData[] = config.General.Panels.filter((pannel) => pannel.floating);

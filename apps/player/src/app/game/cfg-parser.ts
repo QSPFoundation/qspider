@@ -1,3 +1,5 @@
+import { QspGUIPanel } from '../constants';
+
 const GROUP_REGEXP = /\[(.*?)\]/i;
 const LINE_REGEXP = /(.*?)=(.*)/i;
 
@@ -18,7 +20,7 @@ export interface PanelData {
   dir: DirectionKey;
   floating: boolean;
   layer: number;
-  name: string;
+  name: QspGUIPanel;
   pos: number;
   row: number;
 }

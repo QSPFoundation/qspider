@@ -7,6 +7,7 @@ import { InputDialog } from './dialogs/input/input.dialog';
 import { ErrorDialog } from './dialogs/error/error.dialog';
 import { LayoutContainer } from './layout-container';
 import { SaveSlotsDialog } from './dialogs/save-slots/save-slots';
+import { FloatingContainer } from './layout/floating';
 
 export const Player: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ export const Player: React.FC = () => {
       <MainFrame>
         <LayoutContainer />
       </MainFrame>
+      <FloatingContainer />
       <Menu />
       <MsgDialog />
       <InputDialog />

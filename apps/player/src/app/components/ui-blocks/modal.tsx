@@ -31,19 +31,18 @@ const ModalActions = styled.div<WithTheme>`
   justify-content: flex-end;
 `;
 
-export const Modal: React.FC<{ onClose: () => void }> = ({
-  onClose,
-  children,
-}) => {
+export const Modal: React.FC<{ onClose: () => void; hideButtons?: boolean }> = ({ onClose, hideButtons, children }) => {
   return (
     <>
       <Overlay onClick={onClose} />
       <ModalContainer>
         <ModalBody>
           {children}
-          <ModalActions>
-            <Button onClick={onClose}>Ok</Button>
-          </ModalActions>
+          {!hideButtons && (
+            <ModalActions>
+              <Button onClick={onClose}>Ok</Button>
+            </ModalActions>
+          )}
         </ModalBody>
       </ModalContainer>
     </>

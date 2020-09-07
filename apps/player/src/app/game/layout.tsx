@@ -78,6 +78,10 @@ class Layout {
     return this.manager.layout.map(this.processDock).filter(Boolean);
   }
 
+  get floatingPanels(): [string, number, number][] {
+    return this.manager.floating.filter(([name]) => this.isPanelVisible(name));
+  }
+
   processDock = (dock: LayoutDock): LayoutDock => {
     if ((dock[0] as QspGUIPanel) === QspGUIPanel.Main) {
       return dock;
