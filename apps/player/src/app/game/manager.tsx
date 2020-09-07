@@ -8,6 +8,7 @@ import { prepareContent, prepareList, preparePath } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
+import { QspGUIPanel } from '../constants';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -15,7 +16,7 @@ export class GameManager {
   isInitialized = false;
 
   layout: LayoutDock[] = [];
-  floating: [string, number, number][];
+  floating: [QspGUIPanel, number, number][];
 
   main = '';
   stats = '';

@@ -20,4 +20,4 @@ export const DEFAULT_LAYOUT: LayoutDock[] = [
     ],
   ],
 ];
-export const DEFAULT_FLOATING: [string, number, number][] = [[QspGUIPanel.ImageView, 832, 150]];
+export const DEFAULT_FLOATING: [QspGUIPanel, number, number][] = [[QspGUIPanel.ImageView, 832, 150]];
