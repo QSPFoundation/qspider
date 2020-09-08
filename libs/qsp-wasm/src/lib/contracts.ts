@@ -1,4 +1,4 @@
-import { QspPanel } from '../wasm/types';
+import { QspPanel } from '../qsplib/public/types';
 
 export interface LayoutSettings {
   useHtml: boolean;
@@ -29,11 +29,7 @@ export type QspEvents = {
   save_game: (path: string, onSaved: () => void) => void;
   load_save: (path: string, onLoaded: () => void) => void;
   is_play: (file: string, onResult: (result: boolean) => void) => void;
-  play_file: (
-    path: string,
-    volume: number,
-    onReady: () => void
-  ) => Promise<void>;
+  play_file: (path: string, volume: number, onReady: () => void) => Promise<void>;
   close_file: (path: string, onReady: () => void) => void;
 };
 

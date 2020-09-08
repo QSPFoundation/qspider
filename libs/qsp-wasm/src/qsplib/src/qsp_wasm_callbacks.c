@@ -5,10 +5,10 @@
 typedef wchar_t QSP_CHAR;
 typedef int (*QSP_CALLBACK)();
 
-#include "../../qsp/qsp/bindings/qsp.h"
+#include "qsp/bindings/qsp.h"
 
-#include "../../qsp/qsp/callbacks.h"
-#include "../../qsp/qsp/text.h"
+#include "qsp/callbacks.h"
+#include "qsp/text.h"
 
 typedef struct
 {

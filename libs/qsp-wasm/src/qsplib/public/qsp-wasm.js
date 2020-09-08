@@ -212,7 +212,7 @@ var Module = (function () {
       return null;
     }
     var wasmMemory;
-    var wasmTable = new WebAssembly.Table({ initial: 98, element: 'anyfunc' });
+    var wasmTable = new WebAssembly.Table({ initial: 104, element: 'anyfunc' });
     var ABORT = false;
     var EXITSTATUS = 0;
     function assert(condition, text) {
@@ -451,8 +451,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5761088,
-      DYNAMICTOP_PTR = 518048;
+    var DYNAMIC_BASE = 5944576,
+      DYNAMICTOP_PTR = 701536;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];
@@ -581,7 +581,7 @@ var Module = (function () {
     function isDataURI(filename) {
       return hasPrefix(filename, dataURIPrefix);
     }
-    var wasmBinaryFile = 'qsp.wasm';
+    var wasmBinaryFile = 'qsp-wasm.wasm';
     if (!isDataURI(wasmBinaryFile)) {
       wasmBinaryFile = locateFile(wasmBinaryFile);
     }
@@ -4226,86 +4226,86 @@ var Module = (function () {
     var ___wasm_call_ctors = (Module['___wasm_call_ctors'] = function () {
       return (___wasm_call_ctors = Module['___wasm_call_ctors'] = Module['asm']['i']).apply(null, arguments);
     });
-    var _malloc = (Module['_malloc'] = function () {
-      return (_malloc = Module['_malloc'] = Module['asm']['j']).apply(null, arguments);
+    var _QSPGetVersion = (Module['_QSPGetVersion'] = function () {
+      return (_QSPGetVersion = Module['_QSPGetVersion'] = Module['asm']['j']).apply(null, arguments);
     });
-    var _free = (Module['_free'] = function () {
-      return (_free = Module['_free'] = Module['asm']['k']).apply(null, arguments);
+    var _QSPInit = (Module['_QSPInit'] = function () {
+      return (_QSPInit = Module['_QSPInit'] = Module['asm']['k']).apply(null, arguments);
     });
     var _qspInitCallBacks = (Module['_qspInitCallBacks'] = function () {
       return (_qspInitCallBacks = Module['_qspInitCallBacks'] = Module['asm']['l']).apply(null, arguments);
     });
-    var _qspSetCallBack = (Module['_qspSetCallBack'] = function () {
-      return (_qspSetCallBack = Module['_qspSetCallBack'] = Module['asm']['m']).apply(null, arguments);
-    });
-    var _QSPGetVersion = (Module['_QSPGetVersion'] = function () {
-      return (_QSPGetVersion = Module['_QSPGetVersion'] = Module['asm']['n']).apply(null, arguments);
-    });
-    var _QSPInit = (Module['_QSPInit'] = function () {
-      return (_QSPInit = Module['_QSPInit'] = Module['asm']['o']).apply(null, arguments);
-    });
     var _QSPLoadGameWorld = (Module['_QSPLoadGameWorld'] = function () {
-      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] = Module['asm']['p']).apply(null, arguments);
+      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] = Module['asm']['m']).apply(null, arguments);
     });
     var _QSPSaveGame = (Module['_QSPSaveGame'] = function () {
-      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['q']).apply(null, arguments);
+      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['n']).apply(null, arguments);
+    });
+    var _malloc = (Module['_malloc'] = function () {
+      return (_malloc = Module['_malloc'] = Module['asm']['o']).apply(null, arguments);
+    });
+    var _free = (Module['_free'] = function () {
+      return (_free = Module['_free'] = Module['asm']['p']).apply(null, arguments);
     });
     var _QSPOpenSavedGame = (Module['_QSPOpenSavedGame'] = function () {
-      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] = Module['asm']['r']).apply(null, arguments);
+      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] = Module['asm']['q']).apply(null, arguments);
     });
     var _QSPRestartGame = (Module['_QSPRestartGame'] = function () {
-      return (_QSPRestartGame = Module['_QSPRestartGame'] = Module['asm']['s']).apply(null, arguments);
+      return (_QSPRestartGame = Module['_QSPRestartGame'] = Module['asm']['r']).apply(null, arguments);
     });
     var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
-      return (_QSPGetLastError = Module['_QSPGetLastError'] = Module['asm']['t']).apply(null, arguments);
+      return (_QSPGetLastError = Module['_QSPGetLastError'] = Module['asm']['s']).apply(null, arguments);
     });
     var _QSPIsMainDescChanged = (Module['_QSPIsMainDescChanged'] = function () {
-      return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] = Module['asm']['u']).apply(null, arguments);
+      return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] = Module['asm']['t']).apply(null, arguments);
     });
     var _QSPGetMainDesc = (Module['_QSPGetMainDesc'] = function () {
-      return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] = Module['asm']['v']).apply(null, arguments);
+      return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] = Module['asm']['u']).apply(null, arguments);
     });
     var _QSPIsVarsDescChanged = (Module['_QSPIsVarsDescChanged'] = function () {
-      return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] = Module['asm']['w']).apply(null, arguments);
+      return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] = Module['asm']['v']).apply(null, arguments);
     });
     var _QSPGetVarsDesc = (Module['_QSPGetVarsDesc'] = function () {
-      return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] = Module['asm']['x']).apply(null, arguments);
+      return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] = Module['asm']['w']).apply(null, arguments);
     });
     var _QSPIsActionsChanged = (Module['_QSPIsActionsChanged'] = function () {
-      return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] = Module['asm']['y']).apply(null, arguments);
+      return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] = Module['asm']['x']).apply(null, arguments);
     });
     var _QSPGetActions = (Module['_QSPGetActions'] = function () {
-      return (_QSPGetActions = Module['_QSPGetActions'] = Module['asm']['z']).apply(null, arguments);
+      return (_QSPGetActions = Module['_QSPGetActions'] = Module['asm']['y']).apply(null, arguments);
     });
     var _QSPSelectAction = (Module['_QSPSelectAction'] = function () {
-      return (_QSPSelectAction = Module['_QSPSelectAction'] = Module['asm']['A']).apply(null, arguments);
+      return (_QSPSelectAction = Module['_QSPSelectAction'] = Module['asm']['z']).apply(null, arguments);
     });
     var _QSPIsObjectsChanged = (Module['_QSPIsObjectsChanged'] = function () {
-      return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] = Module['asm']['B']).apply(null, arguments);
+      return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] = Module['asm']['A']).apply(null, arguments);
     });
     var _QSPGetObjects = (Module['_QSPGetObjects'] = function () {
-      return (_QSPGetObjects = Module['_QSPGetObjects'] = Module['asm']['C']).apply(null, arguments);
+      return (_QSPGetObjects = Module['_QSPGetObjects'] = Module['asm']['B']).apply(null, arguments);
     });
     var _QSPSelectObject = (Module['_QSPSelectObject'] = function () {
-      return (_QSPSelectObject = Module['_QSPSelectObject'] = Module['asm']['D']).apply(null, arguments);
+      return (_QSPSelectObject = Module['_QSPSelectObject'] = Module['asm']['C']).apply(null, arguments);
     });
     var _QSPGetVarValuesCount = (Module['_QSPGetVarValuesCount'] = function () {
-      return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] = Module['asm']['E']).apply(null, arguments);
+      return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] = Module['asm']['D']).apply(null, arguments);
     });
     var _QSPGetVarNumValue = (Module['_QSPGetVarNumValue'] = function () {
-      return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] = Module['asm']['F']).apply(null, arguments);
+      return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] = Module['asm']['E']).apply(null, arguments);
     });
     var _QSPGetVarStrValue = (Module['_QSPGetVarStrValue'] = function () {
-      return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] = Module['asm']['G']).apply(null, arguments);
+      return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] = Module['asm']['F']).apply(null, arguments);
     });
     var _QSPExecString = (Module['_QSPExecString'] = function () {
-      return (_QSPExecString = Module['_QSPExecString'] = Module['asm']['H']).apply(null, arguments);
+      return (_QSPExecString = Module['_QSPExecString'] = Module['asm']['G']).apply(null, arguments);
     });
     var _QSPExecCounter = (Module['_QSPExecCounter'] = function () {
-      return (_QSPExecCounter = Module['_QSPExecCounter'] = Module['asm']['I']).apply(null, arguments);
+      return (_QSPExecCounter = Module['_QSPExecCounter'] = Module['asm']['H']).apply(null, arguments);
     });
     var _QSPExecUserInput = (Module['_QSPExecUserInput'] = function () {
-      return (_QSPExecUserInput = Module['_QSPExecUserInput'] = Module['asm']['J']).apply(null, arguments);
+      return (_QSPExecUserInput = Module['_QSPExecUserInput'] = Module['asm']['I']).apply(null, arguments);
+    });
+    var _qspSetCallBack = (Module['_qspSetCallBack'] = function () {
+      return (_qspSetCallBack = Module['_qspSetCallBack'] = Module['asm']['J']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
       return (___errno_location = Module['___errno_location'] = Module['asm']['K']).apply(null, arguments);

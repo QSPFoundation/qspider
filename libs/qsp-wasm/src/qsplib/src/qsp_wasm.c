@@ -6,21 +6,21 @@ typedef int (*QSP_CALLBACK)();
 
 #define QSP_BINDING
 
-#include "../../qsp/qsp/declarations.h"
+#include "qsp/declarations.h"
 
-#include "../../qsp/qsp/callbacks.h"
-#include "../../qsp/qsp/common.h"
-#include "../../qsp/qsp/game.h"
-#include "../../qsp/qsp/locations.h"
-#include "../../qsp/qsp/actions.h"
-#include "../../qsp/qsp/objects.h"
-#include "../../qsp/qsp/text.h"
-#include "../../qsp/qsp/time.h"
-#include "../../qsp/qsp/coding.h"
-#include "../../qsp/qsp/statements.h"
-#include "../../qsp/qsp/mathops.h"
-#include "../../qsp/qsp/variables.h"
-#include "../../qsp/qsp/errors.h"
+#include "qsp/callbacks.h"
+#include "qsp/common.h"
+#include "qsp/game.h"
+#include "qsp/locations.h"
+#include "qsp/actions.h"
+#include "qsp/objects.h"
+#include "qsp/text.h"
+#include "qsp/time.h"
+#include "qsp/coding.h"
+#include "qsp/statements.h"
+#include "qsp/mathops.h"
+#include "qsp/variables.h"
+#include "qsp/errors.h"
 
 typedef struct
 {
@@ -48,7 +48,6 @@ void QSPInit()
 {
   qspIsDebug = QSP_FALSE;
   qspRefreshCount = qspFullRefreshCount = 0;
-  qspQstPath = qspQstFullPath = qspEmptyString;
   qspQstCRC = 0;
   qspRealCurLoc = -1;
   qspRealActIndex = -1;
@@ -82,7 +81,7 @@ QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName, QS
   {
     return QSP_FALSE;
   }
-  qspOpenQuestFromData((char *)data, dataSize, qspStringFromC(fileName), isNewGame);
+  qspOpenQuestFromData((char *)data, dataSize, isNewGame);
   if (qspErrorNum)
     return QSP_FALSE;
   return QSP_TRUE;
