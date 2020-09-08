@@ -1,13 +1,7 @@
 import EventEmitter from 'eventemitter3';
-import {
-  QspAPI,
-  QspErrorData,
-  QspEvents,
-  QspListItem,
-  LayoutSettings,
-} from './contracts';
-import { QspModule } from '../wasm/qsp';
-import { Ptr, CharsPtr, QspCallType, QspPanel } from '../wasm/types';
+import { QspAPI, QspErrorData, QspEvents, QspListItem, LayoutSettings } from './contracts';
+import { QspModule } from '../qsplib/public/qsp-wasm';
+import { Ptr, CharsPtr, QspCallType, QspPanel } from '../qsplib/public/types';
 import { shallowEqual } from './helpers';
 
 export class QspAPIImpl implements QspAPI {
@@ -34,9 +28,7 @@ export class QspAPIImpl implements QspAPI {
 
     const namePtr = this.stringToPTr(fileName);
 
-    const result = this.onCalled(
-      this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr, isNewGame)
-    );
+    const result = this.onCalled(this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr, isNewGame));
     this.module._free(ptr);
     this.module._free(namePtr);
 
@@ -160,16 +152,10 @@ export class QspAPIImpl implements QspAPI {
     const onOpenGame = this.module.addFunction(this.onOpenGame, 'iii');
     this.module._qspSetCallBack(QspCallType.OPENGAME, onOpenGame);
 
-    const onOpenGameStatus = this.module.addFunction(
-      this.onOpenGameStatus,
-      'ii'
-    );
+    const onOpenGameStatus = this.module.addFunction(this.onOpenGameStatus, 'ii');
     this.module._qspSetCallBack(QspCallType.OPENGAMESTATUS, onOpenGameStatus);
 
-    const onSaveGameStatus = this.module.addFunction(
-      this.onSaveGameStatus,
-      'ii'
-    );
+    const onSaveGameStatus = this.module.addFunction(this.onSaveGameStatus, 'ii');
     this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onSaveGameStatus);
 
     const onIsPLay = this.module.addFunction(this.onIsPlay, 'ii');
@@ -182,10 +168,10 @@ export class QspAPIImpl implements QspAPI {
     this.module._qspSetCallBack(QspCallType.CLOSEFILE, onCLoseFile);
   }
 
-  private emit<
-    E extends keyof QspEvents,
-    CB extends QspEvents[E] = QspEvents[E]
-  >(event: E, ...args: Parameters<CB>): void {
+  private emit<E extends keyof QspEvents, CB extends QspEvents[E] = QspEvents[E]>(
+    event: E,
+    ...args: Parameters<CB>
+  ): void {
     console.log({ event, args });
     this.events.emit(event, ...args);
   }
@@ -370,9 +356,7 @@ export class QspAPIImpl implements QspAPI {
 
   private updateLayout() {
     const useHtml = Boolean(this.readVariableNumber('USEHTML'));
-    const backgroundColor = this.convertColor(
-      this.readVariableNumber('BCOLOR')
-    );
+    const backgroundColor = this.convertColor(this.readVariableNumber('BCOLOR'));
     const color = this.convertColor(this.readVariableNumber('FCOLOR'));
     const linkColor = this.convertColor(this.readVariableNumber('LCOLOR'));
     const fontSize = this.readVariableNumber('FSIZE');
