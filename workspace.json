@@ -61,10 +61,7 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "tsConfig": [
-              "apps/player/tsconfig.app.json",
-              "apps/player/tsconfig.spec.json"
-            ],
+            "tsConfig": ["apps/player/tsconfig.app.json", "apps/player/tsconfig.spec.json"],
             "exclude": ["**/node_modules/**", "!apps/player/**/*"]
           }
         },
@@ -115,10 +112,7 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "tsConfig": [
-              "libs/qsp-wasm/tsconfig.lib.json",
-              "libs/qsp-wasm/tsconfig.spec.json"
-            ],
+            "tsConfig": ["libs/qsp-wasm/tsconfig.lib.json", "libs/qsp-wasm/tsconfig.spec.json"],
             "exclude": ["**/node_modules/**", "!libs/qsp-wasm/**/*"]
           }
         },
@@ -134,10 +128,10 @@
           "options": {
             "commands": [
               {
-                "command": "../../tools/build-wasm.sh"
+                "command": "emcmake cmake .. && make"
               }
             ],
-            "cwd": "libs/qsp-wasm"
+            "cwd": "libs/qsp-wasm/src/qsplib/build"
           }
         }
       }
@@ -152,10 +146,7 @@
           "builder": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
-            "tsConfig": [
-              "libs/fmod/tsconfig.lib.json",
-              "libs/fmod/tsconfig.spec.json"
-            ],
+            "tsConfig": ["libs/fmod/tsconfig.lib.json", "libs/fmod/tsconfig.spec.json"],
             "exclude": ["**/node_modules/**", "!libs/fmod/**/*"]
           }
         },

@@ -207,7 +207,7 @@ QSP_BOOL qspCallIsPlayingFile(QSPString file)
   if (qspCallBacks[QSP_CALL_ISPLAYINGFILE])
   {
     qspSaveCallState(&state, QSP_TRUE, QSP_FALSE);
-    isPlaying = (QSP_BOOL)qspCallBacks[QSP_CALL_ISPLAYINGFILE](file);
+    isPlaying = (QSP_BOOL)qspCallBacks[QSP_CALL_ISPLAYINGFILE](qspStringToC(file));
     qspRestoreCallState(&state);
     return isPlaying;
   }
