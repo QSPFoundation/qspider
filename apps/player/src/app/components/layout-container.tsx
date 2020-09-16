@@ -42,9 +42,9 @@ function renderPanel([name, size]: LayoutPanel): ReactElement {
 }
 
 function renderCenter(panels: LayoutPanel[] | LayoutDock[]): ReactElement {
-  if (panels[0][0] === QspGUIPanel.Main) {
+  if (panels[0][0] === QspGUIPanel.Main || (panels[0][0] === 'center' && panels[0][2] && panels[0][2].length === 1)) {
     return (
-      <Fill key="center">
+      <Fill key="main">
         <MainPanel />
       </Fill>
     );

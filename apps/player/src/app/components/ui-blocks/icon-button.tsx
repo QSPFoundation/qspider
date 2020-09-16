@@ -9,11 +9,10 @@ export const Button = styled.button<WithTheme>`
   -webkit-appearance: none;
   cursor: pointer;
   border-radius: 50%;
-  color: red;
+  border: 1px solid ${(props) => props.theme.borderColor};
 
   padding: 0;
   margin: 0;
-  border: 0;
   width: 26px;
   height: 26px;
 
@@ -23,6 +22,9 @@ export const Button = styled.button<WithTheme>`
   box-shadow: none;
 
   &:hover {
+  }
+  &:focus {
+    outline: none;
   }
 `;
 

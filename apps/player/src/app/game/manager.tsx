@@ -50,8 +50,6 @@ export class GameManager {
 
   apiInitialized: Promise<boolean>;
 
-  isPaused = false;
-
   private soundManager = new SoundManager();
   private saveManager = new SaveManager();
 
@@ -157,14 +155,14 @@ export class GameManager {
     this.objects = prepareList(list);
   };
   updateMenu = (list: QspListItem[], result: (index: number) => void): void => {
-    this.isPaused = true;
+    this.pause();
     this.menu = prepareList(list);
     this.menuResult = result;
     this.isMenuShown = true;
   };
 
   updateMsg = (text: string, onMsg: () => void): void => {
-    this.isPaused = true;
+    this.pause();
     this.msg = text;
     this.onMsg = onMsg;
     this.isMsgShown = true;
@@ -175,12 +173,12 @@ export class GameManager {
     const onMsg = this.onMsg;
     this.msg = '';
     this.onMsg = null;
-    this.isPaused = false;
+    this.resume();
     onMsg();
   };
 
   updateInput = (text: string, onInput: (text: string) => void): void => {
-    this.isPaused = true;
+    this.pause();
     this.input = text;
     this.onInput = onInput;
     this.isInputShown = true;
@@ -191,7 +189,7 @@ export class GameManager {
     const onInput = this.onInput;
     this.input = '';
     this.onInput = null;
-    this.isPaused = false;
+    this.resume();
     onInput(text);
   };
 
@@ -208,7 +206,6 @@ export class GameManager {
   }
 
   selectObject(index: number): void {
-    console.log(index);
     this.api.selectObject(index);
   }
 
@@ -216,12 +213,12 @@ export class GameManager {
     const menuResult = this.menuResult;
     this.isMenuShown = false;
     this.menuResult = null;
-    this.isPaused = false;
+    this.resume();
     menuResult(index);
   }
 
   startWaiting = (ms: number, onComplete: () => void): void => {
-    this.isPaused = true;
+    this.pause();
     clearTimeout(this.waitTimeout);
     this.isWaiting = true;
     this.onWait = onComplete;
@@ -236,7 +233,7 @@ export class GameManager {
       const onWait = this.onWait;
       this.onWait = null;
       this.isWaiting = false;
-      this.isPaused = false;
+      this.resume();
       onWait();
     }
   };
@@ -249,12 +246,18 @@ export class GameManager {
 
   scheduleCounter = (): void => {
     this.counterTimeout = setTimeout(() => {
-      if (!this.isPaused) {
-        this.api.execCounter();
-      }
+      this.api.execCounter();
       this.scheduleCounter();
     }, this.counterDelay);
   };
+
+  pause(): void {
+    clearTimeout(this.counterTimeout);
+  }
+
+  resume(): void {
+    this.scheduleCounter();
+  }
 
   updateView = (path: string): void => {
     if (path) {
@@ -278,13 +281,13 @@ export class GameManager {
 
   onLoadSave = async (path: string, onLoaded: () => void): Promise<void> => {
     if (path) {
-      this.isPaused = true;
+      this.pause();
       onLoaded();
       const saveData = await this.saveManager.loadByPath(this.descriptor.id, path);
       if (saveData) {
         this.api.loadSave(saveData);
       }
-      this.isPaused = false;
+      this.resume();
     } else {
       this.requestRestore(onLoaded);
     }
@@ -292,10 +295,10 @@ export class GameManager {
 
   onSaveGame = async (path: string, onSaved: () => void): Promise<void> => {
     if (path) {
-      this.isPaused = true;
+      this.pause();
       const saveData = this.api.saveGame();
       await this.saveManager.saveByPath(this.descriptor.id, path, saveData);
-      this.isPaused = false;
+      this.resume();
       onSaved();
     } else {
       this.requestSave(onSaved);
@@ -326,7 +329,7 @@ export class GameManager {
   };
 
   requestSave = async (onResult?: () => void): Promise<void> => {
-    this.isPaused = true;
+    this.pause();
     const saveData = this.api.saveGame();
     const slots = await this.saveManager.getSlots(this.descriptor.id);
     this.saveAction = {
@@ -345,7 +348,7 @@ export class GameManager {
   };
 
   requestRestore = async (onResult?: () => void): Promise<void> => {
-    this.isPaused = true;
+    this.pause();
     const slots = await this.saveManager.getSlots(this.descriptor.id);
     this.saveAction = {
       type: 'restore',
@@ -372,7 +375,7 @@ export class GameManager {
       this.saveAction.onResult();
     }
     this.saveAction = null;
-    this.isPaused = false;
+    this.resume();
   };
 }
 
@@ -413,6 +416,8 @@ decorate(GameManager, {
 
   markInitialized: action,
   updateDescriptor: action,
+
+  errorData: observable,
   updateErrorDescription: action,
   clearError: action,
 

@@ -7,6 +7,7 @@ export interface PlayerTheme {
   borderColor: string;
   buttonBackground: string;
   buttonColor: string;
+  linkColor: string;
 }
 
 export interface WithTheme {

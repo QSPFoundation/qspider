@@ -10,9 +10,19 @@ const TextInput = styled.input<WithTheme>`
   background: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
   display: inline-block;
-  height: 40px;
+  height: 100%;
   width: 100%;
   border: 0;
+
+  &:focus {
+    outline: none;
+    box-shadow: inset 0 0 5px 0px rgba(0, 0, 0, 0.75);
+  }
+`;
+const Form = styled.form`
+  display: inline-block;
+  height: 100%;
+  width: 100%;
 `;
 
 export const UserInputPanel: React.FC = observer(() => {
@@ -21,7 +31,7 @@ export const UserInputPanel: React.FC = observer(() => {
   if (!isUserInputPanelVisible) return null;
   return (
     <Panel>
-      <form
+      <Form
         onSubmit={(e) => {
           e.preventDefault();
           manager.submitUserInput();
@@ -33,7 +43,7 @@ export const UserInputPanel: React.FC = observer(() => {
             manager.updateUserInput(e.target.value);
           }}
         ></TextInput>
-      </form>
+      </Form>
     </Panel>
   );
 });
