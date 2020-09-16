@@ -93,7 +93,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   table: (node, children) => {
     return (
       <Table
-        border={Number(node.getAttribute('border'))}
+        border={node.hasAttribute('border') ? Number(node.getAttribute('border')) : 1}
         cellspacing={Number(node.getAttribute('cellspacing'))}
         cellpadding={Number(node.getAttribute('cellpadding'))}
         style={attributesToStyle(node)}

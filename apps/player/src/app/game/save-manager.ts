@@ -15,7 +15,7 @@ export type SaveAction =
       onResult?: () => void;
     };
 
-const SLOTS_COUNT = 20;
+const SLOTS_COUNT = 21;
 
 function getDateKey(gameId: string, slot: number): string {
   return `${gameId}_slot_${slot}_date`;

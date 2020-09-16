@@ -10,7 +10,7 @@ export const Table = styled.table<
 >`
   border-color: rgb(238, 238, 237);
   border-style: inset;
-  border-width: ${(props) => props.border || 1}px;
+  border-width: ${(props) => props.border}px;
   border-spacing: ${(props) => props.cellspacing || 2}px;
 
   td,
@@ -18,6 +18,6 @@ export const Table = styled.table<
     padding: ${(props) => props.cellpadding || 0}px;
     border-color: rgb(238, 238, 237);
     border-style: inset;
-    border-width: ${(props) => props.border || 1}px;
+    border-width: ${(props) => props.border}px;
   }
 `;

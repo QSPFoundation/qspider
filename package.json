@@ -31,6 +31,7 @@
     "@emotion/core": "10.0.28",
     "@emotion/styled": "10.0.27",
     "@iarna/toml": "^3.0.0",
+    "@popperjs/core": "^2.4.4",
     "color": "^3.1.2",
     "document-register-element": "1.13.1",
     "emotion-theming": "^10.0.27",
@@ -43,6 +44,7 @@
     "react-custom-scroll": "^4.2.1",
     "react-delta": "^1.1.0",
     "react-dom": "16.13.1",
+    "react-popper": "^2.2.3",
     "react-spaces": "^0.1.25"
   },
   "devDependencies": {

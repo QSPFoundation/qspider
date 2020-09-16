@@ -1,3 +1,7 @@
+body {
+  overflow: hidden;
+}
+
 a.plain {
   text-decoration: none;
 }

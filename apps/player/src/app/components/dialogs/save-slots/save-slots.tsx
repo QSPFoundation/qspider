@@ -4,7 +4,20 @@ import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import styled from '@emotion/styled';
 
-const SlotButton = styled.button``;
+const SlotTtile = styled.h4`
+  margin: 0;
+  text-align: center;
+`;
+const SlotButton = styled.button`
+  text-align: center;
+`;
+const Slots = styled.div`
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 120px 120px 120px;
+  column-gap: 16px;
+  row-gap: 16px;
+`;
 
 export const SaveSlotsDialog: React.FC = observer(() => {
   const gameManager = useGameManager();
@@ -13,17 +26,21 @@ export const SaveSlotsDialog: React.FC = observer(() => {
   const isShown = Boolean(saveAction);
   if (!isShown) return null;
   return (
-    <Modal onClose={onClose}>
-      <h4>{saveAction.type === 'save' ? 'Save' : 'Load'} game</h4>
-      {saveAction.slots.map((date, index) => (
-        <SlotButton
-          key={index}
-          disabled={saveAction.type === 'restore' && !date}
-          onClick={() => saveAction.callback(index + 1)}
-        >
-          <strong>{index + 1}</strong> {date || '(empty)'}
-        </SlotButton>
-      ))}
+    <Modal hideButtons onClose={onClose}>
+      <SlotTtile>{saveAction.type === 'save' ? 'Save' : 'Load'} game</SlotTtile>
+      <Slots>
+        {saveAction.slots.map((date, index) => (
+          <SlotButton
+            key={index}
+            disabled={saveAction.type === 'restore' && !date}
+            onClick={() => saveAction.callback(index + 1)}
+          >
+            <strong>{index + 1}</strong>
+            <br />
+            {date ? new Intl.DateTimeFormat().format(new Date(date)) : '(empty)'}
+          </SlotButton>
+        ))}
+      </Slots>
     </Modal>
   );
 });

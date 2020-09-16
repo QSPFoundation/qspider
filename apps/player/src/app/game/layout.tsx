@@ -30,11 +30,12 @@ class Layout {
       backgroundColor: this.backgroundColor || '#efefef',
       backgroundImage: this.backgroundImage ? `url(${this.manager.resourcePrefix}${this.backgroundImage})` : 'none',
       textColor: this.color,
-      fontSize: this.fontSize || 16,
+      fontSize: this.fontSize || 12,
       fontName: this.fontName,
       borderColor: 'grey',
       buttonBackground: `#3c6478`,
       buttonColor: '#ffffff',
+      linkColor: this.linkColor || 'blue',
     };
   }
 

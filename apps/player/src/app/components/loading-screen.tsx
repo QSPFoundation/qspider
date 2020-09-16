@@ -168,61 +168,61 @@ const Pages = styled.ul`
     animation-duration: var(--duration);
     animation-timing-function: ease;
     animation-iteration-count: infinite;
-    &:nth-child(0) {
+    &:nth-of-type(0) {
       animation-name: ${pages[0]};
     }
-    &:nth-child(1) {
+    &:nth-of-type(1) {
       animation-name: ${pages[1]};
     }
-    &:nth-child(2) {
+    &:nth-of-type(2) {
       animation-name: ${pages[2]};
     }
-    &:nth-child(3) {
+    &:nth-of-type(3) {
       animation-name: ${pages[3]};
     }
-    &:nth-child(4) {
+    &:nth-of-type(4) {
       animation-name: ${pages[4]};
     }
-    &:nth-child(5) {
+    &:nth-of-type(5) {
       animation-name: ${pages[5]};
     }
-    &:nth-child(6) {
+    &:nth-of-type(6) {
       animation-name: ${pages[6]};
     }
-    &:nth-child(7) {
+    &:nth-of-type(7) {
       animation-name: ${pages[7]};
     }
-    &:nth-child(8) {
+    &:nth-of-type(8) {
       animation-name: ${pages[8]};
     }
-    &:nth-child(9) {
+    &:nth-of-type(9) {
       animation-name: ${pages[9]};
     }
-    &:nth-child(10) {
+    &:nth-of-type(10) {
       animation-name: ${pages[10]};
     }
-    &:nth-child(11) {
+    &:nth-of-type(11) {
       animation-name: ${pages[11]};
     }
-    &:nth-child(12) {
+    &:nth-of-type(12) {
       animation-name: ${pages[12]};
     }
-    &:nth-child(13) {
+    &:nth-of-type(13) {
       animation-name: ${pages[13]};
     }
-    &:nth-child(14) {
+    &:nth-of-type(14) {
       animation-name: ${pages[14]};
     }
-    &:nth-child(15) {
+    &:nth-of-type(15) {
       animation-name: ${pages[15]};
     }
-    &:nth-child(16) {
+    &:nth-of-type(16) {
       animation-name: ${pages[16]};
     }
-    &:nth-child(17) {
+    &:nth-of-type(17) {
       animation-name: ${pages[17]};
     }
-    &:nth-child(18) {
+    &:nth-of-type(18) {
       animation-name: ${pages[18]};
     }
   }
