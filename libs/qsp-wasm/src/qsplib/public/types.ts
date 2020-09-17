@@ -1,8 +1,10 @@
 export type CharsPtr = number;
 export type BufferPtr = number;
 export type Ptr = number;
-export type IntPointer = number;
+export type IntPtr = number;
 export type FunctionPtr = number;
+export type StringPtr = number;
+export type Bool = 0 | 1;
 
 export enum QspCallType {
   DEBUG /* void func(QSPString str) */,
