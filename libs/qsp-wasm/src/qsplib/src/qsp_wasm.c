@@ -7,6 +7,7 @@ typedef int (*QSP_CALLBACK)();
 #define QSP_BINDING
 
 #include "qsp/declarations.h"
+#include "qsp/bindings/default/qsp_default.h"
 
 #include "qsp/callbacks.h"
 #include "qsp/common.h"
@@ -22,329 +23,209 @@ typedef int (*QSP_CALLBACK)();
 #include "qsp/variables.h"
 #include "qsp/errors.h"
 
-typedef struct
-{
-  int code;
-  QSP_CHAR *description;
-  QSP_CHAR *location;
-  int actionIndex;
-  int line;
-} QSPErrorData;
-
-typedef struct
-{
-  QSP_CHAR *Name;
-  QSP_CHAR *Image;
-} QSPListItemC;
+int MAX_LIST_ITEMS = 1000;
 
 EMSCRIPTEN_KEEPALIVE
-QSP_CHAR *QSPGetVersion()
+void init()
 {
-  return qspStringToC(QSP_STATIC_STR(QSP_VER));
+  QSPInit();
 }
 
 EMSCRIPTEN_KEEPALIVE
-void QSPInit()
+void dispose()
 {
-  qspIsDebug = QSP_FALSE;
-  qspRefreshCount = qspFullRefreshCount = 0;
-  qspQstCRC = 0;
-  qspRealCurLoc = -1;
-  qspRealActIndex = -1;
-  qspRealLine = 0;
-  qspMSCount = 0;
-  qspLocs = 0;
-  qspLocsNames = 0;
-  qspLocsCount = 0;
-  qspCurLoc = -1;
-  qspTimerInterval = 0;
-  qspCurIsShowObjs = qspCurIsShowActs = qspCurIsShowVars = qspCurIsShowInput = QSP_TRUE;
-  setlocale(LC_ALL, QSP_LOCALE);
-  qspSetSeed(0);
-  qspPrepareExecution();
-  qspMemClear(QSP_TRUE);
-  qspInitCallBacks();
-  qspInitStats();
-  qspInitMath();
+  QSPDeInit();
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPLoadGameWorld(const void *data, int dataSize, QSP_CHAR *fileName, QSP_BOOL isNewGame)
+QSPString getVersion()
 {
-  printf("QSPLoadGameWorld\n");
-  if (qspIsExitOnError && qspErrorNum)
-  {
-    return QSP_FALSE;
-  }
-  qspResetError();
-  if (qspIsDisableCodeExec)
-  {
-    return QSP_FALSE;
-  }
-  qspOpenQuestFromData((char *)data, dataSize, isNewGame);
-  if (qspErrorNum)
-    return QSP_FALSE;
-  return QSP_TRUE;
+  return QSPGetVersion();
+}
+
+/* Main desc */
+EMSCRIPTEN_KEEPALIVE
+QSPString getMainDesc()
+{
+  return QSPGetMainDesc();
 }
 
 EMSCRIPTEN_KEEPALIVE
-void *QSPSaveGame(int *realSize)
+QSP_BOOL isMainDescChanged()
 {
-  QSPString data;
-  int size;
-  if (qspIsExitOnError && qspErrorNum)
-    return qspStringToC(qspEmptyString);
-  qspPrepareExecution();
-  if (qspIsDisableCodeExec)
-    return qspStringToC(qspEmptyString);
-  data = qspSaveGameStatusToString();
-  if (!data.Str)
-  {
-    *realSize = 0;
-    return qspStringToC(qspEmptyString);
-  }
-  size = qspStrLen(data) * sizeof(QSP_CHAR);
-  *realSize = size;
-  char *buf = malloc(size);
-  memcpy(buf, data.Str, size);
-  qspFreeString(data);
-  qspCallRefreshInt(QSP_FALSE);
-  return buf;
+  return QSPIsMainDescChanged();
+}
+
+/* Vars desc */
+EMSCRIPTEN_KEEPALIVE
+QSPString getVarsDesc()
+{
+  return QSPGetVarsDesc();
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPOpenSavedGame(const void *data, int dataSize)
+QSP_BOOL isVarsDescChanged()
 {
-  printf("QSPOpenSavedGame\n");
-  if (qspIsExitOnError && qspErrorNum)
-    return QSP_FALSE;
-  qspPrepareExecution();
-  if (qspIsDisableCodeExec)
-    return QSP_FALSE;
-  qspOpenGameStatusFromString(qspStringFromLen((QSP_CHAR *)data, dataSize / sizeof(QSP_CHAR)));
-  if (qspErrorNum)
-    return QSP_FALSE;
-  qspCallRefreshInt(QSP_FALSE);
-  return QSP_TRUE;
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPRestartGame()
-{
-  printf("QSPRestartGame\n");
-  if (qspIsExitOnError && qspErrorNum)
-    return QSP_FALSE;
-  qspPrepareExecution();
-  if (qspIsDisableCodeExec)
-    return QSP_FALSE;
-  qspNewGame(QSP_TRUE);
-  if (qspErrorNum)
-    return QSP_FALSE;
-  qspCallRefreshInt(QSP_FALSE);
-  return QSP_TRUE;
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSPErrorData *QSPGetLastError()
-{
-  QSPErrorData *error = (QSPErrorData *)malloc(sizeof(QSPErrorData));
-  error->code = qspErrorNum;
-  error->location = qspStringToC(qspErrorLoc >= 0 && qspErrorLoc < qspLocsCount ? qspLocs[qspErrorLoc].Name : qspNullString);
-  error->description = qspStringToC(qspGetErrorDesc(qspErrorNum));
-  error->actionIndex = qspErrorActIndex;
-  error->line = qspErrorLine;
-
-  return error;
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPIsMainDescChanged()
-{
-  return qspIsMainDescChanged;
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSP_CHAR *QSPGetMainDesc()
-{
-  return qspStringToC(qspCurDesc);
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPIsVarsDescChanged()
-{
-  return qspIsVarsDescChanged;
-}
-
-EMSCRIPTEN_KEEPALIVE
-QSP_CHAR *QSPGetVarsDesc()
-{
-  return qspStringToC(qspCurVars);
+  return QSPIsVarsDescChanged();
 }
 
 /* Actions */
-
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPIsActionsChanged()
+int getActions(QSPListItem *items)
 {
-  return qspIsActionsChanged;
+  return QSPGetActions(items, MAX_LIST_ITEMS);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSPListItemC *QSPGetActions(int *count)
+QSP_BOOL selectAction(int index)
 {
-  *count = qspCurActionsCount;
-  QSPListItemC *items = (QSPListItemC *)malloc(qspCurActionsCount * sizeof(QSPListItemC));
-  for (int i = 0; i < qspCurActionsCount; ++i)
-  {
-    items[i].Name = qspStringToC(qspCurActions[i].Desc);
-    items[i].Image = qspStringToC(qspCurActions[i].Image);
-  }
-  return items;
+  return QSPSetSelActionIndex(index, QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPSelectAction(int ind)
+QSP_BOOL isActionsChanged()
 {
-  if (ind >= 0 && ind < qspCurActionsCount && ind != qspCurSelAction)
-  {
-    if (qspIsExitOnError && qspErrorNum)
-      return QSP_FALSE;
-    qspPrepareExecution();
-    if (qspIsDisableCodeExec)
-      return QSP_FALSE;
-    qspCurSelAction = ind;
-    qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("ONACTSEL")), 0, 0);
-    if (qspErrorNum)
-      return QSP_FALSE;
-    qspExecAction(qspCurSelAction);
-    if (qspErrorNum)
-      return QSP_FALSE;
-    qspCallRefreshInt(QSP_FALSE);
-  }
-  return QSP_TRUE;
+  return QSPIsActionsChanged();
 }
 
 /* Objects */
-
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPIsObjectsChanged()
+int getObjects(QSPListItem *items)
 {
-  return qspIsObjectsChanged;
+  return QSPGetObjects(items, MAX_LIST_ITEMS);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSPListItemC *QSPGetObjects(int *count)
+QSP_BOOL selectObject(int index)
 {
-  *count = qspCurObjectsCount;
-  QSPListItemC *items = (QSPListItemC *)malloc(qspCurObjectsCount * sizeof(QSPListItemC));
-  for (int i = 0; i < qspCurObjectsCount; ++i)
-  {
-    items[i].Name = qspStringToC(qspCurObjects[i].Desc);
-    items[i].Image = qspStringToC(qspCurObjects[i].Image);
-  }
-  return items;
+  return QSPSetSelObjectIndex(index, QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPSelectObject(int index)
+QSP_BOOL isObjectsChanged()
 {
-  if (index >= 0 && index < qspCurObjectsCount && index != qspCurSelObject)
-  {
-    if (qspIsExitOnError && qspErrorNum)
-      return QSP_FALSE;
-    qspPrepareExecution();
-    if (qspIsDisableCodeExec)
-      return QSP_FALSE;
-    qspCurSelObject = index;
-    qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("ONOBJSEL")), 0, 0);
-    if (qspErrorNum)
-      return QSP_FALSE;
-    qspCallRefreshInt(QSP_FALSE);
-  }
-  return QSP_TRUE;
+  return QSPIsObjectsChanged();
 }
 
-/* variables */
+/* Game */
 EMSCRIPTEN_KEEPALIVE
-int QSPGetVarValuesCount(QSP_CHAR *name)
+QSP_BOOL loadGameData(const void *data, int dataSize, QSP_BOOL isNewGame)
 {
-  QSPVar *var;
-  if (qspIsExitOnError && qspErrorNum)
-    return 0;
-  qspResetError();
-  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
-  if (qspErrorNum)
-    return 0;
-  return var->ValsCount;
+  return QSPLoadGameWorldFromData(data, dataSize, isNewGame);
 }
 
 EMSCRIPTEN_KEEPALIVE
-int QSPGetVarNumValue(QSP_CHAR *name, int ind)
+QSP_BOOL restartGame()
 {
-  QSPVar *var;
-  if (qspIsExitOnError && qspErrorNum)
-    return 0;
-  qspResetError();
-  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
-  if (qspErrorNum || ind < 0 || ind >= var->ValsCount)
-    return 0;
-  return var->Values[ind].Num;
+  return QSPRestartGame(QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_CHAR *QSPGetVarStrValue(QSP_CHAR *name, int ind)
+QSP_BOOL saveGameData(void *buf, int bufSize, int *realSize)
 {
-  QSPVar *var;
-  if (qspIsExitOnError && qspErrorNum)
-    return qspStringToC(qspEmptyString);
-  qspResetError();
-  var = qspVarReference(qspStringFromC(name), QSP_FALSE);
-  if (qspErrorNum || ind < 0 || ind >= var->ValsCount)
-    return qspStringToC(qspEmptyString);
-  return qspStringToC(var->Values[ind].Str);
+  return QSPSaveGameAsData(buf, bufSize, realSize, QSP_FALSE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPExecString(QSP_CHAR *s)
+QSP_BOOL loadSavedGameData(const void *data, int dataSize)
 {
-  if (qspIsExitOnError && qspErrorNum)
-    return QSP_FALSE;
-  qspPrepareExecution();
-  if (qspIsDisableCodeExec)
-    return QSP_FALSE;
-  qspExecStringAsCodeWithArgs(qspStringFromC(s), 0, 0, 0);
-  if (qspErrorNum)
-    return QSP_FALSE;
-  qspCallRefreshInt(QSP_FALSE);
-  return QSP_TRUE;
+  return QSPOpenSavedGameFromData(data, dataSize, QSP_FALSE);
+}
+
+/* exec code */
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL execString(QSPString s)
+{
+  return QSPExecString(s, QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPExecCounter()
+QSP_BOOL execCounter()
 {
-  if (!qspIsInCallBack)
-  {
-    qspPrepareExecution();
-    qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("COUNTER")), 0, 0);
-    if (qspErrorNum)
-      return QSP_FALSE;
-    qspCallRefreshInt(QSP_FALSE);
-  }
-  return QSP_TRUE;
+  return QSPExecCounter(QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL QSPExecUserInput(QSP_CHAR *text)
+QSP_BOOL execUserInput(QSPString s)
 {
-  if (qspIsExitOnError && qspErrorNum)
-    return QSP_FALSE;
-  qspUpdateText(&qspCurInput, qspStringFromC(text));
-  qspPrepareExecution();
-  if (qspIsDisableCodeExec)
-    return QSP_FALSE;
-  qspExecLocByVarNameWithArgs(QSP_STATIC_STR(QSP_FMT("USERCOM")), 0, 0);
-  if (qspErrorNum)
-    return QSP_FALSE;
-  qspCallRefreshInt(QSP_FALSE);
-  return QSP_TRUE;
+  QSPSetInputStrText(s);
+  return QSPExecUserInput(QSP_TRUE);
+}
+
+/* Errors */
+EMSCRIPTEN_KEEPALIVE
+void getLastErrorData(int *errorNum, QSPString *errorLoc, int *errorActIndex, int *errorLine)
+{
+  return QSPGetLastErrorData(errorNum, errorLoc, errorActIndex, errorLine);
+}
+
+EMSCRIPTEN_KEEPALIVE
+QSPString getErrorDesc(int errorNum)
+{
+  return QSPGetErrorDesc(errorNum);
+}
+
+EMSCRIPTEN_KEEPALIVE
+QSP_BOOL getVarValues(QSPString name, int ind, int *numVal, QSPString *strVal)
+{
+  return QSPGetVarValues(name, ind, numVal, strVal);
+}
+
+/* callbacks */
+EMSCRIPTEN_KEEPALIVE
+void initCallBacks()
+{
+  qspInitCallBacks();
+}
+
+EMSCRIPTEN_KEEPALIVE
+void setCallBack(int type, QSP_CALLBACK func)
+{
+  qspSetCallBack(type, func);
+}
+
+/* Struct utils */
+
+EMSCRIPTEN_KEEPALIVE
+QSPString createString(QSP_CHAR *s)
+{
+  return qspStringFromC(s);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void freeString(QSPString s)
+{
+  qspFreeString(s);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void createItemsList(QSPListItem **items)
+{
+  QSPListItem *pitems = (QSPListItem *)malloc(MAX_LIST_ITEMS * sizeof(QSPListItem));
+  *items = pitems;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void freeItemsList(QSPListItem *items)
+{
+  free(items);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void createSaveBuffer(void **buffer, int fileSize)
+{
+  void *pBuffer = (void *)malloc(fileSize);
+  *buffer = pBuffer;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void recreateSaveBuffer(void **buffer, int fileSize)
+{
+  *buffer = (void *)realloc(*buffer, fileSize);
+}
+
+EMSCRIPTEN_KEEPALIVE
+void freeSaveBuffer(void *buffer)
+{
+  free(buffer);
 }

@@ -1,13 +1,18 @@
 import EventEmitter from 'eventemitter3';
 import { QspAPI, QspErrorData, QspEvents, QspListItem, LayoutSettings } from './contracts';
 import { QspModule } from '../qsplib/public/qsp-wasm';
-import { Ptr, CharsPtr, QspCallType, QspPanel } from '../qsplib/public/types';
+import { Ptr, QspCallType, QspPanel, Bool, StringPtr } from '../qsplib/public/types';
 import { shallowEqual } from './helpers';
+
+const POINTER_SIZE = 4; // pointers are 4 bytes in C
 
 export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
   private time: number;
   private layout: LayoutSettings = null;
+
+  private intPtr: Ptr;
+  private strPtr: Ptr;
 
   constructor(private module: QspModule) {
     this.init();
@@ -21,151 +26,182 @@ export class QspAPIImpl implements QspAPI {
     this.events.off(event, listener);
   }
 
-  openGame(data: ArrayBuffer, fileName: string, isNewGame: boolean): boolean {
+  openGame(data: ArrayBuffer, isNewGame: boolean): boolean {
     const bytes = new Uint8Array(data);
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
 
-    const namePtr = this.stringToPTr(fileName);
+    const result = this.onCalled(this.module._loadGameData(ptr, bytes.length, Number(isNewGame) as Bool));
 
-    const result = this.onCalled(this.module._QSPLoadGameWorld(ptr, bytes.length, namePtr, isNewGame));
     this.module._free(ptr);
-    this.module._free(namePtr);
 
     return result;
   }
 
   saveGame(): ArrayBuffer {
-    const sizePtr = this.module._malloc(4);
-    const ptr = this.module._QSPSaveGame(sizePtr);
-    const size = this.module.getValue(sizePtr, 'i32');
-    if (!size) {
-      this.onCalled(false);
-    }
-    const data = this.module.HEAPU8.slice(ptr, ptr + size);
+    const fileSize = 64 * 1024;
 
-    this.module._free(sizePtr);
-    this.module._free(ptr);
+    const sizePtr = this.allocPtr();
+    const bufferPtr = this.allocPtr();
+
+    this.module._createSaveBuffer(bufferPtr, fileSize);
+
+    if (!this.module._saveGameData(bufferPtr, fileSize, sizePtr)) {
+      const size = this.module.getValue(sizePtr, 'i32');
+      if (size) {
+        this.module._recreateSaveBuffer(bufferPtr, size);
+        if (!this.module._saveGameData(bufferPtr, size, sizePtr)) {
+          this.module._freeSaveBuffer(bufferPtr);
+          this.freePtr(sizePtr);
+          this.freePtr(bufferPtr);
+          return;
+        }
+      }
+    }
+
+    const size = this.module.getValue(sizePtr, 'i32');
+    const data = this.module.HEAPU8.slice(bufferPtr, bufferPtr + size);
+
+    this.module._freeSaveBuffer(bufferPtr);
+    this.freePtr(sizePtr);
+    this.freePtr(bufferPtr);
 
     return data.buffer;
   }
 
-  loadSave(data: ArrayBuffer) {
+  loadSave(data: ArrayBuffer): void {
     const bytes = new Uint8Array(data);
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
-    this.onCalled(this.module._QSPOpenSavedGame(ptr, bytes.length));
+    this.onCalled(this.module._loadSavedGameData(ptr, bytes.length));
     this.module._free(ptr);
   }
 
   restartGame(): boolean {
     this.time = Date.now();
-    return this.onCalled(this.module._QSPRestartGame());
+    return this.onCalled(this.module._restartGame());
   }
 
   selectAction(index: number): boolean {
-    return this.onCalled(this.module._QSPSelectAction(index));
+    return this.onCalled(this.module._selectAction(index));
   }
 
   selectObject(index: number): boolean {
-    return this.onCalled(this.module._QSPSelectObject(index));
+    return this.onCalled(this.module._selectObject(index));
   }
 
   version(): string {
-    return this.readString(this.module._QSPGetVersion());
+    return this.readString(this.module._getVersion());
   }
 
   readVariableNumber(name: string, index = 0): number {
-    const ptr = this.stringToPTr(name);
-    const value = this.module._QSPGetVarNumValue(ptr, index);
-    this.module._free(ptr);
+    const ptr = this.prepareString(name);
+
+    const numPtr = this.allocPtr();
+    const strPtr = this.allocPtr();
+
+    this.module._getVarValues(ptr, index, numPtr, strPtr);
+    const value = this.readInt(numPtr);
+
+    this.module._freeString(ptr);
+    this.freePtr(numPtr);
+    this.freePtr(strPtr);
+
     return value;
   }
 
   readVariableString(name: string, index = 0): string {
-    const ptr = this.stringToPTr(name);
-    const resultPtr = this.module._QSPGetVarStrValue(ptr, index);
-    this.module._free(ptr);
-    const value = this.readString(resultPtr);
-    this.module._free(resultPtr);
+    const ptr = this.prepareString(name);
+
+    const numPtr = this.allocPtr();
+    const strPtr = this.allocPtr();
+
+    this.module._getVarValues(ptr, index, numPtr, strPtr);
+    const value = this.readString(strPtr);
+
+    this.module._freeString(ptr);
+    this.freePtr(numPtr);
+    this.freePtr(strPtr);
+
     return value;
   }
 
   execCode(code: string): boolean {
-    const ptr = this.stringToPTr(code);
-    const result = this.module._QSPExecString(ptr);
+    const ptr = this.prepareString(code);
+    const result = this.module._execString(ptr);
     this.module._free(ptr);
     return this.onCalled(result);
   }
 
   execCounter(): boolean {
-    return this.onCalled(this.module._QSPExecCounter());
+    return this.onCalled(this.module._execCounter());
   }
 
   execUserInput(code: string): boolean {
-    const ptr = this.stringToPTr(code);
-    const result = this.module._QSPExecUserInput(ptr);
+    const ptr = this.prepareString(code);
+    const result = this.module._execUserInput(ptr);
     this.module._free(ptr);
     return this.onCalled(result);
   }
 
   private init() {
-    this.module._QSPInit();
-    this.module._qspInitCallBacks();
+    this.module._init();
+    this.module._initCallBacks();
+
     this.registerCallbacks();
   }
 
   private registerCallbacks() {
     const onRefreshInt = this.module.addFunction(this.onRefresh, 'ii');
-    this.module._qspSetCallBack(QspCallType.REFRESHINT, onRefreshInt);
+    this.module._setCallBack(QspCallType.REFRESHINT, onRefreshInt);
 
     const onShowWindow = this.module.addFunction(this.onShowWindow, 'iii');
-    this.module._qspSetCallBack(QspCallType.SHOWWINDOW, onShowWindow);
+    this.module._setCallBack(QspCallType.SHOWWINDOW, onShowWindow);
 
     const onMenu = this.module.addFunction(this.onMenu, 'iii');
-    this.module._qspSetCallBack(QspCallType.SHOWMENU, onMenu);
+    this.module._setCallBack(QspCallType.SHOWMENU, onMenu);
 
     const onMsg = this.module.addFunction(this.onMsg, 'ii');
-    this.module._qspSetCallBack(QspCallType.SHOWMSGSTR, onMsg);
+    this.module._setCallBack(QspCallType.SHOWMSGSTR, onMsg);
 
     const onInput = this.module.addFunction(this.onInput, 'iiii');
-    this.module._qspSetCallBack(QspCallType.INPUTBOX, onInput);
+    this.module._setCallBack(QspCallType.INPUTBOX, onInput);
 
     const onWait = this.module.addFunction(this.onWait, 'ii');
-    this.module._qspSetCallBack(QspCallType.SLEEP, onWait);
+    this.module._setCallBack(QspCallType.SLEEP, onWait);
 
     const onSetTimer = this.module.addFunction(this.onSetTimer, 'ii');
-    this.module._qspSetCallBack(QspCallType.SETTIMER, onSetTimer);
+    this.module._setCallBack(QspCallType.SETTIMER, onSetTimer);
 
-    const onSetUserInput = this.module.addFunction(this.onSerUserInput, 'ii');
-    this.module._qspSetCallBack(QspCallType.SETINPUTSTRTEXT, onSetUserInput);
+    const onSetUserInput = this.module.addFunction(this.onSetUserInput, 'ii');
+    this.module._setCallBack(QspCallType.SETINPUTSTRTEXT, onSetUserInput);
 
     const onView = this.module.addFunction(this.onView, 'ii');
-    this.module._qspSetCallBack(QspCallType.SHOWIMAGE, onView);
+    this.module._setCallBack(QspCallType.SHOWIMAGE, onView);
 
     const onDebug = this.module.addFunction(this.onDebug, 'ii');
-    this.module._qspSetCallBack(QspCallType.DEBUG, onDebug);
+    this.module._setCallBack(QspCallType.DEBUG, onDebug);
 
     const onGetMS = this.module.addFunction(this.onGetMS, 'i');
-    this.module._qspSetCallBack(QspCallType.GETMSCOUNT, onGetMS);
+    this.module._setCallBack(QspCallType.GETMSCOUNT, onGetMS);
 
     const onOpenGame = this.module.addFunction(this.onOpenGame, 'iii');
-    this.module._qspSetCallBack(QspCallType.OPENGAME, onOpenGame);
+    this.module._setCallBack(QspCallType.OPENGAME, onOpenGame);
 
     const onOpenGameStatus = this.module.addFunction(this.onOpenGameStatus, 'ii');
-    this.module._qspSetCallBack(QspCallType.OPENGAMESTATUS, onOpenGameStatus);
+    this.module._setCallBack(QspCallType.OPENGAMESTATUS, onOpenGameStatus);
 
     const onSaveGameStatus = this.module.addFunction(this.onSaveGameStatus, 'ii');
-    this.module._qspSetCallBack(QspCallType.SAVEGAMESTATUS, onSaveGameStatus);
+    this.module._setCallBack(QspCallType.SAVEGAMESTATUS, onSaveGameStatus);
 
     const onIsPLay = this.module.addFunction(this.onIsPlay, 'ii');
-    this.module._qspSetCallBack(QspCallType.ISPLAYINGFILE, onIsPLay);
+    this.module._setCallBack(QspCallType.ISPLAYINGFILE, onIsPLay);
 
     const onPlayFile = this.module.addFunction(this.onPlayFile, 'iii');
-    this.module._qspSetCallBack(QspCallType.PLAYFILE, onPlayFile);
+    this.module._setCallBack(QspCallType.PLAYFILE, onPlayFile);
 
     const onCLoseFile = this.module.addFunction(this.onCloseFile, 'ii');
-    this.module._qspSetCallBack(QspCallType.CLOSEFILE, onCLoseFile);
+    this.module._setCallBack(QspCallType.CLOSEFILE, onCLoseFile);
   }
 
   private emit<E extends keyof QspEvents, CB extends QspEvents[E] = QspEvents[E]>(
@@ -176,45 +212,53 @@ export class QspAPIImpl implements QspAPI {
     this.events.emit(event, ...args);
   }
 
-  onRefresh = (isRedraw: boolean) => {
+  onRefresh = (isRedraw: boolean): void => {
     this.updateLayout();
 
-    if (isRedraw || this.module._QSPIsMainDescChanged()) {
-      const mainDesc = this.readString(this.module._QSPGetMainDesc());
+    if (isRedraw || this.module._isMainDescChanged()) {
+      const mainDesc = this.readString(this.module._getMainDesc());
       this.emit('main_changed', mainDesc);
     }
 
-    if (isRedraw || this.module._QSPIsVarsDescChanged()) {
-      const varsDesc = this.readString(this.module._QSPGetVarsDesc());
+    if (isRedraw || this.module._isVarsDescChanged()) {
+      const varsDesc = this.readString(this.module._getVarsDesc());
       this.emit('stats_changed', varsDesc);
     }
 
-    if (isRedraw || this.module._QSPIsActionsChanged()) {
-      const countPtr = this.module._malloc(4);
-      const ptr = this.module._QSPGetActions(countPtr);
-      const count = this.module.getValue(countPtr, 'i32');
-      const actions = this.readListItems(ptr, count);
-      this.module._free(countPtr);
-      this.module._free(ptr);
+    if (isRedraw || this.module._isActionsChanged()) {
+      const listPtr = this.allocPtr();
+      this.module._createItemsList(listPtr);
+
+      const count = this.module._getActions(listPtr);
+
+      const actions = this.readListItems(listPtr, count);
+
+      this.module._freeItemsList(listPtr);
+      this.freePtr(listPtr);
+
       this.emit('actions_changed', actions);
     }
 
-    if (isRedraw || this.module._QSPIsObjectsChanged()) {
-      const countPtr = this.module._malloc(4);
-      const ptr = this.module._QSPGetObjects(countPtr);
-      const count = this.module.getValue(countPtr, 'i32');
-      const objects = this.readListItems(ptr, count);
-      this.module._free(countPtr);
-      this.module._free(ptr);
+    if (isRedraw || this.module._isObjectsChanged()) {
+      const listPtr = this.allocPtr();
+      this.module._createItemsList(listPtr);
+
+      const count = this.module._getObjects(listPtr);
+
+      const objects = this.readListItems(listPtr, count);
+
+      this.module._freeItemsList(listPtr);
+      this.freePtr(listPtr);
+
       this.emit('objects_changed', objects);
     }
   };
 
-  onShowWindow = (type: QspPanel, isShown: boolean) => {
+  onShowWindow = (type: QspPanel, isShown: boolean): void => {
     this.emit('panel_visibility', type, isShown);
   };
 
-  onMenu = (listPtr: Ptr, count: number) => {
+  onMenu = (listPtr: Ptr, count: number): void => {
     const items = this.readListItems(listPtr, count);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
@@ -225,7 +269,7 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onMsg = (textPtr: CharsPtr) => {
+  onMsg = (textPtr: StringPtr): void => {
     this.onRefresh(false);
     const text = this.readString(textPtr);
 
@@ -237,7 +281,7 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onInput = (textPtr: CharsPtr, retPtr: Ptr, maxSize: number) => {
+  onInput = (textPtr: StringPtr, retPtr: Ptr, maxSize: number): void => {
     this.onRefresh(false);
     const text = this.readString(textPtr);
 
@@ -250,44 +294,40 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onWait = (ms: number) => {
+  onWait = (ms: number): void => {
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onWait = () => wakeUp(0);
       this.emit('wait', ms, onWait);
     });
   };
 
-  onSetTimer = (ms: number) => {
+  onSetTimer = (ms: number): void => {
     this.emit('timer', ms);
   };
 
-  onSerUserInput = (textPtr: CharsPtr) => {
+  onSetUserInput = (textPtr: StringPtr): void => {
     const text = this.readString(textPtr);
-    this.module._free(textPtr);
     this.emit('user_input', text);
   };
 
-  onView = (pathPtr: CharsPtr) => {
+  onView = (pathPtr: StringPtr): void => {
     const path = this.readString(pathPtr);
-    this.module._free(pathPtr);
     this.emit('view', path);
   };
 
-  onDebug = (strPtr: CharsPtr) => {
+  onDebug = (strPtr: StringPtr): void => {
     const text = this.readString(strPtr);
-    this.module._free(strPtr);
     console.log('DEBUG:', text);
   };
 
-  onGetMS = () => {
+  onGetMS = (): number => {
     const elapsed = Date.now() - this.time;
     this.time = Date.now();
     return elapsed;
   };
 
-  onOpenGame = (pathPtr: CharsPtr, isNewGame: boolean) => {
+  onOpenGame = (pathPtr: StringPtr, isNewGame: boolean): void => {
     const path = this.readString(pathPtr);
-    this.module._free(pathPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onOpened = () => {
@@ -297,9 +337,8 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onOpenGameStatus = (pathPtr: CharsPtr) => {
+  onOpenGameStatus = (pathPtr: StringPtr): void => {
     const path = this.readString(pathPtr);
-    this.module._free(pathPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onLoaded = () => {
@@ -309,9 +348,8 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onSaveGameStatus = (pathPtr: CharsPtr) => {
+  onSaveGameStatus = (pathPtr: StringPtr): void => {
     const path = this.readString(pathPtr);
-    this.module._free(pathPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onSaved = () => {
@@ -321,18 +359,16 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onIsPlay = (filePtr: CharsPtr) => {
+  onIsPlay = (filePtr: StringPtr): void => {
     const file = this.readString(filePtr);
-    this.module._free(filePtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       this.emit('is_play', file, (result) => wakeUp(result ? 1 : 0));
     });
   };
 
-  onPlayFile = (filePtr: CharsPtr, volume: number) => {
+  onPlayFile = (filePtr: StringPtr, volume: number): void => {
     const file = this.readString(filePtr);
-    this.module._free(filePtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onReady = () => {
@@ -342,9 +378,8 @@ export class QspAPIImpl implements QspAPI {
     });
   };
 
-  onCloseFile = (filePtr: CharsPtr) => {
+  onCloseFile = (filePtr: StringPtr): void => {
     const file = this.readString(filePtr);
-    this.module._free(filePtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onReady = () => {
@@ -379,26 +414,37 @@ export class QspAPIImpl implements QspAPI {
     }
   }
 
-  private onCalled(isSuccessfull: boolean): boolean {
+  private onCalled(isSuccessfull: Bool): boolean {
     if (!isSuccessfull) {
       const errorData = this.readError();
       if (errorData.code > 0) {
-        console.log(errorData);
+        console.error(errorData);
         this.emit('error', errorData);
       }
     }
-    return isSuccessfull;
+    return Boolean(isSuccessfull);
   }
 
-  private readString(ptr: CharsPtr): string {
-    return this.module.UTF32ToString(ptr);
+  private convertColor(value: number): string {
+    if (!value) return '';
+    const arr = new Uint8Array(4);
+    const view = new DataView(arr.buffer);
+    view.setInt32(0, value);
+    const [a, b, g, r] = arr;
+    return `rgba(${r},${g},${b},${a})`;
   }
 
-  private stringToPTr(value: string): CharsPtr {
+  private readString(ptr: StringPtr): string {
+    const start = this.derefPtr(ptr);
+    const end = this.derefPtr(this.movePtr(ptr));
+    return this.module.UTF32ToString(start, end - start);
+  }
+
+  private prepareString(value: string): StringPtr {
     const length = this.module.lengthBytesUTF32(value);
     const ptr = this.module._malloc(length);
     this.module.stringToUTF32(value, ptr);
-    return ptr;
+    return this.module._createString(ptr);
   }
 
   private readInt(ptr: Ptr): number {
@@ -406,23 +452,26 @@ export class QspAPIImpl implements QspAPI {
   }
 
   private readError(): QspErrorData {
-    let ptr = this.module._QSPGetLastError();
+    const errorNumPtr = this.allocPtr();
+    const errorLocPtr = this.allocPtr();
+    const errorActIndexPtr = this.allocPtr();
+    const errorLinePtr = this.allocPtr();
 
-    const code = this.readInt(ptr);
-    ptr = this.movePtr(ptr);
+    this.module._getLastErrorData(errorNumPtr, errorLocPtr, errorActIndexPtr, errorLinePtr);
 
-    const descriptionPtr = this.getCharsPtr(ptr);
-    const description = this.readString(descriptionPtr);
-    ptr = this.movePtr(ptr);
+    const code = this.readInt(errorNumPtr);
+    this.freePtr(errorNumPtr);
 
-    const locationPtr = this.getCharsPtr(ptr);
-    const location = this.readString(locationPtr);
-    ptr = this.movePtr(ptr);
+    const description = this.readString(this.module._getErrorDesc(code));
 
-    const actionIndex = this.readInt(ptr);
-    ptr = this.movePtr(ptr);
+    const location = this.readString(errorLocPtr);
+    this.freePtr(errorLocPtr);
 
-    const line = this.readInt(ptr);
+    const actionIndex = this.readInt(errorActIndexPtr);
+    this.freePtr(errorActIndexPtr);
+
+    const line = this.readInt(errorLinePtr);
+    this.freePtr(errorLinePtr);
 
     return {
       code,
@@ -437,11 +486,11 @@ export class QspAPIImpl implements QspAPI {
     const list: QspListItem[] = [];
     let ptr = listPtr;
     for (let i = 0; i < count; i++) {
-      const namePtr = this.getCharsPtr(ptr);
+      const namePtr = this.derefPtr(ptr);
       const name = this.readString(namePtr);
       ptr = this.movePtr(ptr);
 
-      const imagePtr = this.getCharsPtr(ptr);
+      const imagePtr = this.derefPtr(ptr);
       const image = this.readString(imagePtr);
       ptr = this.movePtr(ptr);
 
@@ -453,24 +502,24 @@ export class QspAPIImpl implements QspAPI {
     return list;
   }
 
-  private getCharsPtr(ptr: Ptr): CharsPtr {
+  /* Pointers magic */
+  private allocPtr(): Ptr {
+    return this.module._malloc(POINTER_SIZE);
+  }
+
+  private derefPtr(ptr: Ptr): Ptr {
     return this.module.getValue(ptr, 'i32');
   }
 
   private movePtr(ptr: Ptr): Ptr {
-    return ptr + 4; // pointers are 4 bytes in C
+    return ptr + POINTER_SIZE;
   }
 
-  private convertColor(value: number): string {
-    if (!value) return '';
-    const arr = new Uint8Array(4);
-    const view = new DataView(arr.buffer);
-    view.setInt32(0, value);
-    const [a, b, g, r] = arr;
-    return `rgba(${r},${g},${b},${a})`;
+  private freePtr(ptr: Ptr): void {
+    this.module._free(ptr);
   }
 
-  toJSON() {
+  toJSON(): string {
     return '[QSP API]';
   }
 }

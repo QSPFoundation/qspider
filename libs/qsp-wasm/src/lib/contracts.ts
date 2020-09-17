@@ -37,7 +37,7 @@ export interface QspAPI {
   on<E extends keyof QspEvents>(event: E, callback: QspEvents[E]): void;
   off<E extends keyof QspEvents>(event: E, callback: QspEvents[E]): void;
   version(): string;
-  openGame(data: ArrayBuffer, fileName: string, isNewGame: boolean): void;
+  openGame(data: ArrayBuffer, isNewGame: boolean): void;
   saveGame(): ArrayBuffer;
   loadSave(data: ArrayBuffer): void;
   restartGame(): boolean;

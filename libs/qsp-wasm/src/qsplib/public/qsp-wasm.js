@@ -212,7 +212,7 @@ var Module = (function () {
       return null;
     }
     var wasmMemory;
-    var wasmTable = new WebAssembly.Table({ initial: 104, element: 'anyfunc' });
+    var wasmTable = new WebAssembly.Table({ initial: 102, element: 'anyfunc' });
     var ABORT = false;
     var EXITSTATUS = 0;
     function assert(condition, text) {
@@ -451,8 +451,8 @@ var Module = (function () {
       Module['HEAPF32'] = HEAPF32 = new Float32Array(buf);
       Module['HEAPF64'] = HEAPF64 = new Float64Array(buf);
     }
-    var DYNAMIC_BASE = 5944576,
-      DYNAMICTOP_PTR = 701536;
+    var DYNAMIC_BASE = 6043920,
+      DYNAMICTOP_PTR = 800880;
     var INITIAL_INITIAL_MEMORY = Module['INITIAL_MEMORY'] || 33554432;
     if (Module['wasmMemory']) {
       wasmMemory = Module['wasmMemory'];
@@ -3201,17 +3201,6 @@ var Module = (function () {
       HEAP32[penviron_buf_size >> 2] = bufSize;
       return 0;
     }
-    function _fd_write(fd, iov, iovcnt, pnum) {
-      try {
-        var stream = SYSCALLS.getStreamFromFD(fd);
-        var num = SYSCALLS.doWritev(stream, iov, iovcnt);
-        HEAP32[pnum >> 2] = num;
-        return 0;
-      } catch (e) {
-        if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
-        return e.errno;
-      }
-    }
     function _time(ptr) {
       var ret = (Date.now() / 1e3) | 0;
       if (ptr) {
@@ -4211,128 +4200,148 @@ var Module = (function () {
       return u8array;
     }
     var asmLibraryArg = {
-      g: ___map_file,
-      f: ___sys_munmap,
-      b: _emscripten_memcpy_big,
-      c: _emscripten_resize_heap,
-      d: _environ_get,
-      e: _environ_sizes_get,
-      a: _fd_write,
+      f: ___map_file,
+      e: ___sys_munmap,
+      a: _emscripten_memcpy_big,
+      b: _emscripten_resize_heap,
+      c: _environ_get,
+      d: _environ_sizes_get,
       memory: wasmMemory,
       table: wasmTable,
-      h: _time,
+      g: _time,
     };
     var asm = createWasm();
     var ___wasm_call_ctors = (Module['___wasm_call_ctors'] = function () {
-      return (___wasm_call_ctors = Module['___wasm_call_ctors'] = Module['asm']['i']).apply(null, arguments);
+      return (___wasm_call_ctors = Module['___wasm_call_ctors'] = Module['asm']['h']).apply(null, arguments);
     });
-    var _QSPGetVersion = (Module['_QSPGetVersion'] = function () {
-      return (_QSPGetVersion = Module['_QSPGetVersion'] = Module['asm']['j']).apply(null, arguments);
+    var _init = (Module['_init'] = function () {
+      return (_init = Module['_init'] = Module['asm']['i']).apply(null, arguments);
     });
-    var _QSPInit = (Module['_QSPInit'] = function () {
-      return (_QSPInit = Module['_QSPInit'] = Module['asm']['k']).apply(null, arguments);
+    var _dispose = (Module['_dispose'] = function () {
+      return (_dispose = Module['_dispose'] = Module['asm']['j']).apply(null, arguments);
     });
-    var _qspInitCallBacks = (Module['_qspInitCallBacks'] = function () {
-      return (_qspInitCallBacks = Module['_qspInitCallBacks'] = Module['asm']['l']).apply(null, arguments);
+    var _getVersion = (Module['_getVersion'] = function () {
+      return (_getVersion = Module['_getVersion'] = Module['asm']['k']).apply(null, arguments);
     });
-    var _QSPLoadGameWorld = (Module['_QSPLoadGameWorld'] = function () {
-      return (_QSPLoadGameWorld = Module['_QSPLoadGameWorld'] = Module['asm']['m']).apply(null, arguments);
+    var _getMainDesc = (Module['_getMainDesc'] = function () {
+      return (_getMainDesc = Module['_getMainDesc'] = Module['asm']['l']).apply(null, arguments);
     });
-    var _QSPSaveGame = (Module['_QSPSaveGame'] = function () {
-      return (_QSPSaveGame = Module['_QSPSaveGame'] = Module['asm']['n']).apply(null, arguments);
+    var _isMainDescChanged = (Module['_isMainDescChanged'] = function () {
+      return (_isMainDescChanged = Module['_isMainDescChanged'] = Module['asm']['m']).apply(null, arguments);
     });
-    var _malloc = (Module['_malloc'] = function () {
-      return (_malloc = Module['_malloc'] = Module['asm']['o']).apply(null, arguments);
+    var _getVarsDesc = (Module['_getVarsDesc'] = function () {
+      return (_getVarsDesc = Module['_getVarsDesc'] = Module['asm']['n']).apply(null, arguments);
+    });
+    var _isVarsDescChanged = (Module['_isVarsDescChanged'] = function () {
+      return (_isVarsDescChanged = Module['_isVarsDescChanged'] = Module['asm']['o']).apply(null, arguments);
+    });
+    var _getActions = (Module['_getActions'] = function () {
+      return (_getActions = Module['_getActions'] = Module['asm']['p']).apply(null, arguments);
+    });
+    var _selectAction = (Module['_selectAction'] = function () {
+      return (_selectAction = Module['_selectAction'] = Module['asm']['q']).apply(null, arguments);
+    });
+    var _isActionsChanged = (Module['_isActionsChanged'] = function () {
+      return (_isActionsChanged = Module['_isActionsChanged'] = Module['asm']['r']).apply(null, arguments);
+    });
+    var _getObjects = (Module['_getObjects'] = function () {
+      return (_getObjects = Module['_getObjects'] = Module['asm']['s']).apply(null, arguments);
+    });
+    var _selectObject = (Module['_selectObject'] = function () {
+      return (_selectObject = Module['_selectObject'] = Module['asm']['t']).apply(null, arguments);
+    });
+    var _isObjectsChanged = (Module['_isObjectsChanged'] = function () {
+      return (_isObjectsChanged = Module['_isObjectsChanged'] = Module['asm']['u']).apply(null, arguments);
+    });
+    var _loadGameData = (Module['_loadGameData'] = function () {
+      return (_loadGameData = Module['_loadGameData'] = Module['asm']['v']).apply(null, arguments);
+    });
+    var _restartGame = (Module['_restartGame'] = function () {
+      return (_restartGame = Module['_restartGame'] = Module['asm']['w']).apply(null, arguments);
+    });
+    var _saveGameData = (Module['_saveGameData'] = function () {
+      return (_saveGameData = Module['_saveGameData'] = Module['asm']['x']).apply(null, arguments);
+    });
+    var _loadSavedGameData = (Module['_loadSavedGameData'] = function () {
+      return (_loadSavedGameData = Module['_loadSavedGameData'] = Module['asm']['y']).apply(null, arguments);
+    });
+    var _execString = (Module['_execString'] = function () {
+      return (_execString = Module['_execString'] = Module['asm']['z']).apply(null, arguments);
+    });
+    var _execCounter = (Module['_execCounter'] = function () {
+      return (_execCounter = Module['_execCounter'] = Module['asm']['A']).apply(null, arguments);
+    });
+    var _execUserInput = (Module['_execUserInput'] = function () {
+      return (_execUserInput = Module['_execUserInput'] = Module['asm']['B']).apply(null, arguments);
+    });
+    var _getLastErrorData = (Module['_getLastErrorData'] = function () {
+      return (_getLastErrorData = Module['_getLastErrorData'] = Module['asm']['C']).apply(null, arguments);
+    });
+    var _getErrorDesc = (Module['_getErrorDesc'] = function () {
+      return (_getErrorDesc = Module['_getErrorDesc'] = Module['asm']['D']).apply(null, arguments);
+    });
+    var _getVarValues = (Module['_getVarValues'] = function () {
+      return (_getVarValues = Module['_getVarValues'] = Module['asm']['E']).apply(null, arguments);
+    });
+    var _initCallBacks = (Module['_initCallBacks'] = function () {
+      return (_initCallBacks = Module['_initCallBacks'] = Module['asm']['F']).apply(null, arguments);
+    });
+    var _setCallBack = (Module['_setCallBack'] = function () {
+      return (_setCallBack = Module['_setCallBack'] = Module['asm']['G']).apply(null, arguments);
+    });
+    var _createString = (Module['_createString'] = function () {
+      return (_createString = Module['_createString'] = Module['asm']['H']).apply(null, arguments);
+    });
+    var _freeString = (Module['_freeString'] = function () {
+      return (_freeString = Module['_freeString'] = Module['asm']['I']).apply(null, arguments);
     });
     var _free = (Module['_free'] = function () {
-      return (_free = Module['_free'] = Module['asm']['p']).apply(null, arguments);
+      return (_free = Module['_free'] = Module['asm']['J']).apply(null, arguments);
     });
-    var _QSPOpenSavedGame = (Module['_QSPOpenSavedGame'] = function () {
-      return (_QSPOpenSavedGame = Module['_QSPOpenSavedGame'] = Module['asm']['q']).apply(null, arguments);
+    var _createItemsList = (Module['_createItemsList'] = function () {
+      return (_createItemsList = Module['_createItemsList'] = Module['asm']['K']).apply(null, arguments);
     });
-    var _QSPRestartGame = (Module['_QSPRestartGame'] = function () {
-      return (_QSPRestartGame = Module['_QSPRestartGame'] = Module['asm']['r']).apply(null, arguments);
+    var _malloc = (Module['_malloc'] = function () {
+      return (_malloc = Module['_malloc'] = Module['asm']['L']).apply(null, arguments);
     });
-    var _QSPGetLastError = (Module['_QSPGetLastError'] = function () {
-      return (_QSPGetLastError = Module['_QSPGetLastError'] = Module['asm']['s']).apply(null, arguments);
+    var _freeItemsList = (Module['_freeItemsList'] = function () {
+      return (_freeItemsList = Module['_freeItemsList'] = Module['asm']['M']).apply(null, arguments);
     });
-    var _QSPIsMainDescChanged = (Module['_QSPIsMainDescChanged'] = function () {
-      return (_QSPIsMainDescChanged = Module['_QSPIsMainDescChanged'] = Module['asm']['t']).apply(null, arguments);
+    var _createSaveBuffer = (Module['_createSaveBuffer'] = function () {
+      return (_createSaveBuffer = Module['_createSaveBuffer'] = Module['asm']['N']).apply(null, arguments);
     });
-    var _QSPGetMainDesc = (Module['_QSPGetMainDesc'] = function () {
-      return (_QSPGetMainDesc = Module['_QSPGetMainDesc'] = Module['asm']['u']).apply(null, arguments);
+    var _recreateSaveBuffer = (Module['_recreateSaveBuffer'] = function () {
+      return (_recreateSaveBuffer = Module['_recreateSaveBuffer'] = Module['asm']['O']).apply(null, arguments);
     });
-    var _QSPIsVarsDescChanged = (Module['_QSPIsVarsDescChanged'] = function () {
-      return (_QSPIsVarsDescChanged = Module['_QSPIsVarsDescChanged'] = Module['asm']['v']).apply(null, arguments);
-    });
-    var _QSPGetVarsDesc = (Module['_QSPGetVarsDesc'] = function () {
-      return (_QSPGetVarsDesc = Module['_QSPGetVarsDesc'] = Module['asm']['w']).apply(null, arguments);
-    });
-    var _QSPIsActionsChanged = (Module['_QSPIsActionsChanged'] = function () {
-      return (_QSPIsActionsChanged = Module['_QSPIsActionsChanged'] = Module['asm']['x']).apply(null, arguments);
-    });
-    var _QSPGetActions = (Module['_QSPGetActions'] = function () {
-      return (_QSPGetActions = Module['_QSPGetActions'] = Module['asm']['y']).apply(null, arguments);
-    });
-    var _QSPSelectAction = (Module['_QSPSelectAction'] = function () {
-      return (_QSPSelectAction = Module['_QSPSelectAction'] = Module['asm']['z']).apply(null, arguments);
-    });
-    var _QSPIsObjectsChanged = (Module['_QSPIsObjectsChanged'] = function () {
-      return (_QSPIsObjectsChanged = Module['_QSPIsObjectsChanged'] = Module['asm']['A']).apply(null, arguments);
-    });
-    var _QSPGetObjects = (Module['_QSPGetObjects'] = function () {
-      return (_QSPGetObjects = Module['_QSPGetObjects'] = Module['asm']['B']).apply(null, arguments);
-    });
-    var _QSPSelectObject = (Module['_QSPSelectObject'] = function () {
-      return (_QSPSelectObject = Module['_QSPSelectObject'] = Module['asm']['C']).apply(null, arguments);
-    });
-    var _QSPGetVarValuesCount = (Module['_QSPGetVarValuesCount'] = function () {
-      return (_QSPGetVarValuesCount = Module['_QSPGetVarValuesCount'] = Module['asm']['D']).apply(null, arguments);
-    });
-    var _QSPGetVarNumValue = (Module['_QSPGetVarNumValue'] = function () {
-      return (_QSPGetVarNumValue = Module['_QSPGetVarNumValue'] = Module['asm']['E']).apply(null, arguments);
-    });
-    var _QSPGetVarStrValue = (Module['_QSPGetVarStrValue'] = function () {
-      return (_QSPGetVarStrValue = Module['_QSPGetVarStrValue'] = Module['asm']['F']).apply(null, arguments);
-    });
-    var _QSPExecString = (Module['_QSPExecString'] = function () {
-      return (_QSPExecString = Module['_QSPExecString'] = Module['asm']['G']).apply(null, arguments);
-    });
-    var _QSPExecCounter = (Module['_QSPExecCounter'] = function () {
-      return (_QSPExecCounter = Module['_QSPExecCounter'] = Module['asm']['H']).apply(null, arguments);
-    });
-    var _QSPExecUserInput = (Module['_QSPExecUserInput'] = function () {
-      return (_QSPExecUserInput = Module['_QSPExecUserInput'] = Module['asm']['I']).apply(null, arguments);
-    });
-    var _qspSetCallBack = (Module['_qspSetCallBack'] = function () {
-      return (_qspSetCallBack = Module['_qspSetCallBack'] = Module['asm']['J']).apply(null, arguments);
+    var _freeSaveBuffer = (Module['_freeSaveBuffer'] = function () {
+      return (_freeSaveBuffer = Module['_freeSaveBuffer'] = Module['asm']['P']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
-      return (___errno_location = Module['___errno_location'] = Module['asm']['K']).apply(null, arguments);
+      return (___errno_location = Module['___errno_location'] = Module['asm']['Q']).apply(null, arguments);
     });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['L']).apply(null, arguments);
+      return (stackSave = Module['stackSave'] = Module['asm']['R']).apply(null, arguments);
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['M']).apply(null, arguments);
+      return (stackRestore = Module['stackRestore'] = Module['asm']['S']).apply(null, arguments);
     });
     var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['N']).apply(null, arguments);
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['T']).apply(null, arguments);
     });
     var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['O']).apply(null, arguments);
+      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['U']).apply(null, arguments);
     });
     var _asyncify_start_unwind = (Module['_asyncify_start_unwind'] = function () {
-      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] = Module['asm']['P']).apply(null, arguments);
+      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] = Module['asm']['V']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
-      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] = Module['asm']['Q']).apply(null, arguments);
+      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] = Module['asm']['W']).apply(null, arguments);
     });
     var _asyncify_start_rewind = (Module['_asyncify_start_rewind'] = function () {
-      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] = Module['asm']['R']).apply(null, arguments);
+      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] = Module['asm']['X']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
-      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] = Module['asm']['S']).apply(null, arguments);
+      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] = Module['asm']['Y']).apply(null, arguments);
     });
     Module['cwrap'] = cwrap;
     Module['getValue'] = getValue;
