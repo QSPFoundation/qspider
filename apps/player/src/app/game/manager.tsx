@@ -65,6 +65,7 @@ export class GameManager {
     this.api = await init();
     onApiInitialized();
     console.log(`QSP version: ${this.api.version()}`);
+
     this.setupQspCallbacks();
 
     const gameDescriptor = await fetchGameDescriptor();
@@ -89,7 +90,7 @@ export class GameManager {
       gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
     );
 
-    this.api.openGame(gameSource, gameDescriptor.file, true);
+    this.api.openGame(gameSource, true);
     this.api.restartGame();
 
     this.markInitialized();
@@ -275,7 +276,7 @@ export class GameManager {
 
   onOpenGame = async (path: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     const gameSource = await fetchGameSource(path, this.descriptor.folder ? `/${this.descriptor.folder}/` : '/');
-    this.api.openGame(gameSource, path, isNewGame);
+    this.api.openGame(gameSource, isNewGame);
     onOpened();
   };
 

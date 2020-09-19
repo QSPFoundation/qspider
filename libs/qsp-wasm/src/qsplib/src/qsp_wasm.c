@@ -79,7 +79,8 @@ int getActions(QSPListItem *items)
 EMSCRIPTEN_KEEPALIVE
 QSP_BOOL selectAction(int index)
 {
-  return QSPSetSelActionIndex(index, QSP_TRUE);
+  QSPSetSelActionIndex(index, QSP_TRUE);
+  return QSPExecuteSelActionCode(QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -134,9 +135,9 @@ QSP_BOOL loadSavedGameData(const void *data, int dataSize)
 
 /* exec code */
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execString(QSPString s)
+QSP_BOOL execString(QSP_CHAR *s)
 {
-  return QSPExecString(s, QSP_TRUE);
+  return QSPExecString(qspStringFromC(s), QSP_TRUE);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -146,9 +147,9 @@ QSP_BOOL execCounter()
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execUserInput(QSPString s)
+QSP_BOOL execUserInput(QSP_CHAR *s)
 {
-  QSPSetInputStrText(s);
+  QSPSetInputStrText(qspStringFromC(s));
   return QSPExecUserInput(QSP_TRUE);
 }
 
@@ -166,9 +167,20 @@ QSPString getErrorDesc(int errorNum)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL getVarValues(QSPString name, int ind, int *numVal, QSPString *strVal)
+QSP_BOOL getVarStringValue(QSP_CHAR *name, int ind, QSPString *strVal)
 {
-  return QSPGetVarValues(name, ind, numVal, strVal);
+  int numVal;
+
+  return QSPGetVarValues(qspStringFromC(name), ind, &numVal, strVal);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int getVarNumValue(QSP_CHAR *name, int ind)
+{
+  QSPString strVal;
+  int numVal;
+  QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal);
+  return numVal;
 }
 
 /* callbacks */
@@ -185,19 +197,6 @@ void setCallBack(int type, QSP_CALLBACK func)
 }
 
 /* Struct utils */
-
-EMSCRIPTEN_KEEPALIVE
-QSPString createString(QSP_CHAR *s)
-{
-  return qspStringFromC(s);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void freeString(QSPString s)
-{
-  qspFreeString(s);
-}
-
 EMSCRIPTEN_KEEPALIVE
 void createItemsList(QSPListItem **items)
 {
