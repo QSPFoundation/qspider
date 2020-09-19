@@ -4,7 +4,7 @@ import { CharsPtr, BufferPtr, Ptr, FunctionPtr, QspCallType, Bool, StringPtr, In
 type IRType = 'i8' | 'i16' | 'i32' | 'i64' | 'float' | 'double';
 
 export interface QspModule extends EmscriptenModule {
-  UTF32ToString(ptr: CharsPtr, maxBytesToRead: number): string;
+  UTF32ToString(ptr: CharsPtr, maxBytesToRead?: number): string;
   stringToUTF32(str: string, outPtr: CharsPtr, maxBytes?: number): number;
   lengthBytesUTF32(str: string): number;
   getValue(ptr: Ptr, type: IRType): number;
@@ -13,8 +13,7 @@ export interface QspModule extends EmscriptenModule {
     handleSleep(cb: (wakeUp: (ret: number) => void) => void): void;
   };
 
-  _createString(string: Ptr): StringPtr;
-  _freeString(string: Ptr): void;
+  _freeString(string: CharsPtr): void;
   _createItemsList(items: Ptr): void;
   _freeItemsList(items: Ptr): void;
   _createSaveBuffer(buffer: Prt, size: number): void;
@@ -25,12 +24,12 @@ export interface QspModule extends EmscriptenModule {
   _init(): void;
   _dispose(): void;
 
-  _getVersion(): StringPtr;
+  _getVersion(ptr: Ptr): void;
 
-  _getMainDesc(): StringPtr;
+  _getMainDesc(ptr: Ptr): void;
   _isMainDescChanged(): Bool;
 
-  _getVarsDesc(): StringPtr;
+  _getVarsDesc(ptr: Ptr): void;
   _isVarsDescChanged(): Bool;
 
   _getActions(list: Ptr): number;
@@ -46,14 +45,15 @@ export interface QspModule extends EmscriptenModule {
   _saveGameData(buffer: Ptr, size: number, realSize: IntPtr): Bool;
   _loadSavedGameData(data: BufferPtr, size: number): Bool;
 
-  _execString(input: StringPtr): Bool;
+  _execString(input: CharsPtr): Bool;
   _execCounter(): Bool;
-  _execUserInput(input: StringPtr): Bool;
+  _execUserInput(input: CharsPtr): Bool;
 
   _getLastErrorData(errorNum: IntPtr, errorLoc: StringPtr, errorActIndex: IntPtr, errorLine: IntPtr): void;
-  _getErrorDesc(errorNum: number): StringPtr;
+  _getErrorDesc(ptr: Ptr, errorNum: number): void;
 
-  _getVarValues(name: CharsPrt, index: number, numVal: IntPtr, strVal: StringPtr): Bool;
+  _getVarStringValue(name: CharsPrt, index: number, ptr: Ptr): Bool;
+  _getVarNumValue(name: CharsPtr, index: number): number;
 
   _initCallBacks(): void;
   _setCallBack(type: QspCallType, fnPtr: FunctionPtr): void;

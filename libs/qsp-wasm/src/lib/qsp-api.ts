@@ -1,7 +1,7 @@
 import EventEmitter from 'eventemitter3';
 import { QspAPI, QspErrorData, QspEvents, QspListItem, LayoutSettings } from './contracts';
 import { QspModule } from '../qsplib/public/qsp-wasm';
-import { Ptr, QspCallType, QspPanel, Bool, StringPtr } from '../qsplib/public/types';
+import { Ptr, QspCallType, QspPanel, Bool, StringPtr, CharsPtr } from '../qsplib/public/types';
 import { shallowEqual } from './helpers';
 
 const POINTER_SIZE = 4; // pointers are 4 bytes in C
@@ -10,9 +10,6 @@ export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
   private time: number;
   private layout: LayoutSettings = null;
-
-  private intPtr: Ptr;
-  private strPtr: Ptr;
 
   constructor(private module: QspModule) {
     this.init();
@@ -91,37 +88,31 @@ export class QspAPIImpl implements QspAPI {
   }
 
   version(): string {
-    return this.readString(this.module._getVersion());
+    const ptr = this.allocPtr();
+    this.module._getVersion(ptr);
+    const version = this.readString(ptr);
+    this.freePtr(ptr);
+    return version;
   }
 
   readVariableNumber(name: string, index = 0): number {
-    const ptr = this.prepareString(name);
+    const namePtr = this.prepareString(name);
+    const value = this.module._getVarNumValue(namePtr, index) | 0;
 
-    const numPtr = this.allocPtr();
-    const strPtr = this.allocPtr();
-
-    this.module._getVarValues(ptr, index, numPtr, strPtr);
-    const value = this.readInt(numPtr);
-
-    this.module._freeString(ptr);
-    this.freePtr(numPtr);
-    this.freePtr(strPtr);
+    this.freePtr(namePtr);
 
     return value;
   }
 
   readVariableString(name: string, index = 0): string {
-    const ptr = this.prepareString(name);
+    const namePtr = this.prepareString(name);
+    const resultPtr = this.allocPtr();
 
-    const numPtr = this.allocPtr();
-    const strPtr = this.allocPtr();
+    this.module._getVarStringValue(namePtr, index, resultPtr);
+    const value = this.readString(resultPtr);
 
-    this.module._getVarValues(ptr, index, numPtr, strPtr);
-    const value = this.readString(strPtr);
-
-    this.module._freeString(ptr);
-    this.freePtr(numPtr);
-    this.freePtr(strPtr);
+    this.freePtr(namePtr);
+    this.freePtr(resultPtr);
 
     return value;
   }
@@ -216,12 +207,18 @@ export class QspAPIImpl implements QspAPI {
     this.updateLayout();
 
     if (isRedraw || this.module._isMainDescChanged()) {
-      const mainDesc = this.readString(this.module._getMainDesc());
+      const ptr = this.allocPtr();
+      this.module._getMainDesc(ptr);
+      const mainDesc = this.readString(ptr);
+      this.freePtr(ptr);
       this.emit('main_changed', mainDesc);
     }
 
     if (isRedraw || this.module._isVarsDescChanged()) {
-      const varsDesc = this.readString(this.module._getVarsDesc());
+      const ptr = this.allocPtr();
+      this.module._getVarsDesc(ptr);
+      const varsDesc = this.readString(ptr);
+      this.freePtr(ptr);
       this.emit('stats_changed', varsDesc);
     }
 
@@ -230,7 +227,6 @@ export class QspAPIImpl implements QspAPI {
       this.module._createItemsList(listPtr);
 
       const count = this.module._getActions(listPtr);
-
       const actions = this.readListItems(listPtr, count);
 
       this.module._freeItemsList(listPtr);
@@ -328,7 +324,6 @@ export class QspAPIImpl implements QspAPI {
 
   onOpenGame = (pathPtr: StringPtr, isNewGame: boolean): void => {
     const path = this.readString(pathPtr);
-
     return this.module.Asyncify.handleSleep((wakeUp) => {
       const onOpened = () => {
         wakeUp(0);
@@ -434,17 +429,21 @@ export class QspAPIImpl implements QspAPI {
     return `rgba(${r},${g},${b},${a})`;
   }
 
+  private readChars(ptr: CharsPtr): string {
+    return this.module.UTF32ToString(ptr);
+  }
+
   private readString(ptr: StringPtr): string {
     const start = this.derefPtr(ptr);
     const end = this.derefPtr(this.movePtr(ptr));
     return this.module.UTF32ToString(start, end - start);
   }
 
-  private prepareString(value: string): StringPtr {
+  private prepareString(value: string): CharsPtr {
     const length = this.module.lengthBytesUTF32(value);
     const ptr = this.module._malloc(length);
     this.module.stringToUTF32(value, ptr);
-    return this.module._createString(ptr);
+    return ptr;
   }
 
   private readInt(ptr: Ptr): number {
@@ -462,7 +461,10 @@ export class QspAPIImpl implements QspAPI {
     const code = this.readInt(errorNumPtr);
     this.freePtr(errorNumPtr);
 
-    const description = this.readString(this.module._getErrorDesc(code));
+    const ptr = this.allocPtr();
+    this.module._getErrorDesc(ptr, code);
+    const description = this.readString(ptr);
+    this.freePtr(ptr);
 
     const location = this.readString(errorLocPtr);
     this.freePtr(errorLocPtr);
@@ -486,13 +488,11 @@ export class QspAPIImpl implements QspAPI {
     const list: QspListItem[] = [];
     let ptr = listPtr;
     for (let i = 0; i < count; i++) {
-      const namePtr = this.derefPtr(ptr);
-      const name = this.readString(namePtr);
-      ptr = this.movePtr(ptr);
+      const image = this.readString(ptr);
+      ptr = this.movePtr(ptr, 2);
 
-      const imagePtr = this.derefPtr(ptr);
-      const image = this.readString(imagePtr);
-      ptr = this.movePtr(ptr);
+      const name = this.readString(ptr);
+      ptr = this.movePtr(ptr, 2);
 
       list.push({
         name,
@@ -511,8 +511,8 @@ export class QspAPIImpl implements QspAPI {
     return this.module.getValue(ptr, 'i32');
   }
 
-  private movePtr(ptr: Ptr): Ptr {
-    return ptr + POINTER_SIZE;
+  private movePtr(ptr: Ptr, times = 1): Ptr {
+    return ptr + POINTER_SIZE * times;
   }
 
   private freePtr(ptr: Ptr): void {

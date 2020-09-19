@@ -4280,68 +4280,65 @@ var Module = (function () {
     var _getErrorDesc = (Module['_getErrorDesc'] = function () {
       return (_getErrorDesc = Module['_getErrorDesc'] = Module['asm']['D']).apply(null, arguments);
     });
-    var _getVarValues = (Module['_getVarValues'] = function () {
-      return (_getVarValues = Module['_getVarValues'] = Module['asm']['E']).apply(null, arguments);
+    var _getVarStringValue = (Module['_getVarStringValue'] = function () {
+      return (_getVarStringValue = Module['_getVarStringValue'] = Module['asm']['E']).apply(null, arguments);
+    });
+    var _getVarNumValue = (Module['_getVarNumValue'] = function () {
+      return (_getVarNumValue = Module['_getVarNumValue'] = Module['asm']['F']).apply(null, arguments);
     });
     var _initCallBacks = (Module['_initCallBacks'] = function () {
-      return (_initCallBacks = Module['_initCallBacks'] = Module['asm']['F']).apply(null, arguments);
+      return (_initCallBacks = Module['_initCallBacks'] = Module['asm']['G']).apply(null, arguments);
     });
     var _setCallBack = (Module['_setCallBack'] = function () {
-      return (_setCallBack = Module['_setCallBack'] = Module['asm']['G']).apply(null, arguments);
-    });
-    var _createString = (Module['_createString'] = function () {
-      return (_createString = Module['_createString'] = Module['asm']['H']).apply(null, arguments);
-    });
-    var _freeString = (Module['_freeString'] = function () {
-      return (_freeString = Module['_freeString'] = Module['asm']['I']).apply(null, arguments);
-    });
-    var _free = (Module['_free'] = function () {
-      return (_free = Module['_free'] = Module['asm']['J']).apply(null, arguments);
+      return (_setCallBack = Module['_setCallBack'] = Module['asm']['H']).apply(null, arguments);
     });
     var _createItemsList = (Module['_createItemsList'] = function () {
-      return (_createItemsList = Module['_createItemsList'] = Module['asm']['K']).apply(null, arguments);
+      return (_createItemsList = Module['_createItemsList'] = Module['asm']['I']).apply(null, arguments);
     });
     var _malloc = (Module['_malloc'] = function () {
-      return (_malloc = Module['_malloc'] = Module['asm']['L']).apply(null, arguments);
+      return (_malloc = Module['_malloc'] = Module['asm']['J']).apply(null, arguments);
     });
     var _freeItemsList = (Module['_freeItemsList'] = function () {
-      return (_freeItemsList = Module['_freeItemsList'] = Module['asm']['M']).apply(null, arguments);
+      return (_freeItemsList = Module['_freeItemsList'] = Module['asm']['K']).apply(null, arguments);
+    });
+    var _free = (Module['_free'] = function () {
+      return (_free = Module['_free'] = Module['asm']['L']).apply(null, arguments);
     });
     var _createSaveBuffer = (Module['_createSaveBuffer'] = function () {
-      return (_createSaveBuffer = Module['_createSaveBuffer'] = Module['asm']['N']).apply(null, arguments);
+      return (_createSaveBuffer = Module['_createSaveBuffer'] = Module['asm']['M']).apply(null, arguments);
     });
     var _recreateSaveBuffer = (Module['_recreateSaveBuffer'] = function () {
-      return (_recreateSaveBuffer = Module['_recreateSaveBuffer'] = Module['asm']['O']).apply(null, arguments);
+      return (_recreateSaveBuffer = Module['_recreateSaveBuffer'] = Module['asm']['N']).apply(null, arguments);
     });
     var _freeSaveBuffer = (Module['_freeSaveBuffer'] = function () {
-      return (_freeSaveBuffer = Module['_freeSaveBuffer'] = Module['asm']['P']).apply(null, arguments);
+      return (_freeSaveBuffer = Module['_freeSaveBuffer'] = Module['asm']['O']).apply(null, arguments);
     });
     var ___errno_location = (Module['___errno_location'] = function () {
-      return (___errno_location = Module['___errno_location'] = Module['asm']['Q']).apply(null, arguments);
+      return (___errno_location = Module['___errno_location'] = Module['asm']['P']).apply(null, arguments);
     });
     var stackSave = (Module['stackSave'] = function () {
-      return (stackSave = Module['stackSave'] = Module['asm']['R']).apply(null, arguments);
+      return (stackSave = Module['stackSave'] = Module['asm']['Q']).apply(null, arguments);
     });
     var stackRestore = (Module['stackRestore'] = function () {
-      return (stackRestore = Module['stackRestore'] = Module['asm']['S']).apply(null, arguments);
+      return (stackRestore = Module['stackRestore'] = Module['asm']['R']).apply(null, arguments);
     });
     var stackAlloc = (Module['stackAlloc'] = function () {
-      return (stackAlloc = Module['stackAlloc'] = Module['asm']['T']).apply(null, arguments);
+      return (stackAlloc = Module['stackAlloc'] = Module['asm']['S']).apply(null, arguments);
     });
     var dynCall_vi = (Module['dynCall_vi'] = function () {
-      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['U']).apply(null, arguments);
+      return (dynCall_vi = Module['dynCall_vi'] = Module['asm']['T']).apply(null, arguments);
     });
     var _asyncify_start_unwind = (Module['_asyncify_start_unwind'] = function () {
-      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] = Module['asm']['V']).apply(null, arguments);
+      return (_asyncify_start_unwind = Module['_asyncify_start_unwind'] = Module['asm']['U']).apply(null, arguments);
     });
     var _asyncify_stop_unwind = (Module['_asyncify_stop_unwind'] = function () {
-      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] = Module['asm']['W']).apply(null, arguments);
+      return (_asyncify_stop_unwind = Module['_asyncify_stop_unwind'] = Module['asm']['V']).apply(null, arguments);
     });
     var _asyncify_start_rewind = (Module['_asyncify_start_rewind'] = function () {
-      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] = Module['asm']['X']).apply(null, arguments);
+      return (_asyncify_start_rewind = Module['_asyncify_start_rewind'] = Module['asm']['W']).apply(null, arguments);
     });
     var _asyncify_stop_rewind = (Module['_asyncify_stop_rewind'] = function () {
-      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] = Module['asm']['Y']).apply(null, arguments);
+      return (_asyncify_stop_rewind = Module['_asyncify_stop_rewind'] = Module['asm']['X']).apply(null, arguments);
     });
     Module['cwrap'] = cwrap;
     Module['getValue'] = getValue;
