@@ -167,20 +167,29 @@ QSPString getErrorDesc(int errorNum)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL getVarStringValue(QSP_CHAR *name, int ind, QSPString *strVal)
+QSPString getVarStringValue(QSP_CHAR *name, int ind)
 {
   int numVal;
+  QSPString strVal;
 
-  return QSPGetVarValues(qspStringFromC(name), ind, &numVal, strVal);
+  if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal))
+  {
+    return strVal;
+  }
+
+  return qspNullString;
 }
 
 EMSCRIPTEN_KEEPALIVE
 int getVarNumValue(QSP_CHAR *name, int ind)
 {
   QSPString strVal;
-  int numVal;
-  QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal);
-  return numVal;
+  int numVal = 0;
+  if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal))
+  {
+    return numVal;
+  }
+  return 0;
 }
 
 /* callbacks */
