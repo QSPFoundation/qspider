@@ -52,7 +52,7 @@ export interface QspModule extends EmscriptenModule {
   _getLastErrorData(errorNum: IntPtr, errorLoc: StringPtr, errorActIndex: IntPtr, errorLine: IntPtr): void;
   _getErrorDesc(ptr: Ptr, errorNum: number): void;
 
-  _getVarStringValue(name: CharsPrt, index: number, ptr: Ptr): Bool;
+  _getVarStringValue(ptr: Ptr, name: CharsPrt, index: number): void;
   _getVarNumValue(name: CharsPtr, index: number): number;
 
   _initCallBacks(): void;

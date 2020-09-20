@@ -97,7 +97,7 @@ export class QspAPIImpl implements QspAPI {
 
   readVariableNumber(name: string, index = 0): number {
     const namePtr = this.prepareString(name);
-    const value = this.module._getVarNumValue(namePtr, index) | 0;
+    const value = this.module._getVarNumValue(namePtr, index);
 
     this.freePtr(namePtr);
 
@@ -108,7 +108,7 @@ export class QspAPIImpl implements QspAPI {
     const namePtr = this.prepareString(name);
     const resultPtr = this.allocPtr();
 
-    this.module._getVarStringValue(namePtr, index, resultPtr);
+    this.module._getVarStringValue(resultPtr, namePtr, index);
     const value = this.readString(resultPtr);
 
     this.freePtr(namePtr);
