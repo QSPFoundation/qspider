@@ -15,7 +15,15 @@
             "main": "apps/player/src/main.tsx",
             "polyfills": "apps/player/src/polyfills.ts",
             "tsConfig": "apps/player/tsconfig.app.json",
-            "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
+            "assets": [
+              "apps/player/src/favicon.ico",
+              "apps/player/src/assets",
+              {
+                "glob": "qsp-wasm.wasm.map",
+                "input": "./libs/qsp-wasm/src/qsplib/public/",
+                "output": "./qsp-wasm.wasm.map"
+              }
+            ],
             "styles": [],
             "scripts": [],
             "webpackConfig": "apps/player/webpack.config.js",
