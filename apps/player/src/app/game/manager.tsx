@@ -125,6 +125,11 @@ export class GameManager {
     this.api.on(event, listener);
   }
 
+  restart(): void {
+    this.pause();
+    this.api.restartGame();
+  }
+
   execCode(code: string): void {
     console.log('EXEC: ', code);
     this.api.execCode(code);

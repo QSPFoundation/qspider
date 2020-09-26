@@ -3,6 +3,7 @@ import save from '../../../assets/svg/save.svg';
 import load from '../../../assets/svg/load.svg';
 import speaker from '../../../assets/svg/speaker.svg';
 import speakerOff from '../../../assets/svg/speaker-off.svg';
+import restart from '../../../assets/svg/restart.svg';
 
 import styled from '@emotion/styled';
 
@@ -11,6 +12,7 @@ const gpyphs = {
   load,
   speaker,
   speakerOff,
+  restart,
 };
 
 const IconSvg = styled.svg`

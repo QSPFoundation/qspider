@@ -9,7 +9,7 @@ export const Column = styled.div<WithTheme>`
   width: 100%;
   height: 100%;
 
-  * + * {
+  & > * + * {
     margin-top: 3px;
   }
 `;
