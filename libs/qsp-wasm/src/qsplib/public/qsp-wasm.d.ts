@@ -16,8 +16,6 @@ export interface QspModule extends EmscriptenModule {
   _freeString(string: CharsPtr): void;
   _createItemsList(items: Ptr): void;
   _freeItemsList(items: Ptr): void;
-  _createSaveBuffer(buffer: Prt, size: number): void;
-  _recreateSaveBuffer(buffer: Prt, size: number): void;
   _freeSaveBuffer(buffer: Prt): void;
 
   // libqsp
@@ -42,7 +40,7 @@ export interface QspModule extends EmscriptenModule {
 
   _loadGameData(data: BufferPtr, size: number, isNewGame: Bool): Bool;
   _restartGame(): Bool;
-  _saveGameData(buffer: Ptr, size: number, realSize: IntPtr): Bool;
+  _saveGameData(realSize: IntPtr): Ptr;
   _loadSavedGameData(data: BufferPtr, size: number): Bool;
 
   _execString(input: CharsPtr): Bool;
@@ -52,7 +50,7 @@ export interface QspModule extends EmscriptenModule {
   _getLastErrorData(errorNum: IntPtr, errorLoc: StringPtr, errorActIndex: IntPtr, errorLine: IntPtr): void;
   _getErrorDesc(ptr: Ptr, errorNum: number): void;
 
-  _getVarStringValue(ptr: Ptr, name: CharsPrt, index: number): void;
+  _getVarStringValue(name: CharsPrt, index: number, result: Ptr): void;
   _getVarNumValue(name: CharsPtr, index: number): number;
 
   _initCallBacks(): void;

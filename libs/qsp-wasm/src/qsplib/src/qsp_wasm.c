@@ -122,9 +122,25 @@ QSP_BOOL restartGame()
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL saveGameData(void *buf, int bufSize, int *realSize)
+void *saveGameData(int *realSize)
 {
-  return QSPSaveGameAsData(buf, bufSize, realSize, QSP_FALSE);
+  realSize = 0;
+  int fileSize = 64 * 1024;
+  void *fileData = (void *)malloc(fileSize);
+  if (!QSPSaveGameAsData(fileData, fileSize, realSize, QSP_FALSE))
+  {
+    fileSize = *realSize;
+    if (!fileSize)
+    {
+      fileData = (void *)realloc(fileData, fileSize);
+      if (!QSPSaveGameAsData(fileData, fileSize, realSize, QSP_FALSE))
+      {
+        free(fileData);
+        return fileData;
+      }
+    }
+  }
+  return fileData;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -167,17 +183,14 @@ QSPString getErrorDesc(int errorNum)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSPString getVarStringValue(QSP_CHAR *name, int ind)
+void getVarStringValue(QSP_CHAR *name, int ind, QSPString *strVal)
 {
   int numVal;
-  QSPString strVal;
 
-  if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal))
+  if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, strVal))
   {
-    return strVal;
+    *strVal = qspNullString;
   }
-
-  return qspNullString;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -185,6 +198,7 @@ int getVarNumValue(QSP_CHAR *name, int ind)
 {
   QSPString strVal;
   int numVal = 0;
+
   if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, &strVal))
   {
     return numVal;
@@ -217,19 +231,6 @@ EMSCRIPTEN_KEEPALIVE
 void freeItemsList(QSPListItem *items)
 {
   free(items);
-}
-
-EMSCRIPTEN_KEEPALIVE
-void createSaveBuffer(void **buffer, int fileSize)
-{
-  void *pBuffer = (void *)malloc(fileSize);
-  *buffer = pBuffer;
-}
-
-EMSCRIPTEN_KEEPALIVE
-void recreateSaveBuffer(void **buffer, int fileSize)
-{
-  *buffer = (void *)realloc(*buffer, fileSize);
 }
 
 EMSCRIPTEN_KEEPALIVE
