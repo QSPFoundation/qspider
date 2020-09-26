@@ -10,9 +10,11 @@ export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
   private time: number;
   private layout: LayoutSettings = null;
+  private staticStrings: Map<string, Ptr> = new Map();
 
   constructor(private module: QspModule) {
     this.init();
+    this.initStrings();
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
@@ -36,32 +38,19 @@ export class QspAPIImpl implements QspAPI {
   }
 
   saveGame(): ArrayBuffer {
-    const fileSize = 64 * 1024;
-
     const sizePtr = this.allocPtr();
-    const bufferPtr = this.allocPtr();
-
-    this.module._createSaveBuffer(bufferPtr, fileSize);
-
-    if (!this.module._saveGameData(bufferPtr, fileSize, sizePtr)) {
-      const size = this.module.getValue(sizePtr, 'i32');
-      if (size) {
-        this.module._recreateSaveBuffer(bufferPtr, size);
-        if (!this.module._saveGameData(bufferPtr, size, sizePtr)) {
-          this.module._freeSaveBuffer(bufferPtr);
-          this.freePtr(sizePtr);
-          this.freePtr(bufferPtr);
-          return;
-        }
-      }
+    const bufferPtr = this.module._saveGameData(sizePtr);
+    const size = this.module.getValue(sizePtr, 'i32');
+    if (!size) {
+      this.onCalled(0);
+      this.freePtr(sizePtr);
+      return;
     }
 
-    const size = this.module.getValue(sizePtr, 'i32');
     const data = this.module.HEAPU8.slice(bufferPtr, bufferPtr + size);
 
     this.module._freeSaveBuffer(bufferPtr);
     this.freePtr(sizePtr);
-    this.freePtr(bufferPtr);
 
     return data.buffer;
   }
@@ -96,22 +85,25 @@ export class QspAPIImpl implements QspAPI {
   }
 
   readVariableNumber(name: string, index = 0): number {
-    const namePtr = this.prepareString(name);
+    const namePtr = this.staticStrings.get(name);
+    if (!namePtr) {
+      throw new Error('use static strings');
+    }
     const value = this.module._getVarNumValue(namePtr, index);
-
-    this.freePtr(namePtr);
 
     return value;
   }
 
   readVariableString(name: string, index = 0): string {
-    const namePtr = this.prepareString(name);
+    const namePtr = this.staticStrings.get(name);
+    if (!namePtr) {
+      throw new Error('use static strings');
+    }
     const resultPtr = this.allocPtr();
 
-    this.module._getVarStringValue(resultPtr, namePtr, index);
+    this.module._getVarStringValue(namePtr, index, resultPtr);
     const value = this.readString(resultPtr);
 
-    this.freePtr(namePtr);
     this.freePtr(resultPtr);
 
     return value;
@@ -140,6 +132,16 @@ export class QspAPIImpl implements QspAPI {
     this.module._initCallBacks();
 
     this.registerCallbacks();
+  }
+
+  private initStrings() {
+    this.staticStrings.set('USEHTML', this.prepareString('USEHTML'));
+    this.staticStrings.set('BCOLOR', this.prepareString('BCOLOR'));
+    this.staticStrings.set('FCOLOR', this.prepareString('FCOLOR'));
+    this.staticStrings.set('LCOLOR', this.prepareString('LCOLOR'));
+    this.staticStrings.set('FSIZE', this.prepareString('FSIZE'));
+    this.staticStrings.set('$FNAME', this.prepareString('$FNAME'));
+    this.staticStrings.set('$BACKIMAGE', this.prepareString('$BACKIMAGE'));
   }
 
   private registerCallbacks() {
@@ -441,7 +443,7 @@ export class QspAPIImpl implements QspAPI {
 
   private prepareString(value: string): CharsPtr {
     const length = this.module.lengthBytesUTF32(value);
-    const ptr = this.module._malloc(length);
+    const ptr = this.module._malloc(length + 4);
     this.module.stringToUTF32(value, ptr);
     return ptr;
   }

@@ -9,7 +9,7 @@ module.exports = (config, context) => {
     type: 'javascript/auto',
     loader: 'file-loader',
     options: {
-      name: '[name]-[hash].[ext]',
+      name: '[name].[ext]',
     },
   });
   updatedConfig.module.rules.push({
