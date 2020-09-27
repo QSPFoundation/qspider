@@ -124,29 +124,30 @@ QSP_BOOL restartGame()
 EMSCRIPTEN_KEEPALIVE
 void *saveGameData(int *realSize)
 {
-  realSize = 0;
+  *realSize = 0;
   int fileSize = 64 * 1024;
   void *fileData = (void *)malloc(fileSize);
-  if (!QSPSaveGameAsData(fileData, fileSize, realSize, QSP_FALSE))
+  if (!QSPSaveGameAsData(fileData, fileSize, &fileSize, QSP_FALSE))
   {
-    fileSize = *realSize;
     if (!fileSize)
     {
       fileData = (void *)realloc(fileData, fileSize);
-      if (!QSPSaveGameAsData(fileData, fileSize, realSize, QSP_FALSE))
+      if (!QSPSaveGameAsData(fileData, fileSize, &fileSize, QSP_FALSE))
       {
         free(fileData);
         return fileData;
       }
     }
   }
+
+  *realSize = fileSize;
   return fileData;
 }
 
 EMSCRIPTEN_KEEPALIVE
 QSP_BOOL loadSavedGameData(const void *data, int dataSize)
 {
-  return QSPOpenSavedGameFromData(data, dataSize, QSP_FALSE);
+  return QSPOpenSavedGameFromData(data, dataSize, QSP_TRUE);
 }
 
 /* exec code */
@@ -187,7 +188,7 @@ void getVarStringValue(QSP_CHAR *name, int ind, QSPString *strVal)
 {
   int numVal;
 
-  if (QSPGetVarValues(qspStringFromC(name), ind, &numVal, strVal))
+  if (!QSPGetVarValues(qspStringFromC(name), ind, &numVal, strVal))
   {
     *strVal = qspNullString;
   }

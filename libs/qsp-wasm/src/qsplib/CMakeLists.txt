@@ -25,16 +25,19 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -Wno-empty-body \
     -Wno-null-dereference \
     -Wno-unsequenced \
+    -Wcast-align \
+    -Wover-aligned \
     -O3 \
-    -g4 \
-    --source-map-base 'http://localhost:4200/' \
+    -s ASSERTIONS=1 \
     -s WASM=1 \
     -s RESERVED_FUNCTION_POINTERS=20 \
     -s ASYNCIFY \
     -s EXTRA_EXPORTED_RUNTIME_METHODS='[cwrap, getValue, UTF32ToString, stringToUTF32, lengthBytesUTF32, addFunction, Asyncify]' \
-    -s TOTAL_MEMORY=128MB \
+    -s TOTAL_MEMORY=256MB \
     -s ENVIRONMENT='web' \
     -s MODULARIZE=1 \
     -s INVOKE_RUN=0 \
+    -s WARN_UNALIGNED=1 \
+    -s SAFE_HEAP=1 \
     -s STACK_OVERFLOW_CHECK=1 \
     -s ALLOW_MEMORY_GROWTH=1")
