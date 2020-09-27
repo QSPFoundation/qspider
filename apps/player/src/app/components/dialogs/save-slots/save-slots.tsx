@@ -11,6 +11,7 @@ const SlotTtile = styled.h4`
 `;
 const SlotButton = styled.button`
   text-align: center;
+  cursor: pointer;
 `;
 const Slots = styled.div`
   padding: 16px;

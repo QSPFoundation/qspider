@@ -337,14 +337,16 @@ export class GameManager {
   requestSave = async (onResult?: () => void): Promise<void> => {
     this.pause();
     const saveData = this.api.saveGame();
-    const slots = await this.saveManager.getSlots(this.descriptor.id);
-    this.saveAction = {
-      type: 'save',
-      slots,
-      data: saveData,
-      callback: this.saveToSlot,
-      onResult,
-    };
+    if (saveData) {
+      const slots = await this.saveManager.getSlots(this.descriptor.id);
+      this.saveAction = {
+        type: 'save',
+        slots,
+        data: saveData,
+        callback: this.saveToSlot,
+        onResult,
+      };
+    }
   };
   saveToSlot = async (slot: number): Promise<void> => {
     if (this.saveAction.type === 'save') {

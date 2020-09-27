@@ -8,13 +8,14 @@ export const Button = styled.button<WithTheme>`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;
-  border-radius: 50%;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border-radius: 4px;
+  border: 1px solid transparent;
 
   padding: 0;
   margin: 0;
   width: 26px;
   height: 26px;
+  overflow: hidden;
 
   display: flex;
   justify-content: center;
