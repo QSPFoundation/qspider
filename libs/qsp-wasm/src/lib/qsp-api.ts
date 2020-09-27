@@ -444,7 +444,7 @@ export class QspAPIImpl implements QspAPI {
   private prepareString(value: string): CharsPtr {
     const length = this.module.lengthBytesUTF32(value);
     const ptr = this.module._malloc(length + 4);
-    this.module.stringToUTF32(value, ptr);
+    this.module.stringToUTF32(value, ptr, length + 4);
     return ptr;
   }
 
