@@ -5,6 +5,7 @@ typedef wchar_t QSP_CHAR;
 typedef int (*QSP_CALLBACK)();
 
 #define QSP_BINDING
+#define _UNICODE
 
 #include "qsp/declarations.h"
 #include "qsp/bindings/default/qsp_default.h"

@@ -28,6 +28,7 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -Wcast-align \
     -Wover-aligned \
     -O3 \
+    -g \
     -s ASSERTIONS=1 \
     -s WASM=1 \
     -s RESERVED_FUNCTION_POINTERS=20 \
