@@ -39,6 +39,8 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -s MODULARIZE=1 \
     -s INVOKE_RUN=0 \
     -s WARN_UNALIGNED=1 \
+    --tracing \
+    -s EMSCRIPTEN_TRACING=1 \
     -s SAFE_HEAP=1 \
     -s SAFE_HEAP_LOG=1 \
     -s STACK_OVERFLOW_CHECK=2 \

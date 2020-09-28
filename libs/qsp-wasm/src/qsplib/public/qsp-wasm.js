@@ -1864,11 +1864,11 @@ var Module = (function () {
     }
 
     var STATIC_BASE = 1024,
-      STACK_BASE = 6044480,
+      STACK_BASE = 6044576,
       STACKTOP = STACK_BASE,
-      STACK_MAX = 801600,
-      DYNAMIC_BASE = 6044480,
-      DYNAMICTOP_PTR = 801440;
+      STACK_MAX = 801696,
+      DYNAMIC_BASE = 6044576,
+      DYNAMICTOP_PTR = 801536;
 
     assert(STACK_BASE % 16 === 0, 'stack must start aligned');
     assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -2434,9 +2434,13 @@ var Module = (function () {
 
     // === Body ===
 
-    var ASM_CONSTS = {};
+    var ASM_CONSTS = {
+      278434: function ($0, $1) {
+        if (typeof emscriptenMemoryProfiler !== 'undefined') emscriptenMemoryProfiler.onSbrkGrow($0, $1);
+      },
+    };
 
-    // STATICTOP = STATIC_BASE + 800576;
+    // STATICTOP = STATIC_BASE + 800672;
     /* global initializers */ __ATINIT__.push({
       func: function () {
         ___wasm_call_ctors();
@@ -5500,8 +5504,13 @@ var Module = (function () {
       }
     }
 
+    function _emscripten_asm_const_int(code, sigPtr, argbuf) {
+      var args = readAsmConstArgs(sigPtr, argbuf);
+      return ASM_CONSTS[code].apply(null, args);
+    }
+
     function _emscripten_get_sbrk_ptr() {
-      return 801440;
+      return 801536;
     }
 
     function _emscripten_memcpy_big(dest, src, num) {
@@ -5534,6 +5543,9 @@ var Module = (function () {
       var oldSize = _emscripten_get_heap_size();
       // With pthreads, races can happen (another thread might increase the size in between), so return a failure, and let the caller retry.
       assert(requestedSize > oldSize);
+
+      // Report old layout one last time
+      _emscripten_trace_report_memory_layout();
 
       var PAGE_MULTIPLE = 65536;
 
@@ -5578,11 +5590,218 @@ var Module = (function () {
 
         var replacement = emscripten_realloc_buffer(newSize);
         if (replacement) {
+          _emscripten_trace_js_log_message('Emscripten', 'Enlarging memory arrays from ' + oldSize + ' to ' + newSize);
+          // And now report the new layout
+          _emscripten_trace_report_memory_layout();
           return true;
         }
       }
       err('Failed to grow the heap from ' + oldSize + ' bytes to ' + newSize + ' bytes, not enough memory!');
       return false;
+    }
+
+    function _emscripten_trace_js_configure(collector_url, application) {
+      EmscriptenTrace.configure(collector_url, application);
+    }
+
+    function _emscripten_trace_configure_for_google_wtf() {
+      EmscriptenTrace.configureForGoogleWTF();
+    }
+
+    function _emscripten_trace_js_enter_context(name) {
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_ENTER_CONTEXT, now, name]);
+      }
+      if (EmscriptenTrace.googleWTFEnabled) {
+        EmscriptenTrace.googleWTFEnterScope(name);
+      }
+    }
+
+    function _emscripten_trace_exit_context() {
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_EXIT_CONTEXT, now]);
+      }
+      if (EmscriptenTrace.googleWTFEnabled) {
+        EmscriptenTrace.googleWTFExitScope();
+      }
+    }
+
+    function _emscripten_trace_js_log_message(channel, message) {
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_LOG_MESSAGE, now, channel, message]);
+      }
+    }
+
+    function _emscripten_trace_js_mark(message) {
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_LOG_MESSAGE, now, 'MARK', message]);
+      }
+      if (EmscriptenTrace.googleWTFEnabled) {
+        window['wtf'].trace.mark(message);
+      }
+    }
+
+    var _emscripten_get_now;
+    _emscripten_get_now = function () {
+      return performance.now();
+    };
+    var EmscriptenTrace = {
+      worker: null,
+      collectorEnabled: false,
+      googleWTFEnabled: false,
+      testingEnabled: false,
+      googleWTFData: { scopeStack: [], cachedScopes: {} },
+      DATA_VERSION: 1,
+      EVENT_ALLOCATE: 'allocate',
+      EVENT_ANNOTATE_TYPE: 'annotate-type',
+      EVENT_APPLICATION_NAME: 'application-name',
+      EVENT_ASSOCIATE_STORAGE_SIZE: 'associate-storage-size',
+      EVENT_ENTER_CONTEXT: 'enter-context',
+      EVENT_EXIT_CONTEXT: 'exit-context',
+      EVENT_FRAME_END: 'frame-end',
+      EVENT_FRAME_RATE: 'frame-rate',
+      EVENT_FRAME_START: 'frame-start',
+      EVENT_FREE: 'free',
+      EVENT_LOG_MESSAGE: 'log-message',
+      EVENT_MEMORY_LAYOUT: 'memory-layout',
+      EVENT_OFF_HEAP: 'off-heap',
+      EVENT_REALLOCATE: 'reallocate',
+      EVENT_REPORT_ERROR: 'report-error',
+      EVENT_SESSION_NAME: 'session-name',
+      EVENT_TASK_ASSOCIATE_DATA: 'task-associate-data',
+      EVENT_TASK_END: 'task-end',
+      EVENT_TASK_RESUME: 'task-resume',
+      EVENT_TASK_START: 'task-start',
+      EVENT_TASK_SUSPEND: 'task-suspend',
+      EVENT_USER_NAME: 'user-name',
+      init: function () {
+        Module['emscripten_trace_configure'] = _emscripten_trace_js_configure;
+        Module['emscripten_trace_configure_for_google_wtf'] = _emscripten_trace_configure_for_google_wtf;
+        Module['emscripten_trace_enter_context'] = _emscripten_trace_js_enter_context;
+        Module['emscripten_trace_exit_context'] = _emscripten_trace_exit_context;
+        Module['emscripten_trace_log_message'] = _emscripten_trace_js_log_message;
+        Module['emscripten_trace_mark'] = _emscripten_trace_js_mark;
+      },
+      loadWorkerViaXHR: function (url, ready, scope) {
+        var req = new XMLHttpRequest();
+        req.addEventListener(
+          'load',
+          function () {
+            var blob = new Blob([this.responseText], { type: 'text/javascript' });
+            var worker = new Worker(window.URL.createObjectURL(blob));
+            if (ready) {
+              ready.call(scope, worker);
+            }
+          },
+          req
+        );
+        req.open('get', url, false);
+        req.send();
+      },
+      configure: function (collector_url, application) {
+        EmscriptenTrace.now = _emscripten_get_now;
+        var now = new Date();
+        var session_id = now.getTime().toString() + '_' + Math.floor(Math.random() * 100 + 1).toString();
+        EmscriptenTrace.loadWorkerViaXHR(collector_url + 'worker.js', function (worker) {
+          EmscriptenTrace.worker = worker;
+          EmscriptenTrace.worker.addEventListener(
+            'error',
+            function (e) {
+              console.log('TRACE WORKER ERROR:');
+              console.log(e);
+            },
+            false
+          );
+          EmscriptenTrace.worker.postMessage({
+            cmd: 'configure',
+            data_version: EmscriptenTrace.DATA_VERSION,
+            session_id: session_id,
+            url: collector_url,
+          });
+          EmscriptenTrace.configured = true;
+          EmscriptenTrace.collectorEnabled = true;
+          EmscriptenTrace.postEnabled = true;
+        });
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_APPLICATION_NAME, application]);
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_SESSION_NAME, now.toISOString()]);
+      },
+      configureForTest: function () {
+        EmscriptenTrace.postEnabled = true;
+        EmscriptenTrace.testingEnabled = true;
+        EmscriptenTrace.now = function () {
+          return 0.0;
+        };
+      },
+      configureForGoogleWTF: function () {
+        if (window && window['wtf']) {
+          EmscriptenTrace.googleWTFEnabled = true;
+        } else {
+          console.log('GOOGLE WTF NOT AVAILABLE TO ENABLE');
+        }
+      },
+      post: function (entry) {
+        if (EmscriptenTrace.postEnabled && EmscriptenTrace.collectorEnabled) {
+          EmscriptenTrace.worker.postMessage({ cmd: 'post', entry: entry });
+        } else if (EmscriptenTrace.postEnabled && EmscriptenTrace.testingEnabled) {
+          out('Tracing ' + entry);
+        }
+      },
+      googleWTFEnterScope: function (name) {
+        var scopeEvent = EmscriptenTrace.googleWTFData['cachedScopes'][name];
+        if (!scopeEvent) {
+          scopeEvent = window['wtf'].trace.events.createScope(name);
+          EmscriptenTrace.googleWTFData['cachedScopes'][name] = scopeEvent;
+        }
+        var scope = scopeEvent();
+        EmscriptenTrace.googleWTFData['scopeStack'].push(scope);
+      },
+      googleWTFExitScope: function () {
+        var scope = EmscriptenTrace.googleWTFData['scopeStack'].pop();
+        window['wtf'].trace.leaveScope(scope);
+      },
+    };
+    function _emscripten_trace_record_allocation(address, size) {
+      if (typeof Module['onMalloc'] === 'function') Module['onMalloc'](address, size);
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_ALLOCATE, now, address, size]);
+      }
+    }
+
+    function _emscripten_trace_record_free(address) {
+      if (typeof Module['onFree'] === 'function') Module['onFree'](address);
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_FREE, now, address]);
+      }
+    }
+
+    function _emscripten_trace_record_reallocation(old_address, new_address, size) {
+      if (typeof Module['onRealloc'] === 'function') Module['onRealloc'](old_address, new_address, size);
+      if (EmscriptenTrace.postEnabled) {
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_REALLOCATE, now, old_address, new_address, size]);
+      }
+    }
+
+    function _emscripten_trace_report_memory_layout() {
+      if (EmscriptenTrace.postEnabled) {
+        var memory_layout = {
+          static_base: STATIC_BASE,
+          stack_base: STACK_BASE,
+          stack_top: STACKTOP,
+          stack_max: STACK_MAX,
+          dynamic_base: DYNAMIC_BASE,
+          dynamic_top: HEAP32[DYNAMICTOP_PTR >> 2],
+          total_memory: HEAP8.length,
+        };
+        var now = EmscriptenTrace.now();
+        EmscriptenTrace.post([EmscriptenTrace.EVENT_MEMORY_LAYOUT, now, memory_layout]);
+      }
     }
 
     var ENV = {};
@@ -5664,6 +5883,29 @@ var Module = (function () {
       return ret;
     }
 
+    var readAsmConstArgsArray = [];
+    function readAsmConstArgs(sigPtr, buf) {
+      // Nobody should have mutated _readAsmConstArgsArray underneath us to be something else than an array.
+      assert(Array.isArray(readAsmConstArgsArray));
+      // The input buffer is allocated on the stack, so it must be stack-aligned.
+      assert(buf % 16 == 0);
+      readAsmConstArgsArray.length = 0;
+      var ch;
+      // Most arguments are i32s, so shift the buffer pointer so it is a plain
+      // index into HEAP32.
+      buf >>= 2;
+      while ((ch = HEAPU8[sigPtr++])) {
+        assert(ch === 100 /*'d'*/ || ch === 102 /*'f'*/ || ch === 105 /*'i'*/);
+        // A double takes two 32-bit slots, and must also be aligned - the backend
+        // will emit padding to avoid that.
+        var double = ch < 105;
+        if (double && buf & 1) buf++;
+        readAsmConstArgsArray.push(double ? HEAPF64[buf++ >> 1] : HEAP32[buf]);
+        ++buf;
+      }
+      return readAsmConstArgsArray;
+    }
+
     function _emscripten_set_main_loop_timing(mode, value) {
       Browser.mainLoop.timingMode = mode;
       Browser.mainLoop.timingValue = value;
@@ -5717,12 +5959,7 @@ var Module = (function () {
         Browser.mainLoop.method = 'immediate';
       }
       return 0;
-    }
-
-    var _emscripten_get_now;
-    _emscripten_get_now = function () {
-      return performance.now();
-    }; /** @param {number|boolean=} noSetTiming */
+    } /** @param {number|boolean=} noSetTiming */
     function _emscripten_set_main_loop(func, fps, simulateInfiniteLoop, arg, noSetTiming) {
       noExitRuntime = true;
 
@@ -6867,6 +7104,7 @@ var Module = (function () {
     });
     FS.FSNode = FSNode;
     FS.staticInit();
+    EmscriptenTrace.init();
     Module['requestFullscreen'] = function Module_requestFullscreen(lockPointer, resizeCanvas) {
       Browser.requestFullscreen(lockPointer, resizeCanvas);
     };
@@ -6926,9 +7164,13 @@ var Module = (function () {
       __map_file: ___map_file,
       __sys_munmap: ___sys_munmap,
       alignfault: alignfault,
+      emscripten_asm_const_int: _emscripten_asm_const_int,
       emscripten_get_sbrk_ptr: _emscripten_get_sbrk_ptr,
       emscripten_memcpy_big: _emscripten_memcpy_big,
       emscripten_resize_heap: _emscripten_resize_heap,
+      emscripten_trace_record_allocation: _emscripten_trace_record_allocation,
+      emscripten_trace_record_free: _emscripten_trace_record_free,
+      emscripten_trace_record_reallocation: _emscripten_trace_record_reallocation,
       environ_get: _environ_get,
       environ_sizes_get: _environ_sizes_get,
       fd_write: _fd_write,
@@ -7701,6 +7943,10 @@ var Module = (function () {
     if (!Object.getOwnPropertyDescriptor(Module, 'Fibers'))
       Module['Fibers'] = function () {
         abort("'Fibers' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'EmscriptenTrace'))
+      Module['EmscriptenTrace'] = function () {
+        abort("'EmscriptenTrace' was not exported. add it to EXTRA_EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
     if (!Object.getOwnPropertyDescriptor(Module, 'warnOnce'))
       Module['warnOnce'] = function () {
