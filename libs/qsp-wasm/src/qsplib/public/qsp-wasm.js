@@ -394,10 +394,17 @@ var Module = (function () {
     // Determine the runtime environment we are in. You can customize this by
     // setting the ENVIRONMENT setting at compile time (see settings.js).
 
-    var ENVIRONMENT_IS_WEB = true;
+    var ENVIRONMENT_IS_WEB = false;
     var ENVIRONMENT_IS_WORKER = false;
     var ENVIRONMENT_IS_NODE = false;
     var ENVIRONMENT_IS_SHELL = false;
+    ENVIRONMENT_IS_WEB = typeof window === 'object';
+    ENVIRONMENT_IS_WORKER = typeof importScripts === 'function';
+    // N.b. Electron.js environment is simultaneously a NODE-environment, but
+    // also a web environment.
+    ENVIRONMENT_IS_NODE =
+      typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';
+    ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
 
     if (Module['ENVIRONMENT']) {
       throw new Error(
@@ -1105,8 +1112,11 @@ var Module = (function () {
       }
     }
 
+    var SAFE_HEAP_COUNTER = 0;
+
     /** @param {number|boolean=} isFloat */
     function SAFE_HEAP_STORE(dest, value, bytes, isFloat) {
+      out('SAFE_HEAP store: ' + [dest, value, bytes, isFloat, SAFE_HEAP_COUNTER++]);
       if (dest <= 0) abort('segmentation fault storing ' + bytes + ' bytes to address ' + dest);
       if (dest % bytes !== 0)
         abort(
@@ -1153,6 +1163,7 @@ var Module = (function () {
       var type = getSafeHeapType(bytes, isFloat);
       var ret = getValue(dest, type, 1);
       if (unsigned) ret = unSign(ret, parseInt(type.substr(1), 10), 1);
+      out('SAFE_HEAP load: ' + [dest, ret, bytes, isFloat, unsigned, SAFE_HEAP_COUNTER++]);
       return ret;
     }
     function SAFE_HEAP_LOAD_D(dest, bytes, unsigned) {
@@ -2479,6 +2490,10 @@ var Module = (function () {
       var js = jsStackTrace();
       if (Module['extraStackTrace']) js += '\n' + Module['extraStackTrace']();
       return demangleAll(js);
+    }
+
+    function ___handle_stack_overflow() {
+      abort('stack overflow');
     }
 
     function setErrNo(value) {
@@ -6907,6 +6922,7 @@ var Module = (function () {
 
     var asmGlobalArg = {};
     var asmLibraryArg = {
+      __handle_stack_overflow: ___handle_stack_overflow,
       __map_file: ___map_file,
       __sys_munmap: ___sys_munmap,
       alignfault: alignfault,
@@ -7055,6 +7071,9 @@ var Module = (function () {
 
     /** @type {function(...*):?} */
     var _testSetjmp = (Module['_testSetjmp'] = createExportWrapper('testSetjmp'));
+
+    /** @type {function(...*):?} */
+    var ___set_stack_limit = (Module['___set_stack_limit'] = createExportWrapper('__set_stack_limit'));
 
     /** @type {function(...*):?} */
     var dynCall_iii = (Module['dynCall_iii'] = createExportWrapper('dynCall_iii'));
