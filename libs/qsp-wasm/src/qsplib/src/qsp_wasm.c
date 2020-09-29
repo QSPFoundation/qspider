@@ -39,16 +39,16 @@ void dispose()
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSPString getVersion()
+void getVersion(QSPString *result)
 {
-  return QSPGetVersion();
+  *result = QSPGetVersion();
 }
 
 /* Main desc */
 EMSCRIPTEN_KEEPALIVE
-QSPString getMainDesc()
+void getMainDesc(QSPString *result)
 {
-  return QSPGetMainDesc();
+  *result = QSPGetMainDesc();
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -59,9 +59,9 @@ QSP_BOOL isMainDescChanged()
 
 /* Vars desc */
 EMSCRIPTEN_KEEPALIVE
-QSPString getVarsDesc()
+void getVarsDesc(QSPString *result)
 {
-  return QSPGetVarsDesc();
+  *result = QSPGetVarsDesc();
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -128,12 +128,12 @@ void *saveGameData(int *realSize)
   *realSize = 0;
   int fileSize = 64 * 1024;
   void *fileData = (void *)malloc(fileSize);
-  if (!QSPSaveGameAsData(fileData, fileSize, &fileSize, QSP_FALSE))
+  if (!QSPSaveGameAsData(fileData, &fileSize, QSP_FALSE))
   {
     if (!fileSize)
     {
       fileData = (void *)realloc(fileData, fileSize);
-      if (!QSPSaveGameAsData(fileData, fileSize, &fileSize, QSP_FALSE))
+      if (!QSPSaveGameAsData(fileData, &fileSize, QSP_FALSE))
       {
         free(fileData);
         return fileData;

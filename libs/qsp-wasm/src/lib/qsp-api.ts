@@ -77,7 +77,7 @@ export class QspAPIImpl implements QspAPI {
   }
 
   version(): string {
-    const ptr = this.allocPtr();
+    const ptr = this.allocStrPtr();
     this.module._getVersion(ptr);
     const version = this.readString(ptr);
     this.freePtr(ptr);
@@ -99,7 +99,7 @@ export class QspAPIImpl implements QspAPI {
     if (!namePtr) {
       throw new Error('use static strings');
     }
-    const resultPtr = this.allocPtr();
+    const resultPtr = this.allocStrPtr();
 
     this.module._getVarStringValue(namePtr, index, resultPtr);
     const value = this.readString(resultPtr);
@@ -209,7 +209,7 @@ export class QspAPIImpl implements QspAPI {
     this.updateLayout();
 
     if (isRedraw || this.module._isMainDescChanged()) {
-      const ptr = this.allocPtr();
+      const ptr = this.allocStrPtr();
       this.module._getMainDesc(ptr);
       const mainDesc = this.readString(ptr);
       this.freePtr(ptr);
@@ -217,7 +217,7 @@ export class QspAPIImpl implements QspAPI {
     }
 
     if (isRedraw || this.module._isVarsDescChanged()) {
-      const ptr = this.allocPtr();
+      const ptr = this.allocStrPtr();
       this.module._getVarsDesc(ptr);
       const varsDesc = this.readString(ptr);
       this.freePtr(ptr);
@@ -454,7 +454,7 @@ export class QspAPIImpl implements QspAPI {
 
   private readError(): QspErrorData {
     const errorNumPtr = this.allocPtr();
-    const errorLocPtr = this.allocPtr();
+    const errorLocPtr = this.allocStrPtr();
     const errorActIndexPtr = this.allocPtr();
     const errorLinePtr = this.allocPtr();
 
@@ -463,7 +463,7 @@ export class QspAPIImpl implements QspAPI {
     const code = this.readInt(errorNumPtr);
     this.freePtr(errorNumPtr);
 
-    const ptr = this.allocPtr();
+    const ptr = this.allocStrPtr();
     this.module._getErrorDesc(ptr, code);
     const description = this.readString(ptr);
     this.freePtr(ptr);
@@ -507,6 +507,10 @@ export class QspAPIImpl implements QspAPI {
   /* Pointers magic */
   private allocPtr(): Ptr {
     return this.module._malloc(POINTER_SIZE);
+  }
+
+  private allocStrPtr(): Ptr {
+    return this.module._malloc(POINTER_SIZE * 2);
   }
 
   private derefPtr(ptr: Ptr): Ptr {

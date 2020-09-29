@@ -275,9 +275,11 @@ export class GameManager {
   };
 
   onOpenGame = async (path: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
+    this.pause();
     const gameSource = await fetchGameSource(path, this.descriptor.folder ? `/${this.descriptor.folder}/` : '/');
     this.api.openGame(gameSource, isNewGame);
     onOpened();
+    this.resume();
   };
 
   onLoadSave = async (path: string, onLoaded: () => void): Promise<void> => {
