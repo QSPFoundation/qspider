@@ -973,78 +973,40 @@ var Module = (function () {
     function setValue(ptr, value, type, noSafe) {
       type = type || 'i8';
       if (type.charAt(type.length - 1) === '*') type = 'i32'; // pointers are 32-bit
-      if (noSafe) {
-        switch (type) {
-          case 'i1':
-            HEAP8[ptr >> 0] = value;
-            break;
-          case 'i8':
-            HEAP8[ptr >> 0] = value;
-            break;
-          case 'i16':
-            HEAP16[ptr >> 1] = value;
-            break;
-          case 'i32':
-            HEAP32[ptr >> 2] = value;
-            break;
-          case 'i64':
-            (tempI64 = [
-              value >>> 0,
-              ((tempDouble = value),
-              +Math_abs(tempDouble) >= 1.0
-                ? tempDouble > 0.0
-                  ? (Math_min(+Math_floor(tempDouble / 4294967296.0), 4294967295.0) | 0) >>> 0
-                  : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296.0) >>> 0
-                : 0),
-            ]),
-              (HEAP32[ptr >> 2] = tempI64[0]),
-              (HEAP32[(ptr + 4) >> 2] = tempI64[1]);
-            break;
-          case 'float':
-            HEAPF32[ptr >> 2] = value;
-            break;
-          case 'double':
-            HEAPF64[ptr >> 3] = value;
-            break;
-          default:
-            abort('invalid type for setValue: ' + type);
-        }
-      } else {
-        switch (type) {
-          case 'i1':
-            SAFE_HEAP_STORE(ptr | 0, value | 0, 1);
-            break;
-          case 'i8':
-            SAFE_HEAP_STORE(ptr | 0, value | 0, 1);
-            break;
-          case 'i16':
-            SAFE_HEAP_STORE(ptr | 0, value | 0, 2);
-            break;
-          case 'i32':
-            SAFE_HEAP_STORE(ptr | 0, value | 0, 4);
-            break;
-          case 'i64':
-            (tempI64 = [
-              value >>> 0,
-              ((tempDouble = value),
-              +Math_abs(tempDouble) >= 1.0
-                ? tempDouble > 0.0
-                  ? (Math_min(+Math_floor(tempDouble / 4294967296.0), 4294967295.0) | 0) >>> 0
-                  : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296.0) >>> 0
-                : 0),
-            ]),
-              SAFE_HEAP_STORE(ptr | 0, tempI64[0] | 0, 4),
-              SAFE_HEAP_STORE((ptr + 4) | 0, tempI64[1] | 0, 4);
-            break;
-          case 'float':
-            SAFE_HEAP_STORE_D(ptr | 0, Math_fround(value), 4);
-            break;
-          case 'double':
-            SAFE_HEAP_STORE_D(ptr | 0, +value, 8);
-            break;
-          default:
-            abort('invalid type for setValue: ' + type);
-        }
+      switch (type) {
+        case 'i1':
+          HEAP8[ptr >> 0] = value;
+          break;
+        case 'i8':
+          HEAP8[ptr >> 0] = value;
+          break;
+        case 'i16':
+          HEAP16[ptr >> 1] = value;
+          break;
+        case 'i32':
+          HEAP32[ptr >> 2] = value;
+          break;
+        case 'i64':
+          (tempI64 = [
+            value >>> 0,
+            ((tempDouble = value),
+            +Math_abs(tempDouble) >= 1.0
+              ? tempDouble > 0.0
+                ? (Math_min(+Math_floor(tempDouble / 4294967296.0), 4294967295.0) | 0) >>> 0
+                : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296.0) >>> 0
+              : 0),
+          ]),
+            (HEAP32[ptr >> 2] = tempI64[0]),
+            (HEAP32[(ptr + 4) >> 2] = tempI64[1]);
+          break;
+        case 'float':
+          HEAPF32[ptr >> 2] = value;
+          break;
+        case 'double':
+          HEAPF64[ptr >> 3] = value;
+          break;
+        default:
+          abort('invalid type for setValue: ' + type);
       }
     }
 
@@ -1054,144 +1016,25 @@ var Module = (function () {
     function getValue(ptr, type, noSafe) {
       type = type || 'i8';
       if (type.charAt(type.length - 1) === '*') type = 'i32'; // pointers are 32-bit
-      if (noSafe) {
-        switch (type) {
-          case 'i1':
-            return HEAP8[ptr >> 0];
-          case 'i8':
-            return HEAP8[ptr >> 0];
-          case 'i16':
-            return HEAP16[ptr >> 1];
-          case 'i32':
-            return HEAP32[ptr >> 2];
-          case 'i64':
-            return HEAP32[ptr >> 2];
-          case 'float':
-            return HEAPF32[ptr >> 2];
-          case 'double':
-            return HEAPF64[ptr >> 3];
-          default:
-            abort('invalid type for getValue: ' + type);
-        }
-      } else {
-        switch (type) {
-          case 'i1':
-            return SAFE_HEAP_LOAD(ptr | 0, 1, 0) | 0;
-          case 'i8':
-            return SAFE_HEAP_LOAD(ptr | 0, 1, 0) | 0;
-          case 'i16':
-            return SAFE_HEAP_LOAD(ptr | 0, 2, 0) | 0;
-          case 'i32':
-            return SAFE_HEAP_LOAD(ptr | 0, 4, 0) | 0;
-          case 'i64':
-            return SAFE_HEAP_LOAD(ptr | 0, 8, 0) | 0;
-          case 'float':
-            return Math_fround(SAFE_HEAP_LOAD_D(ptr | 0, 4, 0));
-          case 'double':
-            return +SAFE_HEAP_LOAD_D(ptr | 0, 8, 0);
-          default:
-            abort('invalid type for getValue: ' + type);
-        }
+      switch (type) {
+        case 'i1':
+          return HEAP8[ptr >> 0];
+        case 'i8':
+          return HEAP8[ptr >> 0];
+        case 'i16':
+          return HEAP16[ptr >> 1];
+        case 'i32':
+          return HEAP32[ptr >> 2];
+        case 'i64':
+          return HEAP32[ptr >> 2];
+        case 'float':
+          return HEAPF32[ptr >> 2];
+        case 'double':
+          return HEAPF64[ptr >> 3];
+        default:
+          abort('invalid type for getValue: ' + type);
       }
       return null;
-    }
-
-    /** @param {number|boolean=} isFloat */
-    function getSafeHeapType(bytes, isFloat) {
-      switch (bytes) {
-        case 1:
-          return 'i8';
-        case 2:
-          return 'i16';
-        case 4:
-          return isFloat ? 'float' : 'i32';
-        case 8:
-          return 'double';
-        default:
-          assert(0);
-      }
-    }
-
-    var SAFE_HEAP_COUNTER = 0;
-
-    /** @param {number|boolean=} isFloat */
-    function SAFE_HEAP_STORE(dest, value, bytes, isFloat) {
-      out('SAFE_HEAP store: ' + [dest, value, bytes, isFloat, SAFE_HEAP_COUNTER++]);
-      if (dest <= 0) abort('segmentation fault storing ' + bytes + ' bytes to address ' + dest);
-      if (dest % bytes !== 0)
-        abort(
-          'alignment error storing to address ' + dest + ', which was expected to be aligned to a multiple of ' + bytes
-        );
-      if (dest + bytes > HEAPU32[DYNAMICTOP_PTR >> 2])
-        abort(
-          'segmentation fault, exceeded the top of the available dynamic heap when storing ' +
-            bytes +
-            ' bytes to address ' +
-            dest +
-            '. DYNAMICTOP=' +
-            HEAP32[DYNAMICTOP_PTR >> 2]
-        );
-      assert(DYNAMICTOP_PTR);
-      assert(HEAP32[DYNAMICTOP_PTR >> 2] <= HEAP8.length);
-      setValue(dest, value, getSafeHeapType(bytes, isFloat), 1);
-    }
-    function SAFE_HEAP_STORE_D(dest, value, bytes) {
-      SAFE_HEAP_STORE(dest, value, bytes, true);
-    }
-
-    /** @param {number|boolean=} isFloat */
-    function SAFE_HEAP_LOAD(dest, bytes, unsigned, isFloat) {
-      if (dest <= 0) abort('segmentation fault loading ' + bytes + ' bytes from address ' + dest);
-      if (dest % bytes !== 0)
-        abort(
-          'alignment error loading from address ' +
-            dest +
-            ', which was expected to be aligned to a multiple of ' +
-            bytes
-        );
-      if (dest + bytes > HEAPU32[DYNAMICTOP_PTR >> 2])
-        abort(
-          'segmentation fault, exceeded the top of the available dynamic heap when loading ' +
-            bytes +
-            ' bytes from address ' +
-            dest +
-            '. DYNAMICTOP=' +
-            HEAP32[DYNAMICTOP_PTR >> 2]
-        );
-      assert(DYNAMICTOP_PTR);
-      assert(HEAP32[DYNAMICTOP_PTR >> 2] <= HEAP8.length);
-      var type = getSafeHeapType(bytes, isFloat);
-      var ret = getValue(dest, type, 1);
-      if (unsigned) ret = unSign(ret, parseInt(type.substr(1), 10), 1);
-      out('SAFE_HEAP load: ' + [dest, ret, bytes, isFloat, unsigned, SAFE_HEAP_COUNTER++]);
-      return ret;
-    }
-    function SAFE_HEAP_LOAD_D(dest, bytes, unsigned) {
-      return SAFE_HEAP_LOAD(dest, bytes, unsigned, true);
-    }
-
-    function SAFE_FT_MASK(value, mask) {
-      var ret = value & mask;
-      if (ret !== value) {
-        abort(
-          'Function table mask error: function pointer is ' +
-            value +
-            ' which is masked by ' +
-            mask +
-            ', the likely cause of this is that the function pointer is being called by the wrong type.'
-        );
-      }
-      return ret;
-    }
-
-    function segfault() {
-      abort('segmentation fault');
-    }
-    function alignfault() {
-      abort('alignment fault');
-    }
-    function ftfault() {
-      abort('Function table mask error');
     }
 
     // Wasm globals
@@ -1598,7 +1441,7 @@ var Module = (function () {
     function AsciiToString(ptr) {
       var str = '';
       while (1) {
-        var ch = SAFE_HEAP_LOAD(ptr++ | 0, 1, 1) >>> 0;
+        var ch = HEAPU8[ptr++ >> 0];
         if (!ch) return str;
         str += String.fromCharCode(ch);
       }
@@ -1635,7 +1478,7 @@ var Module = (function () {
 
         var str = '';
         while (1) {
-          var codeUnit = SAFE_HEAP_LOAD((ptr + i * 2) | 0, 2, 0) | 0;
+          var codeUnit = HEAP16[(ptr + i * 2) >> 1];
           if (codeUnit == 0 || i == maxBytesToRead / 2) return str;
           ++i;
           // fromCharCode constructs a character from a UTF-16 code unit, so we can pass the UTF16 string right through.
@@ -1672,11 +1515,11 @@ var Module = (function () {
       for (var i = 0; i < numCharsToWrite; ++i) {
         // charCodeAt returns a UTF-16 encoded code unit, so it can be directly written to the HEAP.
         var codeUnit = str.charCodeAt(i); // possibly a lead surrogate
-        SAFE_HEAP_STORE(outPtr | 0, codeUnit | 0, 2);
+        HEAP16[outPtr >> 1] = codeUnit;
         outPtr += 2;
       }
       // Null-terminate the pointer to the HEAP.
-      SAFE_HEAP_STORE(outPtr | 0, 0 | 0, 2);
+      HEAP16[outPtr >> 1] = 0;
       return outPtr - startPtr;
     }
 
@@ -1694,7 +1537,7 @@ var Module = (function () {
       // If maxBytesToRead is not passed explicitly, it will be undefined, and this
       // will always evaluate to true. This saves on code size.
       while (!(i >= maxBytesToRead / 4)) {
-        var utf32 = SAFE_HEAP_LOAD((ptr + i * 4) | 0, 4, 0) | 0;
+        var utf32 = HEAP32[(ptr + i * 4) >> 2];
         if (utf32 == 0) break;
         ++i;
         // Gotcha: fromCharCode constructs a character from a UTF-16 encoded code (pair), not from a Unicode code point! So encode the code point to UTF-16 for constructing.
@@ -1741,12 +1584,12 @@ var Module = (function () {
           var trailSurrogate = str.charCodeAt(++i);
           codeUnit = (0x10000 + ((codeUnit & 0x3ff) << 10)) | (trailSurrogate & 0x3ff);
         }
-        SAFE_HEAP_STORE(outPtr | 0, codeUnit | 0, 4);
+        HEAP32[outPtr >> 2] = codeUnit;
         outPtr += 4;
         if (outPtr + 4 > endPtr) break;
       }
       // Null-terminate the pointer to the HEAP.
-      SAFE_HEAP_STORE(outPtr | 0, 0 | 0, 4);
+      HEAP32[outPtr >> 2] = 0;
       return outPtr - startPtr;
     }
 
@@ -1812,10 +1655,10 @@ var Module = (function () {
     function writeAsciiToMemory(str, buffer, dontAddNull) {
       for (var i = 0; i < str.length; ++i) {
         assert((str.charCodeAt(i) === str.charCodeAt(i)) & 0xff);
-        SAFE_HEAP_STORE(buffer++ | 0, str.charCodeAt(i) | 0, 1);
+        HEAP8[buffer++ >> 0] = str.charCodeAt(i);
       }
       // Null-terminate the pointer to the HEAP.
-      if (!dontAddNull) SAFE_HEAP_STORE(buffer | 0, 0 | 0, 1);
+      if (!dontAddNull) HEAP8[buffer >> 0] = 0;
     }
 
     // Memory management
@@ -1864,11 +1707,11 @@ var Module = (function () {
     }
 
     var STATIC_BASE = 1024,
-      STACK_BASE = 6044480,
+      STACK_BASE = 6044560,
       STACKTOP = STACK_BASE,
-      STACK_MAX = 801600,
-      DYNAMIC_BASE = 6044480,
-      DYNAMICTOP_PTR = 801440;
+      STACK_MAX = 801680,
+      DYNAMIC_BASE = 6044560,
+      DYNAMICTOP_PTR = 801520;
 
     assert(STACK_BASE % 16 === 0, 'stack must start aligned');
     assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -2436,7 +2279,7 @@ var Module = (function () {
 
     var ASM_CONSTS = {};
 
-    // STATICTOP = STATIC_BASE + 800576;
+    // STATICTOP = STATIC_BASE + 800656;
     /* global initializers */ __ATINIT__.push({
       func: function () {
         ___wasm_call_ctors();
@@ -2497,7 +2340,7 @@ var Module = (function () {
     }
 
     function setErrNo(value) {
-      SAFE_HEAP_STORE(___errno_location() | 0, value | 0, 4);
+      HEAP32[___errno_location() >> 2] = value;
       return value;
     }
     function ___map_file(pathname, size) {
@@ -5320,15 +5163,15 @@ var Module = (function () {
           }
           throw e;
         }
-        SAFE_HEAP_STORE(buf | 0, stat.dev | 0, 4);
-        SAFE_HEAP_STORE((buf + 4) | 0, 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 8) | 0, stat.ino | 0, 4);
-        SAFE_HEAP_STORE((buf + 12) | 0, stat.mode | 0, 4);
-        SAFE_HEAP_STORE((buf + 16) | 0, stat.nlink | 0, 4);
-        SAFE_HEAP_STORE((buf + 20) | 0, stat.uid | 0, 4);
-        SAFE_HEAP_STORE((buf + 24) | 0, stat.gid | 0, 4);
-        SAFE_HEAP_STORE((buf + 28) | 0, stat.rdev | 0, 4);
-        SAFE_HEAP_STORE((buf + 32) | 0, 0 | 0, 4);
+        HEAP32[buf >> 2] = stat.dev;
+        HEAP32[(buf + 4) >> 2] = 0;
+        HEAP32[(buf + 8) >> 2] = stat.ino;
+        HEAP32[(buf + 12) >> 2] = stat.mode;
+        HEAP32[(buf + 16) >> 2] = stat.nlink;
+        HEAP32[(buf + 20) >> 2] = stat.uid;
+        HEAP32[(buf + 24) >> 2] = stat.gid;
+        HEAP32[(buf + 28) >> 2] = stat.rdev;
+        HEAP32[(buf + 32) >> 2] = 0;
         (tempI64 = [
           stat.size >>> 0,
           ((tempDouble = stat.size),
@@ -5338,16 +5181,16 @@ var Module = (function () {
               : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296.0) >>> 0
             : 0),
         ]),
-          SAFE_HEAP_STORE((buf + 40) | 0, tempI64[0] | 0, 4),
-          SAFE_HEAP_STORE((buf + 44) | 0, tempI64[1] | 0, 4);
-        SAFE_HEAP_STORE((buf + 48) | 0, 4096 | 0, 4);
-        SAFE_HEAP_STORE((buf + 52) | 0, stat.blocks | 0, 4);
-        SAFE_HEAP_STORE((buf + 56) | 0, (stat.atime.getTime() / 1000) | 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 60) | 0, 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 64) | 0, (stat.mtime.getTime() / 1000) | 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 68) | 0, 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 72) | 0, (stat.ctime.getTime() / 1000) | 0 | 0, 4);
-        SAFE_HEAP_STORE((buf + 76) | 0, 0 | 0, 4);
+          (HEAP32[(buf + 40) >> 2] = tempI64[0]),
+          (HEAP32[(buf + 44) >> 2] = tempI64[1]);
+        HEAP32[(buf + 48) >> 2] = 4096;
+        HEAP32[(buf + 52) >> 2] = stat.blocks;
+        HEAP32[(buf + 56) >> 2] = (stat.atime.getTime() / 1000) | 0;
+        HEAP32[(buf + 60) >> 2] = 0;
+        HEAP32[(buf + 64) >> 2] = (stat.mtime.getTime() / 1000) | 0;
+        HEAP32[(buf + 68) >> 2] = 0;
+        HEAP32[(buf + 72) >> 2] = (stat.ctime.getTime() / 1000) | 0;
+        HEAP32[(buf + 76) >> 2] = 0;
         (tempI64 = [
           stat.ino >>> 0,
           ((tempDouble = stat.ino),
@@ -5357,8 +5200,8 @@ var Module = (function () {
               : ~~+Math_ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296.0) >>> 0
             : 0),
         ]),
-          SAFE_HEAP_STORE((buf + 80) | 0, tempI64[0] | 0, 4),
-          SAFE_HEAP_STORE((buf + 84) | 0, tempI64[1] | 0, 4);
+          (HEAP32[(buf + 80) >> 2] = tempI64[0]),
+          (HEAP32[(buf + 84) >> 2] = tempI64[1]);
         return 0;
       },
       doMsync: function (addr, stream, len, flags, offset) {
@@ -5429,8 +5272,8 @@ var Module = (function () {
       doReadv: function (stream, iov, iovcnt, offset) {
         var ret = 0;
         for (var i = 0; i < iovcnt; i++) {
-          var ptr = SAFE_HEAP_LOAD((iov + i * 8) | 0, 4, 0) | 0;
-          var len = SAFE_HEAP_LOAD((iov + (i * 8 + 4)) | 0, 4, 0) | 0;
+          var ptr = HEAP32[(iov + i * 8) >> 2];
+          var len = HEAP32[(iov + (i * 8 + 4)) >> 2];
           var curr = FS.read(stream, HEAP8, ptr, len, offset);
           if (curr < 0) return -1;
           ret += curr;
@@ -5441,8 +5284,8 @@ var Module = (function () {
       doWritev: function (stream, iov, iovcnt, offset) {
         var ret = 0;
         for (var i = 0; i < iovcnt; i++) {
-          var ptr = SAFE_HEAP_LOAD((iov + i * 8) | 0, 4, 0) | 0;
-          var len = SAFE_HEAP_LOAD((iov + (i * 8 + 4)) | 0, 4, 0) | 0;
+          var ptr = HEAP32[(iov + i * 8) >> 2];
+          var len = HEAP32[(iov + (i * 8 + 4)) >> 2];
           var curr = FS.write(stream, HEAP8, ptr, len, offset);
           if (curr < 0) return -1;
           ret += curr;
@@ -5453,7 +5296,7 @@ var Module = (function () {
       get: function () {
         assert(SYSCALLS.varargs != undefined);
         SYSCALLS.varargs += 4;
-        var ret = SAFE_HEAP_LOAD((SYSCALLS.varargs - 4) | 0, 4, 0) | 0;
+        var ret = HEAP32[(SYSCALLS.varargs - 4) >> 2];
         return ret;
       },
       getStr: function (ptr) {
@@ -5501,7 +5344,7 @@ var Module = (function () {
     }
 
     function _emscripten_get_sbrk_ptr() {
-      return 801440;
+      return 801520;
     }
 
     function _emscripten_memcpy_big(dest, src, num) {
@@ -5622,7 +5465,7 @@ var Module = (function () {
       var bufSize = 0;
       getEnvStrings().forEach(function (string, i) {
         var ptr = environ_buf + bufSize;
-        SAFE_HEAP_STORE((__environ + i * 4) | 0, ptr | 0, 4);
+        HEAP32[(__environ + i * 4) >> 2] = ptr;
         writeAsciiToMemory(string, ptr);
         bufSize += string.length + 1;
       });
@@ -5631,12 +5474,12 @@ var Module = (function () {
 
     function _environ_sizes_get(penviron_count, penviron_buf_size) {
       var strings = getEnvStrings();
-      SAFE_HEAP_STORE(penviron_count | 0, strings.length | 0, 4);
+      HEAP32[penviron_count >> 2] = strings.length;
       var bufSize = 0;
       strings.forEach(function (string) {
         bufSize += string.length + 1;
       });
-      SAFE_HEAP_STORE(penviron_buf_size | 0, bufSize | 0, 4);
+      HEAP32[penviron_buf_size >> 2] = bufSize;
       return 0;
     }
 
@@ -5644,7 +5487,7 @@ var Module = (function () {
       try {
         var stream = SYSCALLS.getStreamFromFD(fd);
         var num = SYSCALLS.doWritev(stream, iov, iovcnt);
-        SAFE_HEAP_STORE(pnum | 0, num | 0, 4);
+        HEAP32[pnum >> 2] = num;
         return 0;
       } catch (e) {
         if (typeof FS === 'undefined' || !(e instanceof FS.ErrnoError)) abort(e);
@@ -5659,7 +5502,7 @@ var Module = (function () {
     function _time(ptr) {
       var ret = (Date.now() / 1000) | 0;
       if (ptr) {
-        SAFE_HEAP_STORE(ptr | 0, ret | 0, 4);
+        HEAP32[ptr >> 2] = ret;
       }
       return ret;
     }
@@ -6509,9 +6352,9 @@ var Module = (function () {
       setFullscreenCanvasSize: function () {
         // check if SDL is available
         if (typeof SDL != 'undefined') {
-          var flags = SAFE_HEAP_LOAD(SDL.screen | 0, 4, 1) >>> 0;
+          var flags = HEAPU32[SDL.screen >> 2];
           flags = flags | 0x00800000; // set SDL_FULLSCREEN flag
-          SAFE_HEAP_STORE(SDL.screen | 0, flags | 0, 4);
+          HEAP32[SDL.screen >> 2] = flags;
         }
         Browser.updateCanvasDimensions(Module['canvas']);
         Browser.updateResizeListeners();
@@ -6519,9 +6362,9 @@ var Module = (function () {
       setWindowedCanvasSize: function () {
         // check if SDL is available
         if (typeof SDL != 'undefined') {
-          var flags = SAFE_HEAP_LOAD(SDL.screen | 0, 4, 1) >>> 0;
+          var flags = HEAPU32[SDL.screen >> 2];
           flags = flags & ~0x00800000; // clear SDL_FULLSCREEN flag
-          SAFE_HEAP_STORE(SDL.screen | 0, flags | 0, 4);
+          HEAP32[SDL.screen >> 2] = flags;
         }
         Browser.updateCanvasDimensions(Module['canvas']);
         Browser.updateResizeListeners();
@@ -6715,16 +6558,16 @@ var Module = (function () {
         return ptr;
       },
       setDataHeader: function (ptr, stack, stackSize) {
-        SAFE_HEAP_STORE(ptr | 0, stack | 0, 4);
-        SAFE_HEAP_STORE((ptr + 4) | 0, (stack + stackSize) | 0, 4);
+        HEAP32[ptr >> 2] = stack;
+        HEAP32[(ptr + 4) >> 2] = stack + stackSize;
       },
       setDataRewindFunc: function (ptr) {
         var bottomOfCallStack = Asyncify.exportCallStack[0];
         var rewindId = Asyncify.getCallStackId(bottomOfCallStack);
-        SAFE_HEAP_STORE((ptr + 8) | 0, rewindId | 0, 4);
+        HEAP32[(ptr + 8) >> 2] = rewindId;
       },
       getDataRewindFunc: function (ptr) {
-        var id = SAFE_HEAP_LOAD((ptr + 8) | 0, 4, 0) | 0;
+        var id = HEAP32[(ptr + 8) >> 2];
         var func = Asyncify.callStackIdToFunc[id];
 
         return func;
@@ -6925,7 +6768,6 @@ var Module = (function () {
       __handle_stack_overflow: ___handle_stack_overflow,
       __map_file: ___map_file,
       __sys_munmap: ___sys_munmap,
-      alignfault: alignfault,
       emscripten_get_sbrk_ptr: _emscripten_get_sbrk_ptr,
       emscripten_memcpy_big: _emscripten_memcpy_big,
       emscripten_resize_heap: _emscripten_resize_heap,
@@ -6933,7 +6775,6 @@ var Module = (function () {
       environ_sizes_get: _environ_sizes_get,
       fd_write: _fd_write,
       memory: wasmMemory,
-      segfault: segfault,
       setTempRet0: _setTempRet0,
       table: wasmTable,
       time: _time,
@@ -6968,6 +6809,9 @@ var Module = (function () {
     var _getActions = (Module['_getActions'] = createExportWrapper('getActions'));
 
     /** @type {function(...*):?} */
+    var _malloc = (Module['_malloc'] = createExportWrapper('malloc'));
+
+    /** @type {function(...*):?} */
     var _selectAction = (Module['_selectAction'] = createExportWrapper('selectAction'));
 
     /** @type {function(...*):?} */
@@ -6990,9 +6834,6 @@ var Module = (function () {
 
     /** @type {function(...*):?} */
     var _saveGameData = (Module['_saveGameData'] = createExportWrapper('saveGameData'));
-
-    /** @type {function(...*):?} */
-    var _malloc = (Module['_malloc'] = createExportWrapper('malloc'));
 
     /** @type {function(...*):?} */
     var _realloc = (Module['_realloc'] = createExportWrapper('realloc'));
@@ -7029,9 +6870,6 @@ var Module = (function () {
 
     /** @type {function(...*):?} */
     var _setCallBack = (Module['_setCallBack'] = createExportWrapper('setCallBack'));
-
-    /** @type {function(...*):?} */
-    var _createItemsList = (Module['_createItemsList'] = createExportWrapper('createItemsList'));
 
     /** @type {function(...*):?} */
     var _freeItemsList = (Module['_freeItemsList'] = createExportWrapper('freeItemsList'));

@@ -23,7 +23,6 @@ target_link_libraries(qsp-wasm PRIVATE qsp onig)
 
 set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -Wno-empty-body \
-    -Wno-null-dereference \
     -Wno-unsequenced \
     -Wcast-align \
     -Wover-aligned \
@@ -39,7 +38,5 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -s MODULARIZE=1 \
     -s INVOKE_RUN=0 \
     -s WARN_UNALIGNED=1 \
-    -s SAFE_HEAP=1 \
-    -s SAFE_HEAP_LOG=1 \
     -s STACK_OVERFLOW_CHECK=2 \
     -s ALLOW_MEMORY_GROWTH=1")

@@ -77,7 +77,7 @@ export class QspAPIImpl implements QspAPI {
   }
 
   version(): string {
-    const ptr = this.allocPtr();
+    const ptr = this.allocStrPtr();
     this.module._getVersion(ptr);
     const version = this.readString(ptr);
     this.freePtr(ptr);
@@ -99,7 +99,7 @@ export class QspAPIImpl implements QspAPI {
     if (!namePtr) {
       throw new Error('use static strings');
     }
-    const resultPtr = this.allocPtr();
+    const resultPtr = this.allocStrPtr();
 
     this.module._getVarStringValue(namePtr, index, resultPtr);
     const value = this.readString(resultPtr);
@@ -209,7 +209,7 @@ export class QspAPIImpl implements QspAPI {
     this.updateLayout();
 
     if (isRedraw || this.module._isMainDescChanged()) {
-      const ptr = this.allocPtr();
+      const ptr = this.allocStrPtr();
       this.module._getMainDesc(ptr);
       const mainDesc = this.readString(ptr);
       this.freePtr(ptr);
@@ -217,7 +217,7 @@ export class QspAPIImpl implements QspAPI {
     }
 
     if (isRedraw || this.module._isVarsDescChanged()) {
-      const ptr = this.allocPtr();
+      const ptr = this.allocStrPtr();
       this.module._getVarsDesc(ptr);
       const varsDesc = this.readString(ptr);
       this.freePtr(ptr);
@@ -225,28 +225,27 @@ export class QspAPIImpl implements QspAPI {
     }
 
     if (isRedraw || this.module._isActionsChanged()) {
-      const listPtr = this.allocPtr();
-      this.module._createItemsList(listPtr);
+      const countPtr = this.allocPtr();
 
-      const count = this.module._getActions(listPtr);
+      const listPtr = this.module._getActions(countPtr);
+      const count = this.readInt(countPtr);
       const actions = this.readListItems(listPtr, count);
 
       this.module._freeItemsList(listPtr);
-      this.freePtr(listPtr);
+      this.freePtr(countPtr);
 
       this.emit('actions_changed', actions);
     }
 
     if (isRedraw || this.module._isObjectsChanged()) {
-      const listPtr = this.allocPtr();
-      this.module._createItemsList(listPtr);
+      const countPtr = this.allocPtr();
 
-      const count = this.module._getObjects(listPtr);
-
+      const listPtr = this.module._getObjects(countPtr);
+      const count = this.readInt(countPtr);
       const objects = this.readListItems(listPtr, count);
 
       this.module._freeItemsList(listPtr);
-      this.freePtr(listPtr);
+      this.freePtr(countPtr);
 
       this.emit('objects_changed', objects);
     }
@@ -437,6 +436,9 @@ export class QspAPIImpl implements QspAPI {
 
   private readString(ptr: StringPtr): string {
     const start = this.derefPtr(ptr);
+    if (!start) {
+      return '';
+    }
     const end = this.derefPtr(this.movePtr(ptr));
     return this.module.UTF32ToString(start, end - start);
   }
@@ -454,7 +456,7 @@ export class QspAPIImpl implements QspAPI {
 
   private readError(): QspErrorData {
     const errorNumPtr = this.allocPtr();
-    const errorLocPtr = this.allocPtr();
+    const errorLocPtr = this.allocStrPtr();
     const errorActIndexPtr = this.allocPtr();
     const errorLinePtr = this.allocPtr();
 
@@ -463,7 +465,7 @@ export class QspAPIImpl implements QspAPI {
     const code = this.readInt(errorNumPtr);
     this.freePtr(errorNumPtr);
 
-    const ptr = this.allocPtr();
+    const ptr = this.allocStrPtr();
     this.module._getErrorDesc(ptr, code);
     const description = this.readString(ptr);
     this.freePtr(ptr);
@@ -507,6 +509,10 @@ export class QspAPIImpl implements QspAPI {
   /* Pointers magic */
   private allocPtr(): Ptr {
     return this.module._malloc(POINTER_SIZE);
+  }
+
+  private allocStrPtr(): Ptr {
+    return this.module._malloc(POINTER_SIZE * 2);
   }
 
   private derefPtr(ptr: Ptr): Ptr {
