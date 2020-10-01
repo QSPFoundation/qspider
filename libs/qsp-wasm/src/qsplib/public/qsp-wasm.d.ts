@@ -14,7 +14,6 @@ export interface QspModule extends EmscriptenModule {
   };
 
   _freeString(string: CharsPtr): void;
-  _createItemsList(items: Ptr): void;
   _freeItemsList(items: Ptr): void;
   _freeSaveBuffer(buffer: Prt): void;
 

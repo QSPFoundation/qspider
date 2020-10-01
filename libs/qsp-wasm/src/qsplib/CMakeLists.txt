@@ -38,7 +38,5 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -s MODULARIZE=1 \
     -s INVOKE_RUN=0 \
     -s WARN_UNALIGNED=1 \
-    -s EXIT_RUNTIME=1 \
-    -fsanitize=address \
     -s STACK_OVERFLOW_CHECK=2 \
     -s ALLOW_MEMORY_GROWTH=1")
