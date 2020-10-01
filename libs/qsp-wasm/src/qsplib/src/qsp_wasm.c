@@ -72,9 +72,17 @@ QSP_BOOL isVarsDescChanged()
 
 /* Actions */
 EMSCRIPTEN_KEEPALIVE
-int getActions(QSPListItem *items)
+QSPListItem *getActions(int *count)
 {
-  return QSPGetActions(items, MAX_LIST_ITEMS);
+  *count = qspCurActionsCount;
+  QSPListItem *items = (QSPListItem *)malloc(qspCurActionsCount * sizeof(QSPListItem));
+  int i;
+  for (i = 0; i < qspCurActionsCount; ++i)
+  {
+    items[i].Name = qspCurActions[i].Desc;
+    items[i].Image = qspCurActions[i].Image;
+  }
+  return items;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -92,9 +100,17 @@ QSP_BOOL isActionsChanged()
 
 /* Objects */
 EMSCRIPTEN_KEEPALIVE
-int getObjects(QSPListItem *items)
+QSPListItem *getObjects(int *count)
 {
-  return QSPGetObjects(items, MAX_LIST_ITEMS);
+  *count = qspCurObjectsCount;
+  int i;
+  QSPListItem *items = (QSPListItem *)malloc(qspCurObjectsCount * sizeof(QSPListItem));
+  for (i = 0; i < qspCurObjectsCount; ++i)
+  {
+    items[i].Name = qspCurObjects[i].Desc;
+    items[i].Image = qspCurObjects[i].Image;
+  }
+  return items;
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -222,13 +238,6 @@ void setCallBack(int type, QSP_CALLBACK func)
 }
 
 /* Struct utils */
-EMSCRIPTEN_KEEPALIVE
-void createItemsList(QSPListItem **items)
-{
-  QSPListItem *pitems = (QSPListItem *)malloc(MAX_LIST_ITEMS * sizeof(QSPListItem));
-  *items = pitems;
-}
-
 EMSCRIPTEN_KEEPALIVE
 void freeItemsList(QSPListItem *items)
 {
