@@ -16,9 +16,3 @@ with the contributing guidelines (found in the CONTRIBUTING.md file).
 <!-- If necessary add any additional notes on the implementation -->
 
 ### Notes
-
-### Housekeeping
-
-- [ ] Unit tests
-- [ ] Documentation is up to date
-- [ ] No additional lint warnings

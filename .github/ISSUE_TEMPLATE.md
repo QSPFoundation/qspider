@@ -9,15 +9,7 @@ If you would like to request a feature then uncomment the last section :)
 <!--
 **Bug**
 
-- `package` version:
-- `node` version:
-- `npm` (or `yarn`) version:
-
-Relevant code or config
-
-```javascript
-
-```
+- `player` version:
 
 What you did:
 
