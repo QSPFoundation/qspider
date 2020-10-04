@@ -9,7 +9,7 @@ export const PlayerToolbarWrapper = styled.div<WithTheme>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10px;
+  padding: 2px 10px;
 `;
 
 const Title = styled.h1`

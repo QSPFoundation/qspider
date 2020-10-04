@@ -387,9 +387,9 @@ export class QspAPIImpl implements QspAPI {
 
   private updateLayout() {
     const useHtml = Boolean(this.readVariableNumber('USEHTML'));
-    const backgroundColor = this.convertColor(this.readVariableNumber('BCOLOR'));
-    const color = this.convertColor(this.readVariableNumber('FCOLOR'));
-    const linkColor = this.convertColor(this.readVariableNumber('LCOLOR'));
+    const backgroundColor = this.readVariableNumber('BCOLOR');
+    const color = this.readVariableNumber('FCOLOR');
+    const linkColor = this.readVariableNumber('LCOLOR');
     const fontSize = this.readVariableNumber('FSIZE');
     const fontName = this.readVariableString('$FNAME');
     const backgroundImage = this.readVariableString('$BACKIMAGE');
@@ -419,15 +419,6 @@ export class QspAPIImpl implements QspAPI {
       }
     }
     return Boolean(isSuccessfull);
-  }
-
-  private convertColor(value: number): string {
-    if (!value) return '';
-    const arr = new Uint8Array(4);
-    const view = new DataView(arr.buffer);
-    view.setInt32(0, value);
-    const [a, b, g, r] = arr;
-    return `rgba(${r},${g},${b},${a})`;
   }
 
   private readChars(ptr: CharsPtr): string {

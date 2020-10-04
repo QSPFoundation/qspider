@@ -5,6 +5,7 @@ import { Content } from '../../content/content';
 import { useGameManager } from '../../../game/manager';
 import { ActionImage } from './action-image';
 import { WithTheme } from '../../../theme.types';
+import Color from 'color';
 
 export const ActionButton = styled.button<WithTheme>`
   display: flex;
@@ -18,14 +19,15 @@ export const ActionButton = styled.button<WithTheme>`
   cursor: pointer;
   background-color: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
+  user-select: none;
 
   &:hover {
-    filter: brightness(70%);
+    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
+    color: ${(props) => props.theme.backgroundColor};
   }
 
   &:focus {
     outline: none;
-    box-shadow: inset 0 0 5px 0px rgba(0, 0, 0, 0.75);
   }
 `;
 

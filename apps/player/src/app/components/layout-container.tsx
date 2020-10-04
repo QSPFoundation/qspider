@@ -97,7 +97,7 @@ export const LayoutContainer: React.FC = observer(() => {
   const { visibleLayout } = useLayout();
   return (
     <ViewPort>
-      <Top size={32}>
+      <Top size={40}>
         <PlayerToolbar />
       </Top>
       <Fill>{renderLayoutGroup(visibleLayout)}</Fill>

@@ -9,9 +9,12 @@ import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
 import { QspGUIPanel } from '../constants';
+import { CfgData } from './cfg-parser';
 
 export class GameManager {
   descriptor: GameDescriptor;
+  folder: string;
+  config: CfgData;
   errorData: QspErrorData;
   isInitialized = false;
 
@@ -63,7 +66,6 @@ export class GameManager {
 
   async initialize(onApiInitialized: () => void): Promise<void> {
     this.api = await init();
-    onApiInitialized();
     console.log(`QSP version: ${this.api.version()}`);
 
     this.setupQspCallbacks();
@@ -76,12 +78,15 @@ export class GameManager {
     try {
       const gameConfig = await fetchGameCongig(gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/');
       const { layout, floating } = extractLayoutData(gameConfig);
+      this.config = gameConfig;
       this.layout = layout;
       this.floating = floating;
     } catch (_) {
       this.layout = DEFAULT_LAYOUT;
       this.floating = DEFAULT_FLOATING;
     }
+
+    onApiInitialized();
 
     this.soundManager.init(`${GAME_PATH}${gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'}`);
 

@@ -2,10 +2,10 @@ import { QspPanel } from '../qsplib/public/types';
 
 export interface LayoutSettings {
   useHtml: boolean;
-  backgroundColor: string;
+  backgroundColor: number;
   backgroundImage: string;
-  color: string;
-  linkColor: string;
+  color: number;
+  linkColor: number;
   fontSize: number;
   fontName: string;
 }

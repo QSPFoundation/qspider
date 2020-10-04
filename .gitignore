@@ -1,6 +1,7 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-/apps/player/src/assets/game
+/game
+!/game/.gitkeep
 /libs/qsp-wasm/src/qsplib/build/*
 !/libs/qsp-wasm/src/qsplib/build/.gitkeep
 

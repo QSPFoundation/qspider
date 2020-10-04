@@ -1,7 +1,7 @@
 import TOMLparse from '@iarna/toml/parse-string';
 import { parseCfg, CfgData } from './cfg-parser';
 
-export const GAME_PATH = '/assets/game';
+export const GAME_PATH = '/game';
 const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.cfg`;
 const GAME_FONFIG_FILE = 'qspgui.cfg';
 

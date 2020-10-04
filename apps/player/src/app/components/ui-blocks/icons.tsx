@@ -16,8 +16,8 @@ const gpyphs = {
 };
 
 const IconSvg = styled.svg`
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
 `;
 
 export const Icon: React.FC<{ icon: string }> = ({ icon }) => {

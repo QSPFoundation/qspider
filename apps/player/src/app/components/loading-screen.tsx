@@ -90,7 +90,7 @@ const pages = Array.from({ length: 19 }, (_, i) => {
 });
 
 const Book = styled.div<WithTheme>`
-  --color: ${(props) => props.theme.buttonBackground};
+  --color: #3c6478;
   --duration: 6.8s;
   width: 32px;
   height: 12px;
