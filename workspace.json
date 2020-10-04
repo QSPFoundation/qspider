@@ -31,6 +31,7 @@
           },
           "configurations": {
             "production": {
+              "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
               "fileReplacements": [
                 {
                   "replace": "apps/player/src/environments/environment.ts",
