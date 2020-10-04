@@ -6,6 +6,7 @@ import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { PlayerTheme } from '../theme.types';
 import { LayoutDock, LayoutPanel } from './cfg-converter';
 import { QspGUIPanel } from '../constants';
+import { CfgData } from './cfg-parser';
 
 class Layout {
   useHtml = false;
@@ -21,27 +22,46 @@ class Layout {
   isActionsPanelVisible = true;
   isUserInputPanelVisible = true;
 
+  defaultBackgroundColor = '#e0e0e0';
+  defaultColor = '#000000';
+  defaultLinkColor = '#0000ff';
+  defaultvFontSize = 12;
+  defaultFontName = '';
+
   constructor(private manager: GameManager) {
     this.initialized(manager);
   }
 
   get theme(): PlayerTheme {
     return {
-      backgroundColor: this.backgroundColor || '#efefef',
+      backgroundColor: this.backgroundColor || this.defaultBackgroundColor,
       backgroundImage: this.backgroundImage ? `url(${this.manager.resourcePrefix}${this.backgroundImage})` : 'none',
-      textColor: this.color,
-      fontSize: this.fontSize || 12,
-      fontName: this.fontName,
+      textColor: this.color || this.defaultColor,
+      fontSize: this.fontSize || this.defaultvFontSize,
+      fontName: this.fontName || this.defaultFontName,
       borderColor: 'grey',
-      buttonBackground: `#3c6478`,
-      buttonColor: '#ffffff',
-      linkColor: this.linkColor || 'blue',
+      linkColor: this.linkColor || this.defaultLinkColor,
     };
   }
 
   async initialized(manager: GameManager) {
     await manager.apiInitialized;
+    this.fillDefaults(manager.config);
     this.initCallbacks(manager);
+  }
+
+  fillDefaults(config: CfgData) {
+    if (config) {
+      if (config.Colors) {
+        this.defaultBackgroundColor = this.convertColor(config.Colors.BackColor, false);
+        this.defaultColor = this.convertColor(config.Colors.FontColor, false);
+        this.defaultLinkColor = this.convertColor(config.Colors.LinkColor, false);
+      }
+      if (config.Font) {
+        this.defaultFontName = config.Font.FontName;
+        this.defaultvFontSize = config.Font.FontSize;
+      }
+    }
   }
 
   initCallbacks(manager: GameManager) {
@@ -51,10 +71,10 @@ class Layout {
 
   updateLayoutSettings = (settings: LayoutSettings) => {
     this.useHtml = settings.useHtml;
-    this.backgroundColor = settings.backgroundColor;
+    this.backgroundColor = settings.backgroundColor ? this.convertColor(settings.backgroundColor) : null;
     this.backgroundImage = settings.backgroundImage;
-    this.color = settings.color;
-    this.linkColor = settings.linkColor;
+    this.color = settings.color ? this.convertColor(settings.color) : null;
+    this.linkColor = settings.linkColor ? this.convertColor(settings.linkColor) : null;
     this.fontSize = settings.fontSize;
     this.fontName = settings.fontName;
   };
@@ -115,6 +135,20 @@ class Layout {
         return this.isUserInputPanelVisible;
     }
     return true;
+  }
+
+  private convertColor(value: number, withAlpha = true): string {
+    const arr = new Uint8Array(4);
+    const view = new DataView(arr.buffer);
+    view.setInt32(0, value);
+
+    if (withAlpha) {
+      const [alpha, blue, green, red] = arr;
+      return `rgba(${red},${green},${blue},${alpha})`;
+    }
+
+    const [, blue, green, red] = arr;
+    return `rgb(${red},${green},${blue})`;
   }
 }
 

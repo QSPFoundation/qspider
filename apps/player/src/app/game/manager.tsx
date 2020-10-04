@@ -9,9 +9,12 @@ import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
 import { QspGUIPanel } from '../constants';
+import { CfgData } from './cfg-parser';
 
 export class GameManager {
   descriptor: GameDescriptor;
+  folder: string;
+  config: CfgData;
   errorData: QspErrorData;
   isInitialized = false;
 
@@ -63,7 +66,6 @@ export class GameManager {
 
   async initialize(onApiInitialized: () => void): Promise<void> {
     this.api = await init();
-    onApiInitialized();
     console.log(`QSP version: ${this.api.version()}`);
 
     this.setupQspCallbacks();
@@ -76,12 +78,15 @@ export class GameManager {
     try {
       const gameConfig = await fetchGameCongig(gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/');
       const { layout, floating } = extractLayoutData(gameConfig);
+      this.config = gameConfig;
       this.layout = layout;
       this.floating = floating;
     } catch (_) {
       this.layout = DEFAULT_LAYOUT;
       this.floating = DEFAULT_FLOATING;
     }
+
+    onApiInitialized();
 
     this.soundManager.init(`${GAME_PATH}${gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'}`);
 
@@ -123,6 +128,11 @@ export class GameManager {
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
     this.api.on(event, listener);
+  }
+
+  restart(): void {
+    this.pause();
+    this.api.restartGame();
   }
 
   execCode(code: string): void {
@@ -334,14 +344,16 @@ export class GameManager {
   requestSave = async (onResult?: () => void): Promise<void> => {
     this.pause();
     const saveData = this.api.saveGame();
-    const slots = await this.saveManager.getSlots(this.descriptor.id);
-    this.saveAction = {
-      type: 'save',
-      slots,
-      data: saveData,
-      callback: this.saveToSlot,
-      onResult,
-    };
+    if (saveData) {
+      const slots = await this.saveManager.getSlots(this.descriptor.id);
+      this.saveAction = {
+        type: 'save',
+        slots,
+        data: saveData,
+        callback: this.saveToSlot,
+        onResult,
+      };
+    }
   };
   saveToSlot = async (slot: number): Promise<void> => {
     if (this.saveAction.type === 'save') {

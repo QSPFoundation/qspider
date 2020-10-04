@@ -5,8 +5,6 @@ export interface PlayerTheme {
   fontSize: number;
   fontName: string;
   borderColor: string;
-  buttonBackground: string;
-  buttonColor: string;
   linkColor: string;
 }
 

@@ -21,13 +21,22 @@ const attributeToStyle = {
   width: 'width',
   height: 'height',
 };
+const attributeConverters = {
+  width: (value: string) => (/^\d+$/.test(value) ? `${value}px` : value),
+  height: (value: string) => (/^\d+$/.test(value) ? `${value}px` : value),
+};
 
 const attributesToStyle = (node: HTMLElement): Record<string, string> => {
   const style: Record<string, string> = {};
   for (const name of node.getAttributeNames()) {
     const styleName = attributeToStyle[name];
     if (styleName) {
-      style[styleName] = node.getAttribute(name);
+      const value = node.getAttribute(name);
+      if (attributeConverters[styleName]) {
+        style[styleName] = attributeConverters[styleName](value);
+      } else {
+        style[styleName] = value;
+      }
     }
   }
   return style;
@@ -41,6 +50,24 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
       </Font>
     );
   },
+  h1: (_, children) => {
+    return <h1>{children}</h1>;
+  },
+  h2: (_, children) => {
+    return <h2>{children}</h2>;
+  },
+  h3: (_, children) => {
+    return <h3>{children}</h3>;
+  },
+  h4: (_, children) => {
+    return <h4>{children}</h4>;
+  },
+  h5: (_, children) => {
+    return <h5>{children}</h5>;
+  },
+  h6: (_, children) => {
+    return <h6>{children}</h6>;
+  },
   i: (_, children) => {
     return <i>{children}</i>;
   },
@@ -51,11 +78,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     return <Big>{children}</Big>;
   },
   center: (_, children) => {
-    return (
-      <Center>
-        <div>{children}</div>
-      </Center>
-    );
+    return <Center>{children}</Center>;
   },
   hr: (node) => {
     return (
@@ -93,9 +116,9 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   table: (node, children) => {
     return (
       <Table
-        border={node.hasAttribute('border') ? Number(node.getAttribute('border')) : 1}
-        cellspacing={Number(node.getAttribute('cellspacing'))}
-        cellpadding={Number(node.getAttribute('cellpadding'))}
+        border={node.hasAttribute('border') ? Number(node.getAttribute('border')) : 0}
+        cellspacing={node.hasAttribute('cellspacing') ? Number(node.getAttribute('cellspacing')) : 0}
+        cellpadding={node.hasAttribute('cellpadding') ? Number(node.getAttribute('cellpadding')) : 1}
         style={attributesToStyle(node)}
       >
         {children}
@@ -138,6 +161,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
       ></Area>
     );
   },
+  br: () => <br />,
 };
 
 export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {

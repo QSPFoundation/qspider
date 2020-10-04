@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
+import CustomScroll from 'react-custom-scroll';
 import { Overlay } from './overlay';
 import { Button } from './button';
 import { WithTheme } from '../../theme.types';
@@ -32,6 +33,7 @@ const ModalBody = styled.div<WithTheme>`
     0px 9px 46px 8px rgba(0, 0, 0, 0.12);
   pointer-events: auto;
   position: relative;
+  display: flex;
 `;
 
 const ModalActions = styled.div<WithTheme>`
@@ -56,6 +58,12 @@ const CloseButton = styled.button<WithTheme>`
   }
 `;
 
+const ModalContent = styled.div`
+  max-width: 100%;
+  width: 100%;
+  max-height: 100%;
+`;
+
 export const Modal: React.FC<{ onClose: () => void; hideButtons?: boolean }> = ({ onClose, hideButtons, children }) => {
   return (
     <>
@@ -63,12 +71,16 @@ export const Modal: React.FC<{ onClose: () => void; hideButtons?: boolean }> = (
       <ModalContainer>
         <ModalBody>
           <CloseButton onClick={onClose}>x</CloseButton>
-          {children}
-          {!hideButtons && (
-            <ModalActions>
-              <Button onClick={onClose}>Ok</Button>
-            </ModalActions>
-          )}
+          <ModalContent>
+            <CustomScroll heightRelativeToParent="100%">
+              {children}
+              {!hideButtons && (
+                <ModalActions>
+                  <Button onClick={onClose}>Ok</Button>
+                </ModalActions>
+              )}
+            </CustomScroll>
+          </ModalContent>
         </ModalBody>
       </ModalContainer>
     </>

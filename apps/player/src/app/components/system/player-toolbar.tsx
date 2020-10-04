@@ -9,7 +9,7 @@ export const PlayerToolbarWrapper = styled.div<WithTheme>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 10px;
+  padding: 2px 10px;
 `;
 
 const Title = styled.h1`
@@ -31,6 +31,7 @@ export const PlayerToolbar: React.FC = observer(() => {
     <PlayerToolbarWrapper>
       <Title>{manager.descriptor.title}</Title>
       <Icons>
+        <IconButton icon="restart" onClick={() => manager.restart()} />
         <IconButton icon="save" onClick={() => manager.requestSave()} />
         <IconButton icon="load" onClick={() => manager.requestRestore()} />
         {/* <IconButton icon="speaker" onClick={() => {}} />
