@@ -31,7 +31,15 @@
           },
           "configurations": {
             "production": {
-              "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
+              "assets": [
+                "apps/player/src/favicon.ico",
+                "apps/player/src/assets",
+                {
+                  "input": "./demo",
+                  "glob": "**/*",
+                  "output": "./"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "apps/player/src/environments/environment.ts",
