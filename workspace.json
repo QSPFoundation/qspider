@@ -10,6 +10,7 @@
         "build": {
           "builder": "@nrwl/web:build",
           "options": {
+            "baseHref": "",
             "outputPath": "dist/apps/player",
             "index": "apps/player/src/index.html",
             "main": "apps/player/src/main.tsx",
@@ -31,7 +32,15 @@
           },
           "configurations": {
             "production": {
-              "assets": ["apps/player/src/favicon.ico", "apps/player/src/assets"],
+              "assets": [
+                "apps/player/src/favicon.ico",
+                "apps/player/src/assets",
+                {
+                  "input": "./demo",
+                  "glob": "**/*",
+                  "output": "./"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "apps/player/src/environments/environment.ts",
