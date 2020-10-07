@@ -1,13 +1,10 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
-    if: github.event.base_ref == 'refs/heads/master'
     name: Release
     runs-on: ubuntu-latest
     steps:
