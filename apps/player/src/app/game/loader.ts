@@ -1,7 +1,7 @@
 import TOMLparse from '@iarna/toml/parse-string';
 import { parseCfg, CfgData } from './cfg-parser';
 
-export const GAME_PATH = '/game';
+export const GAME_PATH = 'game';
 const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.cfg`;
 const GAME_FONFIG_FILE = 'qspgui.cfg';
 
@@ -25,5 +25,5 @@ export const fetchGameCongig = async (folder = '/'): Promise<CfgData> => {
 };
 
 export const fetchGameSource = async (fileName: string, folder = '/'): Promise<ArrayBuffer> => {
-  return fetch(`${GAME_PATH}${folder}${fileName}`).then((r) => r.arrayBuffer());
+  return fetch(`${folder}${fileName}`).then((r) => r.arrayBuffer());
 };
