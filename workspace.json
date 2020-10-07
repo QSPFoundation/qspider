@@ -10,6 +10,7 @@
         "build": {
           "builder": "@nrwl/web:build",
           "options": {
+            "baseHref": "",
             "outputPath": "dist/apps/player",
             "index": "apps/player/src/index.html",
             "main": "apps/player/src/main.tsx",
