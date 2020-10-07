@@ -4,7 +4,7 @@
   "parserOptions": {
     "ecmaVersion": 2018,
     "sourceType": "module",
-    "project": "./tsconfig.base.json"
+    "project": "./tsconfig.*?.json"
   },
   "ignorePatterns": ["**/*"],
   "plugins": ["@typescript-eslint", "@nrwl/nx"],
@@ -17,19 +17,16 @@
   ],
   "rules": {
     "@typescript-eslint/explicit-member-accessibility": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-parameter-properties": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
     "@nrwl/nx/enforce-module-boundaries": [
       "error",
       {
         "enforceBuildableLibDependency": true,
         "allow": [],
-        "depConstraints": [
-          {
-            "sourceTag": "*",
-            "onlyDependOnLibsWithTags": ["*"]
-          }
-        ]
+        "depConstraints": [{ "sourceTag": "*", "onlyDependOnLibsWithTags": ["*"] }]
       }
     ]
   },
