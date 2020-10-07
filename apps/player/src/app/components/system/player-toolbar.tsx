@@ -31,11 +31,19 @@ export const PlayerToolbar: React.FC = observer(() => {
     <PlayerToolbarWrapper>
       <Title>{manager.descriptor.title}</Title>
       <Icons>
+        <IconButton
+          icon={manager.audioEngine.isMuted ? 'speakerOff' : 'speaker'}
+          onClick={() => {
+            if (manager.audioEngine.isMuted) {
+              manager.audioEngine.unMute();
+            } else {
+              manager.audioEngine.mute();
+            }
+          }}
+        />
         <IconButton icon="restart" onClick={() => manager.restart()} />
         <IconButton icon="save" onClick={() => manager.requestSave()} />
         <IconButton icon="load" onClick={() => manager.requestRestore()} />
-        {/* <IconButton icon="speaker" onClick={() => {}} />
-        <IconButton icon="speakerOff" onClick={() => {}} /> */}
       </Icons>
     </PlayerToolbarWrapper>
   );

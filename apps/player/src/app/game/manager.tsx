@@ -3,13 +3,13 @@ import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
 import { fetchGameDescriptor, GameDescriptor, fetchGameSource, GAME_PATH, fetchGameCongig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
-import { SoundManager } from '@qspider/fmod';
 import { prepareContent, prepareList, preparePath } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
 import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
+import { AudioEngine } from './audio-engine';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -53,7 +53,8 @@ export class GameManager {
 
   apiInitialized: Promise<boolean>;
 
-  private soundManager = new SoundManager();
+  private basePath = `${GAME_PATH}/`;
+  public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();
 
   constructor() {
@@ -76,7 +77,7 @@ export class GameManager {
     document.title = gameDescriptor.title;
 
     try {
-      const gameConfig = await fetchGameCongig(gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/');
+      const gameConfig = await fetchGameCongig();
       const { layout, floating } = extractLayoutData(gameConfig);
       this.config = gameConfig;
       this.layout = layout;
@@ -88,12 +89,7 @@ export class GameManager {
 
     onApiInitialized();
 
-    this.soundManager.init(`${GAME_PATH}${gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'}`);
-
-    const gameSource = await fetchGameSource(
-      gameDescriptor.file,
-      gameDescriptor.folder ? `/${gameDescriptor.folder}/` : '/'
-    );
+    const gameSource = await fetchGameSource(gameDescriptor.file, this.basePath);
 
     this.api.openGame(gameSource, true);
     this.api.restartGame();
@@ -102,7 +98,7 @@ export class GameManager {
   }
 
   get resourcePrefix(): string {
-    return `${GAME_PATH}/${this.descriptor.folder ? this.descriptor.folder + '/' : ''}`;
+    return this.basePath;
   }
 
   setupQspCallbacks(): void {
@@ -145,6 +141,9 @@ export class GameManager {
   }
   updateDescriptor(descriptor: GameDescriptor): void {
     this.descriptor = descriptor;
+    if (descriptor.folder) {
+      this.basePath = `${GAME_PATH}/${descriptor.folder}/`;
+    }
   }
   updateErrorDescription = (errorData: QspErrorData): void => {
     this.errorData = errorData;
@@ -272,7 +271,7 @@ export class GameManager {
 
   updateView = (path: string): void => {
     if (path) {
-      this.viewSrc = `${this.resourcePrefix}${preparePath(path)}`;
+      this.viewSrc = this.preparePath(path);
       this.isViewShown = true;
     } else {
       this.closeView();
@@ -318,26 +317,22 @@ export class GameManager {
     }
   };
 
-  isPlay = (file: string, onResult: (result: boolean) => void): void => {
-    const isPlay = this.soundManager.isPlaying(file);
+  isPlay = (path: string, onResult: (result: boolean) => void): void => {
+    const isPlay = this.audioEngine.isPlaying(this.preparePath(path));
     onResult(isPlay);
   };
 
-  closeFile = (file: string, onReady: () => void): void => {
-    try {
-      this.soundManager.closeFile(file);
-    } catch (e) {
-      console.error(e);
+  closeFile = (path: string, onReady: () => void): void => {
+    if (path) {
+      this.audioEngine.close(this.preparePath(path));
+    } else {
+      this.audioEngine.closeAll();
     }
     onReady();
   };
 
-  playFile = async (file: string, volume: number, onReady: () => void): Promise<void> => {
-    try {
-      await this.soundManager.playFile(file, volume);
-    } catch (e) {
-      console.error(e);
-    }
+  playFile = async (path: string, volume: number, onReady: () => void): Promise<void> => {
+    this.audioEngine.play(this.preparePath(path), volume);
     onReady();
   };
 
@@ -392,6 +387,10 @@ export class GameManager {
     this.saveAction = null;
     this.resume();
   };
+
+  private preparePath(path: string): string {
+    return `${this.resourcePrefix}${preparePath(path)}`;
+  }
 }
 
 decorate(GameManager, {
