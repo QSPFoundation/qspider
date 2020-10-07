@@ -2,6 +2,10 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Release name'
+        required: true
 
 jobs:
   build:
@@ -49,8 +53,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: qSpider ${{ github.ref }}
+          tag_name: ${{ github.event.inputs.release_name }}
+          release_name: qSpider ${{ github.event.inputs.release_name }}
           draft: false
           prerelease: false
       - name: Upload Release Asset
