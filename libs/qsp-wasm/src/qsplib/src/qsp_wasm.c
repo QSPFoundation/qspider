@@ -181,6 +181,12 @@ QSP_BOOL execCounter()
 }
 
 EMSCRIPTEN_KEEPALIVE
+QSP_BOOL execLoc(QSP_CHAR *name)
+{
+  return QSPExecLocationCode(qspStringFromC(name), QSP_TRUE);
+}
+
+EMSCRIPTEN_KEEPALIVE
 QSP_BOOL execUserInput(QSP_CHAR *s)
 {
   QSPSetInputStrText(qspStringFromC(s));

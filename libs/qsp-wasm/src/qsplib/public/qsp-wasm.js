@@ -1707,11 +1707,11 @@ var Module = (function () {
     }
 
     var STATIC_BASE = 1024,
-      STACK_BASE = 6044560,
+      STACK_BASE = 6044528,
       STACKTOP = STACK_BASE,
-      STACK_MAX = 801680,
-      DYNAMIC_BASE = 6044560,
-      DYNAMICTOP_PTR = 801520;
+      STACK_MAX = 801648,
+      DYNAMIC_BASE = 6044528,
+      DYNAMICTOP_PTR = 801488;
 
     assert(STACK_BASE % 16 === 0, 'stack must start aligned');
     assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -2279,7 +2279,7 @@ var Module = (function () {
 
     var ASM_CONSTS = {};
 
-    // STATICTOP = STATIC_BASE + 800656;
+    // STATICTOP = STATIC_BASE + 800624;
     /* global initializers */ __ATINIT__.push({
       func: function () {
         ___wasm_call_ctors();
@@ -5344,7 +5344,7 @@ var Module = (function () {
     }
 
     function _emscripten_get_sbrk_ptr() {
-      return 801520;
+      return 801488;
     }
 
     function _emscripten_memcpy_big(dest, src, num) {
@@ -6849,6 +6849,9 @@ var Module = (function () {
 
     /** @type {function(...*):?} */
     var _execCounter = (Module['_execCounter'] = createExportWrapper('execCounter'));
+
+    /** @type {function(...*):?} */
+    var _execLoc = (Module['_execLoc'] = createExportWrapper('execLoc'));
 
     /** @type {function(...*):?} */
     var _execUserInput = (Module['_execUserInput'] = createExportWrapper('execUserInput'));

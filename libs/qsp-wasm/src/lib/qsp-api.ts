@@ -120,6 +120,13 @@ export class QspAPIImpl implements QspAPI {
     return this.onCalled(this.module._execCounter());
   }
 
+  execLoc(name: string): boolean {
+    const ptr = this.prepareString(name);
+    const result = this.module._execLoc(ptr);
+    this.module._free(ptr);
+    return this.onCalled(result);
+  }
+
   execUserInput(code: string): boolean {
     const ptr = this.prepareString(code);
     const result = this.module._execUserInput(ptr);

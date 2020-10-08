@@ -48,6 +48,7 @@ export interface QspAPI {
   execCode(code: string): boolean;
   execCounter(): void;
   execUserInput(code: string): boolean;
+  execLoc(name: string): boolean;
 }
 
 export interface QspErrorData {
