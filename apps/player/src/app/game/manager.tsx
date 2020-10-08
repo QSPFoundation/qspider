@@ -77,7 +77,7 @@ export class GameManager {
     document.title = gameDescriptor.title;
 
     try {
-      const gameConfig = await fetchGameCongig();
+      const gameConfig = await fetchGameCongig(this.basePath);
       const { layout, floating } = extractLayoutData(gameConfig);
       this.config = gameConfig;
       this.layout = layout;
@@ -89,7 +89,7 @@ export class GameManager {
 
     onApiInitialized();
 
-    const gameSource = await fetchGameSource(gameDescriptor.file, this.basePath);
+    const gameSource = await fetchGameSource(this.preparePath(gameDescriptor.file));
 
     this.api.openGame(gameSource, true);
     this.api.restartGame();
@@ -285,8 +285,10 @@ export class GameManager {
 
   onOpenGame = async (path: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
-    const gameSource = await fetchGameSource(path, this.descriptor.folder ? `/${this.descriptor.folder}/` : '/');
+    const gameSource = await fetchGameSource(this.preparePath(path));
     this.api.openGame(gameSource, isNewGame);
+    this.basePath = this.preparePath(path);
+    this.basePath = this.basePath.slice(0, this.basePath.lastIndexOf('/') + 1);
     onOpened();
     this.resume();
   };
