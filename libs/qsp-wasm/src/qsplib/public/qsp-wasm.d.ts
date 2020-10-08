@@ -45,6 +45,7 @@ export interface QspModule extends EmscriptenModule {
   _execString(input: CharsPtr): Bool;
   _execCounter(): Bool;
   _execUserInput(input: CharsPtr): Bool;
+  _execLoc(input: CharsPtr): Bool;
 
   _getLastErrorData(errorNum: IntPtr, errorLoc: StringPtr, errorActIndex: IntPtr, errorLine: IntPtr): void;
   _getErrorDesc(ptr: Ptr, errorNum: number): void;
