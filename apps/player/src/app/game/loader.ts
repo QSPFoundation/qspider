@@ -19,11 +19,11 @@ export const fetchGameDescriptor = async (): Promise<GameDescriptor> => {
 };
 
 export const fetchGameCongig = async (folder = '/'): Promise<CfgData> => {
-  return fetch(`${GAME_PATH}${folder}${GAME_FONFIG_FILE}`)
+  return fetch(`${folder}${GAME_FONFIG_FILE}`)
     .then((r) => r.text())
     .then((text) => parseCfg<CfgData>(text));
 };
 
-export const fetchGameSource = async (fileName: string, folder = '/'): Promise<ArrayBuffer> => {
-  return fetch(`${folder}${fileName}`).then((r) => r.arrayBuffer());
+export const fetchGameSource = async (path: string): Promise<ArrayBuffer> => {
+  return fetch(path).then((r) => r.arrayBuffer());
 };
