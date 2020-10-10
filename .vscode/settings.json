@@ -1,4 +1,5 @@
 {
   "editor.formatOnSave": true,
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "editor.tabSize": 2
 }

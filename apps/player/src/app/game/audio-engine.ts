@@ -3,6 +3,12 @@ import { normalizeVolume, Sound } from './sound';
 
 import { decorate, observable, action } from 'mobx';
 
+const VOLUME_STEP = 10;
+
+const clamp = function (value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+};
+
 export class AudioEngine {
   private sounds: Map<string, Sound> = new Map();
   isMuted: boolean = false;
@@ -19,8 +25,16 @@ export class AudioEngine {
   }
 
   changeVolume(volume: number): void {
-    this.volume = normalizeVolume(volume);
-    Howler.volume(this.volume);
+    this.volume = clamp(volume, 0, 100);
+    Howler.volume(normalizeVolume(this.volume));
+  }
+
+  increaseVolume(): void {
+    this.changeVolume(this.volume + VOLUME_STEP);
+  }
+
+  decreaseVolume(): void {
+    this.changeVolume(this.volume - VOLUME_STEP);
   }
 
   isPlaying(path: string): boolean {

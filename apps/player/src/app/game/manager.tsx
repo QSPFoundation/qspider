@@ -10,6 +10,7 @@ import { SaveManager, SaveAction } from './save-manager';
 import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
 import { AudioEngine } from './audio-engine';
+import { HotKeysManager } from './hotkeys';
 
 export class GameManager {
   descriptor: GameDescriptor;
@@ -56,6 +57,7 @@ export class GameManager {
   private basePath = `${GAME_PATH}/`;
   public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();
+  private hotKeysManager = new HotKeysManager();
 
   constructor() {
     this.apiInitialized = new Promise((resolve) => {
@@ -63,6 +65,7 @@ export class GameManager {
     });
   }
 
+  private isPaused: boolean = false;
   private api: QspAPI;
 
   async initialize(onApiInitialized: () => void): Promise<void> {
@@ -72,8 +75,14 @@ export class GameManager {
     this.setupQspCallbacks();
 
     const gameDescriptor = await fetchGameDescriptor();
+    console.log(gameDescriptor);
     this.updateDescriptor(gameDescriptor);
 
+    this.hotKeysManager.setupGlobalHotKeys();
+    if (this.descriptor.hotkeys) {
+      this.hotKeysManager.setupCustomHotKeys(this.descriptor.hotkeys);
+    }
+    this.setuphotKeyListeners();
     document.title = gameDescriptor.title;
 
     try {
@@ -120,6 +129,61 @@ export class GameManager {
     this.api.on('is_play', this.isPlay);
     this.api.on('play_file', this.playFile);
     this.api.on('close_file', this.closeFile);
+  }
+
+  setuphotKeyListeners() {
+    this.hotKeysManager.on('select_action', (index: number) => {
+      if (this.isPaused) return;
+      if (index >= 0 && index < this.actions.length) {
+        this.selectAction(index);
+      }
+    });
+    this.hotKeysManager.on('select_single_action', () => {
+      if (this.isPaused) return;
+      if (this.actions.length === 1) {
+        this.selectAction(0);
+      }
+    });
+    this.hotKeysManager.on('save', () => {
+      if (this.isPaused) return;
+      this.requestSave();
+    });
+    this.hotKeysManager.on('load', () => {
+      if (this.isPaused) return;
+      this.requestRestore();
+    });
+    this.hotKeysManager.on('restart', () => {
+      if (this.isPaused) return;
+      this.restart();
+    });
+    this.hotKeysManager.on('quicksave', () => {
+      if (this.isPaused) return;
+      this.quickSave();
+    });
+    this.hotKeysManager.on('quickload', () => {
+      if (this.isPaused) return;
+      this.quickLoad();
+    });
+    this.hotKeysManager.on('volume_up', () => {
+      if (this.isPaused) return;
+      this.audioEngine.increaseVolume();
+    });
+    this.hotKeysManager.on('volume_down', () => {
+      if (this.isPaused) return;
+      this.audioEngine.decreaseVolume();
+    });
+    this.hotKeysManager.on('unmute', () => {
+      if (this.isPaused) return;
+      this.audioEngine.unMute();
+    });
+    this.hotKeysManager.on('mute', () => {
+      if (this.isPaused) return;
+      this.audioEngine.mute();
+    });
+    this.hotKeysManager.on('exec_loc', (name) => {
+      if (this.isPaused) return;
+      this.api.execLoc(name);
+    });
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
@@ -262,10 +326,12 @@ export class GameManager {
   };
 
   pause(): void {
+    this.isPaused = true;
     clearTimeout(this.counterTimeout);
   }
 
   resume(): void {
+    this.isPaused = false;
     this.scheduleCounter();
   }
 
@@ -359,6 +425,13 @@ export class GameManager {
     this.clearSaveAction();
   };
 
+  async quickSave() {
+    this.pause();
+    const saveData = this.api.saveGame();
+    await this.saveManager.quickSave(this.descriptor.id, saveData);
+    this.resume();
+  }
+
   requestRestore = async (onResult?: () => void): Promise<void> => {
     this.pause();
     const slots = await this.saveManager.getSlots(this.descriptor.id);
@@ -381,6 +454,15 @@ export class GameManager {
     }
     this.clearSaveAction();
   };
+
+  async quickLoad() {
+    this.pause();
+    const saveData = await this.saveManager.quickLoad(this.descriptor.id);
+    if (saveData) {
+      this.api.loadSave(saveData);
+    }
+    this.resume();
+  }
 
   clearSaveAction = (): void => {
     if (this.saveAction.onResult) {

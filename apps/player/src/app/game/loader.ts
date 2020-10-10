@@ -10,6 +10,7 @@ export interface GameDescriptor {
   title: string;
   file: string;
   folder: string;
+  hotkeys?: Record<string, string>;
 }
 
 export const fetchGameDescriptor = async (): Promise<GameDescriptor> => {
