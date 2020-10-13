@@ -9,7 +9,7 @@ import { Strike } from './strike';
 import { Tt } from './tt';
 import { Area } from './area';
 import { Table } from './table';
-import { Font } from './font';
+import { Font, fontSizeMap } from './font';
 
 const attributeToStyle = {
   size: 'fontSize',
@@ -24,6 +24,7 @@ const attributeToStyle = {
 const attributeConverters = {
   width: (value: string) => (/^\d+$/.test(value) ? `${value}px` : value),
   height: (value: string) => (/^\d+$/.test(value) ? `${value}px` : value),
+  fontSize: (value: string) => (/^[+-]?\d+$/.test(value) ? fontSizeMap[value] : value),
 };
 
 const attributesToStyle = (node: HTMLElement): Record<string, string> => {
@@ -88,7 +89,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   a: (node, children) => {
     const href = node.getAttribute('href');
     const className = node.className || '';
-    if (href.toLowerCase().startsWith('exec:')) {
+    if (href && href.toLowerCase().startsWith('exec:')) {
       return (
         <Link className={className} exec={href.substr(5)}>
           {children}
@@ -102,10 +103,18 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     );
   },
   div: (node, children) => {
-    return <div style={attributesToStyle(node)}>{children}</div>;
+    return (
+      <div className={node.getAttribute('class')} id={node.getAttribute('id')} style={attributesToStyle(node)}>
+        {children}
+      </div>
+    );
   },
   p: (node, children) => {
-    return <p style={attributesToStyle(node)}>{children}</p>;
+    return (
+      <p className={node.getAttribute('class')} style={attributesToStyle(node)}>
+        {children}
+      </p>
+    );
   },
   tt: (_, children) => {
     return <Tt>{children}</Tt>;
@@ -120,17 +129,23 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         cellspacing={node.hasAttribute('cellspacing') ? Number(node.getAttribute('cellspacing')) : 0}
         cellpadding={node.hasAttribute('cellpadding') ? Number(node.getAttribute('cellpadding')) : 1}
         style={attributesToStyle(node)}
+        className={node.getAttribute('class')}
       >
         {children}
       </Table>
     );
   },
-  tr: (node, children) => <tr style={attributesToStyle(node)}>{children}</tr>,
+  tr: (node, children) => (
+    <tr style={attributesToStyle(node)} className={node.getAttribute('class')}>
+      {children}
+    </tr>
+  ),
   th: (node, children) => (
     <th
       colSpan={Number(node.getAttribute('colspan')) || 1}
       rowSpan={Number(node.getAttribute('rowspan')) || 1}
       style={attributesToStyle(node)}
+      className={node.getAttribute('class')}
     >
       {children}
     </th>
@@ -140,6 +155,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
       colSpan={Number(node.getAttribute('colspan')) || 1}
       rowSpan={Number(node.getAttribute('rowspan')) || 1}
       style={attributesToStyle(node)}
+      className={node.getAttribute('class')}
     >
       {children}
     </td>
