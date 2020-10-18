@@ -46,7 +46,7 @@ class Layout {
 
   async initialized(manager: GameManager) {
     await manager.apiInitialized;
-    this.fillDefaults(manager.config);
+    this.fillDefaults(manager.gameConfig);
     this.initCallbacks(manager);
   }
 

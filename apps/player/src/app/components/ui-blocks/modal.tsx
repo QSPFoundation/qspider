@@ -63,14 +63,21 @@ const ModalContent = styled.div`
   width: 100%;
   max-height: 100%;
 `;
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
 
-export const Modal: React.FC<{ onClose: () => void; hideButtons?: boolean }> = ({ onClose, hideButtons, children }) => {
+export const Modal: React.FC<{ onClose: () => void; closable?: boolean; hideButtons?: boolean }> = ({
+  onClose,
+  hideButtons,
+  children,
+  closable = true,
+}) => {
   return (
     <>
-      <Overlay onClick={onClose} />
+      <Overlay onClick={closable ? onClose : noop} />
       <ModalContainer>
         <ModalBody>
-          <CloseButton onClick={onClose}>x</CloseButton>
+          {closable ? <CloseButton onClick={onClose}>x</CloseButton> : null}
           <ModalContent>
             <CustomScroll heightRelativeToParent="100%">
               {children}
