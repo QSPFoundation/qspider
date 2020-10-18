@@ -29,7 +29,7 @@ export const PlayerToolbar: React.FC = observer(() => {
   const manager = useGameManager();
   return (
     <PlayerToolbarWrapper>
-      <Title>{manager.descriptor.title}</Title>
+      <Title>{manager.currentGame.title}</Title>
       <Icons>
         <IconButton
           icon={manager.audioEngine.isMuted ? 'speakerOff' : 'speaker'}
@@ -44,6 +44,7 @@ export const PlayerToolbar: React.FC = observer(() => {
         <IconButton icon="restart" onClick={() => manager.restart()} />
         <IconButton icon="save" onClick={() => manager.requestSave()} />
         <IconButton icon="load" onClick={() => manager.requestRestore()} />
+        {manager.hasGameList ? <IconButton icon="list" onClick={() => manager.showGameList()} /> : null}
       </Icons>
     </PlayerToolbarWrapper>
   );

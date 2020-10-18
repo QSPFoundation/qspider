@@ -56,4 +56,9 @@ export class HotKeysManager extends EventEmitter {
       });
     }
   }
+
+  reset(): void {
+    Mousetrap.reset();
+    this.setupGlobalHotKeys();
+  }
 }
