@@ -6,6 +6,7 @@ import { LayoutProvider } from './game/layout';
 import { Game } from './game';
 import { Theme } from './game/theme';
 import { Player } from './components/player';
+import { GameListDialog } from './components/dialogs/game-list/game-list.dialog';
 
 export const App: React.FC = () => {
   return (
@@ -26,6 +27,7 @@ export const App: React.FC = () => {
           />
           <Game>
             <Player />
+            <GameListDialog closable={true} />
           </Game>
         </Theme>
       </LayoutProvider>

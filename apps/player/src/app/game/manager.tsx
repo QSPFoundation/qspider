@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
-import { fetchGameDescriptor, GameDescriptor, fetchGameSource, GAME_PATH, fetchGameCongig } from './loader';
+import { fetchPlayerConfig, GameDescriptor, fetchGameSource, GAME_PATH, fetchGameConfig, PlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList, preparePath } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
@@ -12,12 +12,16 @@ import { CfgData } from './cfg-parser';
 import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
 
+const isExternalSource = (path: string) => path.startsWith('http://') || path.startsWith('https://');
+
 export class GameManager {
-  descriptor: GameDescriptor;
+  config: PlayerConfig;
+  currentGame: GameDescriptor;
   folder: string;
-  config: CfgData;
+  gameConfig: CfgData;
   errorData: QspErrorData;
   isInitialized = false;
+  isGameListShown = false;
 
   layout: LayoutDock[] = [];
   floating: [QspGUIPanel, number, number][];
@@ -73,22 +77,41 @@ export class GameManager {
     console.log(`QSP version: ${this.api.version()}`);
 
     this.setupQspCallbacks();
+    this.setuphotKeyListeners();
 
-    const gameDescriptor = await fetchGameDescriptor();
-    console.log(gameDescriptor);
-    this.updateDescriptor(gameDescriptor);
+    this.config = await fetchPlayerConfig();
+    console.log(this.config);
 
     this.hotKeysManager.setupGlobalHotKeys();
-    if (this.descriptor.hotkeys) {
-      this.hotKeysManager.setupCustomHotKeys(this.descriptor.hotkeys);
+    onApiInitialized();
+
+    if (this.config.game.length > 1) {
+      this.showGameList();
+    } else {
+      this.runGame(this.config.game[0]);
     }
-    this.setuphotKeyListeners();
-    document.title = gameDescriptor.title;
+
+    this.markInitialized();
+  }
+
+  async runGame(descriptor: GameDescriptor) {
+    if (this.isGameListShown) {
+      this.hideGameList();
+    }
+    if (this.currentGame) {
+      this.hotKeysManager.reset();
+    }
+    this.basePath = `${GAME_PATH}/`;
+    const { file, title } = descriptor;
+    document.title = title;
+    const path = isExternalSource(file) ? file : this.preparePath(file);
+    const gameSource = await fetchGameSource(path);
+    this.updateBasePath(path);
 
     try {
-      const gameConfig = await fetchGameCongig(this.basePath);
+      const gameConfig = await fetchGameConfig(this.basePath);
       const { layout, floating } = extractLayoutData(gameConfig);
-      this.config = gameConfig;
+      this.gameConfig = gameConfig;
       this.layout = layout;
       this.floating = floating;
     } catch (_) {
@@ -96,18 +119,34 @@ export class GameManager {
       this.floating = DEFAULT_FLOATING;
     }
 
-    onApiInitialized();
+    this.currentGame = descriptor;
 
-    const gameSource = await fetchGameSource(this.preparePath(gameDescriptor.file));
+    if (descriptor.hotkeys) {
+      this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
+    }
 
     this.api.openGame(gameSource, true);
     this.api.restartGame();
+  }
 
-    this.markInitialized();
+  updateBasePath(path: string) {
+    this.basePath = path.slice(0, path.lastIndexOf('/') + 1);
   }
 
   get resourcePrefix(): string {
     return this.basePath;
+  }
+
+  get hasGameList(): boolean {
+    return this.config.game.length > 0;
+  }
+
+  showGameList() {
+    this.isGameListShown = true;
+  }
+
+  hideGameList() {
+    this.isGameListShown = false;
   }
 
   setupQspCallbacks(): void {
@@ -203,12 +242,7 @@ export class GameManager {
   markInitialized(): void {
     this.isInitialized = true;
   }
-  updateDescriptor(descriptor: GameDescriptor): void {
-    this.descriptor = descriptor;
-    if (descriptor.folder) {
-      this.basePath = `${GAME_PATH}/${descriptor.folder}/`;
-    }
-  }
+
   updateErrorDescription = (errorData: QspErrorData): void => {
     this.errorData = errorData;
   };
@@ -349,12 +383,12 @@ export class GameManager {
     this.viewSrc = '';
   };
 
-  onOpenGame = async (path: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
+  onOpenGame = async (file: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
-    const gameSource = await fetchGameSource(this.preparePath(path));
+    const path = this.preparePath(file);
+    const gameSource = await fetchGameSource(path);
     this.api.openGame(gameSource, isNewGame);
-    this.basePath = this.preparePath(path);
-    this.basePath = this.basePath.slice(0, this.basePath.lastIndexOf('/') + 1);
+    this.updateBasePath(path);
     onOpened();
     this.resume();
   };
@@ -363,7 +397,7 @@ export class GameManager {
     if (path) {
       this.pause();
       onLoaded();
-      const saveData = await this.saveManager.loadByPath(this.descriptor.id, path);
+      const saveData = await this.saveManager.loadByPath(this.currentGame.id, path);
       if (saveData) {
         this.api.loadSave(saveData);
       }
@@ -377,7 +411,7 @@ export class GameManager {
     if (path) {
       this.pause();
       const saveData = this.api.saveGame();
-      await this.saveManager.saveByPath(this.descriptor.id, path, saveData);
+      await this.saveManager.saveByPath(this.currentGame.id, path, saveData);
       this.resume();
       onSaved();
     } else {
@@ -408,7 +442,7 @@ export class GameManager {
     this.pause();
     const saveData = this.api.saveGame();
     if (saveData) {
-      const slots = await this.saveManager.getSlots(this.descriptor.id);
+      const slots = await this.saveManager.getSlots(this.currentGame.id);
       this.saveAction = {
         type: 'save',
         slots,
@@ -420,7 +454,7 @@ export class GameManager {
   };
   saveToSlot = async (slot: number): Promise<void> => {
     if (this.saveAction.type === 'save') {
-      await this.saveManager.updateSlot(this.descriptor.id, slot, this.saveAction.data);
+      await this.saveManager.updateSlot(this.currentGame.id, slot, this.saveAction.data);
     }
     this.clearSaveAction();
   };
@@ -428,13 +462,13 @@ export class GameManager {
   async quickSave() {
     this.pause();
     const saveData = this.api.saveGame();
-    await this.saveManager.quickSave(this.descriptor.id, saveData);
+    await this.saveManager.quickSave(this.currentGame.id, saveData);
     this.resume();
   }
 
   requestRestore = async (onResult?: () => void): Promise<void> => {
     this.pause();
-    const slots = await this.saveManager.getSlots(this.descriptor.id);
+    const slots = await this.saveManager.getSlots(this.currentGame.id);
     this.saveAction = {
       type: 'restore',
       slots,
@@ -444,7 +478,7 @@ export class GameManager {
   };
 
   restoreFromSlot = async (slot: number): Promise<void> => {
-    const saveData = await this.saveManager.getSlotData(this.descriptor.id, slot);
+    const saveData = await this.saveManager.getSlotData(this.currentGame.id, slot);
     if (this.saveAction.onResult) {
       this.saveAction.onResult();
     }
@@ -457,7 +491,7 @@ export class GameManager {
 
   async quickLoad() {
     this.pause();
-    const saveData = await this.saveManager.quickLoad(this.descriptor.id);
+    const saveData = await this.saveManager.quickLoad(this.currentGame.id);
     if (saveData) {
       this.api.loadSave(saveData);
     }
@@ -478,8 +512,9 @@ export class GameManager {
 }
 
 decorate(GameManager, {
-  descriptor: observable,
   isInitialized: observable,
+  isGameListShown: observable,
+  currentGame: observable,
 
   main: observable,
   stats: observable,
@@ -513,7 +548,8 @@ decorate(GameManager, {
   requestRestore: action,
 
   markInitialized: action,
-  updateDescriptor: action,
+  showGameList: action,
+  hideGameList: action,
 
   errorData: observable,
   updateErrorDescription: action,
