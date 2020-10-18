@@ -19,12 +19,13 @@ const GameSlot = styled.div<WithTheme>`
   color: ${(props) => props.theme.textColor};
   padding: 16px;
   border-radius: 4px;
-  text-align: center;
+  white-space: pre-wrap;
   cursor: pointer;
 `;
 
 const GameTitle = styled.h3`
   margin: 0;
+  text-align: center;
 `;
 
 export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ closable }) => {
@@ -34,7 +35,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   const isShown = Boolean(isGameListShown);
   if (!isShown) return null;
   return (
-    <Modal closable={closable} onClose={onClose} hideButtons>
+    <Modal closable={closable} onClose={onClose} hideButtons width={800}>
       <GameSlots even={!(config.game.length % 2)}>
         {config.game.map((game) => (
           <GameSlot key={game.id} onClick={() => gameManager.runGame(game)}>

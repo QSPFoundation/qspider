@@ -17,7 +17,7 @@ const ModalContainer = styled.div<WithTheme>`
   pointer-events: none;
 `;
 
-const ModalBody = styled.div<WithTheme>`
+const ModalBody = styled.div<WithTheme & { width?: number }>`
   border: 1px solid ${(props) => props.theme.borderColor};
   background: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
@@ -26,7 +26,7 @@ const ModalBody = styled.div<WithTheme>`
   padding: 16px 16px 8px;
   border-radius: 4px;
   min-width: 400px;
-  width: 650px;
+  width: ${(props) => props.width || 650}px;
   max-width: 90vw;
   max-height: 90vh;
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14),
@@ -66,17 +66,18 @@ const ModalContent = styled.div`
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
-export const Modal: React.FC<{ onClose: () => void; closable?: boolean; hideButtons?: boolean }> = ({
+export const Modal: React.FC<{ onClose: () => void; closable?: boolean; hideButtons?: boolean; width?: number }> = ({
   onClose,
   hideButtons,
   children,
+  width,
   closable = true,
 }) => {
   return (
     <>
       <Overlay onClick={closable ? onClose : noop} />
       <ModalContainer>
-        <ModalBody>
+        <ModalBody width={width}>
           {closable ? <CloseButton onClick={onClose}>x</CloseButton> : null}
           <ModalContent>
             <CustomScroll heightRelativeToParent="100%">
