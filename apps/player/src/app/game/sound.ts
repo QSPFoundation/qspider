@@ -1,4 +1,5 @@
 import { Howl } from 'howler';
+import { Resource } from './resource-manager';
 
 enum SoundState {
   Loading,
@@ -13,8 +14,8 @@ enum SoundState {
 export const normalizeVolume = (volume: number): number => (volume > 1 ? volume * 0.01 : volume);
 
 export class Sound {
-  public static create(path: string, volume: number): Sound {
-    return new Sound(path, volume);
+  public static create(input: Resource, volume: number): Sound {
+    return new Sound(input, volume);
   }
 
   private _state: SoundState = SoundState.Loading;
@@ -35,10 +36,10 @@ export class Sound {
     return this._state === SoundState.Playing || this._state === SoundState.Loading;
   }
 
-  constructor(path: string, volume: number) {
+  constructor(input: Resource, volume: number) {
     this.howl = new Howl({
-      src: [path],
-      format: ['mp3'],
+      src: [input.url],
+      format: [input.type],
       html5: true,
       volume: normalizeVolume(volume),
       loop: false,
@@ -51,12 +52,12 @@ export class Sound {
         }
       },
       onloaderror: (_, err) => {
-        console.error(path, err);
+        console.error(input, err);
         this._state = SoundState.LoadingError;
         this._error = err as Error;
       },
       onplayerror: (_, err) => {
-        console.error(path, err);
+        console.error(input, err);
         this._state = SoundState.PlayError;
         this._error = err as Error;
       },

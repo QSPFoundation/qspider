@@ -8,5 +8,5 @@ export const Image: React.FC<{
 }> = ({ src, useMap, style }) => {
   const resources = useResources();
 
-  return <img src={`${resources.get(src)}`} style={style} useMap={useMap} alt="" />;
+  return <img src={`${resources.get(src).url}`} style={style} useMap={useMap} alt="" />;
 };

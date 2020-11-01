@@ -4,6 +4,11 @@ import { CfgData, parseCfg } from './cfg-parser';
 import { cleanPath } from './helpers';
 import { fetchGameConfig, fetchGameSource, GAME_PATH, GAME_FONFIG_FILE } from './loader';
 
+export interface Resource {
+  url: string;
+  type: string;
+}
+
 const isExternalSource = (path: string) => path.startsWith('http://') || path.startsWith('https://');
 const isZip = (buffer: ArrayBuffer): boolean => {
   const data = new Uint8Array(buffer);
@@ -65,7 +70,6 @@ export class ResourceManager {
 
   async processZip(source: ArrayBuffer): Promise<ArrayBuffer> {
     const resources = await readZip(source);
-    console.log(resources);
     for (const [path, file] of Object.entries(resources)) {
       this._zipResources[path.toLowerCase()] = file;
     }
@@ -91,20 +95,21 @@ export class ResourceManager {
     }
   }
 
-  get(file: string) {
+  get(file: string): Resource {
     let path = this.preparePath(file);
+    const type = path.toLowerCase().split('.').pop();
     if (this._zipResources[path.toLowerCase()]) {
       path = path.toLowerCase();
       let url = this._zipUrls.get(path);
       if (url) {
-        return url;
+        return { url, type };
       }
       const blob = new Blob([this._zipResources[path]]);
       url = URL.createObjectURL(blob);
       this._zipUrls.set(path, url);
-      return url;
+      return { url, type };
     }
-    return path;
+    return { url: path, type };
   }
 
   private findGameFile(zipResources: Unzipped) {

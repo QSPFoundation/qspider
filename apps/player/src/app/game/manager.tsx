@@ -392,7 +392,7 @@ export class GameManager {
 
   updateView = (path: string): void => {
     if (path) {
-      this.viewSrc = this.resources.get(path);
+      this.viewSrc = this.resources.get(path).url;
       this.isViewShown = true;
     } else {
       this.closeView();
@@ -439,13 +439,13 @@ export class GameManager {
   };
 
   isPlay = (path: string, onResult: (result: boolean) => void): void => {
-    const isPlay = this.audioEngine.isPlaying(this.resources.get(path));
+    const isPlay = this.audioEngine.isPlaying(this.resources.get(path).url);
     onResult(isPlay);
   };
 
   closeFile = (path: string, onReady: () => void): void => {
     if (path) {
-      this.audioEngine.close(this.resources.get(path));
+      this.audioEngine.close(this.resources.get(path).url);
     } else {
       this.audioEngine.closeAll();
     }
