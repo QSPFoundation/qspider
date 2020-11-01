@@ -38,6 +38,7 @@ export class Sound {
   constructor(path: string, volume: number) {
     this.howl = new Howl({
       src: [path],
+      format: ['mp3'],
       html5: true,
       volume: normalizeVolume(volume),
       loop: false,

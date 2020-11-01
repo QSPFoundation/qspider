@@ -1,13 +1,12 @@
 import React from 'react';
-import { useGameManager } from '../../game/manager';
-import { preparePath } from '../../game/helpers';
+import { useResources } from '../../game/resource-manager';
 
 export const Image: React.FC<{
   src: string;
   useMap: string;
   style: React.CSSProperties;
 }> = ({ src, useMap, style }) => {
-  const manager = useGameManager();
+  const resources = useResources();
 
-  return <img src={`${manager.resourcePrefix}${preparePath(src)}`} style={style} useMap={useMap} alt="" />;
+  return <img src={`${resources.get(src)}`} style={style} useMap={useMap} alt="" />;
 };

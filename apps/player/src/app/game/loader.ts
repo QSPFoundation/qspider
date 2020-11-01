@@ -1,9 +1,8 @@
 import TOMLparse from '@iarna/toml/parse-string';
-import { parseCfg, CfgData } from './cfg-parser';
 
 export const GAME_PATH = 'game';
 const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.cfg`;
-const GAME_FONFIG_FILE = 'qspgui.cfg';
+export const GAME_FONFIG_FILE = 'qspgui.cfg';
 
 export interface GameDescriptor {
   id: string;
@@ -23,10 +22,8 @@ export const fetchPlayerConfig = async (): Promise<PlayerConfig> => {
     .then((text) => (TOMLparse(text) as unknown) as PlayerConfig);
 };
 
-export const fetchGameConfig = async (folder = '/'): Promise<CfgData> => {
-  return fetch(`${folder}${GAME_FONFIG_FILE}`)
-    .then((r) => r.text())
-    .then((text) => parseCfg<CfgData>(text));
+export const fetchGameConfig = async (folder = '/'): Promise<string> => {
+  return fetch(`${folder}${GAME_FONFIG_FILE}`).then((r) => r.text());
 };
 
 export const fetchGameSource = async (path: string): Promise<ArrayBuffer> => {
