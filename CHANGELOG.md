@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.9.1](https://github.com/QSPFoundation/qspider/compare/v0.9.0...v0.9.1) (2020-11-01)
+
+### Features
+
+- load from zip ([915d5a8](https://github.com/QSPFoundation/qspider/commit/915d5a8c404b0505ce74386c1fe07b549ce175fa))
+
+### Bug Fixes
+
+- fix playing audio from archive ([82f2184](https://github.com/QSPFoundation/qspider/commit/82f2184afc244bb035c95ff035c13a144109f736))
+
 ## [0.9.0](https://github.com/QSPFoundation/qspider/compare/v0.8.1...v0.9.0) (2020-10-18)
 
 ### ⚠ BREAKING CHANGES
