@@ -47,7 +47,7 @@ export const ActionItem: React.FC<{
   );
   return (
     <ActionButton role="menuitem" tabIndex={0} onClick={onClick}>
-      {action.image && <ActionImage src={`${resources.get(action.image)}`} alt={action.name} />}
+      {action.image && <ActionImage src={`${resources.get(action.image).url}`} alt={action.name} />}
       <Content content={action.name} />
     </ActionButton>
   );

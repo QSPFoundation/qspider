@@ -2,6 +2,7 @@ import { Howler } from 'howler';
 import { normalizeVolume, Sound } from './sound';
 
 import { decorate, observable, action } from 'mobx';
+import { Resource } from './resource-manager';
 
 const VOLUME_STEP = 10;
 
@@ -46,11 +47,11 @@ export class AudioEngine {
     return sound.isPlaying;
   }
 
-  play(path: string, volume: number): void {
-    const key = this.getFileKey(path);
+  play(input: Resource, volume: number): void {
+    const key = this.getFileKey(input.url);
     let sound = this.sounds.get(key);
     if (!sound) {
-      sound = Sound.create(path, volume);
+      sound = Sound.create(input, volume);
       this.sounds.set(key, sound);
     }
     sound.play(volume);
