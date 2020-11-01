@@ -2,10 +2,10 @@ import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { Content } from '../../content/content';
-import { useGameManager } from '../../../game/manager';
 import { ActionImage } from './action-image';
 import { WithTheme } from '../../../theme.types';
 import Color from 'color';
+import { useResources } from '../../../game/resource-manager';
 
 export const ActionButton = styled.button<WithTheme>`
   display: flex;
@@ -36,7 +36,7 @@ export const ActionItem: React.FC<{
   index: number;
   onSelect: (index: number) => void;
 }> = ({ action, index, onSelect }) => {
-  const gameManager = useGameManager();
+  const resources = useResources();
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
@@ -47,7 +47,7 @@ export const ActionItem: React.FC<{
   );
   return (
     <ActionButton role="menuitem" tabIndex={0} onClick={onClick}>
-      {action.image && <ActionImage src={`${gameManager.resourcePrefix}${action.image}`} alt={action.name} />}
+      {action.image && <ActionImage src={`${resources.get(action.image)}`} alt={action.name} />}
       <Content content={action.name} />
     </ActionButton>
   );

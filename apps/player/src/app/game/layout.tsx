@@ -7,6 +7,7 @@ import { PlayerTheme } from '../theme.types';
 import { LayoutDock, LayoutPanel } from './cfg-converter';
 import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
+import { ResourceManager, useResources } from './resource-manager';
 
 class Layout {
   useHtml = false;
@@ -28,14 +29,14 @@ class Layout {
   defaultvFontSize = 12;
   defaultFontName = '';
 
-  constructor(private manager: GameManager) {
+  constructor(private manager: GameManager, private resources: ResourceManager) {
     this.initialized(manager);
   }
 
   get theme(): PlayerTheme {
     return {
       backgroundColor: this.backgroundColor || this.defaultBackgroundColor,
-      backgroundImage: this.backgroundImage ? `url(${this.manager.resourcePrefix}${this.backgroundImage})` : 'none',
+      backgroundImage: this.backgroundImage ? `url(${this.resources.get(this.backgroundImage)})` : 'none',
       textColor: this.color || this.defaultColor,
       fontSize: this.fontSize || this.defaultvFontSize,
       fontName: this.fontName || this.defaultFontName,
@@ -46,7 +47,9 @@ class Layout {
 
   async initialized(manager: GameManager) {
     await manager.apiInitialized;
-    this.fillDefaults(manager.gameConfig);
+    if (manager.gameConfig) {
+      this.fillDefaults(manager.gameConfig);
+    }
     this.initCallbacks(manager);
   }
 
@@ -173,15 +176,16 @@ decorate(Layout, {
   updatePanalVisibility: action,
 });
 
-function createLayout(source: { manager: GameManager }) {
-  return new Layout(source.manager);
+function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
+  return new Layout(source.manager, source.resources);
 }
 
 const layoutContext = React.createContext<Layout | null>(null);
 
 export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
-  const store = useLocalStore(createLayout, { manager });
+  const resources = useResources();
+  const store = useLocalStore(createLayout, { manager, resources });
   return <layoutContext.Provider value={store}>{children}</layoutContext.Provider>;
 };
 

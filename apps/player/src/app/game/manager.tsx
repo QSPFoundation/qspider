@@ -1,9 +1,9 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
-import { fetchPlayerConfig, GameDescriptor, fetchGameSource, GAME_PATH, fetchGameConfig, PlayerConfig } from './loader';
+import { fetchPlayerConfig, GameDescriptor, PlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
-import { prepareContent, prepareList, preparePath } from './helpers';
+import { prepareContent, prepareList } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
 import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
@@ -11,14 +11,13 @@ import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
 import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
-
-const isExternalSource = (path: string) => path.startsWith('http://') || path.startsWith('https://');
+import { ResourceManager, useResources } from './resource-manager';
 
 export class GameManager {
   config: PlayerConfig;
   currentGame: GameDescriptor;
   folder: string;
-  gameConfig: CfgData;
+  gameConfig: CfgData | false;
   errorData: QspErrorData;
   isInitialized = false;
   isGameListShown = false;
@@ -58,12 +57,11 @@ export class GameManager {
 
   apiInitialized: Promise<boolean>;
 
-  private basePath = `${GAME_PATH}/`;
   public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();
   private hotKeysManager = new HotKeysManager();
 
-  constructor() {
+  constructor(private resources: ResourceManager) {
     this.apiInitialized = new Promise((resolve) => {
       this.initialize(resolve);
     });
@@ -77,7 +75,7 @@ export class GameManager {
     console.log(`QSP version: ${this.api.version()}`);
 
     this.setupQspCallbacks();
-    this.setuphotKeyListeners();
+    this.setupHotKeyListeners();
 
     this.config = await fetchPlayerConfig();
     console.log(this.config);
@@ -88,33 +86,55 @@ export class GameManager {
     if (this.config.game.length > 1) {
       this.showGameList();
     } else {
-      this.runGame(this.config.game[0]);
+      this.openGameDescriptor(this.config.game[0]);
     }
 
     this.markInitialized();
   }
 
-  async runGame(descriptor: GameDescriptor) {
+  async openGame(source: ArrayBuffer, name: string) {
+    try {
+      const gameSource = await this.resources.openGame(source);
+      if (gameSource) {
+        if (this.isGameListShown) {
+          this.hideGameList();
+        }
+        if (this.currentGame) {
+          this.hotKeysManager.reset();
+        }
+        this.runGame(gameSource, {
+          id: name,
+          title: '',
+          file: name,
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      this.updateMsg(err.message);
+    }
+  }
+
+  async openGameDescriptor(descriptor: GameDescriptor) {
     if (this.isGameListShown) {
       this.hideGameList();
     }
-    if (this.currentGame) {
-      this.hotKeysManager.reset();
-    }
-    this.basePath = `${GAME_PATH}/`;
-    const { file, title } = descriptor;
-    document.title = title;
-    const path = isExternalSource(file) ? file : this.preparePath(file);
-    const gameSource = await fetchGameSource(path);
-    this.updateBasePath(path);
+    this.stopGame();
+    const gameSource = await this.resources.loadGame(descriptor.file);
 
-    try {
-      const gameConfig = await fetchGameConfig(this.basePath);
-      const { layout, floating } = extractLayoutData(gameConfig);
-      this.gameConfig = gameConfig;
+    this.runGame(gameSource, descriptor);
+  }
+
+  async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor) {
+    const { title } = descriptor;
+    document.title = title;
+
+    this.gameConfig = await this.resources.getConfig();
+    console.log(this.gameConfig);
+    if (this.gameConfig) {
+      const { layout, floating } = extractLayoutData(this.gameConfig);
       this.layout = layout;
       this.floating = floating;
-    } catch (_) {
+    } else {
       this.layout = DEFAULT_LAYOUT;
       this.floating = DEFAULT_FLOATING;
     }
@@ -129,12 +149,11 @@ export class GameManager {
     this.api.restartGame();
   }
 
-  updateBasePath(path: string) {
-    this.basePath = path.slice(0, path.lastIndexOf('/') + 1);
-  }
-
-  get resourcePrefix(): string {
-    return this.basePath;
+  stopGame() {
+    if (this.currentGame) {
+      this.hotKeysManager.reset();
+      this.resources.clear();
+    }
   }
 
   get hasGameList(): boolean {
@@ -170,7 +189,7 @@ export class GameManager {
     this.api.on('close_file', this.closeFile);
   }
 
-  setuphotKeyListeners() {
+  setupHotKeyListeners() {
     this.hotKeysManager.on('select_action', (index: number) => {
       if (this.isPaused) return;
       if (index >= 0 && index < this.actions.length) {
@@ -269,7 +288,7 @@ export class GameManager {
     this.isMenuShown = true;
   };
 
-  updateMsg = (text: string, onMsg: () => void): void => {
+  updateMsg = (text: string, onMsg?: () => void): void => {
     this.pause();
     this.msg = text;
     this.onMsg = onMsg;
@@ -282,7 +301,9 @@ export class GameManager {
     this.msg = '';
     this.onMsg = null;
     this.resume();
-    onMsg();
+    if (onMsg) {
+      onMsg();
+    }
   };
 
   updateInput = (text: string, onInput: (text: string) => void): void => {
@@ -371,7 +392,7 @@ export class GameManager {
 
   updateView = (path: string): void => {
     if (path) {
-      this.viewSrc = this.preparePath(path);
+      this.viewSrc = this.resources.get(path);
       this.isViewShown = true;
     } else {
       this.closeView();
@@ -385,10 +406,8 @@ export class GameManager {
 
   onOpenGame = async (file: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
-    const path = this.preparePath(file);
-    const gameSource = await fetchGameSource(path);
+    const gameSource = await this.resources.loadGame(file);
     this.api.openGame(gameSource, isNewGame);
-    this.updateBasePath(path);
     onOpened();
     this.resume();
   };
@@ -420,13 +439,13 @@ export class GameManager {
   };
 
   isPlay = (path: string, onResult: (result: boolean) => void): void => {
-    const isPlay = this.audioEngine.isPlaying(this.preparePath(path));
+    const isPlay = this.audioEngine.isPlaying(this.resources.get(path));
     onResult(isPlay);
   };
 
   closeFile = (path: string, onReady: () => void): void => {
     if (path) {
-      this.audioEngine.close(this.preparePath(path));
+      this.audioEngine.close(this.resources.get(path));
     } else {
       this.audioEngine.closeAll();
     }
@@ -434,7 +453,7 @@ export class GameManager {
   };
 
   playFile = async (path: string, volume: number, onReady: () => void): Promise<void> => {
-    this.audioEngine.play(this.preparePath(path), volume);
+    this.audioEngine.play(this.resources.get(path), volume);
     onReady();
   };
 
@@ -505,10 +524,6 @@ export class GameManager {
     this.saveAction = null;
     this.resume();
   };
-
-  private preparePath(path: string): string {
-    return `${this.resourcePrefix}${preparePath(path)}`;
-  }
 }
 
 decorate(GameManager, {
@@ -564,14 +579,15 @@ decorate(GameManager, {
   selectMenu: action,
 });
 
-function createGameManager() {
-  return new GameManager();
+function createGameManager(source: { resources: ResourceManager }) {
+  return new GameManager(source.resources);
 }
 
 const gameManagerContext = React.createContext<GameManager | null>(null);
 
 export const GameManagerProvider: React.FC = ({ children }) => {
-  const store = useLocalStore(createGameManager);
+  const resources = useResources();
+  const store = useLocalStore(createGameManager, { resources });
   return <gameManagerContext.Provider value={store}>{children}</gameManagerContext.Provider>;
 };
 

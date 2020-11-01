@@ -4,7 +4,7 @@ import styled from '@emotion/styled';
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import { WithTheme } from '../../../theme.types';
-import { config } from 'localforage';
+import { OpenGameButton } from '../../ui-blocks/open-game-button';
 
 const GameSlots = styled.div<{ even: boolean }>`
   padding: 16px;
@@ -28,6 +28,12 @@ const GameTitle = styled.h3`
   text-align: center;
 `;
 
+const OpenButtonWrapper = styled.div`
+  padding: 0 16px;
+  display: flex;
+  justify-content: flex-end;
+`;
+
 export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ closable }) => {
   const gameManager = useGameManager();
   const onClose = useCallback(() => gameManager.hideGameList(), [gameManager]);
@@ -36,9 +42,12 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   if (!isShown) return null;
   return (
     <Modal closable={closable} onClose={onClose} hideButtons width={800}>
+      <OpenButtonWrapper>
+        <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => gameManager.openGame(game, name)} />
+      </OpenButtonWrapper>
       <GameSlots even={!(config.game.length % 2)}>
         {config.game.map((game) => (
-          <GameSlot key={game.id} onClick={() => gameManager.runGame(game)}>
+          <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)}>
             <GameTitle>{game.title}</GameTitle>
             {game.description && <p>{game.description}</p>}
           </GameSlot>

@@ -7,12 +7,12 @@ export function prepareContent(text: string): string {
 
   return text.replace(/&gt /g, '& gt ').replace(/\\"/g, '&quot;');
 }
-export function preparePath(path: string): string {
+export function cleanPath(path: string): string {
   return path.replace(/\\/g, '/');
 }
 export function prepareList(list: QspListItem[]): QspListItem[] {
   return list.map((item) => ({
     name: prepareContent(item.name),
-    image: preparePath(item.image),
+    image: cleanPath(item.image),
   }));
 }
