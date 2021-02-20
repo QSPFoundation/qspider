@@ -85,9 +85,10 @@ export class QspAPIImpl implements QspAPI {
   }
 
   readVariableNumber(name: string, index = 0): number {
-    const namePtr = this.staticStrings.get(name);
+    let namePtr = this.staticStrings.get(name);
     if (!namePtr) {
-      throw new Error('use static strings');
+      this.staticStrings.set(name, this.prepareString(name));
+      namePtr = this.staticStrings.get(name);
     }
     const value = this.module._getVarNumValue(namePtr, index);
 
@@ -95,9 +96,10 @@ export class QspAPIImpl implements QspAPI {
   }
 
   readVariableString(name: string, index = 0): string {
-    const namePtr = this.staticStrings.get(name);
+    let namePtr = this.staticStrings.get(name);
     if (!namePtr) {
-      throw new Error('use static strings');
+      this.staticStrings.set(name, this.prepareString(name));
+      namePtr = this.staticStrings.get(name);
     }
     const resultPtr = this.allocStrPtr();
 
@@ -256,6 +258,8 @@ export class QspAPIImpl implements QspAPI {
 
       this.emit('objects_changed', objects);
     }
+
+    this.emit('refresh');
   };
 
   onShowWindow = (type: QspPanel, isShown: boolean): void => {

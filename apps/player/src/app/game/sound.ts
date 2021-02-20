@@ -75,6 +75,7 @@ export class Sound {
       },
       onunlock: () => {
         if (this._state === SoundState.Loaded && this.isScheduled) {
+          this._state = SoundState.Playing;
           this.howl.play();
         }
       },
@@ -84,7 +85,7 @@ export class Sound {
   play(volume: number): void {
     this.howl.volume(normalizeVolume(volume));
     this.isScheduled = true;
-    if (this.howl.state() === 'loaded') {
+    if (this.howl.state() === 'loaded' && !this.howl.playing()) {
       this.howl.play();
     }
   }

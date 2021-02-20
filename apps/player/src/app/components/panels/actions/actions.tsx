@@ -1,11 +1,11 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import CustomScroll from 'react-custom-scroll';
 
 import { Panel } from '../../ui-blocks/panel';
 import { useGameManager } from '../../../game/manager';
 import { useLayout } from '../../../game/layout';
 import { ActionList } from '../../ui-blocks/action-list/action-list';
+import { CustomScroll } from '../../ui-blocks/custom-scroll';
 
 export const ActionsPanel: React.FC = observer(() => {
   const manager = useGameManager();
@@ -14,7 +14,7 @@ export const ActionsPanel: React.FC = observer(() => {
   if (!isActionsPanelVisible) return null;
   return (
     <Panel>
-      <CustomScroll heightRelativeToParent="100%">
+      <CustomScroll>
         <ActionList actions={manager.actions} onSelect={onActionSelect}></ActionList>
       </CustomScroll>
     </Panel>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action } from 'mobx';
-import { fetchPlayerConfig, GameDescriptor, PlayerConfig } from './loader';
+import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
 import { extractLayoutData, LayoutDock } from './cfg-converter';
@@ -12,6 +12,7 @@ import { CfgData } from './cfg-parser';
 import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
 import { ResourceManager, useResources } from './resource-manager';
+import { GameDescriptor, PlayerConfig } from './contracts';
 
 export class GameManager {
   config: PlayerConfig;
@@ -68,17 +69,19 @@ export class GameManager {
   }
 
   private isPaused: boolean = false;
-  private api: QspAPI;
+  private _api: QspAPI;
+  get api() {
+    return this._api;
+  }
 
   async initialize(onApiInitialized: () => void): Promise<void> {
-    this.api = await init();
-    console.log(`QSP version: ${this.api.version()}`);
+    this._api = await init();
+    console.log(`QSP version: ${this._api.version()}`);
 
     this.setupQspCallbacks();
     this.setupHotKeyListeners();
 
     this.config = await fetchPlayerConfig();
-    console.log(this.config);
 
     this.hotKeysManager.setupGlobalHotKeys();
     onApiInitialized();
@@ -104,6 +107,7 @@ export class GameManager {
         }
         this.runGame(gameSource, {
           id: name,
+          mode: name.endsWith('aqsp') ? 'aero' : 'classic',
           title: '',
           file: name,
         });
@@ -129,7 +133,6 @@ export class GameManager {
     document.title = title;
 
     this.gameConfig = await this.resources.getConfig();
-    console.log(this.gameConfig);
     if (this.gameConfig) {
       const { layout, floating } = extractLayoutData(this.gameConfig);
       this.layout = layout;
@@ -145,8 +148,8 @@ export class GameManager {
       this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
     }
 
-    this.api.openGame(gameSource, true);
-    this.api.restartGame();
+    this._api.openGame(gameSource, true);
+    this._api.restartGame();
   }
 
   stopGame() {
@@ -169,24 +172,24 @@ export class GameManager {
   }
 
   setupQspCallbacks(): void {
-    this.api.on('error', this.updateErrorDescription);
-    this.api.on('main_changed', this.updateMain);
-    this.api.on('stats_changed', this.updateStats);
-    this.api.on('actions_changed', this.updateActions);
-    this.api.on('objects_changed', this.updateObjects);
-    this.api.on('user_input', this.updateUserInput);
-    this.api.on('menu', this.updateMenu);
-    this.api.on('msg', this.updateMsg);
-    this.api.on('input', this.updateInput);
-    this.api.on('wait', this.startWaiting);
-    this.api.on('timer', this.updateTimer);
-    this.api.on('view', this.updateView);
-    this.api.on('open_game', this.onOpenGame);
-    this.api.on('save_game', this.onSaveGame);
-    this.api.on('load_save', this.onLoadSave);
-    this.api.on('is_play', this.isPlay);
-    this.api.on('play_file', this.playFile);
-    this.api.on('close_file', this.closeFile);
+    this._api.on('error', this.updateErrorDescription);
+    this._api.on('main_changed', this.updateMain);
+    this._api.on('stats_changed', this.updateStats);
+    this._api.on('actions_changed', this.updateActions);
+    this._api.on('objects_changed', this.updateObjects);
+    this._api.on('user_input', this.updateUserInput);
+    this._api.on('menu', this.updateMenu);
+    this._api.on('msg', this.updateMsg);
+    this._api.on('input', this.updateInput);
+    this._api.on('wait', this.startWaiting);
+    this._api.on('timer', this.updateTimer);
+    this._api.on('view', this.updateView);
+    this._api.on('open_game', this.onOpenGame);
+    this._api.on('save_game', this.onSaveGame);
+    this._api.on('load_save', this.onLoadSave);
+    this._api.on('is_play', this.isPlay);
+    this._api.on('play_file', this.playFile);
+    this._api.on('close_file', this.closeFile);
   }
 
   setupHotKeyListeners() {
@@ -240,22 +243,22 @@ export class GameManager {
     });
     this.hotKeysManager.on('exec_loc', (name) => {
       if (this.isPaused) return;
-      this.api.execLoc(name);
+      this._api.execLoc(name);
     });
   }
 
   on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
-    this.api.on(event, listener);
+    this._api.on(event, listener);
   }
 
   restart(): void {
     this.pause();
-    this.api.restartGame();
+    this._api.restartGame();
   }
 
   execCode(code: string): void {
     console.log('EXEC: ', code);
-    this.api.execCode(code);
+    this._api.execCode(code);
   }
 
   markInitialized(): void {
@@ -327,15 +330,15 @@ export class GameManager {
   };
 
   submitUserInput = (): void => {
-    this.api.execUserInput(this.userInput);
+    this._api.execUserInput(this.userInput);
   };
 
   selectAction(index: number): void {
-    this.api.selectAction(index);
+    this._api.selectAction(index);
   }
 
   selectObject(index: number): void {
-    this.api.selectObject(index);
+    this._api.selectObject(index);
   }
 
   selectMenu(index: number): void {
@@ -375,7 +378,7 @@ export class GameManager {
 
   scheduleCounter = (): void => {
     this.counterTimeout = setTimeout(() => {
-      this.api.execCounter();
+      this._api.execCounter();
       this.scheduleCounter();
     }, this.counterDelay);
   };
@@ -407,7 +410,7 @@ export class GameManager {
   onOpenGame = async (file: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
     const gameSource = await this.resources.loadGame(file);
-    this.api.openGame(gameSource, isNewGame);
+    this._api.openGame(gameSource, isNewGame);
     onOpened();
     this.resume();
   };
@@ -418,7 +421,7 @@ export class GameManager {
       onLoaded();
       const saveData = await this.saveManager.loadByPath(this.currentGame.id, path);
       if (saveData) {
-        this.api.loadSave(saveData);
+        this._api.loadSave(saveData);
       }
       this.resume();
     } else {
@@ -429,7 +432,7 @@ export class GameManager {
   onSaveGame = async (path: string, onSaved: () => void): Promise<void> => {
     if (path) {
       this.pause();
-      const saveData = this.api.saveGame();
+      const saveData = this._api.saveGame();
       await this.saveManager.saveByPath(this.currentGame.id, path, saveData);
       this.resume();
       onSaved();
@@ -459,7 +462,7 @@ export class GameManager {
 
   requestSave = async (onResult?: () => void): Promise<void> => {
     this.pause();
-    const saveData = this.api.saveGame();
+    const saveData = this._api.saveGame();
     if (saveData) {
       const slots = await this.saveManager.getSlots(this.currentGame.id);
       this.saveAction = {
@@ -480,7 +483,7 @@ export class GameManager {
 
   async quickSave() {
     this.pause();
-    const saveData = this.api.saveGame();
+    const saveData = this._api.saveGame();
     await this.saveManager.quickSave(this.currentGame.id, saveData);
     this.resume();
   }
@@ -503,7 +506,7 @@ export class GameManager {
     }
     this.saveAction.onResult = null;
     if (saveData) {
-      this.api.loadSave(saveData);
+      this._api.loadSave(saveData);
     }
     this.clearSaveAction();
   };
@@ -512,7 +515,7 @@ export class GameManager {
     this.pause();
     const saveData = await this.saveManager.quickLoad(this.currentGame.id);
     if (saveData) {
-      this.api.loadSave(saveData);
+      this._api.loadSave(saveData);
     }
     this.resume();
   }

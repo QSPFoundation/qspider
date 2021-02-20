@@ -1,15 +1,15 @@
 import React from 'react';
 import { Node } from 'interweave';
-import { Link } from './link';
+import { A, Link } from './link';
 import { Image } from './image';
 import { Center } from './center';
-import { Big } from './big';
 import { Hr } from './hr';
-import { Strike } from './strike';
-import { Tt } from './tt';
 import { Area } from './area';
-import { Table } from './table';
+import { Table, Td, Th, Tr } from './table';
 import { Font, fontSizeMap } from './font';
+import { H1, H2, H3, H4, H5, H6 } from './headers';
+import { B, Big, I, Strike, Tt } from './format';
+import { Div, P } from './blocks';
 
 const attributeToStyle = {
   size: 'fontSize',
@@ -43,43 +43,116 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
   return style;
 };
 
+const parseStyles = (styles: string | null): Record<string, string> => {
+  if (!styles) return {};
+  return styles
+    .split(';')
+    .map((style) => {
+      const separaTorPosition = style.indexOf(':');
+      const key = style
+        .substring(0, separaTorPosition)
+        .trim()
+        .replace(/-./g, (c) => c.substr(1).toUpperCase());
+      const value = style.substring(separaTorPosition + 1).trim();
+      if (!key) return null;
+      return [key, value];
+    })
+    .filter(Boolean)
+    .reduce(
+      (styleObj, style) => ({
+        ...styleObj,
+        [style[0]]: style[1],
+      }),
+      {}
+    );
+};
+
+const extractStyles = (node: HTMLElement): Record<string, string> => {
+  const attributeStyles = attributesToStyle(node);
+  const styles = parseStyles(node.getAttribute('style'));
+  return {
+    ...attributeStyles,
+    ...styles,
+  };
+};
+
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   font: (node, children) => {
     return (
-      <Font size={node.getAttribute('size')} style={attributesToStyle(node)}>
+      <Font size={node.getAttribute('size')} style={extractStyles(node)} className={node.getAttribute('class')}>
         {children}
       </Font>
     );
   },
-  h1: (_, children) => {
-    return <h1>{children}</h1>;
+  h1: (node, children) => {
+    return (
+      <H1 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H1>
+    );
   },
-  h2: (_, children) => {
-    return <h2>{children}</h2>;
+  h2: (node, children) => {
+    return (
+      <H2 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H2>
+    );
   },
-  h3: (_, children) => {
-    return <h3>{children}</h3>;
+  h3: (node, children) => {
+    return (
+      <H3 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H3>
+    );
   },
-  h4: (_, children) => {
-    return <h4>{children}</h4>;
+  h4: (node, children) => {
+    return (
+      <H4 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H4>
+    );
   },
-  h5: (_, children) => {
-    return <h5>{children}</h5>;
+  h5: (node, children) => {
+    return (
+      <H5 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H5>
+    );
   },
-  h6: (_, children) => {
-    return <h6>{children}</h6>;
+  h6: (node, children) => {
+    return (
+      <H6 style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </H6>
+    );
   },
-  i: (_, children) => {
-    return <i>{children}</i>;
+  i: (node, children) => {
+    return (
+      <I style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </I>
+    );
   },
-  b: (_, children) => {
-    return <b>{children}</b>;
+  b: (node, children) => {
+    return (
+      <B style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </B>
+    );
   },
-  big: (_, children) => {
-    return <Big>{children}</Big>;
+  big: (node, children) => {
+    return (
+      <Big style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </Big>
+    );
   },
-  center: (_, children) => {
-    return <Center>{children}</Center>;
+  center: (node, children) => {
+    return (
+      <Center style={extractStyles(node)} className={node.getAttribute('class')}>
+        {children}
+      </Center>
+    );
   },
   hr: (node) => {
     return (
@@ -91,36 +164,44 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     const className = node.className || '';
     if (href && href.toLowerCase().startsWith('exec:')) {
       return (
-        <Link className={className} exec={href.substr(5)}>
+        <Link className={className} exec={href.substr(5)} style={extractStyles(node)}>
           {children}
         </Link>
       );
     }
     return (
-      <a href={href} className={className}>
+      <A href={href} className={className} style={extractStyles(node)}>
         {children}
-      </a>
+      </A>
     );
   },
   div: (node, children) => {
     return (
-      <div className={node.getAttribute('class')} id={node.getAttribute('id')} style={attributesToStyle(node)}>
+      <Div className={node.getAttribute('class')} id={node.getAttribute('id')} style={extractStyles(node)}>
         {children}
-      </div>
+      </Div>
     );
   },
   p: (node, children) => {
     return (
-      <p className={node.getAttribute('class')} style={attributesToStyle(node)}>
+      <P className={node.getAttribute('class')} style={extractStyles(node)}>
         {children}
-      </p>
+      </P>
     );
   },
-  tt: (_, children) => {
-    return <Tt>{children}</Tt>;
+  tt: (node, children) => {
+    return (
+      <Tt className={node.getAttribute('class')} style={extractStyles(node)}>
+        {children}
+      </Tt>
+    );
   },
-  strike: (_, children) => {
-    return <Strike>{children}</Strike>;
+  strike: (node, children) => {
+    return (
+      <Strike className={node.getAttribute('class')} style={extractStyles(node)}>
+        {children}
+      </Strike>
+    );
   },
   table: (node, children) => {
     return (
@@ -128,7 +209,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         border={node.hasAttribute('border') ? Number(node.getAttribute('border')) : 0}
         cellspacing={node.hasAttribute('cellspacing') ? Number(node.getAttribute('cellspacing')) : 0}
         cellpadding={node.hasAttribute('cellpadding') ? Number(node.getAttribute('cellpadding')) : 1}
-        style={attributesToStyle(node)}
+        style={extractStyles(node)}
         className={node.getAttribute('class')}
       >
         {children}
@@ -136,33 +217,41 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     );
   },
   tr: (node, children) => (
-    <tr style={attributesToStyle(node)} className={node.getAttribute('class')}>
+    <Tr style={extractStyles(node)} className={node.getAttribute('class')}>
       {children}
-    </tr>
+    </Tr>
   ),
   th: (node, children) => (
-    <th
-      colSpan={Number(node.getAttribute('colspan')) || 1}
-      rowSpan={Number(node.getAttribute('rowspan')) || 1}
-      style={attributesToStyle(node)}
+    <Th
+      colspan={Number(node.getAttribute('colspan')) || 1}
+      rowspan={Number(node.getAttribute('rowspan')) || 1}
+      style={extractStyles(node)}
       className={node.getAttribute('class')}
     >
       {children}
-    </th>
+    </Th>
   ),
-  td: (node, children) => (
-    <td
-      colSpan={Number(node.getAttribute('colspan')) || 1}
-      rowSpan={Number(node.getAttribute('rowspan')) || 1}
-      style={attributesToStyle(node)}
-      className={node.getAttribute('class')}
-    >
-      {children}
-    </td>
-  ),
-  img: (node) => {
+  td: (node, children) => {
     return (
-      <Image src={node.getAttribute('src')} style={attributesToStyle(node)} useMap={node.getAttribute('usemap')} />
+      <Td
+        colspan={Number(node.getAttribute('colspan')) || 1}
+        rowspan={Number(node.getAttribute('rowspan')) || 1}
+        style={extractStyles(node)}
+        className={node.getAttribute('class')}
+      >
+        {children}
+      </Td>
+    );
+  },
+  img: (node) => {
+    if (!node.getAttribute('src')) return null;
+    return (
+      <Image
+        src={node.getAttribute('src')}
+        style={extractStyles(node)}
+        className={node.getAttribute('class')}
+        useMap={node.getAttribute('usemap')}
+      />
     );
   },
   map: (node, children) => {

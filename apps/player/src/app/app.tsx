@@ -5,9 +5,9 @@ import { GameManagerProvider } from './game/manager';
 import { LayoutProvider } from './game/layout';
 import { Game } from './game';
 import { Theme } from './game/theme';
-import { Player } from './components/player';
 import { GameListDialog } from './components/dialogs/game-list/game-list.dialog';
 import { ResourceProvider } from './game/resource-manager';
+import { PlayerMode } from './components/player-mode';
 
 export const App: React.FC = () => {
   return (
@@ -28,7 +28,7 @@ export const App: React.FC = () => {
               `}
             />
             <Game>
-              <Player />
+              <PlayerMode />
               <GameListDialog closable={true} />
             </Game>
           </Theme>
