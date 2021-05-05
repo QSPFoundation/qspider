@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useResources } from '../game/resource-manager';
 
 interface Size {
   width: number;
@@ -10,7 +9,6 @@ const cache: Record<string, Size> = {};
 
 export function useImageSize(url: string): Size {
   const [size, setSize] = useState({ width: 0, height: 0 });
-  const resources = useResources();
 
   useEffect(() => {
     if (url) {
@@ -27,10 +25,10 @@ export function useImageSize(url: string): Size {
           cache[url] = size;
           setSize(size);
         };
-        img.src = resources.get(url).url;
+        img.src = url;
       }
     }
-  }, [url, resources]);
+  }, [url]);
 
   return size;
 }

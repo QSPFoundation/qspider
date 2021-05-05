@@ -30,11 +30,12 @@ const InputBody = styled.div<
   WithTheme & { width: number; height: number; x: number; y: number; backgroundImage?: string }
 >`
   background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-color: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
-  height: ${(props) => props.width || 320}px;
+  height: ${(props) => props.height || 320}px;
   left: ${(props) => props.x}px;
   top: ${(props) => props.y}px;
   pointer-events: auto;
@@ -48,6 +49,7 @@ const InputTextContainer = styled.div<{ ui: InputUI }>`
   height: ${(props) => props.ui.text.height}px;
   top: ${(props) => props.ui.text.y}px;
   left: ${(props) => props.ui.text.x}px;
+  white-space: pre-wrap;
 `;
 
 const InputButton = styled.button<
@@ -64,9 +66,9 @@ const InputButton = styled.button<
   height: ${(props) => props.height + 'px' || 'auto'};
   box-sizing: border-box;
   background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-color: transparent;
   color: ${(props) => props.theme.textColor};
   font-size: ${(props) => props.theme.fontSize}pt;
-  padding: 4px 16px;
 
   &:focus {
     outline: none;
@@ -105,20 +107,18 @@ export const AeroInputDialog: React.FC = observer(() => {
   const x = layout.inputUI && layout.inputUI.x >= 0 ? layout.inputUI.x : coordinates.x;
   const y = layout.inputUI && layout.inputUI.y >= 0 ? layout.inputUI.y : coordinates.y;
 
-  const { width, height } = useImageSize(layout.inputUI?.backImage || defaultInputBack);
-  const content = layout.inputUI?.format.replace(TEXT_PLACEHOLDER, manager.input);
-
-  const { width: okWidth, height: okHeight } = useImageSize(layout.inputUI?.okButton.image || defaultInputOk);
-  const { width: cancelWidth, height: cancelHeight } = useImageSize(
-    layout.inputUI?.cancelButton.image || defaultInputCancel
-  );
-
-  if (!layout.inputUI) return null;
   const url = layout.inputUI.backImage ? resources.get(layout.inputUI.backImage).url : defaultInputBack;
   const okUrl = layout.inputUI.okButton.image ? resources.get(layout.inputUI.okButton.image).url : defaultInputOk;
   const cancelUrl = layout.inputUI.cancelButton.image
     ? resources.get(layout.inputUI.cancelButton.image).url
     : defaultInputCancel;
+
+  const { width, height } = useImageSize(url);
+  const content = layout.inputUI?.format.replace(TEXT_PLACEHOLDER, manager.input);
+
+  const { width: okWidth, height: okHeight } = useImageSize(okUrl);
+  const { width: cancelWidth, height: cancelHeight } = useImageSize(cancelUrl);
+
   return (
     <>
       {manager.isInputShown ? <Overlay onClick={onClose} /> : null}
@@ -130,7 +130,7 @@ export const AeroInputDialog: React.FC = observer(() => {
         >
           <InputBody x={x} y={y} width={width} height={height} backgroundImage={url}>
             <InputTextContainer ui={layout.inputUI}>
-              <AeroCustomScroll>{manager.msg && <Content content={content} />}</AeroCustomScroll>
+              <AeroCustomScroll>{content && <Content content={content} />}</AeroCustomScroll>
             </InputTextContainer>
             <form
               onSubmit={(e) => {

@@ -162,12 +162,20 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   a: (node, children) => {
     const href = node.getAttribute('href');
     const className = node.className || '';
-    if (href && href.toLowerCase().startsWith('exec:')) {
-      return (
-        <Link className={className} exec={href.substr(5)} style={extractStyles(node)}>
-          {children}
-        </Link>
-      );
+    if (href) {
+      if (href.toLowerCase().startsWith('exec:')) {
+        return (
+          <Link className={className} exec={href.substr(5)} style={extractStyles(node)}>
+            {children}
+          </Link>
+        );
+      } else if (parseInt(href) > 0) {
+        return (
+          <Link className={className} act={parseInt(href)} style={extractStyles(node)}>
+            {children}
+          </Link>
+        );
+      }
     }
     return (
       <A href={href} className={className} style={extractStyles(node)}>

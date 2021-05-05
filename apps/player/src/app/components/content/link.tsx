@@ -9,16 +9,20 @@ const StyledA = styled.a<WithTheme>`
   color: ${(props) => props.theme.linkColor};
 `;
 
-export const Link: React.FC<{ exec: string; className: string; style: React.CSSProperties }> = observer(
-  ({ exec, className, style, children }) => {
+export const Link: React.FC<{ exec?: string; act?: number; className: string; style: React.CSSProperties }> = observer(
+  ({ exec, act, className, style, children }) => {
     const manager = useGameManager();
     const onClick = useCallback(
       (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
         e.stopPropagation();
-        manager.execCode(exec);
+        if (exec) {
+          manager.execCode(exec);
+        } else if (act) {
+          manager.selectAction(act - 1);
+        }
       },
-      [exec, manager]
+      [exec, act, manager]
     );
     return (
       <StyledA href="#" className={className} onClick={onClick} style={useStyle(style)}>
@@ -35,8 +39,8 @@ export const A: React.FC<{ href?: string; className?: string; style: React.CSSPr
   children,
 }) => {
   return (
-    <A href={href} style={useStyle(style)} className={className}>
+    <StyledA href={href} style={useStyle(style)} className={className}>
       {children}
-    </A>
+    </StyledA>
   );
 };

@@ -29,11 +29,12 @@ const MsgBody = styled.div<
   WithTheme & { width: number; height: number; x: number; y: number; backgroundImage?: string }
 >`
   background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-color: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
-  height: ${(props) => props.width || 320}px;
+  height: ${(props) => props.height || 320}px;
   left: ${(props) => props.x}px;
   top: ${(props) => props.y}px;
   pointer-events: auto;
@@ -47,6 +48,7 @@ const MsgTextContainer = styled.div<{ ui: MsgUI }>`
   height: ${(props) => props.ui.text.height}px;
   top: ${(props) => props.ui.text.y}px;
   left: ${(props) => props.ui.text.x}px;
+  white-space: pre-wrap;
 `;
 
 const MsgButton = styled.button<
@@ -62,10 +64,11 @@ const MsgButton = styled.button<
   width: ${(props) => props.width + 'px' || 'auto'};
   height: ${(props) => props.height + 'px' || 'auto'};
   box-sizing: border-box;
+  background-color: transparent;
   background-image: ${(props) => `url(${props.backgroundImage})`};
   color: ${(props) => props.theme.textColor};
   font-size: ${(props) => props.theme.fontSize}pt;
-  padding: 4px 16px;
+  padding: 0;
 
   &:focus {
     outline: none;
@@ -77,8 +80,6 @@ export const AeroMsgDialog: React.FC = observer(() => {
   const layout = useAeroLayout();
   const resources = useResources();
 
-  console.log(layout);
-
   const onClose = useCallback(() => {
     manager.closeMsg();
   }, [manager]);
@@ -87,14 +88,14 @@ export const AeroMsgDialog: React.FC = observer(() => {
   const x = layout.msgUI && layout.msgUI.x >= 0 ? layout.msgUI.x : coordinates.x;
   const y = layout.msgUI && layout.msgUI.y >= 0 ? layout.msgUI.y : coordinates.y;
 
-  const { width, height } = useImageSize(layout.msgUI?.backImage || defaultMsgBack);
-  const content = layout.msgUI?.format.replace(TEXT_PLACEHOLDER, manager.msg);
-
-  const { width: okWidth, height: okHeight } = useImageSize(layout.msgUI?.okButton.image || defaultMsgOkButton);
-
-  if (!layout.msgUI) return null;
   const url = layout.msgUI.backImage ? resources.get(layout.msgUI.backImage).url : defaultMsgBack;
   const okUrl = layout.msgUI.okButton.image ? resources.get(layout.msgUI.okButton.image).url : defaultMsgOkButton;
+
+  const { width, height } = useImageSize(url);
+  const content = layout.msgUI?.format.replace(TEXT_PLACEHOLDER, manager.msg);
+
+  const { width: okWidth, height: okHeight } = useImageSize(okUrl);
+
   return (
     <>
       {manager.isMsgShown ? <Overlay onClick={onClose} /> : null}

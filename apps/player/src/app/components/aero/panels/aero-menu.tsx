@@ -73,11 +73,10 @@ export const AeroMenu: React.FC = observer(() => {
   const [popperElement, setPopperElement] = React.useState(null);
   const node = useOutsideClick(() => manager.selectMenu(-1));
   const { styles, attributes } = usePopper(virtualElement, popperElement);
-  const { width, height } = useImageSize(layout.menuUI?.backImage);
+  const { url } = resources.get(layout.menuUI.backImage);
+  const { width, height } = useImageSize(url);
 
   const onMenuSelect = useCallback((index: number) => manager.selectMenu(index), [manager]);
-  if (!layout.menuUI) return null;
-  const { url } = resources.get(layout.menuUI.backImage);
 
   if (layout.menuUI.fixedSize) {
     return (

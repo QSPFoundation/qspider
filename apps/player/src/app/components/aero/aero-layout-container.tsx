@@ -18,6 +18,10 @@ import { AeroViewImagePanel } from './panels/aero-view-image';
 
 import defaultBackground from '../../../assets/aero/back.png';
 import { SaveSlotsDialog } from '../dialogs/save-slots/save-slots';
+import { useImageSize } from '../../hooks/image-size';
+
+import defaultUpArrow from '../../../assets/aero/up_arrow.png';
+import defaultDownArrow from '../../../assets/aero/down_arrow.png';
 
 const AeroPlayerBlock = styled.div<{
   width: number;
@@ -53,16 +57,34 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
   const manager = useGameManager();
   const layout = useAeroLayout();
   const resources = useResources();
+
+  const upArrow = layout.scrollUI.upArrowImage ? resources.get(layout.scrollUI.upArrowImage).url : defaultUpArrow;
+  const { width: upArrowWidth, height: upArrowHeight } = useImageSize(upArrow);
+  const downArrow = layout.scrollUI.downArrowImage
+    ? resources.get(layout.scrollUI.downArrowImage).url
+    : defaultDownArrow;
+  const { width: downArrowWidth, height: downArrowHeight } = useImageSize(downArrow);
+
+  const style = {
+    '--up-arrow': layout.scrollUI.hideArrows ? '' : `url(${upArrow})`,
+    '--up-arrow-width': upArrowWidth + 'px',
+    '--up-arrow-height': upArrowHeight + 'px',
+    '--down-arrow': layout.scrollUI.hideArrows ? '' : `url(${downArrow})`,
+    '--down-arrow-width': downArrowWidth + 'px',
+    '--down-arrow-height': downArrowHeight + 'px',
+  } as React.CSSProperties;
+
   return (
     <AeroPlayerBlock
       width={manager.currentGame.aero?.width || 800}
       height={manager.currentGame.aero?.height || 600}
       backgroundImage={layout.playerUI?.backImage ? resources.get(layout.playerUI?.backImage).url : defaultBackground}
+      style={style}
     >
       <AeroStylesheet />
+      <AeroStatsPanel />
       <AeroMainPanel />
       <AeroObjectsPanel />
-      <AeroStatsPanel />
       {layout.playerUI?.intergratedActions ? null : <AeroActionsPanel />}
       <AeroUserInputPanel />
       <AeroViewImagePanel />

@@ -21,6 +21,9 @@ export const ActionButton = styled.button<WithTheme>`
   &:focus {
     outline: none;
   }
+  & > table {
+    width: 100%;
+  }
 `;
 
 export const AeroActionItem: React.FC<{
@@ -33,7 +36,7 @@ export const AeroActionItem: React.FC<{
   const [isHovered, setIsHovered] = useState(false);
   const resources = useResources();
   const layout = useAeroLayout();
-  console.log(type, layout, layout[type]);
+
   const { format, selectedFormat } = layout[type];
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -53,7 +56,7 @@ export const AeroActionItem: React.FC<{
         .replace(IMAGE_PLACEHOLDER, action.image ? resources.get(action.image).url : ''),
     });
   }, [action, format, selectedFormat, resources]);
-  console.log(content);
+
   return (
     <ActionButton
       role="menuitem"

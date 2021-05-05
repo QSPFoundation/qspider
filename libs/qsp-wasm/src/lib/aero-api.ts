@@ -1,7 +1,7 @@
-/* 
+/*
 Справка по AeroQSP (дополнение к основной справке QSP)
 
-not supported 
+not supported
 SCROLL_SPEED
 NEWLOC_EFFECT_SEQ
 
@@ -234,7 +234,7 @@ export type AeroEvents = {
 export const TEXT_PLACEHOLDER = '%TEXT%';
 export const IMAGE_PLACEHOLDER = '%IMAGE%';
 
-export const LIST_UI = '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;>%TEXT%</td></tr></table>';
+export const LIST_UI = '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;">%TEXT%</td></tr></table>';
 export const SELECTED_LIST_UI =
   '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;color:#0000FF;">%TEXT%</td></tr></table>';
 
@@ -286,7 +286,6 @@ export class AeroApi {
       hideArrows: Boolean(this.qspApi.readVariableNumber('HIDE_SCROLL_ARROWS')),
     };
     if (!this.scrollUI || !equal(this.scrollUI, scrollUI)) {
-      console.log(scrollUI);
       this.scrollUI = scrollUI;
       this.events.emit('scroll_ui', scrollUI);
     }
@@ -307,7 +306,6 @@ export class AeroApi {
       intergratedActions: Boolean(this.qspApi.readVariableNumber('INTEGRATED_ACTIONS')),
     };
     if (!this.playerUI || !equal(this.playerUI, playerUI)) {
-      console.log(playerUI);
       this.playerUI = playerUI;
       this.events.emit('player_ui', playerUI);
     }
@@ -323,7 +321,6 @@ export class AeroApi {
       backImage: this.qspApi.readVariableString('$MAINDESC_BACKIMAGE'),
     };
     if (!this.mainPanelUI || !equal(this.mainPanelUI, mainPanelUI)) {
-      console.log(mainPanelUI);
       this.mainPanelUI = mainPanelUI;
       this.events.emit('main_ui', mainPanelUI);
     }
@@ -339,7 +336,6 @@ export class AeroApi {
       backImage: this.qspApi.readVariableString('$STATDESC_BACKIMAGE'),
     };
     if (!this.statPanelUI || !equal(this.statPanelUI, statPanelUI)) {
-      console.log(statPanelUI);
       this.statPanelUI = statPanelUI;
       this.events.emit('stats_ui', statPanelUI);
     }
@@ -356,7 +352,6 @@ export class AeroApi {
       backImage: this.qspApi.readVariableString('$ACTIONS_BACKIMAGE'),
     };
     if (!this.actionsPanelUI || !equal(this.actionsPanelUI, actionsPanelUI)) {
-      console.log(actionsPanelUI);
       this.actionsPanelUI = actionsPanelUI;
       this.events.emit('actions_ui', actionsPanelUI);
     }
@@ -373,7 +368,6 @@ export class AeroApi {
       backImage: this.qspApi.readVariableString('$OBJECTS_BACKIMAGE'),
     };
     if (!this.objectsPanelUI || !equal(this.objectsPanelUI, objectsPanelUI)) {
-      console.log(objectsPanelUI);
       this.objectsPanelUI = objectsPanelUI;
       this.events.emit('objects_ui', objectsPanelUI);
     }
@@ -389,7 +383,6 @@ export class AeroApi {
       backImage: '',
     };
     if (!this.userInputUI || !equal(this.userInputUI, userInputUI)) {
-      console.log(userInputUI);
       this.userInputUI = userInputUI;
       this.events.emit('user_input_ui', userInputUI);
     }
@@ -408,7 +401,6 @@ export class AeroApi {
       alwaysShow: Boolean(this.qspApi.readVariableNumber('ALWAYS_SHOW_VIEW')),
     };
     if (!this.viewUI || !equal(this.viewUI, viewUI)) {
-      console.log(viewUI);
       this.viewUI = viewUI;
       this.events.emit('view_ui', viewUI);
     }
@@ -449,7 +441,6 @@ export class AeroApi {
     };
 
     if (!this.inputUI || !equal(this.inputUI, inputUI)) {
-      console.log(inputUI);
       this.inputUI = inputUI;
       this.events.emit('input_ui', inputUI);
     }
@@ -479,7 +470,6 @@ export class AeroApi {
     };
 
     if (!this.msgUI || !equal(this.msgUI, msgUI)) {
-      console.log(msgUI);
       this.msgUI = msgUI;
       this.events.emit('msg_ui', msgUI);
     }
@@ -509,13 +499,13 @@ export class AeroApi {
     };
 
     if (!this.menuUI || !equal(this.menuUI, menuUI)) {
-      console.log(menuUI);
       this.menuUI = menuUI;
       this.events.emit('menu_ui', menuUI);
     }
   }
 
   private convertColor(value: number, withAlpha = true): string {
+    if (!value) return null;
     const arr = new Uint8Array(4);
     const view = new DataView(arr.buffer);
     view.setInt32(0, value);
