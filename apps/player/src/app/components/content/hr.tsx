@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Hr = styled.div<{ width: string; size: string; noshade: boolean } & WithTheme>`
+export const Hr = styled.div<{ width: string; size: string; noshade: boolean }>`
   border-width: ${(props) => (Number(props.size) > 0 ? '1px' : '1px 0 0 0')};
   border-style: ${(props) => (props.noshade ? 'solid' : 'inset')};
   border-color: rgb(128, 128, 128);

@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Big = styled.span<WithTheme>`
+export const Big = styled.span`
   font-size: larger;
 `;

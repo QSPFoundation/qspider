@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
 import { IconButton } from '../ui-blocks/icon-button';
 import { OpenGameButton } from '../ui-blocks/open-game-button';
 
-export const PlayerToolbarWrapper = styled.div<WithTheme>`
+export const PlayerToolbarWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;

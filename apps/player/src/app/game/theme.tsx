@@ -1,5 +1,6 @@
 import React from 'react';
-import { ThemeProvider } from 'emotion-theming';
+import { ThemeProvider } from '@emotion/react';
+
 import { useLayout } from './layout';
 import { observer } from 'mobx-react-lite';
 

@@ -6,9 +6,8 @@ import { ActionList } from '../ui-blocks/action-list/action-list';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { usePopper } from 'react-popper';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const MenuWrapper = styled.div<WithTheme>`
+export const MenuWrapper = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
 `;
 

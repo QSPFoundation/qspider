@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Center = styled.div<WithTheme>`
+export const Center = styled.div`
   text-align: center;
   width: 100%;
 

@@ -3,11 +3,10 @@ import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { Content } from '../../content/content';
 import { ActionImage } from './action-image';
-import { WithTheme } from '../../../theme.types';
 import Color from 'color';
 import { useResources } from '../../../game/resource-manager';
 
-export const ActionButton = styled.button<WithTheme>`
+export const ActionButton = styled.button`
   display: flex;
   align-items: center;
   font-size: ${(props) => props.theme.fontSize}pt;

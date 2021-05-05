@@ -2,9 +2,8 @@ import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-const A = styled.a<WithTheme>`
+const A = styled.a`
   color: ${(props) => props.theme.linkColor};
 `;
 

@@ -1,5 +1,4 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
 export const fontSizeMap = {
   '-2': 'x-small',
@@ -19,6 +18,6 @@ export const fontSizeMap = {
   7: 'xxx-large',
 };
 
-export const Font = styled.span<{ size: string } & WithTheme>`
+export const Font = styled.span<{ size: string }>`
   font-size: ${(props) => (props.size != null ? fontSizeMap[props.size] || 'medium' : 'inherit')};
 `;

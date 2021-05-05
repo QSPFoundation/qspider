@@ -1,10 +1,9 @@
 import React, { ChangeEvent } from 'react';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 import { Icon } from './icons';
 import Color from 'color';
 
-const OpenButton = styled.div<WithTheme>`
+const OpenButton = styled.div`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;

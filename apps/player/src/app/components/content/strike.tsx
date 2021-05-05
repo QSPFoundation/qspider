@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Strike = styled.span<WithTheme>`
+export const Strike = styled.span`
   text-decoration: line-through;
 `;

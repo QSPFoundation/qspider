@@ -3,9 +3,8 @@ import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../../game/manager';
 import styled from '@emotion/styled';
 import { Modal } from '../../ui-blocks/modal';
-import { WithTheme } from '../../../theme.types';
 
-const TextInput = styled.input<WithTheme>`
+const TextInput = styled.input`
   width: 100%;
   height: 40px;
   padding: 2px 5px;

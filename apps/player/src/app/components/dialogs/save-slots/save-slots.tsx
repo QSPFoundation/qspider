@@ -4,13 +4,12 @@ import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 
 const SlotTtile = styled.h4`
   margin: 0;
   text-align: center;
 `;
-const SlotButton = styled.button<WithTheme>`
+const SlotButton = styled.button`
   text-align: center;
   cursor: pointer;
   background-color: ${(props) => props.theme.backgroundColor};

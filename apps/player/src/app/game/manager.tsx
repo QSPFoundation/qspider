@@ -55,7 +55,7 @@ export class GameManager {
   counterDelay = 500;
   counterTimeout: ReturnType<typeof setTimeout>;
 
-  apiInitialized: Promise<boolean>;
+  apiInitialized: Promise<void>;
 
   public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();

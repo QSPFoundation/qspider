@@ -1,13 +1,13 @@
-export interface PlayerTheme {
-  backgroundColor: string;
-  backgroundImage: string;
-  textColor: string;
-  fontSize: number;
-  fontName: string;
-  borderColor: string;
-  linkColor: string;
-}
+import '@emotion/react';
 
-export interface WithTheme {
-  theme: PlayerTheme;
+declare module '@emotion/react' {
+  export interface Theme {
+    backgroundColor: string;
+    backgroundImage: string;
+    textColor: string;
+    fontSize: number;
+    fontName: string;
+    borderColor: string;
+    linkColor: string;
+  }
 }

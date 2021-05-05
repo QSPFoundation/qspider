@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Column = styled.div<WithTheme>`
+export const Column = styled.div`
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
