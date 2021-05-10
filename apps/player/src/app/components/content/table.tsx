@@ -1,13 +1,10 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Table = styled.table<
-  {
-    border: number;
-    cellspacing: number;
-    cellpadding: number;
-  } & WithTheme
->`
+export const Table = styled.table<{
+  border: number;
+  cellspacing: number;
+  cellpadding: number;
+}>`
   border-color: rgb(238, 238, 237);
   border-style: inset;
   border-width: ${(props) => props.border}px;

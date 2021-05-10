@@ -1,5 +1,5 @@
 import React from 'react';
-import { Global, css } from '@emotion/core';
+import { Global, css } from '@emotion/react';
 
 import { GameManagerProvider } from './game/manager';
 import { LayoutProvider } from './game/layout';

@@ -1,6 +1,5 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Tt = styled.span<WithTheme>`
+export const Tt = styled.span`
   font-family: monospace;
 `;

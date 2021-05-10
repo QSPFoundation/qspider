@@ -3,11 +3,11 @@ import { useLocalStore } from 'mobx-react-lite';
 import { decorate, observable, action, computed } from 'mobx';
 import { useGameManager, GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
-import { PlayerTheme } from '../theme.types';
 import { LayoutDock, LayoutPanel } from './cfg-converter';
 import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
 import { ResourceManager, useResources } from './resource-manager';
+import { Theme } from '@emotion/react';
 
 class Layout {
   useHtml = false;
@@ -33,7 +33,7 @@ class Layout {
     this.initialized(manager);
   }
 
-  get theme(): PlayerTheme {
+  get theme(): Theme {
     return {
       backgroundColor: this.backgroundColor || this.defaultBackgroundColor,
       backgroundImage: this.backgroundImage ? `url(${this.resources.get(this.backgroundImage).url})` : 'none',

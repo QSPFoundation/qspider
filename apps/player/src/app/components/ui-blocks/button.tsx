@@ -1,8 +1,7 @@
 import styled from '@emotion/styled';
 import Color from 'color';
-import { WithTheme } from '../../theme.types';
 
-export const Button = styled.button<WithTheme>`
+export const Button = styled.button`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;

@@ -3,9 +3,8 @@ import styled from '@emotion/styled';
 import CustomScroll from 'react-custom-scroll';
 import { Overlay } from './overlay';
 import { Button } from './button';
-import { WithTheme } from '../../theme.types';
 
-const ModalContainer = styled.div<WithTheme>`
+const ModalContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -17,7 +16,7 @@ const ModalContainer = styled.div<WithTheme>`
   pointer-events: none;
 `;
 
-const ModalBody = styled.div<WithTheme & { width?: number }>`
+const ModalBody = styled.div<{ width?: number }>`
   border: 1px solid ${(props) => props.theme.borderColor};
   background: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
@@ -36,7 +35,7 @@ const ModalBody = styled.div<WithTheme & { width?: number }>`
   display: flex;
 `;
 
-const ModalActions = styled.div<WithTheme>`
+const ModalActions = styled.div`
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px solid ${(props) => props.theme.borderColor};
@@ -44,7 +43,7 @@ const ModalActions = styled.div<WithTheme>`
   justify-content: flex-end;
 `;
 
-const CloseButton = styled.button<WithTheme>`
+const CloseButton = styled.button`
   color: ${(props) => props.theme.textColor};
   background: transparent;
   border: none;
