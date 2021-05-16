@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
+import Color from 'color';
 
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
@@ -17,6 +18,11 @@ const SlotButton = styled.button`
   border: 2px solid ${(props) => props.theme.borderColor};
   padding: 4px 8px;
   border-radius: 8px;
+
+  &:hover {
+    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
+    color: ${(props) => props.theme.backgroundColor};
+  }
 `;
 const Slots = styled.div`
   padding: 16px;
