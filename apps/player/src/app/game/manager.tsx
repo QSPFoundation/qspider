@@ -67,7 +67,7 @@ export class GameManager {
     });
   }
 
-  private isPaused: boolean = false;
+  private isPaused = false;
   private api: QspAPI;
 
   async initialize(onApiInitialized: () => void): Promise<void> {
@@ -78,7 +78,6 @@ export class GameManager {
     this.setupHotKeyListeners();
 
     this.config = await fetchPlayerConfig();
-    console.log(this.config);
 
     this.hotKeysManager.setupGlobalHotKeys();
     onApiInitialized();
