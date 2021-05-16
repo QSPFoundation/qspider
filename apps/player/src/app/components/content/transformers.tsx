@@ -10,6 +10,8 @@ import { Tt } from './tt';
 import { Area } from './area';
 import { Table } from './table';
 import { Font, fontSizeMap } from './font';
+import { Source } from './source';
+import { Video } from './video';
 
 const attributeToStyle = {
   size: 'fontSize',
@@ -178,6 +180,19 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     );
   },
   br: () => <br />,
+  video: (node, children) => (
+    <Video
+      className={node.getAttribute('class')}
+      src={node.getAttribute('src')}
+      style={attributesToStyle(node)}
+      poster={node.getAttribute('poster')}
+    >
+      {children}
+    </Video>
+  ),
+  source: (node) => (
+    <Source src={node.getAttribute('src')} type={node.getAttribute('type')} media={node.getAttribute('media')} />
+  ),
 };
 
 export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {
