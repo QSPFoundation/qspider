@@ -202,6 +202,9 @@ export class QspAPIImpl implements QspAPI {
 
     const onCLoseFile = this.module.addFunction(this.onCloseFile, 'ii');
     this.module._setCallBack(QspCallType.CLOSEFILE, onCLoseFile);
+
+    const onSystemCmd = this.module.addFunction(this.onSystemCmd, 'ii');
+    this.module._setCallBack(QspCallType.SYSTEM, onSystemCmd);
   }
 
   private emit<E extends keyof QspEvents, CB extends QspEvents[E] = QspEvents[E]>(
@@ -322,6 +325,11 @@ export class QspAPIImpl implements QspAPI {
   onDebug = (strPtr: StringPtr): void => {
     const text = this.readString(strPtr);
     console.log('DEBUG:', text);
+  };
+
+  onSystemCmd = (strPtr: StringPtr): void => {
+    const text = this.readString(strPtr);
+    this.emit('system_cmd', text);
   };
 
   onGetMS = (): number => {

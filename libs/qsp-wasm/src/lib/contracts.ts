@@ -31,6 +31,7 @@ export type QspEvents = {
   is_play: (file: string, onResult: (result: boolean) => void) => void;
   play_file: (path: string, volume: number, onReady: () => void) => Promise<void>;
   close_file: (path: string, onReady: () => void) => void;
+  system_cmd: (cmd: string) => void;
 };
 
 export interface QspAPI {
