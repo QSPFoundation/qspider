@@ -10,6 +10,12 @@ export interface GameDescriptor {
   description?: string;
   file: string;
   hotkeys?: Record<string, string>;
+  resources?: {
+    styles?: string[];
+    scripts?: string[];
+    fonts?: [string, string, string, string][];
+    icon?: string;
+  };
 }
 
 export interface PlayerConfig {

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
+import Color from 'color';
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import { OpenGameButton } from '../../ui-blocks/open-game-button';
@@ -20,6 +21,11 @@ const GameSlot = styled.div`
   border-radius: 4px;
   white-space: pre-wrap;
   cursor: pointer;
+
+  &:hover {
+    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
+    color: ${(props) => props.theme.backgroundColor};
+  }
 `;
 
 const GameTitle = styled.h3`
