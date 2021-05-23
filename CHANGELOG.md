@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.10.0](https://github.com/QSPFoundation/qspider/compare/v0.9.1...v0.10.0) (2021-05-23)
+
+### Features
+
+- additional game resources( css, js, fonts, favicon) ([f5f9c4d](https://github.com/QSPFoundation/qspider/commit/f5f9c4d1e8a01e0f0e30bd596c328bda7e7b0ec6))
+- video tag support ([a88d51f](https://github.com/QSPFoundation/qspider/commit/a88d51f322c2936a87e4eed9d337d09fa91bd3a2))
+
+### Bug Fixes
+
+- add hover effect ro game list and save dialogs ([4bd3477](https://github.com/QSPFoundation/qspider/commit/4bd3477f72f1863783fcef4d2d353b7d74211457))
+- don't start sound anew if already playing ([8d3a977](https://github.com/QSPFoundation/qspider/commit/8d3a977fa21a9eb9f0a9ce2e072d6b18339fc9b8))
+- fix working with save greater than 64kb ([dfe5427](https://github.com/QSPFoundation/qspider/commit/dfe54271454646e7c729404fb89dd01e71680ef1))
+- qsp error handling ([ba1b456](https://github.com/QSPFoundation/qspider/commit/ba1b45627caf8a6c8a418119b0253c02f97ab385))
+
 ### [0.9.1](https://github.com/QSPFoundation/qspider/compare/v0.9.0...v0.9.1) (2020-11-01)
 
 ### Features
