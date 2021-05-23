@@ -84,7 +84,7 @@ export class Sound {
   play(volume: number): void {
     this.howl.volume(normalizeVolume(volume));
     this.isScheduled = true;
-    if (this.howl.state() === 'loaded') {
+    if (this.howl.state() === 'loaded' && !this.isPlaying) {
       this.howl.play();
     }
   }
