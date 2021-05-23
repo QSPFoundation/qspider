@@ -41,15 +41,15 @@ export interface QspAPI {
   openGame(data: ArrayBuffer, isNewGame: boolean): void;
   saveGame(): ArrayBuffer;
   loadSave(data: ArrayBuffer): void;
-  restartGame(): boolean;
-  selectAction(index: number): boolean;
-  selectObject(index: number): boolean;
+  restartGame(): void;
+  selectAction(index: number): void;
+  selectObject(index: number): void;
   readVariableNumber(name: string, index?: number): number;
   readVariableString(name: string, index?: number): string;
-  execCode(code: string): boolean;
+  execCode(code: string): void;
   execCounter(): void;
-  execUserInput(code: string): boolean;
-  execLoc(name: string): boolean;
+  execUserInput(code: string): void;
+  execLoc(name: string): void;
 }
 
 export interface QspErrorData {

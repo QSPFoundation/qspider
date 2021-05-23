@@ -25,16 +25,14 @@ export class QspAPIImpl implements QspAPI {
     this.events.off(event, listener);
   }
 
-  openGame(data: ArrayBuffer, isNewGame: boolean): boolean {
+  openGame(data: ArrayBuffer, isNewGame: boolean): void {
     const bytes = new Uint8Array(data);
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
 
-    const result = this.onCalled(this.module._loadGameData(ptr, bytes.length, Number(isNewGame) as Bool));
+    this.module._loadGameData(ptr, bytes.length, Number(isNewGame) as Bool);
 
     this.module._free(ptr);
-
-    return result;
   }
 
   saveGame(): ArrayBuffer {
@@ -42,7 +40,7 @@ export class QspAPIImpl implements QspAPI {
     const bufferPtr = this.module._saveGameData(sizePtr);
     const size = this.module.getValue(sizePtr, 'i32');
     if (!size) {
-      this.onCalled(0);
+      this.onError();
       this.freePtr(sizePtr);
       return;
     }
@@ -59,21 +57,21 @@ export class QspAPIImpl implements QspAPI {
     const bytes = new Uint8Array(data);
     const ptr = this.module._malloc(bytes.length);
     this.module.HEAPU8.set(bytes, ptr);
-    this.onCalled(this.module._loadSavedGameData(ptr, bytes.length));
+    this.module._loadSavedGameData(ptr, bytes.length);
     this.module._free(ptr);
   }
 
-  restartGame(): boolean {
+  restartGame(): void {
     this.time = Date.now();
-    return this.onCalled(this.module._restartGame());
+    this.module._restartGame();
   }
 
-  selectAction(index: number): boolean {
-    return this.onCalled(this.module._selectAction(index));
+  selectAction(index: number): void {
+    this.module._selectAction(index);
   }
 
-  selectObject(index: number): boolean {
-    return this.onCalled(this.module._selectObject(index));
+  selectObject(index: number): void {
+    this.module._selectObject(index);
   }
 
   version(): string {
@@ -109,29 +107,26 @@ export class QspAPIImpl implements QspAPI {
     return value;
   }
 
-  execCode(code: string): boolean {
+  execCode(code: string): void {
     const ptr = this.prepareString(code);
-    const result = this.module._execString(ptr);
+    this.module._execString(ptr);
     this.module._free(ptr);
-    return this.onCalled(result);
   }
 
-  execCounter(): boolean {
-    return this.onCalled(this.module._execCounter());
+  execCounter(): void {
+    this.module._execCounter();
   }
 
-  execLoc(name: string): boolean {
+  execLoc(name: string): void {
     const ptr = this.prepareString(name);
-    const result = this.module._execLoc(ptr);
+    this.module._execLoc(ptr);
     this.module._free(ptr);
-    return this.onCalled(result);
   }
 
-  execUserInput(code: string): boolean {
+  execUserInput(code: string): void {
     const ptr = this.prepareString(code);
-    const result = this.module._execUserInput(ptr);
+    this.module._execUserInput(ptr);
     this.module._free(ptr);
-    return this.onCalled(result);
   }
 
   private init() {
@@ -152,6 +147,9 @@ export class QspAPIImpl implements QspAPI {
   }
 
   private registerCallbacks() {
+    const onError = this.module.addFunction(this.onError, 'i');
+    this.module._setErrorCallback(onError);
+
     const onRefreshInt = this.module.addFunction(this.onRefresh, 'ii');
     this.module._setCallBack(QspCallType.REFRESHINT, onRefreshInt);
 
@@ -214,6 +212,15 @@ export class QspAPIImpl implements QspAPI {
     console.log({ event, args });
     this.events.emit(event, ...args);
   }
+
+  onError = (): void => {
+    const errorData = this.readError();
+    if (errorData.code > 0) {
+      console.error(errorData);
+      this.emit('error', errorData);
+    }
+    this.onRefresh(true);
+  };
 
   onRefresh = (isRedraw: boolean): void => {
     this.updateLayout();
@@ -423,17 +430,6 @@ export class QspAPIImpl implements QspAPI {
       this.layout = layout;
       this.emit('layout', this.layout);
     }
-  }
-
-  private onCalled(isSuccessfull: Bool): boolean {
-    if (!isSuccessfull) {
-      const errorData = this.readError();
-      if (errorData.code > 0) {
-        console.error(errorData);
-        this.emit('error', errorData);
-      }
-    }
-    return Boolean(isSuccessfull);
   }
 
   private readChars(ptr: CharsPtr): string {
