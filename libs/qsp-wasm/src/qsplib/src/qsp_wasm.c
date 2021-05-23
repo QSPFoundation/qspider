@@ -26,6 +26,8 @@ typedef int (*QSP_CALLBACK)();
 
 int MAX_LIST_ITEMS = 1000;
 
+QSP_CALLBACK errorCallback;
+
 EMSCRIPTEN_KEEPALIVE
 void init()
 {
@@ -42,6 +44,20 @@ EMSCRIPTEN_KEEPALIVE
 void getVersion(QSPString *result)
 {
   *result = QSPGetVersion();
+}
+
+EMSCRIPTEN_KEEPALIVE
+void setErrorCallback(QSP_CALLBACK func)
+{
+  errorCallback = func;
+}
+
+void onError()
+{
+  if (errorCallback)
+  {
+    errorCallback();
+  }
 }
 
 /* Main desc */
@@ -86,10 +102,18 @@ QSPListItem *getActions(int *count)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL selectAction(int index)
+void selectAction(int index)
 {
-  QSPSetSelActionIndex(index, QSP_TRUE);
-  return QSPExecuteSelActionCode(QSP_TRUE);
+  if (QSPSetSelActionIndex(index, QSP_TRUE))
+  {
+
+    if (!QSPExecuteSelActionCode(QSP_TRUE))
+      onError();
+  }
+  else
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -114,9 +138,12 @@ QSPListItem *getObjects(int *count)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL selectObject(int index)
+void selectObject(int index)
 {
-  return QSPSetSelObjectIndex(index, QSP_TRUE);
+  if (!QSPSetSelObjectIndex(index, QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -127,15 +154,21 @@ QSP_BOOL isObjectsChanged()
 
 /* Game */
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL loadGameData(const void *data, int dataSize, QSP_BOOL isNewGame)
+void loadGameData(const void *data, int dataSize, QSP_BOOL isNewGame)
 {
-  return QSPLoadGameWorldFromData(data, dataSize, isNewGame);
+  if (!QSPLoadGameWorldFromData(data, dataSize, isNewGame))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL restartGame()
+void restartGame()
 {
-  return QSPRestartGame(QSP_TRUE);
+  if (!QSPRestartGame(QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -162,35 +195,51 @@ void *saveGameData(int *realSize)
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL loadSavedGameData(const void *data, int dataSize)
+void loadSavedGameData(const void *data, int dataSize)
 {
-  return QSPOpenSavedGameFromData(data, dataSize, QSP_TRUE);
+  if (!QSPOpenSavedGameFromData(data, dataSize, QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 /* exec code */
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execString(QSP_CHAR *s)
+void execString(QSP_CHAR *s)
 {
-  return QSPExecString(qspStringFromC(s), QSP_TRUE);
+  if (!QSPExecString(qspStringFromC(s), QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execCounter()
+void execCounter()
 {
-  return QSPExecCounter(QSP_TRUE);
+  if (!QSPExecCounter(QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execLoc(QSP_CHAR *name)
+void execLoc(QSP_CHAR *name)
 {
-  return QSPExecLocationCode(qspStringFromC(name), QSP_TRUE);
+  if (!QSPExecLocationCode(qspStringFromC(name), QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 EMSCRIPTEN_KEEPALIVE
-QSP_BOOL execUserInput(QSP_CHAR *s)
+void execUserInput(QSP_CHAR *s)
 {
   QSPSetInputStrText(qspStringFromC(s));
-  return QSPExecUserInput(QSP_TRUE);
+
+  if (!QSPExecUserInput(QSP_TRUE))
+  {
+    onError();
+  }
 }
 
 /* Errors */

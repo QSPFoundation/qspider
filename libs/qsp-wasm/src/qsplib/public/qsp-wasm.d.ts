@@ -21,6 +21,8 @@ export interface QspModule extends EmscriptenModule {
   _init(): void;
   _dispose(): void;
 
+  _setErrorCallback(fnPtr: FunctionPtr): void;
+
   _getVersion(ptr: Ptr): void;
 
   _getMainDesc(ptr: Ptr): void;
@@ -30,22 +32,22 @@ export interface QspModule extends EmscriptenModule {
   _isVarsDescChanged(): Bool;
 
   _getActions(list: Ptr): number;
-  _selectAction(index: number): Bool;
+  _selectAction(index: number): void;
   _isActionsChanged(): Bool;
 
   _getObjects(list: Ptr): number;
-  _selectObject(index: number): Bool;
+  _selectObject(index: number): void;
   _isObjectsChanged(): Bool;
 
-  _loadGameData(data: BufferPtr, size: number, isNewGame: Bool): Bool;
-  _restartGame(): Bool;
+  _loadGameData(data: BufferPtr, size: number, isNewGame: Bool): void;
+  _restartGame(): void;
   _saveGameData(realSize: IntPtr): Ptr;
-  _loadSavedGameData(data: BufferPtr, size: number): Bool;
+  _loadSavedGameData(data: BufferPtr, size: number): void;
 
-  _execString(input: CharsPtr): Bool;
-  _execCounter(): Bool;
-  _execUserInput(input: CharsPtr): Bool;
-  _execLoc(input: CharsPtr): Bool;
+  _execString(input: CharsPtr): void;
+  _execCounter(): void;
+  _execUserInput(input: CharsPtr): void;
+  _execLoc(input: CharsPtr): void;
 
   _getLastErrorData(errorNum: IntPtr, errorLoc: StringPtr, errorActIndex: IntPtr, errorLine: IntPtr): void;
   _getErrorDesc(ptr: Ptr, errorNum: number): void;

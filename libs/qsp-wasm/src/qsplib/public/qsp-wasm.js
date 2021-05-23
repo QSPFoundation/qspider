@@ -2718,6 +2718,9 @@ var Module = (function () {
     var _getVersion = (Module['_getVersion'] = createExportWrapper('getVersion'));
 
     /** @type {function(...*):?} */
+    var _setErrorCallback = (Module['_setErrorCallback'] = createExportWrapper('setErrorCallback'));
+
+    /** @type {function(...*):?} */
     var _getMainDesc = (Module['_getMainDesc'] = createExportWrapper('getMainDesc'));
 
     /** @type {function(...*):?} */
