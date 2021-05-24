@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { useStyle } from '../../hooks/style';
-import { WithTheme } from '../../theme.types';
 
 export const fontSizeMap = {
   '-2': 'x-small',
@@ -21,7 +20,7 @@ export const fontSizeMap = {
   7: 'xxx-large',
 };
 
-const StyledFont = styled.span<{ size: string } & WithTheme>`
+const StyledFont = styled.span<{ size: string }>`
   font-size: ${(props) => (props.size != null ? fontSizeMap[props.size] || 'medium' : 'inherit')};
 `;
 

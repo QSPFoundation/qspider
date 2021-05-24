@@ -32,6 +32,7 @@ export type QspEvents = {
   play_file: (path: string, volume: number, onReady: () => void) => Promise<void>;
   close_file: (path: string, onReady: () => void) => void;
   refresh: () => void;
+  system_cmd: (cmd: string) => void;
 };
 
 export interface QspAPI {
@@ -41,15 +42,15 @@ export interface QspAPI {
   openGame(data: ArrayBuffer, isNewGame: boolean): void;
   saveGame(): ArrayBuffer;
   loadSave(data: ArrayBuffer): void;
-  restartGame(): boolean;
-  selectAction(index: number): boolean;
-  selectObject(index: number): boolean;
+  restartGame(): void;
+  selectAction(index: number): void;
+  selectObject(index: number): void;
   readVariableNumber(name: string, index?: number): number;
   readVariableString(name: string, index?: number): string;
-  execCode(code: string): boolean;
+  execCode(code: string): void;
   execCounter(): void;
-  execUserInput(code: string): boolean;
-  execLoc(name: string): boolean;
+  execUserInput(code: string): void;
+  execLoc(name: string): void;
 }
 
 export interface QspErrorData {

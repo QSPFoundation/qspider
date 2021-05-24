@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { IMAGE_PLACEHOLDER, QspListItem, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
-import { WithTheme } from '../../theme.types';
 import { useResources } from '../../game/resource-manager';
 import { Content } from '../content/content';
 import { useAeroLayout } from '../../game/aero/aero-layout';
 
-export const ActionButton = styled.button<WithTheme>`
+export const ActionButton = styled.button`
   font-size: ${(props) => props.theme.fontSize}pt;
   width: 100%;
   text-align: left;

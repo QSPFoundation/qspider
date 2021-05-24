@@ -6,7 +6,6 @@ import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { useClickCoordinates } from '../../../hooks/click-coordinates';
 import { Overlay } from '../../ui-blocks/overlay';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 import { useImageSize } from '../../../hooks/image-size';
 import { MsgUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { useResources } from '../../../game/resource-manager';
@@ -25,9 +24,7 @@ const MsgContainer = styled.div`
   pointer-events: none;
 `;
 
-const MsgBody = styled.div<
-  WithTheme & { width: number; height: number; x: number; y: number; backgroundImage?: string }
->`
+const MsgBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
@@ -51,9 +48,7 @@ const MsgTextContainer = styled.div<{ ui: MsgUI }>`
   white-space: pre-wrap;
 `;
 
-const MsgButton = styled.button<
-  WithTheme & { x?: number; y?: number; backgroundImage: string; width: number; height: number }
->`
+const MsgButton = styled.button<{ x?: number; y?: number; backgroundImage: string; width: number; height: number }>`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;

@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
+import Color from 'color';
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
-import { WithTheme } from '../../../theme.types';
 import { OpenGameButton } from '../../ui-blocks/open-game-button';
 
 const GameSlots = styled.div<{ even: boolean }>`
@@ -14,13 +14,18 @@ const GameSlots = styled.div<{ even: boolean }>`
   row-gap: 16px;
 `;
 
-const GameSlot = styled.div<WithTheme>`
+const GameSlot = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
   color: ${(props) => props.theme.textColor};
   padding: 16px;
   border-radius: 4px;
   white-space: pre-wrap;
   cursor: pointer;
+
+  &:hover {
+    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
+    color: ${(props) => props.theme.backgroundColor};
+  }
 `;
 
 const GameTitle = styled.h3`

@@ -1,13 +1,12 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 import { useGameManager } from '../../../game/manager';
 import { useLayout } from '../../../game/layout';
 import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { AeroContentRectangle } from '@qspider/qsp-wasm';
 
-const TextInput = styled.input<WithTheme & AeroContentRectangle>`
+const TextInput = styled.input<AeroContentRectangle>`
   background: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
   display: inline-block;

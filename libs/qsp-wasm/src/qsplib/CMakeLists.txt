@@ -32,7 +32,7 @@ set_target_properties(qsp-wasm PROPERTIES LINK_FLAGS "-Wno-parentheses \
     -s WASM=1 \
     -s RESERVED_FUNCTION_POINTERS=20 \
     -s ASYNCIFY \
-    -s EXTRA_EXPORTED_RUNTIME_METHODS='[cwrap, getValue, UTF32ToString, stringToUTF32, lengthBytesUTF32, addFunction, Asyncify]' \
+    -s EXPORTED_RUNTIME_METHODS='[cwrap, getValue, UTF32ToString, stringToUTF32, lengthBytesUTF32, addFunction, Asyncify]' \
     -s TOTAL_MEMORY=256MB \
     -s ENVIRONMENT='web,worker' \
     -s MODULARIZE=1 \

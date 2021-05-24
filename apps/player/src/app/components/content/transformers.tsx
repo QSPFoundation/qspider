@@ -7,6 +7,8 @@ import { Hr } from './hr';
 import { Area } from './area';
 import { Table, Td, Th, Tr } from './table';
 import { Font, fontSizeMap } from './font';
+import { Source } from './source';
+import { Video } from './video';
 import { H1, H2, H3, H4, H5, H6 } from './headers';
 import { B, Big, I, Strike, Tt } from './format';
 import { Div, P } from './blocks';
@@ -275,6 +277,19 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     );
   },
   br: () => <br />,
+  video: (node, children) => (
+    <Video
+      className={node.getAttribute('class')}
+      src={node.getAttribute('src')}
+      style={attributesToStyle(node)}
+      poster={node.getAttribute('poster')}
+    >
+      {children}
+    </Video>
+  ),
+  source: (node) => (
+    <Source src={node.getAttribute('src')} type={node.getAttribute('type')} media={node.getAttribute('media')} />
+  ),
 };
 
 export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {

@@ -13,6 +13,7 @@ import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
 import { ResourceManager, useResources } from './resource-manager';
 import { GameDescriptor, PlayerConfig } from './contracts';
+import { defer, resolvePath } from '../utils';
 
 export class GameManager {
   config: PlayerConfig;
@@ -68,7 +69,7 @@ export class GameManager {
     });
   }
 
-  private isPaused: boolean = false;
+  private isPaused = false;
   private _api: QspAPI;
   get api() {
     return this._api;
@@ -147,15 +148,112 @@ export class GameManager {
     if (descriptor.hotkeys) {
       this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
     }
+    await this.loadAdditionalResources(descriptor.resources);
 
     this._api.openGame(gameSource, true);
     this._api.restartGame();
   }
 
+  async loadAdditionalResources(resources: GameDescriptor['resources']) {
+    if (!resources) return;
+    if (resources.styles) {
+      await this.loadAdditionalStyles(resources.styles);
+    }
+    if (resources.scripts) {
+      await this.loadAdditionalScripts(resources.scripts);
+    }
+    if (resources.fonts) {
+      for (const font of resources.fonts) {
+        this.loadAdditionalFont(font);
+      }
+    }
+    if (resources.icon) {
+      this.updateIcon(this.resources.get(resources.icon).url);
+    }
+  }
+
+  async loadAdditionalStyles(styles: string[]) {
+    const promises: Promise<void>[] = [];
+    for (const style of styles) {
+      const isExternal = style.startsWith('http');
+      if (isExternal) {
+        const gameStyle = document.createElement('link');
+        gameStyle.rel = 'stylesheet';
+        gameStyle.href = style;
+        gameStyle.dataset.qspiderResource = 'style';
+        const defered = defer<void>();
+        gameStyle.onload = () => defered.resolve();
+        gameStyle.onerror = () => defered.reject(new Error(`File not found: ${style}`));
+        promises.push(defered.promise);
+        document.head.appendChild(gameStyle);
+      } else {
+        const { url } = this.resources.get(style);
+        const response = await fetch(url);
+        const text = await response.text();
+        const processed = text.replace(/url\(['"]?(.*?)['"]?\)/gim, (match, path) => {
+          if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+            return `url("${path}")`;
+          }
+          const { url } = this.resources.get(resolvePath(style, path));
+          return `url("${url}")`;
+        });
+        const gameStyle = document.createElement('style');
+        gameStyle.innerText = processed;
+        gameStyle.dataset.qspiderResource = 'style';
+        document.head.appendChild(gameStyle);
+      }
+    }
+    await Promise.allSettled(promises);
+  }
+
+  async loadAdditionalScripts(scripts: string[]) {
+    const promises: Promise<void>[] = [];
+    for (const script of scripts) {
+      const gameScript = document.createElement('script');
+      gameScript.type = 'text/javascript';
+      gameScript.src = this.resources.get(script).url;
+      gameScript.dataset.qspiderResource = 'script';
+      const defered = defer<void>();
+      gameScript.onload = () => defered.resolve();
+      gameScript.onerror = () => defered.reject(new Error(`File not found: ${script}`));
+      promises.push(defered.promise);
+      document.head.appendChild(gameScript);
+    }
+    await Promise.allSettled(promises);
+  }
+
+  loadAdditionalFont(font: [string, string, string, string]) {
+    const [name, path, weight, style] = font;
+    const css = `
+      @font-face {
+        font-family: "${name}";
+        src: url("${this.resources.get(path).url}");
+        font-display: block;
+        font-style: ${style || 'normal'};
+        font-weight: ${weight || 'normal'};
+      }
+    `;
+    const gameStyle = document.createElement('style');
+    gameStyle.innerText = css;
+    gameStyle.dataset.qspiderResource = 'style';
+    document.head.appendChild(gameStyle);
+  }
+
+  updateIcon(favicon = 'favicon.ico'): void {
+    (document.getElementById('favicon') as HTMLLinkElement).href = favicon;
+  }
+
+  clearAdditionalResources() {
+    document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
+  }
+
   stopGame() {
     if (this.currentGame) {
+      this.updateIcon();
       this.hotKeysManager.reset();
       this.resources.clear();
+      this.clearAdditionalResources();
+      window.dispatchEvent(new Event('game-unload'));
     }
   }
 
@@ -190,6 +288,7 @@ export class GameManager {
     this._api.on('is_play', this.isPlay);
     this._api.on('play_file', this.playFile);
     this._api.on('close_file', this.closeFile);
+    this._api.on('system_cmd', this.processSystemCmd);
   }
 
   setupHotKeyListeners() {
@@ -526,6 +625,35 @@ export class GameManager {
     }
     this.saveAction = null;
     this.resume();
+  };
+  processSystemCmd = (cmd: string) => {
+    if (!cmd.startsWith('qspider')) return;
+    const [, _cmd] = cmd.split('.');
+    if (_cmd.startsWith('event:')) {
+      const [, event] = _cmd.split(':');
+      const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
+      if (match) {
+        const name = match[1];
+        const args = match[3].split(',').map((arg) => {
+          const prepared = arg.trim();
+          if (prepared.startsWith('"') || prepared.startsWith("'")) {
+            return prepared.replace(/['"](.*?)['"]/gim, (_, path) => path);
+          }
+          return parseInt(prepared);
+        });
+        window.dispatchEvent(
+          new CustomEvent('qspider-event', {
+            detail: { name, args },
+          })
+        );
+      } else {
+        window.dispatchEvent(
+          new CustomEvent('qspider-event', {
+            detail: { name: event.trim() },
+          })
+        );
+      }
+    }
   };
 }
 

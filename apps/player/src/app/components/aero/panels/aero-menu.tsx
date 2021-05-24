@@ -8,12 +8,11 @@ import styled from '@emotion/styled';
 import { AeroActionList } from '../aero-action-list';
 import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { MenuUI } from '@qspider/qsp-wasm';
-import { WithTheme } from '../../../theme.types';
 import { useImageSize } from '../../../hooks/image-size';
 import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
 
-export const MenuWrapper = styled.div<WithTheme & { menuUI: MenuUI; url: string }>`
+export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
   border: ${(props) => props.menuUI.borderWidth || 0}px solid ${(props) => props.menuUI.borderColor};
   background-color: ${(props) => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
@@ -25,7 +24,7 @@ const MenuList = styled.div<{ menuUI: MenuUI }>`
   width: ${(props) => props.menuUI.list.width}px;
 `;
 
-const FixedMenuWrapper = styled.div<WithTheme & { menuUI: MenuUI; width: number; height: number; url: string }>`
+const FixedMenuWrapper = styled.div<{ menuUI: MenuUI; width: number; height: number; url: string }>`
   position: relative;
   width: ${(props) => props.width}px;
   height: ${(props) => props.width}px;

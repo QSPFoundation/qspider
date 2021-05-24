@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-type PanelProps = { withPadding?: boolean } & WithTheme;
+type PanelProps = { withPadding?: boolean };
 
 export const Panel = styled.div<PanelProps>`
   width: 100%;

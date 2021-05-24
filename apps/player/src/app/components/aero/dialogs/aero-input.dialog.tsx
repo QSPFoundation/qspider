@@ -6,7 +6,6 @@ import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { useClickCoordinates } from '../../../hooks/click-coordinates';
 import { Overlay } from '../../ui-blocks/overlay';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 import { useImageSize } from '../../../hooks/image-size';
 import { InputUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { useResources } from '../../../game/resource-manager';
@@ -26,9 +25,7 @@ const InputContainer = styled.div`
   pointer-events: none;
 `;
 
-const InputBody = styled.div<
-  WithTheme & { width: number; height: number; x: number; y: number; backgroundImage?: string }
->`
+const InputBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
   font-size: ${(props) => props.theme.fontSize}pt;
@@ -52,9 +49,7 @@ const InputTextContainer = styled.div<{ ui: InputUI }>`
   white-space: pre-wrap;
 `;
 
-const InputButton = styled.button<
-  WithTheme & { x?: number; y?: number; backgroundImage?: string; width: number; height: number }
->`
+const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: string; width: number; height: number }>`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;
@@ -75,7 +70,7 @@ const InputButton = styled.button<
   }
 `;
 
-const InputField = styled.input<WithTheme & { ui: InputUI }>`
+const InputField = styled.input<{ ui: InputUI }>`
   position: absolute;
   left: ${(props) => props.ui.field.x}px;
   top: ${(props) => props.ui.field.y}px;

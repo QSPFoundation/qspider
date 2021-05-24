@@ -1,14 +1,17 @@
 {
-  "version": 1,
+  "version": 2,
+  "cli": {
+    "defaultCollection": "@nrwl/react"
+  },
+  "defaultProject": "player",
   "projects": {
     "player": {
       "root": "apps/player",
       "sourceRoot": "apps/player/src",
       "projectType": "application",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "build": {
-          "builder": "@nrwl/web:build",
+          "executor": "@nrwl/web:build",
           "options": {
             "baseHref": "",
             "outputPath": "dist/apps/player",
@@ -62,10 +65,11 @@
                 }
               ]
             }
-          }
+          },
+          "outputs": ["{options.outputPath}"]
         },
         "serve": {
-          "builder": "@nrwl/web:dev-server",
+          "executor": "@nrwl/web:dev-server",
           "options": {
             "buildTarget": "player:build"
           },
@@ -76,7 +80,7 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
             "tsConfig": ["apps/player/tsconfig.app.json", "apps/player/tsconfig.spec.json"],
@@ -84,11 +88,12 @@
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "apps/player/jest.config.js",
             "passWithNoTests": true
-          }
+          },
+          "outputs": ["coverage/apps/player"]
         }
       }
     },
@@ -96,9 +101,9 @@
       "root": "apps/player-e2e",
       "sourceRoot": "apps/player-e2e/src",
       "projectType": "application",
-      "architect": {
+      "targets": {
         "e2e": {
-          "builder": "@nrwl/cypress:cypress",
+          "executor": "@nrwl/cypress:cypress",
           "options": {
             "cypressConfig": "apps/player-e2e/cypress.json",
             "tsConfig": "apps/player-e2e/tsconfig.e2e.json",
@@ -111,7 +116,7 @@
           }
         },
         "lint": {
-          "builder": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
             "tsConfig": ["apps/player-e2e/tsconfig.e2e.json"],
@@ -124,10 +129,9 @@
       "root": "libs/qsp-wasm",
       "sourceRoot": "libs/qsp-wasm/src",
       "projectType": "library",
-      "schematics": {},
-      "architect": {
+      "targets": {
         "lint": {
-          "builder": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:lint",
           "options": {
             "linter": "eslint",
             "tsConfig": ["libs/qsp-wasm/tsconfig.lib.json", "libs/qsp-wasm/tsconfig.spec.json"],
@@ -135,14 +139,15 @@
           }
         },
         "test": {
-          "builder": "@nrwl/jest:jest",
+          "executor": "@nrwl/jest:jest",
           "options": {
             "jestConfig": "libs/qsp-wasm/jest.config.js",
             "passWithNoTests": true
-          }
+          },
+          "outputs": ["coverage/libs/qsp-wasm"]
         },
         "compile": {
-          "builder": "@nrwl/workspace:run-commands",
+          "executor": "@nrwl/workspace:run-commands",
           "options": {
             "commands": [
               {
@@ -155,10 +160,8 @@
       }
     }
   },
-  "cli": {
-    "defaultCollection": "@nrwl/react"
-  },
-  "schematics": {
+
+  "generators": {
     "@nrwl/workspace": {
       "library": {
         "linter": "eslint"
@@ -219,6 +222,5 @@
         "linter": "eslint"
       }
     }
-  },
-  "defaultProject": "player"
+  }
 }

@@ -1,16 +1,16 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
+import Color from 'color';
 
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 
 const SlotTtile = styled.h4`
   margin: 0;
   text-align: center;
 `;
-const SlotButton = styled.button<WithTheme>`
+const SlotButton = styled.button`
   text-align: center;
   cursor: pointer;
   background-color: ${(props) => props.theme.backgroundColor};
@@ -18,6 +18,11 @@ const SlotButton = styled.button<WithTheme>`
   border: 2px solid ${(props) => props.theme.borderColor};
   padding: 4px 8px;
   border-radius: 8px;
+
+  &:hover {
+    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
+    color: ${(props) => props.theme.backgroundColor};
+  }
 `;
 const Slots = styled.div`
   padding: 16px;

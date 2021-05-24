@@ -1,7 +1,6 @@
 import React from 'react';
-import { keyframes } from '@emotion/core';
+import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
-import { WithTheme } from '../theme.types';
 
 const left = keyframes`
   4% {
@@ -89,7 +88,7 @@ const pages = Array.from({ length: 19 }, (_, i) => {
     `;
 });
 
-const Book = styled.div<WithTheme>`
+const Book = styled.div`
   --color: #3c6478;
   --duration: 6.8s;
   width: 32px;
@@ -228,7 +227,7 @@ const Pages = styled.ul`
   }
 `;
 
-const LoadingContainer = styled.div<WithTheme>`
+const LoadingContainer = styled.div`
   position: fixed;
   top: 0;
   bottom: 0;

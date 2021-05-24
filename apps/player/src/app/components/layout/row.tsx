@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 
-export const Row = styled.div<WithTheme>`
+export const Row = styled.div`
   display: flex;
   flex-shrink: 0;
   flex-basis: 0;

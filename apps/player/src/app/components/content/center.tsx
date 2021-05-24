@@ -1,9 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../theme.types';
 import { useStyle } from '../../hooks/style';
 
-export const StyledCenter = styled.div<WithTheme>`
+export const StyledCenter = styled.div`
   text-align: center;
   width: 100%;
 

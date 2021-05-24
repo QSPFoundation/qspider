@@ -2,11 +2,10 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { Panel } from '../../ui-blocks/panel';
 import styled from '@emotion/styled';
-import { WithTheme } from '../../../theme.types';
 import { useGameManager } from '../../../game/manager';
 import { useLayout } from '../../../game/layout';
 
-const TextInput = styled.input<WithTheme>`
+const TextInput = styled.input`
   background: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
   display: inline-block;

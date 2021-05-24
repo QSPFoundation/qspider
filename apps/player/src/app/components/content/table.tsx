@@ -1,15 +1,12 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { useStyle } from '../../hooks/style';
-import { WithTheme } from '../../theme.types';
 
-const StyledTable = styled.table<
-  {
-    border: number;
-    cellspacing: number;
-    cellpadding: number;
-  } & WithTheme
->`
+const StyledTable = styled.table<{
+  border: number;
+  cellspacing: number;
+  cellpadding: number;
+}>`
   border-color: rgb(238, 238, 237);
   border-style: inset;
   border-width: ${(props) => props.border}px;
