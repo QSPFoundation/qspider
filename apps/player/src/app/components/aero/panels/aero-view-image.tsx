@@ -12,7 +12,7 @@ const ViewImageContainer = styled.div<{ ui: ViewUI; url: string }>`
   top: ${(props) => props.ui.y}px;
   width: ${(props) => props.ui.width}px;
   height: ${(props) => props.ui.height}px;
-  background-image: ${(props) => (props.url ? `url(${props.url})` : 'none')};
+  background-image: ${(props) => (props.url ? `url("${props.url}")` : 'none')};
   background-size: cover;
   background-position: center;
 `;

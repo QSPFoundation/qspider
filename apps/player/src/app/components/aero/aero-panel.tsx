@@ -10,7 +10,7 @@ export const AeroPanel = styled.div<Partial<AeroContentRectangle> & { background
 
   white-space: pre-wrap;
 
-  background-image: ${({ background }) => (background ? `url(${background})` : 'none')};
+  background-image: ${({ background }) => (background ? `url("${background}")` : 'none')};
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;

@@ -32,7 +32,7 @@ const AeroPlayerBlock = styled.div<{
   margin: 0 auto;
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
-  background-image: ${({ backgroundImage }) => (backgroundImage ? `url(${backgroundImage})` : 'none')};
+  background-image: ${({ backgroundImage }) => (backgroundImage ? `url("${backgroundImage}")` : 'none')};
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
@@ -46,7 +46,7 @@ const AeroPlayerForeground = styled.div<{
   bottom: 0;
   left: 0;
   right: 0;
-  background-image: url(${({ image }) => image});
+  background-image: url('${({ image }) => image}');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
@@ -66,10 +66,10 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
   const { width: downArrowWidth, height: downArrowHeight } = useImageSize(downArrow);
 
   const style = {
-    '--up-arrow': layout.scrollUI.hideArrows ? '' : `url(${upArrow})`,
+    '--up-arrow': layout.scrollUI.hideArrows ? '' : `url("${upArrow}")`,
     '--up-arrow-width': upArrowWidth + 'px',
     '--up-arrow-height': upArrowHeight + 'px',
-    '--down-arrow': layout.scrollUI.hideArrows ? '' : `url(${downArrow})`,
+    '--down-arrow': layout.scrollUI.hideArrows ? '' : `url("${downArrow}")`,
     '--down-arrow-width': downArrowWidth + 'px',
     '--down-arrow-height': downArrowHeight + 'px',
   } as React.CSSProperties;

@@ -36,7 +36,7 @@ class Layout {
   get theme(): Theme {
     return {
       backgroundColor: this.backgroundColor || this.defaultBackgroundColor,
-      backgroundImage: this.backgroundImage ? `url(${this.resources.get(this.backgroundImage).url})` : 'none',
+      backgroundImage: this.backgroundImage ? `url("${this.resources.get(this.backgroundImage).url}")` : 'none',
       textColor: this.color || this.defaultColor,
       fontSize: this.fontSize || this.defaultvFontSize,
       fontName: this.fontName || this.defaultFontName,

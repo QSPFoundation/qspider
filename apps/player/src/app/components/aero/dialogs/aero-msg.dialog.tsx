@@ -60,7 +60,7 @@ const MsgButton = styled.button<{ x?: number; y?: number; backgroundImage: strin
   height: ${(props) => props.height + 'px' || 'auto'};
   box-sizing: border-box;
   background-color: transparent;
-  background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-image: ${(props) => `url("${props.backgroundImage}")`};
   color: ${(props) => props.theme.textColor};
   font-size: ${(props) => props.theme.fontSize}pt;
   padding: 0;

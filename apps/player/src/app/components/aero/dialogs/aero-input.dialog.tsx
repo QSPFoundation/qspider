@@ -60,7 +60,7 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
   width: ${(props) => props.width + 'px' || 'auto'};
   height: ${(props) => props.height + 'px' || 'auto'};
   box-sizing: border-box;
-  background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-image: ${(props) => `url("${props.backgroundImage}")`};
   background-color: transparent;
   color: ${(props) => props.theme.textColor};
   font-size: ${(props) => props.theme.fontSize}pt;
