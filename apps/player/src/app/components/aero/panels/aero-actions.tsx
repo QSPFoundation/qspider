@@ -5,7 +5,7 @@ import { useGameManager } from '../../../game/manager';
 import { useLayout } from '../../../game/layout';
 import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { AeroPanel } from '../aero-panel';
-import { AeroActionList } from '../aero-action-list';
+import { AeroActionList, IntegratedAeroActionList } from '../aero-action-list';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 
 export const AeroActionsPanel: React.FC = observer(() => {
@@ -15,7 +15,13 @@ export const AeroActionsPanel: React.FC = observer(() => {
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
   if (!isActionsPanelVisible || !layout.actionsUI) return null;
   if (layout.playerUI.intergratedActions) {
-    return <AeroActionList actions={manager.actions} type="actionsUI" onSelect={onActionSelect}></AeroActionList>;
+    return (
+      <IntegratedAeroActionList
+        actions={manager.actions}
+        type="actionsUI"
+        onSelect={onActionSelect}
+      ></IntegratedAeroActionList>
+    );
   }
   return (
     <AeroPanel {...layout.actionsUI}>

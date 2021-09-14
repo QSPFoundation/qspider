@@ -4,12 +4,12 @@ import { CSSTransition } from 'react-transition-group';
 
 import './effect.css';
 
-export const AeroEffect: React.FC<{ show: boolean; duration: number; effect: AeroEffectType }> = ({
-  show,
-  duration,
-  effect,
-  children,
-}) => {
+export const AeroEffect: React.FC<{
+  show: boolean;
+  duration: number;
+  effect: AeroEffectType;
+  onEffectEnd?: () => void;
+}> = ({ show, duration, effect, onEffectEnd, children }) => {
   if (!effect) {
     return show ? <>{children}</> : null;
   }
@@ -21,6 +21,7 @@ export const AeroEffect: React.FC<{ show: boolean; duration: number; effect: Aer
       mountOnEnter
       unmountOnExit
       appear
+      onEntered={onEffectEnd}
       style={{ '--effect-duration': duration + 'ms' } as React.CSSProperties}
     >
       {children}

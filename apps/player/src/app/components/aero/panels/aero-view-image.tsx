@@ -29,7 +29,7 @@ export const AeroViewImagePanel: React.FC = observer(() => {
   if (!layout.viewUI) return null;
   return (
     <AeroEffect show={manager.isViewShown} effect={layout.viewUI.effect.name} duration={layout.viewUI.effect.time}>
-      <ViewImageContainer ui={layout.viewUI} url={manager.viewSrc} onClick={onClick} />;
+      <ViewImageContainer ui={layout.viewUI} url={manager.viewSrc} onClick={onClick} />
     </AeroEffect>
   );
 });

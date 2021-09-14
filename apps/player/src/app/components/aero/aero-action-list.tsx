@@ -7,6 +7,10 @@ const Nav = styled.nav`
   outline: none;
 `;
 
+const IntegratedWrapper = styled.div`
+  padding-top: 20px;
+`;
+
 export const AeroActionList: React.FC<{
   actions: QspListItem[];
   type: 'actionsUI' | 'objectsUI' | 'menuUI';
@@ -18,5 +22,17 @@ export const AeroActionList: React.FC<{
         return <AeroActionItem key={index} action={action} index={index} type={type} onSelect={onSelect} />;
       })}
     </Nav>
+  );
+};
+
+export const IntegratedAeroActionList: React.FC<{
+  actions: QspListItem[];
+  type: 'actionsUI' | 'objectsUI' | 'menuUI';
+  onSelect: (index: number) => void;
+}> = (props) => {
+  return (
+    <IntegratedWrapper>
+      <AeroActionList {...props} />
+    </IntegratedWrapper>
   );
 };
