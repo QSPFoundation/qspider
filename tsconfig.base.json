@@ -18,8 +18,8 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"],
-      "@qspider/audio-engine": ["libs/audio-engine/src/index.ts"]
+      "@qspider/audio-engine": ["libs/audio-engine/src/index.ts"],
+      "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

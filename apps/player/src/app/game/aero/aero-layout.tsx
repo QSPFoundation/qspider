@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
-import { decorate, observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 import { useGameManager, GameManager } from '../manager';
 import {
   AeroApi,
@@ -156,6 +156,31 @@ class AeroLayout {
   private api: AeroApi;
 
   constructor(manager: GameManager, private resources: ResourceManager) {
+    makeObservable(this, {
+      scrollUI: observable,
+      playerUI: observable,
+      mainUI: observable,
+      statsUI: observable,
+      actionsUI: observable,
+      objectsUI: observable,
+      userInputUI: observable,
+      viewUI: observable,
+      inputUI: observable,
+      msgUI: observable,
+      menuUI: observable,
+
+      updateScrollUI: action,
+      updatePlayerUI: action,
+      updateMainUI: action,
+      updateStatsUI: action,
+      updateActionsUI: action,
+      updateObjectsUI: action,
+      updateUserInputUI: action,
+      updateViewUI: action,
+      updateInputUI: action,
+      updateMsgUI: action,
+      updateMenuUI: action,
+    });
     this.initialized(manager);
   }
 
@@ -213,32 +238,6 @@ class AeroLayout {
     this.menuUI = ui;
   };
 }
-
-decorate(AeroLayout, {
-  scrollUI: observable,
-  playerUI: observable,
-  mainUI: observable,
-  statsUI: observable,
-  actionsUI: observable,
-  objectsUI: observable,
-  userInputUI: observable,
-  viewUI: observable,
-  inputUI: observable,
-  msgUI: observable,
-  menuUI: observable,
-
-  updateScrollUI: action,
-  updatePlayerUI: action,
-  updateMainUI: action,
-  updateStatsUI: action,
-  updateActionsUI: action,
-  updateObjectsUI: action,
-  updateUserInputUI: action,
-  updateViewUI: action,
-  updateInputUI: action,
-  updateMsgUI: action,
-  updateMenuUI: action,
-});
 
 function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
   return new AeroLayout(source.manager, source.resources);

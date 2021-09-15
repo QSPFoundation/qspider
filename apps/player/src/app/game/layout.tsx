@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
-import { decorate, observable, action, computed } from 'mobx';
+import { observable, action, computed, makeObservable } from 'mobx';
 import { useGameManager, GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { LayoutDock, LayoutPanel } from './cfg-converter';
@@ -30,6 +30,26 @@ class Layout {
   defaultFontName = '';
 
   constructor(private manager: GameManager, private resources: ResourceManager) {
+    makeObservable(this, {
+      useHtml: observable,
+      backgroundColor: observable,
+      backgroundImage: observable,
+      color: observable,
+      linkColor: observable,
+      fontSize: observable,
+      fontName: observable,
+
+      isStatsPanelVisible: observable,
+      isObjectPanelVisible: observable,
+      isActionsPanelVisible: observable,
+      isUserInputPanelVisible: observable,
+
+      theme: computed,
+      visibleLayout: computed,
+
+      updateLayoutSettings: action,
+      updatePanalVisibility: action,
+    });
     this.initialized(manager);
   }
 
@@ -154,27 +174,6 @@ class Layout {
     return `rgb(${red},${green},${blue})`;
   }
 }
-
-decorate(Layout, {
-  useHtml: observable,
-  backgroundColor: observable,
-  backgroundImage: observable,
-  color: observable,
-  linkColor: observable,
-  fontSize: observable,
-  fontName: observable,
-
-  isStatsPanelVisible: observable,
-  isObjectPanelVisible: observable,
-  isActionsPanelVisible: observable,
-  isUserInputPanelVisible: observable,
-
-  theme: computed,
-  visibleLayout: computed,
-
-  updateLayoutSettings: action,
-  updatePanalVisibility: action,
-});
 
 function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
   return new Layout(source.manager, source.resources);
