@@ -1,7 +1,7 @@
 import { Howler } from 'howler';
 import { normalizeVolume, Sound } from './sound';
 
-import { decorate, observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 import { Resource } from './resource-manager';
 
 const VOLUME_STEP = 10;
@@ -14,6 +14,17 @@ export class AudioEngine {
   private sounds: Map<string, Sound> = new Map();
   isMuted: boolean = false;
   volume: number = 100;
+
+  constructor() {
+    makeObservable(this, {
+      isMuted: observable,
+      volume: observable,
+
+      mute: action,
+      unMute: action,
+      changeVolume: action,
+    });
+  }
 
   mute(): void {
     this.isMuted = true;
@@ -76,12 +87,3 @@ export class AudioEngine {
     return path.replace('/', '__').toUpperCase();
   }
 }
-
-decorate(AudioEngine, {
-  isMuted: observable,
-  volume: observable,
-
-  mute: action,
-  unMute: action,
-  changeVolume: action,
-});

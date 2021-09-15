@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocalStore } from 'mobx-react-lite';
-import { decorate, observable, action } from 'mobx';
+import { observable, action, makeObservable } from 'mobx';
 import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
@@ -66,6 +66,60 @@ export class GameManager {
   private hotKeysManager = new HotKeysManager();
 
   constructor(private resources: ResourceManager) {
+    makeObservable(this, {
+      isInitialized: observable,
+      isGameListShown: observable,
+      currentGame: observable,
+
+      main: observable,
+      isNewLoc: observable,
+      newLocHash: observable,
+      stats: observable,
+      actions: observable.ref,
+      objects: observable.ref,
+      userInput: observable,
+
+      isMenuShown: observable,
+      menu: observable.ref,
+      updateMsg: action,
+      closeMsg: action,
+
+      isMsgShown: observable,
+      msg: observable,
+
+      isInputShown: observable,
+      input: observable,
+
+      isViewShown: observable,
+      viewSrc: observable,
+      updateView: action,
+      closeView: action,
+
+      isWaiting: observable,
+      startWaiting: action,
+      completeWaiting: action,
+
+      saveAction: observable.ref,
+      clearSaveAction: action,
+      requestSave: action,
+      requestRestore: action,
+
+      markInitialized: action,
+      showGameList: action,
+      hideGameList: action,
+
+      errorData: observable,
+      updateErrorDescription: action,
+      clearError: action,
+
+      updateMain: action,
+      updateStats: action,
+      updateActions: action,
+      updateObjects: action,
+      updateUserInput: action,
+      updateMenu: action,
+      selectMenu: action,
+    });
     this.apiInitialized = new Promise((resolve) => {
       this.initialize(resolve);
     });
@@ -661,61 +715,6 @@ export class GameManager {
     }
   };
 }
-
-decorate(GameManager, {
-  isInitialized: observable,
-  isGameListShown: observable,
-  currentGame: observable,
-
-  main: observable,
-  isNewLoc: observable,
-  newLocHash: observable,
-  stats: observable,
-  actions: observable.ref,
-  objects: observable.ref,
-  userInput: observable,
-
-  isMenuShown: observable,
-  menu: observable.ref,
-  updateMsg: action,
-  closeMsg: action,
-
-  isMsgShown: observable,
-  msg: observable,
-
-  isInputShown: observable,
-  input: observable,
-
-  isViewShown: observable,
-  viewSrc: observable,
-  updateView: action,
-  closeView: action,
-
-  isWaiting: observable,
-  startWaiting: action,
-  completeWaiting: action,
-
-  saveAction: observable.ref,
-  clearSaveAction: action,
-  requestSave: action,
-  requestRestore: action,
-
-  markInitialized: action,
-  showGameList: action,
-  hideGameList: action,
-
-  errorData: observable,
-  updateErrorDescription: action,
-  clearError: action,
-
-  updateMain: action,
-  updateStats: action,
-  updateActions: action,
-  updateObjects: action,
-  updateUserInput: action,
-  updateMenu: action,
-  selectMenu: action,
-});
 
 function createGameManager(source: { resources: ResourceManager }) {
   return new GameManager(source.resources);
