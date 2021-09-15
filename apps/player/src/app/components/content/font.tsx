@@ -1,4 +1,6 @@
+import React from 'react';
 import styled from '@emotion/styled';
+import { useStyle } from '../../hooks/style';
 
 export const fontSizeMap = {
   '-2': 'x-small',
@@ -18,6 +20,19 @@ export const fontSizeMap = {
   7: 'xxx-large',
 };
 
-export const Font = styled.span<{ size: string }>`
+const StyledFont = styled.span<{ size: string }>`
   font-size: ${(props) => (props.size != null ? fontSizeMap[props.size] || 'medium' : 'inherit')};
 `;
+
+export const Font: React.FC<{ size: string; style: React.CSSProperties; className?: string }> = ({
+  size,
+  style,
+  className,
+  children,
+}) => {
+  return (
+    <StyledFont size={size} style={useStyle(style)} className={className}>
+      {children}
+    </StyledFont>
+  );
+};

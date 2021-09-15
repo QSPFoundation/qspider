@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import CustomScroll from 'react-custom-scroll';
 import { Overlay } from './overlay';
 import { Button } from './button';
+import { CustomScroll } from './custom-scroll';
 
 const ModalContainer = styled.div`
   display: flex;
@@ -79,7 +79,7 @@ export const Modal: React.FC<{ onClose: () => void; closable?: boolean; hideButt
         <ModalBody width={width}>
           {closable ? <CloseButton onClick={onClose}>x</CloseButton> : null}
           <ModalContent>
-            <CustomScroll heightRelativeToParent="100%">
+            <CustomScroll>
               {children}
               {!hideButtons && (
                 <ModalActions>

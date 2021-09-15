@@ -1,26 +1,9 @@
 import TOMLparse from '@iarna/toml/parse-string';
+import { PlayerConfig } from './contracts';
 
 export const GAME_PATH = 'game';
 const GAME_DESCRIPTOR_PATH = `${GAME_PATH}/game.cfg`;
 export const GAME_FONFIG_FILE = 'qspgui.cfg';
-
-export interface GameDescriptor {
-  id: string;
-  title: string;
-  description?: string;
-  file: string;
-  hotkeys?: Record<string, string>;
-  resources?: {
-    styles?: string[];
-    scripts?: string[];
-    fonts?: [string, string, string, string][];
-    icon?: string;
-  };
-}
-
-export interface PlayerConfig {
-  game: GameDescriptor[];
-}
 
 export const fetchPlayerConfig = async (): Promise<PlayerConfig> => {
   return fetch(GAME_DESCRIPTOR_PATH)

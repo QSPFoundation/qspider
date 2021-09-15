@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import CustomScroll from 'react-custom-scroll';
 import { usePrevious } from 'react-delta';
 import { PanelWithBackground, PanelContent } from '../../ui-blocks/panel';
 import { useGameManager } from '../../../game/manager';
 import { Content } from '../../content/content';
+import { CustomScroll } from '../../ui-blocks/custom-scroll';
 
 export const MainPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const prevMain = usePrevious(manager.main);
-  const [scrollTo, setScrollTo] = useState<number>(undefined);
+  const [scrollY, setScrollY] = useState<string>(undefined);
   useEffect(() => {
     if (prevMain && manager.main !== prevMain && manager.main.startsWith(prevMain)) {
-      setScrollTo((s) => (s ? s + 1 : 10000));
+      setScrollY('100%');
     } else {
-      setScrollTo(undefined);
+      setScrollY(undefined);
     }
   }, [prevMain, manager.main]);
   return (
     <PanelWithBackground>
-      <CustomScroll heightRelativeToParent="100%" scrollTo={scrollTo}>
+      <CustomScroll scrollY={scrollY}>
         <PanelContent>
           <Content content={manager.main} />
         </PanelContent>
