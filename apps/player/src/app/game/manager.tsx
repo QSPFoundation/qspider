@@ -13,7 +13,7 @@ import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
 import { ResourceManager, useResources } from './resource-manager';
 import { GameDescriptor, PlayerConfig } from './contracts';
-import { defer, resolvePath } from '../utils';
+import { defer, hashString, resolvePath } from '../utils';
 
 export class GameManager {
   config: PlayerConfig;
@@ -28,6 +28,8 @@ export class GameManager {
   floating: [QspGUIPanel, number, number][];
 
   main = '';
+  isNewLoc = false;
+  newLocHash = '';
   stats = '';
   actions: QspListItem[] = [];
   objects: QspListItem[] = [];
@@ -372,7 +374,12 @@ export class GameManager {
   }
 
   updateMain = (text: string): void => {
+    const prevMain = this.main;
     this.main = prepareContent(text);
+    this.isNewLoc = this.main !== prevMain && !this.main.startsWith(prevMain);
+    if (this.isNewLoc) {
+      this.newLocHash = String(hashString(this.main));
+    }
   };
   updateStats = (text: string): void => {
     this.stats = prepareContent(text);
@@ -400,7 +407,6 @@ export class GameManager {
   closeMsg = (): void => {
     this.isMsgShown = false;
     const onMsg = this.onMsg;
-    this.msg = '';
     this.onMsg = null;
     this.resume();
     if (onMsg) {
@@ -418,7 +424,6 @@ export class GameManager {
   closeInput = (text: string): void => {
     this.isInputShown = false;
     const onInput = this.onInput;
-    this.input = '';
     this.onInput = null;
     this.resume();
     onInput(text);
@@ -663,6 +668,8 @@ decorate(GameManager, {
   currentGame: observable,
 
   main: observable,
+  isNewLoc: observable,
+  newLocHash: observable,
   stats: observable,
   actions: observable.ref,
   objects: observable.ref,

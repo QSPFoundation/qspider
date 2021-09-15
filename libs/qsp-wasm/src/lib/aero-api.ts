@@ -149,6 +149,7 @@ export interface PlayerUI {
   disableScroll: boolean;
   disableAutoref: boolean;
   newLocEffect: Effect;
+  sequenceNewLocEffect: boolean;
   backImage: string;
   topImage: string;
   intergratedActions: boolean;
@@ -301,6 +302,7 @@ export class AeroApi {
         name: this.qspApi.readVariableString('$NEWLOC_EFFECT') as AeroEffectType,
         time: this.qspApi.readVariableNumber('NEWLOC_EFFECT_TIME') || 500,
       },
+      sequenceNewLocEffect: Boolean(this.qspApi.readVariableNumber('NEWLOC_EFFECT_SEQ')),
       backImage: this.qspApi.readVariableString('$BACKIMAGE'),
       topImage: this.qspApi.readVariableString('$TOPIMAGE'),
       intergratedActions: Boolean(this.qspApi.readVariableNumber('INTEGRATED_ACTIONS')),

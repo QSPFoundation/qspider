@@ -30,6 +30,7 @@ class AeroLayout {
     disableShade: false,
     disableScroll: false,
     disableAutoref: false,
+    sequenceNewLocEffect: false,
     newLocEffect: {
       name: '',
       time: 500,

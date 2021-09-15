@@ -93,7 +93,11 @@ export const AeroMsgDialog: React.FC = observer(() => {
 
   return (
     <>
-      {manager.isMsgShown && !layout.playerUI.disableShade ? <Overlay onClick={onClose} /> : null}
+      {!layout.playerUI.disableShade ? (
+        <AeroEffect show={manager.isMsgShown} effect="fade" duration={layout.msgUI.effect.time}>
+          <Overlay onClick={onClose} />
+        </AeroEffect>
+      ) : null}
       <MsgContainer>
         <AeroEffect show={manager.isMsgShown} effect={layout.msgUI.effect.name} duration={layout.msgUI.effect.time}>
           <MsgBody x={x} y={y} width={width} height={height} backgroundImage={url}>

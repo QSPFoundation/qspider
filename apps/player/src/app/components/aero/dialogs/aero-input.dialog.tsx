@@ -116,7 +116,11 @@ export const AeroInputDialog: React.FC = observer(() => {
 
   return (
     <>
-      {manager.isInputShown && !layout.playerUI.disableShade ? <Overlay onClick={onClose} /> : null}
+      {!layout.playerUI.disableShade ? (
+        <AeroEffect show={manager.isInputShown} effect="fade" duration={layout.inputUI.effect.time}>
+          <Overlay onClick={onClose} />
+        </AeroEffect>
+      ) : null}
       <InputContainer>
         <AeroEffect
           show={manager.isInputShown}
