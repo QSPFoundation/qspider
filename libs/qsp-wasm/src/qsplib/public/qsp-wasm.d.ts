@@ -8,7 +8,7 @@ export interface QspModule extends EmscriptenModule {
   stringToUTF32(str: string, outPtr: CharsPtr, maxBytes?: number): number;
   lengthBytesUTF32(str: string): number;
   getValue(ptr: Ptr, type: IRType): number;
-  addFunction(fn: Function, signature: string): FunctionPtr;
+  addFunction(fn: Function, signature: string): FunctionPtr; //eslint-disable-line @typescript-eslint/ban-types
   Asyncify: {
     handleSleep(cb: (wakeUp: (ret: number) => void) => void): void;
   };

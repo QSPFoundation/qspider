@@ -12,8 +12,8 @@ const clamp = function (value: number, min: number, max: number) {
 
 export class AudioEngine {
   private sounds: Map<string, Sound> = new Map();
-  isMuted: boolean = false;
-  volume: number = 100;
+  isMuted = false;
+  volume = 100;
 
   constructor() {
     makeObservable(this, {

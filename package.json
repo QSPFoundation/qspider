@@ -9,7 +9,7 @@
     "build": "nx build --prod",
     "compile:wasm": "nx run qsp-wasm:compile",
     "test": "nx test",
-    "lint": "nx workspace-lint && nx lint",
+    "lint": "nx workspace-lint && nx run-many --all --target=lint",
     "e2e": "nx e2e",
     "affected:apps": "nx affected:apps",
     "affected:libs": "nx affected:libs",
