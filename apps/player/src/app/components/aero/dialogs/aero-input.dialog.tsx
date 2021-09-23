@@ -28,7 +28,7 @@ const InputContainer = styled.div`
 const InputBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
@@ -63,7 +63,7 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
   background-image: ${(props) => `url("${props.backgroundImage}")`};
   background-color: transparent;
   color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
 
   &:focus {
     outline: none;

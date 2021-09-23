@@ -211,7 +211,9 @@ export class QspAPIImpl implements QspAPI {
     event: E,
     ...args: Parameters<CB>
   ): void {
-    console.log({ event, args });
+    if (event !== 'refresh') {
+      console.log({ event, args });
+    }
     this.events.emit(event, ...args);
   }
 

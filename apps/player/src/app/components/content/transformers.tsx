@@ -45,18 +45,23 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
   return style;
 };
 
+const numericKeys = ['width', 'height', 'left', 'right', 'top', 'bottom'];
+
 const parseStyles = (styles: string | null): Record<string, string> => {
   if (!styles) return {};
   return styles
     .split(';')
     .map((style) => {
-      const separaTorPosition = style.indexOf(':');
+      const separatorPosition = style.indexOf(':');
       const key = style
-        .substring(0, separaTorPosition)
+        .substring(0, separatorPosition)
         .trim()
         .replace(/-./g, (c) => c.substr(1).toUpperCase());
-      const value = style.substring(separaTorPosition + 1).trim();
+      let value = style.substring(separatorPosition + 1).trim();
       if (!key) return null;
+      if (numericKeys.includes(key) && /^[+-]?\d+$/.test(value)) {
+        value = `${value}px`;
+      }
       return [key, value];
     })
     .filter(Boolean)

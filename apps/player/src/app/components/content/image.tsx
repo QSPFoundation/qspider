@@ -1,6 +1,11 @@
+import styled from '@emotion/styled';
 import React from 'react';
 import { useResources } from '../../game/resource-manager';
 import { useStyle } from '../../hooks/style';
+
+const StyledImage = styled.img`
+  vertical-align: text-top;
+`;
 
 export const Image: React.FC<{
   src: string;
@@ -9,6 +14,13 @@ export const Image: React.FC<{
   style: React.CSSProperties;
 }> = ({ src, useMap, style, className }) => {
   const resources = useResources();
-
-  return <img src={`${resources.get(src).url}`} style={useStyle(style)} useMap={useMap} className={className} alt="" />;
+  return (
+    <StyledImage
+      src={`${resources.get(src).url}`}
+      style={useStyle(style)}
+      useMap={useMap}
+      className={className}
+      alt=""
+    />
+  );
 };

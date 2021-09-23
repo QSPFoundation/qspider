@@ -14,4 +14,24 @@ export const AeroPanel = styled.div<Partial<AeroContentRectangle> & { background
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
+
+  pointer-events: none;
+
+  .os-host {
+    width: 100%;
+    height: 100%;
+  }
+
+  .os-content > * {
+    pointer-events: all;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
 `;

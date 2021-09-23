@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { IMAGE_PLACEHOLDER, QspListItem, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
-import { useResources } from '../../game/resource-manager';
 import { Content } from '../content/content';
 import { useAeroLayout } from '../../game/aero/aero-layout';
 
 export const ActionButton = styled.button`
-  font-size: ${(props) => props.theme.fontSize}pt;
+  display: block;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   width: 100%;
   text-align: left;
@@ -21,10 +21,10 @@ export const ActionButton = styled.button`
   &:focus {
     outline: none;
   }
-  & > table td {
+  & table td {
     padding: 0;
   }
-  & > table img {
+  & table img {
     display: inherit;
   }
 `;
@@ -37,7 +37,6 @@ export const AeroActionItem: React.FC<{
 }> = ({ action, index, type, onSelect }) => {
   const [content, setContent] = useState({ usual: '', selected: '' });
   const [isHovered, setIsHovered] = useState(false);
-  const resources = useResources();
   const layout = useAeroLayout();
 
   const { format, selectedFormat } = layout[type];
@@ -51,14 +50,12 @@ export const AeroActionItem: React.FC<{
   );
   useEffect(() => {
     setContent({
-      usual: format
-        .replace(TEXT_PLACEHOLDER, action.name)
-        .replace(IMAGE_PLACEHOLDER, action.image ? resources.get(action.image).url : ''),
+      usual: format.replace(TEXT_PLACEHOLDER, action.name).replace(IMAGE_PLACEHOLDER, action.image ? action.image : ''),
       selected: selectedFormat
         .replace(TEXT_PLACEHOLDER, action.name)
-        .replace(IMAGE_PLACEHOLDER, action.image ? resources.get(action.image).url : ''),
+        .replace(IMAGE_PLACEHOLDER, action.image ? action.image : ''),
     });
-  }, [action, format, selectedFormat, resources]);
+  }, [action, format, selectedFormat]);
 
   return (
     <ActionButton
