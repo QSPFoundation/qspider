@@ -70,6 +70,10 @@ export class QspAPIImpl implements QspAPI {
     this.module._selectAction(index);
   }
 
+  executeSelAction(): void {
+    this.module._executeSelAction();
+  }
+
   selectObject(index: number): void {
     this.module._selectObject(index);
   }

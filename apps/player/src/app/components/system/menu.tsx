@@ -6,6 +6,7 @@ import { ActionList } from '../ui-blocks/action-list/action-list';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { usePopper } from 'react-popper';
 import styled from '@emotion/styled';
+import { noop } from '../../utils';
 
 export const MenuWrapper = styled.div`
   border: 1px solid ${(props) => props.theme.borderColor};
@@ -43,7 +44,7 @@ export const Menu: React.FC = observer(() => {
   return (
     <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
       <MenuWrapper ref={node}>
-        <ActionList actions={manager.menu} onSelect={onMenuSelect} />
+        <ActionList actions={manager.menu} onSelect={noop} onAction={onMenuSelect} />
       </MenuWrapper>
     </div>
   );

@@ -19,6 +19,7 @@ export const Link: React.FC<{ exec?: string; act?: number; className: string; st
           manager.execCode(exec);
         } else if (act) {
           manager.selectAction(act - 1);
+          manager.executeSelAction();
         }
       },
       [exec, act, manager]

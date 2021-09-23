@@ -34,7 +34,8 @@ export const AeroActionItem: React.FC<{
   type: 'actionsUI' | 'objectsUI' | 'menuUI';
   index: number;
   onSelect: (index: number) => void;
-}> = ({ action, index, type, onSelect }) => {
+  onAction: (index: number) => void;
+}> = ({ action, index, type, onSelect, onAction }) => {
   const [content, setContent] = useState({ usual: '', selected: '' });
   const [isHovered, setIsHovered] = useState(false);
   const layout = useAeroLayout();
@@ -44,6 +45,12 @@ export const AeroActionItem: React.FC<{
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
       (e.target as HTMLButtonElement).blur();
+      onAction(index);
+    },
+    [index, onAction]
+  );
+  const onHover = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onSelect(index);
     },
     [index, onSelect]
@@ -62,6 +69,7 @@ export const AeroActionItem: React.FC<{
       role="menuitem"
       tabIndex={0}
       onClick={onClick}
+      onMouseOver={onHover}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

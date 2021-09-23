@@ -7,6 +7,7 @@ import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { AeroPanel } from '../aero-panel';
 import { AeroActionList } from '../aero-action-list';
 import { AeroCustomScroll } from '../aero-custom-scroll';
+import { noop } from '../../../utils';
 
 export const AeroObjectsPanel: React.FC = observer(() => {
   const manager = useGameManager();
@@ -17,7 +18,12 @@ export const AeroObjectsPanel: React.FC = observer(() => {
   return (
     <AeroPanel {...layout.objectsUI}>
       <AeroCustomScroll>
-        <AeroActionList actions={manager.objects} type="objectsUI" onSelect={onObjectSelect}></AeroActionList>
+        <AeroActionList
+          actions={manager.objects}
+          type="objectsUI"
+          onSelect={noop}
+          onAction={onObjectSelect}
+        ></AeroActionList>
       </AeroCustomScroll>
     </AeroPanel>
   );

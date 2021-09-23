@@ -33,6 +33,7 @@ export interface QspModule extends EmscriptenModule {
 
   _getActions(list: Ptr): number;
   _selectAction(index: number): void;
+  _executeSelAction(): void;
   _isActionsChanged(): Bool;
 
   _getObjects(list: Ptr): number;

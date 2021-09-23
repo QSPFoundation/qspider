@@ -11,11 +11,12 @@ export const ActionsPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const { isActionsPanelVisible } = useLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
+  const onAction = useCallback(() => manager.executeSelAction(), [manager]);
   if (!isActionsPanelVisible) return null;
   return (
     <Panel>
       <CustomScroll>
-        <ActionList actions={manager.actions} onSelect={onActionSelect}></ActionList>
+        <ActionList actions={manager.actions} onSelect={onActionSelect} onAction={onAction}></ActionList>
       </CustomScroll>
     </Panel>
   );

@@ -352,12 +352,14 @@ export class GameManager {
       if (this.isPaused) return;
       if (index >= 0 && index < this.actions.length) {
         this.selectAction(index);
+        this.executeSelAction();
       }
     });
     this.hotKeysManager.on('select_single_action', () => {
       if (this.isPaused) return;
       if (this.actions.length === 1) {
         this.selectAction(0);
+        this.executeSelAction();
       }
     });
     this.hotKeysManager.on('save', () => {
@@ -493,6 +495,10 @@ export class GameManager {
 
   selectAction(index: number): void {
     this._api.selectAction(index);
+  }
+
+  executeSelAction(): void {
+    this._api.executeSelAction();
   }
 
   selectObject(index: number): void {

@@ -11,6 +11,7 @@ import { MenuUI } from '@qspider/qsp-wasm';
 import { useImageSize } from '../../../hooks/image-size';
 import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
+import { noop } from '../../../utils';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
@@ -83,7 +84,12 @@ export const AeroMenu: React.FC = observer(() => {
         <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
           <FixedMenuWrapper ref={node} menuUI={layout.menuUI} width={width} height={height} url={url}>
             <FixedMenuList menuUI={layout.menuUI}>
-              <AeroActionList actions={manager.menu} type="menuUI" onSelect={onMenuSelect}></AeroActionList>
+              <AeroActionList
+                actions={manager.menu}
+                type="menuUI"
+                onSelect={noop}
+                onAction={onMenuSelect}
+              ></AeroActionList>
             </FixedMenuList>
           </FixedMenuWrapper>
         </div>
@@ -96,7 +102,12 @@ export const AeroMenu: React.FC = observer(() => {
       <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
         <MenuWrapper ref={node} menuUI={layout.menuUI} url={url}>
           <MenuList menuUI={layout.menuUI}>
-            <AeroActionList actions={manager.menu} type="menuUI" onSelect={onMenuSelect}></AeroActionList>
+            <AeroActionList
+              actions={manager.menu}
+              type="menuUI"
+              onSelect={noop}
+              onAction={onMenuSelect}
+            ></AeroActionList>
           </MenuList>
         </MenuWrapper>
       </div>

@@ -34,18 +34,25 @@ export const ActionItem: React.FC<{
   action: QspListItem;
   index: number;
   onSelect: (index: number) => void;
-}> = ({ action, index, onSelect }) => {
+  onAction: (index: number) => void;
+}> = ({ action, index, onSelect, onAction }) => {
   const resources = useResources();
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       e.preventDefault();
       (e.target as HTMLButtonElement).blur();
+      onAction(index);
+    },
+    [index, onAction]
+  );
+  const onHover = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       onSelect(index);
     },
     [index, onSelect]
   );
   return (
-    <ActionButton role="menuitem" tabIndex={0} onClick={onClick}>
+    <ActionButton role="menuitem" tabIndex={0} onMouseOver={onHover} onClick={onClick}>
       {action.image && <ActionImage src={`${resources.get(action.image).url}`} alt={action.name} />}
       <Content content={action.name} />
     </ActionButton>

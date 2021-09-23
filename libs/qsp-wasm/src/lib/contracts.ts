@@ -44,6 +44,7 @@ export interface QspAPI {
   loadSave(data: ArrayBuffer): void;
   restartGame(): void;
   selectAction(index: number): void;
+  executeSelAction(): void;
   selectObject(index: number): void;
   readVariableNumber(name: string, index?: number): number;
   readVariableString(name: string, index?: number): string;
