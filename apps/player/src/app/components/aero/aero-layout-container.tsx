@@ -36,6 +36,7 @@ const AeroPlayerBlock = styled.div<{
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
+  text-align: left;
 `;
 
 const AeroPlayerForeground = styled.div<{

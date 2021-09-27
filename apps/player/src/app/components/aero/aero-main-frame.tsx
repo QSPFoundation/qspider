@@ -5,6 +5,6 @@ export const AeroMainFrame = styled.div`
   height: 100vh;
   background: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}px;
+  font-size: ${(props) => props.theme.fontSize}pt;
   font-family: ${(props) => props.theme.fontName};
 `;

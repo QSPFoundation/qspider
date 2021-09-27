@@ -1,5 +1,4 @@
-import React from 'react';
-import { useLocalStore } from 'mobx-react-lite';
+import React, { useState } from 'react';
 import { observable, action, computed, makeObservable } from 'mobx';
 import { useGameManager, GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
@@ -175,17 +174,13 @@ class Layout {
   }
 }
 
-function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
-  return new Layout(source.manager, source.resources);
-}
-
 const layoutContext = React.createContext<Layout | null>(null);
 
 export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
-  const store = useLocalStore(createLayout, { manager, resources });
-  return <layoutContext.Provider value={store}>{children}</layoutContext.Provider>;
+  const [layout] = useState(() => new Layout(manager, resources));
+  return <layoutContext.Provider value={layout}>{children}</layoutContext.Provider>;
 };
 
 export const useLayout = (): Layout => {

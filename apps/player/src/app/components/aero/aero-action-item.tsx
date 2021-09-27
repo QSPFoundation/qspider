@@ -6,7 +6,7 @@ import { useAeroLayout } from '../../game/aero/aero-layout';
 
 export const ActionButton = styled.button`
   display: block;
-  font-size: ${(props) => props.theme.fontSize}px;
+  font-size: ${(props) => props.theme.fontSize}pt;
   font-family: ${(props) => props.theme.fontName};
   width: 100%;
   text-align: left;

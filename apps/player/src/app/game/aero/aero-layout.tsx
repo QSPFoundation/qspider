@@ -1,5 +1,4 @@
-import React from 'react';
-import { useLocalStore } from 'mobx-react-lite';
+import React, { useState } from 'react';
 import { observable, action, makeObservable } from 'mobx';
 import { useGameManager, GameManager } from '../manager';
 import {
@@ -248,8 +247,8 @@ const layoutContext = React.createContext<AeroLayout | null>(null);
 export const AeroLayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
-  const store = useLocalStore(createLayout, { manager, resources });
-  return <layoutContext.Provider value={store}>{children}</layoutContext.Provider>;
+  const [layout] = useState(() => new AeroLayout(manager, resources));
+  return <layoutContext.Provider value={layout}>{children}</layoutContext.Provider>;
 };
 
 export const useAeroLayout = (): AeroLayout => {

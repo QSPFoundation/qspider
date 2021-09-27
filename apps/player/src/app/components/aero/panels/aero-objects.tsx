@@ -16,7 +16,7 @@ export const AeroObjectsPanel: React.FC = observer(() => {
   const onObjectSelect = useCallback((index: number) => manager.selectObject(index), [manager]);
   if (!isObjectPanelVisible || !layout.objectsUI) return null;
   return (
-    <AeroPanel {...layout.objectsUI}>
+    <AeroPanel {...layout.objectsUI} data-type="object">
       <AeroCustomScroll>
         <AeroActionList
           actions={manager.objects}

@@ -27,7 +27,7 @@ const MsgContainer = styled.div`
 const MsgBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}px;
+  font-size: ${(props) => props.theme.fontSize}pt;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
@@ -62,7 +62,7 @@ const MsgButton = styled.button<{ x?: number; y?: number; backgroundImage: strin
   background-color: transparent;
   background-image: ${(props) => `url("${props.backgroundImage}")`};
   color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}px;
+  font-size: ${(props) => props.theme.fontSize}pt;
   padding: 0;
 
   &:focus {

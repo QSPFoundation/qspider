@@ -11,7 +11,13 @@ export const ActionsPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const { isActionsPanelVisible } = useLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
-  const onAction = useCallback(() => manager.executeSelAction(), [manager]);
+  const onAction = useCallback(
+    (index) => {
+      manager.selectAction(index);
+      manager.executeSelAction();
+    },
+    [manager]
+  );
   if (!isActionsPanelVisible) return null;
   return (
     <Panel>

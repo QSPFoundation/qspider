@@ -1,6 +1,5 @@
-import React from 'react';
-import { useLocalStore } from 'mobx-react-lite';
-import { observable, action, makeObservable } from 'mobx';
+import React, { useState } from 'react';
+import { observable, action, makeObservable, runInAction } from 'mobx';
 import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
@@ -89,6 +88,8 @@ export class GameManager {
 
       isInputShown: observable,
       input: observable,
+      updateInput: action,
+      closeInput: action,
 
       isViewShown: observable,
       viewSrc: observable,
@@ -199,7 +200,9 @@ export class GameManager {
       this.floating = DEFAULT_FLOATING;
     }
 
-    this.currentGame = descriptor;
+    runInAction(() => {
+      this.currentGame = descriptor;
+    });
 
     if (descriptor.hotkeys) {
       this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
@@ -722,16 +725,12 @@ export class GameManager {
   };
 }
 
-function createGameManager(source: { resources: ResourceManager }) {
-  return new GameManager(source.resources);
-}
-
 const gameManagerContext = React.createContext<GameManager | null>(null);
 
 export const GameManagerProvider: React.FC = ({ children }) => {
   const resources = useResources();
-  const store = useLocalStore(createGameManager, { resources });
-  return <gameManagerContext.Provider value={store}>{children}</gameManagerContext.Provider>;
+  const [manager] = useState(() => new GameManager(resources));
+  return <gameManagerContext.Provider value={manager}>{children}</gameManagerContext.Provider>;
 };
 
 export const useGameManager = (): GameManager => {

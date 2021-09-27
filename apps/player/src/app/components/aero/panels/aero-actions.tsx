@@ -13,7 +13,13 @@ export const AeroActionsPanel: React.FC = observer(() => {
   const { isActionsPanelVisible } = useLayout();
   const layout = useAeroLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
-  const onAction = useCallback(() => manager.executeSelAction(), [manager]);
+  const onAction = useCallback(
+    (index) => {
+      manager.selectAction(index);
+      manager.executeSelAction();
+    },
+    [manager]
+  );
   if (!isActionsPanelVisible || !layout.actionsUI) return null;
   if (layout.playerUI.intergratedActions) {
     return (
@@ -26,7 +32,7 @@ export const AeroActionsPanel: React.FC = observer(() => {
     );
   }
   return (
-    <AeroPanel {...layout.actionsUI}>
+    <AeroPanel {...layout.actionsUI} data-type="actions">
       <AeroCustomScroll>
         <AeroActionList
           actions={manager.actions}

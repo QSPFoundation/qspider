@@ -23,6 +23,7 @@ export const AeroStatsPanel: React.FC = observer(() => {
     <AeroPanel
       {...(layout.statsUI || {})}
       background={layout.statsUI?.backImage && resources.get(layout.statsUI.backImage).url}
+      data-type="stats"
     >
       <AeroCustomScroll scrollY={scrollY}>
         <Content content={content} />
