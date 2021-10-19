@@ -25,6 +25,12 @@ export const PlayerStyles = styled.div`
     font-size: ${(props) => props.theme.fontSize}px;
     font-name: ${(props) => props.theme.fontName};
   }
+
+  input {
+    color: ${(props) => props.theme.textColor};
+    font-size: ${(props) => props.theme.fontSize}px;
+    font-name: ${(props) => props.theme.fontName};
+  }
 `;
 
 export const PlayerMode: React.FC = observer(() => {
