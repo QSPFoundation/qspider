@@ -312,6 +312,7 @@ export class GameManager {
       this.hotKeysManager.reset();
       this.resources.clear();
       this.clearAdditionalResources();
+      this.currentGame = null;
       window.dispatchEvent(new Event('game-unload'));
     }
   }
@@ -435,7 +436,7 @@ export class GameManager {
   updateMain = (text: string): void => {
     const prevMain = this.main;
     this.main = prepareContent(text);
-    this.isNewLoc = this.main !== prevMain && !this.main.startsWith(prevMain);
+    this.isNewLoc = !prevMain || (this.main !== prevMain && !this.main.startsWith(prevMain));
     if (this.isNewLoc) {
       this.newLocHash = String(hashString(this.main));
     }

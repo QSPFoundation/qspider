@@ -236,7 +236,7 @@ const LoadingContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: ${(props) => props.theme.backgroundColor};
+  background: #e0e0e0;
 `;
 
 export const LoadingScreen: React.FC = () => {

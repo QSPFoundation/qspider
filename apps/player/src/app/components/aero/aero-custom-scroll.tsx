@@ -17,23 +17,23 @@ OverlayScrollbars.extension('scrollState', function () {
       // noop
     },
     on(callbackName, callbackArgs) {
-      console.log(callbackName);
       if (callbackName === 'scrollStop' || callbackName === 'overflowAmountChanged') {
         const state = osInstance.getState();
         const instanceElements = osInstance.getElements();
 
         const scrollbarVertical = instanceElements.scrollbarVertical.scrollbar;
-        if (instanceElements.viewport.scrollTop > 0) {
-          scrollbarVertical.classList.add('show-up-arrow');
-        } else {
-          scrollbarVertical.classList.remove('show-up-arrow');
-        }
-        if (instanceElements.viewport.scrollTop < state.overflowAmount.y) {
-          scrollbarVertical.classList.add('show-down-arrow');
-        } else {
-          scrollbarVertical.classList.remove('show-down-arrow');
-        }
-        console.log(state.overflowAmount.y, instanceElements.viewport.scrollTop);
+        requestAnimationFrame(() => {
+          if (instanceElements.viewport.scrollTop > 0) {
+            scrollbarVertical.classList.add('show-up-arrow');
+          } else {
+            scrollbarVertical.classList.remove('show-up-arrow');
+          }
+          if (instanceElements.viewport.scrollTop < state.overflowAmount.y) {
+            scrollbarVertical.classList.add('show-down-arrow');
+          } else {
+            scrollbarVertical.classList.remove('show-down-arrow');
+          }
+        });
       }
     },
   };

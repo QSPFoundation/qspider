@@ -4,6 +4,7 @@ import { useStyle } from '../../hooks/style';
 
 export const StyledCenter = styled.div`
   text-align: center;
+  --text-align: center;
   width: 100%;
 
   & > table {

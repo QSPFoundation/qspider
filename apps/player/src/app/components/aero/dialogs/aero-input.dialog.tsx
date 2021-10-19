@@ -15,6 +15,7 @@ import { AeroCustomScroll } from '../aero-custom-scroll';
 import defaultInputBack from '../../../../assets/aero/input_back.png';
 import defaultInputOk from '../../../../assets/aero/input_ok.png';
 import defaultInputCancel from '../../../../assets/aero/input_cancel.png';
+import { AeroOverlay } from '../aero-overlay';
 
 const InputContainer = styled.div`
   position: absolute;
@@ -28,7 +29,7 @@ const InputContainer = styled.div`
 const InputBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
@@ -63,7 +64,7 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
   background-image: ${(props) => `url("${props.backgroundImage}")`};
   background-color: transparent;
   color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
 
   &:focus {
     outline: none;
@@ -117,7 +118,7 @@ export const AeroInputDialog: React.FC = observer(() => {
     <>
       {!layout.playerUI.disableShade ? (
         <AeroEffect show={manager.isInputShown} effect="fade" duration={layout.inputUI.effect.time}>
-          <Overlay onClick={onClose} />
+          <AeroOverlay onClick={onClose} />
         </AeroEffect>
       ) : null}
       <InputContainer>

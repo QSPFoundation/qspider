@@ -6,7 +6,7 @@ import { useAeroLayout } from '../../game/aero/aero-layout';
 
 export const ActionButton = styled.button`
   display: block;
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   width: 100%;
   text-align: left;
@@ -23,6 +23,7 @@ export const ActionButton = styled.button`
   }
   & table td {
     padding: 0;
+    vertical-align: middle;
   }
   & table img {
     display: inherit;

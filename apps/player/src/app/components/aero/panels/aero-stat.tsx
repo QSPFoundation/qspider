@@ -9,6 +9,7 @@ import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { useResources } from '../../../game/resource-manager';
 import { TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroCustomScroll } from '../aero-custom-scroll';
+import { AeroEffect } from '../effects/aero-effect';
 
 export const AeroStatsPanel: React.FC = observer(() => {
   const manager = useGameManager();
@@ -20,14 +21,22 @@ export const AeroStatsPanel: React.FC = observer(() => {
   const scrollY = prevStats && manager.stats !== prevStats && manager.stats.startsWith(prevStats) ? '100%' : undefined;
   const content = layout.statsUI.format.replace(TEXT_PLACEHOLDER, manager.stats);
   return (
-    <AeroPanel
-      {...(layout.statsUI || {})}
-      background={layout.statsUI?.backImage && resources.get(layout.statsUI.backImage).url}
-      data-type="stats"
+    <AeroEffect
+      animationKey={manager.newLocHash}
+      show
+      effect={layout.playerUI.newLocEffect.name}
+      duration={layout.playerUI.newLocEffect.time}
+      sequence={layout.playerUI.sequenceNewLocEffect}
     >
-      <AeroCustomScroll scrollY={scrollY}>
-        <Content content={content} />
-      </AeroCustomScroll>
-    </AeroPanel>
+      <AeroPanel
+        {...(layout.statsUI || {})}
+        background={layout.statsUI?.backImage && resources.get(layout.statsUI.backImage).url}
+        data-type="stats"
+      >
+        <AeroCustomScroll scrollY={scrollY}>
+          <Content content={content} />
+        </AeroCustomScroll>
+      </AeroPanel>
+    </AeroEffect>
   );
 });

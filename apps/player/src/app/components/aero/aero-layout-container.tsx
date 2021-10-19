@@ -37,6 +37,8 @@ const AeroPlayerBlock = styled.div<{
   background-size: contain;
   background-position: center center;
   text-align: left;
+  overflow: hidden;
+  tab-size: 4;
 `;
 
 const AeroPlayerForeground = styled.div<{

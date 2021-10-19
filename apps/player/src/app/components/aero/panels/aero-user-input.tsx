@@ -7,7 +7,7 @@ import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { AeroContentRectangle } from '@qspider/qsp-wasm';
 
 const TextInput = styled.input<AeroContentRectangle>`
-  background: ${(props) => props.theme.backgroundColor};
+  background: transparent;
   color: ${(props) => props.theme.textColor};
   display: inline-block;
   position: absolute;
@@ -19,7 +19,6 @@ const TextInput = styled.input<AeroContentRectangle>`
 
   &:focus {
     outline: none;
-    box-shadow: inset 0 0 5px 0px rgba(0, 0, 0, 0.75);
   }
 `;
 const Form = styled.form`

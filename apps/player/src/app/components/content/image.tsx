@@ -3,9 +3,7 @@ import React from 'react';
 import { useResources } from '../../game/resource-manager';
 import { useStyle } from '../../hooks/style';
 
-const StyledImage = styled.img`
-  vertical-align: text-top;
-`;
+const StyledImage = styled.img``;
 
 export const Image: React.FC<{
   src: string;

@@ -4,7 +4,6 @@ import { useGameManager } from '../../../game/manager';
 import { Content } from '../../content/content';
 import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { useClickCoordinates } from '../../../hooks/click-coordinates';
-import { Overlay } from '../../ui-blocks/overlay';
 import styled from '@emotion/styled';
 import { useImageSize } from '../../../hooks/image-size';
 import { MsgUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
@@ -14,6 +13,7 @@ import { AeroCustomScroll } from '../aero-custom-scroll';
 
 import defaultMsgBack from '../../../../assets/aero/msg_back.png';
 import defaultMsgOkButton from '../../../../assets/aero/msg_ok.png';
+import { AeroOverlay } from '../aero-overlay';
 
 const MsgContainer = styled.div`
   position: absolute;
@@ -27,7 +27,7 @@ const MsgContainer = styled.div`
 const MsgBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
   background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   width: ${(props) => props.width || 320}px;
@@ -62,7 +62,7 @@ const MsgButton = styled.button<{ x?: number; y?: number; backgroundImage: strin
   background-color: transparent;
   background-image: ${(props) => `url("${props.backgroundImage}")`};
   color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   padding: 0;
 
   &:focus {
@@ -95,7 +95,7 @@ export const AeroMsgDialog: React.FC = observer(() => {
     <>
       {!layout.playerUI.disableShade ? (
         <AeroEffect show={manager.isMsgShown} effect="fade" duration={layout.msgUI.effect.time}>
-          <Overlay onClick={onClose} />
+          <AeroOverlay onClick={onClose} />
         </AeroEffect>
       ) : null}
       <MsgContainer>

@@ -9,7 +9,7 @@ import { useResources } from '../../../game/resource-manager';
 export const ActionButton = styled.button`
   display: flex;
   align-items: center;
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   padding: 4px 8px;
   width: 100%;
   text-align: left;

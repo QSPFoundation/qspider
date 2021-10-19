@@ -218,6 +218,9 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
       </Strike>
     );
   },
+  tbody: (_node, children) => {
+    return <tbody>{children.filter((child) => typeof child !== 'string')}</tbody>;
+  },
   table: (node, children) => {
     return (
       <Table
@@ -227,7 +230,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         style={extractStyles(node)}
         className={node.getAttribute('class')}
       >
-        {children}
+        {children.filter((child) => typeof child !== 'string')}
       </Table>
     );
   },

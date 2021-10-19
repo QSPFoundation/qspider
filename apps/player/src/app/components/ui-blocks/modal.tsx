@@ -19,7 +19,7 @@ const ModalContainer = styled.div`
 const ModalBody = styled.div<{ width?: number }>`
   border: 1px solid ${(props) => props.theme.borderColor};
   background: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   font-family: ${(props) => props.theme.fontName};
   color: ${(props) => props.theme.textColor};
   padding: 16px 16px 8px;

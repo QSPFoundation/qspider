@@ -8,7 +8,7 @@ export const Button = styled.button`
   background-color: ${(props) => props.theme.backgroundColor};
   color: ${(props) => props.theme.textColor};
   border-radius: 4px;
-  font-size: ${(props) => props.theme.fontSize}pt;
+  font-size: ${(props) => props.theme.fontSize}px;
   padding: 4px 16px;
   border: 1px solid ${(props) => props.theme.borderColor};
 
