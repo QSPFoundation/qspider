@@ -1,10 +1,15 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import Color from 'color';
 import { useGameManager } from '../../../game/manager';
 import { Modal } from '../../ui-blocks/modal';
 import { OpenGameButton } from '../../ui-blocks/open-game-button';
+
+const GameListWrapper = styled.div`
+  --background-color: #e8eae3;
+  color: #000;
+  --inverted-background-color: #373833;
+`;
 
 const GameSlots = styled.div<{ even: boolean }>`
   padding: 16px;
@@ -15,16 +20,15 @@ const GameSlots = styled.div<{ even: boolean }>`
 `;
 
 const GameSlot = styled.div`
-  border: 1px solid ${(props) => props.theme.borderColor};
-  color: ${(props) => props.theme.textColor};
+  border: 1px solid var(--border-color);
   padding: 16px;
   border-radius: 4px;
   white-space: pre-wrap;
   cursor: pointer;
 
   &:hover {
-    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
-    color: ${(props) => props.theme.backgroundColor};
+    background-color: var(--inverted-background-color);
+    color: var(--background-color);
   }
 `;
 
@@ -46,18 +50,20 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   const isShown = Boolean(isGameListShown);
   if (!isShown) return null;
   return (
-    <Modal closable={closable} onClose={onClose} hideButtons width={800}>
-      <OpenButtonWrapper>
-        <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => gameManager.openGame(game, name)} />
-      </OpenButtonWrapper>
-      <GameSlots even={!(config.game.length % 2)}>
-        {config.game.map((game) => (
-          <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)}>
-            <GameTitle>{game.title}</GameTitle>
-            {game.description && <p>{game.description}</p>}
-          </GameSlot>
-        ))}
-      </GameSlots>
-    </Modal>
+    <GameListWrapper>
+      <Modal closable={closable} onClose={onClose} hideButtons width={800}>
+        <OpenButtonWrapper>
+          <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => gameManager.openGame(game, name)} />
+        </OpenButtonWrapper>
+        <GameSlots even={!(config.game.length % 2)}>
+          {config.game.map((game) => (
+            <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)}>
+              <GameTitle>{game.title}</GameTitle>
+              {game.description && <p>{game.description}</p>}
+            </GameSlot>
+          ))}
+        </GameSlots>
+      </Modal>
+    </GameListWrapper>
   );
 });

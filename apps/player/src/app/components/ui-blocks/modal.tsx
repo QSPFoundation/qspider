@@ -17,11 +17,8 @@ const ModalContainer = styled.div`
 `;
 
 const ModalBody = styled.div<{ width?: number }>`
-  border: 1px solid ${(props) => props.theme.borderColor};
-  background: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}px;
-  font-family: ${(props) => props.theme.fontName};
-  color: ${(props) => props.theme.textColor};
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
   padding: 16px 16px 8px;
   border-radius: 4px;
   min-width: 400px;
@@ -38,13 +35,12 @@ const ModalBody = styled.div<{ width?: number }>`
 const ModalActions = styled.div`
   padding-top: 8px;
   margin-top: 8px;
-  border-top: 1px solid ${(props) => props.theme.borderColor};
+  border-top: 1px solid var(--border-color);
   display: flex;
   justify-content: flex-end;
 `;
 
 const CloseButton = styled.button`
-  color: ${(props) => props.theme.textColor};
   background: transparent;
   border: none;
   position: absolute;

@@ -4,7 +4,6 @@ import { useGameManager } from '../../../game/manager';
 import { Content } from '../../content/content';
 import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { useClickCoordinates } from '../../../hooks/click-coordinates';
-import { Overlay } from '../../ui-blocks/overlay';
 import styled from '@emotion/styled';
 import { useImageSize } from '../../../hooks/image-size';
 import { InputUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
@@ -28,10 +27,7 @@ const InputContainer = styled.div`
 
 const InputBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
   background-image: ${(props) => `url(${props.backgroundImage})`};
-  background-color: ${(props) => props.theme.backgroundColor};
-  font-size: ${(props) => props.theme.fontSize}px;
-  font-family: ${(props) => props.theme.fontName};
-  color: ${(props) => props.theme.textColor};
+  background-color: var(--background-color);
   width: ${(props) => props.width || 320}px;
   height: ${(props) => props.height || 320}px;
   left: ${(props) => props.x}px;
@@ -63,8 +59,6 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
   box-sizing: border-box;
   background-image: ${(props) => `url("${props.backgroundImage}")`};
   background-color: transparent;
-  color: ${(props) => props.theme.textColor};
-  font-size: ${(props) => props.theme.fontSize}px;
 
   &:focus {
     outline: none;
@@ -79,7 +73,6 @@ const InputField = styled.input<{ ui: InputUI }>`
   height: ${(props) => props.ui.field.height}px;
   padding: 2px 5px;
   background: transparent;
-  color: ${(props) => props.theme.textColor};
   border: none;
 
   &:focus {

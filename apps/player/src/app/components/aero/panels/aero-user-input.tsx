@@ -8,7 +8,6 @@ import { AeroContentRectangle } from '@qspider/qsp-wasm';
 
 const TextInput = styled.input<AeroContentRectangle>`
   background: transparent;
-  color: ${(props) => props.theme.textColor};
   display: inline-block;
   position: absolute;
   top: ${(props) => props.y || 0}px;

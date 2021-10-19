@@ -14,7 +14,7 @@ export const AeroPlayer: React.FC = () => {
           <Top size={40}>
             <PlayerToolbar />
           </Top>
-          <Fill scrollable={true} centerContent={CenterType.HorizontalVertical}>
+          <Fill scrollable={true}>
             <AeroLayoutContainer />
           </Fill>
         </ViewPort>

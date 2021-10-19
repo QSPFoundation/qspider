@@ -2,7 +2,6 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { MouseEvent } from 'react';
 import { Icon } from './icons';
-import Color from 'color';
 
 export const Button = styled.button`
   -webkit-font-smoothing: antialiased;
@@ -10,9 +9,9 @@ export const Button = styled.button`
   cursor: pointer;
   border-radius: 4px;
 
-  background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
-  color: ${(props) => props.theme.backgroundColor};
-  border: 1px solid ${(props) => Color(props.theme.borderColor).negate().hex()};
+  background-color: var(--inverted-background-color);
+  color: var(--background-color) !important;
+  border: 1px solid var(--inverted-background-color);
 
   padding: 0;
   margin: 0;
@@ -26,9 +25,9 @@ export const Button = styled.button`
   box-shadow: none;
 
   &:hover {
-    background-color: ${(props) => props.theme.backgroundColor};
-    color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
-    border-color: ${(props) => props.theme.borderColor};
+    background-color: var(--background-color);
+    color: var(--inverted-background-color) !important;
+    border: 1px solid var(--inverted-background-color);
   }
   &:focus {
     outline: none;

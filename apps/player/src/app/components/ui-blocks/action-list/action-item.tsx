@@ -3,26 +3,23 @@ import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { Content } from '../../content/content';
 import { ActionImage } from './action-image';
-import Color from 'color';
 import { useResources } from '../../../game/resource-manager';
 
 export const ActionButton = styled.button`
   display: flex;
   align-items: center;
-  font-size: ${(props) => props.theme.fontSize}px;
   padding: 4px 8px;
   width: 100%;
   text-align: left;
   border-radius: 0;
   border: 0;
   cursor: pointer;
-  background-color: ${(props) => props.theme.backgroundColor};
-  color: ${(props) => props.theme.textColor};
+  background-color: var(--background-color, transparent);
   user-select: none;
 
   &:hover {
-    background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
-    color: ${(props) => props.theme.backgroundColor};
+    background-color: var(--inverted-background-color);
+    color: var(--inverted-color);
   }
 
   &:focus {

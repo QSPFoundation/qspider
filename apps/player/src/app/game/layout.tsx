@@ -87,6 +87,10 @@ class Layout {
     reaction(
       () => this.manager.currentGame,
       (descriptor) => {
+        if (!descriptor) {
+          this.fillClassicDefaults();
+          return;
+        }
         this.currentMode = descriptor.mode;
         if (descriptor.mode === 'aero') {
           this.fillAeroDefaults();

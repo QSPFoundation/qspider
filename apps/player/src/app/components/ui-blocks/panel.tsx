@@ -5,12 +5,12 @@ type PanelProps = { withPadding?: boolean };
 export const Panel = styled.div<PanelProps>`
   width: 100%;
   height: 100%;
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 1px solid var(--border-color);
   white-space: pre-wrap;
 `;
 
 export const PanelWithBackground = styled(Panel)<PanelProps>`
-  background-image: ${(props) => props.theme.backgroundImage};
+  background-image: var(--background-image, none);
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;

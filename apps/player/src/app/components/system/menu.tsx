@@ -9,7 +9,7 @@ import styled from '@emotion/styled';
 import { noop } from '../../utils';
 
 export const MenuWrapper = styled.div`
-  border: 1px solid ${(props) => props.theme.borderColor};
+  border: 1px solid var(--border-color);
 `;
 
 function generateGetBoundingClientRect(x = 0, y = 0) {

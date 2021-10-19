@@ -6,13 +6,10 @@ import { useAeroLayout } from '../../game/aero/aero-layout';
 
 export const ActionButton = styled.button`
   display: block;
-  font-size: ${(props) => props.theme.fontSize}px;
-  font-family: ${(props) => props.theme.fontName};
   width: 100%;
   text-align: left;
   cursor: pointer;
   background-color: transparent;
-  color: ${(props) => props.theme.textColor};
   user-select: none;
   border-radius: 0;
   border: 0;
