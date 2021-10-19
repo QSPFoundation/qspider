@@ -65,3 +65,6 @@ export const hashString = (s: string): number =>
     a = (a << 5) - a + b.charCodeAt(0);
     return a & a;
   }, 0);
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+export const noop = () => {};

@@ -18,7 +18,7 @@ const StyledTable = styled.table<{
     border-color: rgb(238, 238, 237);
     border-style: inset;
     border-width: ${(props) => props.border}px;
-    text-align: left;
+    text-align: var(--text-align, left);
   }
 `;
 

@@ -8,9 +8,8 @@ const TextInput = styled.input`
   width: 100%;
   height: 40px;
   padding: 2px 5px;
-  background: ${(props) => props.theme.backgroundColor};
-  color: ${(props) => props.theme.textColor};
-  border: 1px solid ${(props) => props.theme.borderColor};
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
 
   &:focus {
     outline: none;

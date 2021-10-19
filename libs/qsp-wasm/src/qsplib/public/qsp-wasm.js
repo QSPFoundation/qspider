@@ -349,6 +349,25 @@ var Module = (function () {
       });
     }
 
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_saveSetjmp')) {
+      Object.defineProperty(Module['ready'], '_saveSetjmp', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _saveSetjmp on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_saveSetjmp', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _saveSetjmp on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
     if (!Object.getOwnPropertyDescriptor(Module['ready'], '_setThrew')) {
       Object.defineProperty(Module['ready'], '_setThrew', {
         configurable: true,
@@ -363,6 +382,614 @@ var Module = (function () {
         set: function () {
           abort(
             'You are setting _setThrew on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_init')) {
+      Object.defineProperty(Module['ready'], '_init', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _init on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_init', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _init on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_dispose')) {
+      Object.defineProperty(Module['ready'], '_dispose', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _dispose on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_dispose', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _dispose on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getVersion')) {
+      Object.defineProperty(Module['ready'], '_getVersion', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getVersion on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getVersion', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getVersion on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_setErrorCallback')) {
+      Object.defineProperty(Module['ready'], '_setErrorCallback', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _setErrorCallback on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_setErrorCallback', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _setErrorCallback on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getMainDesc')) {
+      Object.defineProperty(Module['ready'], '_getMainDesc', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getMainDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getMainDesc', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getMainDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_isMainDescChanged')) {
+      Object.defineProperty(Module['ready'], '_isMainDescChanged', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _isMainDescChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_isMainDescChanged', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _isMainDescChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getVarsDesc')) {
+      Object.defineProperty(Module['ready'], '_getVarsDesc', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getVarsDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getVarsDesc', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getVarsDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_isVarsDescChanged')) {
+      Object.defineProperty(Module['ready'], '_isVarsDescChanged', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _isVarsDescChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_isVarsDescChanged', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _isVarsDescChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getActions')) {
+      Object.defineProperty(Module['ready'], '_getActions', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getActions on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getActions', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getActions on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_selectAction')) {
+      Object.defineProperty(Module['ready'], '_selectAction', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _selectAction on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_selectAction', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _selectAction on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_executeSelAction')) {
+      Object.defineProperty(Module['ready'], '_executeSelAction', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _executeSelAction on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_executeSelAction', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _executeSelAction on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_isActionsChanged')) {
+      Object.defineProperty(Module['ready'], '_isActionsChanged', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _isActionsChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_isActionsChanged', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _isActionsChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getObjects')) {
+      Object.defineProperty(Module['ready'], '_getObjects', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getObjects on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getObjects', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getObjects on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_selectObject')) {
+      Object.defineProperty(Module['ready'], '_selectObject', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _selectObject on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_selectObject', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _selectObject on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_isObjectsChanged')) {
+      Object.defineProperty(Module['ready'], '_isObjectsChanged', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _isObjectsChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_isObjectsChanged', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _isObjectsChanged on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_loadGameData')) {
+      Object.defineProperty(Module['ready'], '_loadGameData', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _loadGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_loadGameData', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _loadGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_restartGame')) {
+      Object.defineProperty(Module['ready'], '_restartGame', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _restartGame on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_restartGame', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _restartGame on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_saveGameData')) {
+      Object.defineProperty(Module['ready'], '_saveGameData', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _saveGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_saveGameData', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _saveGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_loadSavedGameData')) {
+      Object.defineProperty(Module['ready'], '_loadSavedGameData', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _loadSavedGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_loadSavedGameData', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _loadSavedGameData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_execString')) {
+      Object.defineProperty(Module['ready'], '_execString', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _execString on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_execString', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _execString on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_execCounter')) {
+      Object.defineProperty(Module['ready'], '_execCounter', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _execCounter on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_execCounter', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _execCounter on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_execLoc')) {
+      Object.defineProperty(Module['ready'], '_execLoc', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _execLoc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_execLoc', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _execLoc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_execUserInput')) {
+      Object.defineProperty(Module['ready'], '_execUserInput', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _execUserInput on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_execUserInput', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _execUserInput on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getLastErrorData')) {
+      Object.defineProperty(Module['ready'], '_getLastErrorData', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getLastErrorData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getLastErrorData', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getLastErrorData on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getErrorDesc')) {
+      Object.defineProperty(Module['ready'], '_getErrorDesc', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getErrorDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getErrorDesc', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getErrorDesc on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getVarStringValue')) {
+      Object.defineProperty(Module['ready'], '_getVarStringValue', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getVarStringValue on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getVarStringValue', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getVarStringValue on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_getVarNumValue')) {
+      Object.defineProperty(Module['ready'], '_getVarNumValue', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _getVarNumValue on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_getVarNumValue', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _getVarNumValue on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_initCallBacks')) {
+      Object.defineProperty(Module['ready'], '_initCallBacks', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _initCallBacks on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_initCallBacks', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _initCallBacks on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_setCallBack')) {
+      Object.defineProperty(Module['ready'], '_setCallBack', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _setCallBack on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_setCallBack', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _setCallBack on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_freeItemsList')) {
+      Object.defineProperty(Module['ready'], '_freeItemsList', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _freeItemsList on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_freeItemsList', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _freeItemsList on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '_freeSaveBuffer')) {
+      Object.defineProperty(Module['ready'], '_freeSaveBuffer', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting _freeSaveBuffer on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '_freeSaveBuffer', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting _freeSaveBuffer on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+    }
+
+    if (!Object.getOwnPropertyDescriptor(Module['ready'], '___set_stack_limits')) {
+      Object.defineProperty(Module['ready'], '___set_stack_limits', {
+        configurable: true,
+        get: function () {
+          abort(
+            'You are getting ___set_stack_limits on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
+          );
+        },
+      });
+      Object.defineProperty(Module['ready'], '___set_stack_limits', {
+        configurable: true,
+        set: function () {
+          abort(
+            'You are setting ___set_stack_limits on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js'
           );
         },
       });
@@ -413,17 +1040,14 @@ var Module = (function () {
     // Determine the runtime environment we are in. You can customize this by
     // setting the ENVIRONMENT setting at compile time (see settings.js).
 
-    var ENVIRONMENT_IS_WEB = false;
-    var ENVIRONMENT_IS_WORKER = false;
-    var ENVIRONMENT_IS_NODE = false;
-    var ENVIRONMENT_IS_SHELL = false;
-    ENVIRONMENT_IS_WEB = typeof window === 'object';
-    ENVIRONMENT_IS_WORKER = typeof importScripts === 'function';
+    // Attempt to auto-detect the environment
+    var ENVIRONMENT_IS_WEB = typeof window === 'object';
+    var ENVIRONMENT_IS_WORKER = typeof importScripts === 'function';
     // N.b. Electron.js environment is simultaneously a NODE-environment, but
     // also a web environment.
-    ENVIRONMENT_IS_NODE =
+    var ENVIRONMENT_IS_NODE =
       typeof process === 'object' && typeof process.versions === 'object' && typeof process.versions.node === 'string';
-    ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+    var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
 
     if (Module['ENVIRONMENT']) {
       throw new Error(
@@ -443,10 +1067,64 @@ var Module = (function () {
     // Hooks that are implemented differently in different runtime environments.
     var read_, readAsync, readBinary, setWindowTitle;
 
+    if (ENVIRONMENT_IS_SHELL) {
+      if (
+        (typeof process === 'object' && typeof require === 'function') ||
+        typeof window === 'object' ||
+        typeof importScripts === 'function'
+      )
+        throw new Error(
+          'not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)'
+        );
+
+      if (typeof read != 'undefined') {
+        read_ = function shell_read(f) {
+          return read(f);
+        };
+      }
+
+      readBinary = function readBinary(f) {
+        var data;
+        if (typeof readbuffer === 'function') {
+          return new Uint8Array(readbuffer(f));
+        }
+        data = read(f, 'binary');
+        assert(typeof data === 'object');
+        return data;
+      };
+
+      readAsync = function readAsync(f, onload, onerror) {
+        setTimeout(function () {
+          onload(readBinary(f));
+        }, 0);
+      };
+
+      if (typeof scriptArgs != 'undefined') {
+        arguments_ = scriptArgs;
+      } else if (typeof arguments != 'undefined') {
+        arguments_ = arguments;
+      }
+
+      if (typeof quit === 'function') {
+        quit_ = function (status) {
+          quit(status);
+        };
+      }
+
+      if (typeof print !== 'undefined') {
+        // Prefer to use print/printErr where they exist, as they usually work better.
+        if (typeof console === 'undefined') console = /** @type{!Console} */ ({});
+        console.log = /** @type{!function(this:Console, ...*): undefined} */ (print);
+        console.warn = console.error = /** @type{!function(this:Console, ...*): undefined} */ (
+          typeof printErr !== 'undefined' ? printErr : print
+        );
+      }
+    }
+
     // Note that this includes Node.js workers when relevant (pthreads is enabled).
     // Node.js workers are detected as a combination of ENVIRONMENT_IS_WORKER and
     // ENVIRONMENT_IS_NODE.
-    if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
+    else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
       if (ENVIRONMENT_IS_WORKER) {
         // Check worker, not web, since window could be polyfilled
         scriptDirectory = self.location.href;
@@ -655,13 +1333,23 @@ var Module = (function () {
     var PROXYFS = 'PROXYFS is no longer included by default; build with -lproxyfs.js';
     var WORKERFS = 'WORKERFS is no longer included by default; build with -lworkerfs.js';
     var NODEFS = 'NODEFS is no longer included by default; build with -lnodefs.js';
+    function alignMemory() {
+      abort(
+        '`alignMemory` is now a library function and not included by default; add it to your library.js __deps or to DEFAULT_LIBRARY_FUNCS_TO_INCLUDE on the command line'
+      );
+    }
+
+    assert(
+      !ENVIRONMENT_IS_NODE,
+      "node environment detected but not enabled at build time.  Add 'node' to `-s ENVIRONMENT` to enable."
+    );
+
+    assert(
+      !ENVIRONMENT_IS_SHELL,
+      "shell environment detected but not enabled at build time.  Add 'shell' to `-s ENVIRONMENT` to enable."
+    );
 
     var STACK_ALIGN = 16;
-
-    function alignMemory(size, factor) {
-      if (!factor) factor = STACK_ALIGN; // stack alignment (16-byte) by default
-      return Math.ceil(size / factor) * factor;
-    }
 
     function getNativeTypeSize(type) {
       switch (type) {
@@ -1088,12 +1776,13 @@ var Module = (function () {
         }
       }
       var ret = func.apply(null, cArgs);
+      function onDone(ret) {
+        if (stack !== 0) stackRestore(stack);
+        return convertReturnValue(ret);
+      }
       var asyncMode = opts && opts.async;
-      var runningAsync = typeof Asyncify === 'object' && Asyncify.currData;
-      var prevRunningAsync = typeof Asyncify === 'object' && Asyncify.asyncFinalizers.length > 0;
-      assert(!asyncMode || !prevRunningAsync, 'Cannot have multiple async ccalls in flight at once');
       // Check if we started an async operation just now.
-      if (runningAsync && !prevRunningAsync) {
+      if (Asyncify.currData) {
         // If so, the WASM function ran asynchronous and unwound its stack.
         // We need to return a Promise that resolves the return value
         // once the stack is rewound and execution finishes.
@@ -1103,18 +1792,12 @@ var Module = (function () {
             ident +
             ' is running asynchronously. If this was intended, add the async option to the ccall/cwrap call.'
         );
-        return new Promise(function (resolve) {
-          Asyncify.asyncFinalizers.push(function (ret) {
-            if (stack !== 0) stackRestore(stack);
-            resolve(convertReturnValue(ret));
-          });
-        });
+        return Asyncify.whenDone().then(onDone);
       }
 
-      ret = convertReturnValue(ret);
-      if (stack !== 0) stackRestore(stack);
+      ret = onDone(ret);
       // If this is an async ccall, ensure we return a promise
-      if (opts && opts.async) return Promise.resolve(ret);
+      if (asyncMode) return Promise.resolve(ret);
       return ret;
     }
 
@@ -1288,11 +1971,11 @@ var Module = (function () {
           heap[outIdx++] = 0x80 | (u & 63);
         } else {
           if (outIdx + 3 >= endIdx) break;
-          if (u >= 0x200000)
+          if (u > 0x10ffff)
             warnOnce(
               'Invalid Unicode code point 0x' +
                 u.toString(16) +
-                ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x1FFFFF).'
+                ' encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).'
             );
           heap[outIdx++] = 0xf0 | (u >> 18);
           heap[outIdx++] = 0x80 | ((u >> 12) & 63);
@@ -1702,12 +2385,16 @@ var Module = (function () {
     // end include: runtime_assertions.js
     var __ATPRERUN__ = []; // functions called before the runtime is initialized
     var __ATINIT__ = []; // functions called during startup
-    var __ATMAIN__ = []; // functions called when main() is to be run
     var __ATEXIT__ = []; // functions called during shutdown
     var __ATPOSTRUN__ = []; // functions called after the main() is called
 
     var runtimeInitialized = false;
     var runtimeExited = false;
+    var runtimeKeepaliveCounter = 0;
+
+    function keepRuntimeAlive() {
+      return noExitRuntime || runtimeKeepaliveCounter > 0;
+    }
 
     function preRun() {
       if (Module['preRun']) {
@@ -1731,6 +2418,8 @@ var Module = (function () {
     }
 
     function exitRuntime() {
+      // ASYNCIFY cannot be used once the runtime starts shutting down.
+      Asyncify.state = Asyncify.State.Disabled;
       checkStackCookie();
       runtimeExited = true;
     }
@@ -1754,10 +2443,6 @@ var Module = (function () {
 
     function addOnInit(cb) {
       __ATINIT__.unshift(cb);
-    }
-
-    function addOnPreMain(cb) {
-      __ATMAIN__.unshift(cb);
     }
 
     function addOnExit(cb) {}
@@ -1881,8 +2566,10 @@ var Module = (function () {
 
     /** @param {string|number=} what */
     function abort(what) {
-      if (Module['onAbort']) {
-        Module['onAbort'](what);
+      {
+        if (Module['onAbort']) {
+          Module['onAbort'](what);
+        }
       }
 
       what += '';
@@ -1991,7 +2678,8 @@ var Module = (function () {
       };
     }
 
-    var wasmBinaryFile = 'qsp-wasm.wasm';
+    var wasmBinaryFile;
+    wasmBinaryFile = 'qsp-wasm.wasm';
     if (!isDataURI(wasmBinaryFile)) {
       wasmBinaryFile = locateFile(wasmBinaryFile);
     }
@@ -2096,8 +2784,10 @@ var Module = (function () {
       function instantiateArrayBuffer(receiver) {
         return getBinaryPromise()
           .then(function (binary) {
-            var result = WebAssembly.instantiate(binary, info);
-            return result;
+            return WebAssembly.instantiate(binary, info);
+          })
+          .then(function (instance) {
+            return instance;
           })
           .then(receiver, function (reason) {
             err('failed to asynchronously prepare wasm: ' + reason);
@@ -2123,6 +2813,7 @@ var Module = (function () {
         ) {
           return fetch(wasmBinaryFile, { credentials: 'same-origin' }).then(function (response) {
             var result = WebAssembly.instantiateStreaming(response, info);
+
             return result.then(receiveInstantiationResult, function (reason) {
               // We expect the most common failure cause to be a bad MIME type for the binary,
               // in which case falling back to ArrayBuffer instantiation should work.
@@ -2200,6 +2891,24 @@ var Module = (function () {
       });
     }
 
+    function handleException(e) {
+      // Certain exception types we do not treat as errors since they are used for
+      // internal control flow.
+      // 1. ExitStatus, which is thrown by exit()
+      // 2. "unwind", which is thrown by emscripten_unwind_to_js_event_loop() and others
+      //    that wish to return to JS event loop.
+      if (e instanceof ExitStatus || e == 'unwind') {
+        return EXITSTATUS;
+      }
+      // Anything else is an unexpected exception and we treat it as hard error.
+      var toLog = e;
+      if (e && typeof e === 'object' && e.stack) {
+        toLog = [e, e.stack];
+      }
+      err('exception thrown: ' + toLog);
+      quit_(1, e);
+    }
+
     function jsStackTrace() {
       var error = new Error();
       if (!error.stack) {
@@ -2215,11 +2924,6 @@ var Module = (function () {
         }
       }
       return error.stack.toString();
-    }
-
-    var runtimeKeepaliveCounter = 0;
-    function keepRuntimeAlive() {
-      return noExitRuntime || runtimeKeepaliveCounter > 0;
     }
 
     function stackTrace() {
@@ -2246,7 +2950,7 @@ var Module = (function () {
         updateGlobalBufferAndViews(wasmMemory.buffer);
         return 1 /*success*/;
       } catch (e) {
-        console.error(
+        err(
           'emscripten_realloc_buffer: Attempted to grow heap from ' +
             buffer.byteLength +
             ' bytes to ' +
@@ -2274,7 +2978,7 @@ var Module = (function () {
       // 4. If we were unable to allocate as much memory, it may be due to over-eager decision to excessively reserve due to (3) above.
       //    Hence if an allocation fails, cut down on the amount of excess growth, in an attempt to succeed to perform a smaller allocation.
 
-      // A limit was set for how much we can grow. We should not exceed that
+      // A limit is set for how much we can grow. We should not exceed that
       // (the wasm binary specifies it, so if we tried, we'd fail anyhow).
       // In CAN_ADDRESS_2GB mode, stay one Wasm page short of 4GB: while e.g. Chrome is able to allocate full 4GB Wasm memories, the size will wrap
       // back to 0 bytes in Wasm side for any code that deals with heap sizes, which would require special casing all heap size related code to treat
@@ -2332,7 +3036,11 @@ var Module = (function () {
         };
         // Apply the user-provided values, if any.
         for (var x in ENV) {
-          env[x] = ENV[x];
+          // x is a key in ENV; if ENV[x] is undefined, that means it was
+          // explicitly set to be so. We allow user code to do that to
+          // force variables with default values to remain unset.
+          if (ENV[x] === undefined) delete env[x];
+          else env[x] = ENV[x];
         }
         var strings = [];
         for (var x in env) {
@@ -2436,8 +3144,34 @@ var Module = (function () {
         abort(e);
       }
     }
+
+    function callUserCallback(func, synchronous) {
+      if (ABORT) {
+        err('user callback triggered after application aborted.  Ignoring.');
+        return;
+      }
+      // For synchronous calls, let any exceptions propagate, and don't let the runtime exit.
+      if (synchronous) {
+        func();
+        return;
+      }
+      try {
+        func();
+      } catch (e) {
+        handleException(e);
+      }
+    }
+
+    function runtimeKeepalivePush() {
+      runtimeKeepaliveCounter += 1;
+    }
+
+    function runtimeKeepalivePop() {
+      assert(runtimeKeepaliveCounter > 0);
+      runtimeKeepaliveCounter -= 1;
+    }
     var Asyncify = {
-      State: { Normal: 0, Unwinding: 1, Rewinding: 2 },
+      State: { Normal: 0, Unwinding: 1, Rewinding: 2, Disabled: 3 },
       state: 0,
       StackSize: 4096,
       currData: null,
@@ -2446,8 +3180,7 @@ var Module = (function () {
       callStackNameToId: {},
       callStackIdToName: {},
       callStackId: 0,
-      afterUnwind: null,
-      asyncFinalizers: [],
+      asyncPromiseHandlers: null,
       sleepCallbacks: [],
       getCallStackId: function (funcName) {
         var id = Asyncify.callStackNameToId[funcName];
@@ -2477,6 +3210,8 @@ var Module = (function () {
           'wasi_snapshot_preview1.fd_sync',
           'env.__wasi_fd_sync',
           'env._emval_await',
+          'env.dlopen',
+          'env.__asyncjs__*',
         ].map(function (x) {
           return x.split('.')[1];
         });
@@ -2489,15 +3224,24 @@ var Module = (function () {
                 try {
                   return original.apply(null, arguments);
                 } finally {
-                  // Only functions in the list of known relevant imports are allowed to change the state.
-                  // Note that invoke_* functions are allowed to change the state if we do not ignore
-                  // indirect calls.
+                  // Only asyncify-declared imports are allowed to change the
+                  // state.
+                  var isAsyncifyImport = ASYNCIFY_IMPORTS.indexOf(x) >= 0 || x.startsWith('__asyncjs__');
+                  // Changing the state from normal to disabled is allowed (in any
+                  // function) as that is what shutdown does (and we don't have an
+                  // explicit list of shutdown imports).
+                  var changedToDisabled =
+                    originalAsyncifyState === Asyncify.State.Normal && Asyncify.state === Asyncify.State.Disabled;
+                  // invoke_* functions are allowed to change the state if we do
+                  // not ignore indirect calls.
+                  var ignoredInvoke = x.startsWith('invoke_') && true;
                   if (
                     Asyncify.state !== originalAsyncifyState &&
-                    ASYNCIFY_IMPORTS.indexOf(x) < 0 &&
-                    !(x.startsWith('invoke_') && true)
+                    !isAsyncifyImport &&
+                    !changedToDisabled &&
+                    !ignoredInvoke
                   ) {
-                    throw 'import ' + x + ' was not in ASYNCIFY_IMPORTS, but changed the state';
+                    throw new Error('import ' + x + ' was not in ASYNCIFY_IMPORTS, but changed the state');
                   }
                 }
               };
@@ -2516,10 +3260,11 @@ var Module = (function () {
                 try {
                   return original.apply(null, arguments);
                 } finally {
-                  if (ABORT) return;
-                  var y = Asyncify.exportCallStack.pop();
-                  assert(y === x);
-                  Asyncify.maybeStopUnwind();
+                  if (!ABORT) {
+                    var y = Asyncify.exportCallStack.pop();
+                    assert(y === x);
+                    Asyncify.maybeStopUnwind();
+                  }
                 }
               };
             } else {
@@ -2532,16 +3277,24 @@ var Module = (function () {
       maybeStopUnwind: function () {
         if (Asyncify.currData && Asyncify.state === Asyncify.State.Unwinding && Asyncify.exportCallStack.length === 0) {
           // We just finished unwinding.
+
           Asyncify.state = Asyncify.State.Normal;
+          // Keep the runtime alive so that a re-wind can be done later.
           runAndAbortIfError(Module['_asyncify_stop_unwind']);
           if (typeof Fibers !== 'undefined') {
             Fibers.trampoline();
           }
-          if (Asyncify.afterUnwind) {
-            Asyncify.afterUnwind();
-            Asyncify.afterUnwind = null;
-          }
         }
+      },
+      whenDone: function () {
+        assert(Asyncify.currData, 'Tried to wait for an async operation when none is in progress.');
+        assert(!Asyncify.asyncPromiseHandlers, 'Cannot have multiple async operations in flight at once');
+        return new Promise(function (resolve, reject) {
+          Asyncify.asyncPromiseHandlers = {
+            resolve: resolve,
+            reject: reject,
+          };
+        });
       },
       allocateData: function () {
         // An asyncify data structure has three fields:
@@ -2572,9 +3325,16 @@ var Module = (function () {
         var func = Module['asm'][name];
         return func;
       },
+      doRewind: function (ptr) {
+        var start = Asyncify.getDataRewindFunc(ptr);
+        // Once we have rewound and the stack we no longer need to artificially keep
+        // the runtime alive.
+
+        return start();
+      },
       handleSleep: function (startAsync) {
+        assert(Asyncify.state !== Asyncify.State.Disabled, 'Asyncify cannot be done during or after the runtime exits');
         if (ABORT) return;
-        noExitRuntime = true;
         if (Asyncify.state === Asyncify.State.Normal) {
           // Prepare to sleep. Call startAsync, and see what happens:
           // if the code decided to call our callback synchronously,
@@ -2583,7 +3343,11 @@ var Module = (function () {
           var reachedCallback = false;
           var reachedAfterCallback = false;
           startAsync(function (handleSleepReturnValue) {
-            assert(!handleSleepReturnValue || typeof handleSleepReturnValue === 'number'); // old emterpretify API supported other stuff
+            assert(
+              !handleSleepReturnValue ||
+                typeof handleSleepReturnValue === 'number' ||
+                typeof handleSleepReturnValue === 'boolean'
+            ); // old emterpretify API supported other stuff
             if (ABORT) return;
             Asyncify.handleSleepReturnValue = handleSleepReturnValue || 0;
             reachedCallback = true;
@@ -2607,8 +3371,16 @@ var Module = (function () {
             if (typeof Browser !== 'undefined' && Browser.mainLoop.func) {
               Browser.mainLoop.resume();
             }
-            var start = Asyncify.getDataRewindFunc(Asyncify.currData);
-            var asyncWasmReturnValue = start();
+            var asyncWasmReturnValue,
+              isError = false;
+            try {
+              asyncWasmReturnValue = Asyncify.doRewind(Asyncify.currData);
+            } catch (err) {
+              asyncWasmReturnValue = err;
+              isError = true;
+            }
+            // Track whether the return value was handled by any promise handlers.
+            var handled = false;
             if (!Asyncify.currData) {
               // All asynchronous execution has finished.
               // `asyncWasmReturnValue` now contains the final
@@ -2622,11 +3394,18 @@ var Module = (function () {
               // contains the return value of the exported WASM function
               // that may have called C functions that
               // call `Asyncify.handleSleep()`.
-              var asyncFinalizers = Asyncify.asyncFinalizers;
-              Asyncify.asyncFinalizers = [];
-              asyncFinalizers.forEach(function (func) {
-                func(asyncWasmReturnValue);
-              });
+              var asyncPromiseHandlers = Asyncify.asyncPromiseHandlers;
+              if (asyncPromiseHandlers) {
+                Asyncify.asyncPromiseHandlers = null;
+                (isError ? asyncPromiseHandlers.reject : asyncPromiseHandlers.resolve)(asyncWasmReturnValue);
+                handled = true;
+              }
+            }
+            if (isError && !handled) {
+              // If there was an error and it was not handled by now, we have no choice but to
+              // rethrow that error into the global scope where it can be caught only by
+              // `onerror` or `onunhandledpromiserejection`.
+              throw asyncWasmReturnValue;
             }
           });
           reachedAfterCallback = true;
@@ -2650,7 +3429,7 @@ var Module = (function () {
           Asyncify.currData = null;
           // Call all sleep callbacks now that the sleep-resume is all done.
           Asyncify.sleepCallbacks.forEach(function (func) {
-            func();
+            callUserCallback(func);
           });
         } else {
           abort('invalid state: ' + Asyncify.state);
@@ -2742,6 +3521,9 @@ var Module = (function () {
     var _selectAction = (Module['_selectAction'] = createExportWrapper('selectAction'));
 
     /** @type {function(...*):?} */
+    var _executeSelAction = (Module['_executeSelAction'] = createExportWrapper('executeSelAction'));
+
+    /** @type {function(...*):?} */
     var _isActionsChanged = (Module['_isActionsChanged'] = createExportWrapper('isActionsChanged'));
 
     /** @type {function(...*):?} */
@@ -2811,6 +3593,18 @@ var Module = (function () {
     var ___errno_location = (Module['___errno_location'] = createExportWrapper('__errno_location'));
 
     /** @type {function(...*):?} */
+    var _emscripten_stack_get_base = (Module['_emscripten_stack_get_base'] = function () {
+      return (_emscripten_stack_get_base = Module['_emscripten_stack_get_base'] =
+        Module['asm']['emscripten_stack_get_base']).apply(null, arguments);
+    });
+
+    /** @type {function(...*):?} */
+    var _emscripten_stack_get_end = (Module['_emscripten_stack_get_end'] = function () {
+      return (_emscripten_stack_get_end = Module['_emscripten_stack_get_end'] =
+        Module['asm']['emscripten_stack_get_end']).apply(null, arguments);
+    });
+
+    /** @type {function(...*):?} */
     var __get_tzname = (Module['__get_tzname'] = createExportWrapper('_get_tzname'));
 
     /** @type {function(...*):?} */
@@ -2849,16 +3643,7 @@ var Module = (function () {
     });
 
     /** @type {function(...*):?} */
-    var _emscripten_stack_get_base = (Module['_emscripten_stack_get_base'] = function () {
-      return (_emscripten_stack_get_base = Module['_emscripten_stack_get_base'] =
-        Module['asm']['emscripten_stack_get_base']).apply(null, arguments);
-    });
-
-    /** @type {function(...*):?} */
-    var _emscripten_stack_get_end = (Module['_emscripten_stack_get_end'] = function () {
-      return (_emscripten_stack_get_end = Module['_emscripten_stack_get_end'] =
-        Module['asm']['emscripten_stack_get_end']).apply(null, arguments);
-    });
+    var _saveSetjmp = (Module['_saveSetjmp'] = createExportWrapper('saveSetjmp'));
 
     /** @type {function(...*):?} */
     var _setThrew = (Module['_setThrew'] = createExportWrapper('setThrew'));
@@ -3105,6 +3890,14 @@ var Module = (function () {
       Module['abort'] = function () {
         abort("'abort' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
+    if (!Object.getOwnPropertyDescriptor(Module, 'keepRuntimeAlive'))
+      Module['keepRuntimeAlive'] = function () {
+        abort("'keepRuntimeAlive' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'zeroMemory'))
+      Module['zeroMemory'] = function () {
+        abort("'zeroMemory' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
     if (!Object.getOwnPropertyDescriptor(Module, 'stringToNewUTF8'))
       Module['stringToNewUTF8'] = function () {
         abort("'stringToNewUTF8' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
@@ -3241,13 +4034,9 @@ var Module = (function () {
       Module['callRuntimeCallbacks'] = function () {
         abort("'callRuntimeCallbacks' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
-    if (!Object.getOwnPropertyDescriptor(Module, 'runtimeKeepaliveCounter'))
-      Module['runtimeKeepaliveCounter'] = function () {
-        abort("'runtimeKeepaliveCounter' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
-      };
-    if (!Object.getOwnPropertyDescriptor(Module, 'keepRuntimeAlive'))
-      Module['keepRuntimeAlive'] = function () {
-        abort("'keepRuntimeAlive' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+    if (!Object.getOwnPropertyDescriptor(Module, 'handleException'))
+      Module['handleException'] = function () {
+        abort("'handleException' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
     if (!Object.getOwnPropertyDescriptor(Module, 'runtimeKeepalivePush'))
       Module['runtimeKeepalivePush'] = function () {
@@ -3265,9 +4054,25 @@ var Module = (function () {
       Module['maybeExit'] = function () {
         abort("'maybeExit' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
+    if (!Object.getOwnPropertyDescriptor(Module, 'safeSetTimeout'))
+      Module['safeSetTimeout'] = function () {
+        abort("'safeSetTimeout' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
     if (!Object.getOwnPropertyDescriptor(Module, 'asmjsMangle'))
       Module['asmjsMangle'] = function () {
         abort("'asmjsMangle' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'asyncLoad'))
+      Module['asyncLoad'] = function () {
+        abort("'asyncLoad' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'alignMemory'))
+      Module['alignMemory'] = function () {
+        abort("'alignMemory' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'mmapAlloc'))
+      Module['mmapAlloc'] = function () {
+        abort("'mmapAlloc' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
     if (!Object.getOwnPropertyDescriptor(Module, 'reallyNegative'))
       Module['reallyNegative'] = function () {
@@ -3583,10 +4388,6 @@ var Module = (function () {
       Module['exceptionCaught'] = function () {
         abort("'exceptionCaught' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
-    if (!Object.getOwnPropertyDescriptor(Module, 'ExceptionInfoAttrs'))
-      Module['ExceptionInfoAttrs'] = function () {
-        abort("'ExceptionInfoAttrs' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
-      };
     if (!Object.getOwnPropertyDescriptor(Module, 'ExceptionInfo'))
       Module['ExceptionInfo'] = function () {
         abort("'ExceptionInfo' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
@@ -3619,13 +4420,13 @@ var Module = (function () {
       Module['setMainLoop'] = function () {
         abort("'setMainLoop' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
+    if (!Object.getOwnPropertyDescriptor(Module, 'wget'))
+      Module['wget'] = function () {
+        abort("'wget' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
     if (!Object.getOwnPropertyDescriptor(Module, 'FS'))
       Module['FS'] = function () {
         abort("'FS' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
-      };
-    if (!Object.getOwnPropertyDescriptor(Module, 'mmapAlloc'))
-      Module['mmapAlloc'] = function () {
-        abort("'mmapAlloc' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
     if (!Object.getOwnPropertyDescriptor(Module, 'MEMFS'))
       Module['MEMFS'] = function () {
@@ -3686,6 +4487,16 @@ var Module = (function () {
     if (!Object.getOwnPropertyDescriptor(Module, 'webglGetUniformLocation'))
       Module['webglGetUniformLocation'] = function () {
         abort("'webglGetUniformLocation' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'webglPrepareUniformLocationsBeforeFirstUse'))
+      Module['webglPrepareUniformLocationsBeforeFirstUse'] = function () {
+        abort(
+          "'webglPrepareUniformLocationsBeforeFirstUse' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)"
+        );
+      };
+    if (!Object.getOwnPropertyDescriptor(Module, 'webglGetLeftBracePos'))
+      Module['webglGetLeftBracePos'] = function () {
+        abort("'webglGetLeftBracePos' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)");
       };
     if (!Object.getOwnPropertyDescriptor(Module, 'emscriptenWebGLGetVertexAttrib'))
       Module['emscriptenWebGLGetVertexAttrib'] = function () {
@@ -3940,14 +4751,6 @@ var Module = (function () {
 
       checkUnflushedContent();
 
-      // if this is just main exit-ing implicitly, and the status is 0, then we
-      // don't need to do anything here and can just leave. if the status is
-      // non-zero, though, then we need to report it.
-      // (we may have warned about this earlier, if a situation justifies doing so)
-      if (implicit && keepRuntimeAlive() && status === 0) {
-        return;
-      }
-
       if (keepRuntimeAlive()) {
         // if exit() was called, we may warn the user if the runtime isn't actually being shut down
         if (!implicit) {
@@ -3960,13 +4763,18 @@ var Module = (function () {
         }
       } else {
         exitRuntime();
-
-        if (Module['onExit']) Module['onExit'](status);
-
-        ABORT = true;
       }
 
-      quit_(status, new ExitStatus(status));
+      procExit(status);
+    }
+
+    function procExit(code) {
+      EXITSTATUS = code;
+      if (!keepRuntimeAlive()) {
+        if (Module['onExit']) Module['onExit'](code);
+        ABORT = true;
+      }
+      quit_(code, new ExitStatus(code));
     }
 
     if (Module['preInit']) {

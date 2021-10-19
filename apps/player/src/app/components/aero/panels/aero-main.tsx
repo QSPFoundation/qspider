@@ -24,7 +24,11 @@ export const AeroMainPanel: React.FC = observer(() => {
       duration={layout.playerUI.newLocEffect.time}
       sequence={layout.playerUI.sequenceNewLocEffect}
     >
-      <AeroPanel {...layout.mainUI} background={layout.mainUI.backImage && resources.get(layout.mainUI.backImage).url}>
+      <AeroPanel
+        {...layout.mainUI}
+        background={layout.mainUI.backImage && resources.get(layout.mainUI.backImage).url}
+        data-type="main"
+      >
         <AeroCustomScroll scrollY={manager.isNewLoc ? undefined : '100%'}>
           <Content content={content} />
           {layout.playerUI.intergratedActions && <AeroActionsPanel />}

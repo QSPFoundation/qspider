@@ -1,6 +1,5 @@
-import React from 'react';
-import { useLocalStore } from 'mobx-react-lite';
-import { observable, action, computed, makeObservable } from 'mobx';
+import React, { useState } from 'react';
+import { observable, action, computed, makeObservable, autorun, reaction } from 'mobx';
 import { useGameManager, GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { LayoutDock, LayoutPanel } from './cfg-converter';
@@ -8,6 +7,22 @@ import { QspGUIPanel } from '../constants';
 import { CfgData } from './cfg-parser';
 import { ResourceManager, useResources } from './resource-manager';
 import { Theme } from '@emotion/react';
+
+const classicDefaults = {
+  defaultBackgroundColor: '#e0e0e0',
+  defaultColor: '#000000',
+  defaultLinkColor: '#0000ff',
+  defaultFontSize: 12,
+  defaultFontName: '',
+};
+
+const aeroDefaults = {
+  defaultBackgroundColor: '#e5e5e5',
+  defaultColor: '#000000',
+  defaultLinkColor: '#0000ff',
+  defaultFontSize: 18,
+  defaultFontName: 'sans-serif',
+};
 
 class Layout {
   useHtml = false;
@@ -26,8 +41,9 @@ class Layout {
   defaultBackgroundColor = '#e0e0e0';
   defaultColor = '#000000';
   defaultLinkColor = '#0000ff';
-  defaultvFontSize = 12;
+  defaultFontSize = 12;
   defaultFontName = '';
+  currentMode = '';
 
   constructor(private manager: GameManager, private resources: ResourceManager) {
     makeObservable(this, {
@@ -58,7 +74,7 @@ class Layout {
       backgroundColor: this.backgroundColor || this.defaultBackgroundColor,
       backgroundImage: this.backgroundImage ? `url("${this.resources.get(this.backgroundImage).url}")` : 'none',
       textColor: this.color || this.defaultColor,
-      fontSize: this.fontSize || this.defaultvFontSize,
+      fontSize: this.fontSize || this.defaultFontSize,
       fontName: this.fontName || this.defaultFontName,
       borderColor: 'grey',
       linkColor: this.linkColor || this.defaultLinkColor,
@@ -67,13 +83,28 @@ class Layout {
 
   async initialized(manager: GameManager) {
     await manager.apiInitialized;
-    if (manager.gameConfig) {
-      this.fillDefaults(manager.gameConfig);
-    }
     this.initCallbacks(manager);
+    reaction(
+      () => this.manager.currentGame,
+      (descriptor) => {
+        if (!descriptor) {
+          this.fillClassicDefaults();
+          return;
+        }
+        this.currentMode = descriptor.mode;
+        if (descriptor.mode === 'aero') {
+          this.fillAeroDefaults();
+        } else {
+          this.fillClassicDefaults();
+          if (manager.gameConfig) {
+            this.fillDefaultsFromConfig(manager.gameConfig);
+          }
+        }
+      }
+    );
   }
 
-  fillDefaults(config: CfgData) {
+  fillDefaultsFromConfig(config: CfgData) {
     if (config) {
       if (config.Colors) {
         this.defaultBackgroundColor = this.convertColor(config.Colors.BackColor, false);
@@ -82,9 +113,25 @@ class Layout {
       }
       if (config.Font) {
         this.defaultFontName = config.Font.FontName;
-        this.defaultvFontSize = config.Font.FontSize;
+        this.defaultFontSize = config.Font.FontSize;
       }
     }
+  }
+
+  fillAeroDefaults(): void {
+    this.defaultFontName = aeroDefaults.defaultFontName;
+    this.defaultFontSize = aeroDefaults.defaultFontSize;
+    this.defaultBackgroundColor = aeroDefaults.defaultBackgroundColor;
+    this.defaultColor = aeroDefaults.defaultColor;
+    this.defaultLinkColor = aeroDefaults.defaultLinkColor;
+  }
+
+  fillClassicDefaults(): void {
+    this.defaultFontName = classicDefaults.defaultFontName;
+    this.defaultFontSize = classicDefaults.defaultFontSize;
+    this.defaultBackgroundColor = classicDefaults.defaultBackgroundColor;
+    this.defaultColor = classicDefaults.defaultColor;
+    this.defaultLinkColor = classicDefaults.defaultLinkColor;
   }
 
   initCallbacks(manager: GameManager) {
@@ -93,7 +140,7 @@ class Layout {
   }
 
   updateLayoutSettings = (settings: LayoutSettings) => {
-    this.useHtml = settings.useHtml;
+    this.useHtml = settings.useHtml || this.currentMode === 'aero';
     this.backgroundColor = settings.backgroundColor ? this.convertColor(settings.backgroundColor) : null;
     this.backgroundImage = settings.backgroundImage;
     this.color = settings.color ? this.convertColor(settings.color) : null;
@@ -175,17 +222,13 @@ class Layout {
   }
 }
 
-function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
-  return new Layout(source.manager, source.resources);
-}
-
 const layoutContext = React.createContext<Layout | null>(null);
 
 export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
-  const store = useLocalStore(createLayout, { manager, resources });
-  return <layoutContext.Provider value={store}>{children}</layoutContext.Provider>;
+  const [layout] = useState(() => new Layout(manager, resources));
+  return <layoutContext.Provider value={layout}>{children}</layoutContext.Provider>;
 };
 
 export const useLayout = (): Layout => {

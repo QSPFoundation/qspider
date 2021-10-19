@@ -11,12 +11,13 @@ import { MenuUI } from '@qspider/qsp-wasm';
 import { useImageSize } from '../../../hooks/image-size';
 import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
+import { noop } from '../../../utils';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
   border: ${(props) => props.menuUI.borderWidth || 0}px solid ${(props) => props.menuUI.borderColor};
   background-color: ${(props) => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
-  background-image: ${(props) => props.url || 'none'};
+  background-image: ${(props) => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
   padding: ${(props) => props.menuUI.padding || 0}px;
 `;
 
@@ -30,7 +31,7 @@ const FixedMenuWrapper = styled.div<{ menuUI: MenuUI; width: number; height: num
   height: ${(props) => props.width}px;
   border: ${(props) => props.menuUI.borderWidth || 0}px solid ${(props) => props.menuUI.borderColor};
   background-color: ${(props) => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
-  background-image: ${(props) => props.url || 'none'};
+  background-image: ${(props) => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
   padding: ${(props) => props.menuUI.padding || 0}px;
 `;
 
@@ -83,7 +84,12 @@ export const AeroMenu: React.FC = observer(() => {
         <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
           <FixedMenuWrapper ref={node} menuUI={layout.menuUI} width={width} height={height} url={url}>
             <FixedMenuList menuUI={layout.menuUI}>
-              <AeroActionList actions={manager.menu} type="menuUI" onSelect={onMenuSelect}></AeroActionList>
+              <AeroActionList
+                actions={manager.menu}
+                type="menuUI"
+                onSelect={noop}
+                onAction={onMenuSelect}
+              ></AeroActionList>
             </FixedMenuList>
           </FixedMenuWrapper>
         </div>
@@ -96,7 +102,12 @@ export const AeroMenu: React.FC = observer(() => {
       <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
         <MenuWrapper ref={node} menuUI={layout.menuUI} url={url}>
           <MenuList menuUI={layout.menuUI}>
-            <AeroActionList actions={manager.menu} type="menuUI" onSelect={onMenuSelect}></AeroActionList>
+            <AeroActionList
+              actions={manager.menu}
+              type="menuUI"
+              onSelect={noop}
+              onAction={onMenuSelect}
+            ></AeroActionList>
           </MenuList>
         </MenuWrapper>
       </div>

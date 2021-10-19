@@ -667,13 +667,13 @@ THEMES:
   border-radius: 10px;
 }
 .os-theme-aero > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(255, 255, 255, 0.4);
+  background: transparent;
 }
 .os-theme-aero > .os-scrollbar:hover > .os-scrollbar-track > .os-scrollbar-handle {
-  background: rgba(255, 255, 255, 0.55);
+  background: transparent;
 }
 .os-theme-aero > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle.active {
-  background: rgba(255, 255, 255, 0.7);
+  background: transparent;
 }
 .os-theme-aero > .os-scrollbar-horizontal .os-scrollbar-handle:before,
 .os-theme-aero > .os-scrollbar-vertical .os-scrollbar-handle:before {
@@ -702,6 +702,10 @@ THEMES:
   left: -2px;
 }
 
+.os-theme-aero .os-padding {
+  margin-right: calc(max(var(--up-arrow-width), var(--down-arrow-width)) + 3px);
+}
+
 .os-theme-aero .os-scrollbar-vertical::before {
   content: '';
   position: absolute;
@@ -711,7 +715,14 @@ THEMES:
   height: var(--up-arrow-height);
   background-image: var(--up-arrow);
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
 }
+
+.os-theme-aero .os-scrollbar-vertical.show-up-arrow::before {
+  opacity: 1;
+}
+
 .os-theme-aero .os-scrollbar-vertical::after {
   content: '';
   position: absolute;
@@ -720,4 +731,10 @@ THEMES:
   width: var(--down-arrow-width);
   height: var(--down-arrow-height);
   background-image: var(--down-arrow);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.os-theme-aero .os-scrollbar-vertical.show-down-arrow::after {
+  opacity: 1;
 }

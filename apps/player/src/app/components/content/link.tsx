@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import { useStyle } from '../../hooks/style';
 
 const StyledA = styled.a`
-  color: ${(props) => props.theme.linkColor};
+  color: var(--link-color);
 `;
 
 export const Link: React.FC<{ exec?: string; act?: number; className: string; style: React.CSSProperties }> = observer(
@@ -19,6 +19,7 @@ export const Link: React.FC<{ exec?: string; act?: number; className: string; st
           manager.execCode(exec);
         } else if (act) {
           manager.selectAction(act - 1);
+          manager.executeSelAction();
         }
       },
       [exec, act, manager]

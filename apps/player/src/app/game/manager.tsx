@@ -1,6 +1,5 @@
-import React from 'react';
-import { useLocalStore } from 'mobx-react-lite';
-import { observable, action, makeObservable } from 'mobx';
+import React, { useState } from 'react';
+import { observable, action, makeObservable, runInAction } from 'mobx';
 import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
@@ -89,6 +88,8 @@ export class GameManager {
 
       isInputShown: observable,
       input: observable,
+      updateInput: action,
+      closeInput: action,
 
       isViewShown: observable,
       viewSrc: observable,
@@ -162,11 +163,21 @@ export class GameManager {
         if (this.currentGame) {
           this.hotKeysManager.reset();
         }
+        let aeroConfig: { width: number; height: number; title: string } | null;
+        if (name.endsWith('aqsp')) {
+          aeroConfig = await this.resources.getAeroConfig();
+        }
         this.runGame(gameSource, {
           id: name,
           mode: name.endsWith('aqsp') ? 'aero' : 'classic',
-          title: '',
+          title: aeroConfig?.title || '',
           file: name,
+          aero: aeroConfig
+            ? {
+                width: aeroConfig.width,
+                height: aeroConfig.height,
+              }
+            : undefined,
         });
       }
     } catch (err) {
@@ -199,7 +210,9 @@ export class GameManager {
       this.floating = DEFAULT_FLOATING;
     }
 
-    this.currentGame = descriptor;
+    runInAction(() => {
+      this.currentGame = descriptor;
+    });
 
     if (descriptor.hotkeys) {
       this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
@@ -309,6 +322,7 @@ export class GameManager {
       this.hotKeysManager.reset();
       this.resources.clear();
       this.clearAdditionalResources();
+      this.currentGame = null;
       window.dispatchEvent(new Event('game-unload'));
     }
   }
@@ -352,12 +366,14 @@ export class GameManager {
       if (this.isPaused) return;
       if (index >= 0 && index < this.actions.length) {
         this.selectAction(index);
+        this.executeSelAction();
       }
     });
     this.hotKeysManager.on('select_single_action', () => {
       if (this.isPaused) return;
       if (this.actions.length === 1) {
         this.selectAction(0);
+        this.executeSelAction();
       }
     });
     this.hotKeysManager.on('save', () => {
@@ -430,7 +446,7 @@ export class GameManager {
   updateMain = (text: string): void => {
     const prevMain = this.main;
     this.main = prepareContent(text);
-    this.isNewLoc = this.main !== prevMain && !this.main.startsWith(prevMain);
+    this.isNewLoc = !prevMain || (this.main !== prevMain && !this.main.startsWith(prevMain));
     if (this.isNewLoc) {
       this.newLocHash = String(hashString(this.main));
     }
@@ -493,6 +509,10 @@ export class GameManager {
 
   selectAction(index: number): void {
     this._api.selectAction(index);
+  }
+
+  executeSelAction(): void {
+    this._api.executeSelAction();
   }
 
   selectObject(index: number): void {
@@ -716,16 +736,12 @@ export class GameManager {
   };
 }
 
-function createGameManager(source: { resources: ResourceManager }) {
-  return new GameManager(source.resources);
-}
-
 const gameManagerContext = React.createContext<GameManager | null>(null);
 
 export const GameManagerProvider: React.FC = ({ children }) => {
   const resources = useResources();
-  const store = useLocalStore(createGameManager, { resources });
-  return <gameManagerContext.Provider value={store}>{children}</gameManagerContext.Provider>;
+  const [manager] = useState(() => new GameManager(resources));
+  return <gameManagerContext.Provider value={manager}>{children}</gameManagerContext.Provider>;
 };
 
 export const useGameManager = (): GameManager => {

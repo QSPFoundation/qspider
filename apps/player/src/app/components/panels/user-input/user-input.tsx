@@ -6,8 +6,7 @@ import { useGameManager } from '../../../game/manager';
 import { useLayout } from '../../../game/layout';
 
 const TextInput = styled.input`
-  background: ${(props) => props.theme.backgroundColor};
-  color: ${(props) => props.theme.textColor};
+  background: var(--background-color);
   display: inline-block;
   height: 100%;
   width: 100%;

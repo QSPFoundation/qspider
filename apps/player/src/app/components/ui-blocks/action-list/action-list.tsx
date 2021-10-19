@@ -10,18 +10,12 @@ const Nav = styled.nav`
 export const ActionList: React.FC<{
   actions: QspListItem[];
   onSelect: (index: number) => void;
-}> = ({ actions, onSelect }) => {
+  onAction: (index: number) => void;
+}> = ({ actions, onSelect, onAction }) => {
   return (
     <Nav role="menu">
       {actions.map((action, index) => {
-        return (
-          <ActionItem
-            key={index}
-            action={action}
-            index={index}
-            onSelect={onSelect}
-          />
-        );
+        return <ActionItem key={index} action={action} index={index} onSelect={onSelect} onAction={onAction} />;
       })}
     </Nav>
   );

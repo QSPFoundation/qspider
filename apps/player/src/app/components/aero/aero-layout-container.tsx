@@ -23,19 +23,29 @@ import { useImageSize } from '../../hooks/image-size';
 import defaultUpArrow from '../../../assets/aero/up_arrow.png';
 import defaultDownArrow from '../../../assets/aero/down_arrow.png';
 
+const AeroPlayerWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const AeroPlayerBlock = styled.div<{
   width: number;
   height: number;
   backgroundImage?: string;
 }>`
   position: relative;
-  margin: 0 auto;
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
   background-image: ${({ backgroundImage }) => (backgroundImage ? `url("${backgroundImage}")` : 'none')};
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
+  text-align: left;
+  overflow: hidden;
+  tab-size: 4;
 `;
 
 const AeroPlayerForeground = styled.div<{
@@ -75,25 +85,29 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
   } as React.CSSProperties;
 
   return (
-    <AeroPlayerBlock
-      width={manager.currentGame.aero?.width || 800}
-      height={manager.currentGame.aero?.height || 600}
-      backgroundImage={layout.playerUI?.backImage ? resources.get(layout.playerUI?.backImage).url : defaultBackground}
-      style={style}
-    >
-      <AeroStylesheet />
-      <AeroStatsPanel />
-      <AeroMainPanel />
-      <AeroObjectsPanel />
-      {layout.playerUI?.intergratedActions ? null : <AeroActionsPanel />}
-      <AeroUserInputPanel />
-      <AeroViewImagePanel />
-      {layout.playerUI?.topImage ? <AeroPlayerForeground image={resources.get(layout.playerUI?.topImage).url} /> : null}
-      <AeroMenu />
-      <AeroMsgDialog />
-      <AeroInputDialog />
-      <ErrorDialog />
-      <SaveSlotsDialog />
-    </AeroPlayerBlock>
+    <AeroPlayerWrapper>
+      <AeroPlayerBlock
+        width={manager.currentGame.aero?.width || 800}
+        height={manager.currentGame.aero?.height || 600}
+        backgroundImage={layout.playerUI?.backImage ? resources.get(layout.playerUI?.backImage).url : defaultBackground}
+        style={style}
+      >
+        <AeroStylesheet />
+        <AeroStatsPanel />
+        <AeroMainPanel />
+        <AeroObjectsPanel />
+        {layout.playerUI?.intergratedActions ? null : <AeroActionsPanel />}
+        <AeroUserInputPanel />
+        <AeroViewImagePanel />
+        {layout.playerUI?.topImage ? (
+          <AeroPlayerForeground image={resources.get(layout.playerUI?.topImage).url} />
+        ) : null}
+        <AeroMenu />
+        <AeroMsgDialog />
+        <AeroInputDialog />
+        <ErrorDialog />
+        <SaveSlotsDialog />
+      </AeroPlayerBlock>
+    </AeroPlayerWrapper>
   );
 });

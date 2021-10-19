@@ -70,6 +70,10 @@ export class QspAPIImpl implements QspAPI {
     this.module._selectAction(index);
   }
 
+  executeSelAction(): void {
+    this.module._executeSelAction();
+  }
+
   selectObject(index: number): void {
     this.module._selectObject(index);
   }
@@ -211,7 +215,9 @@ export class QspAPIImpl implements QspAPI {
     event: E,
     ...args: Parameters<CB>
   ): void {
-    console.log({ event, args });
+    if (event !== 'refresh') {
+      console.log({ event, args });
+    }
     this.events.emit(event, ...args);
   }
 

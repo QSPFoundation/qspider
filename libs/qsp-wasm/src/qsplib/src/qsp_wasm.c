@@ -104,16 +104,17 @@ QSPListItem *getActions(int *count)
 EMSCRIPTEN_KEEPALIVE
 void selectAction(int index)
 {
-  if (QSPSetSelActionIndex(index, QSP_TRUE))
-  {
-
-    if (!QSPExecuteSelActionCode(QSP_TRUE))
-      onError();
-  }
-  else
+  if (!QSPSetSelActionIndex(index, QSP_TRUE))
   {
     onError();
   }
+}
+
+EMSCRIPTEN_KEEPALIVE
+void executeSelAction()
+{
+  if (!QSPExecuteSelActionCode(QSP_TRUE))
+    onError();
 }
 
 EMSCRIPTEN_KEEPALIVE
