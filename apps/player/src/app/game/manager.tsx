@@ -163,11 +163,21 @@ export class GameManager {
         if (this.currentGame) {
           this.hotKeysManager.reset();
         }
+        let aeroConfig: { width: number; height: number; title: string } | null;
+        if (name.endsWith('aqsp')) {
+          aeroConfig = await this.resources.getAeroConfig();
+        }
         this.runGame(gameSource, {
           id: name,
           mode: name.endsWith('aqsp') ? 'aero' : 'classic',
-          title: '',
+          title: aeroConfig?.title || '',
           file: name,
+          aero: aeroConfig
+            ? {
+                width: aeroConfig.width,
+                height: aeroConfig.height,
+              }
+            : undefined,
         });
       }
     } catch (err) {

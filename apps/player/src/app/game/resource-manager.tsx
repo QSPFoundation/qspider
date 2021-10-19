@@ -95,6 +95,22 @@ export class ResourceManager {
     }
   }
 
+  async getAeroConfig(): Promise<{ width: number; height: number; title: string } | null> {
+    if (this._zipResources['config.xml']) {
+      const blob = new Blob([this._zipResources['config.xml']]);
+      const content = await blob.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'application/xml');
+      const gameElement = doc.querySelector('game');
+      return {
+        width: parseInt(gameElement.getAttribute('width')),
+        height: parseInt(gameElement.getAttribute('height')),
+        title: gameElement.getAttribute('title'),
+      };
+    }
+    return null;
+  }
+
   get(file: string): Resource {
     let path = this.preparePath(file);
     const type = path.toLowerCase().split('.').pop();

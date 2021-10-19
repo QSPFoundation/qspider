@@ -56,7 +56,7 @@ export const OpenGameButton: React.FC<{ onOpen: (file: ArrayBuffer, name: string
   };
   return (
     <OpenButton>
-      <FileInput type="file" id="openGame" accept=".zip" onChange={onChange} />
+      <FileInput type="file" id="openGame" accept=".zip, .aqsp" onChange={onChange} />
       <FileInputLabel htmlFor="openGame">
         <Icon icon="open" />
       </FileInputLabel>
