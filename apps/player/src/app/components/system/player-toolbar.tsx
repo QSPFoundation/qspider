@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useGameManager } from '../../game/manager';
 import { IconButton } from '../ui-blocks/icon-button';
 import { OpenGameButton } from '../ui-blocks/open-game-button';
+import { useLayout } from '../../game/layout';
 
 export const PlayerToolbarWrapper = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ const Icons = styled.div`
 
 export const PlayerToolbar: React.FC = observer(() => {
   const manager = useGameManager();
+  const layout = useLayout();
   return (
     <PlayerToolbarWrapper>
       <Title>{manager.currentGame.title}</Title>
@@ -43,8 +45,8 @@ export const PlayerToolbar: React.FC = observer(() => {
           }}
         />
         <IconButton icon="restart" onClick={() => manager.restart()} />
-        <IconButton icon="save" onClick={() => manager.requestSave()} />
-        <IconButton icon="load" onClick={() => manager.requestRestore()} />
+        {!layout.nosave && <IconButton icon="save" onClick={() => manager.requestSave()} />}
+        {!layout.nosave && <IconButton icon="load" onClick={() => manager.requestRestore()} />}
         {manager.hasGameList ? <IconButton icon="list" onClick={() => manager.showGameList()} /> : null}
         <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => manager.openGame(game, name)} />
       </Icons>

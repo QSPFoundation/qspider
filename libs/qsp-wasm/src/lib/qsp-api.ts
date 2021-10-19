@@ -150,6 +150,7 @@ export class QspAPIImpl implements QspAPI {
     this.staticStrings.set('FSIZE', this.prepareString('FSIZE'));
     this.staticStrings.set('$FNAME', this.prepareString('$FNAME'));
     this.staticStrings.set('$BACKIMAGE', this.prepareString('$BACKIMAGE'));
+    this.staticStrings.set('NOSAVE', this.prepareString('NOSAVE'));
   }
 
   private registerCallbacks() {
@@ -419,6 +420,7 @@ export class QspAPIImpl implements QspAPI {
 
   private updateLayout() {
     const useHtml = Boolean(this.readVariableNumber('USEHTML'));
+    const nosave = Boolean(this.readVariableNumber('NOSAVE'));
     const backgroundColor = this.readVariableNumber('BCOLOR');
     const color = this.readVariableNumber('FCOLOR');
     const linkColor = this.readVariableNumber('LCOLOR');
@@ -427,6 +429,7 @@ export class QspAPIImpl implements QspAPI {
     const backgroundImage = this.readVariableString('$BACKIMAGE');
 
     const layout = {
+      nosave,
       useHtml,
       backgroundColor,
       backgroundImage,

@@ -1,6 +1,7 @@
 import { QspPanel } from '../qsplib/public/types';
 
 export interface LayoutSettings {
+  nosave: boolean;
   useHtml: boolean;
   backgroundColor: number;
   backgroundImage: string;
