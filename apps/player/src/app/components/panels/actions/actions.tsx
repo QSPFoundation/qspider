@@ -20,7 +20,7 @@ export const ActionsPanel: React.FC = observer(() => {
   );
   if (!isActionsPanelVisible) return null;
   return (
-    <Panel>
+    <Panel data-qsp="actions">
       <CustomScroll>
         <ActionList actions={manager.actions} onSelect={onActionSelect} onAction={onAction}></ActionList>
       </CustomScroll>

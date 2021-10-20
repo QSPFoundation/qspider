@@ -14,7 +14,7 @@ export const ObjectsPanel: React.FC = observer(() => {
   const onObjectSelect = useCallback((index: number) => manager.selectObject(index), [manager]);
   if (!isObjectPanelVisible) return null;
   return (
-    <Panel>
+    <Panel data-qsp="objects">
       <CustomScroll>
         <ActionList actions={manager.objects} onSelect={noop} onAction={onObjectSelect} />
       </CustomScroll>

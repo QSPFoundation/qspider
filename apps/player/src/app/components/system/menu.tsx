@@ -44,7 +44,7 @@ export const Menu: React.FC = observer(() => {
   return (
     <div ref={setPopperElement} style={styles.popper} {...attributes.popper}>
       <MenuWrapper ref={node}>
-        <ActionList actions={manager.menu} onSelect={noop} onAction={onMenuSelect} />
+        <ActionList actions={manager.menu} onSelect={noop} onAction={onMenuSelect} data-qsp="menu" />
       </MenuWrapper>
     </div>
   );

@@ -28,7 +28,7 @@ export const UserInputPanel: React.FC = observer(() => {
   const { isUserInputPanelVisible } = useLayout();
   if (!isUserInputPanelVisible) return null;
   return (
-    <Panel>
+    <Panel data-qsp="user-input">
       <Form
         onSubmit={(e) => {
           e.preventDefault();

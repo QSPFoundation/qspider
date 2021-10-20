@@ -20,7 +20,7 @@ export const ViewImagePanel: React.FC = observer(() => {
   const manager = useGameManager();
   if (!manager.isViewShown) return null;
   return (
-    <Panel withPadding>
+    <Panel withPadding data-qsp="view">
       <ViewImageContainer>
         <ViewImage src={manager.viewSrc} alt="" />
       </ViewImageContainer>

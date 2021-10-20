@@ -50,7 +50,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   const isShown = Boolean(isGameListShown);
   if (!isShown) return null;
   return (
-    <GameListWrapper>
+    <GameListWrapper data-qsp="game-list">
       <Modal closable={closable} onClose={onClose} hideButtons width={800}>
         <OpenButtonWrapper>
           <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => gameManager.openGame(game, name)} />

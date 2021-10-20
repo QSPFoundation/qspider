@@ -18,7 +18,7 @@ export const MainPanel: React.FC = observer(() => {
     }
   }, [prevMain, manager.main]);
   return (
-    <PanelWithBackground>
+    <PanelWithBackground data-qsp="main">
       <CustomScroll scrollY={scrollY}>
         <PanelContent>
           <Content content={manager.main} />
