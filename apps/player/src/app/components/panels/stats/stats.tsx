@@ -14,7 +14,7 @@ export const StatsPanel: React.FC = observer(() => {
   if (!isStatsPanelVisible) return null;
   const scrollY = prevStats && manager.stats !== prevStats && manager.stats.startsWith(prevStats) ? '100%' : undefined;
   return (
-    <Panel>
+    <Panel data-qsp="stats">
       <CustomScroll scrollY={scrollY}>
         <PanelContent>
           <Content content={manager.stats} />

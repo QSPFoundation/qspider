@@ -11,7 +11,7 @@ export const MsgDialog: React.FC = observer(() => {
   }, [manager]);
   if (!manager.isMsgShown) return null;
   return (
-    <Modal onClose={onClose}>
+    <Modal onClose={onClose} data-qsp="msg">
       {manager.msg && <Content content={manager.msg} />}
     </Modal>
   );

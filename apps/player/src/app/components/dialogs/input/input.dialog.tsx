@@ -28,6 +28,7 @@ export const InputDialog: React.FC = observer(() => {
         manager.closeInput(inputText);
         setInputText('');
       }}
+      data-qsp="input"
     >
       <form
         onSubmit={(e) => {

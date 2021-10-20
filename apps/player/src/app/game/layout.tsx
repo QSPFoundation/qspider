@@ -25,6 +25,7 @@ const aeroDefaults = {
 };
 
 class Layout {
+  nosave = false;
   useHtml = false;
   backgroundColor: string;
   backgroundImage: string;
@@ -47,6 +48,7 @@ class Layout {
 
   constructor(private manager: GameManager, private resources: ResourceManager) {
     makeObservable(this, {
+      nosave: observable,
       useHtml: observable,
       backgroundColor: observable,
       backgroundImage: observable,
@@ -140,6 +142,7 @@ class Layout {
   }
 
   updateLayoutSettings = (settings: LayoutSettings) => {
+    this.nosave = settings.nosave;
     this.useHtml = settings.useHtml || this.currentMode === 'aero';
     this.backgroundColor = settings.backgroundColor ? this.convertColor(settings.backgroundColor) : null;
     this.backgroundImage = settings.backgroundImage;

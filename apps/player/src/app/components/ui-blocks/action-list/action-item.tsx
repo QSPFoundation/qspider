@@ -49,8 +49,10 @@ export const ActionItem: React.FC<{
     [index, onSelect]
   );
   return (
-    <ActionButton role="menuitem" tabIndex={0} onMouseOver={onHover} onClick={onClick}>
-      {action.image && <ActionImage src={`${resources.get(action.image).url}`} alt={action.name} />}
+    <ActionButton role="menuitem" tabIndex={0} onMouseOver={onHover} onClick={onClick} data-qsp="action">
+      {action.image && (
+        <ActionImage src={`${resources.get(action.image).url}`} alt={action.name} data-qsp="action-image" />
+      )}
       <Content content={action.name} />
     </ActionButton>
   );
