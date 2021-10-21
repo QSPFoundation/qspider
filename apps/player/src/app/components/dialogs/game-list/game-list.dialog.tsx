@@ -25,10 +25,22 @@ const GameSlot = styled.div`
   border-radius: 4px;
   white-space: pre-wrap;
   cursor: pointer;
+  position: relative;
 
   &:hover {
     background-color: var(--inverted-background-color);
     color: var(--background-color);
+  }
+
+  &[data-mode='aero']::after {
+    content: 'AeroQSP';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    padding: 2px 4px;
+    background: crimson;
+    color: white;
+    font-size: 11px;
   }
 `;
 
@@ -57,7 +69,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
         </OpenButtonWrapper>
         <GameSlots even={!(config.game.length % 2)}>
           {config.game.map((game) => (
-            <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)}>
+            <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)} data-mode={game.mode}>
               <GameTitle>{game.title}</GameTitle>
               {game.description && <p>{game.description}</p>}
             </GameSlot>

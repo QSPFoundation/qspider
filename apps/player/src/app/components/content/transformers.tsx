@@ -253,7 +253,6 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
     </Th>
   ),
   td: (node, children) => {
-    console.log(extractStyles(node));
     return (
       <Td
         colspan={Number(node.getAttribute('colspan')) || 1}
