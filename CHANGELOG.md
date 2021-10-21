@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.11.0](https://github.com/QSPFoundation/qspider/compare/v0.10.0...v0.11.0) (2021-10-21)
+
+### Features
+
+- support AeroQSP format
+- support style attribute
+- add data-qsp attributes to UI elements ([61fe876](https://github.com/QSPFoundation/qspider/commit/61fe876f6d5db4912cb5ad6a0a7d8d19753326f8))
+
+### Bug Fixes
+
+- fix onactsel call ([e12667d](https://github.com/QSPFoundation/qspider/commit/e12667dc6f67943d72782339b0b2ebf02249c180))
+- hide save/load buttons on nosave=1 ([cde66c0](https://github.com/QSPFoundation/qspider/commit/cde66c0ee8e2597661e81079f6babad277c759e6)), closes [#85](https://github.com/QSPFoundation/qspider/issues/85)
+- fix align attribute in tables
+
 ## [0.10.0](https://github.com/QSPFoundation/qspider/compare/v0.9.1...v0.10.0) (2021-05-23)
 
 ### Features
