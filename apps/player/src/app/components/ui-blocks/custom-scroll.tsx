@@ -22,7 +22,7 @@ export const CustomScroll: React.FC<{ scrollY?: string; scrollX?: string }> = ({
     }
   });
   return (
-    <OverlayScrollbarsComponent ref={scrollRef} style={{ maxHeight: '100%' }}>
+    <OverlayScrollbarsComponent ref={scrollRef} style={{ maxHeight: '100%', minHeight: '100%' }} options={{}}>
       {children}
     </OverlayScrollbarsComponent>
   );
