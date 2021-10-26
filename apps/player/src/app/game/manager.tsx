@@ -191,7 +191,7 @@ export class GameManager {
       this.hideGameList();
     }
     this.stopGame();
-    const gameSource = await this.resources.loadGame(descriptor.file);
+    const gameSource = await this.resources.loadGame(descriptor.file, true);
 
     this.runGame(gameSource, descriptor);
   }
@@ -587,7 +587,7 @@ export class GameManager {
 
   onOpenGame = async (file: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
-    const gameSource = await this.resources.loadGame(file);
+    const gameSource = await this.resources.loadGame(file, isNewGame);
     this._api.openGame(gameSource, isNewGame);
     onOpened();
     this.resume();

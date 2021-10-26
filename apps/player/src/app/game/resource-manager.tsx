@@ -43,9 +43,11 @@ export class ResourceManager {
     return this._basePath;
   }
 
-  async loadGame(file: string): Promise<ArrayBuffer> {
+  async loadGame(file: string, isNewGame: boolean): Promise<ArrayBuffer> {
     const path = isExternalSource(file) ? file : this.preparePath(file);
-    this.updateBasePath(path);
+    if (isNewGame) {
+      this.updateBasePath(path);
+    }
 
     let source;
     if (this._zipResources[path.toLowerCase()]) {
