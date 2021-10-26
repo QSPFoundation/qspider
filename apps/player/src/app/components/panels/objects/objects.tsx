@@ -16,7 +16,7 @@ export const ObjectsPanel: React.FC = observer(() => {
   return (
     <Panel data-qsp="objects">
       <CustomScroll>
-        <ActionList actions={manager.objects} onSelect={noop} onAction={onObjectSelect} />
+        <ActionList actions={manager.objects} onSelect={noop} onAction={onObjectSelect} dataQsp="objects-list" />
       </CustomScroll>
     </Panel>
   );

@@ -9,11 +9,12 @@ const Nav = styled.nav`
 
 export const ActionList: React.FC<{
   actions: QspListItem[];
+  dataQsp: string;
   onSelect: (index: number) => void;
   onAction: (index: number) => void;
-}> = ({ actions, onSelect, onAction }) => {
+}> = ({ actions, dataQsp, onSelect, onAction }) => {
   return (
-    <Nav role="menu">
+    <Nav role="menu" data-qsp={dataQsp}>
       {actions.map((action, index) => {
         return <ActionItem key={index} action={action} index={index} onSelect={onSelect} onAction={onAction} />;
       })}

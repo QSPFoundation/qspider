@@ -19,7 +19,7 @@ export const FloatingContainer: React.FC = observer(() => {
         const Panel = pannelsMap[name];
         if (!Panel) return null;
         return (
-          <Modal key={name} onClose={() => manager.closeView()} hideButtons>
+          <Modal key={name} onClose={() => manager.closeView()} hideButtons dataQsp={name}>
             <Panel></Panel>
           </Modal>
         );

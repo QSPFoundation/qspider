@@ -22,7 +22,12 @@ export const ActionsPanel: React.FC = observer(() => {
   return (
     <Panel data-qsp="actions">
       <CustomScroll>
-        <ActionList actions={manager.actions} onSelect={onActionSelect} onAction={onAction}></ActionList>
+        <ActionList
+          actions={manager.actions}
+          onSelect={onActionSelect}
+          onAction={onAction}
+          dataQsp="actions-list"
+        ></ActionList>
       </CustomScroll>
     </Panel>
   );

@@ -49,13 +49,14 @@ export const SaveSlotsDialog: React.FC = observer(() => {
   if (!isShown) return null;
   return (
     <DialogWrapper>
-      <Modal hideButtons onClose={onClose} data-qsp="save-modal">
+      <Modal hideButtons onClose={onClose} dataQsp="save-modal">
         <SlotTtile>{saveAction.type === 'save' ? 'Save' : 'Load'} game</SlotTtile>
         <Slots>
           {saveAction.slots.map((date, index) => (
             <SlotButton
               key={index}
               disabled={saveAction.type === 'restore' && !date}
+              data-qsp="save-slot"
               onClick={() => saveAction.callback(index + 1)}
             >
               <strong>{index + 1}</strong>

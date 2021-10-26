@@ -61,24 +61,24 @@ const ModalContent = styled.div`
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
-export const Modal: React.FC<{ onClose: () => void; closable?: boolean; hideButtons?: boolean; width?: number }> = ({
-  onClose,
-  hideButtons,
-  children,
-  width,
-  closable = true,
-}) => {
+export const Modal: React.FC<{
+  onClose: () => void;
+  closable?: boolean;
+  hideButtons?: boolean;
+  width?: number;
+  dataQsp: string;
+}> = ({ onClose, hideButtons, children, width, dataQsp, closable = true }) => {
   return (
     <>
-      <Overlay onClick={closable ? onClose : noop} />
-      <ModalContainer>
+      <Overlay onClick={closable ? onClose : noop} data-qsp={dataQsp + '-overlay'} />
+      <ModalContainer data-qsp={dataQsp}>
         <ModalBody width={width}>
           {closable ? <CloseButton onClick={onClose}>x</CloseButton> : null}
           <ModalContent>
             <CustomScroll>
               {children}
               {!hideButtons && (
-                <ModalActions>
+                <ModalActions data-qsp={dataQsp + '-buttons'}>
                   <Button onClick={onClose}>Ok</Button>
                 </ModalActions>
               )}

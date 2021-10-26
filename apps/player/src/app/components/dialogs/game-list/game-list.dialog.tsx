@@ -62,14 +62,19 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   const isShown = Boolean(isGameListShown);
   if (!isShown) return null;
   return (
-    <GameListWrapper data-qsp="game-list">
-      <Modal closable={closable} onClose={onClose} hideButtons width={800}>
+    <GameListWrapper>
+      <Modal closable={closable} onClose={onClose} hideButtons width={800} dataQsp="game-list">
         <OpenButtonWrapper>
           <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => gameManager.openGame(game, name)} />
         </OpenButtonWrapper>
         <GameSlots even={!(config.game.length % 2)}>
           {config.game.map((game) => (
-            <GameSlot key={game.id} onClick={() => gameManager.openGameDescriptor(game)} data-mode={game.mode}>
+            <GameSlot
+              key={game.id}
+              onClick={() => gameManager.openGameDescriptor(game)}
+              data-mode={game.mode}
+              data-qsp="game-slot"
+            >
               <GameTitle>{game.title}</GameTitle>
               {game.description && <p>{game.description}</p>}
             </GameSlot>

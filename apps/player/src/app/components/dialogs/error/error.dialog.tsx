@@ -10,7 +10,7 @@ export const ErrorDialog: React.FC = observer(() => {
   const isShown = Boolean(errorData);
   if (!isShown) return null;
   return (
-    <Modal onClose={onClose} data-qsp="error">
+    <Modal onClose={onClose} dataQsp="error">
       <>
         Location: {errorData.location}
         <br />
