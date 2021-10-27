@@ -9,7 +9,9 @@ const blockList = ['script'];
 export const Content: React.FC<{ content: string }> = observer(({ content }) => {
   const { useHtml } = useLayout();
   if (useHtml) {
-    return <Markup content={content} transform={transform} blockList={blockList} noWrap />;
+    return (
+      <Markup content={content} transform={transform} blockList={blockList} noWrap allowElements allowAttributes />
+    );
   }
   return <>{content}</>;
 });
