@@ -1,19 +1,20 @@
 {
   "package": {
-    "productName": "qspider",
-    "version": "0.1.0"
+    "productName": "qSpider",
+    "version": "0.12.0"
   },
   "build": {
     "distDir": "../dist/apps/player",
     "devPath": "http://localhost:4200",
     "beforeDevCommand": "npm start",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "npm run build",
+    "withGlobalTauri": false
   },
   "tauri": {
     "bundle": {
       "active": true,
       "targets": "all",
-      "identifier": "com.tauri.dev",
+      "identifier": "org.qsp.qspider",
       "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
       "resources": [],
       "externalBin": [],
@@ -50,6 +51,7 @@
         "title": "qSpider",
         "width": 1024,
         "height": 768,
+        "center": true,
         "resizable": true,
         "fullscreen": false
       }
