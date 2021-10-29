@@ -48,7 +48,7 @@ export const PlayerToolbar: React.FC = observer(() => {
         {!layout.nosave && <IconButton icon="save" onClick={() => manager.requestSave()} />}
         {!layout.nosave && <IconButton icon="load" onClick={() => manager.requestRestore()} />}
         {manager.hasGameList ? <IconButton icon="list" onClick={() => manager.showGameList()} /> : null}
-        <OpenGameButton onOpen={(game: ArrayBuffer, name: string) => manager.openGame(game, name)} />
+        <OpenGameButton />
       </Icons>
     </PlayerToolbarWrapper>
   );

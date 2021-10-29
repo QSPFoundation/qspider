@@ -1,6 +1,7 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Icon } from './icons';
+import { useGameManager } from '../../game/manager';
 
 const OpenButton = styled.div`
   -webkit-font-smoothing: antialiased;
@@ -45,15 +46,19 @@ const FileInputLabel = styled.label`
   cursor: pointer;
 `;
 
-export const OpenGameButton: React.FC<{ onOpen: (file: ArrayBuffer, name: string) => void }> = ({ onOpen }) => {
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = function (evt) {
-      onOpen(evt.target.result as ArrayBuffer, file.name);
-    };
-    reader.readAsArrayBuffer(file);
-  };
+export const OpenGameButton: React.FC = () => {
+  const gameManager = useGameManager();
+  const onChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        gameManager.openGame(evt.target.result as ArrayBuffer, file.name);
+      };
+      reader.readAsArrayBuffer(file);
+    },
+    [gameManager]
+  );
   return (
     <OpenButton>
       <FileInput type="file" id="openGame" accept=".zip, .aqsp" onChange={onChange} />
