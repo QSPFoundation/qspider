@@ -10,6 +10,27 @@
     "tsconfig.base.json": "*"
   },
   "projects": {
+    "aero": {
+      "tags": []
+    },
+    "audio": {
+      "tags": []
+    },
+    "classic": {
+      "tags": []
+    },
+    "components": {
+      "tags": []
+    },
+    "config": {
+      "tags": []
+    },
+    "contracts": {
+      "tags": []
+    },
+    "core": {
+      "tags": []
+    },
     "icons": {
       "tags": []
     },
@@ -27,7 +48,16 @@
       "tags": [],
       "implicitDependencies": ["player"]
     },
+    "player-ui": {
+      "tags": []
+    },
+    "providers": {
+      "tags": []
+    },
     "qsp-wasm": {
+      "tags": []
+    },
+    "resources": {
       "tags": []
     }
   },

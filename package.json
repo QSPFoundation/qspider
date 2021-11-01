@@ -79,6 +79,7 @@
     "@types/svg-sprite-loader": "^3.9.4",
     "@typescript-eslint/eslint-plugin": "4.19.0",
     "@typescript-eslint/parser": "4.19.0",
+    "babel-jest": "27.0.6",
     "color": "^3.2.1",
     "commitizen": "^4.2.4",
     "cypress": "^4.12.1",
