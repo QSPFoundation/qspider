@@ -1,5 +1,6 @@
 import { Unzipped } from 'fflate';
-import { IResourceManager, Resource } from '@qspider/contracts';
+import { GameDescriptor, IResourceManager, Resource } from '@qspider/contracts';
+import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
 
 export const GAME_PATH = 'game';
@@ -123,6 +124,99 @@ export class ResourceManager implements IResourceManager {
     }
 
     return fetch(path).then((r) => r.text());
+  }
+
+  async loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
+    if (!resources) return;
+    if (resources.styles) {
+      await this.loadAdditionalStyles(resources.styles);
+    }
+    if (resources.scripts) {
+      await this.loadAdditionalScripts(resources.scripts);
+    }
+    if (resources.fonts) {
+      for (const font of resources.fonts) {
+        this.loadAdditionalFont(font);
+      }
+    }
+    if (resources.icon) {
+      this.updateIcon(this.get(resources.icon).url);
+    }
+  }
+
+  async loadAdditionalStyles(styles: string[]): Promise<void> {
+    const promises: Promise<void>[] = [];
+    for (const style of styles) {
+      const isExternal = style.startsWith('http');
+      if (isExternal) {
+        const gameStyle = document.createElement('link');
+        gameStyle.rel = 'stylesheet';
+        gameStyle.href = style;
+        gameStyle.dataset.qspiderResource = 'style';
+        const defered = defer<void>();
+        gameStyle.onload = (): void => defered.resolve();
+        gameStyle.onerror = (): void => defered.reject(new Error(`File not found: ${style}`));
+        promises.push(defered.promise);
+        document.head.appendChild(gameStyle);
+      } else {
+        const { url } = this.get(style);
+        const response = await fetch(url);
+        const text = await response.text();
+        const processed = text.replace(/url\(['"]?(.*?)['"]?\)/gim, (match, path) => {
+          if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+            return `url("${path}")`;
+          }
+          const { url } = this.get(resolvePath(style, path));
+          return `url("${url}")`;
+        });
+        const gameStyle = document.createElement('style');
+        gameStyle.innerText = processed;
+        gameStyle.dataset.qspiderResource = 'style';
+        document.head.appendChild(gameStyle);
+      }
+    }
+    await Promise.allSettled(promises);
+  }
+
+  async loadAdditionalScripts(scripts: string[]): Promise<void> {
+    const promises: Promise<void>[] = [];
+    for (const script of scripts) {
+      const gameScript = document.createElement('script');
+      gameScript.type = 'text/javascript';
+      gameScript.src = this.get(script).url;
+      gameScript.dataset.qspiderResource = 'script';
+      const defered = defer<void>();
+      gameScript.onload = (): void => defered.resolve();
+      gameScript.onerror = (): void => defered.reject(new Error(`File not found: ${script}`));
+      promises.push(defered.promise);
+      document.head.appendChild(gameScript);
+    }
+    await Promise.allSettled(promises);
+  }
+
+  loadAdditionalFont(font: [string, string, string, string]): void {
+    const [name, path, weight, style] = font;
+    const css = `
+      @font-face {
+        font-family: "${name}";
+        src: url("${this.get(path).url}");
+        font-display: block;
+        font-style: ${style || 'normal'};
+        font-weight: ${weight || 'normal'};
+      }
+    `;
+    const gameStyle = document.createElement('style');
+    gameStyle.innerText = css;
+    gameStyle.dataset.qspiderResource = 'style';
+    document.head.appendChild(gameStyle);
+  }
+
+  updateIcon(favicon = 'favicon.ico'): void {
+    (document.getElementById('favicon') as HTMLLinkElement).href = favicon;
+  }
+
+  clearAdditionalResources(): void {
+    document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
   }
 
   private findGameFile(zipResources: Unzipped): Uint8Array | null {

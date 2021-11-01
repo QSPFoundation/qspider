@@ -1,5 +1,5 @@
 import { Howl } from 'howler';
-import { Resource } from './resource-manager';
+import { Resource } from '@qspider/contracts';
 
 enum SoundState {
   Loading,

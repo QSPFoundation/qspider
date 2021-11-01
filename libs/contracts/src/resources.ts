@@ -1,3 +1,5 @@
+import { GameDescriptor } from './game';
+
 export interface Resource {
   url: string;
   type: string;
@@ -10,5 +12,10 @@ export interface IResourceManager {
   get(file: string): Resource;
   getBinaryContent(file: string): Promise<ArrayBuffer>;
   getTextContent(file: string): Promise<string>;
+
+  loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void>;
+  clearAdditionalResources(): void;
+  updateIcon(path?: string): void;
+
   clear(): void;
 }

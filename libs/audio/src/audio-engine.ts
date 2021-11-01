@@ -2,7 +2,7 @@ import { Howler } from 'howler';
 import { normalizeVolume, Sound } from './sound';
 
 import { observable, action, makeObservable } from 'mobx';
-import { Resource } from './resource-manager';
+import { Resource } from '@qspider/contracts';
 
 const VOLUME_STEP = 10;
 

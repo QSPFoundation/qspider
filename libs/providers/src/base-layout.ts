@@ -5,7 +5,7 @@ const baseLayoutContext = React.createContext<IBaseLayout | null>(null);
 
 export const LayoutProvider = baseLayoutContext.Provider;
 
-export const useLayout = (): IBaseLayout => {
+export const useBaseLayout = (): IBaseLayout => {
   const layout = React.useContext(baseLayoutContext);
   if (!layout) {
     // this is especially useful in TypeScript so you don't need to be checking for null all the time

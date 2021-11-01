@@ -1,30 +1,24 @@
-import React, { useState } from 'react';
 import { observable, action, makeObservable, runInAction } from 'mobx';
 import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
-import { extractLayoutData, LayoutDock } from './cfg-converter';
-import { DEFAULT_LAYOUT, DEFAULT_FLOATING } from './defaults';
 import { SaveManager, SaveAction } from './save-manager';
-import { QspGUIPanel } from '../constants';
-import { CfgData } from './cfg-parser';
-import { AudioEngine } from './audio-engine';
 import { HotKeysManager } from './hotkeys';
-import { ResourceManager, useResources } from './resource-manager';
-import { GameDescriptor, PlayerConfig } from './contracts';
-import { defer, hashString, resolvePath } from '../utils';
+import { GameDescriptor, IGameManager, IResourceManager, PlayerConfig } from '@qspider/contracts';
+import { hashString } from '@qspider/utils';
+import { AudioEngine } from '@qspider/audio';
 
-export class GameManager {
+export class GameManager implements IGameManager {
   config!: PlayerConfig;
   currentGame: GameDescriptor | null = null;
-  folder = '';
-  gameConfig: CfgData | false = false;
+
+  // gameConfig: CfgData | false = false;
   errorData: QspErrorData | null = null;
   isInitialized = false;
   isGameListShown = false;
 
-  layout: LayoutDock[] = [];
-  floating: [QspGUIPanel, number, number][] = [];
+  // layout: LayoutDock[] = [];
+  // floating: [QspGUIPanel, number, number][] = [];
 
   main = '';
   isNewLoc = false;
@@ -50,13 +44,13 @@ export class GameManager {
   viewSrc = '';
 
   isWaiting = false;
-  waitTimeout?: ReturnType<typeof setTimeout>;
+  waitTimeout?: number;
   onWait: (() => void) | null = null;
 
   saveAction!: SaveAction;
 
   counterDelay = 500;
-  counterTimeout?: ReturnType<typeof setTimeout>;
+  counterTimeout?: number;
 
   apiInitialized: Promise<void>;
 
@@ -64,7 +58,7 @@ export class GameManager {
   private saveManager = new SaveManager();
   private hotKeysManager = new HotKeysManager();
 
-  constructor(private resources: ResourceManager) {
+  constructor(private resources: IResourceManager) {
     makeObservable(this, {
       isInitialized: observable,
       isGameListShown: observable,
@@ -155,7 +149,7 @@ export class GameManager {
 
   async openGame(source: ArrayBuffer, name: string): Promise<void> {
     try {
-      const gameSource = await this.resources.openGame(source);
+      const gameSource = await this.resources.openGameArchive(source);
       if (gameSource) {
         if (this.isGameListShown) {
           this.hideGameList();
@@ -200,15 +194,15 @@ export class GameManager {
     const { title } = descriptor;
     document.title = title;
 
-    this.gameConfig = await this.resources.getConfig();
-    if (this.gameConfig) {
-      const { layout, floating } = extractLayoutData(this.gameConfig);
-      this.layout = layout;
-      this.floating = floating;
-    } else {
-      this.layout = DEFAULT_LAYOUT;
-      this.floating = DEFAULT_FLOATING;
-    }
+    // this.gameConfig = await this.resources.getConfig();
+    // if (this.gameConfig) {
+    //   const { layout, floating } = extractLayoutData(this.gameConfig);
+    //   this.layout = layout;
+    //   this.floating = floating;
+    // } else {
+    //   this.layout = DEFAULT_LAYOUT;
+    //   this.floating = DEFAULT_FLOATING;
+    // }
 
     runInAction(() => {
       this.currentGame = descriptor;
@@ -217,111 +211,18 @@ export class GameManager {
     if (descriptor.hotkeys) {
       this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
     }
-    await this.loadAdditionalResources(descriptor.resources);
+    await this.resources.loadAdditionalResources(descriptor.resources);
 
     this._api.openGame(gameSource, true);
     this._api.restartGame();
   }
 
-  async loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
-    if (!resources) return;
-    if (resources.styles) {
-      await this.loadAdditionalStyles(resources.styles);
-    }
-    if (resources.scripts) {
-      await this.loadAdditionalScripts(resources.scripts);
-    }
-    if (resources.fonts) {
-      for (const font of resources.fonts) {
-        this.loadAdditionalFont(font);
-      }
-    }
-    if (resources.icon) {
-      this.updateIcon(this.resources.get(resources.icon).url);
-    }
-  }
-
-  async loadAdditionalStyles(styles: string[]): Promise<void> {
-    const promises: Promise<void>[] = [];
-    for (const style of styles) {
-      const isExternal = style.startsWith('http');
-      if (isExternal) {
-        const gameStyle = document.createElement('link');
-        gameStyle.rel = 'stylesheet';
-        gameStyle.href = style;
-        gameStyle.dataset.qspiderResource = 'style';
-        const defered = defer<void>();
-        gameStyle.onload = (): void => defered.resolve();
-        gameStyle.onerror = (): void => defered.reject(new Error(`File not found: ${style}`));
-        promises.push(defered.promise);
-        document.head.appendChild(gameStyle);
-      } else {
-        const { url } = this.resources.get(style);
-        const response = await fetch(url);
-        const text = await response.text();
-        const processed = text.replace(/url\(['"]?(.*?)['"]?\)/gim, (match, path) => {
-          if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
-            return `url("${path}")`;
-          }
-          const { url } = this.resources.get(resolvePath(style, path));
-          return `url("${url}")`;
-        });
-        const gameStyle = document.createElement('style');
-        gameStyle.innerText = processed;
-        gameStyle.dataset.qspiderResource = 'style';
-        document.head.appendChild(gameStyle);
-      }
-    }
-    await Promise.allSettled(promises);
-  }
-
-  async loadAdditionalScripts(scripts: string[]): Promise<void> {
-    const promises: Promise<void>[] = [];
-    for (const script of scripts) {
-      const gameScript = document.createElement('script');
-      gameScript.type = 'text/javascript';
-      gameScript.src = this.resources.get(script).url;
-      gameScript.dataset.qspiderResource = 'script';
-      const defered = defer<void>();
-      gameScript.onload = (): void => defered.resolve();
-      gameScript.onerror = (): void => defered.reject(new Error(`File not found: ${script}`));
-      promises.push(defered.promise);
-      document.head.appendChild(gameScript);
-    }
-    await Promise.allSettled(promises);
-  }
-
-  loadAdditionalFont(font: [string, string, string, string]): void {
-    const [name, path, weight, style] = font;
-    const css = `
-      @font-face {
-        font-family: "${name}";
-        src: url("${this.resources.get(path).url}");
-        font-display: block;
-        font-style: ${style || 'normal'};
-        font-weight: ${weight || 'normal'};
-      }
-    `;
-    const gameStyle = document.createElement('style');
-    gameStyle.innerText = css;
-    gameStyle.dataset.qspiderResource = 'style';
-    document.head.appendChild(gameStyle);
-  }
-
-  updateIcon(favicon = 'favicon.ico'): void {
-    (document.getElementById('favicon') as HTMLLinkElement).href = favicon;
-  }
-
-  clearAdditionalResources(): void {
-    document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
-  }
-
   stopGame(): void {
     if (this.currentGame) {
-      this.updateIcon();
+      this.resources.updateIcon();
       this.hotKeysManager.reset();
       this.resources.clear();
-      this.clearAdditionalResources();
+      this.resources.clearAdditionalResources();
       this.currentGame = null;
       window.dispatchEvent(new Event('game-unload'));
     }
@@ -532,7 +433,7 @@ export class GameManager {
     clearTimeout(this.waitTimeout);
     this.isWaiting = true;
     this.onWait = onComplete;
-    this.waitTimeout = setTimeout(() => {
+    this.waitTimeout = window.setTimeout(() => {
       this.completeWaiting();
     }, ms);
   };
@@ -555,7 +456,7 @@ export class GameManager {
   };
 
   scheduleCounter = (): void => {
-    this.counterTimeout = setTimeout(() => {
+    this.counterTimeout = window.setTimeout(() => {
       this._api.execCounter();
       this.scheduleCounter();
     }, this.counterDelay);
@@ -744,20 +645,3 @@ export class GameManager {
     }
   };
 }
-
-const gameManagerContext = React.createContext<GameManager | null>(null);
-
-export const GameManagerProvider: React.FC = ({ children }) => {
-  const resources = useResources();
-  const [manager] = useState(() => new GameManager(resources));
-  return <gameManagerContext.Provider value={manager}>{children}</gameManagerContext.Provider>;
-};
-
-export const useGameManager = (): GameManager => {
-  const manager = React.useContext(gameManagerContext);
-  if (!manager) {
-    // this is especially useful in TypeScript so you don't need to be checking for null all the time
-    throw new Error('useStore must be used within a StoreProvider.');
-  }
-  return manager;
-};
