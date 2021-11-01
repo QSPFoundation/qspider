@@ -13,6 +13,13 @@
     "player": {
       "tags": []
     },
+    "player-desktop": {
+      "tags": []
+    },
+    "player-desktop-e2e": {
+      "tags": [],
+      "implicitDependencies": ["player-desktop"]
+    },
     "player-e2e": {
       "tags": [],
       "implicitDependencies": ["player"]

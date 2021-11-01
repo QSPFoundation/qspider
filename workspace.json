@@ -97,6 +97,99 @@
         }
       }
     },
+    "player-desktop": {
+      "root": "apps/player-desktop",
+      "sourceRoot": "apps/player-desktop/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/player-desktop",
+            "index": "apps/player-desktop/src/index.html",
+            "main": "apps/player-desktop/src/main.tsx",
+            "polyfills": "apps/player-desktop/src/polyfills.ts",
+            "tsConfig": "apps/player-desktop/tsconfig.app.json",
+            "assets": ["apps/player-desktop/src/favicon.ico", "apps/player-desktop/src/assets"],
+            "styles": ["apps/player-desktop/src/styles.css"],
+            "scripts": [],
+            "webpackConfig": "@nrwl/react/plugins/webpack"
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "apps/player-desktop/src/environments/environment.ts",
+                  "with": "apps/player-desktop/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/web:dev-server",
+          "options": {
+            "buildTarget": "player-desktop:build",
+            "hmr": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "player-desktop:build:production",
+              "hmr": false
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/player-desktop/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "player-desktop-e2e": {
+      "root": "apps/player-desktop-e2e",
+      "sourceRoot": "apps/player-desktop-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/player-desktop-e2e/cypress.json",
+            "devServerTarget": "player-desktop:serve",
+            "tsConfig": "apps/player-desktop-e2e/tsconfig.json"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "player-desktop:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/player-desktop-e2e/**/*.{js,ts}"]
+          }
+        }
+      }
+    },
     "player-e2e": {
       "root": "apps/player-e2e",
       "sourceRoot": "apps/player-e2e/src",
