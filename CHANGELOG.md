@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.11.1](https://github.com/QSPFoundation/qspider/compare/v0.11.0...v0.11.1) (2021-10-31)
+
+### Bug Fixes
+
+- add missing data-qsp attributes ([02d7abd](https://github.com/QSPFoundation/qspider/commit/02d7abd7c422e48ec240c94a8e3af9e6cca4a2c5))
+- fix base path when loading module ([a1b36e7](https://github.com/QSPFoundation/qspider/commit/a1b36e701762621490a37e6b4cf05dec0691406b))
+- fix panels min height ([56248fc](https://github.com/QSPFoundation/qspider/commit/56248fcc09ded6a13739e5caaec9569ffc241dfe))
+- fix svg support ([02836ea](https://github.com/QSPFoundation/qspider/commit/02836eadfa01b80480c00e29181ed9abf7b37d4f))
+
 ## [0.11.0](https://github.com/QSPFoundation/qspider/compare/v0.10.0...v0.11.0) (2021-10-21)
 
 ### Features
