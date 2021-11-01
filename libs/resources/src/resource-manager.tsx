@@ -1,41 +1,15 @@
-import { unzip, Unzipped } from 'fflate';
-import React, { useRef } from 'react';
-import { CfgData, parseCfg } from './cfg-parser';
-import { cleanPath } from './helpers';
-import { fetchGameConfig, fetchGameSource, GAME_PATH, GAME_FONFIG_FILE } from './loader';
+import { Unzipped } from 'fflate';
+import { IResourceManager, Resource } from '@qspider/contracts';
+import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
 
-export interface Resource {
-  url: string;
-  type: string;
-}
+export const GAME_PATH = 'game';
 
-const isExternalSource = (path: string): boolean => path.startsWith('http://') || path.startsWith('https://');
-const isZip = (buffer: ArrayBuffer): boolean => {
-  const data = new Uint8Array(buffer);
-  return (
-    data[0] === 0x50 &&
-    data[1] === 0x4b &&
-    (data[2] === 0x03 || data[2] === 0x05 || data[2] === 0x07) &&
-    (data[3] === 0x04 || data[3] === 0x06 || data[3] === 0x08)
-  );
-};
+// TODO move config related code
 
-const readZip = (buffer: ArrayBuffer): Promise<Unzipped> => {
-  return new Promise((resolve, reject) => {
-    unzip(new Uint8Array(buffer), (err, data) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(data);
-    });
-  });
-};
-
-export class ResourceManager {
+export class ResourceManager implements IResourceManager {
   private _basePath = `${GAME_PATH}/`;
 
-  private _gameConfig: CfgData | undefined | false = undefined;
+  // private _gameConfig: CfgData | undefined | false = undefined;
   private _zipResources: Unzipped = {};
   private _zipUrls: Map<string, string> = new Map();
 
@@ -53,7 +27,7 @@ export class ResourceManager {
     if (this._zipResources[path.toLowerCase()]) {
       source = this._zipResources[path.toLowerCase()];
     } else {
-      source = await fetchGameSource(path);
+      source = await fetch(path).then((r) => r.arrayBuffer());
     }
     if (isZip(source.slice(0, 4))) {
       source = await this.processZip(source);
@@ -62,7 +36,7 @@ export class ResourceManager {
     return source;
   }
 
-  openGame(source: ArrayBuffer): Promise<ArrayBuffer> {
+  openGameArchive(source: ArrayBuffer): Promise<ArrayBuffer> {
     if (isZip(source.slice(0, 4))) {
       this.clear();
       return this.processZip(source);
@@ -78,42 +52,42 @@ export class ResourceManager {
     const gameSource = this.findGameFile(resources);
     if (!gameSource) throw new Error('game file not found in archive, make sure it is on top level');
     this._basePath = '';
-    if (this._zipResources[GAME_FONFIG_FILE]) {
-      this._gameConfig = parseCfg(new TextDecoder().decode(new Uint8Array(this._zipResources[GAME_FONFIG_FILE])));
-    } else {
-      this._gameConfig = false;
-    }
+    // if (this._zipResources[GAME_FONFIG_FILE]) {
+    //   this._gameConfig = parseCfg(new TextDecoder().decode(new Uint8Array(this._zipResources[GAME_FONFIG_FILE])));
+    // } else {
+    //   this._gameConfig = false;
+    // }
     return gameSource;
   }
 
-  async getConfig(): Promise<CfgData | false> {
-    if (this._gameConfig !== undefined) {
-      return this._gameConfig;
-    }
-    try {
-      const text = await fetchGameConfig(this.basePath);
-      this._gameConfig = parseCfg(text);
-    } catch (_) {
-      this._gameConfig = false;
-    }
-    return this._gameConfig as CfgData | false;
-  }
+  // async getConfig(): Promise<CfgData | false> {
+  //   if (this._gameConfig !== undefined) {
+  //     return this._gameConfig;
+  //   }
+  //   try {
+  //     const text = await fetchGameConfig(this.basePath);
+  //     this._gameConfig = parseCfg(text);
+  //   } catch (_) {
+  //     this._gameConfig = false;
+  //   }
+  //   return this._gameConfig as CfgData | false;
+  // }
 
-  async getAeroConfig(): Promise<{ width: number; height: number; title: string } | null> {
-    if (this._zipResources['config.xml']) {
-      const blob = new Blob([this._zipResources['config.xml']]);
-      const content = await blob.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(content, 'application/xml');
-      const gameElement = doc.querySelector('game')!;
-      return {
-        width: parseInt(gameElement.getAttribute('width') || '800'),
-        height: parseInt(gameElement.getAttribute('height') || '600'),
-        title: gameElement.getAttribute('title') || '',
-      };
-    }
-    return null;
-  }
+  // async getAeroConfig(): Promise<{ width: number; height: number; title: string } | null> {
+  //   if (this._zipResources['config.xml']) {
+  //     const blob = new Blob([this._zipResources['config.xml']]);
+  //     const content = await blob.text();
+  //     const parser = new DOMParser();
+  //     const doc = parser.parseFromString(content, 'application/xml');
+  //     const gameElement = doc.querySelector('game')!;
+  //     return {
+  //       width: parseInt(gameElement.getAttribute('width') || '800'),
+  //       height: parseInt(gameElement.getAttribute('height') || '600'),
+  //       title: gameElement.getAttribute('title') || '',
+  //     };
+  //   }
+  //   return null;
+  // }
 
   get(file: string): Resource {
     let path = this.preparePath(file);
@@ -130,6 +104,25 @@ export class ResourceManager {
       return { url, type };
     }
     return { url: path, type };
+  }
+
+  async getBinaryContent(file: string): Promise<ArrayBuffer> {
+    const path = this.preparePath(file);
+    if (this._zipResources[path.toLowerCase()]) {
+      return this._zipResources[path.toLowerCase()];
+    }
+
+    return fetch(path).then((r) => r.arrayBuffer());
+  }
+
+  async getTextContent(file: string): Promise<string> {
+    const path = this.preparePath(file);
+    if (this._zipResources[path.toLowerCase()]) {
+      const blob = new Blob([this._zipResources[path.toLowerCase()]]);
+      return blob.text();
+    }
+
+    return fetch(path).then((r) => r.text());
   }
 
   private findGameFile(zipResources: Unzipped): Uint8Array | null {
@@ -155,25 +148,9 @@ export class ResourceManager {
   clear(): void {
     this._basePath = `${GAME_PATH}/`;
     this._zipResources = {};
-    this._gameConfig = undefined;
+    // this._gameConfig = undefined;
     for (const value of this._zipUrls.values()) {
       URL.revokeObjectURL(value);
     }
   }
 }
-
-const managerContext = React.createContext<ResourceManager | null>(null);
-
-export const ResourceProvider: React.FC = ({ children }) => {
-  const ref = useRef(new ResourceManager());
-  return <managerContext.Provider value={ref.current}>{children}</managerContext.Provider>;
-};
-
-export const useResources = (): ResourceManager => {
-  const resources = React.useContext(managerContext);
-  if (!resources) {
-    // this is especially useful in TypeScript so you don't need to be checking for null all the time
-    throw new Error('useResources must be used within a StoreProvider.');
-  }
-  return resources;
-};

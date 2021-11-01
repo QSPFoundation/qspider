@@ -8,5 +8,7 @@ export interface IResourceManager {
   openGameArchive(source: ArrayBuffer): Promise<ArrayBuffer>;
 
   get(file: string): Resource;
+  getBinaryContent(file: string): Promise<ArrayBuffer>;
+  getTextContent(file: string): Promise<string>;
   clear(): void;
 }
