@@ -10,6 +10,9 @@
     "tsconfig.base.json": "*"
   },
   "projects": {
+    "icons": {
+      "tags": []
+    },
     "player": {
       "tags": []
     },

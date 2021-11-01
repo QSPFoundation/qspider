@@ -19,6 +19,7 @@
     "baseUrl": ".",
     "paths": {
       "@qspider/audio-engine": ["libs/audio-engine/src/index.ts"],
+      "@qspider/icons": ["libs/icons/src/index.ts"],
       "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"]
     }
   },

@@ -1,11 +1,11 @@
 import React from 'react';
-import save from '../../../assets/svg/save.svg';
-import load from '../../../assets/svg/load.svg';
-import speaker from '../../../assets/svg/speaker.svg';
-import speakerOff from '../../../assets/svg/speaker-off.svg';
-import restart from '../../../assets/svg/restart.svg';
-import list from '../../../assets/svg/list.svg';
-import open from '../../../assets/svg/open.svg';
+import save from '../svg/save.svg';
+import load from '../svg/load.svg';
+import speaker from '../svg/speaker.svg';
+import speakerOff from '../svg/speaker-off.svg';
+import restart from '../svg/restart.svg';
+import list from '../svg/list.svg';
+import open from '../svg/open.svg';
 
 import styled from '@emotion/styled';
 

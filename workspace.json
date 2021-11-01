@@ -5,6 +5,20 @@
   },
   "defaultProject": "player",
   "projects": {
+    "icons": {
+      "root": "libs/icons",
+      "sourceRoot": "libs/icons/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/icons/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
     "player": {
       "root": "apps/player",
       "sourceRoot": "apps/player/src",
@@ -20,8 +34,12 @@
             "polyfills": "apps/player/src/polyfills.ts",
             "tsConfig": "apps/player/tsconfig.app.json",
             "assets": [
-              "apps/player/src/favicon.ico",
               "apps/player/src/assets",
+              {
+                "input": "libs/qspider-assets",
+                "glob": "**/*",
+                "output": "assets"
+              },
               {
                 "input": "./game",
                 "glob": "**/*",
@@ -111,7 +129,14 @@
             "main": "apps/player-desktop/src/main.tsx",
             "polyfills": "apps/player-desktop/src/polyfills.ts",
             "tsConfig": "apps/player-desktop/tsconfig.app.json",
-            "assets": ["apps/player-desktop/src/favicon.ico", "apps/player-desktop/src/assets"],
+            "assets": [
+              "apps/player-desktop/src/assets",
+              {
+                "input": "libs/qspider-assets",
+                "glob": "**/*",
+                "output": "assets"
+              }
+            ],
             "styles": [],
             "scripts": [],
             "webpackConfig": "apps/player-desktop/webpack.config.js"
