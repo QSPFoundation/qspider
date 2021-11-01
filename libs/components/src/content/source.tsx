@@ -1,5 +1,5 @@
+import { useResources } from '@qspider/providers';
 import React from 'react';
-import { useResources } from '../../game/resource-manager';
 
 export const Source: React.FC<{
   src?: string;

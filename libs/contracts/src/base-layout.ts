@@ -11,6 +11,7 @@ export interface BaseLayoutDefaults {
 
 export interface IBaseLayout {
   readonly theme: Theme;
+  readonly useHtml: boolean;
   isPanelVisible(name: QspGUIPanel): boolean;
   fillDefaults(defaults: BaseLayoutDefaults): void;
 }

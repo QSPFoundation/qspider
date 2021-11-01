@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
+import { useResources } from '@qspider/providers';
 import React from 'react';
-import { useResources } from '../../game/resource-manager';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 const StyledImage = styled.img``;
 

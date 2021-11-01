@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { MouseEvent } from 'react';
 import { Icon, IconType } from '@qspider/icons';
 
-export const Button = styled.button`
+const Button = styled.button`
   -webkit-font-smoothing: antialiased;
   -webkit-appearance: none;
   cursor: pointer;

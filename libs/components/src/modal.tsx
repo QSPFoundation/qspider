@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Overlay } from './overlay';
 import { Button } from './button';
 import { CustomScroll } from './custom-scroll';
-import { noop } from '../../utils';
+import { noop } from '@qspider/utils';
 
 const ModalContainer = styled.div`
   display: flex;

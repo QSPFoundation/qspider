@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../game/manager';
 import styled from '@emotion/styled';
-import { useStyle } from '../../hooks/style';
+import { useGameManager } from '@qspider/providers';
+import { useStyle } from '../hooks';
 
 const StyledA = styled.a`
   color: var(--link-color);

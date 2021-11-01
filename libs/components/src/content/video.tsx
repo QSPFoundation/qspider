@@ -1,5 +1,5 @@
+import { useResources } from '@qspider/providers';
 import React from 'react';
-import { useResources } from '../../game/resource-manager';
 
 export const Video: React.FC<{
   src?: string;

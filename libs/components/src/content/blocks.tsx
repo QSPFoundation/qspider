@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 export const Div: React.FC<{ id?: string; className?: string; style: React.CSSProperties }> = ({
   id,

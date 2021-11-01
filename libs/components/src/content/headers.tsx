@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 export const H1: React.FC<{ className?: string; style: React.CSSProperties }> = ({ style, className, children }) => {
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 export const fontSizeMap: Record<string, string> = {
   '-2': 'x-small',

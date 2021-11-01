@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React from 'react';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 export const I: React.FC<{ className?: string; style: React.CSSProperties }> = ({ style, className, children }) => {
   return (

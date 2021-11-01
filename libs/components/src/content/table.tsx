@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { useStyle } from '../../hooks/style';
+import { useStyle } from '../hooks';
 
 const StyledTable = styled.table<{
   border: number;

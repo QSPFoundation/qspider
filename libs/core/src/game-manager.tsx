@@ -644,4 +644,12 @@ export class GameManager implements IGameManager {
       }
     }
   };
+
+  onLinkClicked(href: string): void {
+    if (href.toLowerCase().startsWith('exec:')) {
+      this.execCode(href.substr(5));
+    } else {
+      window.location.href = href;
+    }
+  }
 }
