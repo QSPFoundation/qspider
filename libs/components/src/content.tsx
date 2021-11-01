@@ -2,7 +2,7 @@ import React from 'react';
 import { Markup } from 'interweave';
 import { observer } from 'mobx-react-lite';
 import { useLayout } from '../../game/layout';
-import { transform } from './transformers';
+import { transform } from './content/transformers';
 
 const blockList = ['script'];
 

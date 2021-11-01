@@ -1,4 +1,4 @@
-import { useResources } from '../game/resource-manager';
+import { useResources } from '@qspider/providers';
 
 export const useStyle = (style: React.CSSProperties): React.CSSProperties => {
   const resources = useResources();
