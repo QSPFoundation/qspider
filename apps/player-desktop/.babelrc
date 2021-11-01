@@ -1,11 +1,4 @@
 {
-  "presets": [
-    [
-      "@nrwl/react/babel",
-      {
-        "runtime": "automatic"
-      }
-    ]
-  ],
-  "plugins": []
+  "presets": ["@nrwl/react/babel"],
+  "plugins": ["@emotion/babel-plugin"]
 }

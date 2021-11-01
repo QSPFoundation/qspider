@@ -112,9 +112,9 @@
             "polyfills": "apps/player-desktop/src/polyfills.ts",
             "tsConfig": "apps/player-desktop/tsconfig.app.json",
             "assets": ["apps/player-desktop/src/favicon.ico", "apps/player-desktop/src/assets"],
-            "styles": ["apps/player-desktop/src/styles.css"],
+            "styles": [],
             "scripts": [],
-            "webpackConfig": "@nrwl/react/plugins/webpack"
+            "webpackConfig": "apps/player-desktop/webpack.config.js"
           },
           "configurations": {
             "production": {
