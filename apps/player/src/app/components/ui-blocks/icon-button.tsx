@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { MouseEvent } from 'react';
-import { Icon } from './icons';
+import { Icon, IconType } from '@qspider/icons';
 
 export const Button = styled.button`
   -webkit-font-smoothing: antialiased;
@@ -34,7 +34,7 @@ export const Button = styled.button`
   }
 `;
 
-export const IconButton: React.FC<{ icon: string; onClick: (e: MouseEvent) => void }> = ({ onClick, icon }) => {
+export const IconButton: React.FC<{ icon: IconType; onClick: (e: MouseEvent) => void }> = ({ onClick, icon }) => {
   return (
     <Button onClick={onClick}>
       <Icon icon={icon} />

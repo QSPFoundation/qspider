@@ -14,7 +14,7 @@ const GameListWrapper = styled.div`
 const GameSlots = styled.div<{ even: boolean }>`
   padding: 16px;
   display: grid;
-  grid-template-columns: ${(props) => (props.even ? '1fr 1fr' : '1fr 1fr 1fr')};
+  grid-template-columns: ${(props): string => (props.even ? '1fr 1fr' : '1fr 1fr 1fr')};
   column-gap: 16px;
   row-gap: 16px;
 `;
@@ -71,7 +71,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
           {config.game.map((game) => (
             <GameSlot
               key={game.id}
-              onClick={() => gameManager.openGameDescriptor(game)}
+              onClick={(): Promise<void> => gameManager.openGameDescriptor(game)}
               data-mode={game.mode}
               data-qsp="game-slot"
             >

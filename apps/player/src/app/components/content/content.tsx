@@ -13,5 +13,6 @@ export const Content: React.FC<{ content: string }> = observer(({ content }) => 
       <Markup content={content} transform={transform} blockList={blockList} noWrap allowElements allowAttributes />
     );
   }
+  // eslint-disable-next-line react/jsx-no-useless-fragment
   return <>{content}</>;
 });

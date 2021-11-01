@@ -27,12 +27,12 @@ const aeroDefaults = {
 class Layout {
   nosave = false;
   useHtml = false;
-  backgroundColor: string;
-  backgroundImage: string;
-  color: string;
-  linkColor: string;
-  fontSize: number;
-  fontName: string;
+  backgroundColor: string | null = null;
+  backgroundImage: string | null = null;
+  color: string | null = null;
+  linkColor: string | null = null;
+  fontSize: number | null = null;
+  fontName: string | null = null;
 
   isStatsPanelVisible = true;
   isObjectPanelVisible = true;
@@ -83,7 +83,7 @@ class Layout {
     };
   }
 
-  async initialized(manager: GameManager) {
+  async initialized(manager: GameManager): Promise<void> {
     await manager.apiInitialized;
     this.initCallbacks(manager);
     reaction(
@@ -106,7 +106,7 @@ class Layout {
     );
   }
 
-  fillDefaultsFromConfig(config: CfgData) {
+  fillDefaultsFromConfig(config: CfgData): void {
     if (config) {
       if (config.Colors) {
         this.defaultBackgroundColor = this.convertColor(config.Colors.BackColor, false);
@@ -136,12 +136,12 @@ class Layout {
     this.defaultLinkColor = classicDefaults.defaultLinkColor;
   }
 
-  initCallbacks(manager: GameManager) {
+  initCallbacks(manager: GameManager): void {
     manager.on('panel_visibility', this.updatePanalVisibility);
     manager.on('layout', this.updateLayoutSettings);
   }
 
-  updateLayoutSettings = (settings: LayoutSettings) => {
+  updateLayoutSettings = (settings: LayoutSettings): void => {
     this.nosave = settings.nosave;
     this.useHtml = settings.useHtml || this.currentMode === 'aero';
     this.backgroundColor = settings.backgroundColor ? this.convertColor(settings.backgroundColor) : null;
@@ -152,7 +152,7 @@ class Layout {
     this.fontName = settings.fontName;
   };
 
-  updatePanalVisibility = (type: QspPanel, isShown: boolean) => {
+  updatePanalVisibility = (type: QspPanel, isShown: boolean): void => {
     switch (type) {
       case QspPanel.VARS:
         this.isStatsPanelVisible = isShown;
@@ -169,19 +169,23 @@ class Layout {
   };
 
   get visibleLayout(): LayoutDock[] {
-    return this.manager.layout.map(this.processDock).filter(Boolean);
+    return this.manager.layout.map(this.processDock).filter((d): d is LayoutDock => Boolean(d));
   }
 
   get floatingPanels(): [string, number, number][] {
     return this.manager.floating.filter(([name]) => this.isPanelVisible(name));
   }
 
-  processDock = (dock: LayoutDock): LayoutDock => {
+  processDock = (dock: LayoutDock): LayoutDock | null => {
     if ((dock[0] as QspGUIPanel) === QspGUIPanel.Main) {
       return dock;
     }
     if (dock[0] === 'center') {
-      return [dock[0], dock[1], (dock[2] as LayoutDock[]).map(this.processDock).filter(Boolean)];
+      return [
+        dock[0],
+        dock[1],
+        (dock[2] as LayoutDock[]).map(this.processDock).filter((d): d is LayoutDock => Boolean(d)),
+      ];
     }
     const filteredChildren = this.filterPanels(dock[2] as LayoutPanel[]);
     if (filteredChildren && filteredChildren.length > 0) {

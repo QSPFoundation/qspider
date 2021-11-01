@@ -30,14 +30,14 @@ export const UserInputPanel: React.FC = observer(() => {
   return (
     <Panel data-qsp="user-input">
       <Form
-        onSubmit={(e) => {
+        onSubmit={(e): void => {
           e.preventDefault();
           manager.submitUserInput();
         }}
       >
         <TextInput
           value={manager.userInput}
-          onChange={(e) => {
+          onChange={(e): void => {
             manager.updateUserInput(e.target.value);
           }}
         ></TextInput>

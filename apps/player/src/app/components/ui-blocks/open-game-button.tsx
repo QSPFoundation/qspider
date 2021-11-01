@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useCallback } from 'react';
 import styled from '@emotion/styled';
-import { Icon } from './icons';
+import { Icon, IconType } from '@qspider/icons';
 import { useGameManager } from '../../game/manager';
 
 const OpenButton = styled.div`
@@ -50,10 +50,11 @@ export const OpenGameButton: React.FC = () => {
   const gameManager = useGameManager();
   const onChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = function (evt) {
-        gameManager.openGame(evt.target.result as ArrayBuffer, file.name);
+      reader.onload = function (evt): void {
+        gameManager.openGame(evt.target?.result as ArrayBuffer, file.name);
       };
       reader.readAsArrayBuffer(file);
     },
@@ -63,7 +64,7 @@ export const OpenGameButton: React.FC = () => {
     <OpenButton>
       <FileInput type="file" id="openGame" accept=".zip, .aqsp" onChange={onChange} />
       <FileInputLabel htmlFor="openGame">
-        <Icon icon="open" />
+        <Icon icon={IconType.open} />
       </FileInputLabel>
     </OpenButton>
   );

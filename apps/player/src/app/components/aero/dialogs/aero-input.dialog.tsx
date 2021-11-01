@@ -26,12 +26,12 @@ const InputContainer = styled.div`
 `;
 
 const InputBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
-  background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-image: ${(props): string => `url(${props.backgroundImage})`};
   background-color: var(--background-color);
-  width: ${(props) => props.width || 320}px;
-  height: ${(props) => props.height || 320}px;
-  left: ${(props) => props.x}px;
-  top: ${(props) => props.y}px;
+  width: ${(props): number => props.width || 320}px;
+  height: ${(props): number => props.height || 320}px;
+  left: ${(props): number => props.x}px;
+  top: ${(props): number => props.y}px;
   pointer-events: auto;
   position: relative;
   display: flex;
@@ -39,10 +39,10 @@ const InputBody = styled.div<{ width: number; height: number; x: number; y: numb
 
 const InputTextContainer = styled.div<{ ui: InputUI }>`
   position: absolute;
-  width: ${(props) => props.ui.text.width}px;
-  height: ${(props) => props.ui.text.height}px;
-  top: ${(props) => props.ui.text.y}px;
-  left: ${(props) => props.ui.text.x}px;
+  width: ${(props): number => props.ui.text.width}px;
+  height: ${(props): number => props.ui.text.height}px;
+  top: ${(props): number => props.ui.text.y}px;
+  left: ${(props): number => props.ui.text.x}px;
   white-space: pre-wrap;
 `;
 
@@ -52,12 +52,12 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
   cursor: pointer;
   position: absolute;
   border: none;
-  left: ${(props) => props.x || 0}px;
-  top: ${(props) => props.y || 0}px;
-  width: ${(props) => props.width + 'px' || 'auto'};
-  height: ${(props) => props.height + 'px' || 'auto'};
+  left: ${(props): number => props.x || 0}px;
+  top: ${(props): number => props.y || 0}px;
+  width: ${(props): string => props.width + 'px' || 'auto'};
+  height: ${(props): string => props.height + 'px' || 'auto'};
   box-sizing: border-box;
-  background-image: ${(props) => `url("${props.backgroundImage}")`};
+  background-image: ${(props): string => `url("${props.backgroundImage}")`};
   background-color: transparent;
 
   &:focus {
@@ -67,10 +67,10 @@ const InputButton = styled.button<{ x?: number; y?: number; backgroundImage?: st
 
 const InputField = styled.input<{ ui: InputUI }>`
   position: absolute;
-  left: ${(props) => props.ui.field.x}px;
-  top: ${(props) => props.ui.field.y}px;
-  width: ${(props) => props.ui.field.width}px;
-  height: ${(props) => props.ui.field.height}px;
+  left: ${(props): number => props.ui.field.x}px;
+  top: ${(props): number => props.ui.field.y}px;
+  width: ${(props): number => props.ui.field.width}px;
+  height: ${(props): number => props.ui.field.height}px;
   padding: 2px 5px;
   background: transparent;
   border: none;
@@ -86,7 +86,7 @@ export const AeroInputDialog: React.FC = observer(() => {
   const resources = useResources();
   const [inputText, setInputText] = useState('');
 
-  const onClose = () => {
+  const onClose = (): void => {
     manager.closeInput(inputText);
     setInputText('');
   };
@@ -125,7 +125,7 @@ export const AeroInputDialog: React.FC = observer(() => {
               <AeroCustomScroll>{content && <Content content={content} />}</AeroCustomScroll>
             </InputTextContainer>
             <form
-              onSubmit={(e) => {
+              onSubmit={(e): void => {
                 e.preventDefault();
                 manager.closeInput(inputText);
                 setInputText('');
@@ -138,7 +138,7 @@ export const AeroInputDialog: React.FC = observer(() => {
                 name="input"
                 value={inputText}
                 ui={layout.inputUI}
-                onChange={(e) => {
+                onChange={(e): void => {
                   setInputText(e.target.value);
                 }}
               />
@@ -149,7 +149,7 @@ export const AeroInputDialog: React.FC = observer(() => {
               backgroundImage={okUrl}
               width={okWidth}
               height={okHeight}
-              onClick={() => {
+              onClick={(): void => {
                 manager.closeInput(inputText);
                 setInputText('');
               }}
@@ -160,7 +160,7 @@ export const AeroInputDialog: React.FC = observer(() => {
               backgroundImage={cancelUrl}
               width={cancelWidth}
               height={cancelHeight}
-              onClick={() => {
+              onClick={(): void => {
                 manager.closeInput('');
                 setInputText('');
               }}

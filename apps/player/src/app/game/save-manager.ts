@@ -31,13 +31,15 @@ function getPathKey(gameId: string, path: string): string {
 }
 
 export class SaveManager {
-  getSlots(gameId: string): Promise<string[]> {
-    return Promise.all(
+  async getSlots(gameId: string): Promise<Array<string>> {
+    const slots = await Promise.all(
       Array.from({ length: SLOTS_COUNT }, (_, index) => localforage.getItem<string>(getDateKey(gameId, index + 1)))
     );
+
+    return slots.filter((s): s is string => Boolean(s));
   }
 
-  getSlotData(gameId: string, slot: number): Promise<ArrayBuffer> {
+  getSlotData(gameId: string, slot: number): Promise<ArrayBuffer | null> {
     return localforage.getItem<ArrayBuffer>(getSlotKey(gameId, slot));
   }
 
@@ -55,7 +57,7 @@ export class SaveManager {
     await localforage.setItem(getQuickSlotKey(gameId), data);
   }
 
-  quickLoad(gameId: string): Promise<ArrayBuffer> {
+  quickLoad(gameId: string): Promise<ArrayBuffer | null> {
     return localforage.getItem(getQuickSlotKey(gameId));
   }
 
@@ -63,7 +65,7 @@ export class SaveManager {
     await localforage.setItem(getPathKey(gameId, path), data);
   }
 
-  loadByPath(gameId: string, path: string): Promise<ArrayBuffer> {
+  loadByPath(gameId: string, path: string): Promise<ArrayBuffer | null> {
     return localforage.getItem(getPathKey(gameId, path));
   }
 }

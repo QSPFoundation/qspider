@@ -9,7 +9,7 @@ export interface Resource {
   type: string;
 }
 
-const isExternalSource = (path: string) => path.startsWith('http://') || path.startsWith('https://');
+const isExternalSource = (path: string): boolean => path.startsWith('http://') || path.startsWith('https://');
 const isZip = (buffer: ArrayBuffer): boolean => {
   const data = new Uint8Array(buffer);
   return (
@@ -35,11 +35,11 @@ const readZip = (buffer: ArrayBuffer): Promise<Unzipped> => {
 export class ResourceManager {
   private _basePath = `${GAME_PATH}/`;
 
-  private _gameConfig: CfgData | false;
+  private _gameConfig: CfgData | undefined | false = undefined;
   private _zipResources: Unzipped = {};
   private _zipUrls: Map<string, string> = new Map();
 
-  get basePath() {
+  get basePath(): string {
     return this._basePath;
   }
 
@@ -76,6 +76,7 @@ export class ResourceManager {
       this._zipResources[path.toLowerCase()] = file;
     }
     const gameSource = this.findGameFile(resources);
+    if (!gameSource) throw new Error('game file not found in archive, make sure it is on top level');
     this._basePath = '';
     if (this._zipResources[GAME_FONFIG_FILE]) {
       this._gameConfig = parseCfg(new TextDecoder().decode(new Uint8Array(this._zipResources[GAME_FONFIG_FILE])));
@@ -93,8 +94,9 @@ export class ResourceManager {
       const text = await fetchGameConfig(this.basePath);
       this._gameConfig = parseCfg(text);
     } catch (_) {
-      this._gameConfig = null;
+      this._gameConfig = false;
     }
+    return this._gameConfig as CfgData | false;
   }
 
   async getAeroConfig(): Promise<{ width: number; height: number; title: string } | null> {
@@ -103,11 +105,11 @@ export class ResourceManager {
       const content = await blob.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'application/xml');
-      const gameElement = doc.querySelector('game');
+      const gameElement = doc.querySelector('game')!;
       return {
-        width: parseInt(gameElement.getAttribute('width')),
-        height: parseInt(gameElement.getAttribute('height')),
-        title: gameElement.getAttribute('title'),
+        width: parseInt(gameElement.getAttribute('width') || '800'),
+        height: parseInt(gameElement.getAttribute('height') || '600'),
+        title: gameElement.getAttribute('title') || '',
       };
     }
     return null;
@@ -115,7 +117,7 @@ export class ResourceManager {
 
   get(file: string): Resource {
     let path = this.preparePath(file);
-    const type = path.toLowerCase().split('.').pop();
+    const type = path.toLowerCase().split('.').pop() as string;
     if (this._zipResources[path.toLowerCase()]) {
       path = path.toLowerCase();
       let url = this._zipUrls.get(path);
@@ -130,7 +132,7 @@ export class ResourceManager {
     return { url: path, type };
   }
 
-  private findGameFile(zipResources: Unzipped) {
+  private findGameFile(zipResources: Unzipped): Uint8Array | null {
     if (!zipResources) {
       return null;
     }
@@ -142,7 +144,7 @@ export class ResourceManager {
     return null;
   }
 
-  private updateBasePath(path: string) {
+  private updateBasePath(path: string): void {
     this._basePath = path.slice(0, path.lastIndexOf('/') + 1);
   }
 
@@ -150,7 +152,7 @@ export class ResourceManager {
     return `${this._basePath}${cleanPath(path)}`;
   }
 
-  clear() {
+  clear(): void {
     this._basePath = `${GAME_PATH}/`;
     this._zipResources = {};
     this._gameConfig = undefined;

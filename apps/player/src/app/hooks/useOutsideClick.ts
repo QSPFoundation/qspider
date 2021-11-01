@@ -1,7 +1,7 @@
-import { useRef, useCallback, useEffect, MutableRefObject } from 'react';
+import { useRef, useCallback, useEffect, RefObject } from 'react';
 
-export function useOutsideClick(onOutsideClick: () => void): MutableRefObject<HTMLDivElement> {
-  const node = useRef<HTMLDivElement>();
+export function useOutsideClick(onOutsideClick: () => void): RefObject<HTMLDivElement> {
+  const node = useRef<HTMLDivElement>(null);
 
   const handleClick = useCallback(
     (e: MouseEvent) => {
@@ -23,7 +23,7 @@ export function useOutsideClick(onOutsideClick: () => void): MutableRefObject<HT
     // add when mounted
     document.addEventListener('mousedown', handleClick, { capture: false });
     // return function to be called when unmounted
-    return () => {
+    return (): void => {
       document.removeEventListener('mousedown', handleClick);
     };
   }, [handleClick]);

@@ -53,7 +53,7 @@ function renderCenter(panels: LayoutPanel[] | LayoutDock[]): ReactElement {
 }
 
 function renderDock([dock, size, panels]: LayoutDock): ReactElement {
-  const Component = docksMap[dock];
+  const Component = docksMap[dock as keyof typeof docksMap];
   if (dock === 'center') {
     return renderCenter(panels);
   }
@@ -68,7 +68,7 @@ function renderDock([dock, size, panels]: LayoutDock): ReactElement {
 function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
   const horizontal: LayoutDock[] = [];
   const vertical: LayoutDock[] = [];
-  let center: LayoutDock;
+  let center!: LayoutDock;
   for (const dock of group) {
     if (isCenter(dock[0])) {
       center = dock;

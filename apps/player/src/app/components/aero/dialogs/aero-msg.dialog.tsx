@@ -25,12 +25,12 @@ const MsgContainer = styled.div`
 `;
 
 const MsgBody = styled.div<{ width: number; height: number; x: number; y: number; backgroundImage?: string }>`
-  background-image: ${(props) => `url(${props.backgroundImage})`};
+  background-image: ${(props): string => `url(${props.backgroundImage})`};
   background-color: var(--background-color);
-  width: ${(props) => props.width || 320}px;
-  height: ${(props) => props.height || 320}px;
-  left: ${(props) => props.x}px;
-  top: ${(props) => props.y}px;
+  width: ${(props): number => props.width || 320}px;
+  height: ${(props): any => props.height || 320}px;
+  left: ${(props): any => props.x}px;
+  top: ${(props): number => props.y}px;
   pointer-events: auto;
   position: relative;
   display: flex;
@@ -38,10 +38,10 @@ const MsgBody = styled.div<{ width: number; height: number; x: number; y: number
 
 const MsgTextContainer = styled.div<{ ui: MsgUI }>`
   position: absolute;
-  width: ${(props) => props.ui.text.width}px;
-  height: ${(props) => props.ui.text.height}px;
-  top: ${(props) => props.ui.text.y}px;
-  left: ${(props) => props.ui.text.x}px;
+  width: ${(props): number => props.ui.text.width}px;
+  height: ${(props): number => props.ui.text.height}px;
+  top: ${(props): any => props.ui.text.y}px;
+  left: ${(props): number => props.ui.text.x}px;
   white-space: pre-wrap;
 `;
 
@@ -51,13 +51,13 @@ const MsgButton = styled.button<{ x?: number; y?: number; backgroundImage: strin
   cursor: pointer;
   position: absolute;
   border: none;
-  left: ${(props) => props.x || 0}px;
-  top: ${(props) => props.y || 0}px;
-  width: ${(props) => props.width + 'px' || 'auto'};
-  height: ${(props) => props.height + 'px' || 'auto'};
+  left: ${(props): number => props.x || 0}px;
+  top: ${(props): number => props.y || 0}px;
+  width: ${(props): string => props.width + 'px' || 'auto'};
+  height: ${(props): string => props.height + 'px' || 'auto'};
   box-sizing: border-box;
   background-color: transparent;
-  background-image: ${(props) => `url("${props.backgroundImage}")`};
+  background-image: ${(props): string => `url("${props.backgroundImage}")`};
   padding: 0;
 
   &:focus {

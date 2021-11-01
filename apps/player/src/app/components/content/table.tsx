@@ -9,15 +9,15 @@ const StyledTable = styled.table<{
 }>`
   border-color: rgb(238, 238, 237);
   border-style: inset;
-  border-width: ${(props) => props.border}px;
-  border-spacing: ${(props) => props.cellspacing || 0}px;
+  border-width: ${(props): number => props.border}px;
+  border-spacing: ${(props): number => props.cellspacing || 0}px;
 
   td,
   th {
-    padding: ${(props) => props.cellpadding || 0}px;
+    padding: ${(props): number => props.cellpadding || 0}px;
     border-color: rgb(238, 238, 237);
     border-style: inset;
-    border-width: ${(props) => props.border}px;
+    border-width: ${(props): number => props.border}px;
     text-align: var(--text-align, left);
   }
 `;

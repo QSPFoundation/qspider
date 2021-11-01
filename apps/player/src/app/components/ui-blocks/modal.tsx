@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import { Overlay } from './overlay';
 import { Button } from './button';
 import { CustomScroll } from './custom-scroll';
+import { noop } from '../../utils';
 
 const ModalContainer = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ const ModalBody = styled.div<{ width?: number }>`
   padding: 16px 16px 8px;
   border-radius: 4px;
   min-width: 400px;
-  width: ${(props) => props.width || 650}px;
+  width: ${(props): number => props.width || 650}px;
   max-width: 90vw;
   max-height: 90vh;
   box-shadow: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14),
@@ -58,8 +59,6 @@ const ModalContent = styled.div`
   width: 100%;
   max-height: 100%;
 `;
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = () => {};
 
 export const Modal: React.FC<{
   onClose: () => void;

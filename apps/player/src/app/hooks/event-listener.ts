@@ -19,13 +19,15 @@ export function useEventListener<E extends Event>(
       if (!isSupported) return;
 
       // Create event listener that calls handler function stored in ref
-      const eventListener = (event) => savedHandler.current(event);
+      const eventListener = (event: Event): void => {
+        if (savedHandler.current) savedHandler.current(event as E);
+      };
 
       // Add event listener
       element.addEventListener(eventName, eventListener);
 
       // Remove event listener on cleanup
-      return () => {
+      return (): void => {
         element.removeEventListener(eventName, eventListener);
       };
     },

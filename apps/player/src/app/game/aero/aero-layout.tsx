@@ -152,7 +152,7 @@ class AeroLayout {
     effect: { name: '', time: 500 },
   };
 
-  private api: AeroApi;
+  private api!: AeroApi;
 
   constructor(manager: GameManager, private resources: ResourceManager) {
     makeObservable(this, {
@@ -183,13 +183,13 @@ class AeroLayout {
     this.initialized(manager);
   }
 
-  async initialized(manager: GameManager) {
+  async initialized(manager: GameManager): Promise<void> {
     await manager.apiInitialized;
     this.api = new AeroApi(manager.api);
     this.initCallbacks();
   }
 
-  initCallbacks() {
+  initCallbacks(): void {
     this.api.on('scroll_ui', this.updateScrollUI);
     this.api.on('player_ui', this.updatePlayerUI);
     this.api.on('main_ui', this.updateMainUI);
@@ -203,43 +203,39 @@ class AeroLayout {
     this.api.on('menu_ui', this.updateMenuUI);
   }
 
-  updateScrollUI = (ui: ScrollUI) => {
+  updateScrollUI = (ui: ScrollUI): void => {
     this.scrollUI = ui;
   };
-  updatePlayerUI = (ui: PlayerUI) => {
+  updatePlayerUI = (ui: PlayerUI): void => {
     this.playerUI = ui;
   };
-  updateMainUI = (ui: AeroPanelUI) => {
+  updateMainUI = (ui: AeroPanelUI): void => {
     this.mainUI = ui;
   };
-  updateStatsUI = (ui: AeroPanelUI) => {
+  updateStatsUI = (ui: AeroPanelUI): void => {
     this.statsUI = ui;
   };
-  updateActionsUI = (ui: ListPanelUI) => {
+  updateActionsUI = (ui: ListPanelUI): void => {
     this.actionsUI = ui;
   };
-  updateObjectsUI = (ui: ListPanelUI) => {
+  updateObjectsUI = (ui: ListPanelUI): void => {
     this.objectsUI = ui;
   };
-  updateUserInputUI = (ui: AeroPanelUI) => {
+  updateUserInputUI = (ui: AeroPanelUI): void => {
     this.userInputUI = ui;
   };
-  updateViewUI = (ui: ViewUI) => {
+  updateViewUI = (ui: ViewUI): void => {
     this.viewUI = ui;
   };
-  updateInputUI = (ui: InputUI) => {
+  updateInputUI = (ui: InputUI): void => {
     this.inputUI = ui;
   };
-  updateMsgUI = (ui: MsgUI) => {
+  updateMsgUI = (ui: MsgUI): void => {
     this.msgUI = ui;
   };
-  updateMenuUI = (ui: MenuUI) => {
+  updateMenuUI = (ui: MenuUI): void => {
     this.menuUI = ui;
   };
-}
-
-function createLayout(source: { manager: GameManager; resources: ResourceManager }) {
-  return new AeroLayout(source.manager, source.resources);
 }
 
 const layoutContext = React.createContext<AeroLayout | null>(null);

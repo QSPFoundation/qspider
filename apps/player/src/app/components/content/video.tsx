@@ -12,8 +12,8 @@ export const Video: React.FC<{
   return (
     <video
       className={className}
-      src={src ? resources.get(src).url : null}
-      poster={poster ? resources.get(src).url : null}
+      src={src ? resources.get(src).url : undefined}
+      poster={poster ? resources.get(poster).url : undefined}
       style={style}
       preload="auto"
       loop

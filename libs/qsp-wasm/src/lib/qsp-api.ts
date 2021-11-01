@@ -8,8 +8,8 @@ const POINTER_SIZE = 4; // pointers are 4 bytes in C
 
 export class QspAPIImpl implements QspAPI {
   private events = new EventEmitter();
-  private time: number;
-  private layout: LayoutSettings = null;
+  private time: number = Date.now();
+  private layout: LayoutSettings | null = null;
   private staticStrings: Map<string, Ptr> = new Map();
 
   constructor(private module: QspModule) {
@@ -35,14 +35,14 @@ export class QspAPIImpl implements QspAPI {
     this.module._free(ptr);
   }
 
-  saveGame(): ArrayBuffer {
+  saveGame(): ArrayBuffer | null {
     const sizePtr = this.allocPtr();
     const bufferPtr = this.module._saveGameData(sizePtr);
     const size = this.module.getValue(sizePtr, 'i32');
     if (!size) {
       this.onError();
       this.freePtr(sizePtr);
-      return;
+      return null;
     }
 
     const data = this.module.HEAPU8.slice(bufferPtr, bufferPtr + size);
@@ -89,8 +89,9 @@ export class QspAPIImpl implements QspAPI {
   readVariableNumber(name: string, index = 0): number {
     let namePtr = this.staticStrings.get(name);
     if (!namePtr) {
-      this.staticStrings.set(name, this.prepareString(name));
-      namePtr = this.staticStrings.get(name);
+      const staticString = this.prepareString(name);
+      this.staticStrings.set(name, staticString);
+      namePtr = staticString;
     }
     const value = this.module._getVarNumValue(namePtr, index);
 
@@ -135,14 +136,14 @@ export class QspAPIImpl implements QspAPI {
     this.module._free(ptr);
   }
 
-  private init() {
+  private init(): void {
     this.module._init();
     this.module._initCallBacks();
 
     this.registerCallbacks();
   }
 
-  private initStrings() {
+  private initStrings(): void {
     this.staticStrings.set('USEHTML', this.prepareString('USEHTML'));
     this.staticStrings.set('BCOLOR', this.prepareString('BCOLOR'));
     this.staticStrings.set('FCOLOR', this.prepareString('FCOLOR'));
@@ -153,7 +154,7 @@ export class QspAPIImpl implements QspAPI {
     this.staticStrings.set('NOSAVE', this.prepareString('NOSAVE'));
   }
 
-  private registerCallbacks() {
+  private registerCallbacks(): void {
     const onError = this.module.addFunction(this.onError, 'i');
     this.module._setErrorCallback(onError);
 
@@ -287,7 +288,7 @@ export class QspAPIImpl implements QspAPI {
     const items = this.readListItems(listPtr, count);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onSelect = (index: number) => {
+      const onSelect = (index: number): void => {
         wakeUp(index);
       };
       this.emit('menu', items, onSelect);
@@ -299,7 +300,7 @@ export class QspAPIImpl implements QspAPI {
     const text = this.readString(textPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const closed = () => {
+      const closed = (): void => {
         wakeUp(0);
       };
       this.emit('msg', text, closed);
@@ -311,7 +312,7 @@ export class QspAPIImpl implements QspAPI {
     const text = this.readString(textPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onInput = (inputText: string) => {
+      const onInput = (inputText: string): void => {
         this.module.stringToUTF32(inputText, retPtr, maxSize);
         wakeUp(0);
       };
@@ -321,7 +322,7 @@ export class QspAPIImpl implements QspAPI {
 
   onWait = (ms: number): void => {
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onWait = () => wakeUp(0);
+      const onWait = (): void => wakeUp(0);
       this.emit('wait', ms, onWait);
     });
   };
@@ -359,7 +360,7 @@ export class QspAPIImpl implements QspAPI {
   onOpenGame = (pathPtr: StringPtr, isNewGame: boolean): void => {
     const path = this.readString(pathPtr);
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onOpened = () => {
+      const onOpened = (): void => {
         wakeUp(0);
       };
       this.emit('open_game', path, isNewGame, onOpened);
@@ -370,7 +371,7 @@ export class QspAPIImpl implements QspAPI {
     const path = this.readString(pathPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onLoaded = () => {
+      const onLoaded = (): void => {
         wakeUp(0);
       };
       this.emit('load_save', path, onLoaded);
@@ -381,7 +382,7 @@ export class QspAPIImpl implements QspAPI {
     const path = this.readString(pathPtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onSaved = () => {
+      const onSaved = (): void => {
         wakeUp(0);
       };
       this.emit('save_game', path, onSaved);
@@ -400,7 +401,7 @@ export class QspAPIImpl implements QspAPI {
     const file = this.readString(filePtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onReady = () => {
+      const onReady = (): void => {
         wakeUp(0);
       };
       this.emit('play_file', file, volume, onReady);
@@ -411,14 +412,14 @@ export class QspAPIImpl implements QspAPI {
     const file = this.readString(filePtr);
 
     return this.module.Asyncify.handleSleep((wakeUp) => {
-      const onReady = () => {
+      const onReady = (): void => {
         wakeUp(0);
       };
       this.emit('close_file', file, onReady);
     });
   };
 
-  private updateLayout() {
+  private updateLayout(): void {
     const useHtml = Boolean(this.readVariableNumber('USEHTML'));
     const nosave = Boolean(this.readVariableNumber('NOSAVE'));
     const backgroundColor = this.readVariableNumber('BCOLOR');

@@ -16,6 +16,9 @@
     "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
       "@qspider/audio-engine": ["libs/audio-engine/src/index.ts"],

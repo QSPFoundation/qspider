@@ -17,7 +17,7 @@ export function useImageSize(url: string): Size {
         setSize(cached);
       } else {
         const img = document.createElement('img');
-        img.onload = () => {
+        img.onload = (): void => {
           const size = {
             width: img.naturalWidth,
             height: img.naturalHeight,

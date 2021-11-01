@@ -8,7 +8,7 @@ const StyledImage = styled.img``;
 export const Image: React.FC<{
   src: string;
   className?: string;
-  useMap: string;
+  useMap?: string;
   style: React.CSSProperties;
 }> = ({ src, useMap, style, className }) => {
   const resources = useResources();

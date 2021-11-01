@@ -57,7 +57,7 @@ export const SaveSlotsDialog: React.FC = observer(() => {
               key={index}
               disabled={saveAction.type === 'restore' && !date}
               data-qsp="save-slot"
-              onClick={() => saveAction.callback(index + 1)}
+              onClick={(): void => saveAction.callback(index + 1)}
             >
               <strong>{index + 1}</strong>
               <br />

@@ -223,8 +223,8 @@ export type AeroEvents = {
   player_ui: (ui: PlayerUI) => void;
   main_ui: (ui: AeroPanelUI) => void;
   stats_ui: (ui: AeroPanelUI) => void;
-  actions_ui: (ui: AeroPanelUI) => void;
-  objects_ui: (ui: AeroPanelUI) => void;
+  actions_ui: (ui: ListPanelUI) => void;
+  objects_ui: (ui: ListPanelUI) => void;
   user_input_ui: (ui: AeroPanelUI) => void;
   view_ui: (ui: ViewUI) => void;
   input_ui: (ui: InputUI) => void;
@@ -240,17 +240,17 @@ export const SELECTED_LIST_UI =
   '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;color:#0000FF;">%TEXT%</td></tr></table>';
 
 export class AeroApi {
-  private scrollUI: ScrollUI;
-  private playerUI: PlayerUI;
-  private mainPanelUI: AeroPanelUI;
-  private statPanelUI: AeroPanelUI;
-  private actionsPanelUI: ListPanelUI;
-  private objectsPanelUI: ListPanelUI;
-  private userInputUI: AeroPanelUI;
-  private viewUI: ViewUI;
-  private inputUI: InputUI;
-  private msgUI: MsgUI;
-  private menuUI: MenuUI;
+  private scrollUI?: ScrollUI;
+  private playerUI?: PlayerUI;
+  private mainPanelUI?: AeroPanelUI;
+  private statPanelUI?: AeroPanelUI;
+  private actionsPanelUI?: ListPanelUI;
+  private objectsPanelUI?: ListPanelUI;
+  private userInputUI?: AeroPanelUI;
+  private viewUI?: ViewUI;
+  private inputUI?: InputUI;
+  private msgUI?: MsgUI;
+  private menuUI?: MenuUI;
 
   private events = new EventEmitter<keyof AeroEvents>();
 
@@ -266,7 +266,7 @@ export class AeroApi {
     this.events.off(event, listener);
   }
 
-  onRefresh = () => {
+  onRefresh = (): void => {
     this.updateScrollUI();
     this.updatePlayerUI();
     this.updateMainpanelUI();
@@ -280,7 +280,7 @@ export class AeroApi {
     this.updateMenuUI();
   };
 
-  private updateScrollUI() {
+  private updateScrollUI(): void {
     const scrollUI: ScrollUI = {
       upArrowImage: this.qspApi.readVariableString('$UP_ARROW_IMAGE'),
       downArrowImage: this.qspApi.readVariableString('$DOWN_ARROW_IMAGE'),
@@ -292,7 +292,7 @@ export class AeroApi {
     }
   }
 
-  private updatePlayerUI() {
+  private updatePlayerUI(): void {
     const playerUI: PlayerUI = {
       styles: this.qspApi.readVariableString('$STYLESHEET'),
       disableShade: Boolean(this.qspApi.readVariableNumber('DISABLESHADE')),
@@ -313,7 +313,7 @@ export class AeroApi {
     }
   }
 
-  private updateMainpanelUI() {
+  private updateMainpanelUI(): void {
     const mainPanelUI: AeroPanelUI = {
       x: this.qspApi.readVariableNumber('MAINDESC_X') || 4,
       y: this.qspApi.readVariableNumber('MAINDESC_Y') || 4,
@@ -328,7 +328,7 @@ export class AeroApi {
     }
   }
 
-  private updateStatsUI() {
+  private updateStatsUI(): void {
     const statPanelUI: AeroPanelUI = {
       x: this.qspApi.readVariableNumber('STATDESC_X') || 596,
       y: this.qspApi.readVariableNumber('STATDESC_Y') || 396,
@@ -343,7 +343,7 @@ export class AeroApi {
     }
   }
 
-  private updateActionsUI() {
+  private updateActionsUI(): void {
     const actionsPanelUI: ListPanelUI = {
       x: this.qspApi.readVariableNumber('ACTIONS_X') || 4,
       y: this.qspApi.readVariableNumber('ACTIONS_Y') || 396,
@@ -359,7 +359,7 @@ export class AeroApi {
     }
   }
 
-  private updateObjectsUI() {
+  private updateObjectsUI(): void {
     const objectsPanelUI: ListPanelUI = {
       x: this.qspApi.readVariableNumber('OBJECTS_X') || 596,
       y: this.qspApi.readVariableNumber('OBJECTS_Y') || 4,
@@ -375,7 +375,7 @@ export class AeroApi {
     }
   }
 
-  private updateUserInputUI() {
+  private updateUserInputUI(): void {
     const userInputUI: AeroPanelUI = {
       x: this.qspApi.readVariableNumber('USERINPUT_X') || 4,
       y: this.qspApi.readVariableNumber('USERINPUT_Y') || 568,
@@ -390,7 +390,7 @@ export class AeroApi {
     }
   }
 
-  private updateViewUI() {
+  private updateViewUI(): void {
     const viewUI: ViewUI = {
       x: this.qspApi.readVariableNumber('VIEW_X') || 250,
       y: this.qspApi.readVariableNumber('VIEW_Y') || 150,
@@ -408,7 +408,7 @@ export class AeroApi {
     }
   }
 
-  private updateInputUI() {
+  private updateInputUI(): void {
     const inputUI: InputUI = {
       backImage: this.qspApi.readVariableString('$INPUT_BACKIMAGE'),
       x: this.qspApi.readVariableNumber('INPUT_X') || 200,
@@ -448,7 +448,7 @@ export class AeroApi {
     }
   }
 
-  private updateMsgUI() {
+  private updateMsgUI(): void {
     const msgUI: MsgUI = {
       backImage: this.qspApi.readVariableString('$MSG_BACKIMAGE'),
       x: this.qspApi.readVariableNumber('MSG_X') || 200,
@@ -477,7 +477,7 @@ export class AeroApi {
     }
   }
 
-  private updateMenuUI() {
+  private updateMenuUI(): void {
     const menuUI: MenuUI = {
       fixedSize: Boolean(this.qspApi.readVariableNumber('FIXED_SIZE_MENU')),
       padding: this.qspApi.readVariableNumber('MENU_PADDING') || 4,
@@ -506,7 +506,7 @@ export class AeroApi {
     }
   }
 
-  private convertColor(value: number, withAlpha = true): string {
+  private convertColor(value: number, withAlpha = true): string | null {
     if (!value) return null;
     const arr = new Uint8Array(4);
     const view = new DataView(arr.buffer);

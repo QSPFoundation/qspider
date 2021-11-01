@@ -5,8 +5,9 @@ export interface Defered<T> {
 }
 
 export function defer<T>(): Defered<T> {
-  let resolve;
-  let reject;
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let reject!: (reason?: any) => void;
   const promise = new Promise<T>((_resolve, _reject) => {
     resolve = _resolve;
     reject = _reject;
@@ -67,4 +68,4 @@ export const hashString = (s: string): number =>
   }, 0);
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-export const noop = () => {};
+export const noop = (): void => {};

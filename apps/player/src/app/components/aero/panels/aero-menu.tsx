@@ -15,36 +15,43 @@ import { noop } from '../../../utils';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
-  border: ${(props) => props.menuUI.borderWidth || 0}px solid ${(props) => props.menuUI.borderColor};
-  background-color: ${(props) => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
-  background-image: ${(props) => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
-  padding: ${(props) => props.menuUI.padding || 0}px;
+  border: ${(props): number => props.menuUI.borderWidth || 0}px solid ${(props): string => props.menuUI.borderColor};
+  background-color: ${(props): string => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
+  background-image: ${(props): string => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
+  padding: ${(props): number => props.menuUI.padding || 0}px;
 `;
 
 const MenuList = styled.div<{ menuUI: MenuUI }>`
-  width: ${(props) => props.menuUI.list.width}px;
+  width: ${(props): number => props.menuUI.list.width}px;
 `;
 
 const FixedMenuWrapper = styled.div<{ menuUI: MenuUI; width: number; height: number; url: string }>`
   position: relative;
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.width}px;
-  border: ${(props) => props.menuUI.borderWidth || 0}px solid ${(props) => props.menuUI.borderColor};
-  background-color: ${(props) => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
-  background-image: ${(props) => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
-  padding: ${(props) => props.menuUI.padding || 0}px;
+  width: ${(props): number => props.width}px;
+  height: ${(props): number => props.width}px;
+  border: ${(props): number => props.menuUI.borderWidth || 0}px solid ${(props): string => props.menuUI.borderColor};
+  background-color: ${(props): string => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
+  background-image: ${(props): string => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
+  padding: ${(props): number => props.menuUI.padding || 0}px;
 `;
 
 const FixedMenuList = styled.div<{ menuUI: MenuUI }>`
   position: absolute;
-  left: ${(props) => props.menuUI.list.x}px;
-  top: ${(props) => props.menuUI.list.y}px;
-  width: ${(props) => props.menuUI.list.width}px;
-  height: ${(props) => props.menuUI.list.height}px;
+  left: ${(props): number => props.menuUI.list.x}px;
+  top: ${(props): number => props.menuUI.list.y}px;
+  width: ${(props): number => props.menuUI.list.width}px;
+  height: ${(props): number => props.menuUI.list.height}px;
 `;
 
 function generateGetBoundingClientRect(x = 0, y = 0) {
-  return () => ({
+  return (): {
+    width: number;
+    height: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  } => ({
     width: 0,
     height: 0,
     top: y,
@@ -70,7 +77,7 @@ export const AeroMenu: React.FC = observer(() => {
       getBoundingClientRect: generateGetBoundingClientRect(x, y),
     });
   }, [x, y]);
-  const [popperElement, setPopperElement] = React.useState(null);
+  const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
   const node = useOutsideClick(() => manager.selectMenu(-1));
   const { styles, attributes } = usePopper(virtualElement, popperElement);
   const { url } = resources.get(layout.menuUI.backImage);

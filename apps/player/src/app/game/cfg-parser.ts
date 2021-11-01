@@ -37,13 +37,17 @@ export interface CfgData {
   Pos: { Left: number; Top: number; Width: number; Height: number };
 }
 
-function extractLineData(line: string): [string, string] {
-  const [, key, value] = line.match(LINE_REGEXP);
-  return [key, value];
+function extractLineData(line: string): [string, string] | [] {
+  const match = line.match(LINE_REGEXP);
+  if (match) {
+    const [, key, value] = match;
+    return [key, value];
+  }
+  return [];
 }
 
-function parseLayout(text: string) {
-  const pannels = [];
+function parseLayout(text: string): Record<string, unknown>[] {
+  const pannels: Record<string, unknown>[] = [];
   text
     .split('|')
     .filter(Boolean)
@@ -55,9 +59,11 @@ function parseLayout(text: string) {
         .split(';')
         .map(extractLineData)
         .reduce((acc, [key, value]) => {
-          acc[key] = processData(key, value);
-          if (key === 'state') {
-            acc.floating = (Number(value) & IS_FLOATABLE_MASK) !== 0;
+          if (key && value) {
+            acc[key] = processData(key, value);
+            if (key === 'state') {
+              acc.floating = (Number(value) & IS_FLOATABLE_MASK) !== 0;
+            }
           }
           return acc;
         }, {} as Record<string, unknown>);
@@ -66,7 +72,7 @@ function parseLayout(text: string) {
   return pannels;
 }
 
-const processors = {
+const processors: Record<string, (x: string) => unknown> = {
   BackColor: Number,
   FontColor: Number,
   LinkColor: Number,
@@ -80,7 +86,7 @@ const processors = {
   Width: Number,
   Height: Number,
   Maximize: Number,
-  dir: (v) => WxWidgetsDirection[v],
+  dir: (v: string) => WxWidgetsDirection[v as unknown as number],
   state: Number,
   row: Number,
   pos: Number,
@@ -95,9 +101,9 @@ function processData(key: string, value: string): unknown {
 }
 
 export function parseCfg<T = unknown>(text: string): T {
-  const result = {};
+  const result: Record<string, unknown> = {};
 
-  let currentGroup;
+  let currentGroup: string | null = null;
   let currentGroupData: Record<string, unknown> = {};
   text
     .split(/\r?\n/gim)
@@ -112,7 +118,9 @@ export function parseCfg<T = unknown>(text: string): T {
         currentGroupData = {};
       } else {
         const [key, value] = extractLineData(line);
-        currentGroupData[key] = processData(key, value);
+        if (key && value) {
+          currentGroupData[key] = processData(key, value);
+        }
       }
     });
   if (currentGroup) {

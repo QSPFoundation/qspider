@@ -6,7 +6,7 @@ import { Resource } from './resource-manager';
 
 const VOLUME_STEP = 10;
 
-const clamp = function (value: number, min: number, max: number) {
+const clamp = function (value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 };
 

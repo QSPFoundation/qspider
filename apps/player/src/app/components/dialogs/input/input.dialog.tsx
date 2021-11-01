@@ -24,14 +24,14 @@ export const InputDialog: React.FC = observer(() => {
   if (!manager.isInputShown) return null;
   return (
     <Modal
-      onClose={() => {
+      onClose={(): void => {
         manager.closeInput(inputText);
         setInputText('');
       }}
       dataQsp="input"
     >
       <form
-        onSubmit={(e) => {
+        onSubmit={(e): void => {
           e.preventDefault();
           manager.closeInput(inputText);
           setInputText('');
@@ -44,7 +44,7 @@ export const InputDialog: React.FC = observer(() => {
           tabIndex={0}
           name="input"
           value={inputText}
-          onChange={(e) => {
+          onChange={(e): void => {
             setInputText(e.target.value);
           }}
         />

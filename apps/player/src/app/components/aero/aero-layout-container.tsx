@@ -37,9 +37,9 @@ const AeroPlayerBlock = styled.div<{
   backgroundImage?: string;
 }>`
   position: relative;
-  width: ${(props) => props.width}px;
-  height: ${(props) => props.height}px;
-  background-image: ${({ backgroundImage }) => (backgroundImage ? `url("${backgroundImage}")` : 'none')};
+  width: ${(props): number => props.width}px;
+  height: ${(props): number => props.height}px;
+  background-image: ${({ backgroundImage }): string => (backgroundImage ? `url("${backgroundImage}")` : 'none')};
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
@@ -56,7 +56,7 @@ const AeroPlayerForeground = styled.div<{
   bottom: 0;
   left: 0;
   right: 0;
-  background-image: url('${({ image }) => image}');
+  background-image: url('${({ image }): string => image}');
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center center;
@@ -87,8 +87,8 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
   return (
     <AeroPlayerWrapper>
       <AeroPlayerBlock
-        width={manager.currentGame.aero?.width || 800}
-        height={manager.currentGame.aero?.height || 600}
+        width={manager.currentGame?.aero?.width || 800}
+        height={manager.currentGame?.aero?.height || 600}
         backgroundImage={layout.playerUI?.backImage ? resources.get(layout.playerUI?.backImage).url : defaultBackground}
         style={style}
       >

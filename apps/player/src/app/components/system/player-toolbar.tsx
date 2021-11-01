@@ -5,6 +5,7 @@ import { useGameManager } from '../../game/manager';
 import { IconButton } from '../ui-blocks/icon-button';
 import { OpenGameButton } from '../ui-blocks/open-game-button';
 import { useLayout } from '../../game/layout';
+import { IconType } from '@qspider/icons';
 
 export const PlayerToolbarWrapper = styled.div`
   display: flex;
@@ -32,11 +33,11 @@ export const PlayerToolbar: React.FC = observer(() => {
   const layout = useLayout();
   return (
     <PlayerToolbarWrapper>
-      <Title>{manager.currentGame.title}</Title>
+      <Title>{manager.currentGame?.title || ''}</Title>
       <Icons>
         <IconButton
-          icon={manager.audioEngine.isMuted ? 'speakerOff' : 'speaker'}
-          onClick={() => {
+          icon={manager.audioEngine.isMuted ? IconType.speakerOff : IconType.speaker}
+          onClick={(): void => {
             if (manager.audioEngine.isMuted) {
               manager.audioEngine.unMute();
             } else {
@@ -44,10 +45,10 @@ export const PlayerToolbar: React.FC = observer(() => {
             }
           }}
         />
-        <IconButton icon="restart" onClick={() => manager.restart()} />
-        {!layout.nosave && <IconButton icon="save" onClick={() => manager.requestSave()} />}
-        {!layout.nosave && <IconButton icon="load" onClick={() => manager.requestRestore()} />}
-        {manager.hasGameList ? <IconButton icon="list" onClick={() => manager.showGameList()} /> : null}
+        <IconButton icon={IconType.restart} onClick={(): void => manager.restart()} />
+        {!layout.nosave && <IconButton icon={IconType.save} onClick={(): Promise<void> => manager.requestSave()} />}
+        {!layout.nosave && <IconButton icon={IconType.load} onClick={(): Promise<void> => manager.requestRestore()} />}
+        {manager.hasGameList ? <IconButton icon={IconType.list} onClick={(): void => manager.showGameList()} /> : null}
         <OpenGameButton />
       </Icons>
     </PlayerToolbarWrapper>

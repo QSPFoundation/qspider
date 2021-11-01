@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 export const CustomScroll: React.FC<{ scrollY?: string; scrollX?: string }> = ({ scrollY, scrollX, children }) => {
-  const scrollRef = useRef<OverlayScrollbarsComponent>();
+  const scrollRef = useRef<OverlayScrollbarsComponent>(null);
   useEffect(() => {
     const ref = scrollRef.current;
     if (ref) {

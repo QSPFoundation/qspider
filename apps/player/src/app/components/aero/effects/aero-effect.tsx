@@ -13,6 +13,7 @@ export const AeroEffect: React.FC<{
   onEffectEnd?: () => void;
 }> = ({ show, duration, effect, onEffectEnd, sequence, animationKey, children }) => {
   if (!effect) {
+    // eslint-disable-next-line react/jsx-no-useless-fragment
     return show ? <>{children}</> : null;
   }
   if (sequence) {

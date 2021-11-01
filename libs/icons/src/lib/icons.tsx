@@ -9,7 +9,17 @@ import open from '../svg/open.svg';
 
 import styled from '@emotion/styled';
 
-const gpyphs = {
+export enum IconType {
+  save = 'save',
+  load = 'load',
+  speaker = 'speaker',
+  speakerOff = 'speakerOff',
+  restart = 'restart',
+  list = 'list',
+  open = 'open',
+}
+
+const glyphs: Record<IconType, string> = {
   save,
   load,
   speaker,
@@ -24,8 +34,8 @@ const IconSvg = styled.svg`
   height: 32px;
 `;
 
-export const Icon: React.FC<{ icon: string }> = ({ icon }) => {
-  const gpyph = gpyphs[icon];
+export const Icon: React.FC<{ icon: IconType }> = ({ icon }) => {
+  const gpyph: { id: string; viewBox: string } | undefined = glyphs[icon] as unknown as { id: string; viewBox: string };
   if (!gpyph) return null;
   return (
     <IconSvg viewBox={gpyph.viewBox}>

@@ -2,7 +2,7 @@ import EventEmitter from 'eventemitter3';
 import Mousetrap from 'mousetrap';
 
 export class HotKeysManager extends EventEmitter {
-  setupGlobalHotKeys() {
+  setupGlobalHotKeys(): void {
     Mousetrap.bind(['1', '2', '3', '4', '5', '6', '7', '8', '9'], (_, code) => {
       const index = parseInt(code, 10) - 1;
       this.emit('select_action', index);
@@ -48,7 +48,7 @@ export class HotKeysManager extends EventEmitter {
     });
   }
 
-  setupCustomHotKeys(map: Record<string, string>) {
+  setupCustomHotKeys(map: Record<string, string>): void {
     for (const [key, value] of Object.entries(map)) {
       Mousetrap.bind(key, () => {
         this.emit('exec_loc', value);

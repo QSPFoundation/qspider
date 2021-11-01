@@ -8,7 +8,7 @@ export const ErrorDialog: React.FC = observer(() => {
   const onClose = useCallback(() => gameManager.clearError(), [gameManager]);
   const { errorData } = gameManager;
   const isShown = Boolean(errorData);
-  if (!isShown) return null;
+  if (!isShown || !errorData) return null;
   return (
     <Modal onClose={onClose} dataQsp="error">
       <>

@@ -19,7 +19,7 @@ export class Sound {
   }
 
   private _state: SoundState = SoundState.Loading;
-  private _error: Error;
+  private _error: Error | null = null;
   private howl: Howl;
   private isScheduled = false;
 
@@ -27,7 +27,7 @@ export class Sound {
     return this._state;
   }
 
-  public get error(): Error {
+  public get error(): Error | null {
     return this._error;
   }
 
@@ -45,35 +45,35 @@ export class Sound {
       loop: false,
       preload: true,
       autoplay: false,
-      onload: () => {
+      onload: (): void => {
         this._state = SoundState.Loaded;
         if (this.isScheduled) {
           this.howl.play();
         }
       },
-      onloaderror: (_, err) => {
+      onloaderror: (_, err): void => {
         console.error(input, err);
         this._state = SoundState.LoadingError;
         this._error = err as Error;
       },
-      onplayerror: (_, err) => {
+      onplayerror: (_, err): void => {
         console.error(input, err);
         this._state = SoundState.PlayError;
         this._error = err as Error;
       },
-      onplay: () => {
+      onplay: (): void => {
         this._state = SoundState.Playing;
       },
-      onend: () => {
+      onend: (): void => {
         this._state = SoundState.Played;
       },
-      onpause: () => {
+      onpause: (): void => {
         this._state = SoundState.Paused;
       },
-      onstop: () => {
+      onstop: (): void => {
         this._state = SoundState.Played;
       },
-      onunlock: () => {
+      onunlock: (): void => {
         if (this._state === SoundState.Loaded && this.isScheduled) {
           this._state = SoundState.Playing;
           this.howl.play();

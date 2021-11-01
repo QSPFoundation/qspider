@@ -68,8 +68,8 @@ export const AeroActionItem: React.FC<{
       tabIndex={0}
       onClick={onClick}
       onMouseOver={onHover}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={(): void => setIsHovered(true)}
+      onMouseLeave={(): void => setIsHovered(false)}
     >
       <Content content={isHovered ? content.selected : content.usual} />
     </ActionButton>

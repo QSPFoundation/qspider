@@ -6,7 +6,7 @@ import React from 'react';
 import { Modal } from '../ui-blocks/modal';
 import { useGameManager } from '../../game/manager';
 
-const pannelsMap = {
+const pannelsMap: Record<string, React.FC> = {
   [QspGUIPanel.ImageView]: ViewImagePanel,
 };
 
@@ -19,7 +19,7 @@ export const FloatingContainer: React.FC = observer(() => {
         const Panel = pannelsMap[name];
         if (!Panel) return null;
         return (
-          <Modal key={name} onClose={() => manager.closeView()} hideButtons dataQsp={name}>
+          <Modal key={name} onClose={(): void => manager.closeView()} hideButtons dataQsp={name}>
             <Panel></Panel>
           </Modal>
         );

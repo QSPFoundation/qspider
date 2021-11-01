@@ -43,7 +43,7 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
   let center;
 
   for (const dock of Object.keys(data)) {
-    const dockPannels = data[dock];
+    const dockPannels = data[dock as keyof NestedLayers];
     if (Array.isArray(dockPannels) && !dockPannels.length) {
       continue;
     }
@@ -55,7 +55,7 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
       }
     } else {
       let size = 0;
-      const pannels = dockPannels
+      const pannels = (dockPannels as PanelData[])
         .sort((a, b) => a.pos - b.pos)
         .map((pannel): [string, number] => {
           size = Math.max(size, getSize(dock as DirectionKey, pannel));
@@ -67,7 +67,7 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
       layout.push([
         dock as DirectionKey,
         proportion,
-        pannels.map(([name, s]) => [name, (s / dimensions[wrappingSizeKey]) * 100]),
+        pannels.map(([name, s]) => [name, (s / dimensions[wrappingSizeKey]) * 100]) as LayoutPanel[],
       ]);
     }
   }
@@ -79,15 +79,16 @@ function convertLayout(data: NestedLayers, dimensions: { width: number; height: 
   return layout;
 }
 
-export function extractLayoutData(
-  config: CfgData
-): { layout: LayoutDock[]; floating: [QspGUIPanel, number, number][] } {
+export function extractLayoutData(config: CfgData): {
+  layout: LayoutDock[];
+  floating: [QspGUIPanel, number, number][];
+} {
   const maxLayer = getMaxLayer(config.General.Panels);
 
   const floating: PanelData[] = config.General.Panels.filter((pannel) => pannel.floating);
   const docked: PanelData[] = config.General.Panels.filter((pannel) => !pannel.floating);
 
-  let currentLayer: NestedLayers;
+  let currentLayer: NestedLayers | null = null;
   for (let i = 0; i <= maxLayer; i++) {
     const layerPanels = getLayerPanels(i, docked);
     currentLayer = {
@@ -103,7 +104,7 @@ export function extractLayoutData(
   }
 
   return {
-    layout: convertLayout(currentLayer, {
+    layout: convertLayout(currentLayer as NestedLayers, {
       width: config.Pos.Width,
       height: config.Pos.Height,
     }),

@@ -15,16 +15,16 @@ import { GameDescriptor, PlayerConfig } from './contracts';
 import { defer, hashString, resolvePath } from '../utils';
 
 export class GameManager {
-  config: PlayerConfig;
-  currentGame: GameDescriptor;
-  folder: string;
-  gameConfig: CfgData | false;
-  errorData: QspErrorData;
+  config!: PlayerConfig;
+  currentGame: GameDescriptor | null = null;
+  folder = '';
+  gameConfig: CfgData | false = false;
+  errorData: QspErrorData | null = null;
   isInitialized = false;
   isGameListShown = false;
 
   layout: LayoutDock[] = [];
-  floating: [QspGUIPanel, number, number][];
+  floating: [QspGUIPanel, number, number][] = [];
 
   main = '';
   isNewLoc = false;
@@ -36,27 +36,27 @@ export class GameManager {
 
   isMenuShown = false;
   menu: QspListItem[] = [];
-  menuResult: (index: number) => void;
+  menuResult: ((index: number) => void) | null = null;
 
   isMsgShown = false;
   msg = '';
-  onMsg: () => void;
+  onMsg: (() => void) | null = null;
 
   isInputShown = false;
   input = '';
-  onInput: (text: string) => void;
+  onInput: ((text: string) => void) | null = null;
 
   isViewShown = false;
   viewSrc = '';
 
   isWaiting = false;
-  waitTimeout: ReturnType<typeof setTimeout>;
-  onWait: () => void;
+  waitTimeout?: ReturnType<typeof setTimeout>;
+  onWait: (() => void) | null = null;
 
-  saveAction: SaveAction | null = null;
+  saveAction!: SaveAction;
 
   counterDelay = 500;
-  counterTimeout: ReturnType<typeof setTimeout>;
+  counterTimeout?: ReturnType<typeof setTimeout>;
 
   apiInitialized: Promise<void>;
 
@@ -127,8 +127,8 @@ export class GameManager {
   }
 
   private isPaused = false;
-  private _api: QspAPI;
-  get api() {
+  private _api!: QspAPI;
+  get api(): QspAPI {
     return this._api;
   }
 
@@ -153,7 +153,7 @@ export class GameManager {
     this.markInitialized();
   }
 
-  async openGame(source: ArrayBuffer, name: string) {
+  async openGame(source: ArrayBuffer, name: string): Promise<void> {
     try {
       const gameSource = await this.resources.openGame(source);
       if (gameSource) {
@@ -163,7 +163,7 @@ export class GameManager {
         if (this.currentGame) {
           this.hotKeysManager.reset();
         }
-        let aeroConfig: { width: number; height: number; title: string } | null;
+        let aeroConfig: { width: number; height: number; title: string } | null = null;
         if (name.endsWith('aqsp')) {
           aeroConfig = await this.resources.getAeroConfig();
         }
@@ -186,7 +186,7 @@ export class GameManager {
     }
   }
 
-  async openGameDescriptor(descriptor: GameDescriptor) {
+  async openGameDescriptor(descriptor: GameDescriptor): Promise<void> {
     if (this.isGameListShown) {
       this.hideGameList();
     }
@@ -196,7 +196,7 @@ export class GameManager {
     this.runGame(gameSource, descriptor);
   }
 
-  async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor) {
+  async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor): Promise<void> {
     const { title } = descriptor;
     document.title = title;
 
@@ -223,7 +223,7 @@ export class GameManager {
     this._api.restartGame();
   }
 
-  async loadAdditionalResources(resources: GameDescriptor['resources']) {
+  async loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
     if (!resources) return;
     if (resources.styles) {
       await this.loadAdditionalStyles(resources.styles);
@@ -241,7 +241,7 @@ export class GameManager {
     }
   }
 
-  async loadAdditionalStyles(styles: string[]) {
+  async loadAdditionalStyles(styles: string[]): Promise<void> {
     const promises: Promise<void>[] = [];
     for (const style of styles) {
       const isExternal = style.startsWith('http');
@@ -251,8 +251,8 @@ export class GameManager {
         gameStyle.href = style;
         gameStyle.dataset.qspiderResource = 'style';
         const defered = defer<void>();
-        gameStyle.onload = () => defered.resolve();
-        gameStyle.onerror = () => defered.reject(new Error(`File not found: ${style}`));
+        gameStyle.onload = (): void => defered.resolve();
+        gameStyle.onerror = (): void => defered.reject(new Error(`File not found: ${style}`));
         promises.push(defered.promise);
         document.head.appendChild(gameStyle);
       } else {
@@ -275,7 +275,7 @@ export class GameManager {
     await Promise.allSettled(promises);
   }
 
-  async loadAdditionalScripts(scripts: string[]) {
+  async loadAdditionalScripts(scripts: string[]): Promise<void> {
     const promises: Promise<void>[] = [];
     for (const script of scripts) {
       const gameScript = document.createElement('script');
@@ -283,15 +283,15 @@ export class GameManager {
       gameScript.src = this.resources.get(script).url;
       gameScript.dataset.qspiderResource = 'script';
       const defered = defer<void>();
-      gameScript.onload = () => defered.resolve();
-      gameScript.onerror = () => defered.reject(new Error(`File not found: ${script}`));
+      gameScript.onload = (): void => defered.resolve();
+      gameScript.onerror = (): void => defered.reject(new Error(`File not found: ${script}`));
       promises.push(defered.promise);
       document.head.appendChild(gameScript);
     }
     await Promise.allSettled(promises);
   }
 
-  loadAdditionalFont(font: [string, string, string, string]) {
+  loadAdditionalFont(font: [string, string, string, string]): void {
     const [name, path, weight, style] = font;
     const css = `
       @font-face {
@@ -312,11 +312,11 @@ export class GameManager {
     (document.getElementById('favicon') as HTMLLinkElement).href = favicon;
   }
 
-  clearAdditionalResources() {
+  clearAdditionalResources(): void {
     document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
   }
 
-  stopGame() {
+  stopGame(): void {
     if (this.currentGame) {
       this.updateIcon();
       this.hotKeysManager.reset();
@@ -331,11 +331,11 @@ export class GameManager {
     return this.config.game.length > 0;
   }
 
-  showGameList() {
+  showGameList(): void {
     this.isGameListShown = true;
   }
 
-  hideGameList() {
+  hideGameList(): void {
     this.isGameListShown = false;
   }
 
@@ -361,7 +361,7 @@ export class GameManager {
     this._api.on('system_cmd', this.processSystemCmd);
   }
 
-  setupHotKeyListeners() {
+  setupHotKeyListeners(): void {
     this.hotKeysManager.on('select_action', (index: number) => {
       if (this.isPaused) return;
       if (index >= 0 && index < this.actions.length) {
@@ -470,7 +470,7 @@ export class GameManager {
   updateMsg = (text: string, onMsg?: () => void): void => {
     this.pause();
     this.msg = text;
-    this.onMsg = onMsg;
+    this.onMsg = onMsg || null;
     this.isMsgShown = true;
   };
 
@@ -487,7 +487,7 @@ export class GameManager {
   updateInput = (text: string, onInput: (text: string) => void): void => {
     this.pause();
     this.input = text;
-    this.onInput = onInput;
+    this.onInput = onInput || null;
     this.isInputShown = true;
   };
 
@@ -496,7 +496,7 @@ export class GameManager {
     const onInput = this.onInput;
     this.onInput = null;
     this.resume();
-    onInput(text);
+    if (onInput) onInput(text);
   };
 
   updateUserInput = (text: string): void => {
@@ -524,7 +524,7 @@ export class GameManager {
     this.isMenuShown = false;
     this.menuResult = null;
     this.resume();
-    menuResult(index);
+    if (menuResult) menuResult(index);
   }
 
   startWaiting = (ms: number, onComplete: () => void): void => {
@@ -594,6 +594,7 @@ export class GameManager {
   };
 
   onLoadSave = async (path: string, onLoaded: () => void): Promise<void> => {
+    if (!this.currentGame) return;
     if (path) {
       this.pause();
       onLoaded();
@@ -608,9 +609,11 @@ export class GameManager {
   };
 
   onSaveGame = async (path: string, onSaved: () => void): Promise<void> => {
+    if (!this.currentGame) return;
     if (path) {
       this.pause();
       const saveData = this._api.saveGame();
+      if (!saveData) return;
       await this.saveManager.saveByPath(this.currentGame.id, path, saveData);
       this.resume();
       onSaved();
@@ -639,6 +642,7 @@ export class GameManager {
   };
 
   requestSave = async (onResult?: () => void): Promise<void> => {
+    if (!this.currentGame) return;
     this.pause();
     const saveData = this._api.saveGame();
     if (saveData) {
@@ -653,20 +657,24 @@ export class GameManager {
     }
   };
   saveToSlot = async (slot: number): Promise<void> => {
-    if (this.saveAction.type === 'save') {
+    if (!this.currentGame) return;
+    if (this.saveAction?.type === 'save') {
       await this.saveManager.updateSlot(this.currentGame.id, slot, this.saveAction.data);
     }
     this.clearSaveAction();
   };
 
-  async quickSave() {
+  async quickSave(): Promise<void> {
+    if (!this.currentGame) return;
     this.pause();
     const saveData = this._api.saveGame();
+    if (!saveData) return;
     await this.saveManager.quickSave(this.currentGame.id, saveData);
     this.resume();
   }
 
   requestRestore = async (onResult?: () => void): Promise<void> => {
+    if (!this.currentGame) return;
     this.pause();
     const slots = await this.saveManager.getSlots(this.currentGame.id);
     this.saveAction = {
@@ -678,18 +686,20 @@ export class GameManager {
   };
 
   restoreFromSlot = async (slot: number): Promise<void> => {
+    if (!this.currentGame) return;
     const saveData = await this.saveManager.getSlotData(this.currentGame.id, slot);
-    if (this.saveAction.onResult) {
+    if (this.saveAction?.onResult) {
       this.saveAction.onResult();
     }
-    this.saveAction.onResult = null;
+    if (this.saveAction) this.saveAction.onResult = undefined;
     if (saveData) {
       this._api.loadSave(saveData);
     }
     this.clearSaveAction();
   };
 
-  async quickLoad() {
+  async quickLoad(): Promise<void> {
+    if (!this.currentGame) return;
     this.pause();
     const saveData = await this.saveManager.quickLoad(this.currentGame.id);
     if (saveData) {
@@ -699,13 +709,12 @@ export class GameManager {
   }
 
   clearSaveAction = (): void => {
-    if (this.saveAction.onResult) {
+    if (this.saveAction?.onResult) {
       this.saveAction.onResult();
     }
-    this.saveAction = null;
     this.resume();
   };
-  processSystemCmd = (cmd: string) => {
+  processSystemCmd = (cmd: string): void => {
     if (!cmd.startsWith('qspider')) return;
     const [, _cmd] = cmd.split('.');
     if (_cmd.startsWith('event:')) {

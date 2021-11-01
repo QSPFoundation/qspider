@@ -13,7 +13,14 @@ export const MenuWrapper = styled.div`
 `;
 
 function generateGetBoundingClientRect(x = 0, y = 0) {
-  return () => ({
+  return (): {
+    width: number;
+    height: number;
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  } => ({
     width: 0,
     height: 0,
     top: y,
@@ -34,7 +41,7 @@ export const Menu: React.FC = observer(() => {
       getBoundingClientRect: generateGetBoundingClientRect(coordinates.x, coordinates.y),
     });
   }, [coordinates]);
-  const [popperElement, setPopperElement] = React.useState(null);
+  const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
   const node = useOutsideClick(() => manager.selectMenu(-1));
   const { styles, attributes } = usePopper(virtualElement, popperElement);
 

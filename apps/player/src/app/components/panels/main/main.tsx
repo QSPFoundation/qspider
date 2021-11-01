@@ -9,7 +9,7 @@ import { CustomScroll } from '../../ui-blocks/custom-scroll';
 export const MainPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const prevMain = usePrevious(manager.main);
-  const [scrollY, setScrollY] = useState<string>(undefined);
+  const [scrollY, setScrollY] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (prevMain && manager.main !== prevMain && manager.main.startsWith(prevMain)) {
       setScrollY('100%');

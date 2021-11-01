@@ -43,7 +43,7 @@ OverlayScrollbars.extension('scrollState', function () {
 
 export const AeroCustomScroll: React.FC<{ scrollY?: string; scrollX?: string }> = observer(
   ({ scrollY, scrollX, children }) => {
-    const scrollRef = useRef<OverlayScrollbarsComponent>();
+    const scrollRef = useRef<OverlayScrollbarsComponent>(null);
     useEffect(() => {
       const ref = scrollRef.current;
       if (ref) {

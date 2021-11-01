@@ -7,29 +7,29 @@ import { AeroPlayer } from './aero/aero-player';
 import { Player } from './player';
 
 export const PlayerStyles = styled.div`
-  font-size: ${(props) => props.theme.fontSize}px;
-  --font-size: ${(props) => props.theme.fontSize}px;
-  font-name: ${(props) => props.theme.fontName};
-  --background-color: ${(props) => props.theme.backgroundColor};
-  --inverted-background-color: ${(props) => Color(props.theme.backgroundColor).negate().hex()};
-  --background-image: ${(props) => props.theme.backgroundImage};
-  color: ${(props) => props.theme.textColor};
-  --color: ${(props) => props.theme.textColor};
-  --inverted-color: ${(props) => props.theme.backgroundColor};
-  --link-color: ${(props) => props.theme.linkColor};
-  --border-color: ${(props) => props.theme.borderColor};
-  --inverted-border-color: ${(props) => Color(props.theme.borderColor).negate().hex()};
+  font-size: ${(props): number => props.theme.fontSize}px;
+  --font-size: ${(props): number => props.theme.fontSize}px;
+  font-name: ${(props): string => props.theme.fontName};
+  --background-color: ${(props): string => props.theme.backgroundColor};
+  --inverted-background-color: ${(props): string => Color(props.theme.backgroundColor).negate().hex()};
+  --background-image: ${(props): string => props.theme.backgroundImage};
+  color: ${(props): string => props.theme.textColor};
+  --color: ${(props): string => props.theme.textColor};
+  --inverted-color: ${(props): string => props.theme.backgroundColor};
+  --link-color: ${(props): string => props.theme.linkColor};
+  --border-color: ${(props): string => props.theme.borderColor};
+  --inverted-border-color: ${(props): string => Color(props.theme.borderColor).negate().hex()};
 
   button {
-    color: ${(props) => props.theme.textColor};
-    font-size: ${(props) => props.theme.fontSize}px;
-    font-name: ${(props) => props.theme.fontName};
+    color: ${(props): string => props.theme.textColor};
+    font-size: ${(props): number => props.theme.fontSize}px;
+    font-name: ${(props): string => props.theme.fontName};
   }
 
   input {
-    color: ${(props) => props.theme.textColor};
-    font-size: ${(props) => props.theme.fontSize}px;
-    font-name: ${(props) => props.theme.fontName};
+    color: ${(props): string => props.theme.textColor};
+    font-size: ${(props): number => props.theme.fontSize}px;
+    font-name: ${(props): string => props.theme.fontName};
   }
 `;
 
