@@ -25,7 +25,6 @@
       "@qspider/audio": ["libs/audio/src/index.ts"],
       "@qspider/classic": ["libs/classic/src/index.ts"],
       "@qspider/components": ["libs/components/src/index.ts"],
-      "@qspider/config": ["libs/config/src/index.ts"],
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
       "@qspider/core": ["libs/core/src/index.ts"],
       "@qspider/icons": ["libs/icons/src/index.ts"],
