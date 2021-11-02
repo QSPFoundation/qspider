@@ -13,6 +13,12 @@ export interface IBaseLayout {
   readonly theme: Theme;
   readonly useHtml: boolean;
   readonly nosave: boolean;
+
+  readonly isActionsPanelVisible: boolean;
+  readonly isObjectPanelVisible: boolean;
+  readonly isStatsPanelVisible: boolean;
+  readonly isUserInputPanelVisible: boolean;
+
   isPanelVisible(name: QspGUIPanel): boolean;
   fillDefaults(defaults: BaseLayoutDefaults): void;
 }

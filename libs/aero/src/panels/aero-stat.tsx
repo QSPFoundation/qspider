@@ -1,19 +1,17 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { usePrevious } from 'react-delta';
-import { useGameManager } from '../../../game/manager';
-import { useLayout } from '../../../game/layout';
-import { Content } from '../../content/content';
 import { AeroPanel } from '../aero-panel';
-import { useAeroLayout } from '../../../game/aero/aero-layout';
-import { useResources } from '../../../game/resource-manager';
 import { TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 import { AeroEffect } from '../effects/aero-effect';
+import { useBaseLayout, useGameManager, useResources } from '@qspider/providers';
+import { useAeroLayout } from '../aero-layout';
+import { Content } from '@qspider/components';
 
 export const AeroStatsPanel: React.FC = observer(() => {
   const manager = useGameManager();
-  const { isStatsPanelVisible } = useLayout();
+  const { isStatsPanelVisible } = useBaseLayout();
   const prevStats = usePrevious(manager.stats);
   const layout = useAeroLayout();
   const resources = useResources();

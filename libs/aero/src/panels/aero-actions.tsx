@@ -1,17 +1,16 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 
-import { useGameManager } from '../../../game/manager';
-import { useLayout } from '../../../game/layout';
-import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { AeroPanel } from '../aero-panel';
 import { AeroActionList, IntegratedAeroActionList } from '../aero-action-list';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 import { AeroEffect } from '../effects/aero-effect';
+import { useBaseLayout, useGameManager } from '@qspider/providers';
+import { useAeroLayout } from '../aero-layout';
 
 export const AeroActionsPanel: React.FC = observer(() => {
   const manager = useGameManager();
-  const { isActionsPanelVisible } = useLayout();
+  const { isActionsPanelVisible } = useBaseLayout();
   const layout = useAeroLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
   const onAction = useCallback(

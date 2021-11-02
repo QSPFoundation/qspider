@@ -1,19 +1,16 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
-import { Content } from '../../content/content';
-import { useAeroLayout } from '../../../game/aero/aero-layout';
-import { useClickCoordinates } from '../../../hooks/click-coordinates';
 import styled from '@emotion/styled';
-import { useImageSize } from '../../../hooks/image-size';
 import { MsgUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
-import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 
-import defaultMsgBack from '../../../../assets/aero/msg_back.png';
-import defaultMsgOkButton from '../../../../assets/aero/msg_ok.png';
+import defaultMsgBack from '../assets/msg_back.png';
+import defaultMsgOkButton from '../assets/msg_ok.png';
 import { AeroOverlay } from '../aero-overlay';
+import { useGameManager, useResources } from '@qspider/providers';
+import { useAeroLayout } from '../aero-layout';
+import { Content, hooks } from '@qspider/components';
 
 const MsgContainer = styled.div`
   position: absolute;
@@ -28,8 +25,8 @@ const MsgBody = styled.div<{ width: number; height: number; x: number; y: number
   background-image: ${(props): string => `url(${props.backgroundImage})`};
   background-color: var(--background-color);
   width: ${(props): number => props.width || 320}px;
-  height: ${(props): any => props.height || 320}px;
-  left: ${(props): any => props.x}px;
+  height: ${(props): number => props.height || 320}px;
+  left: ${(props): number => props.x}px;
   top: ${(props): number => props.y}px;
   pointer-events: auto;
   position: relative;
@@ -40,7 +37,7 @@ const MsgTextContainer = styled.div<{ ui: MsgUI }>`
   position: absolute;
   width: ${(props): number => props.ui.text.width}px;
   height: ${(props): number => props.ui.text.height}px;
-  top: ${(props): any => props.ui.text.y}px;
+  top: ${(props): number => props.ui.text.y}px;
   left: ${(props): number => props.ui.text.x}px;
   white-space: pre-wrap;
 `;
@@ -74,17 +71,17 @@ export const AeroMsgDialog: React.FC = observer(() => {
     manager.closeMsg();
   }, [manager]);
 
-  const coordinates = useClickCoordinates();
+  const coordinates = hooks.useClickCoordinates();
   const x = layout.msgUI && layout.msgUI.x >= 0 ? layout.msgUI.x : coordinates.x;
   const y = layout.msgUI && layout.msgUI.y >= 0 ? layout.msgUI.y : coordinates.y;
 
   const url = layout.msgUI.backImage ? resources.get(layout.msgUI.backImage).url : defaultMsgBack;
   const okUrl = layout.msgUI.okButton.image ? resources.get(layout.msgUI.okButton.image).url : defaultMsgOkButton;
 
-  const { width, height } = useImageSize(url);
+  const { width, height } = hooks.useImageSize(url);
   const content = layout.msgUI?.format.replace(TEXT_PLACEHOLDER, manager.msg);
 
-  const { width: okWidth, height: okHeight } = useImageSize(okUrl);
+  const { width: okWidth, height: okHeight } = hooks.useImageSize(okUrl);
 
   return (
     <>

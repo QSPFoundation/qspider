@@ -1,17 +1,14 @@
 import React, { useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
-import { useClickCoordinates } from '../../../hooks/click-coordinates';
-import { useOutsideClick } from '../../../hooks/useOutsideClick';
 import { usePopper } from 'react-popper';
 import styled from '@emotion/styled';
 import { AeroActionList } from '../aero-action-list';
-import { useAeroLayout } from '../../../game/aero/aero-layout';
 import { MenuUI } from '@qspider/qsp-wasm';
-import { useImageSize } from '../../../hooks/image-size';
-import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
-import { noop } from '../../../utils';
+import { useGameManager, useResources } from '@qspider/providers';
+import { useAeroLayout } from '../aero-layout';
+import { hooks } from '@qspider/components';
+import { noop } from '@qspider/utils';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
@@ -66,7 +63,7 @@ export const AeroMenu: React.FC = observer(() => {
   const layout = useAeroLayout();
   const resources = useResources();
 
-  const coordinates = useClickCoordinates();
+  const coordinates = hooks.useClickCoordinates();
   const [virtualElement, setVirtualElement] = React.useState({
     getBoundingClientRect: generateGetBoundingClientRect(),
   });
@@ -78,10 +75,10 @@ export const AeroMenu: React.FC = observer(() => {
     });
   }, [x, y]);
   const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
-  const node = useOutsideClick(() => manager.selectMenu(-1));
+  const node = hooks.useOutsideClick(() => manager.selectMenu(-1));
   const { styles, attributes } = usePopper(virtualElement, popperElement);
   const { url } = resources.get(layout.menuUI.backImage);
-  const { width, height } = useImageSize(url);
+  const { width, height } = hooks.useImageSize(url);
 
   const onMenuSelect = useCallback((index: number) => manager.selectMenu(index), [manager]);
 

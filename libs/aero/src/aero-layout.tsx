@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { observable, action, makeObservable } from 'mobx';
-import { useGameManager, GameManager } from '../manager';
 import {
   AeroApi,
   ScrollUI,
@@ -16,7 +15,8 @@ import {
   TEXT_PLACEHOLDER,
   AeroContentRectangle,
 } from '@qspider/qsp-wasm';
-import { ResourceManager, useResources } from '../resource-manager';
+import { IGameManager, IResourceManager } from '@qspider/contracts';
+import { useGameManager, useResources } from '@qspider/providers';
 
 class AeroLayout {
   scrollUI: ScrollUI = {
@@ -154,7 +154,7 @@ class AeroLayout {
 
   private api!: AeroApi;
 
-  constructor(manager: GameManager, private resources: ResourceManager) {
+  constructor(manager: IGameManager, private resources: IResourceManager) {
     makeObservable(this, {
       scrollUI: observable,
       playerUI: observable,
@@ -183,7 +183,7 @@ class AeroLayout {
     this.initialized(manager);
   }
 
-  async initialized(manager: GameManager): Promise<void> {
+  async initialized(manager: IGameManager): Promise<void> {
     await manager.apiInitialized;
     this.api = new AeroApi(manager.api);
     this.initCallbacks();
@@ -243,8 +243,8 @@ const layoutContext = React.createContext<AeroLayout | null>(null);
 export const AeroLayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
-  const [layout] = useState(() => new AeroLayout(manager, resources));
-  return <layoutContext.Provider value={layout}>{children}</layoutContext.Provider>;
+  const layout = useRef(new AeroLayout(manager, resources));
+  return <layoutContext.Provider value={layout.current}>{children}</layoutContext.Provider>;
 };
 
 export const useAeroLayout = (): AeroLayout => {

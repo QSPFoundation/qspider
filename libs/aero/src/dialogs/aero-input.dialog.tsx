@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
-import { Content } from '../../content/content';
-import { useAeroLayout } from '../../../game/aero/aero-layout';
-import { useClickCoordinates } from '../../../hooks/click-coordinates';
 import styled from '@emotion/styled';
-import { useImageSize } from '../../../hooks/image-size';
 import { InputUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
-import { useResources } from '../../../game/resource-manager';
 import { AeroEffect } from '../effects/aero-effect';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 
-import defaultInputBack from '../../../../assets/aero/input_back.png';
-import defaultInputOk from '../../../../assets/aero/input_ok.png';
-import defaultInputCancel from '../../../../assets/aero/input_cancel.png';
+import defaultInputBack from '../assets/input_back.png';
+import defaultInputOk from '../assets/input_ok.png';
+import defaultInputCancel from '../assets/input_cancel.png';
 import { AeroOverlay } from '../aero-overlay';
+import { useGameManager, useResources } from '@qspider/providers';
+import { useAeroLayout } from '../aero-layout';
+import { Content, hooks } from '@qspider/components';
 
 const InputContainer = styled.div`
   position: absolute;
@@ -91,7 +88,7 @@ export const AeroInputDialog: React.FC = observer(() => {
     setInputText('');
   };
 
-  const coordinates = useClickCoordinates();
+  const coordinates = hooks.useClickCoordinates();
   const x = layout.inputUI && layout.inputUI.x >= 0 ? layout.inputUI.x : coordinates.x;
   const y = layout.inputUI && layout.inputUI.y >= 0 ? layout.inputUI.y : coordinates.y;
 
@@ -101,11 +98,11 @@ export const AeroInputDialog: React.FC = observer(() => {
     ? resources.get(layout.inputUI.cancelButton.image).url
     : defaultInputCancel;
 
-  const { width, height } = useImageSize(url);
+  const { width, height } = hooks.useImageSize(url);
   const content = layout.inputUI?.format.replace(TEXT_PLACEHOLDER, manager.input);
 
-  const { width: okWidth, height: okHeight } = useImageSize(okUrl);
-  const { width: cancelWidth, height: cancelHeight } = useImageSize(cancelUrl);
+  const { width: okWidth, height: okHeight } = hooks.useImageSize(okUrl);
+  const { width: cancelWidth, height: cancelHeight } = hooks.useImageSize(cancelUrl);
 
   return (
     <>

@@ -1,10 +1,6 @@
 import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { useAeroLayout } from '../../game/aero/aero-layout';
-import { useGameManager } from '../../game/manager';
-import { useResources } from '../../game/resource-manager';
-import { ErrorDialog } from '../dialogs/error/error.dialog';
 import { AeroStylesheet } from './aero-stylesheet';
 import { AeroInputDialog } from './dialogs/aero-input.dialog';
 import { AeroMsgDialog } from './dialogs/aero-msg.dialog';
@@ -15,13 +11,14 @@ import { AeroObjectsPanel } from './panels/aero-objects';
 import { AeroStatsPanel } from './panels/aero-stat';
 import { AeroUserInputPanel } from './panels/aero-user-input';
 import { AeroViewImagePanel } from './panels/aero-view-image';
+import { SaveSlotsDialog, ErrorDialog } from '@qspider/player-ui';
 
-import defaultBackground from '../../../assets/aero/back.png';
-import { SaveSlotsDialog } from '../dialogs/save-slots/save-slots';
-import { useImageSize } from '../../hooks/image-size';
-
-import defaultUpArrow from '../../../assets/aero/up_arrow.png';
-import defaultDownArrow from '../../../assets/aero/down_arrow.png';
+import defaultBackground from '../assets/back.png';
+import defaultUpArrow from '../assets/up_arrow.png';
+import defaultDownArrow from '../assets/down_arrow.png';
+import { useGameManager, useResources } from '@qspider/providers';
+import { useAeroLayout } from './aero-layout';
+import { hooks } from '@qspider/components';
 
 const AeroPlayerWrapper = styled.div`
   width: 100%;
@@ -69,11 +66,11 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
   const resources = useResources();
 
   const upArrow = layout.scrollUI.upArrowImage ? resources.get(layout.scrollUI.upArrowImage).url : defaultUpArrow;
-  const { width: upArrowWidth, height: upArrowHeight } = useImageSize(upArrow);
+  const { width: upArrowWidth, height: upArrowHeight } = hooks.useImageSize(upArrow);
   const downArrow = layout.scrollUI.downArrowImage
     ? resources.get(layout.scrollUI.downArrowImage).url
     : defaultDownArrow;
-  const { width: downArrowWidth, height: downArrowHeight } = useImageSize(downArrow);
+  const { width: downArrowWidth, height: downArrowHeight } = hooks.useImageSize(downArrow);
 
   const style = {
     '--up-arrow': layout.scrollUI.hideArrows ? '' : `url("${upArrow}")`,

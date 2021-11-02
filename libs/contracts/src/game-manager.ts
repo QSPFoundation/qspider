@@ -1,7 +1,11 @@
+import { QspAPI, QspListItem } from '@qspider/qsp-wasm';
 import { GameDescriptor, PlayerConfig } from './game';
 import { SaveAction } from './save';
 
 export interface IGameManager {
+  readonly apiInitialized: Promise<void>;
+  readonly api: QspAPI;
+
   readonly config: PlayerConfig;
   readonly currentGame: GameDescriptor | null;
   readonly hasGameList: boolean;
@@ -15,10 +19,42 @@ export interface IGameManager {
     unMute(): void;
   };
 
+  readonly isNewLoc: boolean;
+  readonly newLocHash: string;
+
   openGameDescriptor(game: GameDescriptor): Promise<void>;
   restart(): void;
   requestSave(): Promise<void>;
   requestRestore(): Promise<void>;
+
+  readonly main: string;
+
+  readonly stats: string;
+
+  readonly actions: QspListItem[];
+
+  readonly isMenuShown: boolean;
+  readonly menu: QspListItem[];
+  selectMenu(index: number): void;
+
+  readonly objects: QspListItem[];
+  selectObject(index: number): void;
+
+  readonly userInput: string;
+  updateUserInput(newValue: string): void;
+  submitUserInput(): void;
+
+  readonly viewSrc: string;
+  readonly isViewShown: boolean;
+  closeView(): void;
+
+  readonly isInputShown: boolean;
+  readonly input: string;
+  closeInput(value: string): void;
+
+  readonly isMsgShown: boolean;
+  readonly msg: string;
+  closeMsg(): void;
 
   readonly isWaiting: boolean;
   completeWaiting(): void;

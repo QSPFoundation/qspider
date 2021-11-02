@@ -1,8 +1,7 @@
+import { PlayerToolbar, WaitLock } from '@qspider/player-ui';
 import React from 'react';
-import { WaitLock } from '../system/wait-lock';
-import { CenterType, Fill, Top, ViewPort } from 'react-spaces';
-import { PlayerToolbar } from '../system/player-toolbar';
-import { AeroLayoutProvider } from '../../game/aero/aero-layout';
+import { Fill, Top, ViewPort } from 'react-spaces';
+import { AeroLayoutProvider } from './aero-layout';
 import { AeroLayoutContainer } from './aero-layout-container';
 import { AeroMainFrame } from './aero-main-frame';
 
