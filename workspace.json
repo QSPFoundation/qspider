@@ -178,8 +178,12 @@
           "configurations": {
             "production": {
               "assets": [
-                "apps/player/src/favicon.ico",
                 "apps/player/src/assets",
+                {
+                  "input": "libs/qspider-assets",
+                  "glob": "**/*",
+                  "output": "assets"
+                },
                 {
                   "input": "./demo",
                   "glob": "**/*",
@@ -259,6 +263,11 @@
                 "input": "libs/qspider-assets",
                 "glob": "**/*",
                 "output": "assets"
+              },
+              {
+                "input": "./game",
+                "glob": "**/*",
+                "output": "./game"
               }
             ],
             "styles": [],
@@ -267,6 +276,19 @@
           },
           "configurations": {
             "production": {
+              "assets": [
+                "apps/player/src/assets",
+                {
+                  "input": "libs/qspider-assets",
+                  "glob": "**/*",
+                  "output": "assets"
+                },
+                {
+                  "input": "./demo",
+                  "glob": "**/*",
+                  "output": "./"
+                }
+              ],
               "fileReplacements": [
                 {
                   "replace": "apps/player-desktop/src/environments/environment.ts",
