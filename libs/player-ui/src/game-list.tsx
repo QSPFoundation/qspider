@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { useGameManager } from '../../../game/manager';
-import { Modal } from '../../ui-blocks/modal';
-import { OpenGameButton } from '../../ui-blocks/open-game-button';
+import { useGameManager } from '@qspider/providers';
+import { Modal } from '@qspider/components';
 
 const GameListWrapper = styled.div`
   --background-color: #e8eae3;
@@ -64,9 +63,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
   return (
     <GameListWrapper>
       <Modal closable={closable} onClose={onClose} hideButtons width={800} dataQsp="game-list">
-        <OpenButtonWrapper>
-          <OpenGameButton />
-        </OpenButtonWrapper>
+        <OpenButtonWrapper>{/* <OpenGameButton /> */}</OpenButtonWrapper>
         <GameSlots even={!(config.game.length % 2)}>
           {config.game.map((game) => (
             <GameSlot

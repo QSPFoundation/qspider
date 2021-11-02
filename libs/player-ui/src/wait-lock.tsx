@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../game/manager';
-import { useEventListener } from '../../hooks/event-listener';
 import styled from '@emotion/styled';
+import { useGameManager } from '@qspider/providers';
+import { hooks } from '@qspider/components';
 
 const Lock = styled.div`
   position: fixed;
@@ -19,7 +19,7 @@ export const WaitLock: React.FC = observer(() => {
       manager.completeWaiting();
     }
   }, [manager]);
-  useEventListener(
+  hooks.useEventListener(
     'keypress',
     (e: KeyboardEvent) => {
       if (manager.isWaiting) {

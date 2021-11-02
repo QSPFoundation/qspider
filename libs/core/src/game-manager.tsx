@@ -2,9 +2,9 @@ import { observable, action, makeObservable, runInAction } from 'mobx';
 import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
-import { SaveManager, SaveAction } from './save-manager';
+import { SaveManager } from './save-manager';
 import { HotKeysManager } from './hotkeys';
-import { GameDescriptor, IGameManager, IResourceManager, PlayerConfig } from '@qspider/contracts';
+import { GameDescriptor, IGameManager, IResourceManager, PlayerConfig, SaveAction } from '@qspider/contracts';
 import { hashString } from '@qspider/utils';
 import { AudioEngine } from '@qspider/audio';
 

@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-
-import { useGameManager } from '../../../game/manager';
-import { Modal } from '../../ui-blocks/modal';
 import styled from '@emotion/styled';
+import { useGameManager } from '@qspider/providers';
+import { Modal } from '@qspider/components';
 
 const DialogWrapper = styled.div`
   --background-color: #e8eae3;

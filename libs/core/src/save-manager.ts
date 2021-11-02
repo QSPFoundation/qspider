@@ -1,20 +1,5 @@
 import localforage from 'localforage';
 
-export type SaveAction =
-  | {
-      type: 'save';
-      slots: string[];
-      data: ArrayBuffer;
-      callback: (slot: number) => void;
-      onResult?: () => void;
-    }
-  | {
-      type: 'restore';
-      slots: string[];
-      callback: (slot: number) => void;
-      onResult?: () => void;
-    };
-
 const SLOTS_COUNT = 21;
 
 function getDateKey(gameId: string, slot: number): string {
