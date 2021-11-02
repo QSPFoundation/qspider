@@ -1,20 +1,19 @@
 import React, { ReactElement } from 'react';
 import { ViewPort, Fill, Top } from 'react-spaces';
-import { LayoutDock, LayoutPanel, isHorizontal, isCenter } from '../game/cfg-converter';
 import { Row } from './layout/row';
 import { Column } from './layout/column';
-import { MainPanel } from './panels/main/main';
-import { ObjectsPanel } from './panels/objects/objects';
-import { StatsPanel } from './panels/stats/stats';
-import { ActionsPanel } from './panels/actions/actions';
-import { UserInputPanel } from './panels/user-input/user-input';
 import { PanelWrapper } from './layout/panel-wrapper';
 import { RightDock, BottomDock, LeftDock, TopDock } from './layout/docks';
-import { ViewImagePanel } from './panels/view-image/view-image.panel';
+import { QspGUIPanel } from '@qspider/contracts';
+import { MainPanel } from './panels/main';
+import { ObjectsPanel } from './panels/objects';
+import { StatsPanel } from './panels/stats';
+import { ActionsPanel } from './panels/actions';
+import { UserInputPanel } from './panels/user-input';
+import { ViewImagePanel } from './panels/view-image';
+import { isCenter, isHorizontal, LayoutDock, LayoutPanel } from './cfg-converter';
 import { observer } from 'mobx-react-lite';
-import { QspGUIPanel } from '../constants';
-import { useLayout } from '../game/layout';
-import { PlayerToolbar } from './system/player-toolbar';
+import { PlayerToolbar } from '@qspider/player-ui';
 
 const docksMap = {
   top: TopDock,
@@ -94,7 +93,7 @@ function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
 }
 
 export const LayoutContainer: React.FC = observer(() => {
-  const { visibleLayout } = useLayout();
+  const { visibleLayout } = useClassicLayout();
   return (
     <ViewPort>
       <Top size={40}>

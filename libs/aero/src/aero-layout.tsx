@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { observable, action, makeObservable } from 'mobx';
+import { observable, action, makeObservable, reaction } from 'mobx';
 import {
   AeroApi,
   ScrollUI,
@@ -15,8 +15,16 @@ import {
   TEXT_PLACEHOLDER,
   AeroContentRectangle,
 } from '@qspider/qsp-wasm';
-import { IGameManager, IResourceManager } from '@qspider/contracts';
-import { useGameManager, useResources } from '@qspider/providers';
+import { IBaseLayout, IGameManager, IResourceManager } from '@qspider/contracts';
+import { useBaseLayout, useGameManager, useResources } from '@qspider/providers';
+
+const aeroDefaults = {
+  defaultBackgroundColor: '#e5e5e5',
+  defaultColor: '#000000',
+  defaultLinkColor: '#0000ff',
+  defaultFontSize: 18,
+  defaultFontName: 'sans-serif',
+};
 
 class AeroLayout {
   scrollUI: ScrollUI = {
@@ -154,7 +162,7 @@ class AeroLayout {
 
   private api!: AeroApi;
 
-  constructor(manager: IGameManager, private resources: IResourceManager) {
+  constructor(private manager: IGameManager, private baseLayout: IBaseLayout, private resources: IResourceManager) {
     makeObservable(this, {
       scrollUI: observable,
       playerUI: observable,
@@ -187,6 +195,37 @@ class AeroLayout {
     await manager.apiInitialized;
     this.api = new AeroApi(manager.api);
     this.initCallbacks();
+    reaction(
+      () => manager.currentGame,
+      async (descriptor) => {
+        if (!descriptor) return;
+        if (descriptor.mode === 'aero') {
+          this.baseLayout.fillDefaults(aeroDefaults);
+          this.readConfig();
+        }
+      }
+    );
+  }
+
+  async readConfig(): Promise<void> {
+    try {
+      const content = await this.resources.getTextContent('config.xml');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'application/xml');
+      const gameElement = doc.querySelector('game');
+      if (this.manager.currentGame && gameElement) {
+        this.manager.currentGame.aero = {
+          width: parseInt(gameElement.getAttribute('width') || '800'),
+          height: parseInt(gameElement.getAttribute('height') || '600'),
+        };
+        const title = gameElement.getAttribute('title');
+        if (title) {
+          this.manager.currentGame.title = title;
+        }
+      }
+    } catch {
+      // noop
+    }
   }
 
   initCallbacks(): void {
@@ -243,7 +282,8 @@ const layoutContext = React.createContext<AeroLayout | null>(null);
 export const AeroLayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
-  const layout = useRef(new AeroLayout(manager, resources));
+  const baseLayout = useBaseLayout();
+  const layout = useRef(new AeroLayout(manager, baseLayout, resources));
   return <layoutContext.Provider value={layout.current}>{children}</layoutContext.Provider>;
 };
 

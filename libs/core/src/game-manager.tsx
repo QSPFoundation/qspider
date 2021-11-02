@@ -12,13 +12,9 @@ export class GameManager implements IGameManager {
   config!: PlayerConfig;
   currentGame: GameDescriptor | null = null;
 
-  // gameConfig: CfgData | false = false;
   errorData: QspErrorData | null = null;
   isInitialized = false;
   isGameListShown = false;
-
-  // layout: LayoutDock[] = [];
-  // floating: [QspGUIPanel, number, number][] = [];
 
   main = '';
   isNewLoc = false;
@@ -157,21 +153,12 @@ export class GameManager implements IGameManager {
         if (this.currentGame) {
           this.hotKeysManager.reset();
         }
-        let aeroConfig: { width: number; height: number; title: string } | null = null;
-        if (name.endsWith('aqsp')) {
-          aeroConfig = await this.resources.getAeroConfig();
-        }
         this.runGame(gameSource, {
           id: name,
           mode: name.endsWith('aqsp') ? 'aero' : 'classic',
-          title: aeroConfig?.title || '',
+          title: '',
           file: name,
-          aero: aeroConfig
-            ? {
-                width: aeroConfig.width,
-                height: aeroConfig.height,
-              }
-            : undefined,
+          aero: undefined,
         });
       }
     } catch (err) {
@@ -193,16 +180,6 @@ export class GameManager implements IGameManager {
   async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor): Promise<void> {
     const { title } = descriptor;
     document.title = title;
-
-    // this.gameConfig = await this.resources.getConfig();
-    // if (this.gameConfig) {
-    //   const { layout, floating } = extractLayoutData(this.gameConfig);
-    //   this.layout = layout;
-    //   this.floating = floating;
-    // } else {
-    //   this.layout = DEFAULT_LAYOUT;
-    //   this.floating = DEFAULT_FLOATING;
-    // }
 
     runInAction(() => {
       this.currentGame = descriptor;

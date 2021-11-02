@@ -1,4 +1,4 @@
-import { QspGUIPanel } from '../constants';
+import { QspGUIPanel } from '@qspider/contracts';
 
 const GROUP_REGEXP = /\[(.*?)\]/i;
 const LINE_REGEXP = /(.*?)=(.*)/i;

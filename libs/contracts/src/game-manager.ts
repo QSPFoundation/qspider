@@ -1,4 +1,4 @@
-import { QspAPI, QspListItem } from '@qspider/qsp-wasm';
+import { QspAPI, QspErrorData, QspListItem } from '@qspider/qsp-wasm';
 import { GameDescriptor, PlayerConfig } from './game';
 import { SaveAction } from './save';
 
@@ -61,6 +61,9 @@ export interface IGameManager {
 
   readonly saveAction: SaveAction;
   clearSaveAction(): void;
+
+  errorData: QspErrorData | null;
+  clearError(): void;
 
   execCode(code: string): void;
   selectAction(index: number): void;

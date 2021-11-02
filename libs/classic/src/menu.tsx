@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../game/manager';
-import { useClickCoordinates } from '../../hooks/click-coordinates';
-import { ActionList } from '../ui-blocks/action-list/action-list';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { usePopper } from 'react-popper';
 import styled from '@emotion/styled';
-import { noop } from '../../utils';
+import { useGameManager } from '@qspider/providers';
+import { hooks } from '@qspider/components';
+import { ActionList } from './action-list/action-list';
+import { noop } from '@qspider/utils';
 
 export const MenuWrapper = styled.div`
   border: 1px solid var(--border-color);
@@ -32,7 +31,7 @@ function generateGetBoundingClientRect(x = 0, y = 0) {
 
 export const Menu: React.FC = observer(() => {
   const manager = useGameManager();
-  const coordinates = useClickCoordinates();
+  const coordinates = hooks.useClickCoordinates();
   const [virtualElement, setVirtualElement] = React.useState({
     getBoundingClientRect: generateGetBoundingClientRect(),
   });
@@ -42,7 +41,7 @@ export const Menu: React.FC = observer(() => {
     });
   }, [coordinates]);
   const [popperElement, setPopperElement] = React.useState<HTMLDivElement | null>(null);
-  const node = useOutsideClick(() => manager.selectMenu(-1));
+  const node = hooks.useOutsideClick(() => manager.selectMenu(-1));
   const { styles, attributes } = usePopper(virtualElement, popperElement);
 
   const onMenuSelect = useCallback((index: number) => manager.selectMenu(index), [manager]);

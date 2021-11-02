@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
-import { Modal } from '../../ui-blocks/modal';
+import { useGameManager } from '@qspider/providers';
+import { Modal } from '@qspider/components';
 
 export const ErrorDialog: React.FC = observer(() => {
   const gameManager = useGameManager();

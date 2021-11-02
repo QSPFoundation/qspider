@@ -53,42 +53,8 @@ export class ResourceManager implements IResourceManager {
     const gameSource = this.findGameFile(resources);
     if (!gameSource) throw new Error('game file not found in archive, make sure it is on top level');
     this._basePath = '';
-    // if (this._zipResources[GAME_FONFIG_FILE]) {
-    //   this._gameConfig = parseCfg(new TextDecoder().decode(new Uint8Array(this._zipResources[GAME_FONFIG_FILE])));
-    // } else {
-    //   this._gameConfig = false;
-    // }
     return gameSource;
   }
-
-  // async getConfig(): Promise<CfgData | false> {
-  //   if (this._gameConfig !== undefined) {
-  //     return this._gameConfig;
-  //   }
-  //   try {
-  //     const text = await fetchGameConfig(this.basePath);
-  //     this._gameConfig = parseCfg(text);
-  //   } catch (_) {
-  //     this._gameConfig = false;
-  //   }
-  //   return this._gameConfig as CfgData | false;
-  // }
-
-  // async getAeroConfig(): Promise<{ width: number; height: number; title: string } | null> {
-  //   if (this._zipResources['config.xml']) {
-  //     const blob = new Blob([this._zipResources['config.xml']]);
-  //     const content = await blob.text();
-  //     const parser = new DOMParser();
-  //     const doc = parser.parseFromString(content, 'application/xml');
-  //     const gameElement = doc.querySelector('game')!;
-  //     return {
-  //       width: parseInt(gameElement.getAttribute('width') || '800'),
-  //       height: parseInt(gameElement.getAttribute('height') || '600'),
-  //       title: gameElement.getAttribute('title') || '',
-  //     };
-  //   }
-  //   return null;
-  // }
 
   get(file: string): Resource {
     let path = this.preparePath(file);
@@ -242,7 +208,6 @@ export class ResourceManager implements IResourceManager {
   clear(): void {
     this._basePath = `${GAME_PATH}/`;
     this._zipResources = {};
-    // this._gameConfig = undefined;
     for (const value of this._zipUrls.values()) {
       URL.revokeObjectURL(value);
     }

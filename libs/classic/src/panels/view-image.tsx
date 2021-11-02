@@ -1,8 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
-import { Panel } from '../../ui-blocks/panel';
 import styled from '@emotion/styled';
+import { useGameManager } from '@qspider/providers';
+import { Panel } from '../panel';
 
 const ViewImageContainer = styled.div`
   width: 100%;

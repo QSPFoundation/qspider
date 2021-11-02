@@ -1,9 +1,8 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { Panel } from '../../ui-blocks/panel';
 import styled from '@emotion/styled';
-import { useGameManager } from '../../../game/manager';
-import { useLayout } from '../../../game/layout';
+import { useBaseLayout, useGameManager } from '@qspider/providers';
+import { Panel } from '../panel';
 
 const TextInput = styled.input`
   background: var(--background-color);
@@ -25,7 +24,7 @@ const Form = styled.form`
 
 export const UserInputPanel: React.FC = observer(() => {
   const manager = useGameManager();
-  const { isUserInputPanelVisible } = useLayout();
+  const { isUserInputPanelVisible } = useBaseLayout();
   if (!isUserInputPanelVisible) return null;
   return (
     <Panel data-qsp="user-input">

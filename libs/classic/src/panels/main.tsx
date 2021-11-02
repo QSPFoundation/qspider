@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { usePrevious } from 'react-delta';
-import { PanelWithBackground, PanelContent } from '../../ui-blocks/panel';
-import { useGameManager } from '../../../game/manager';
-import { Content } from '../../content/content';
-import { CustomScroll } from '../../ui-blocks/custom-scroll';
+import { useGameManager } from '@qspider/providers';
+import { PanelContent, PanelWithBackground } from '../panel';
+import { Content, CustomScroll } from '@qspider/components';
 
 export const MainPanel: React.FC = observer(() => {
   const manager = useGameManager();

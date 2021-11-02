@@ -10,11 +10,3 @@ export const fetchPlayerConfig = async (): Promise<PlayerConfig> => {
     .then((r) => r.text())
     .then((text) => TOMLparse(text) as unknown as PlayerConfig);
 };
-
-export const fetchGameConfig = async (folder = '/'): Promise<string> => {
-  return fetch(`${folder}${GAME_FONFIG_FILE}`).then((r) => r.text());
-};
-
-export const fetchGameSource = async (path: string): Promise<ArrayBuffer> => {
-  return fetch(path).then((r) => r.arrayBuffer());
-};

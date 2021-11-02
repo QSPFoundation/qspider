@@ -1,5 +1,5 @@
+import { QspGUIPanel } from '@qspider/contracts';
 import { CfgData, PanelData, DirectionKey } from './cfg-parser';
-import { QspGUIPanel } from '../constants';
 
 function getMaxLayer(panels: PanelData[]): number {
   return Math.max(...panels.map(({ layer }) => layer));

@@ -1,10 +1,9 @@
 import { observer } from 'mobx-react-lite';
-import { useLayout } from '../../game/layout';
-import { QspGUIPanel } from '../../constants';
-import { ViewImagePanel } from '../panels/view-image/view-image.panel';
 import React from 'react';
-import { Modal } from '../ui-blocks/modal';
-import { useGameManager } from '../../game/manager';
+import { QspGUIPanel } from '@qspider/contracts';
+import { useGameManager } from '@qspider/providers';
+import { Modal } from '@qspider/components';
+import { ViewImagePanel } from '../panels/view-image';
 
 const pannelsMap: Record<string, React.FC> = {
   [QspGUIPanel.ImageView]: ViewImagePanel,
@@ -12,7 +11,7 @@ const pannelsMap: Record<string, React.FC> = {
 
 export const FloatingContainer: React.FC = observer(() => {
   const manager = useGameManager();
-  const { floatingPanels } = useLayout();
+  const { floatingPanels } = useClassicLayout();
   return (
     <>
       {floatingPanels.map(([name, width, height]) => {

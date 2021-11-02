@@ -1,5 +1,5 @@
+import { QspGUIPanel } from '@qspider/contracts';
 import { LayoutDock } from './cfg-converter';
-import { QspGUIPanel } from '../constants';
 
 export const DEFAULT_LAYOUT: LayoutDock[] = [
   ['bottom', 3.3, [[QspGUIPanel.Input, 100]]],

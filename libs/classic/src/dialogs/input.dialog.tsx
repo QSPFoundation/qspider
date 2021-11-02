@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { useGameManager } from '../../../game/manager';
 import styled from '@emotion/styled';
-import { Modal } from '../../ui-blocks/modal';
+import { useGameManager } from '@qspider/providers';
+import { Modal } from '@qspider/components';
 
 const TextInput = styled.input`
   width: 100%;

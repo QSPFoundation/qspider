@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
-import { Content } from '../../content/content';
 import { ActionImage } from './action-image';
-import { useResources } from '../../../game/resource-manager';
+import { useResources } from '@qspider/providers';
+import { Content } from '@qspider/components';
 
 export const ActionButton = styled.button`
   display: flex;
