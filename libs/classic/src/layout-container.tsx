@@ -14,6 +14,7 @@ import { ViewImagePanel } from './panels/view-image';
 import { isCenter, isHorizontal, LayoutDock, LayoutPanel } from './cfg-converter';
 import { observer } from 'mobx-react-lite';
 import { PlayerToolbar } from '@qspider/player-ui';
+import { useClassicLayout } from './classic-layout';
 
 const docksMap = {
   top: TopDock,
@@ -77,7 +78,7 @@ function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
       vertical.push(dock);
     }
   }
-  const centerElement = renderDock(center);
+  const centerElement = center ? renderDock(center) : null;
   const horizontalElements = horizontal.map(renderDock);
   const verticalElements = vertical.map(renderDock);
   if (horizontalElements.length && verticalElements.length) {
@@ -89,7 +90,9 @@ function renderLayoutGroup(group: LayoutDock[]): ReactElement[] {
       </Fill>,
     ];
   }
-  return [...vertical.map(renderDock), ...horizontal.map(renderDock), renderDock(center)];
+  return [...vertical.map(renderDock), ...horizontal.map(renderDock), center ? renderDock(center) : null].filter(
+    (el): el is ReactElement => Boolean(el)
+  );
 }
 
 export const LayoutContainer: React.FC = observer(() => {

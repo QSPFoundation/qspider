@@ -53,6 +53,9 @@ class ClassicLayout {
           this.floating = DEFAULT_FLOATING;
           this.fillClassicDefaults();
         }
+      },
+      {
+        fireImmediately: true,
       }
     );
   }

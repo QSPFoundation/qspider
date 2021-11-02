@@ -3,7 +3,7 @@ import React from 'react';
 
 const baseLayoutContext = React.createContext<IBaseLayout | null>(null);
 
-export const LayoutProvider = baseLayoutContext.Provider;
+export const BaseLayoutProvider = baseLayoutContext.Provider;
 
 export const useBaseLayout = (): IBaseLayout => {
   const layout = React.useContext(baseLayoutContext);

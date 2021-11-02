@@ -1,19 +1,18 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Global, css } from '@emotion/react';
-
-import { GameManagerProvider } from './game/manager';
-import { LayoutProvider } from './game/layout';
-import { Game } from './game';
-import { Theme } from './game/theme';
-import { GameListDialog } from './components/dialogs/game-list/game-list.dialog';
-import { ResourceProvider } from './game/resource-manager';
-import { PlayerMode } from './components/player-mode';
+import { BaseLayoutProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
+import { ResourceManager } from '@qspider/resources';
+import { BaseLayout, GameManager, Theme } from '@qspider/core';
+import { Game, GameListDialog, PlayerMode } from '@qspider/player-ui';
 
 export const App: React.FC = () => {
+  const resources = useRef(new ResourceManager());
+  const manager = useRef(new GameManager(resources.current));
+  const layout = useRef(new BaseLayout(manager.current, resources.current));
   return (
-    <ResourceProvider>
-      <GameManagerProvider>
-        <LayoutProvider>
+    <ResourceProvider value={resources.current}>
+      <GameManagerProvider value={manager.current}>
+        <BaseLayoutProvider value={layout.current}>
           <Theme>
             <Global
               styles={css`
@@ -32,7 +31,7 @@ export const App: React.FC = () => {
               <GameListDialog closable={true} />
             </Game>
           </Theme>
-        </LayoutProvider>
+        </BaseLayoutProvider>
       </GameManagerProvider>
     </ResourceProvider>
   );

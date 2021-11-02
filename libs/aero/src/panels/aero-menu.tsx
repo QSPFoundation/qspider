@@ -9,6 +9,7 @@ import { useGameManager, useResources } from '@qspider/providers';
 import { useAeroLayout } from '../aero-layout';
 import { hooks } from '@qspider/components';
 import { noop } from '@qspider/utils';
+import '../theme.types';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;

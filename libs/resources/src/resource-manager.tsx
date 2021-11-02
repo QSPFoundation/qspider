@@ -89,7 +89,10 @@ export class ResourceManager implements IResourceManager {
       return blob.text();
     }
 
-    return fetch(path).then((r) => r.text());
+    return fetch(path).then((r) => {
+      if (!r.ok) throw new Error('not found');
+      return r.text();
+    });
   }
 
   async loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {

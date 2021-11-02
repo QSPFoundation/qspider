@@ -4,6 +4,7 @@ import { QspGUIPanel } from '@qspider/contracts';
 import { useGameManager } from '@qspider/providers';
 import { Modal } from '@qspider/components';
 import { ViewImagePanel } from '../panels/view-image';
+import { useClassicLayout } from '../classic-layout';
 
 const pannelsMap: Record<string, React.FC> = {
   [QspGUIPanel.ImageView]: ViewImagePanel,

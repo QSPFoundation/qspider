@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
+import { useGameManager } from '@qspider/providers';
 import Color from 'color';
 import { observer } from 'mobx-react-lite';
 import React from 'react';
-import { useGameManager } from '../game/manager';
-import { AeroPlayer } from './aero/aero-player';
-import { Player } from './player';
+import { AeroPlayer } from '@qspider/aero';
+import { ClassicPlayer } from '@qspider/classic';
+import './theme.types';
 
 export const PlayerStyles = styled.div`
   font-size: ${(props): number => props.theme.fontSize}px;
@@ -36,5 +37,5 @@ export const PlayerStyles = styled.div`
 export const PlayerMode: React.FC = observer(() => {
   const manager = useGameManager();
   if (!manager.currentGame) return null;
-  return <PlayerStyles>{manager.currentGame.mode === 'aero' ? <AeroPlayer /> : <Player />}</PlayerStyles>;
+  return <PlayerStyles>{manager.currentGame.mode === 'aero' ? <AeroPlayer /> : <ClassicPlayer />}</PlayerStyles>;
 });

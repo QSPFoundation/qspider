@@ -1,28 +1,11 @@
 import { observable, action, computed, makeObservable, autorun, reaction } from 'mobx';
 import { convertColor } from '@qspider/utils';
 import { BaseLayoutDefaults, IResourceManager, QspGUIPanel } from '@qspider/contracts';
-import { GameManager } from './manager';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { Theme } from '@emotion/react';
+import { GameManager } from './game-manager';
 
-// TODO move defaults and fill
-// const classicDefaults = {
-//   defaultBackgroundColor: '#e0e0e0',
-//   defaultColor: '#000000',
-//   defaultLinkColor: '#0000ff',
-//   defaultFontSize: 12,
-//   defaultFontName: '',
-// };
-
-// const aeroDefaults = {
-//   defaultBackgroundColor: '#e5e5e5',
-//   defaultColor: '#000000',
-//   defaultLinkColor: '#0000ff',
-//   defaultFontSize: 18,
-//   defaultFontName: 'sans-serif',
-// };
-
-class Layout {
+export class BaseLayout {
   nosave = false;
   useHtml = false;
   backgroundColor: string | null = null;
@@ -82,39 +65,7 @@ class Layout {
   async initialized(manager: GameManager): Promise<void> {
     await manager.apiInitialized;
     this.initCallbacks(manager);
-    // reaction(
-    //   () => this.manager.currentGame,
-    //   (descriptor) => {
-    //     if (!descriptor) {
-    //       this.fillClassicDefaults();
-    //       return;
-    //     }
-    //     this.currentMode = descriptor.mode;
-    //     if (descriptor.mode === 'aero') {
-    //       this.fillAeroDefaults();
-    //     } else {
-    //       this.fillClassicDefaults();
-    //       if (manager.gameConfig) {
-    //         this.fillDefaultsFromConfig(manager.gameConfig);
-    //       }
-    //     }
-    //   }
-    // );
   }
-
-  // fillDefaultsFromConfig(config: CfgData): void {
-  //   if (config) {
-  //     if (config.Colors) {
-  //       this.defaultBackgroundColor = this.convertColor(config.Colors.BackColor, false);
-  //       this.defaultColor = this.convertColor(config.Colors.FontColor, false);
-  //       this.defaultLinkColor = this.convertColor(config.Colors.LinkColor, false);
-  //     }
-  //     if (config.Font) {
-  //       this.defaultFontName = config.Font.FontName;
-  //       this.defaultFontSize = config.Font.FontSize;
-  //     }
-  //   }
-  // }
 
   fillDefaults(defaults: BaseLayoutDefaults): void {
     this.defaultFontName = defaults.defaultFontName;
@@ -126,10 +77,10 @@ class Layout {
 
   initCallbacks(manager: GameManager): void {
     manager.on('panel_visibility', this.updatePanalVisibility);
-    manager.on('layout', (settings) => this.updateLayoutSettings(settings, manager.currentGame.mode));
+    manager.on('layout', (settings) => this.updateLayoutSettings(settings, manager.currentGame?.mode));
   }
 
-  updateLayoutSettings = (settings: LayoutSettings, mode: string): void => {
+  updateLayoutSettings = (settings: LayoutSettings, mode?: string): void => {
     this.nosave = settings.nosave;
     this.useHtml = settings.useHtml || mode === 'aero';
     this.backgroundColor = settings.backgroundColor ? convertColor(settings.backgroundColor) : null;

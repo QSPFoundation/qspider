@@ -1,7 +1,7 @@
 import React, { ChangeEvent, useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Icon, IconType } from '@qspider/icons';
-import { useGameManager } from '../../game/manager';
+import { useGameManager } from '@qspider/providers';
 
 const OpenButton = styled.div`
   -webkit-font-smoothing: antialiased;

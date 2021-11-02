@@ -1,5 +1,4 @@
 import { observable, action, makeObservable, runInAction } from 'mobx';
-import { fetchPlayerConfig } from './loader';
 import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
 import { prepareContent, prepareList } from './helpers';
 import { SaveManager } from './save-manager';
@@ -7,6 +6,7 @@ import { HotKeysManager } from './hotkeys';
 import { GameDescriptor, IGameManager, IResourceManager, PlayerConfig, SaveAction } from '@qspider/contracts';
 import { hashString } from '@qspider/utils';
 import { AudioEngine } from '@qspider/audio';
+import TOMLparse from '@iarna/toml/parse-string';
 
 export class GameManager implements IGameManager {
   config!: PlayerConfig;
@@ -129,7 +129,9 @@ export class GameManager implements IGameManager {
     this.setupQspCallbacks();
     this.setupHotKeyListeners();
 
-    this.config = await fetchPlayerConfig();
+    this.config = await fetch(`game/game.cfg`)
+      .then((r) => r.text())
+      .then((text) => TOMLparse(text) as unknown as PlayerConfig);
 
     this.hotKeysManager.setupGlobalHotKeys();
     onApiInitialized();

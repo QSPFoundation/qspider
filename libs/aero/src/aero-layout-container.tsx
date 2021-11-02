@@ -13,9 +13,9 @@ import { AeroUserInputPanel } from './panels/aero-user-input';
 import { AeroViewImagePanel } from './panels/aero-view-image';
 import { SaveSlotsDialog, ErrorDialog } from '@qspider/player-ui';
 
-import defaultBackground from '../assets/back.png';
-import defaultUpArrow from '../assets/up_arrow.png';
-import defaultDownArrow from '../assets/down_arrow.png';
+import defaultBackground from './assets/back.png';
+import defaultUpArrow from './assets/up_arrow.png';
+import defaultDownArrow from './assets/down_arrow.png';
 import { useGameManager, useResources } from '@qspider/providers';
 import { useAeroLayout } from './aero-layout';
 import { hooks } from '@qspider/components';

@@ -1,9 +1,8 @@
 import React, { ReactElement } from 'react';
 import { observer } from 'mobx-react-lite';
-
-import { useGameManager } from './game/manager';
-import { LoadingScreen } from './components/loading-screen';
-import { GameListDialog } from './components/dialogs/game-list/game-list.dialog';
+import { useGameManager } from '@qspider/providers';
+import { LoadingScreen } from './loading-screen';
+import { GameListDialog } from './game-list';
 
 export const Game: React.FC = observer(({ children }): ReactElement => {
   const manager = useGameManager();

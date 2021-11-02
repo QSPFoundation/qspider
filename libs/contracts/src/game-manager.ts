@@ -10,6 +10,7 @@ export interface IGameManager {
   readonly currentGame: GameDescriptor | null;
   readonly hasGameList: boolean;
   readonly isGameListShown: boolean;
+  readonly isInitialized: boolean;
   showGameList(): void;
   hideGameList(): void;
 
@@ -22,6 +23,7 @@ export interface IGameManager {
   readonly isNewLoc: boolean;
   readonly newLocHash: string;
 
+  openGame(source: ArrayBuffer, name: string): void;
   openGameDescriptor(game: GameDescriptor): Promise<void>;
   restart(): void;
   requestSave(): Promise<void>;
