@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import { IconType } from '@qspider/icons';
-import { useBaseLayout, useGameManager } from '@qspider/providers';
+import { useBaseLayout, useComponents, useGameManager } from '@qspider/providers';
 import { IconButton } from '@qspider/components';
 
 export const PlayerToolbarWrapper = styled.div`
@@ -29,6 +29,7 @@ const Icons = styled.div`
 export const PlayerToolbar: React.FC = observer(() => {
   const manager = useGameManager();
   const layout = useBaseLayout();
+  const { OpenGameButton } = useComponents();
   return (
     <PlayerToolbarWrapper>
       <Title>{manager.currentGame?.title || ''}</Title>
@@ -47,7 +48,7 @@ export const PlayerToolbar: React.FC = observer(() => {
         {!layout.nosave && <IconButton icon={IconType.save} onClick={(): Promise<void> => manager.requestSave()} />}
         {!layout.nosave && <IconButton icon={IconType.load} onClick={(): Promise<void> => manager.requestRestore()} />}
         {manager.hasGameList ? <IconButton icon={IconType.list} onClick={(): void => manager.showGameList()} /> : null}
-        {/* <OpenGameButton /> */}
+        <OpenGameButton />
       </Icons>
     </PlayerToolbarWrapper>
   );
