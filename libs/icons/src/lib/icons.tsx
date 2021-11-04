@@ -6,6 +6,7 @@ import speakerOff from '../svg/speaker-off.svg';
 import restart from '../svg/restart.svg';
 import list from '../svg/list.svg';
 import open from '../svg/open.svg';
+import upload from '../svg/upload.svg';
 
 import styled from '@emotion/styled';
 
@@ -17,6 +18,7 @@ export enum IconType {
   restart = 'restart',
   list = 'list',
   open = 'open',
+  upload = 'upload',
 }
 
 const glyphs: Record<IconType, string> = {
@@ -27,6 +29,7 @@ const glyphs: Record<IconType, string> = {
   restart,
   list,
   open,
+  upload,
 };
 
 const IconSvg = styled.svg`

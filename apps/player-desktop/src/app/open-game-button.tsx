@@ -1,7 +1,9 @@
-import React, { ChangeEvent, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Icon, IconType } from '@qspider/icons';
 import { useGameManager } from '@qspider/providers';
+import { dialog } from '@tauri-apps/api/index.js';
+import { openGameFromDisk } from './utils';
 
 const OpenButton = styled.div`
   -webkit-font-smoothing: antialiased;
@@ -34,38 +36,23 @@ const OpenButton = styled.div`
     outline: none;
   }
 `;
-const FileInput = styled.input`
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  position: absolute;
-  z-index: -1;
-`;
-const FileInputLabel = styled.label`
-  cursor: pointer;
-`;
 
 export const OpenGameButton: React.FC = () => {
   const gameManager = useGameManager();
-  const onChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (evt): void {
-        gameManager.openGame(evt.target?.result as ArrayBuffer, file.name);
-      };
-      reader.readAsArrayBuffer(file);
-    },
-    [gameManager]
-  );
+  const selectGame = useCallback(async () => {
+    const file_path = await dialog.open({
+      filters: [
+        {
+          name: 'Qsp files',
+          extensions: ['qsp', 'aqsp', 'zip'],
+        },
+      ],
+    });
+    openGameFromDisk(file_path as string, gameManager);
+  }, [gameManager]);
   return (
-    <OpenButton>
-      <FileInput type="file" id="openGame" accept=".zip, .aqsp" onChange={onChange} />
-      <FileInputLabel htmlFor="openGame">
-        <Icon icon={IconType.open} />
-      </FileInputLabel>
+    <OpenButton onClick={selectGame}>
+      <Icon icon={IconType.open} />
     </OpenButton>
   );
 };

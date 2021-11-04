@@ -23,6 +23,7 @@ export interface IGameManager {
   readonly isNewLoc: boolean;
   readonly newLocHash: string;
 
+  runGame(source: ArrayBuffer, game: GameDescriptor): void;
   openGame(source: ArrayBuffer, name: string): void;
   openGameDescriptor(game: GameDescriptor): Promise<void>;
   restart(): void;
