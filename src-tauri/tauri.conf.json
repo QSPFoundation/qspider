@@ -11,6 +11,17 @@
     "withGlobalTauri": false
   },
   "tauri": {
+    "cli": {
+      "description": "qSpider API example",
+      "args": [
+        {
+          "short": "f",
+          "name": "file",
+          "takesValue": true,
+          "description": "Game file to open"
+        }
+      ]
+    },
     "bundle": {
       "active": true,
       "targets": "all",

@@ -35,6 +35,7 @@ fn prepare_game_start(path: Option<String>, state: State<'_, GamesPath>) -> Resu
 }
 
 fn main() {
+  let context = tauri::generate_context!();
   tauri::Builder::default()
     .manage(GamesPath(Default::default()))
     .register_uri_scheme_protocol("qsp", move |app, request| {
@@ -78,6 +79,6 @@ fn main() {
       }
     })
     .invoke_handler(tauri::generate_handler![prepare_game_start])
-    .run(tauri::generate_context!())
+    .run(context)
     .expect("error while running tauri application");
 }

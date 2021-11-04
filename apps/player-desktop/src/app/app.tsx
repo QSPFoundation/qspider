@@ -6,7 +6,7 @@ import { BaseLayout, GameManager, Theme } from '@qspider/core';
 import { Game, GameListDialog, PlayerMode } from '@qspider/player-ui';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
-import { event, path } from '@tauri-apps/api/index.js';
+import { event, path, cli } from '@tauri-apps/api/index.js';
 import { isSupportedFileType, openGameFromDisk } from './utils';
 import { FileDropArea } from './file-drop-area';
 import { Icon, IconType } from '@qspider/icons';
@@ -24,10 +24,28 @@ export const App: React.FC = () => {
   const [unsupportedType, setUnsupportedType] = useState('');
 
   useEffect(() => {
-    console.log('here !!!!');
+    cli.getMatches().then(async (matches) => {
+      if (matches.args.file.value) {
+        try {
+          await manager.apiInitialized;
+          const filePath = matches.args.file.value as string;
+          if (await path.isAbsolute(filePath)) {
+            openGameFromDisk(filePath, manager);
+          } else {
+            const currentDir = await path.currentDir();
+            const resolvedPath = await path.resolve(currentDir, filePath);
+            openGameFromDisk(resolvedPath, manager);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
+
     let fileDropUnlisten: event.UnlistenFn;
     let fileDropHoverUnlisten: event.UnlistenFn;
     let fileDropCancelledUnlisten: event.UnlistenFn;
+
     const setupCallbacks = async (): Promise<void> => {
       fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', (e) => {
         const [filePath] = e.payload;
