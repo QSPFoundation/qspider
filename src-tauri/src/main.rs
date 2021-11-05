@@ -10,6 +10,7 @@ use std::sync::Mutex;
 use std::{collections::HashMap, io::Read, path::PathBuf, sync::Arc};
 use tauri::http::ResponseBuilder;
 use tauri::{command, Manager, State};
+use urlencoding::decode;
 use uuid::Uuid;
 
 #[derive(Default)]
@@ -20,15 +21,22 @@ fn prepare_game_start(path: Option<String>, state: State<'_, GamesPath>) -> Resu
   let uuid = Uuid::new_v4();
   match path {
     Some(p) => {
-      let file_path = Path::new(&p);
-      if !file_path.exists() {
-        return Err("path does not exists".to_string());
+      let d = decode(&p);
+      match d {
+        Ok(decoded) => {
+          let uri = decoded.into_owned();
+          let file_path = Path::new(&uri);
+          if !file_path.exists() {
+            return Err("path does not exists".to_string());
+          }
+          state.0.lock().unwrap().insert(
+            uuid,
+            file_path.parent().unwrap().to_string_lossy().to_string(),
+          );
+          return Ok(uuid);
+        }
+        _ => return Err("".to_string()),
       }
-      state.0.lock().unwrap().insert(
-        uuid,
-        file_path.parent().unwrap().to_string_lossy().to_string(),
-      );
-      return Ok(uuid);
     }
     None => return Err("path is required".to_string()),
   }
@@ -46,7 +54,8 @@ fn main() {
         return response.status(200).body(Vec::new());
       }
       // get the wanted path
-      let path = request.uri().replace("qsp://", "");
+      let uri = request.uri().replace("qsp://", "");
+      let path = decode(&uri)?;
       let slash_index = path.chars().position(|c| c == '/').unwrap();
       let uuid_str = &path[0..slash_index];
       let uuid = Uuid::parse_str(uuid_str)?;
@@ -61,7 +70,7 @@ fn main() {
           let mut buf = Vec::new();
           file.read_to_end(&mut buf)?;
           let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
-          let guess = mime_guess::from_path(path);
+          let guess = mime_guess::from_path(path.to_string());
 
           return response
             .header("ETag", etag4.to_string())

@@ -39,19 +39,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61604a8f862e1d5c3229fdd78f8b02c68dcf73a4c4b05fd636d12240aaa242c1"
 
 [[package]]
-name = "app"
-version = "0.1.0"
-dependencies = [
- "entity-tag",
- "mime_guess",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "uuid",
-]
-
-[[package]]
 name = "arrayref"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2248,6 +2235,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "qspider"
+version = "0.12.0"
+dependencies = [
+ "entity-tag",
+ "mime_guess",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "urlencoding",
+ "uuid",
+]
+
+[[package]]
 name = "quote"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3338,6 +3339,12 @@ dependencies = [
  "percent-encoding",
  "serde",
 ]
+
+[[package]]
+name = "urlencoding"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68b90931029ab9b034b300b797048cf23723400aa757e8a2bfb9d748102f9821"
 
 [[package]]
 name = "utf-8"

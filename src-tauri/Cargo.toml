@@ -1,11 +1,11 @@
 [package]
-name = "app"
-version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
+name = "qspider"
+version = "0.12.0"
+description = "qSpider - player for QSP games"
+authors = ["srg.kostyrko@gmail.com"]
+license = "MIT"
 repository = ""
-default-run = "app"
+default-run = "qspider"
 edition = "2018"
 build = "src/build.rs"
 
@@ -21,6 +21,7 @@ tauri = { version = "1.0.0-beta.8", features = ["api-all", "cli"] }
 entity-tag = "0.1.5"
 mime_guess = "2.0.3"
 uuid = { version = "0.8", features = ["serde", "v4"] }
+urlencoding = "2.1.0"
 
 [features]
 default = [ "custom-protocol" ]

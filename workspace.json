@@ -277,7 +277,7 @@
           "configurations": {
             "production": {
               "assets": [
-                "apps/player/src/assets",
+                "apps/player-desktop/src/assets",
                 {
                   "input": "libs/qspider-assets",
                   "glob": "**/*",
