@@ -180,17 +180,28 @@ export class GameManager implements IGameManager {
   }
 
   async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor): Promise<void> {
-    const { title } = descriptor;
+    try {
+      const gameConfigContent = await this.resources.getTextContent('game.cfg');
+      const config = TOMLparse(gameConfigContent) as unknown as PlayerConfig;
+      const [descriptor] = config.game;
+      if (!descriptor) throw new Error('failed to load game config');
+      runInAction(() => {
+        this.currentGame = descriptor;
+      });
+    } catch {
+      runInAction(() => {
+        this.currentGame = descriptor;
+      });
+    }
+    if (!this.currentGame) return;
+
+    const { title, hotkeys, resources } = this.currentGame;
     document.title = title;
 
-    runInAction(() => {
-      this.currentGame = descriptor;
-    });
-
-    if (descriptor.hotkeys) {
-      this.hotKeysManager.setupCustomHotKeys(descriptor.hotkeys);
+    if (hotkeys) {
+      this.hotKeysManager.setupCustomHotKeys(hotkeys);
     }
-    await this.resources.loadAdditionalResources(descriptor.resources);
+    await this.resources.loadAdditionalResources(resources);
 
     this._api.openGame(gameSource, true);
     this._api.restartGame();
