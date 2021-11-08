@@ -19,6 +19,10 @@ const StyledTable = styled.table<{
     border-style: inset;
     border-width: ${(props): number => props.border}px;
     text-align: var(--text-align, left);
+
+    img {
+      vertical-align: bottom;
+    }
   }
 `;
 
