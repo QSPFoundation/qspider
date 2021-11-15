@@ -3,7 +3,14 @@ import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp
 import { prepareContent, prepareList } from './helpers';
 import { SaveManager } from './save-manager';
 import { HotKeysManager } from './hotkeys';
-import { GameDescriptor, IGameManager, IResourceManager, PlayerConfig, SaveAction } from '@qspider/contracts';
+import {
+  GameDescriptor,
+  IGameManager,
+  IResourceManager,
+  IWindowManager,
+  PlayerConfig,
+  SaveAction,
+} from '@qspider/contracts';
 import { hashString } from '@qspider/utils';
 import { AudioEngine } from '@qspider/audio';
 import TOMLparse from '@iarna/toml/parse-string';
@@ -54,7 +61,7 @@ export class GameManager implements IGameManager {
   private saveManager = new SaveManager();
   private hotKeysManager = new HotKeysManager();
 
-  constructor(private resources: IResourceManager) {
+  constructor(private resources: IResourceManager, private windowManager: IWindowManager) {
     makeObservable(this, {
       isInitialized: observable,
       isGameListShown: observable,
@@ -195,11 +202,34 @@ export class GameManager implements IGameManager {
     }
     if (!this.currentGame) return;
 
-    const { title, hotkeys, resources } = this.currentGame;
-    document.title = title;
+    const { title, hotkeys, resources, window, aero } = this.currentGame;
+    this.windowManager.setTitle(title);
+    if (window) {
+      this.windowManager.setResizable(window.resizable ?? true);
+      if (window.minWidth && window.minHeight) {
+        this.windowManager.setMinSize(window.minWidth, window.minHeight);
+      } else {
+        this.windowManager.unsetMinSize();
+      }
+      this.windowManager.resize(window.width, window.height);
+    } else {
+      if (aero) {
+        this.windowManager.setResizable(false);
+        this.windowManager.resize(aero.width, aero.height + 20);
+      } else {
+        this.windowManager.setResizable(true);
+        this.windowManager.resize(1024, 768);
+        this.windowManager.unsetMinSize();
+      }
+    }
 
     if (hotkeys) {
       this.hotKeysManager.setupCustomHotKeys(hotkeys);
+    }
+    if (resources?.icon) {
+      this.windowManager.setIcon(this.resources.get(resources?.icon).url);
+    } else {
+      this.windowManager.setIcon('assets/favicon.png');
     }
     await this.resources.loadAdditionalResources(resources);
 
@@ -209,7 +239,7 @@ export class GameManager implements IGameManager {
 
   stopGame(): void {
     if (this.currentGame) {
-      this.resources.updateIcon();
+      this.windowManager.setIcon('assets/favicon.png');
       this.hotKeysManager.reset();
       this.resources.clear();
       this.resources.clearAdditionalResources();

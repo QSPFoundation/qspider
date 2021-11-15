@@ -11,6 +11,13 @@ export interface GameDescriptor {
     fonts?: [string, string, string, string][];
     icon?: string;
   };
+  window?: {
+    width: number;
+    height: number;
+    resizable?: boolean;
+    minWidth?: number;
+    minHeight?: number;
+  };
   aero?: {
     width: number;
     height: number;

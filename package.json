@@ -37,6 +37,7 @@
     "fflate": "^0.7.1",
     "howler": "^2.2.3",
     "interweave": "^12.8.0",
+    "jimp": "^0.16.1",
     "localforage": "^1.10.0",
     "mobx": "^6.3.3",
     "mobx-react-lite": "^3.2.1",

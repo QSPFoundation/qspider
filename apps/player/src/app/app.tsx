@@ -6,10 +6,11 @@ import { BaseLayout, GameManager, Theme } from '@qspider/core';
 import { Game, GameListDialog, PlayerMode } from '@qspider/player-ui';
 import { ProvidedComponents } from '@qspider/contracts';
 import { OpenGameButton } from './open-game-button';
+import { windowManager } from './window-manager';
 
 export const App: React.FC = () => {
   const resources = useRef(new ResourceManager());
-  const manager = useRef(new GameManager(resources.current));
+  const manager = useRef(new GameManager(resources.current, windowManager));
   const layout = useRef(new BaseLayout(manager.current, resources.current));
   const components = useRef({
     [ProvidedComponents.OpenGameButton]: OpenGameButton,

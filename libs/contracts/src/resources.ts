@@ -15,7 +15,6 @@ export interface IResourceManager {
 
   loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void>;
   clearAdditionalResources(): void;
-  updateIcon(path?: string): void;
 
   clear(): void;
 }

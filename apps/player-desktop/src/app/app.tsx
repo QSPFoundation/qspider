@@ -10,6 +10,7 @@ import { event, path, cli } from '@tauri-apps/api/index.js';
 import { isSupportedFileType, openGameFromDisk } from './utils';
 import { FileDropArea } from './file-drop-area';
 import { Icon, IconType } from '@qspider/icons';
+import { windowManager } from './window-manager';
 
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
@@ -17,7 +18,7 @@ const components = {
 
 export const App: React.FC = () => {
   const [resources] = useState(() => new ResourceManager());
-  const [manager] = useState(() => new GameManager(resources));
+  const [manager] = useState(() => new GameManager(resources, windowManager));
   const [layout] = useState(() => new BaseLayout(manager, resources));
 
   const [isFileDropHovered, setIsFileDropHovered] = useState(false);

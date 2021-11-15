@@ -108,9 +108,6 @@ export class ResourceManager implements IResourceManager {
         this.loadAdditionalFont(font);
       }
     }
-    if (resources.icon) {
-      this.updateIcon(this.get(resources.icon).url);
-    }
   }
 
   async loadAdditionalStyles(styles: string[]): Promise<void> {
@@ -178,10 +175,6 @@ export class ResourceManager implements IResourceManager {
     gameStyle.innerText = css;
     gameStyle.dataset.qspiderResource = 'style';
     document.head.appendChild(gameStyle);
-  }
-
-  updateIcon(favicon = 'favicon.ico'): void {
-    (document.getElementById('favicon') as HTMLLinkElement).href = favicon;
   }
 
   clearAdditionalResources(): void {
