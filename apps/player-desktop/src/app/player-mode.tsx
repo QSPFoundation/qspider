@@ -5,12 +5,11 @@ import { observer } from 'mobx-react-lite';
 import React from 'react';
 import { AeroPlayer } from '@qspider/aero';
 import { ClassicPlayer } from '@qspider/classic';
-import './theme.types';
 
 export const PlayerStyles = styled.div`
   font-size: ${(props): number => props.theme.fontSize}px;
   --font-size: ${(props): number => props.theme.fontSize}px;
-  font-name: ${(props): string => props.theme.fontName};
+  font-family: ${(props): string => props.theme.fontName};
   --background-color: ${(props): string => props.theme.backgroundColor};
   --inverted-background-color: ${(props): string => Color(props.theme.backgroundColor).negate().hex()};
   --background-image: ${(props): string => props.theme.backgroundImage};
@@ -24,13 +23,13 @@ export const PlayerStyles = styled.div`
   button {
     color: ${(props): string => props.theme.textColor};
     font-size: ${(props): number => props.theme.fontSize}px;
-    font-name: ${(props): string => props.theme.fontName};
+    font-family: ${(props): string => props.theme.fontName};
   }
 
   input {
     color: ${(props): string => props.theme.textColor};
     font-size: ${(props): number => props.theme.fontSize}px;
-    font-name: ${(props): string => props.theme.fontName};
+    font-family: ${(props): string => props.theme.fontName};
   }
 `;
 

@@ -11,7 +11,7 @@ const classicDefaults = {
   defaultBackgroundColor: '#e0e0e0',
   defaultColor: '#000000',
   defaultLinkColor: '#0000ff',
-  defaultFontSize: 12,
+  defaultFontSize: 16,
   defaultFontName: '',
 };
 
@@ -28,6 +28,8 @@ class ClassicLayout {
 
       visibleLayout: computed,
       floatingPanels: computed,
+
+      updateLayout: action,
     });
     this.initialized(manager);
   }
@@ -46,18 +48,22 @@ class ClassicLayout {
         }
         if (this.gameConfig) {
           const { layout, floating } = extractLayoutData(this.gameConfig);
-          this.layout = layout;
-          this.floating = floating;
+          this.fillDefaultsFromConfig(this.gameConfig);
+          this.updateLayout(layout, floating);
         } else {
-          this.layout = DEFAULT_LAYOUT;
-          this.floating = DEFAULT_FLOATING;
           this.fillClassicDefaults();
+          this.updateLayout(DEFAULT_LAYOUT, DEFAULT_FLOATING);
         }
       },
       {
         fireImmediately: true,
       }
     );
+  }
+
+  updateLayout(layout: LayoutDock[], floating: [QspGUIPanel, number, number][]): void {
+    this.layout = layout;
+    this.floating = floating;
   }
 
   fillDefaultsFromConfig(config: CfgData): void {

@@ -37,6 +37,12 @@ export class BaseLayout {
       fontSize: observable,
       fontName: observable,
 
+      defaultBackgroundColor: observable,
+      defaultColor: observable,
+      defaultLinkColor: observable,
+      defaultFontSize: observable,
+      defaultFontName: observable,
+
       isStatsPanelVisible: observable,
       isObjectPanelVisible: observable,
       isActionsPanelVisible: observable,
@@ -46,6 +52,7 @@ export class BaseLayout {
 
       updateLayoutSettings: action,
       updatePanalVisibility: action,
+      fillDefaults: action,
     });
     this.initialized(manager);
   }

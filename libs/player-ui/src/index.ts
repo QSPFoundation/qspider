@@ -5,4 +5,3 @@ export * from './save-slots';
 export * from './game-list';
 export * from './error.dialog';
 export * from './game';
-export * from './player-mode';
