@@ -16,12 +16,10 @@ function getPathKey(gameId: string, path: string): string {
 }
 
 export class SaveManager {
-  async getSlots(gameId: string): Promise<Array<string>> {
-    const slots = await Promise.all(
+  async getSlots(gameId: string): Promise<Array<string | null>> {
+    return Promise.all(
       Array.from({ length: SLOTS_COUNT }, (_, index) => localforage.getItem<string>(getDateKey(gameId, index + 1)))
     );
-
-    return slots.filter((s): s is string => Boolean(s));
   }
 
   getSlotData(gameId: string, slot: number): Promise<ArrayBuffer | null> {

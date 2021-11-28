@@ -1,14 +1,14 @@
 export type SaveAction =
   | {
       type: 'save';
-      slots: string[];
+      slots: Array<string | null>;
       data: ArrayBuffer;
       callback: (slot: number) => void;
       onResult?: () => void;
     }
   | {
       type: 'restore';
-      slots: string[];
+      slots: Array<string | null>;
       callback: (slot: number) => void;
       onResult?: () => void;
     };

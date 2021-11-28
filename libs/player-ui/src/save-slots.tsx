@@ -44,8 +44,7 @@ export const SaveSlotsDialog: React.FC = observer(() => {
   const gameManager = useGameManager();
   const onClose = useCallback(() => gameManager.clearSaveAction(), [gameManager]);
   const { saveAction } = gameManager;
-  const isShown = Boolean(saveAction);
-  if (!isShown) return null;
+  if (!saveAction) return null;
   return (
     <DialogWrapper>
       <Modal hideButtons onClose={onClose} dataQsp="save-modal">

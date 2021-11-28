@@ -62,7 +62,7 @@ export interface IGameManager {
   readonly isWaiting: boolean;
   completeWaiting(): void;
 
-  readonly saveAction: SaveAction;
+  readonly saveAction: SaveAction | null;
   clearSaveAction(): void;
 
   errorData: QspErrorData | null;

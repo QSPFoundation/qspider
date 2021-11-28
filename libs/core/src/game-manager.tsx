@@ -50,7 +50,7 @@ export class GameManager implements IGameManager {
   waitTimeout?: number;
   onWait: (() => void) | null = null;
 
-  saveAction!: SaveAction;
+  saveAction: SaveAction | null = null;
 
   counterDelay = 500;
   counterTimeout?: number;
@@ -568,13 +568,16 @@ export class GameManager implements IGameManager {
     const saveData = this._api.saveGame();
     if (saveData) {
       const slots = await this.saveManager.getSlots(this.currentGame.id);
-      this.saveAction = {
-        type: 'save',
-        slots,
-        data: saveData,
-        callback: this.saveToSlot,
-        onResult,
-      };
+      console.log(slots);
+      runInAction(() => {
+        this.saveAction = {
+          type: 'save',
+          slots,
+          data: saveData,
+          callback: this.saveToSlot,
+          onResult,
+        };
+      });
     }
   };
   saveToSlot = async (slot: number): Promise<void> => {
@@ -633,6 +636,7 @@ export class GameManager implements IGameManager {
     if (this.saveAction?.onResult) {
       this.saveAction.onResult();
     }
+    this.saveAction = null;
     this.resume();
   };
   processSystemCmd = (cmd: string): void => {
