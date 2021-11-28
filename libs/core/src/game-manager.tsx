@@ -61,7 +61,7 @@ export class GameManager implements IGameManager {
   private saveManager = new SaveManager();
   private hotKeysManager = new HotKeysManager();
 
-  constructor(private resources: IResourceManager, private windowManager: IWindowManager) {
+  constructor(private resources: IResourceManager, public readonly windowManager: IWindowManager) {
     makeObservable(this, {
       isInitialized: observable,
       isGameListShown: observable,

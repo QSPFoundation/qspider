@@ -214,13 +214,17 @@ class AeroLayout {
       const doc = parser.parseFromString(content, 'application/xml');
       const gameElement = doc.querySelector('game');
       if (this.manager.currentGame && gameElement) {
+        const width = parseInt(gameElement.getAttribute('width') || '800');
+        const height = parseInt(gameElement.getAttribute('height') || '600');
         this.manager.currentGame.aero = {
-          width: parseInt(gameElement.getAttribute('width') || '800'),
-          height: parseInt(gameElement.getAttribute('height') || '600'),
+          width,
+          height,
         };
+        this.manager.windowManager.resize(width, height + 20);
         const title = gameElement.getAttribute('title');
         if (title) {
           this.manager.currentGame.title = title;
+          this.manager.windowManager.setTitle(title);
         }
       }
     } catch {

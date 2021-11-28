@@ -1,10 +1,12 @@
 import { QspAPI, QspErrorData, QspListItem } from '@qspider/qsp-wasm';
 import { GameDescriptor, PlayerConfig } from './game';
 import { SaveAction } from './save';
+import { IWindowManager } from './window-manager';
 
 export interface IGameManager {
   readonly apiInitialized: Promise<void>;
   readonly api: QspAPI;
+  readonly windowManager: IWindowManager;
 
   readonly config: PlayerConfig;
   readonly currentGame: GameDescriptor | null;
