@@ -703,7 +703,7 @@ THEMES:
 }
 
 .os-theme-aero .os-padding {
-  margin-right: calc(max(var(--up-arrow-width), var(--down-arrow-width)) + 3px);
+  margin-right: var(--scroll-padding);
 }
 
 .os-theme-aero .os-scrollbar-vertical::before {

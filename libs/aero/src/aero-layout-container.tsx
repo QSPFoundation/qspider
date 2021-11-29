@@ -79,6 +79,7 @@ export const AeroLayoutContainer: React.FC = observer(({ children }) => {
     '--down-arrow': layout.scrollUI.hideArrows ? '' : `url("${downArrow}")`,
     '--down-arrow-width': downArrowWidth + 'px',
     '--down-arrow-height': downArrowHeight + 'px',
+    '--scroll-padding': layout.scrollUI.hideArrows ? '0' : `${Math.max(upArrowWidth, downArrowWidth) + 3}px`,
   } as React.CSSProperties;
 
   return (
