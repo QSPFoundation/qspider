@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 import { useGameManager } from '@qspider/providers';
-import { Modal } from '@qspider/components';
+import { Modal, Content } from '@qspider/components';
 
 const TextInput = styled.input`
   width: 100%;
@@ -37,7 +37,7 @@ export const InputDialog: React.FC = observer(() => {
           setInputText('');
         }}
       >
-        {manager.input}
+        <Content content={manager.input} />
         <TextInput
           autoFocus
           autoComplete="off"
