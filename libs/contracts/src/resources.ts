@@ -6,6 +6,8 @@ export interface Resource {
 }
 
 export interface IResourceManager {
+  updateBasePath(path: string): void;
+
   loadGame(file: string, isNewGame: boolean): Promise<ArrayBuffer>;
   openGameArchive(source: ArrayBuffer): Promise<ArrayBuffer>;
 

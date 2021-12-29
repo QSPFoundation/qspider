@@ -3,12 +3,10 @@ import { GameDescriptor, IResourceManager, Resource } from '@qspider/contracts';
 import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
 
-export const GAME_PATH = 'game';
-
 // TODO move config related code
 
 export class ResourceManager implements IResourceManager {
-  private _basePath = `${GAME_PATH}/`;
+  private _basePath = ``;
 
   // private _gameConfig: CfgData | undefined | false = undefined;
   private _zipResources: Unzipped = {};
@@ -193,7 +191,7 @@ export class ResourceManager implements IResourceManager {
     return null;
   }
 
-  private updateBasePath(path: string): void {
+  public updateBasePath(path: string): void {
     this._basePath = path.slice(0, path.lastIndexOf('/') + 1);
   }
 
@@ -202,7 +200,7 @@ export class ResourceManager implements IResourceManager {
   }
 
   clear(): void {
-    this._basePath = `${GAME_PATH}/`;
+    this._basePath = '';
     this._zipResources = {};
     for (const value of this._zipUrls.values()) {
       URL.revokeObjectURL(value);

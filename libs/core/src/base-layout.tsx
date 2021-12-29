@@ -70,7 +70,7 @@ export class BaseLayout {
   }
 
   async initialized(manager: GameManager): Promise<void> {
-    await manager.apiInitialized;
+    await manager.apiInitialized.promise;
     this.initCallbacks(manager);
   }
 

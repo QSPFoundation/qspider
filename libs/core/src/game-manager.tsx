@@ -11,12 +11,13 @@ import {
   PlayerConfig,
   SaveAction,
 } from '@qspider/contracts';
-import { hashString } from '@qspider/utils';
+import { defer, Defered, hashString } from '@qspider/utils';
 import { AudioEngine } from '@qspider/audio';
 import TOMLparse from '@iarna/toml/parse-string';
 
 export class GameManager implements IGameManager {
   config!: PlayerConfig;
+  configPath!: string;
   currentGame: GameDescriptor | null = null;
 
   errorData: QspErrorData | null = null;
@@ -55,7 +56,7 @@ export class GameManager implements IGameManager {
   counterDelay = 500;
   counterTimeout?: number;
 
-  apiInitialized: Promise<void>;
+  apiInitialized: Defered<void>;
 
   public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();
@@ -118,9 +119,7 @@ export class GameManager implements IGameManager {
       updateMenu: action,
       selectMenu: action,
     });
-    this.apiInitialized = new Promise((resolve) => {
-      this.initialize(resolve);
-    });
+    this.apiInitialized = defer();
   }
 
   private isPaused = false;
@@ -129,19 +128,20 @@ export class GameManager implements IGameManager {
     return this._api;
   }
 
-  async initialize(onApiInitialized: () => void): Promise<void> {
+  async initialize(mainConfig = `game/game.cfg`): Promise<void> {
     this._api = await init();
     console.log(`QSP version: ${this._api.version()}`);
 
     this.setupQspCallbacks();
     this.setupHotKeyListeners();
 
-    this.config = await fetch(`game/game.cfg`)
+    this.config = await fetch(mainConfig)
       .then((r) => r.text())
       .then((text) => TOMLparse(text) as unknown as PlayerConfig);
+    this.configPath = mainConfig.slice(0, mainConfig.lastIndexOf('/') + 1);
 
     this.hotKeysManager.setupGlobalHotKeys();
-    onApiInitialized();
+    this.apiInitialized.resolve();
 
     if (this.config.game.length > 1) {
       this.showGameList();
@@ -181,7 +181,7 @@ export class GameManager implements IGameManager {
       this.hideGameList();
     }
     this.stopGame();
-    const gameSource = await this.resources.loadGame(descriptor.file, true);
+    const gameSource = await this.resources.loadGame(this.configPath + descriptor.file, true);
 
     this.runGame(gameSource, descriptor);
   }

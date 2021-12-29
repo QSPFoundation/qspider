@@ -26,10 +26,11 @@ export const App: React.FC = () => {
   const [unsupportedType, setUnsupportedType] = useState('');
 
   useEffect(() => {
+    manager.initialize('https://qspfoundation.github.io/qspider/game/game.cfg');
     cli.getMatches().then(async (matches) => {
       if (matches.args.file.value) {
         try {
-          await manager.apiInitialized;
+          await manager.apiInitialized.promise;
           const filePath = matches.args.file.value as string;
           if (await path.isAbsolute(filePath)) {
             openGameFromDisk(filePath, manager);

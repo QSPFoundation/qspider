@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { observable, action, makeObservable, reaction } from 'mobx';
+import React, { useRef, useState } from 'react';
+import { observable, action, makeObservable, reaction, IReactionDisposer } from 'mobx';
 import {
   AeroApi,
   ScrollUI,
@@ -17,6 +17,7 @@ import {
 } from '@qspider/qsp-wasm';
 import { IBaseLayout, IGameManager, IResourceManager } from '@qspider/contracts';
 import { useBaseLayout, useGameManager, useResources } from '@qspider/providers';
+import { useEffect } from 'react';
 
 const aeroDefaults = {
   defaultBackgroundColor: '#e5e5e5',
@@ -161,6 +162,7 @@ class AeroLayout {
   };
 
   private api!: AeroApi;
+  reactionDisposer!: IReactionDisposer;
 
   constructor(private manager: IGameManager, private baseLayout: IBaseLayout, private resources: IResourceManager) {
     makeObservable(this, {
@@ -192,10 +194,10 @@ class AeroLayout {
   }
 
   async initialized(manager: IGameManager): Promise<void> {
-    await manager.apiInitialized;
+    await manager.apiInitialized.promise;
     this.api = new AeroApi(manager.api);
     this.initCallbacks();
-    reaction(
+    this.reactionDisposer = reaction(
       () => manager.currentGame,
       async (descriptor) => {
         if (!descriptor) return;
@@ -203,6 +205,9 @@ class AeroLayout {
           this.baseLayout.fillDefaults(aeroDefaults);
           this.readConfig();
         }
+      },
+      {
+        fireImmediately: true,
       }
     );
   }
@@ -279,6 +284,10 @@ class AeroLayout {
   updateMenuUI = (ui: MenuUI): void => {
     this.menuUI = ui;
   };
+
+  dispose(): void {
+    this.reactionDisposer();
+  }
 }
 
 const layoutContext = React.createContext<AeroLayout | null>(null);
@@ -287,8 +296,15 @@ export const AeroLayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
   const baseLayout = useBaseLayout();
-  const layout = useRef(new AeroLayout(manager, baseLayout, resources));
-  return <layoutContext.Provider value={layout.current}>{children}</layoutContext.Provider>;
+  const [layout, setLayout] = useState<AeroLayout>();
+  useEffect(() => {
+    setLayout(new AeroLayout(manager, baseLayout, resources));
+    return (): void => {
+      layout?.dispose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return layout ? <layoutContext.Provider value={layout}>{children}</layoutContext.Provider> : null;
 };
 
 export const useAeroLayout = (): AeroLayout => {

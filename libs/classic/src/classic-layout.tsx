@@ -1,11 +1,12 @@
-import React, { useRef } from 'react';
-import { observable, action, computed, makeObservable, reaction } from 'mobx';
+import React, { useRef, useState } from 'react';
+import { observable, action, computed, makeObservable, reaction, IReactionDisposer } from 'mobx';
 import { extractLayoutData, LayoutDock, LayoutPanel } from './cfg-converter';
 import { CfgData, parseCfg } from './cfg-parser';
 import { DEFAULT_FLOATING, DEFAULT_LAYOUT } from './defaults';
 import { IBaseLayout, IGameManager, IResourceManager, QspGUIPanel } from '@qspider/contracts';
 import { useBaseLayout, useGameManager, useResources } from '@qspider/providers';
 import { convertColor } from '@qspider/utils';
+import { useEffect } from 'react';
 
 const classicDefaults = {
   defaultBackgroundColor: '#e0e0e0',
@@ -19,6 +20,7 @@ class ClassicLayout {
   gameConfig: CfgData | false = false;
   layout: LayoutDock[] = [];
   floating: [QspGUIPanel, number, number][] = [];
+  reactionDisposer!: IReactionDisposer;
 
   constructor(private manager: IGameManager, private baseLayout: IBaseLayout, private resources: IResourceManager) {
     makeObservable(this, {
@@ -35,11 +37,13 @@ class ClassicLayout {
   }
 
   async initialized(manager: IGameManager): Promise<void> {
-    await manager.apiInitialized;
-    reaction(
+    await manager.apiInitialized.promise;
+    console.log('initializing layout');
+    this.reactionDisposer = reaction(
       () => this.manager.currentGame,
       async (descriptor) => {
         if (!descriptor) return;
+        console.log(descriptor);
         try {
           const text = await this.resources.getTextContent('qspgui.cfg');
           this.gameConfig = parseCfg(text);
@@ -131,6 +135,10 @@ class ClassicLayout {
     }
     return true;
   }
+
+  dispose(): void {
+    this.reactionDisposer();
+  }
 }
 
 const classicLayoutContext = React.createContext<ClassicLayout | null>(null);
@@ -139,8 +147,15 @@ export const LayoutProvider: React.FC = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
   const baseLayout = useBaseLayout();
-  const layout = useRef(new ClassicLayout(manager, baseLayout, resources));
-  return <classicLayoutContext.Provider value={layout.current}>{children}</classicLayoutContext.Provider>;
+  const [layout, setLayout] = useState<ClassicLayout>();
+  useEffect(() => {
+    setLayout(new ClassicLayout(manager, baseLayout, resources));
+    return (): void => {
+      layout?.dispose();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return layout ? <classicLayoutContext.Provider value={layout}>{children}</classicLayoutContext.Provider> : null;
 };
 
 export const useClassicLayout = (): ClassicLayout => {

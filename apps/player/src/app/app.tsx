@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Global, css } from '@emotion/react';
 import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
 import { ResourceManager } from '@qspider/resources';
@@ -16,6 +16,11 @@ export const App: React.FC = () => {
   const components = useRef({
     [ProvidedComponents.OpenGameButton]: OpenGameButton,
   });
+
+  useEffect(() => {
+    manager.current.initialize();
+  }, []);
+
   return (
     <ComponentsProvider value={components.current}>
       <ResourceProvider value={resources.current}>
