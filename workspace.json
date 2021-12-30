@@ -263,11 +263,6 @@
                 "input": "libs/qspider-assets",
                 "glob": "**/*",
                 "output": "assets"
-              },
-              {
-                "input": "./game",
-                "glob": "**/*",
-                "output": "./game"
               }
             ],
             "styles": [],
@@ -282,11 +277,6 @@
                   "input": "libs/qspider-assets",
                   "glob": "**/*",
                   "output": "assets"
-                },
-                {
-                  "input": "./demo",
-                  "glob": "**/*",
-                  "output": "./"
                 }
               ],
               "fileReplacements": [
