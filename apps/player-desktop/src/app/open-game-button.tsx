@@ -48,7 +48,9 @@ export const OpenGameButton: React.FC = () => {
         },
       ],
     });
-    openGameFromDisk(file_path as string, gameManager);
+    if (file_path) {
+      openGameFromDisk(file_path as string, gameManager);
+    }
   }, [gameManager]);
   return (
     <OpenButton onClick={selectGame}>

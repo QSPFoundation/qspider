@@ -7,7 +7,6 @@ export const windowManager: IWindowManager = {
   async resize(width: number, height: number): Promise<void> {
     const monitor = await currentMonitor();
     if (monitor) {
-      console.log(monitor.size);
       const monitorSize = new PhysicalSize(monitor.size.width, monitor.size.height).toLogical(monitor.scaleFactor);
       if (width > monitorSize.width - 1) {
         width = monitorSize.width - 1;

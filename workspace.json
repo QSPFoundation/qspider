@@ -188,6 +188,11 @@
                   "input": "./demo",
                   "glob": "**/*",
                   "output": "./"
+                },
+                {
+                  "input": "./",
+                  "glob": "updater.json",
+                  "output": "./"
                 }
               ],
               "fileReplacements": [

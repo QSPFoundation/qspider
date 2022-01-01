@@ -38,12 +38,10 @@ class ClassicLayout {
 
   async initialized(manager: IGameManager): Promise<void> {
     await manager.apiInitialized.promise;
-    console.log('initializing layout');
     this.reactionDisposer = reaction(
       () => this.manager.currentGame,
       async (descriptor) => {
         if (!descriptor) return;
-        console.log(descriptor);
         try {
           const text = await this.resources.getTextContent('qspgui.cfg');
           this.gameConfig = parseCfg(text);

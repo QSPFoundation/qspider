@@ -52,7 +52,9 @@
       }
     },
     "updater": {
-      "active": false
+      "active": true,
+      "endpoints": ["https://qspfoundation.github.io/qspider/updater.json"],
+      "dialog": true
     },
     "allowlist": {
       "all": true
