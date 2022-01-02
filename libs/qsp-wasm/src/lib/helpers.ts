@@ -1,6 +1,9 @@
 export function shallowEqual(obj1: unknown, obj2: unknown): boolean {
   return (
-    Object.keys(obj1).length === Object.keys(obj2).length && Object.keys(obj1).every((key) => obj1[key] === obj2[key])
+    Object.keys(obj1 as Record<string, unknown>).length === Object.keys(obj2 as Record<string, unknown>).length &&
+    Object.keys(obj1 as Record<string, unknown>).every(
+      (key) => (obj1 as Record<string, unknown>)[key] === (obj2 as Record<string, unknown>)[key]
+    )
   );
 }
 
@@ -28,7 +31,7 @@ export function equal(a: unknown, b: unknown): boolean {
 
     for (i = length; i-- !== 0; ) {
       const key = keys[i];
-      if (!equal(a[key], b[key])) return false;
+      if (!equal((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) return false;
     }
 
     return true;

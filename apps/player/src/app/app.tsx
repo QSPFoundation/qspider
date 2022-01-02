@@ -1,39 +1,52 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Global, css } from '@emotion/react';
-
-import { GameManagerProvider } from './game/manager';
-import { LayoutProvider } from './game/layout';
-import { Game } from './game';
-import { Theme } from './game/theme';
-import { GameListDialog } from './components/dialogs/game-list/game-list.dialog';
-import { ResourceProvider } from './game/resource-manager';
-import { PlayerMode } from './components/player-mode';
+import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
+import { ResourceManager } from '@qspider/resources';
+import { BaseLayout, GameManager, Theme } from '@qspider/core';
+import { Game, GameListDialog } from '@qspider/player-ui';
+import { ProvidedComponents } from '@qspider/contracts';
+import { OpenGameButton } from './open-game-button';
+import { windowManager } from './window-manager';
+import { PlayerMode } from './player-mode';
 
 export const App: React.FC = () => {
+  const resources = useRef(new ResourceManager());
+  const manager = useRef(new GameManager(resources.current, windowManager));
+  const layout = useRef(new BaseLayout(manager.current, resources.current));
+  const components = useRef({
+    [ProvidedComponents.OpenGameButton]: OpenGameButton,
+  });
+
+  useEffect(() => {
+    manager.current.initialize();
+  }, []);
+
   return (
-    <ResourceProvider>
-      <GameManagerProvider>
-        <LayoutProvider>
-          <Theme>
-            <Global
-              styles={css`
-                body {
-                  margin: 0;
-                }
-                *,
-                *:before,
-                *:after {
-                  box-sizing: border-box;
-                }
-              `}
-            />
-            <Game>
-              <PlayerMode />
-              <GameListDialog closable={true} />
-            </Game>
-          </Theme>
-        </LayoutProvider>
-      </GameManagerProvider>
-    </ResourceProvider>
+    <ComponentsProvider value={components.current}>
+      <ResourceProvider value={resources.current}>
+        <GameManagerProvider value={manager.current}>
+          <BaseLayoutProvider value={layout.current}>
+            <Theme>
+              <Global
+                styles={css`
+                  body {
+                    margin: 0;
+                  }
+                  *,
+                  *:before,
+                  *:after {
+                    box-sizing: border-box;
+                  }
+                `}
+              />
+              <Game>
+                <PlayerMode />
+                <GameListDialog closable={true} />
+              </Game>
+            </Theme>
+          </BaseLayoutProvider>
+        </GameManagerProvider>
+      </ResourceProvider>
+    </ComponentsProvider>
   );
 };

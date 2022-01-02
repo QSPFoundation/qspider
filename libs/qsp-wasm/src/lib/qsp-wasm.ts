@@ -9,7 +9,7 @@ import { QspAPIImpl } from './qsp-api';
 // to the appropriate URL.
 // More details: https://kripken.github.io/emscripten-site/docs/api_reference/module.html
 const moduleWasmPromise = qsp({
-  locateFile(path) {
+  locateFile(path: string) {
     if (path.endsWith('.wasm')) {
       return qspModule;
     }

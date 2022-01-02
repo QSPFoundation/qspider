@@ -5,6 +5,144 @@
   },
   "defaultProject": "player",
   "projects": {
+    "aero": {
+      "root": "libs/aero",
+      "sourceRoot": "libs/aero/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/aero/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/aero"],
+          "options": {
+            "jestConfig": "libs/aero/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "audio": {
+      "root": "libs/audio",
+      "sourceRoot": "libs/audio/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/audio/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/audio"],
+          "options": {
+            "jestConfig": "libs/audio/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "classic": {
+      "root": "libs/classic",
+      "sourceRoot": "libs/classic/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/classic/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/classic"],
+          "options": {
+            "jestConfig": "libs/classic/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "components": {
+      "root": "libs/components",
+      "sourceRoot": "libs/components/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/components/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/components"],
+          "options": {
+            "jestConfig": "libs/components/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "contracts": {
+      "root": "libs/contracts",
+      "sourceRoot": "libs/contracts/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/contracts/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "core": {
+      "root": "libs/core",
+      "sourceRoot": "libs/core/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/core/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/core"],
+          "options": {
+            "jestConfig": "libs/core/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "icons": {
+      "root": "libs/icons",
+      "sourceRoot": "libs/icons/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/icons/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
     "player": {
       "root": "apps/player",
       "sourceRoot": "apps/player/src",
@@ -20,8 +158,12 @@
             "polyfills": "apps/player/src/polyfills.ts",
             "tsConfig": "apps/player/tsconfig.app.json",
             "assets": [
-              "apps/player/src/favicon.ico",
               "apps/player/src/assets",
+              {
+                "input": "libs/qspider-assets",
+                "glob": "**/*",
+                "output": "assets"
+              },
               {
                 "input": "./game",
                 "glob": "**/*",
@@ -36,11 +178,20 @@
           "configurations": {
             "production": {
               "assets": [
-                "apps/player/src/favicon.ico",
                 "apps/player/src/assets",
+                {
+                  "input": "libs/qspider-assets",
+                  "glob": "**/*",
+                  "output": "assets"
+                },
                 {
                   "input": "./demo",
                   "glob": "**/*",
+                  "output": "./"
+                },
+                {
+                  "input": "./",
+                  "glob": "updater.json",
                   "output": "./"
                 }
               ],
@@ -97,6 +248,114 @@
         }
       }
     },
+    "player-desktop": {
+      "root": "apps/player-desktop",
+      "sourceRoot": "apps/player-desktop/src",
+      "projectType": "application",
+      "targets": {
+        "build": {
+          "executor": "@nrwl/web:build",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/apps/player-desktop",
+            "index": "apps/player-desktop/src/index.html",
+            "main": "apps/player-desktop/src/main.tsx",
+            "polyfills": "apps/player-desktop/src/polyfills.ts",
+            "tsConfig": "apps/player-desktop/tsconfig.app.json",
+            "assets": [
+              "apps/player-desktop/src/assets",
+              {
+                "input": "libs/qspider-assets",
+                "glob": "**/*",
+                "output": "assets"
+              }
+            ],
+            "styles": [],
+            "scripts": [],
+            "webpackConfig": "apps/player-desktop/webpack.config.js"
+          },
+          "configurations": {
+            "production": {
+              "assets": [
+                "apps/player-desktop/src/assets",
+                {
+                  "input": "libs/qspider-assets",
+                  "glob": "**/*",
+                  "output": "assets"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "apps/player-desktop/src/environments/environment.ts",
+                  "with": "apps/player-desktop/src/environments/environment.prod.ts"
+                }
+              ],
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
+                }
+              ]
+            }
+          }
+        },
+        "serve": {
+          "executor": "@nrwl/web:dev-server",
+          "options": {
+            "buildTarget": "player-desktop:build",
+            "hmr": true
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "player-desktop:build:production",
+              "hmr": false
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/player-desktop/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
+    "player-desktop-e2e": {
+      "root": "apps/player-desktop-e2e",
+      "sourceRoot": "apps/player-desktop-e2e/src",
+      "projectType": "application",
+      "targets": {
+        "e2e": {
+          "executor": "@nrwl/cypress:cypress",
+          "options": {
+            "cypressConfig": "apps/player-desktop-e2e/cypress.json",
+            "devServerTarget": "player-desktop:serve",
+            "tsConfig": "apps/player-desktop-e2e/tsconfig.json"
+          },
+          "configurations": {
+            "production": {
+              "devServerTarget": "player-desktop:serve:production"
+            }
+          }
+        },
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["apps/player-desktop-e2e/**/*.{js,ts}"]
+          }
+        }
+      }
+    },
     "player-e2e": {
       "root": "apps/player-e2e",
       "sourceRoot": "apps/player-e2e/src",
@@ -121,6 +380,50 @@
             "linter": "eslint",
             "tsConfig": ["apps/player-e2e/tsconfig.e2e.json"],
             "exclude": ["**/node_modules/**", "!apps/player-e2e/**/*"]
+          }
+        }
+      }
+    },
+    "player-ui": {
+      "root": "libs/player-ui",
+      "sourceRoot": "libs/player-ui/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/player-ui/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/player-ui"],
+          "options": {
+            "jestConfig": "libs/player-ui/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "providers": {
+      "root": "libs/providers",
+      "sourceRoot": "libs/providers/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/providers/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/providers"],
+          "options": {
+            "jestConfig": "libs/providers/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }
@@ -155,6 +458,50 @@
               }
             ],
             "cwd": "libs/qsp-wasm/src/qsplib/build"
+          }
+        }
+      }
+    },
+    "resources": {
+      "root": "libs/resources",
+      "sourceRoot": "libs/resources/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/resources/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/resources"],
+          "options": {
+            "jestConfig": "libs/resources/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "utils": {
+      "root": "libs/utils",
+      "sourceRoot": "libs/utils/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/utils/**/*.{ts,tsx,js,jsx}"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/utils"],
+          "options": {
+            "jestConfig": "libs/utils/jest.config.js",
+            "passWithNoTests": true
           }
         }
       }
