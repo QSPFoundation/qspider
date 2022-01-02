@@ -1,5 +1,5 @@
 import { IGameManager } from '@qspider/contracts';
-import { tauri, path } from '@tauri-apps/api/index.js';
+import { tauri, path } from '@tauri-apps/api';
 
 export async function openGameFromDisk(file_path: string, gameManager: IGameManager): Promise<void> {
   const uuid = await tauri.invoke('prepare_game_start', { path: file_path });

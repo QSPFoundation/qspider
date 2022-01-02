@@ -6,7 +6,7 @@ import { BaseLayout, GameManager, Theme } from '@qspider/core';
 import { Game, GameListDialog } from '@qspider/player-ui';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
-import { event, path, cli } from '@tauri-apps/api/index.js';
+import { event, path, cli } from '@tauri-apps/api';
 import { isSupportedFileType, openGameFromDisk } from './utils';
 import { FileDropArea } from './file-drop-area';
 import { Icon, IconType } from '@qspider/icons';

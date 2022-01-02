@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
 import { Icon, IconType } from '@qspider/icons';
 import { useGameManager } from '@qspider/providers';
-import { dialog } from '@tauri-apps/api/index.js';
+import { dialog } from '@tauri-apps/api';
 import { openGameFromDisk } from './utils';
 
 const OpenButton = styled.div`
