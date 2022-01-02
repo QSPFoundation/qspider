@@ -60,4 +60,5 @@ export interface QspModule extends EmscriptenModule {
   _setCallBack(type: QspCallType, fnPtr: FunctionPtr): void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Module(emscriptenArgs: any): Promise<QspModule>;

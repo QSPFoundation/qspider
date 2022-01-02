@@ -156,7 +156,7 @@
             "assets": [
               "apps/player/src/assets",
               {
-                "input": "libs/qspider-assets",
+                "input": "qspider-assets",
                 "glob": "**/*",
                 "output": "assets"
               },
@@ -176,7 +176,7 @@
               "assets": [
                 "apps/player/src/assets",
                 {
-                  "input": "libs/qspider-assets",
+                  "input": "qspider-assets",
                   "glob": "**/*",
                   "output": "assets"
                 },
@@ -227,11 +227,10 @@
           }
         },
         "lint": {
-          "executor": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
           "options": {
-            "linter": "eslint",
-            "tsConfig": ["apps/player/tsconfig.app.json", "apps/player/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**", "!apps/player/**/*"]
+            "lintFilePatterns": ["apps/player/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
@@ -261,7 +260,7 @@
             "assets": [
               "apps/player-desktop/src/assets",
               {
-                "input": "libs/qspider-assets",
+                "input": "qspider-assets",
                 "glob": "**/*",
                 "output": "assets"
               }
@@ -275,7 +274,7 @@
               "assets": [
                 "apps/player-desktop/src/assets",
                 {
-                  "input": "libs/qspider-assets",
+                  "input": "qspider-assets",
                   "glob": "**/*",
                   "output": "assets"
                 }
@@ -371,11 +370,10 @@
           }
         },
         "lint": {
-          "executor": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
           "options": {
-            "linter": "eslint",
-            "tsConfig": ["apps/player-e2e/tsconfig.e2e.json"],
-            "exclude": ["**/node_modules/**", "!apps/player-e2e/**/*"]
+            "lintFilePatterns": ["apps/player-e2e/**/*.{ts,tsx,js,jsx}"]
           }
         }
       }
@@ -430,11 +428,10 @@
       "projectType": "library",
       "targets": {
         "lint": {
-          "executor": "@nrwl/linter:lint",
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
           "options": {
-            "linter": "eslint",
-            "tsConfig": ["libs/qsp-wasm/tsconfig.lib.json", "libs/qsp-wasm/tsconfig.spec.json"],
-            "exclude": ["**/node_modules/**", "!libs/qsp-wasm/**/*"]
+            "lintFilePatterns": ["libs/qsp-wasm/**/*.{ts,tsx,js,jsx}"]
           }
         },
         "test": {
