@@ -28,7 +28,7 @@ export interface IGameManager {
 
   runGame(source: ArrayBuffer, game: GameDescriptor): void;
   openGame(source: ArrayBuffer, name: string): void;
-  openGameDescriptor(game: GameDescriptor): Promise<void>;
+  openGameDescriptor(game: GameDescriptor, fromConfig: boolean): Promise<void>;
   restart(): void;
   requestSave(): Promise<void>;
   requestRestore(): Promise<void>;

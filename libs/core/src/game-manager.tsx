@@ -176,12 +176,15 @@ export class GameManager implements IGameManager {
     }
   }
 
-  async openGameDescriptor(descriptor: GameDescriptor): Promise<void> {
+  async openGameDescriptor(descriptor: GameDescriptor, fromConfig = true): Promise<void> {
     if (this.isGameListShown) {
       this.hideGameList();
     }
     this.stopGame();
-    const gameSource = await this.resources.loadGame(this.configPath + descriptor.file, true);
+    const gameSource = await this.resources.loadGame(
+      fromConfig ? this.configPath + descriptor.file : descriptor.file,
+      true
+    );
 
     this.runGame(gameSource, descriptor);
   }

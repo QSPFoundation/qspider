@@ -71,7 +71,7 @@ export const GameListDialog: React.FC<{ closable?: boolean }> = observer(({ clos
           {config.game.map((game) => (
             <GameSlot
               key={game.id}
-              onClick={(): Promise<void> => gameManager.openGameDescriptor(game)}
+              onClick={(): Promise<void> => gameManager.openGameDescriptor(game, true)}
               data-mode={game.mode}
               data-qsp="game-slot"
             >
