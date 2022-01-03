@@ -154,13 +154,11 @@ export class GameManager implements IGameManager {
 
   async openGame(source: ArrayBuffer, name: string): Promise<void> {
     try {
+      this.stopGame();
       const gameSource = await this.resources.openGameArchive(source);
       if (gameSource) {
         if (this.isGameListShown) {
           this.hideGameList();
-        }
-        if (this.currentGame) {
-          this.hotKeysManager.reset();
         }
         this.runGame(gameSource, {
           id: name,
@@ -604,12 +602,14 @@ export class GameManager implements IGameManager {
     if (!this.currentGame) return;
     this.pause();
     const slots = await this.saveManager.getSlots(this.currentGame.id);
-    this.saveAction = {
-      type: 'restore',
-      slots,
-      callback: this.restoreFromSlot,
-      onResult,
-    };
+    runInAction(() => {
+      this.saveAction = {
+        type: 'restore',
+        slots,
+        callback: this.restoreFromSlot,
+        onResult,
+      };
+    });
   };
 
   restoreFromSlot = async (slot: number): Promise<void> => {
