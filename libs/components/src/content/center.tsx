@@ -1,16 +1,14 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import { useStyle } from '../hooks';
 
-export const StyledCenter = styled.div`
-  text-align: center;
-  --text-align: center;
-  width: 100%;
-
-  & > table {
-    margin: 0 auto;
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface IntrinsicElements {
+      center: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+    }
   }
-`;
+}
 
 export const Center: React.FC<{ className?: string; style: React.CSSProperties }> = ({
   style,
@@ -18,8 +16,8 @@ export const Center: React.FC<{ className?: string; style: React.CSSProperties }
   children,
 }) => {
   return (
-    <StyledCenter style={useStyle(style)} className={className}>
+    <center style={useStyle(style)} className={className}>
       {children}
-    </StyledCenter>
+    </center>
   );
 };

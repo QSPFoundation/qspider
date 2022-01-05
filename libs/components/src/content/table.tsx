@@ -18,7 +18,6 @@ const StyledTable = styled.table<{
     border-color: rgb(238, 238, 237);
     border-style: inset;
     border-width: ${(props): number => props.border}px;
-    text-align: var(--text-align, left);
 
     img {
       vertical-align: bottom;
@@ -53,28 +52,28 @@ export const Tr: React.FC<{ className?: string; style: React.CSSProperties }> = 
     </tr>
   );
 };
-export const Th: React.FC<{ className?: string; style: React.CSSProperties; colspan: number; rowspan: number }> = ({
-  style,
-  className,
-  colspan,
-  rowspan,
-  children,
-}) => {
+export const Th: React.FC<{
+  className?: string;
+  style: React.CSSProperties;
+  colspan: number;
+  rowspan: number;
+  align: 'center' | 'left' | 'right' | 'justify' | 'char' | undefined;
+}> = ({ style, className, colspan, rowspan, children, align }) => {
   return (
-    <th colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className}>
+    <th colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className} align={align}>
       {children}
     </th>
   );
 };
-export const Td: React.FC<{ className?: string; style: React.CSSProperties; colspan: number; rowspan: number }> = ({
-  style,
-  className,
-  colspan,
-  rowspan,
-  children,
-}) => {
+export const Td: React.FC<{
+  className?: string;
+  style: React.CSSProperties;
+  colspan: number;
+  rowspan: number;
+  align: 'center' | 'left' | 'right' | 'justify' | 'char' | undefined;
+}> = ({ style, className, colspan, rowspan, children, align }) => {
   return (
-    <td colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className}>
+    <td colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className} align={align}>
       {children}
     </td>
   );

@@ -17,11 +17,16 @@ const attributeToStyle: Record<string, string> = {
   size: 'fontSize',
   color: 'color',
   face: 'fontFace',
-  align: 'textAlign',
   valign: 'verticalAlign',
   bgcolor: 'backgroundColor',
   width: 'width',
   height: 'height',
+};
+const imgAlignMap: Record<string, string> = {
+  texttop: 'text-top',
+  center: 'middle',
+  abscenter: 'middle',
+  bottom: 'bottom',
 };
 const attributeConverters: Record<string, (value: string) => string> = {
   width: (value: string): string => (/^\d+$/.test(value) ? `${value}px` : value),
@@ -33,6 +38,15 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
   const style: Record<string, string> = {};
   for (const name of node.getAttributeNames()) {
     const styleName = attributeToStyle[name];
+    if (node.tagName === 'IMG' && name === 'align') {
+      const value = node.getAttribute(name)?.toLowerCase();
+      if (value) {
+        const convertedValue = imgAlignMap[value];
+        if (convertedValue) {
+          style.verticalAlign = convertedValue;
+        }
+      }
+    }
     if (styleName) {
       const value = node.getAttribute(name);
       if (!value) continue;
@@ -42,9 +56,6 @@ const attributesToStyle = (node: HTMLElement): Record<string, string> => {
         style[styleName] = value;
       }
     }
-  }
-  if (style.textAlign) {
-    style['--text-align'] = style.textAlign;
   }
   return style;
 };
@@ -252,6 +263,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
       colspan={Number(node.getAttribute('colspan')) || 1}
       rowspan={Number(node.getAttribute('rowspan')) || 1}
       style={extractStyles(node)}
+      align={node.getAttribute('align') as 'center' | 'left' | 'right' | 'justify' | 'char' | undefined}
       className={node.getAttribute('class') || ''}
     >
       {children}
@@ -263,6 +275,7 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         colspan={Number(node.getAttribute('colspan')) || 1}
         rowspan={Number(node.getAttribute('rowspan')) || 1}
         style={extractStyles(node)}
+        align={node.getAttribute('align') as 'center' | 'left' | 'right' | 'justify' | 'char' | undefined}
         className={node.getAttribute('class') || ''}
       >
         {children}
