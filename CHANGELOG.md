@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.12.0](https://github.com/QSPFoundation/qspider/compare/v0.11.1...v0.12.0) (2022-01-15)
+
+### Features
+
+- add window config ([720356f](https://github.com/QSPFoundation/qspider/commit/720356f75e2bcc7e73469923fdc2b7c6abb7c250))
+- load game from disk, support drop to open ([a1c4983](https://github.com/QSPFoundation/qspider/commit/a1c498366716475b0309902b2db4030835573293))
+- load main config from url ([31b715e](https://github.com/QSPFoundation/qspider/commit/31b715e7efbd332e9f0b2d0714f3dbcd260ae476))
+- support game level config file ([884b177](https://github.com/QSPFoundation/qspider/commit/884b17773daf9dbc6a15202d6113bf871ff30fb1))
+- support opening game from cli ([1528955](https://github.com/QSPFoundation/qspider/commit/152895593ec2ca76dd4aef231fb2304457516266))
+
+### Bug Fixes
+
+- $fname not working, layout cleanup ([1451274](https://github.com/QSPFoundation/qspider/commit/14512743daf1d20e26a3fa48077cc9c6522955b4))
+- change vertical align of img inside table ([4f9ffa8](https://github.com/QSPFoundation/qspider/commit/4f9ffa8f87a5e0ff565f162c80c7eb0ed032f868))
+- fix resize on opening aqsp file ([0a48b06](https://github.com/QSPFoundation/qspider/commit/0a48b06a382c2e51f68a62b4be1ac57c04f640d8))
+- fix save/restore ([b155319](https://github.com/QSPFoundation/qspider/commit/b1553197fb481a7a37cc74da2121c00f6a863154))
+- fix working with cyrylic symbols in path ([2796a6b](https://github.com/QSPFoundation/qspider/commit/2796a6b1b786c53d14a0ab86c9951aa6ab6ce119))
+- html in input ([3eab14f](https://github.com/QSPFoundation/qspider/commit/3eab14f7f9b2ac1fea7873c0dbc817c18631ab67))
+- loading game from archive ([356d58a](https://github.com/QSPFoundation/qspider/commit/356d58aa623dc5c2fa95c37b095ec6453cd653bc))
+- make center tag and align attribute to behave more like classic ([21198bf](https://github.com/QSPFoundation/qspider/commit/21198bf1f53c8c563fd2e6d53367cb368f641994))
+- opening games not from config ([b41173e](https://github.com/QSPFoundation/qspider/commit/b41173ea3b6bab764917e661ca7da9cbe5d19eb0))
+- remove scroll padding when arrows are hidden ([613503d](https://github.com/QSPFoundation/qspider/commit/613503dc5c8f30d813f749535adc4f87f048e86a))
+
 ### [0.11.1](https://github.com/QSPFoundation/qspider/compare/v0.11.0...v0.11.1) (2021-10-31)
 
 ### Bug Fixes
