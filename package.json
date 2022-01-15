@@ -85,6 +85,8 @@
     "commitizen": "^4.2.4",
     "cypress": "^4.12.1",
     "cz-conventional-changelog": "^3.3.0",
+    "detect-indent": "^7.0.0",
+    "detect-newline": "^4.0.0",
     "dotenv": "10.0.0",
     "eslint": "7.22.0",
     "eslint-config-prettier": "^8.3.0",
@@ -99,6 +101,7 @@
     "pretty-quick": "^3.1.3",
     "rimraf": "^3.0.2",
     "standard-version": "^9.3.2",
+    "stringify-package": "^1.0.1",
     "svg-sprite-loader": "^6.0.11",
     "svg-transform-loader": "^2.0.13",
     "svgo-loader": "^3.0.0",
@@ -109,5 +112,21 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "standard-version": {
+    "bumpFiles": [
+      {
+        "filename": "src-tauri/tauri.conf.json",
+        "updater": "tools/tauri-version-updater.js"
+      },
+      {
+        "filename": "src-tauri/Cargo.toml",
+        "updater": "tools/cargo-version-updater.js"
+      },
+      {
+        "filename": "updater.json",
+        "updater": "tools/autoupdater-version-updater.js"
+      }
+    ]
   }
 }
