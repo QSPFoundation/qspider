@@ -1,0 +1,16 @@
+{
+  "name": "0.12.0",
+  "notes": "Initial desktop release",
+  "pub_date": "2022-01-15T19:26:44.067Z",
+  "platforms": {
+    "darwin": {
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/0.12.0/qSpider.app.tar.gz"
+    },
+    "linux": {
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/0.12.0/qSpider.AppImage.tar.gz"
+    },
+    "win64": {
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/0.12.0/qSpider.x64.msi.zip"
+    }
+  }
+}
