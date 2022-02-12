@@ -35,8 +35,9 @@ export const App: React.FC = () => {
           if (await path.isAbsolute(filePath)) {
             openGameFromDisk(filePath, manager);
           } else {
-            const currentDir = await path.currentDir();
-            const resolvedPath = await path.resolve(currentDir, filePath);
+            // const currentDir = await path.currentDir();
+            const resolvedPath = await path.resolve(filePath);
+            console.log(resolvedPath);
             openGameFromDisk(resolvedPath, manager);
           }
         } catch (err) {

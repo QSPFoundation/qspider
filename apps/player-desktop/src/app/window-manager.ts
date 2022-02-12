@@ -33,9 +33,9 @@ export const windowManager: IWindowManager = {
   async setIcon(icon: string): Promise<void> {
     const platform = await os.platform();
     if (platform === 'win32' || platform === 'windows') {
-      window.appWindow.setIcon(Array.from(new Uint8Array(await imageToIco(icon))));
+      window.appWindow.setIcon(new Uint8Array(await imageToIco(icon)));
     } else {
-      window.appWindow.setIcon(Array.from(new Uint8Array(await reagPng(icon))));
+      window.appWindow.setIcon(new Uint8Array(await reagPng(icon)));
     }
   },
 };

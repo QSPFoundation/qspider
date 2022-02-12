@@ -54,7 +54,8 @@
     "updater": {
       "active": true,
       "endpoints": ["https://qspfoundation.github.io/qspider/updater.json"],
-      "dialog": true
+      "dialog": true,
+      "pubkey": ""
     },
     "allowlist": {
       "all": true
