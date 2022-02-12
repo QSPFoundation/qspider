@@ -170,7 +170,9 @@ export class GameManager implements IGameManager {
       }
     } catch (err) {
       console.error(err);
-      this.updateMsg(err.message);
+      if (err instanceof Error) {
+        this.updateMsg(err.message);
+      }
     }
   }
 

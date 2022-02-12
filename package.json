@@ -30,6 +30,7 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@iarna/toml": "^3.0.0",
+    "@nrwl/linter": "^13.8.1",
     "@popperjs/core": "^2.11.0",
     "@tauri-apps/api": "^1.0.0-rc.0",
     "core-js": "^3.20.2",

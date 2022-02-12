@@ -41,21 +41,19 @@ const FixedMenuList = styled.div<{ menuUI: MenuUI }>`
   height: ${(props): number => props.menuUI.list.height}px;
 `;
 
-function generateGetBoundingClientRect(x = 0, y = 0) {
-  return (): {
-    width: number;
-    height: number;
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  } => ({
+function generateGetBoundingClientRect(x = 0, y = 0): () => DOMRect {
+  return (): DOMRect => ({
     width: 0,
     height: 0,
     top: y,
     right: x,
     bottom: y,
     left: x,
+    x,
+    y,
+    toJSON(): unknown {
+      return { width: 0, height: 0, top: y, right: x, bottom: y, left: x, x, y };
+    },
   });
 }
 
