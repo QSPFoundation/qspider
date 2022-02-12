@@ -18,7 +18,11 @@ export const App: React.FC = () => {
   });
 
   useEffect(() => {
-    manager.current.initialize();
+    const init = async (): Promise<void> => {
+      manager.current.initialize();
+      manager.current.runConfig();
+    };
+    init();
   }, []);
 
   return (

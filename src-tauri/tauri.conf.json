@@ -17,6 +17,7 @@
         {
           "short": "f",
           "name": "file",
+          "index": 1,
           "takesValue": true,
           "description": "Game file to open"
         }
@@ -71,7 +72,8 @@
       }
     ],
     "security": {
-      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'"
+      "csp": "default-src blob: data: filesystem: ws: wss: http: https: tauri: 'unsafe-eval' 'unsafe-inline' 'self' img-src: 'self'",
+      "freezePrototype": false
     }
   }
 }

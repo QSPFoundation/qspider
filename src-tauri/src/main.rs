@@ -60,10 +60,8 @@ fn main() {
       let uuid_str = &path[0..slash_index];
       let uuid = Uuid::parse_str(uuid_str)?;
       let game_path = state.0.lock().unwrap().get(&uuid).cloned();
-      println!("{} {:?}", path, game_path);
       let mut file_path = PathBuf::from(game_path.unwrap().clone());
       file_path.push(&path[slash_index + 1..]);
-      println!("{}", file_path.to_str().unwrap());
       let file_result = std::fs::File::open(&file_path);
       match file_result {
         Ok(mut file) => {

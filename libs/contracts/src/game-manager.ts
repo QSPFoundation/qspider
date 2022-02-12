@@ -9,7 +9,7 @@ export interface IGameManager {
   readonly api: QspAPI;
   readonly windowManager: IWindowManager;
 
-  readonly config: PlayerConfig;
+  readonly config: PlayerConfig | null;
   readonly currentGame: GameDescriptor | null;
   readonly hasGameList: boolean;
   readonly isGameListShown: boolean;

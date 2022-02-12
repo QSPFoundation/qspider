@@ -16,7 +16,7 @@ import { AudioEngine } from '@qspider/audio';
 import TOMLparse from '@iarna/toml/parse-string';
 
 export class GameManager implements IGameManager {
-  config!: PlayerConfig;
+  config: PlayerConfig | null = null;
   configPath!: string;
   currentGame: GameDescriptor | null = null;
 
@@ -128,28 +128,32 @@ export class GameManager implements IGameManager {
     return this._api;
   }
 
-  async initialize(mainConfig = `game/game.cfg`): Promise<void> {
+  async initialize(): Promise<void> {
     this._api = await init();
     console.log(`QSP version: ${this._api.version()}`);
 
     this.setupQspCallbacks();
     this.setupHotKeyListeners();
 
+    this.hotKeysManager.setupGlobalHotKeys();
+    this.apiInitialized.resolve();
+
+    this.markInitialized();
+  }
+
+  async runConfig(mainConfig = `game/game.cfg`): Promise<void> {
     this.config = await fetch(mainConfig)
       .then((r) => r.text())
       .then((text) => TOMLparse(text) as unknown as PlayerConfig);
     this.configPath = mainConfig.slice(0, mainConfig.lastIndexOf('/') + 1);
 
-    this.hotKeysManager.setupGlobalHotKeys();
-    this.apiInitialized.resolve();
-
-    if (this.config.game.length > 1) {
-      this.showGameList();
-    } else {
-      this.openGameDescriptor(this.config.game[0]);
+    if (this.config) {
+      if (this.config.game.length > 1) {
+        this.showGameList();
+      } else {
+        this.openGameDescriptor(this.config.game[0]);
+      }
     }
-
-    this.markInitialized();
   }
 
   async openGame(source: ArrayBuffer, name: string): Promise<void> {
@@ -252,7 +256,7 @@ export class GameManager implements IGameManager {
   }
 
   get hasGameList(): boolean {
-    return this.config.game.length > 0;
+    return !!this.config && this.config.game.length > 0;
   }
 
   showGameList(): void {

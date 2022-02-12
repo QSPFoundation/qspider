@@ -26,24 +26,22 @@ export const App: React.FC = () => {
   const [unsupportedType, setUnsupportedType] = useState('');
 
   useEffect(() => {
-    manager.initialize('https://qspfoundation.github.io/qspider/game/game.cfg');
     cli.getMatches().then(async (matches) => {
+      await manager.initialize();
       if (matches.args.file.value) {
         try {
-          await manager.apiInitialized.promise;
           const filePath = matches.args.file.value as string;
           if (await path.isAbsolute(filePath)) {
-            openGameFromDisk(filePath, manager);
+            return openGameFromDisk(filePath, manager);
           } else {
-            // const currentDir = await path.currentDir();
             const resolvedPath = await path.resolve(filePath);
-            console.log(resolvedPath);
-            openGameFromDisk(resolvedPath, manager);
+            return openGameFromDisk(resolvedPath, manager);
           }
         } catch (err) {
           console.error(err);
         }
       }
+      manager.runConfig('https://qspfoundation.github.io/qspider/game/game.cfg');
     });
 
     let fileDropUnlisten: event.UnlistenFn;
