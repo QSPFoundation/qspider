@@ -1,17 +1,14 @@
 import React from 'react';
 import { Node } from 'interweave';
 import { A, Link } from './link';
-import { Image } from './image';
-import { Center } from './center';
 import { Hr } from './hr';
 import { Area } from './area';
-import { Table, Td, Th, Tr } from './table';
+import { Table } from './table';
 import { Font, fontSizeMap } from './font';
-import { Source } from './source';
 import { Video } from './video';
-import { H1, H2, H3, H4, H5, H6 } from './headers';
-import { B, Big, I, Strike, Tt } from './format';
-import { Div, P } from './blocks';
+import { Big, Strike, Tt } from './format';
+import { Element } from './element';
+import { Attributes } from '../hooks/attributes';
 
 const attributeToStyle: Record<string, string> = {
   size: 'fontSize',
@@ -71,7 +68,7 @@ const parseStyles = (styles: string | null): Record<string, string> => {
       const key = style
         .substring(0, separatorPosition)
         .trim()
-        .replace(/-./g, (c) => c.substr(1).toUpperCase());
+        .replace(/-./g, (c) => c.substring(1).toUpperCase());
       let value = style.substring(separatorPosition + 1).trim();
       if (!key) return null;
       if (numericKeys.includes(key) && /^[+-]?\d+$/.test(value)) {
@@ -101,79 +98,25 @@ const extractStyles = (node: HTMLElement): Record<string, string> => {
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   font: (node, children) => {
     return (
-      <Font size={node.getAttribute('size')} style={extractStyles(node)} className={node.getAttribute('class') || ''}>
+      <Font
+        size={node.getAttribute('size')}
+        style={extractStyles(node)}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
+      >
         {children}
       </Font>
     );
   },
-  h1: (node, children) => {
-    return (
-      <H1 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H1>
-    );
-  },
-  h2: (node, children) => {
-    return (
-      <H2 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H2>
-    );
-  },
-  h3: (node, children) => {
-    return (
-      <H3 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H3>
-    );
-  },
-  h4: (node, children) => {
-    return (
-      <H4 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H4>
-    );
-  },
-  h5: (node, children) => {
-    return (
-      <H5 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H5>
-    );
-  },
-  h6: (node, children) => {
-    return (
-      <H6 style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </H6>
-    );
-  },
-  i: (node, children) => {
-    return (
-      <I style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </I>
-    );
-  },
-  b: (node, children) => {
-    return (
-      <B style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </B>
-    );
-  },
   big: (node, children) => {
     return (
-      <Big style={extractStyles(node)} className={node.getAttribute('class') || ''}>
+      <Big
+        style={extractStyles(node)}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
+      >
         {children}
       </Big>
-    );
-  },
-  center: (node, children) => {
-    return (
-      <Center style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-        {children}
-      </Center>
     );
   },
   hr: (node) => {
@@ -183,56 +126,47 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   },
   a: (node, children) => {
     const href = node.getAttribute('href');
-    const className = node.className || '';
+    const className = node.getAttribute('class') || undefined;
+    const attributes = extractAttributes(node);
     if (href) {
       if (href.toLowerCase().startsWith('exec:')) {
         return (
-          <Link className={className} exec={href.substr(5)} style={extractStyles(node)}>
+          <Link className={className} attributes={attributes} exec={href.substring(5)} style={extractStyles(node)}>
             {children}
           </Link>
         );
       } else if (parseInt(href) > 0) {
         return (
-          <Link className={className} act={parseInt(href)} style={extractStyles(node)}>
+          <Link className={className} attributes={attributes} act={parseInt(href)} style={extractStyles(node)}>
             {children}
           </Link>
         );
       }
     }
     return (
-      <A href={href || '#'} className={className} style={extractStyles(node)}>
+      <A href={href || '#'} className={className} attributes={attributes} style={extractStyles(node)}>
         {children}
       </A>
     );
   },
-  div: (node, children) => {
-    return (
-      <Div
-        className={node.getAttribute('class') || ''}
-        id={node.getAttribute('id') || undefined}
-        style={extractStyles(node)}
-      >
-        {children}
-      </Div>
-    );
-  },
-  p: (node, children) => {
-    return (
-      <P className={node.getAttribute('class') || ''} style={extractStyles(node)}>
-        {children}
-      </P>
-    );
-  },
   tt: (node, children) => {
     return (
-      <Tt className={node.getAttribute('class') || ''} style={extractStyles(node)}>
+      <Tt
+        style={extractStyles(node)}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
+      >
         {children}
       </Tt>
     );
   },
   strike: (node, children) => {
     return (
-      <Strike className={node.getAttribute('class') || ''} style={extractStyles(node)}>
+      <Strike
+        style={extractStyles(node)}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
+      >
         {children}
       </Strike>
     );
@@ -247,55 +181,12 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         cellspacing={node.hasAttribute('cellspacing') ? Number(node.getAttribute('cellspacing')) : 0}
         cellpadding={node.hasAttribute('cellpadding') ? Number(node.getAttribute('cellpadding')) : 1}
         style={extractStyles(node)}
-        className={node.getAttribute('class') || ''}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
       >
         {children.filter((child) => typeof child !== 'string')}
       </Table>
     );
-  },
-  tr: (node, children) => (
-    <Tr style={extractStyles(node)} className={node.getAttribute('class') || ''}>
-      {children}
-    </Tr>
-  ),
-  th: (node, children) => (
-    <Th
-      colspan={Number(node.getAttribute('colspan')) || 1}
-      rowspan={Number(node.getAttribute('rowspan')) || 1}
-      style={extractStyles(node)}
-      align={node.getAttribute('align') as 'center' | 'left' | 'right' | 'justify' | 'char' | undefined}
-      className={node.getAttribute('class') || ''}
-    >
-      {children}
-    </Th>
-  ),
-  td: (node, children) => {
-    return (
-      <Td
-        colspan={Number(node.getAttribute('colspan')) || 1}
-        rowspan={Number(node.getAttribute('rowspan')) || 1}
-        style={extractStyles(node)}
-        align={node.getAttribute('align') as 'center' | 'left' | 'right' | 'justify' | 'char' | undefined}
-        className={node.getAttribute('class') || ''}
-      >
-        {children}
-      </Td>
-    );
-  },
-  img: (node) => {
-    const src = node.getAttribute('src');
-    if (!src) return null;
-    return (
-      <Image
-        src={src}
-        style={extractStyles(node)}
-        className={node.getAttribute('class') || ''}
-        useMap={node.getAttribute('usemap') || undefined}
-      />
-    );
-  },
-  map: (node, children) => {
-    return <map name={node.getAttribute('name') || ''}>{children}</map>;
   },
   area: (node) => {
     return (
@@ -303,33 +194,57 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
         href={node.getAttribute('href') || ''}
         shape={node.getAttribute('shape') || undefined}
         coords={node.getAttribute('coords') || undefined}
+        className={node.getAttribute('class') || undefined}
+        attributes={extractAttributes(node)}
       ></Area>
     );
   },
-  br: () => <br />,
   video: (node, children) => (
     <Video
-      className={node.getAttribute('class') || ''}
-      src={node.getAttribute('src') || undefined}
       style={attributesToStyle(node)}
-      poster={node.getAttribute('poster') || undefined}
+      className={node.getAttribute('class') || undefined}
+      attributes={extractAttributes(node)}
     >
       {children}
     </Video>
   ),
-  source: (node) => (
-    <Source
-      src={node.getAttribute('src') || undefined}
-      type={node.getAttribute('type') || undefined}
-      media={node.getAttribute('media') || undefined}
-    />
-  ),
 };
+
+function extractAttributes(node: HTMLElement): Attributes {
+  const attributes: Attributes = {};
+  Array.from(node.attributes).forEach((attr) => {
+    const { name, value } = attr;
+    if (name === 'class' || name === 'style') return;
+    attributes[name] = value;
+  });
+
+  return attributes;
+}
+
+const voidTags = ['br', 'col', 'hr', 'img', 'source', 'track', 'wbr'];
+
+function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
+  const tagName = node.tagName.toLowerCase();
+  const selfClose = voidTags.includes(tagName);
+  const attributes = extractAttributes(node);
+  const className = node.getAttribute('class') || undefined;
+  return (
+    <Element
+      tagName={tagName}
+      className={className}
+      style={extractStyles(node)}
+      selfClose={selfClose}
+      attributes={attributes}
+    >
+      {children}
+    </Element>
+  );
+}
 
 export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {
   const transformer = transformers[node.tagName.toLowerCase()];
   if (transformer) {
     return transformer(node, children);
   }
-  return;
+  return defaultTransform(node, children);
 };

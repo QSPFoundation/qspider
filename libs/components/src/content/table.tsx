@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import { useStyle } from '../hooks';
+import { Attributes, useAttributes } from '../hooks/attributes';
 
 const StyledTable = styled.table<{
   border: number;
@@ -31,9 +32,11 @@ export const Table: React.FC<{
   cellpadding: number;
   className?: string;
   style: React.CSSProperties;
-}> = ({ border, cellspacing, cellpadding, style, className, children }) => {
+  attributes: Attributes;
+}> = ({ border, cellspacing, cellpadding, style, className, children, attributes }) => {
   return (
     <StyledTable
+      {...useAttributes(attributes)}
       style={useStyle(style)}
       className={className}
       border={border}
@@ -42,39 +45,5 @@ export const Table: React.FC<{
     >
       {children}
     </StyledTable>
-  );
-};
-
-export const Tr: React.FC<{ className?: string; style: React.CSSProperties }> = ({ style, className, children }) => {
-  return (
-    <tr style={useStyle(style)} className={className}>
-      {children}
-    </tr>
-  );
-};
-export const Th: React.FC<{
-  className?: string;
-  style: React.CSSProperties;
-  colspan: number;
-  rowspan: number;
-  align: 'center' | 'left' | 'right' | 'justify' | 'char' | undefined;
-}> = ({ style, className, colspan, rowspan, children, align }) => {
-  return (
-    <th colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className} align={align}>
-      {children}
-    </th>
-  );
-};
-export const Td: React.FC<{
-  className?: string;
-  style: React.CSSProperties;
-  colspan: number;
-  rowspan: number;
-  align: 'center' | 'left' | 'right' | 'justify' | 'char' | undefined;
-}> = ({ style, className, colspan, rowspan, children, align }) => {
-  return (
-    <td colSpan={colspan} rowSpan={rowspan} style={useStyle(style)} className={className} align={align}>
-      {children}
-    </td>
   );
 };

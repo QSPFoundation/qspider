@@ -1,24 +1,13 @@
-import { useResources } from '@qspider/providers';
 import React from 'react';
+import { Attributes, useAttributes } from '../hooks/attributes';
 
 export const Video: React.FC<{
-  src?: string;
-  poster?: string;
   className?: string;
   style: React.CSSProperties;
-}> = ({ src, poster, style, className, children }) => {
-  const resources = useResources();
-
+  attributes: Attributes;
+}> = ({ style, className, children, attributes }) => {
   return (
-    <video
-      className={className}
-      src={src ? resources.get(src).url : undefined}
-      poster={poster ? resources.get(poster).url : undefined}
-      style={style}
-      preload="auto"
-      loop
-      autoPlay
-    >
+    <video {...useAttributes(attributes)} className={className} style={style} preload="auto" loop autoPlay>
       {children}
     </video>
   );
