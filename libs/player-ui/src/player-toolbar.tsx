@@ -10,11 +10,17 @@ export const PlayerToolbarWrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 2px 10px;
+  max-height: 100%;
 `;
 
 const Title = styled.h1`
   margin: 0;
   font-size: 26px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  max-height: 100%;
+  display: inline-block;
+  white-space: nowrap;
 `;
 
 const Icons = styled.div`
