@@ -9,6 +9,7 @@ import { noop } from '@qspider/utils';
 
 export const MenuWrapper = styled.div`
   border: 1px solid var(--border-color);
+  background-color: var(--background-color, transparent);
 `;
 
 function generateGetBoundingClientRect(x = 0, y = 0): () => DOMRect {

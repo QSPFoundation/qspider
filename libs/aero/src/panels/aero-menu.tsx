@@ -14,6 +14,7 @@ import '../theme.types';
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;
   border: ${(props): number => props.menuUI.borderWidth || 0}px solid ${(props): string => props.menuUI.borderColor};
+  --border-color: ${(props): string => props.menuUI.borderColor};
   background-color: ${(props): string => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
   background-image: ${(props): string => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
   padding: ${(props): number => props.menuUI.padding || 0}px;
@@ -28,6 +29,7 @@ const FixedMenuWrapper = styled.div<{ menuUI: MenuUI; width: number; height: num
   width: ${(props): number => props.width}px;
   height: ${(props): number => props.width}px;
   border: ${(props): number => props.menuUI.borderWidth || 0}px solid ${(props): string => props.menuUI.borderColor};
+  --border-color: ${(props): string => props.menuUI.borderColor};
   background-color: ${(props): string => (props.menuUI.backImage ? 'transparent' : props.theme.backgroundColor)};
   background-image: ${(props): string => (props.menuUI.backImage ? `url("${props.url}")` : 'none')};
   padding: ${(props): number => props.menuUI.padding || 0}px;

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { AeroActionItem } from './aero-action-item';
+import { AeroActionSeparator } from './aero-action-separator';
 
 const Nav = styled.nav`
   outline: none;
@@ -20,7 +21,9 @@ export const AeroActionList: React.FC<{
   return (
     <Nav role="menu">
       {actions.map((action, index) => {
-        return (
+        return action.name === '-' ? (
+          <AeroActionSeparator />
+        ) : (
           <AeroActionItem
             key={index}
             action={action}

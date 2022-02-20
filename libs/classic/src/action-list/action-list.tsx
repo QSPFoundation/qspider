@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { QspListItem } from '@qspider/qsp-wasm';
 import { ActionItem } from './action-item';
+import { ActionSeparator } from './action-separator';
 
 const Nav = styled.nav`
   outline: none;
@@ -16,7 +17,11 @@ export const ActionList: React.FC<{
   return (
     <Nav role="menu" data-qsp={dataQsp}>
       {actions.map((action, index) => {
-        return <ActionItem key={index} action={action} index={index} onSelect={onSelect} onAction={onAction} />;
+        return action.name === '-' ? (
+          <ActionSeparator />
+        ) : (
+          <ActionItem key={index} action={action} index={index} onSelect={onSelect} onAction={onAction} />
+        );
       })}
     </Nav>
   );
