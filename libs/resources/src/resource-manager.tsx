@@ -21,12 +21,15 @@ export class ResourceManager implements IResourceManager {
     if (isNewGame) {
       this.updateBasePath(path);
     }
-
     let source;
     if (this._zipResources[path.toLowerCase()]) {
       source = this._zipResources[path.toLowerCase()];
     } else {
-      source = await fetch(path).then((r) => r.arrayBuffer());
+      try {
+        source = await fetch(path).then((r) => r.arrayBuffer());
+      } catch {
+        source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then((r) => r.arrayBuffer());
+      }
     }
     if (isZip(source.slice(0, 4))) {
       source = await this.processZip(source);

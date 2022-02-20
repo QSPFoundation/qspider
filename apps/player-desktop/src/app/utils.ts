@@ -1,4 +1,5 @@
 import { IGameManager } from '@qspider/contracts';
+import { cyrb53 } from '@qspider/utils';
 import { tauri, path } from '@tauri-apps/api';
 
 export async function openGameFromDisk(file_path: string, gameManager: IGameManager): Promise<void> {
@@ -11,7 +12,7 @@ export async function openGameFromDisk(file_path: string, gameManager: IGameMana
   }
   gameManager.openGameDescriptor(
     {
-      id: file_path,
+      id: cyrb53(file_path),
       mode: url.endsWith('aqsp') ? 'aero' : 'classic',
       title: '',
       file: url,
