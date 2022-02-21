@@ -477,6 +477,29 @@
         }
       }
     },
+    "tools": {
+      "root": "libs/tools",
+      "sourceRoot": "libs/tools/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/tools/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/libs/tools"],
+          "options": {
+            "jestConfig": "libs/tools/jest.config.js",
+            "passWithNoTests": true
+          }
+        }
+      },
+      "tags": []
+    },
     "utils": {
       "root": "libs/utils",
       "sourceRoot": "libs/utils/src",

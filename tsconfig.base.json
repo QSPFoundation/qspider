@@ -21,6 +21,7 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
+      "@qsp/tools": ["libs/tools/src/index.ts"],
       "@qspider/aero": ["libs/aero/src/index.ts"],
       "@qspider/audio": ["libs/audio/src/index.ts"],
       "@qspider/classic": ["libs/classic/src/index.ts"],
