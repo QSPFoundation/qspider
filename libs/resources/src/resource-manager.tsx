@@ -2,6 +2,7 @@ import { Unzipped } from 'fflate';
 import { GameDescriptor, IResourceManager, Resource } from '@qspider/contracts';
 import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
+import { readQsps } from '@qsp/tools';
 
 // TODO move config related code
 
@@ -21,21 +22,27 @@ export class ResourceManager implements IResourceManager {
     if (isNewGame) {
       this.updateBasePath(path);
     }
-    let source;
+    const isQsps = path.toLowerCase().endsWith('.qsps');
+    let source: ArrayBuffer | string;
     if (this._zipResources[path.toLowerCase()]) {
       source = this._zipResources[path.toLowerCase()];
     } else {
       try {
-        source = await fetch(path).then((r) => r.arrayBuffer());
+        source = await fetch(path).then(async (r) => (isQsps ? await r.text() : await r.arrayBuffer()));
       } catch {
-        source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then((r) => r.arrayBuffer());
+        source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then(async (r) =>
+          isQsps ? await r.text() : await r.arrayBuffer()
+        );
       }
     }
-    if (isZip(source.slice(0, 4))) {
-      source = await this.processZip(source);
+    if (typeof source === 'string') {
+      return writeQsp(readQsps(source));
+    } else {
+      if (isZip(source.slice(0, 4))) {
+        return this.processZip(source);
+      }
+      return source;
     }
-
-    return source;
   }
 
   openGameArchive(source: ArrayBuffer): Promise<ArrayBuffer> {
@@ -209,4 +216,7 @@ export class ResourceManager implements IResourceManager {
       URL.revokeObjectURL(value);
     }
   }
+}
+function writeQsp(arg0: import('@qsp/tools').QspLocation[]): ArrayBuffer | PromiseLike<ArrayBuffer> {
+  throw new Error('Function not implemented.');
 }

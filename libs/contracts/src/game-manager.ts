@@ -75,4 +75,7 @@ export interface IGameManager {
   selectAction(index: number): void;
   executeSelAction(): void;
   onLinkClicked(href: string): void;
+
+  readonly areToolsVisible: boolean;
+  toggleTools(): void;
 }

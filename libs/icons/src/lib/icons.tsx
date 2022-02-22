@@ -7,6 +7,7 @@ import restart from '../svg/restart.svg';
 import list from '../svg/list.svg';
 import open from '../svg/open.svg';
 import upload from '../svg/upload.svg';
+import tools from '../svg/spanner.svg';
 
 import styled from '@emotion/styled';
 
@@ -19,6 +20,7 @@ export enum IconType {
   list = 'list',
   open = 'open',
   upload = 'upload',
+  tools = 'tools',
 }
 
 const glyphs: Record<IconType, string> = {
@@ -30,6 +32,7 @@ const glyphs: Record<IconType, string> = {
   list,
   open,
   upload,
+  tools,
 };
 
 const IconSvg = styled.svg`

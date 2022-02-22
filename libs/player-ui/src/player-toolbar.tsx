@@ -55,6 +55,7 @@ export const PlayerToolbar: React.FC = observer(() => {
         {!layout.nosave && <IconButton icon={IconType.load} onClick={(): Promise<void> => manager.requestRestore()} />}
         {manager.hasGameList ? <IconButton icon={IconType.list} onClick={(): void => manager.showGameList()} /> : null}
         <OpenGameButton />
+        <IconButton icon={IconType.tools} onClick={(): void => manager.toggleTools()} />
       </Icons>
     </PlayerToolbarWrapper>
   );

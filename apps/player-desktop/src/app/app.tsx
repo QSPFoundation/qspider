@@ -3,7 +3,7 @@ import { Global, css } from '@emotion/react';
 import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
 import { ResourceManager } from '@qspider/resources';
 import { BaseLayout, GameManager, Theme } from '@qspider/core';
-import { Game, GameListDialog } from '@qspider/player-ui';
+import { Game, GameListDialog, ToolsDialog } from '@qspider/player-ui';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
 import { event, path, cli } from '@tauri-apps/api';
@@ -98,6 +98,7 @@ export const App: React.FC = () => {
               <Game>
                 <PlayerMode />
                 <GameListDialog closable={true} />
+                <ToolsDialog />
               </Game>
               {isFileDropHovered ? (
                 <FileDropArea className={unsupportedType ? 'disabled' : ''}>
