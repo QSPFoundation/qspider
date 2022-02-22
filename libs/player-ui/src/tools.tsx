@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 import { useGameManager } from '@qspider/providers';
 import { Modal } from '@qspider/components';
-import { qspsWrite, qspWrite, readQsp, readQsps } from '@qsp/tools';
+import { readQsp, readQsps, writeQsp, writeQsps } from '@qsp/tools';
 import { saveAs } from 'file-saver';
 
 const ToolWrapper = styled.div`
@@ -22,7 +22,7 @@ export const ToolsDialog: React.FC = observer(() => {
     const reader = new FileReader();
     reader.onload = function (evt): void {
       saveAs(
-        new Blob([qspWrite(readQsps(evt.target?.result as string))], { type: 'application/octet-stream' }),
+        new Blob([writeQsp(readQsps(evt.target?.result as string))], { type: 'application/octet-stream' }),
         file.name.slice(0, -1)
       );
     };
@@ -36,7 +36,7 @@ export const ToolsDialog: React.FC = observer(() => {
     reader.onload = function (evt): void {
       try {
         saveAs(
-          new Blob([qspsWrite(readQsp(evt.target?.result as ArrayBuffer))], { type: 'text/plain' }),
+          new Blob([writeQsps(readQsp(evt.target?.result as ArrayBuffer))], { type: 'text/plain' }),
           file.name + 's'
         );
       } catch (err) {

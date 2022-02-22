@@ -2,7 +2,7 @@ import { Unzipped } from 'fflate';
 import { GameDescriptor, IResourceManager, Resource } from '@qspider/contracts';
 import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
-import { readQsps } from '@qsp/tools';
+import { readQsps, writeQsp } from '@qsp/tools';
 
 // TODO move config related code
 
@@ -36,6 +36,7 @@ export class ResourceManager implements IResourceManager {
       }
     }
     if (typeof source === 'string') {
+      console.log(source);
       return writeQsp(readQsps(source));
     } else {
       if (isZip(source.slice(0, 4))) {
@@ -216,7 +217,4 @@ export class ResourceManager implements IResourceManager {
       URL.revokeObjectURL(value);
     }
   }
-}
-function writeQsp(arg0: import('@qsp/tools').QspLocation[]): ArrayBuffer | PromiseLike<ArrayBuffer> {
-  throw new Error('Function not implemented.');
 }

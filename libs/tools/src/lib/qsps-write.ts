@@ -32,6 +32,6 @@ function convertLocation(location: QspLocation): string {
   }\r\n--- ${location.name} ---------------------------------\r\n`;
 }
 
-export function qspsWrite(locations: QspLocation[]): string {
+export function writeQsps(locations: QspLocation[]): string {
   return locations.map(convertLocation).join('\r\n');
 }
