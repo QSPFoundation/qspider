@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable */
+export default {
   name: 'qsp-wasm',
   preset: '../../jest.config.js',
   transform: {

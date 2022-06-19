@@ -1,9 +1,10 @@
-module.exports = {
-  displayName: 'classic',
+/* eslint-disable */
+export default {
+  displayName: 'aero',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/classic',
+  coverageDirectory: '../../coverage/libs/aero',
 };

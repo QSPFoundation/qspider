@@ -2,6 +2,7 @@
   "version": 2,
   "projects": {
     "aero": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/aero",
       "sourceRoot": "libs/aero/src",
       "projectType": "library",
@@ -17,13 +18,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/aero"],
           "options": {
-            "jestConfig": "libs/aero/jest.config.js",
+            "jestConfig": "libs/aero/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "audio": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/audio",
       "sourceRoot": "libs/audio/src",
       "projectType": "library",
@@ -39,13 +41,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/audio"],
           "options": {
-            "jestConfig": "libs/audio/jest.config.js",
+            "jestConfig": "libs/audio/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "classic": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/classic",
       "sourceRoot": "libs/classic/src",
       "projectType": "library",
@@ -61,13 +64,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/classic"],
           "options": {
-            "jestConfig": "libs/classic/jest.config.js",
+            "jestConfig": "libs/classic/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "components": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/components",
       "sourceRoot": "libs/components/src",
       "projectType": "library",
@@ -83,13 +87,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/components"],
           "options": {
-            "jestConfig": "libs/components/jest.config.js",
+            "jestConfig": "libs/components/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "contracts": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/contracts",
       "sourceRoot": "libs/contracts/src",
       "projectType": "library",
@@ -104,6 +109,7 @@
       }
     },
     "core": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/core",
       "sourceRoot": "libs/core/src",
       "projectType": "library",
@@ -119,13 +125,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/core"],
           "options": {
-            "jestConfig": "libs/core/jest.config.js",
+            "jestConfig": "libs/core/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "icons": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/icons",
       "sourceRoot": "libs/icons/src",
       "projectType": "library",
@@ -140,6 +147,7 @@
       }
     },
     "player": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "apps/player",
       "sourceRoot": "apps/player/src",
       "projectType": "application",
@@ -211,9 +219,16 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "development": {
+              "extractLicenses": false,
+              "optimization": false,
+              "sourceMap": true,
+              "vendorChunk": true
             }
           },
-          "outputs": ["{options.outputPath}"]
+          "outputs": ["{options.outputPath}"],
+          "defaultConfiguration": "production"
         },
         "serve": {
           "executor": "@nrwl/web:dev-server",
@@ -223,8 +238,12 @@
           "configurations": {
             "production": {
               "buildTarget": "player:build:production"
+            },
+            "development": {
+              "buildTarget": "player:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
@@ -244,6 +263,7 @@
       }
     },
     "player-desktop": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "apps/player-desktop",
       "sourceRoot": "apps/player-desktop/src",
       "projectType": "application",
@@ -299,8 +319,15 @@
                   "maximumError": "5mb"
                 }
               ]
+            },
+            "development": {
+              "extractLicenses": false,
+              "optimization": false,
+              "sourceMap": true,
+              "vendorChunk": true
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "executor": "@nrwl/web:dev-server",
@@ -312,8 +339,12 @@
             "production": {
               "buildTarget": "player-desktop:build:production",
               "hmr": false
+            },
+            "development": {
+              "buildTarget": "player-desktop:build:development"
             }
-          }
+          },
+          "defaultConfiguration": "development"
         },
         "lint": {
           "executor": "@nrwl/linter:eslint",
@@ -325,6 +356,7 @@
       }
     },
     "player-desktop-e2e": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "apps/player-desktop-e2e",
       "sourceRoot": "apps/player-desktop-e2e/src",
       "projectType": "application",
@@ -352,6 +384,7 @@
       }
     },
     "player-e2e": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "apps/player-e2e",
       "sourceRoot": "apps/player-e2e/src",
       "projectType": "application",
@@ -379,6 +412,7 @@
       }
     },
     "player-ui": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/player-ui",
       "sourceRoot": "libs/player-ui/src",
       "projectType": "library",
@@ -394,13 +428,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/player-ui"],
           "options": {
-            "jestConfig": "libs/player-ui/jest.config.js",
+            "jestConfig": "libs/player-ui/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "providers": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/providers",
       "sourceRoot": "libs/providers/src",
       "projectType": "library",
@@ -416,13 +451,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/providers"],
           "options": {
-            "jestConfig": "libs/providers/jest.config.js",
+            "jestConfig": "libs/providers/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "qsp-wasm": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/qsp-wasm",
       "sourceRoot": "libs/qsp-wasm/src",
       "projectType": "library",
@@ -437,7 +473,7 @@
         "test": {
           "executor": "@nrwl/jest:jest",
           "options": {
-            "jestConfig": "libs/qsp-wasm/jest.config.js",
+            "jestConfig": "libs/qsp-wasm/jest.config.ts",
             "passWithNoTests": true
           },
           "outputs": ["coverage/libs/qsp-wasm"]
@@ -456,6 +492,7 @@
       }
     },
     "resources": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/resources",
       "sourceRoot": "libs/resources/src",
       "projectType": "library",
@@ -471,13 +508,14 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/resources"],
           "options": {
-            "jestConfig": "libs/resources/jest.config.js",
+            "jestConfig": "libs/resources/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     },
     "tools": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/tools",
       "sourceRoot": "libs/tools/src",
       "projectType": "library",
@@ -493,7 +531,7 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/tools"],
           "options": {
-            "jestConfig": "libs/tools/jest.config.js",
+            "jestConfig": "libs/tools/jest.config.ts",
             "passWithNoTests": true
           }
         }
@@ -501,6 +539,7 @@
       "tags": []
     },
     "utils": {
+      "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/utils",
       "sourceRoot": "libs/utils/src",
       "projectType": "library",
@@ -516,11 +555,12 @@
           "executor": "@nrwl/jest:jest",
           "outputs": ["coverage/libs/utils"],
           "options": {
-            "jestConfig": "libs/utils/jest.config.js",
+            "jestConfig": "libs/utils/jest.config.ts",
             "passWithNoTests": true
           }
         }
       }
     }
-  }
+  },
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json"
 }

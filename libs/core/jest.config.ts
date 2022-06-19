@@ -1,9 +1,10 @@
-module.exports = {
-  displayName: 'components',
+/* eslint-disable */
+export default {
+  displayName: 'core',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/components',
+  coverageDirectory: '../../coverage/libs/core',
 };
