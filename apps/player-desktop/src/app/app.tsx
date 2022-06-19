@@ -44,9 +44,9 @@ export const App: React.FC = () => {
       manager.runConfig('https://qspfoundation.github.io/qspider/game/game.cfg');
     });
 
-    let fileDropUnlisten: event.UnlistenFn;
-    let fileDropHoverUnlisten: event.UnlistenFn;
-    let fileDropCancelledUnlisten: event.UnlistenFn;
+    let fileDropUnlisten: event.UnlistenFn | null = null;
+    let fileDropHoverUnlisten: event.UnlistenFn | null = null;
+    let fileDropCancelledUnlisten: event.UnlistenFn | null = null;
 
     const setupCallbacks = async (): Promise<void> => {
       fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', (e) => {
@@ -70,9 +70,9 @@ export const App: React.FC = () => {
     };
     setupCallbacks();
     return (): void => {
-      fileDropUnlisten();
-      fileDropHoverUnlisten();
-      fileDropCancelledUnlisten();
+      fileDropUnlisten && fileDropUnlisten();
+      fileDropHoverUnlisten && fileDropHoverUnlisten();
+      fileDropCancelledUnlisten && fileDropCancelledUnlisten();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
