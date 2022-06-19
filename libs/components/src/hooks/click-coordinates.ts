@@ -7,7 +7,7 @@ export function useClickCoordinates(): Coordinates {
   const [coords, setCoords] = useState({ x: 0, y: 0 });
 
   const handler = useCallback(
-    ({ clientX, clientY }) => {
+    ({ clientX, clientY }: MouseEvent) => {
       // Update coordinates
       setCoords({ x: clientX, y: clientY });
     },

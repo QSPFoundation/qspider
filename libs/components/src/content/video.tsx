@@ -5,6 +5,7 @@ export const Video: React.FC<{
   className?: string;
   style: React.CSSProperties;
   attributes: Attributes;
+  children: React.ReactNode;
 }> = ({ style, className, children, attributes }) => {
   return (
     <video {...useAttributes(attributes)} className={className} style={style} preload="auto" loop autoPlay>

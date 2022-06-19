@@ -141,7 +141,7 @@ class ClassicLayout {
 
 const classicLayoutContext = React.createContext<ClassicLayout | null>(null);
 
-export const LayoutProvider: React.FC = ({ children }) => {
+export const LayoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
   const baseLayout = useBaseLayout();

@@ -10,7 +10,7 @@ export const ActionsPanel: React.FC = observer(() => {
   const { isActionsPanelVisible } = useBaseLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
   const onAction = useCallback(
-    (index) => {
+    (index: number) => {
       manager.selectAction(index);
       manager.executeSelAction();
     },

@@ -41,7 +41,7 @@ OverlayScrollbars.extension('scrollState', function () {
   return extension;
 });
 
-export const AeroCustomScroll: React.FC<{ scrollY?: string; scrollX?: string }> = observer(
+export const AeroCustomScroll: React.FC<{ scrollY?: string; scrollX?: string; children: React.ReactNode }> = observer(
   ({ scrollY, scrollX, children }) => {
     const scrollRef = useRef<OverlayScrollbarsComponent>(null);
     useEffect(() => {

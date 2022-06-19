@@ -292,7 +292,7 @@ class AeroLayout {
 
 const layoutContext = React.createContext<AeroLayout | null>(null);
 
-export const AeroLayoutProvider: React.FC = ({ children }) => {
+export const AeroLayoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const manager = useGameManager();
   const resources = useResources();
   const baseLayout = useBaseLayout();

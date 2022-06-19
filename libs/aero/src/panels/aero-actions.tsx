@@ -14,7 +14,7 @@ export const AeroActionsPanel: React.FC = observer(() => {
   const layout = useAeroLayout();
   const onActionSelect = useCallback((index: number) => manager.selectAction(index), [manager]);
   const onAction = useCallback(
-    (index) => {
+    (index: number) => {
       manager.selectAction(index);
       manager.executeSelAction();
     },

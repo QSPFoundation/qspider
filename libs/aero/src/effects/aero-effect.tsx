@@ -10,6 +10,7 @@ export const AeroEffect: React.FC<{
   effect: AeroEffectType;
   sequence?: boolean;
   animationKey?: string;
+  children: React.ReactNode;
   onEffectEnd?: () => void;
 }> = ({ show, duration, effect, onEffectEnd, sequence, animationKey, children }) => {
   if (!effect) {

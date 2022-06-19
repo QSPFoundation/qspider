@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
-export const CustomScroll: React.FC<{ scrollY?: string; scrollX?: string }> = ({ scrollY, scrollX, children }) => {
+export const CustomScroll: React.FC<{ scrollY?: string; scrollX?: string; children: React.ReactNode }> = ({
+  scrollY,
+  scrollX,
+  children,
+}) => {
   const scrollRef = useRef<OverlayScrollbarsComponent>(null);
   useEffect(() => {
     const ref = scrollRef.current;

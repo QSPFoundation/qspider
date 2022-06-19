@@ -15,6 +15,7 @@ export const Link: React.FC<{
   className?: string;
   style: React.CSSProperties;
   attributes: Attributes;
+  children: React.ReactNode;
 }> = observer(({ exec, act, className, style, children, attributes }) => {
   const manager = useGameManager();
   const onClick = useCallback(
@@ -37,13 +38,13 @@ export const Link: React.FC<{
   );
 });
 
-export const A: React.FC<{ href?: string; className?: string; style: React.CSSProperties; attributes: Attributes }> = ({
-  style,
-  className,
-  href,
-  children,
-  attributes,
-}) => {
+export const A: React.FC<{
+  href?: string;
+  className?: string;
+  style: React.CSSProperties;
+  attributes: Attributes;
+  children: React.ReactNode;
+}> = ({ style, className, href, children, attributes }) => {
   return (
     <StyledA {...useAttributes(attributes)} href={href} style={useStyle(style)} className={className}>
       {children}

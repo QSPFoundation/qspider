@@ -4,7 +4,7 @@ import { useGameManager } from '@qspider/providers';
 import { LoadingScreen } from './loading-screen';
 import { GameListDialog } from './game-list';
 
-export const Game: React.FC = observer(({ children }): ReactElement => {
+export const Game: React.FC<{ children: React.ReactNode }> = observer(({ children }): ReactElement => {
   const manager = useGameManager();
   if (!manager.isInitialized) return <LoadingScreen />;
   // eslint-disable-next-line react/jsx-no-useless-fragment

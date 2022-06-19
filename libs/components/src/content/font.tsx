@@ -30,6 +30,7 @@ export const Font: React.FC<{
   style: React.CSSProperties;
   className?: string;
   attributes: Attributes;
+  children: React.ReactNode;
 }> = ({ size, style, className, children, attributes }) => {
   return (
     <StyledFont {...useAttributes(attributes)} size={size} style={useStyle(style)} className={className}>

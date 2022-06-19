@@ -60,7 +60,7 @@ const AeroPlayerForeground = styled.div<{
   pointer-events: none;
 `;
 
-export const AeroLayoutContainer: React.FC = observer(({ children }) => {
+export const AeroLayoutContainer: React.FC = observer(() => {
   const manager = useGameManager();
   const layout = useAeroLayout();
   const resources = useResources();

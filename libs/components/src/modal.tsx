@@ -66,6 +66,7 @@ export const Modal: React.FC<{
   hideButtons?: boolean;
   width?: number;
   dataQsp: string;
+  children: React.ReactNode;
 }> = ({ onClose, hideButtons, children, width, dataQsp, closable = true }) => {
   return (
     <>

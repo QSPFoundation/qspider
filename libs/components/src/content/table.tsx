@@ -33,6 +33,7 @@ export const Table: React.FC<{
   className?: string;
   style: React.CSSProperties;
   attributes: Attributes;
+  children: React.ReactNode;
 }> = ({ border, cellspacing, cellpadding, style, className, children, attributes }) => {
   return (
     <StyledTable
