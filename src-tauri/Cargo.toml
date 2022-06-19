@@ -25,7 +25,7 @@ urlencoding = "2.1.0"
 
   [dependencies.tauri]
   version = "1.0.0"
-  features = ["api-all", "cli", "devtools", "updater"]
+  features = ["api-all", "cli", "devtools", "icon-ico", "icon-png", "updater"]
 
   [dependencies.uuid]
   version = "0.8"

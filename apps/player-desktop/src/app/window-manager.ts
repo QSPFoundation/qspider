@@ -16,7 +16,7 @@ export const windowManager: IWindowManager = {
         height = monitorSize.height - 1;
       }
     }
-    window.appWindow.setSize(new window.LogicalSize(width, height)); //.then(() => appWindow.center());
+    window.appWindow.setSize(new window.LogicalSize(width, height)).then(() => window.appWindow.center());
   },
   setMinSize(width: number, height: number): void {
     window.appWindow.setMinSize(new window.LogicalSize(width, height));
