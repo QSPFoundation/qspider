@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Global, css } from '@emotion/react';
 import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
 import { ResourceManager } from '@qspider/resources';
@@ -16,15 +16,13 @@ import { PlayerMode } from './player-mode';
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
 };
+const resources = new ResourceManager();
+const manager = new GameManager(resources, windowManager);
+const layout = new BaseLayout(manager, resources);
 
 export const App: React.FC = () => {
-  const [resources] = useState(() => new ResourceManager());
-  const [manager] = useState(() => new GameManager(resources, windowManager));
-  const [layout] = useState(() => new BaseLayout(manager, resources));
-
   const [isFileDropHovered, setIsFileDropHovered] = useState(false);
   const [unsupportedType, setUnsupportedType] = useState('');
-
   useEffect(() => {
     cli.getMatches().then(async (matches) => {
       await manager.initialize();
