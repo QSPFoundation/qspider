@@ -24,7 +24,7 @@ urlencoding = "2.1.0"
   features = [ "derive" ]
 
   [dependencies.tauri]
-  version = "1.0.0"
+  version = "1.0.2"
   features = ["api-all", "cli", "devtools", "icon-ico", "icon-png", "updater"]
 
   [dependencies.uuid]
