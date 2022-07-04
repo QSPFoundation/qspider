@@ -33,7 +33,7 @@
     "@popperjs/core": "^2.11.5",
     "@tauri-apps/api": "^1.0.1",
     "color": "^4.2.3",
-    "core-js": "^3.23.1",
+    "core-js": "^3.23.3",
     "eventemitter3": "^4.0.7",
     "fflate": "^0.7.2",
     "file-saver": "^2.0.5",
@@ -41,7 +41,7 @@
     "interweave": "^13.0.0",
     "jimp": "^0.16.1",
     "localforage": "^1.10.0",
-    "mobx": "^6.6.0",
+    "mobx": "^6.6.1",
     "mobx-react-lite": "^3.4.0",
     "mousetrap": "^1.6.5",
     "overlayscrollbars": "^1.13.2",
@@ -54,7 +54,7 @@
     "react-spaces": "^0.3.4",
     "react-transition-group": "^4.4.2",
     "regenerator-runtime": "^0.13.9",
-    "tslib": "^2.0.0"
+    "tslib": "^2.4.0"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "11.9.2",
@@ -79,7 +79,7 @@
     "@types/overlayscrollbars": "^1.12.1",
     "@types/react": "18.0.14",
     "@types/react-dom": "18.0.5",
-    "@types/react-transition-group": "^4.4.4",
+    "@types/react-transition-group": "^4.4.5",
     "@types/svg-sprite-loader": "^3.9.5",
     "@typescript-eslint/eslint-plugin": "5.24.0",
     "@typescript-eslint/parser": "^5.29.0",
