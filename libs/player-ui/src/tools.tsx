@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
 import { useGameManager } from '@qspider/providers';
 import { Modal } from '@qspider/components';
-import { readQsp, readQsps, writeQsp, writeQsps } from '@qsp/tools';
+import { readQsp, readQsps, writeQsp, writeQsps } from '@qsp/converters';
 import { saveAs } from 'file-saver';
 
 const ToolWrapper = styled.div`

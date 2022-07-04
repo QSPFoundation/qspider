@@ -2,7 +2,7 @@ import { Unzipped } from 'fflate';
 import { GameDescriptor, IResourceManager, Resource } from '@qspider/contracts';
 import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
-import { readQsps, writeQsp } from '@qsp/tools';
+import { readQsps, writeQsp } from '@qsp/converters';
 
 // TODO move config related code
 

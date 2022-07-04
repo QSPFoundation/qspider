@@ -514,30 +514,6 @@
         }
       }
     },
-    "tools": {
-      "$schema": "../../node_modules/nx/schemas/project-schema.json",
-      "root": "libs/tools",
-      "sourceRoot": "libs/tools/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["libs/tools/**/*.ts"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/libs/tools"],
-          "options": {
-            "jestConfig": "libs/tools/jest.config.ts",
-            "passWithNoTests": true
-          }
-        }
-      },
-      "tags": []
-    },
     "utils": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/utils",
