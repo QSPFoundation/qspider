@@ -3,7 +3,7 @@ import { Global, css } from '@emotion/react';
 import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
 import { ResourceManager } from '@qspider/resources';
 import { BaseLayout, GameManager, Theme } from '@qspider/core';
-import { Game, GameListDialog, ToolsDialog } from '@qspider/player-ui';
+import { Game, GameListDialog } from '@qspider/player-ui';
 import { ProvidedComponents } from '@qspider/contracts';
 import { OpenGameButton } from './open-game-button';
 import { windowManager } from './window-manager';
@@ -66,7 +66,6 @@ export const App: React.FC = () => {
               <Game>
                 <PlayerMode />
                 <GameListDialog closable={true} />
-                <ToolsDialog />
               </Game>
             </Theme>
           </BaseLayoutProvider>

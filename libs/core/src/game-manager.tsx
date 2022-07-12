@@ -56,8 +56,6 @@ export class GameManager implements IGameManager {
   counterDelay = 500;
   counterTimeout?: number;
 
-  areToolsVisible = false;
-
   apiInitialized: Defered<void>;
 
   public readonly audioEngine = new AudioEngine();
@@ -120,9 +118,6 @@ export class GameManager implements IGameManager {
       updateUserInput: action,
       updateMenu: action,
       selectMenu: action,
-
-      areToolsVisible: observable,
-      toggleTools: action,
     });
     this.apiInitialized = defer();
   }
@@ -689,9 +684,5 @@ export class GameManager implements IGameManager {
     } else {
       window.location.href = href;
     }
-  }
-
-  toggleTools(): void {
-    this.areToolsVisible = !this.areToolsVisible;
   }
 }
