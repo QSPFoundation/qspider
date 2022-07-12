@@ -142,10 +142,20 @@ export class GameManager implements IGameManager {
   }
 
   async runConfig(mainConfig = `game/game.cfg`): Promise<void> {
-    this.config = await fetch(mainConfig)
-      .then((r) => r.text())
-      .then((text) => TOMLparse(text) as unknown as PlayerConfig);
-    this.configPath = mainConfig.slice(0, mainConfig.lastIndexOf('/') + 1);
+    try {
+      this.config = await fetch(mainConfig)
+        .then((r) => r.text())
+        .then((text) => TOMLparse(text) as unknown as PlayerConfig);
+      this.configPath = mainConfig.slice(0, mainConfig.lastIndexOf('/') + 1);
+    } catch (err) {
+      this.errorData = {
+        description: err instanceof Error ? err.message : (err as string),
+        code: -1,
+        location: '',
+        line: -1,
+        actionIndex: -1,
+      };
+    }
 
     if (this.config) {
       if (this.config.game.length > 1) {
@@ -156,10 +166,11 @@ export class GameManager implements IGameManager {
     }
   }
 
-  async openGame(source: ArrayBuffer, name: string): Promise<void> {
+  async openGame(source: ArrayBuffer | string, name: string): Promise<void> {
     try {
       this.stopGame();
-      const gameSource = await this.resources.openGameArchive(source);
+      this.resources.updateBasePath('');
+      const gameSource = await this.resources.prepareGameFromSource(source, true);
       if (gameSource) {
         if (this.isGameListShown) {
           this.hideGameList();
@@ -185,10 +196,8 @@ export class GameManager implements IGameManager {
       this.hideGameList();
     }
     this.stopGame();
-    const gameSource = await this.resources.loadGame(
-      fromConfig ? this.configPath + descriptor.file : descriptor.file,
-      true
-    );
+    const path = fromConfig ? this.configPath + descriptor.file : descriptor.file;
+    const gameSource = await this.resources.prepareGameFromPath(path, true);
 
     this.runGame(gameSource, descriptor);
   }
@@ -515,7 +524,7 @@ export class GameManager implements IGameManager {
 
   onOpenGame = async (file: string, isNewGame: boolean, onOpened: () => void): Promise<void> => {
     this.pause();
-    const gameSource = await this.resources.loadGame(file, isNewGame);
+    const gameSource = await this.resources.prepareGameFromPath(file, isNewGame);
     this._api.openGame(gameSource, isNewGame);
     onOpened();
     this.resume();

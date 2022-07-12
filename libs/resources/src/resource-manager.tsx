@@ -4,12 +4,9 @@ import { defer, resolvePath } from '@qspider/utils';
 import { cleanPath, isExternalSource, isZip, readZip } from './helpers';
 import { readQsps, writeQsp } from '@qsp/converters';
 
-// TODO move config related code
-
 export class ResourceManager implements IResourceManager {
   private _basePath = ``;
 
-  // private _gameConfig: CfgData | undefined | false = undefined;
   private _zipResources: Unzipped = {};
   private _zipUrls: Map<string, string> = new Map();
 
@@ -17,51 +14,55 @@ export class ResourceManager implements IResourceManager {
     return this._basePath;
   }
 
-  async loadGame(file: string, isNewGame: boolean): Promise<ArrayBuffer> {
+  async prepareGameFromPath(file: string, isNewGame: boolean): Promise<ArrayBuffer> {
     const path = isExternalSource(file) ? file : this.preparePath(file);
     if (isNewGame) {
       this.updateBasePath(path);
     }
     const isQsps = path.toLowerCase().endsWith('.qsps');
-    let source: ArrayBuffer | string;
+
+    let source: ArrayBuffer;
     if (this._zipResources[path.toLowerCase()]) {
       source = this._zipResources[path.toLowerCase()];
     } else {
       try {
-        source = await fetch(path).then(async (r) => (isQsps ? await r.text() : await r.arrayBuffer()));
+        source = await fetch(path).then((r) => r.arrayBuffer());
       } catch {
-        source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then(async (r) =>
-          isQsps ? await r.text() : await r.arrayBuffer()
-        );
+        source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then((r) => r.arrayBuffer());
       }
     }
+
+    if (isQsps) {
+      const data = new Uint8Array(source.slice(0, 2));
+      const encoding = data[0] === 255 && data[1] === 254 ? 'utf-16le' : 'utf-8';
+      const decoder = new TextDecoder(encoding);
+      return this.prepareGameFromSource(decoder.decode(source), isNewGame);
+    }
+
+    return this.prepareGameFromSource(source, isNewGame);
+  }
+
+  async prepareGameFromSource(source: string | ArrayBuffer, isNewGame: boolean): Promise<ArrayBuffer> {
     if (typeof source === 'string') {
-      console.log(source);
       return writeQsp(readQsps(source));
     } else {
       if (isZip(source.slice(0, 4))) {
-        return this.processZip(source);
+        return this.processZip(source, isNewGame);
       }
       return source;
     }
   }
 
-  openGameArchive(source: ArrayBuffer): Promise<ArrayBuffer> {
-    if (isZip(source.slice(0, 4))) {
-      this.clear();
-      return this.processZip(source);
-    }
-    throw new Error('Only zip files are supported');
-  }
-
-  async processZip(source: ArrayBuffer): Promise<ArrayBuffer> {
+  async processZip(source: ArrayBuffer, isNewGame: boolean): Promise<ArrayBuffer> {
     const resources = await readZip(source);
     for (const [path, file] of Object.entries(resources)) {
       this._zipResources[path.toLowerCase()] = file;
     }
     const gameSource = this.findGameFile(resources);
     if (!gameSource) throw new Error('game file not found in archive, make sure it is on top level');
-    this._basePath = '';
+    if (isNewGame) {
+      this._basePath = '';
+    }
     return gameSource;
   }
 
@@ -190,13 +191,21 @@ export class ResourceManager implements IResourceManager {
     document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
   }
 
-  private findGameFile(zipResources: Unzipped): Uint8Array | null {
+  private findGameFile(zipResources: Unzipped): ArrayBuffer | null {
     if (!zipResources) {
       return null;
     }
     for (const key of Object.keys(zipResources)) {
       if (key.endsWith('.qsp') && !key.includes('/')) {
-        return zipResources[key];
+        return zipResources[key].buffer;
+      }
+    }
+    for (const key of Object.keys(zipResources)) {
+      if (key.endsWith('.qsps') && !key.includes('/')) {
+        const data = zipResources[key];
+        const encoding = data[0] === 255 && data[1] === 254 ? 'utf-16le' : 'utf-8';
+        const decoder = new TextDecoder(encoding);
+        return writeQsp(readQsps(decoder.decode(data)));
       }
     }
     return null;
@@ -216,5 +225,6 @@ export class ResourceManager implements IResourceManager {
     for (const value of this._zipUrls.values()) {
       URL.revokeObjectURL(value);
     }
+    this._zipUrls.clear();
   }
 }

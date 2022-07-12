@@ -56,13 +56,17 @@ export const OpenGameButton: React.FC = () => {
       reader.onload = function (evt): void {
         gameManager.openGame(evt.target?.result as ArrayBuffer, file.name);
       };
-      reader.readAsArrayBuffer(file);
+      if (file.name.endsWith('qsps')) {
+        reader.readAsText(file, 'utf8');
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     },
     [gameManager]
   );
   return (
     <OpenButton>
-      <FileInput type="file" id="openGame" accept=".zip, .aqsp" onChange={onChange} />
+      <FileInput type="file" id="openGame" accept=".zip, .aqsp, .qsp, .qsps" onChange={onChange} />
       <FileInputLabel htmlFor="openGame">
         <Icon icon={IconType.open} />
       </FileInputLabel>

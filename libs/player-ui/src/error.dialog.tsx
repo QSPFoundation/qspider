@@ -7,18 +7,19 @@ export const ErrorDialog: React.FC = observer(() => {
   const gameManager = useGameManager();
   const onClose = useCallback(() => gameManager.clearError(), [gameManager]);
   const { errorData } = gameManager;
-  const isShown = Boolean(errorData);
-  if (!isShown || !errorData) return null;
+  if (!errorData) return null;
   return (
     <Modal onClose={onClose} dataQsp="error">
       <>
-        Location: {errorData.location}
-        <br />
-        Line: {errorData.line}
-        <br />
-        Error code: {errorData.code}
-        <br />
         Error: {errorData.description}
+        <br />
+        {errorData.code >= 0 ? 'Error code: ' + errorData.code : ''}
+        <br />
+        {errorData.location && 'Location: ' + errorData.location}
+        <br />
+        {errorData.actionIndex >= 0 ? 'Action index: ' + errorData.actionIndex : ''}
+        <br />
+        {errorData.line >= 0 ? 'Line: ' + errorData.line : ''}
       </>
     </Modal>
   );
