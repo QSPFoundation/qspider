@@ -70,7 +70,7 @@ export const Modal: React.FC<{
 }> = ({ onClose, hideButtons, children, width, dataQsp, closable = true }) => {
   return (
     <>
-      <Overlay onClick={closable ? onClose : noop} data-qsp={dataQsp + '-overlay'} />
+      <Overlay data-qsp={dataQsp + '-overlay'} />
       <ModalContainer data-qsp={dataQsp}>
         <ModalBody width={width}>
           {closable ? <CloseButton onClick={onClose}>x</CloseButton> : null}

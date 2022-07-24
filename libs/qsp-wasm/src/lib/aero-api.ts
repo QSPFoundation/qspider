@@ -105,6 +105,7 @@ title	название игры (отображается в заголовке 
 PS: По умолчанию размер экрана игры 800x600 пикселей.
 */
 
+import { convertColor } from '@qspider/utils';
 import EventEmitter from 'eventemitter3';
 import { QspAPI } from './contracts';
 import { equal } from './helpers';
@@ -482,7 +483,7 @@ export class AeroApi {
       fixedSize: Boolean(this.qspApi.readVariableNumber('FIXED_SIZE_MENU')),
       padding: this.qspApi.readVariableNumber('MENU_PADDING') || 4,
       borderWidth: this.qspApi.readVariableNumber('MENU_BORDER') || 1,
-      borderColor: this.convertColor(this.qspApi.readVariableNumber('MENU_BORDER_COLOR')) || 'rgba(64,64,64,150)',
+      borderColor: convertColor(this.qspApi.readVariableNumber('MENU_BORDER_COLOR')) || 'rgba(64,64,64,150)',
       backImage: this.qspApi.readVariableString('$MENU_BACKIMAGE'),
       x: this.qspApi.readVariableNumber('MENU_X') || -1,
       y: this.qspApi.readVariableNumber('MENU_Y') || -1,
@@ -504,20 +505,5 @@ export class AeroApi {
       this.menuUI = menuUI;
       this.events.emit('menu_ui', menuUI);
     }
-  }
-
-  private convertColor(value: number, withAlpha = true): string | null {
-    if (!value) return null;
-    const arr = new Uint8Array(4);
-    const view = new DataView(arr.buffer);
-    view.setInt32(0, value);
-
-    if (withAlpha) {
-      const [alpha, blue, green, red] = arr;
-      return `rgba(${red},${green},${blue},${alpha})`;
-    }
-
-    const [, blue, green, red] = arr;
-    return `rgb(${red},${green},${blue})`;
   }
 }

@@ -1,4 +1,4 @@
-import { observable, action, computed, makeObservable, autorun, reaction } from 'mobx';
+import { observable, action, computed, makeObservable } from 'mobx';
 import { convertColor } from '@qspider/utils';
 import { BaseLayoutDefaults, IResourceManager, QspGUIPanel } from '@qspider/contracts';
 import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
@@ -92,8 +92,8 @@ export class BaseLayout {
     this.useHtml = settings.useHtml || mode === 'aero';
     this.backgroundColor = settings.backgroundColor ? convertColor(settings.backgroundColor) : null;
     this.backgroundImage = settings.backgroundImage;
-    this.color = settings.color ? convertColor(settings.color) : null;
-    this.linkColor = settings.linkColor ? convertColor(settings.linkColor) : null;
+    this.color = convertColor(settings.color);
+    this.linkColor = convertColor(settings.linkColor);
     this.fontSize = settings.fontSize;
     this.fontName = settings.fontName;
   };

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { observable, action, computed, makeObservable, reaction, IReactionDisposer } from 'mobx';
 import { extractLayoutData, LayoutDock, LayoutPanel } from './cfg-converter';
 import { CfgData, parseCfg } from './cfg-parser';
@@ -72,9 +72,10 @@ class ClassicLayout {
     const defaults = { ...classicDefaults };
     if (config) {
       if (config.Colors) {
-        defaults.defaultBackgroundColor = convertColor(config.Colors.BackColor, false);
-        defaults.defaultColor = convertColor(config.Colors.FontColor, false);
-        defaults.defaultLinkColor = convertColor(config.Colors.LinkColor, false);
+        defaults.defaultBackgroundColor =
+          convertColor(config.Colors.BackColor, false) || classicDefaults.defaultBackgroundColor;
+        defaults.defaultColor = convertColor(config.Colors.FontColor, false) || classicDefaults.defaultColor;
+        defaults.defaultLinkColor = convertColor(config.Colors.LinkColor, false) || classicDefaults.defaultLinkColor;
       }
       if (config.Font) {
         defaults.defaultFontName = config.Font.FontName;
