@@ -221,7 +221,24 @@ function extractAttributes(node: HTMLElement): Attributes {
   return attributes;
 }
 
-const voidTags = ['br', 'col', 'hr', 'img', 'source', 'track', 'wbr'];
+const voidTags = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'command',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'keygen',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+];
 
 function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
