@@ -48,7 +48,6 @@
     "overlayscrollbars": "^1.13.3",
     "overlayscrollbars-react": "^0.3.0",
     "react": "18.2.0",
-    "react-delta": "^1.1.2",
     "react-dom": "18.2.0",
     "react-is": "^18.2.0",
     "react-popper": "^2.3.0",

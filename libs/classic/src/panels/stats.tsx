@@ -1,14 +1,13 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { usePrevious } from 'react-delta';
 import { useBaseLayout, useGameManager } from '@qspider/providers';
 import { Panel, PanelContent } from '../panel';
-import { Content, CustomScroll } from '@qspider/components';
+import { Content, CustomScroll, hooks } from '@qspider/components';
 
 export const StatsPanel: React.FC = observer(() => {
   const manager = useGameManager();
   const { isStatsPanelVisible } = useBaseLayout();
-  const prevStats = usePrevious(manager.stats);
+  const prevStats = hooks.usePrevious(manager.stats);
   if (!isStatsPanelVisible) return null;
   const scrollY = prevStats && manager.stats !== prevStats && manager.stats.startsWith(prevStats) ? '100%' : undefined;
   return (

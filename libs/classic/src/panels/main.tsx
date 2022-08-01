@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { usePrevious } from 'react-delta';
 import { useGameManager } from '@qspider/providers';
 import { PanelContent, PanelWithBackground } from '../panel';
-import { Content, CustomScroll } from '@qspider/components';
+import { Content, CustomScroll, hooks } from '@qspider/components';
 
 export const MainPanel: React.FC = observer(() => {
   const manager = useGameManager();
-  const prevMain = usePrevious(manager.main);
+  const prevMain = hooks.usePrevious(manager.main);
   const [scrollY, setScrollY] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (prevMain && manager.main !== prevMain && manager.main.startsWith(prevMain)) {
