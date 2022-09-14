@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { AeroContentRectangle } from '@qspider/qsp-wasm';
+import { AeroContentRectangle } from './aero.types';
 
 export const AeroPanel = styled.div<Partial<AeroContentRectangle> & { background?: string }>`
   position: absolute;

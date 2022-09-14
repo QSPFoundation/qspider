@@ -94,7 +94,7 @@ class ClassicLayout {
   }
 
   get floatingPanels(): [string, number, number][] {
-    return this.floating.filter(([name]) => this.isPanelVisible(name));
+    return this.floating.filter(([name]) => this.baseLayout.isPanelVisible(name));
   }
 
   processDock = (dock: LayoutDock): LayoutDock | null => {
@@ -116,24 +116,8 @@ class ClassicLayout {
   };
 
   filterPanels = (panels: LayoutPanel[]): LayoutPanel[] => {
-    return panels && panels.filter(([name]) => this.isPanelVisible(name));
+    return panels && panels.filter(([name]) => this.baseLayout.isPanelVisible(name));
   };
-
-  isPanelVisible(name: QspGUIPanel): boolean {
-    switch (name) {
-      case QspGUIPanel.Actions:
-        return this.baseLayout.isActionsPanelVisible;
-      case QspGUIPanel.ImageView:
-        return this.manager.isViewShown;
-      case QspGUIPanel.Objects:
-        return this.baseLayout.isObjectPanelVisible;
-      case QspGUIPanel.Stats:
-        return this.baseLayout.isStatsPanelVisible;
-      case QspGUIPanel.Input:
-        return this.baseLayout.isUserInputPanelVisible;
-    }
-    return true;
-  }
 
   dispose(): void {
     this.reactionDisposer();

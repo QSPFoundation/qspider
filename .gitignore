@@ -2,8 +2,6 @@
 
 /game
 !/game/.gitkeep
-/libs/qsp-wasm/src/qsplib/build/*
-!/libs/qsp-wasm/src/qsplib/build/.gitkeep
 
 # compiled output
 /dist

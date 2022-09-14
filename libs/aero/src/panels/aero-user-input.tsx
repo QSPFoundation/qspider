@@ -1,9 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { AeroContentRectangle } from '@qspider/qsp-wasm';
 import { useBaseLayout, useGameManager } from '@qspider/providers';
 import { useAeroLayout } from '../aero-layout';
+import { AeroContentRectangle } from '../aero.types';
 
 const TextInput = styled.input<AeroContentRectangle>`
   background: transparent;

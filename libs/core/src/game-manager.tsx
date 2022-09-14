@@ -1,5 +1,8 @@
 import { observable, action, makeObservable, runInAction } from 'mobx';
-import { QspAPI, init, QspErrorData, QspListItem, QspEvents } from '@qspider/qsp-wasm';
+import { initQspEngine, QspAPI, QspErrorData, QspEvents, QspListItem } from '@qsp/wasm-engine';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm';
 import { prepareContent, prepareList } from './helpers';
 import { SaveManager } from './save-manager';
 import { HotKeysManager } from './hotkeys';
@@ -57,6 +60,8 @@ export class GameManager implements IGameManager {
   counterTimeout?: number;
 
   apiInitialized: Defered<void>;
+
+  platform = 'browser';
 
   public readonly audioEngine = new AudioEngine();
   private saveManager = new SaveManager();
@@ -129,7 +134,8 @@ export class GameManager implements IGameManager {
   }
 
   async initialize(): Promise<void> {
-    this._api = await init();
+    const wasm = await fetch(wasmUrl).then((r) => r.arrayBuffer());
+    this._api = await initQspEngine(wasm);
     console.log(`QSP version: ${this._api.version()}`);
 
     this.setupQspCallbacks();
@@ -296,7 +302,18 @@ export class GameManager implements IGameManager {
     this._api.on('play_file', this.playFile);
     this._api.on('close_file', this.closeFile);
     this._api.on('system_cmd', this.processSystemCmd);
+    this._api.on('version', this.onVersion);
   }
+
+  onVersion = (type: string, callback: (version: string) => void): void => {
+    switch (type) {
+      case 'player':
+        return callback('qSpider');
+      case 'platform':
+        return callback(this.platform);
+    }
+    return callback(this._api.version());
+  };
 
   setupHotKeyListeners(): void {
     this.hotKeysManager.on('select_action', (index: number) => {
@@ -441,7 +458,7 @@ export class GameManager implements IGameManager {
   };
 
   submitUserInput = (): void => {
-    this._api.execUserInput(this.userInput);
+    this._api.updateUserInput(this.userInput);
   };
 
   selectAction(index: number): void {
@@ -449,7 +466,7 @@ export class GameManager implements IGameManager {
   }
 
   executeSelAction(): void {
-    this._api.executeSelAction();
+    this._api.execSelectedAction();
   }
 
   selectObject(index: number): void {

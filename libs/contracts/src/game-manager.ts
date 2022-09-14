@@ -1,4 +1,4 @@
-import { QspAPI, QspErrorData, QspListItem } from '@qspider/qsp-wasm';
+import { QspAPI, QspErrorData, QspListItem } from '@qsp/wasm-engine';
 import { Defered } from '@qspider/utils';
 import { GameDescriptor, PlayerConfig } from './game';
 import { SaveAction } from './save';

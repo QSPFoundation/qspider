@@ -1,11 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
-import { TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroActionsPanel } from './aero-actions';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 import { AeroEffect } from '../effects/aero-effect';
 import { useGameManager, useResources } from '@qspider/providers';
-import { useAeroLayout } from '../aero-layout';
+import { TEXT_PLACEHOLDER, useAeroLayout } from '../aero-layout';
 import { AeroPanel } from '../aero-panel';
 import { Content } from '@qspider/components';
 

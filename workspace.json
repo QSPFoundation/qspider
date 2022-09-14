@@ -457,40 +457,6 @@
         }
       }
     },
-    "qsp-wasm": {
-      "$schema": "../../node_modules/nx/schemas/project-schema.json",
-      "root": "libs/qsp-wasm",
-      "sourceRoot": "libs/qsp-wasm/src",
-      "projectType": "library",
-      "targets": {
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["libs/qsp-wasm/**/*.{ts,tsx,js,jsx}"]
-          }
-        },
-        "test": {
-          "executor": "@nrwl/jest:jest",
-          "options": {
-            "jestConfig": "libs/qsp-wasm/jest.config.ts",
-            "passWithNoTests": true
-          },
-          "outputs": ["coverage/libs/qsp-wasm"]
-        },
-        "compile": {
-          "executor": "@nrwl/workspace:run-commands",
-          "options": {
-            "commands": [
-              {
-                "command": "emcmake cmake .. && make"
-              }
-            ],
-            "cwd": "libs/qsp-wasm/src/qsplib/build"
-          }
-        }
-      }
-    },
     "resources": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/resources",

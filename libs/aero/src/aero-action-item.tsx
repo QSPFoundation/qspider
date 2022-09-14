@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
-import { IMAGE_PLACEHOLDER, QspListItem, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
-import { useAeroLayout } from './aero-layout';
+import { IMAGE_PLACEHOLDER, TEXT_PLACEHOLDER, useAeroLayout } from './aero-layout';
 import { Content } from '@qspider/components';
+import { QspListItem } from '@qsp/wasm-engine';
 
 export const ActionButton = styled.button`
   display: block;

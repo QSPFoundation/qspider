@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { ViewUI } from '@qspider/qsp-wasm';
 import { AeroEffect } from '../effects/aero-effect';
 import { useGameManager } from '@qspider/providers';
 import { useAeroLayout } from '../aero-layout';
+import { ViewUI } from '../aero.types';
 
 const ViewImageContainer = styled.div<{ ui: ViewUI; url: string }>`
   position: absolute;

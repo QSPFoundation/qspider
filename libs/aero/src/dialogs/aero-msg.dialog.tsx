@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { MsgUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroEffect } from '../effects/aero-effect';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 
@@ -9,8 +8,9 @@ import defaultMsgBack from '../assets/msg_back.png';
 import defaultMsgOkButton from '../assets/msg_ok.png';
 import { AeroOverlay } from '../aero-overlay';
 import { useGameManager, useResources } from '@qspider/providers';
-import { useAeroLayout } from '../aero-layout';
+import { TEXT_PLACEHOLDER, useAeroLayout } from '../aero-layout';
 import { Content, hooks } from '@qspider/components';
+import { MsgUI } from '../aero.types';
 
 const MsgContainer = styled.div`
   position: absolute;

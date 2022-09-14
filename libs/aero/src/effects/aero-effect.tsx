@@ -1,6 +1,6 @@
-import { AeroEffectType } from '@qspider/qsp-wasm';
 import React from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
+import { AeroEffectType } from '../aero.types';
 
 import './effect.css';
 

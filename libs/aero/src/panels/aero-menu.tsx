@@ -3,13 +3,13 @@ import { observer } from 'mobx-react-lite';
 import { usePopper } from 'react-popper';
 import styled from '@emotion/styled';
 import { AeroActionList } from '../aero-action-list';
-import { MenuUI } from '@qspider/qsp-wasm';
 import { AeroEffect } from '../effects/aero-effect';
 import { useGameManager, useResources } from '@qspider/providers';
 import { useAeroLayout } from '../aero-layout';
 import { hooks } from '@qspider/components';
 import { noop } from '@qspider/utils';
 import '../theme.types';
+import { MenuUI } from '../aero.types';
 
 export const MenuWrapper = styled.div<{ menuUI: MenuUI; url: string }>`
   position: relative;

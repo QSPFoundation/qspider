@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import styled from '@emotion/styled';
-import { InputUI, TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroEffect } from '../effects/aero-effect';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 
@@ -10,8 +9,9 @@ import defaultInputOk from '../assets/input_ok.png';
 import defaultInputCancel from '../assets/input_cancel.png';
 import { AeroOverlay } from '../aero-overlay';
 import { useGameManager, useResources } from '@qspider/providers';
-import { useAeroLayout } from '../aero-layout';
+import { TEXT_PLACEHOLDER, useAeroLayout } from '../aero-layout';
 import { Content, hooks } from '@qspider/components';
+import { InputUI } from '../aero.types';
 
 const InputContainer = styled.div`
   position: absolute;

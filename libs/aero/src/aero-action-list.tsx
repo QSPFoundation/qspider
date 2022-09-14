@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { QspListItem } from '@qspider/qsp-wasm';
 import { AeroActionItem } from './aero-action-item';
 import { AeroActionSeparator } from './aero-action-separator';
+import { QspListItem } from '@qsp/wasm-engine';
 
 const Nav = styled.nav`
   outline: none;

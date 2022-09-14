@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { IconType } from '@qspider/icons';
 import { useBaseLayout, useComponents, useGameManager } from '@qspider/providers';
 import { IconButton } from '@qspider/components';
+import { useQspVariable } from 'libs/components/src/hooks';
 
 export const PlayerToolbarWrapper = styled.div`
   display: flex;
@@ -36,6 +37,7 @@ export const PlayerToolbar: React.FC = observer(() => {
   const manager = useGameManager();
   const layout = useBaseLayout();
   const { OpenGameButton } = useComponents();
+  const nosave = useQspVariable('NOSAVE', 0);
   return (
     <PlayerToolbarWrapper>
       <Title>{manager.currentGame?.title || ''}</Title>
@@ -51,8 +53,8 @@ export const PlayerToolbar: React.FC = observer(() => {
           }}
         />
         <IconButton icon={IconType.restart} onClick={(): void => manager.restart()} />
-        {!layout.nosave && <IconButton icon={IconType.save} onClick={(): Promise<void> => manager.requestSave()} />}
-        {!layout.nosave && <IconButton icon={IconType.load} onClick={(): Promise<void> => manager.requestRestore()} />}
+        {!nosave && <IconButton icon={IconType.save} onClick={(): Promise<void> => manager.requestSave()} />}
+        {!nosave && <IconButton icon={IconType.load} onClick={(): Promise<void> => manager.requestRestore()} />}
         {manager.hasGameList ? <IconButton icon={IconType.list} onClick={(): void => manager.showGameList()} /> : null}
         <OpenGameButton />
       </Icons>

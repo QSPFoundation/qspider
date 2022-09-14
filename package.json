@@ -9,7 +9,6 @@
     "prebuild": "rimraf ./dist",
     "build": "nx build --prod",
     "build:desktop": "nx build player-desktop --prod",
-    "compile:wasm": "nx run qsp-wasm:compile",
     "test": "nx run-many --all --target=test",
     "lint": "nx workspace-lint && nx run-many --all --target=lint",
     "e2e": "nx e2e",

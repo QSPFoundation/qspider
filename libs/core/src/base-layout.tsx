@@ -1,13 +1,11 @@
-import { observable, action, computed, makeObservable } from 'mobx';
+import { observable, action, computed, makeObservable, runInAction } from 'mobx';
 import { convertColor } from '@qspider/utils';
 import { BaseLayoutDefaults, IResourceManager, QspGUIPanel } from '@qspider/contracts';
-import { QspPanel, LayoutSettings } from '@qspider/qsp-wasm';
 import { Theme } from '@emotion/react';
 import { GameManager } from './game-manager';
+import { QspPanel } from '@qsp/wasm-engine';
 
 export class BaseLayout {
-  nosave = false;
-  useHtml = false;
   backgroundColor: string | null = null;
   backgroundImage: string | null = null;
   color: string | null = null;
@@ -28,8 +26,6 @@ export class BaseLayout {
 
   constructor(private manager: GameManager, private resources: IResourceManager) {
     makeObservable(this, {
-      nosave: observable,
-      useHtml: observable,
       backgroundColor: observable,
       backgroundImage: observable,
       color: observable,
@@ -50,7 +46,6 @@ export class BaseLayout {
 
       theme: computed,
 
-      updateLayoutSettings: action,
       updatePanalVisibility: action,
       fillDefaults: action,
     });
@@ -84,19 +79,37 @@ export class BaseLayout {
 
   initCallbacks(manager: GameManager): void {
     manager.on('panel_visibility', this.updatePanalVisibility);
-    manager.on('layout', (settings) => this.updateLayoutSettings(settings, manager.currentGame?.mode));
+    manager.api.watchVariable('BCOLOR', 0, (backgroundColor) => {
+      runInAction(() => {
+        this.backgroundColor = backgroundColor ? convertColor(backgroundColor) : null;
+      });
+    });
+    manager.api.watchVariable('$BACKIMAGE', 0, (backgroundImage) => {
+      runInAction(() => {
+        this.backgroundImage = backgroundImage;
+      });
+    });
+    manager.api.watchVariable('FCOLOR', 0, (color) => {
+      runInAction(() => {
+        this.color = convertColor(color);
+      });
+    });
+    manager.api.watchVariable('LCOLOR', 0, (linkColor) => {
+      runInAction(() => {
+        this.linkColor = convertColor(linkColor);
+      });
+    });
+    manager.api.watchVariable('FSIZE', 0, (fontSize) => {
+      runInAction(() => {
+        this.fontSize = fontSize;
+      });
+    });
+    manager.api.watchVariable('$FNAME', 0, (fontName) => {
+      runInAction(() => {
+        this.fontName = fontName;
+      });
+    });
   }
-
-  updateLayoutSettings = (settings: LayoutSettings, mode?: string): void => {
-    this.nosave = settings.nosave;
-    this.useHtml = settings.useHtml || mode === 'aero';
-    this.backgroundColor = settings.backgroundColor ? convertColor(settings.backgroundColor) : null;
-    this.backgroundImage = settings.backgroundImage;
-    this.color = convertColor(settings.color);
-    this.linkColor = convertColor(settings.linkColor);
-    this.fontSize = settings.fontSize;
-    this.fontName = settings.fontName;
-  };
 
   updatePanalVisibility = (type: QspPanel, isShown: boolean): void => {
     switch (type) {

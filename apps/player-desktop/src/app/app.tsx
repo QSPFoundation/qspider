@@ -6,7 +6,8 @@ import { BaseLayout, GameManager, Theme } from '@qspider/core';
 import { Game, GameListDialog } from '@qspider/player-ui';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
-import { event, path, cli } from '@tauri-apps/api';
+import { event, path, cli, os } from '@tauri-apps/api';
+
 import { isSupportedFileType, openGameFromDisk } from './utils';
 import { FileDropArea } from './file-drop-area';
 import { Icon, IconType } from '@qspider/icons';
@@ -24,6 +25,19 @@ export const App: React.FC = () => {
   const [isFileDropHovered, setIsFileDropHovered] = useState(false);
   const [unsupportedType, setUnsupportedType] = useState('');
   useEffect(() => {
+    os.type().then((type) => {
+      switch (type) {
+        case 'Darwin':
+          manager.platform = 'Macintosh';
+          break;
+        case 'Linux':
+          manager.platform = 'Linux';
+          break;
+        case 'Windows_NT':
+          manager.platform = 'Windows';
+          break;
+      }
+    });
     cli.getMatches().then(async (matches) => {
       await manager.initialize();
       if (matches.args.file.value) {

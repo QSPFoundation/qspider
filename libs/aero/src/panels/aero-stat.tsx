@@ -1,11 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react-lite';
 import { AeroPanel } from '../aero-panel';
-import { TEXT_PLACEHOLDER } from '@qspider/qsp-wasm';
 import { AeroCustomScroll } from '../aero-custom-scroll';
 import { AeroEffect } from '../effects/aero-effect';
 import { useBaseLayout, useGameManager, useResources } from '@qspider/providers';
-import { useAeroLayout } from '../aero-layout';
+import { TEXT_PLACEHOLDER, useAeroLayout } from '../aero-layout';
 import { Content, hooks } from '@qspider/components';
 
 export const AeroStatsPanel: React.FC = observer(() => {

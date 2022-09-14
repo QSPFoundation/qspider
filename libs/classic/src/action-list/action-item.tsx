@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import styled from '@emotion/styled';
-import { QspListItem } from '@qspider/qsp-wasm';
 import { ActionImage } from './action-image';
 import { useResources } from '@qspider/providers';
 import { Content } from '@qspider/components';
+import { QspListItem } from '@qsp/wasm-engine';
 
 export const ActionButton = styled.button`
   display: flex;

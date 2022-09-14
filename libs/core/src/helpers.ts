@@ -1,4 +1,4 @@
-import { QspListItem } from '@qspider/qsp-wasm';
+import { QspListItem } from '@qsp/wasm-engine';
 
 export function prepareContent(text: string): string {
   // this solves a problem in 1812 where link contain &gt without space and this is parsed wrong

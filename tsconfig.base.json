@@ -30,7 +30,6 @@
       "@qspider/icons": ["libs/icons/src/index.ts"],
       "@qspider/player-ui": ["libs/player-ui/src/index.ts"],
       "@qspider/providers": ["libs/providers/src/index.ts"],
-      "@qspider/qsp-wasm": ["libs/qsp-wasm/src/index.ts"],
       "@qspider/resources": ["libs/resources/src/index.ts"],
       "@qspider/utils": ["libs/utils/src/index.ts"]
     }
