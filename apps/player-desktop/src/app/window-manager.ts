@@ -1,6 +1,5 @@
 import { IWindowManager } from '@qspider/contracts';
-import { os, window } from '@tauri-apps/api';
-import { imageToIco, reagPng } from './images';
+import { window } from '@tauri-apps/api';
 
 export const windowManager: IWindowManager = {
   async resize(width: number, height: number): Promise<void> {
@@ -31,11 +30,7 @@ export const windowManager: IWindowManager = {
     window.appWindow.setTitle(title);
   },
   async setIcon(icon: string): Promise<void> {
-    const platform = await os.platform();
-    if (platform === 'win32') {
-      window.appWindow.setIcon(new Uint8Array(await imageToIco(icon)));
-    } else {
-      window.appWindow.setIcon(new Uint8Array(await reagPng(icon)));
-    }
+    const source = await fetch(icon).then((r) => r.arrayBuffer());
+    window.appWindow.setIcon(new Uint8Array(source));
   },
 };
