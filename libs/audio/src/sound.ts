@@ -40,7 +40,8 @@ export class Sound {
     this.howl = new Howl({
       src: [input.url],
       format: [input.type],
-      html5: true,
+      // streaming blobs does not work in tauri at the moment
+      html5: !input.url.includes('blob:'),
       volume: normalizeVolume(volume),
       loop: false,
       preload: true,
