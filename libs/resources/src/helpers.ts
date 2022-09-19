@@ -1,6 +1,7 @@
 import { unzip, Unzipped } from 'fflate';
 
-export const isExternalSource = (path: string): boolean => path.startsWith('http://') || path.startsWith('https://');
+export const isExternalSource = (path: string): boolean =>
+  path.startsWith('http://') || path.startsWith('https://') || path.startsWith('qsp://');
 
 export const isZip = (buffer: ArrayBuffer): boolean => {
   const data = new Uint8Array(buffer);

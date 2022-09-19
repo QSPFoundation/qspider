@@ -17,14 +17,12 @@ const classicDefaults = {
 };
 
 class ClassicLayout {
-  gameConfig: CfgData | false = false;
   layout: LayoutDock[] = [];
   floating: [QspGUIPanel, number, number][] = [];
   reactionDisposer!: IReactionDisposer;
 
   constructor(private manager: IGameManager, private baseLayout: IBaseLayout, private resources: IResourceManager) {
     makeObservable(this, {
-      gameConfig: observable,
       layout: observable,
       floating: observable,
 
@@ -42,15 +40,17 @@ class ClassicLayout {
       () => this.manager.currentGame,
       async (descriptor) => {
         if (!descriptor) return;
+        let gameConfig: CfgData | null = null;
         try {
           const text = await this.resources.getTextContent('qspgui.cfg');
-          this.gameConfig = parseCfg(text);
+          gameConfig = parseCfg(text);
         } catch (_) {
-          this.gameConfig = false;
+          // noop
         }
-        if (this.gameConfig) {
-          const { layout, floating } = extractLayoutData(this.gameConfig);
-          this.fillDefaultsFromConfig(this.gameConfig);
+        console.log('gameConfig', gameConfig);
+        if (gameConfig) {
+          const { layout, floating } = extractLayoutData(gameConfig);
+          this.fillDefaultsFromConfig(gameConfig);
           this.updateLayout(layout, floating);
         } else {
           this.fillClassicDefaults();

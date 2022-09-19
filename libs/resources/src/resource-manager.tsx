@@ -7,6 +7,7 @@ import { readQsps, writeQsp } from '@qsp/converters';
 export class ResourceManager implements IResourceManager {
   private _basePath = ``;
 
+  private _isZip = false;
   private _zipResources: Unzipped = {};
   private _zipUrls: Map<string, string> = new Map();
 
@@ -31,7 +32,6 @@ export class ResourceManager implements IResourceManager {
         source = await fetch('https://proxy.iplayif.com/proxy/?url=' + path).then((r) => r.arrayBuffer());
       }
     }
-
     if (isQsps) {
       const data = new Uint8Array(source.slice(0, 2));
       const encoding = data[0] === 255 && data[1] === 254 ? 'utf-16le' : 'utf-8';
@@ -43,6 +43,7 @@ export class ResourceManager implements IResourceManager {
   }
 
   async prepareGameFromSource(source: string | ArrayBuffer, isNewGame: boolean): Promise<ArrayBuffer> {
+    if (isNewGame) this._isZip = false;
     if (typeof source === 'string') {
       return writeQsp(readQsps(source));
     } else {
@@ -61,6 +62,7 @@ export class ResourceManager implements IResourceManager {
     const gameSource = this.findGameFile(resources);
     if (!gameSource) throw new Error('game file not found in archive, make sure it is on top level');
     if (isNewGame) {
+      this._isZip = true;
       this._basePath = '';
     }
     return gameSource;
@@ -79,6 +81,8 @@ export class ResourceManager implements IResourceManager {
       url = URL.createObjectURL(blob);
       this._zipUrls.set(path, url);
       return { url, type };
+    } else if (this._isZip) {
+      throw new Error('File not found');
     }
     return { url: path, type };
   }
@@ -87,6 +91,8 @@ export class ResourceManager implements IResourceManager {
     const path = this.preparePath(file);
     if (this._zipResources[path.toLowerCase()]) {
       return this._zipResources[path.toLowerCase()];
+    } else if (this._isZip) {
+      throw new Error('File not found');
     }
 
     return fetch(path).then((r) => r.arrayBuffer());
@@ -97,6 +103,8 @@ export class ResourceManager implements IResourceManager {
     if (this._zipResources[path.toLowerCase()]) {
       const blob = new Blob([this._zipResources[path.toLowerCase()]]);
       return blob.text();
+    } else if (this._isZip) {
+      throw new Error('File not found');
     }
 
     return fetch(path).then((r) => {
