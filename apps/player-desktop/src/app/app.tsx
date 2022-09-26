@@ -40,9 +40,9 @@ export const App: React.FC = () => {
     });
     cli.getMatches().then(async (matches) => {
       await manager.initialize();
-      if (matches.args.file.value) {
+      const filePath = (matches.args.file.value || matches.args.filePath.value) as string | undefined;
+      if (filePath) {
         try {
-          const filePath = matches.args.file.value as string;
           if (await path.isAbsolute(filePath)) {
             return openGameFromDisk(filePath, manager);
           } else {

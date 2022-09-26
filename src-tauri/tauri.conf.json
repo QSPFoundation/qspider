@@ -16,9 +16,14 @@
       "description": "qSpider API example",
       "args": [
         {
+          "name": "filePath",
+          "index": 1,
+          "takesValue": true,
+          "description": "Game file to open"
+        },
+        {
           "short": "f",
           "name": "file",
-          "index": 1,
           "takesValue": true,
           "description": "Game file to open"
         }
