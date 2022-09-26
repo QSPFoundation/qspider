@@ -81,8 +81,8 @@ export class ResourceManager implements IResourceManager {
       url = URL.createObjectURL(blob);
       this._zipUrls.set(path, url);
       return { url, type };
-    } else if (this._isZip) {
-      throw new Error('File not found');
+    } else if (file && this._isZip) {
+      return { url: '', type };
     }
     return { url: path, type };
   }
@@ -91,8 +91,8 @@ export class ResourceManager implements IResourceManager {
     const path = this.preparePath(file);
     if (this._zipResources[path.toLowerCase()]) {
       return this._zipResources[path.toLowerCase()];
-    } else if (this._isZip) {
-      throw new Error('File not found');
+    } else if (file && this._isZip) {
+      throw new Error(`File ${file} not found`);
     }
 
     return fetch(path).then((r) => r.arrayBuffer());
@@ -103,8 +103,8 @@ export class ResourceManager implements IResourceManager {
     if (this._zipResources[path.toLowerCase()]) {
       const blob = new Blob([this._zipResources[path.toLowerCase()]]);
       return blob.text();
-    } else if (this._isZip) {
-      throw new Error('File not found');
+    } else if (file && this._isZip) {
+      throw new Error(`File ${file} not found`);
     }
 
     return fetch(path).then((r) => {
