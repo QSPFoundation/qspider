@@ -153,7 +153,7 @@
       "projectType": "application",
       "targets": {
         "build": {
-          "executor": "@nrwl/web:webpack",
+          "executor": "@nrwl/webpack:webpack",
           "options": {
             "baseHref": "",
             "outputPath": "dist/apps/player",
@@ -231,7 +231,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "executor": "@nrwl/web:dev-server",
+          "executor": "@nrwl/webpack:dev-server",
           "options": {
             "buildTarget": "player:build"
           },
@@ -269,7 +269,7 @@
       "projectType": "application",
       "targets": {
         "build": {
-          "executor": "@nrwl/web:webpack",
+          "executor": "@nrwl/webpack:webpack",
           "outputs": ["{options.outputPath}"],
           "options": {
             "outputPath": "dist/apps/player-desktop",
@@ -330,7 +330,7 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "executor": "@nrwl/web:dev-server",
+          "executor": "@nrwl/webpack:dev-server",
           "options": {
             "buildTarget": "player-desktop:build",
             "hmr": true
