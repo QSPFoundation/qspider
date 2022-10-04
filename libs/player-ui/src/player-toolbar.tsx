@@ -2,9 +2,8 @@ import React from 'react';
 import styled from '@emotion/styled';
 import { observer } from 'mobx-react-lite';
 import { IconType } from '@qspider/icons';
-import { useBaseLayout, useComponents, useGameManager } from '@qspider/providers';
-import { IconButton } from '@qspider/components';
-import { useQspVariable } from 'libs/components/src/hooks';
+import { useComponents, useGameManager } from '@qspider/providers';
+import { IconButton, hooks } from '@qspider/components';
 
 export const PlayerToolbarWrapper = styled.div`
   display: flex;
@@ -35,9 +34,8 @@ const Icons = styled.div`
 
 export const PlayerToolbar: React.FC = observer(() => {
   const manager = useGameManager();
-  const layout = useBaseLayout();
   const { OpenGameButton } = useComponents();
-  const nosave = useQspVariable('NOSAVE', 0);
+  const nosave = hooks.useQspVariable('NOSAVE', 0);
   return (
     <PlayerToolbarWrapper>
       <Title>{manager.currentGame?.title || ''}</Title>
