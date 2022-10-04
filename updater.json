@@ -10,7 +10,7 @@
       "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/qSpider.AppImage.tar.gz"
     },
     "win64": {
-      "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/qSpider.x64.msi.zip"
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/qSpider_0.13.0_x64_en-US.msi.zip"
     }
   }
 }
