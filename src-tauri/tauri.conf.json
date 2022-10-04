@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/schema.json",
   "package": {
     "productName": "qSpider",
-    "version": "0.12.0"
+    "version": "0.13.0"
   },
   "build": {
     "distDir": "../dist/apps/player-desktop",
