@@ -507,7 +507,7 @@ class AeroLayout {
     this.watchLayoutVariable('$MENU_FORMAT', LIST_UI, (format) => {
       this.menuUI.format = format;
     });
-    this.watchLayoutVariable('$SELECTED_LIST_UI', SELECTED_LIST_UI, (selectedFormat) => {
+    this.watchLayoutVariable('$SEL_MENU_FORMAT', SELECTED_LIST_UI, (selectedFormat) => {
       this.menuUI.selectedFormat = selectedFormat;
     });
     this.watchLayoutVariable('MENU_LIST_X', 4, (x) => {
