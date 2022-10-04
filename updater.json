@@ -1,6 +1,6 @@
 {
   "name": "0.13.0",
-  "notes": "Initial desktop release",
+  "notes": "New desktop release. Check https://github.com/QSPFoundation/qspider/blob/master/CHANGELOG.md for list of changes.",
   "pub_date": "2022-10-04T10:34:32.702Z",
   "platforms": {
     "darwin": {
