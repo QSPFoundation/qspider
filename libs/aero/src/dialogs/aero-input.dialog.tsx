@@ -87,6 +87,15 @@ export const AeroInputDialog: React.FC = observer(() => {
     manager.closeInput(inputText);
     setInputText('');
   };
+  hooks.useEventListener(
+    'keyup',
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    document
+  );
 
   const coordinates = hooks.useClickCoordinates();
   const x = layout.inputUI && layout.inputUI.x >= 0 ? layout.inputUI.x : coordinates.x;

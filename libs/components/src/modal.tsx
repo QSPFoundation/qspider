@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import { Overlay } from './overlay';
 import { Button } from './button';
 import { CustomScroll } from './custom-scroll';
-import { noop } from '@qspider/utils';
+import { useEventListener } from './hooks';
 
 const ModalContainer = styled.div`
   display: flex;
@@ -64,10 +64,20 @@ export const Modal: React.FC<{
   onClose: () => void;
   closable?: boolean;
   hideButtons?: boolean;
+  focusButton?: boolean;
   width?: number;
   dataQsp: string;
   children: React.ReactNode;
-}> = ({ onClose, hideButtons, children, width, dataQsp, closable = true }) => {
+}> = ({ onClose, hideButtons, children, width, dataQsp, closable = true, focusButton = true }) => {
+  useEventListener(
+    'keyup',
+    (e: KeyboardEvent) => {
+      if (closable && e.key === 'Escape') {
+        onClose();
+      }
+    },
+    document
+  );
   return (
     <>
       <Overlay data-qsp={dataQsp + '-overlay'} />
@@ -79,7 +89,9 @@ export const Modal: React.FC<{
               {children}
               {!hideButtons && (
                 <ModalActions data-qsp={dataQsp + '-buttons'}>
-                  <Button onClick={onClose}>Ok</Button>
+                  <Button onClick={onClose} autoFocus={focusButton}>
+                    Ok
+                  </Button>
                 </ModalActions>
               )}
             </CustomScroll>

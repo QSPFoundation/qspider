@@ -29,6 +29,7 @@ export const InputDialog: React.FC = observer(() => {
         setInputText('');
       }}
       dataQsp="input"
+      focusButton={false}
     >
       <form
         onSubmit={(e): void => {

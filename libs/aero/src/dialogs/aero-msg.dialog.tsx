@@ -71,6 +71,16 @@ export const AeroMsgDialog: React.FC = observer(() => {
     manager.closeMsg();
   }, [manager]);
 
+  hooks.useEventListener(
+    'keyup',
+    (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    },
+    document
+  );
+
   const coordinates = hooks.useClickCoordinates();
   const x = layout.msgUI && layout.msgUI.x >= 0 ? layout.msgUI.x : coordinates.x;
   const y = layout.msgUI && layout.msgUI.y >= 0 ? layout.msgUI.y : coordinates.y;
@@ -97,6 +107,7 @@ export const AeroMsgDialog: React.FC = observer(() => {
               <AeroCustomScroll>{manager.msg && <Content content={content} />}</AeroCustomScroll>
             </MsgTextContainer>
             <MsgButton
+              autoFocus
               x={layout.msgUI.okButton.x}
               y={layout.msgUI.okButton.y}
               backgroundImage={okUrl}
