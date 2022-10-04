@@ -2,33 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [0.13.0](https://github.personal.com/QSPFoundation/qspider/compare/v0.12.0...v0.13.0) (2022-10-04)
+## [0.13.0](https://github.com/QSPFoundation/qspider/compare/v0.12.0...v0.13.0) (2022-10-04)
 
 ### Features
 
-- add devtools to release ([549f481](https://github.personal.com/QSPFoundation/qspider/commit/549f481ab2083c05c9292c14f33b4e02c6d22e5b))
-- close modals on esc, focus msg button ([aff7d8c](https://github.personal.com/QSPFoundation/qspider/commit/aff7d8c909c53a7f0a7e7516e1933da8758274ef))
-- load config/game through get param ([491fb65](https://github.personal.com/QSPFoundation/qspider/commit/491fb656963103165796c760748efe18d6563b7d))
-- qsps support, qsp <-> qsps convertors ([360adf1](https://github.personal.com/QSPFoundation/qspider/commit/360adf1052dfad07c582462f822910a4e28a7558))
-- support positional argument to run game ([8290dc7](https://github.personal.com/QSPFoundation/qspider/commit/8290dc76f3e0c7d55a8998596f8a111035d56f3f))
+- add devtools to release ([549f481](https://github.com/QSPFoundation/qspider/commit/549f481ab2083c05c9292c14f33b4e02c6d22e5b))
+- close modals on esc, focus msg button ([aff7d8c](https://github.com/QSPFoundation/qspider/commit/aff7d8c909c53a7f0a7e7516e1933da8758274ef))
+- load config/game through get param ([491fb65](https://github.com/QSPFoundation/qspider/commit/491fb656963103165796c760748efe18d6563b7d))
+- qsps support, qsp <-> qsps convertors ([360adf1](https://github.com/QSPFoundation/qspider/commit/360adf1052dfad07c582462f822910a4e28a7558))
+- support positional argument to run game ([8290dc7](https://github.com/QSPFoundation/qspider/commit/8290dc76f3e0c7d55a8998596f8a111035d56f3f))
 
 ### Bug Fixes
 
-- add menu separator support ([26b7734](https://github.personal.com/QSPFoundation/qspider/commit/26b7734316cab1cfe836db820f69bb29c0e54151))
-- fidable audio streaming for blob url (does not work in tauri) ([45723fa](https://github.personal.com/QSPFoundation/qspider/commit/45723fa2ffc225604a3917e59bd6765257daaaf1))
-- fix color conversion alpha channel ([1287b81](https://github.personal.com/QSPFoundation/qspider/commit/1287b81c934c43f4eacc6d79bddfecf4fd51fed3))
-- fix icon related error on gam open ([12aa970](https://github.personal.com/QSPFoundation/qspider/commit/12aa970c9558e962442a7e1b5699c43644c5c8cf))
-- fix init sequence (caused sync issues) ([967ddb5](https://github.personal.com/QSPFoundation/qspider/commit/967ddb58f0ef568c1233d9bc865b60be5978653b))
-- fix loading qsps files ([cdd73f4](https://github.personal.com/QSPFoundation/qspider/commit/cdd73f4503b3c0e7fcad915342665e91bbac6e93))
-- fix opening zip files on desktop ([bd4d2f8](https://github.personal.com/QSPFoundation/qspider/commit/bd4d2f8125b3b1439b4b7c2904ceef07f1913399))
-- fix resourse loading from zip ([564f53c](https://github.personal.com/QSPFoundation/qspider/commit/564f53c923ac01e612b0a10fc4187d4cef363239))
-- fix selected state in aero menu ([d43ece4](https://github.personal.com/QSPFoundation/qspider/commit/d43ece496824618bbdc87d1c7e37c0a37c616c54))
-- imrove html processing, keep attributes ([d497e18](https://github.personal.com/QSPFoundation/qspider/commit/d497e18f7371b647c2cd6d14d2f40e8dbd570cf8))
-- long game title breaking toolbar layout ([d3521a7](https://github.personal.com/QSPFoundation/qspider/commit/d3521a7b3dd0cb59c4aa29ab53a7b11f169598d6))
-- replace react-delta with local code ([a10cd9d](https://github.personal.com/QSPFoundation/qspider/commit/a10cd9d683233a810c211c6fb6b6f0c05ad06fa9))
-- running from cli ([4b74577](https://github.personal.com/QSPFoundation/qspider/commit/4b745772c69e23714aba79fdf6d65c6f0fb4821c))
-- update failing check ([5638fc5](https://github.personal.com/QSPFoundation/qspider/commit/5638fc56f9a28cf130addec2ad2d5fb2660dda3d))
-- update list of void tags to prevent crashes ([f44a10a](https://github.personal.com/QSPFoundation/qspider/commit/f44a10a2add6439d795d7a8f5e5adef530c67002))
+- add menu separator support ([26b7734](https://github.com/QSPFoundation/qspider/commit/26b7734316cab1cfe836db820f69bb29c0e54151))
+- fidable audio streaming for blob url (does not work in tauri) ([45723fa](https://github.com/QSPFoundation/qspider/commit/45723fa2ffc225604a3917e59bd6765257daaaf1))
+- fix color conversion alpha channel ([1287b81](https://github.com/QSPFoundation/qspider/commit/1287b81c934c43f4eacc6d79bddfecf4fd51fed3))
+- fix icon related error on gam open ([12aa970](https://github.com/QSPFoundation/qspider/commit/12aa970c9558e962442a7e1b5699c43644c5c8cf))
+- fix init sequence (caused sync issues) ([967ddb5](https://github.com/QSPFoundation/qspider/commit/967ddb58f0ef568c1233d9bc865b60be5978653b))
+- fix loading qsps files ([cdd73f4](https://github.com/QSPFoundation/qspider/commit/cdd73f4503b3c0e7fcad915342665e91bbac6e93))
+- fix opening zip files on desktop ([bd4d2f8](https://github.com/QSPFoundation/qspider/commit/bd4d2f8125b3b1439b4b7c2904ceef07f1913399))
+- fix resourse loading from zip ([564f53c](https://github.com/QSPFoundation/qspider/commit/564f53c923ac01e612b0a10fc4187d4cef363239))
+- fix selected state in aero menu ([d43ece4](https://github.com/QSPFoundation/qspider/commit/d43ece496824618bbdc87d1c7e37c0a37c616c54))
+- imrove html processing, keep attributes ([d497e18](https://github.com/QSPFoundation/qspider/commit/d497e18f7371b647c2cd6d14d2f40e8dbd570cf8))
+- long game title breaking toolbar layout ([d3521a7](https://github.com/QSPFoundation/qspider/commit/d3521a7b3dd0cb59c4aa29ab53a7b11f169598d6))
+- replace react-delta with local code ([a10cd9d](https://github.com/QSPFoundation/qspider/commit/a10cd9d683233a810c211c6fb6b6f0c05ad06fa9))
+- running from cli ([4b74577](https://github.com/QSPFoundation/qspider/commit/4b745772c69e23714aba79fdf6d65c6f0fb4821c))
+- update failing check ([5638fc5](https://github.com/QSPFoundation/qspider/commit/5638fc56f9a28cf130addec2ad2d5fb2660dda3d))
+- update list of void tags to prevent crashes ([f44a10a](https://github.com/QSPFoundation/qspider/commit/f44a10a2add6439d795d7a8f5e5adef530c67002))
 
 ## [0.12.0](https://github.com/QSPFoundation/qspider/compare/v0.11.1...v0.12.0) (2022-01-15)
 
