@@ -12,7 +12,7 @@ const classicDefaults = {
   defaultBackgroundColor: '#e0e0e0',
   defaultColor: '#000000',
   defaultLinkColor: '#0000ff',
-  defaultFontSize: 16,
+  defaultFontSize: 12,
   defaultFontName: '',
 };
 

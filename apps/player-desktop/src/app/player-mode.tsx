@@ -7,8 +7,8 @@ import { AeroPlayer } from '@qspider/aero';
 import { ClassicPlayer } from '@qspider/classic';
 
 export const PlayerStyles = styled.div`
-  font-size: ${(props): number => props.theme.fontSize}px;
-  --font-size: ${(props): number => props.theme.fontSize}px;
+  font-size: ${(props): number => props.theme.fontSize}pt;
+  --font-size: ${(props): number => props.theme.fontSize}pt;
   font-family: ${(props): string => props.theme.fontName};
   --background-color: ${(props): string => props.theme.backgroundColor};
   --inverted-background-color: ${(props): string => Color(props.theme.backgroundColor).negate().hex()};
@@ -22,13 +22,13 @@ export const PlayerStyles = styled.div`
 
   button {
     color: ${(props): string => props.theme.textColor};
-    font-size: ${(props): number => props.theme.fontSize}px;
+    font-size: ${(props): number => props.theme.fontSize}pt;
     font-family: ${(props): string => props.theme.fontName};
   }
 
   input {
     color: ${(props): string => props.theme.textColor};
-    font-size: ${(props): number => props.theme.fontSize}px;
+    font-size: ${(props): number => props.theme.fontSize}pt;
     font-family: ${(props): string => props.theme.fontName};
   }
 `;

@@ -22,7 +22,7 @@ const aeroDefaults = {
   defaultBackgroundColor: '#e5e5e5',
   defaultColor: '#000000',
   defaultLinkColor: '#0000ff',
-  defaultFontSize: 18,
+  defaultFontSize: 16,
   defaultFontName: 'sans-serif',
 };
 
