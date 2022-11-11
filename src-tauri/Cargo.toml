@@ -10,7 +10,7 @@ edition = "2018"
 build = "src/build.rs"
 
 [build-dependencies.tauri-build]
-version = "1.1.1"
+version = "1.2.0"
 features = [ ]
 
 [dependencies]
@@ -24,7 +24,7 @@ urlencoding = "2.1.0"
   features = [ "derive" ]
 
   [dependencies.tauri]
-  version = "1.1.1"
+  version = "1.2.0"
   features = [ "api-all", "cli", "devtools", "icon-png", "updater" ]
 
   [dependencies.uuid]
