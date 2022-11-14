@@ -131,6 +131,21 @@
         }
       }
     },
+    "game-state": {
+      "root": "libs/game-state",
+      "sourceRoot": "libs/game-state/src",
+      "projectType": "library",
+      "tags": [],
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/game-state/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
     "icons": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/icons",
@@ -457,6 +472,21 @@
         }
       }
     },
+    "renderer": {
+      "root": "libs/renderer",
+      "sourceRoot": "libs/renderer/src",
+      "projectType": "library",
+      "tags": [],
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/renderer/**/*.{ts,tsx,js,jsx}"]
+          }
+        }
+      }
+    },
     "resources": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/resources",
@@ -499,6 +529,21 @@
           "options": {
             "jestConfig": "libs/utils/jest.config.ts",
             "passWithNoTests": true
+          }
+        }
+      }
+    },
+    "web-storage": {
+      "root": "libs/web-storage",
+      "sourceRoot": "libs/web-storage/src",
+      "projectType": "library",
+      "tags": [],
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/web-storage/**/*.{ts,tsx,js,jsx}"]
           }
         }
       }
