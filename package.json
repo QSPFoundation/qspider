@@ -33,6 +33,7 @@
     "@qsp/converters": "^1.0.1",
     "@qsp/wasm-engine": "^1.0.4",
     "@tauri-apps/api": "^1.2.0",
+    "@xoid/react": "^1.0.0-beta.0",
     "color": "^4.2.3",
     "core-js": "^3.26.0",
     "eventemitter3": "^4.0.7",
