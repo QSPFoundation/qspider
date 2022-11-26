@@ -36,6 +36,7 @@
     "@xoid/react": "^1.0.0-beta.0",
     "color": "^4.2.3",
     "core-js": "^3.6.5",
+    "dexie": "^3.2.2",
     "eventemitter3": "^4.0.7",
     "fflate": "^0.7.4",
     "file-saver": "^2.0.5",

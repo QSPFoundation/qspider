@@ -1,5 +1,10 @@
 body {
-  overflow: hidden;
+  margin: 0;
+}
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
 }
 
 a.plain {
@@ -14,4 +19,48 @@ pre {
 
 area:focus {
   outline: none;
+}
+
+:root {
+  --game-columns: 3;
+}
+
+/* For extremely small screen devices (595px and below) */
+@media only screen and (max-width: 595px) {
+  :root {
+    --game-columns: 1;
+  }
+}
+@media only screen and (min-width: 600px) {
+  :root {
+    --game-columns: 2;
+  }
+}
+@media only screen and (min-width: 768px) {
+}
+@media only screen and (min-width: 889px) {
+  :root {
+    --game-columns: 3;
+  }
+}
+@media only screen and (min-width: 1200px) {
+  :root {
+    --game-columns: 4;
+  }
+}
+@media only screen and (min-width: 2200px) {
+  :root {
+    --game-columns: 5;
+  }
+}
+
+.game-shelf {
+  width: 100vw;
+  padding: 1rem;
+}
+.game-shelf__list {
+  display: grid;
+  grid-template-columns: repeat(var(--game-columns, 3), 1fr);
+  column-gap: 1rem;
+  row-gap: 1rem;
 }
