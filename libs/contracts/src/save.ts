@@ -12,3 +12,11 @@ export type SaveAction =
       callback: (slot: number) => void;
       onResult?: () => void;
     };
+
+export interface SaveData {
+  game_id: string;
+  timestamp: number;
+  key: string;
+  slot: number;
+  data: ArrayBuffer;
+}

@@ -1,4 +1,5 @@
 import { readQsps, writeQsp } from '@qsp/converters';
+import { QspListItem } from '@qsp/wasm-engine';
 import { unzip, Unzipped } from 'fflate';
 
 export const isZip = (buffer: ArrayBuffer): boolean => {
@@ -34,3 +35,22 @@ export function convertQsps(source: ArrayBuffer): ArrayBuffer {
 export function cleanPath(path: string): string {
   return path.replace(/\\/g, '/');
 }
+
+export function prepareContent(text: string): string {
+  // this solves a problem in 1812 where link contain &gt without space and this is parsed wrong
+  // also in cluedo there is \" inside href parsed wrong
+  // todo find a way to handle this in parser
+
+  return text.replace(/&gt /g, '& gt ').replace(/\\"/g, '&quot;');
+}
+
+export function prepareList(list: QspListItem[]): QspListItem[] {
+  return list.map((item) => ({
+    name: prepareContent(item.name),
+    image: cleanPath(item.image),
+  }));
+}
+
+export const clamp = function (value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+};

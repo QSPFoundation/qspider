@@ -6,6 +6,7 @@ import {
   loadGamesFromConfig,
   loadGamesFromStorage,
   runGame,
+  showError,
   storage$,
 } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
@@ -40,7 +41,7 @@ export async function init(): Promise<void> {
         }
         id = descriptor.id;
       } catch (err) {
-        console.log(err);
+        showError(err instanceof Error ? err.message : String(err));
         id = cyrb53(gameUrl);
         descriptor = {
           id,
@@ -69,6 +70,10 @@ export async function init(): Promise<void> {
   await initQspApi();
   if (Object.keys(games$.value).length === 1) {
     const [id] = Object.keys(games$.value);
-    await runGame(id);
+    try {
+      await runGame(id);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : String(err));
+    }
   }
 }

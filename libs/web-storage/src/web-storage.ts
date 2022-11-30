@@ -1,4 +1,4 @@
-import { GameDescriptor, Storage } from '@qspider/contracts';
+import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
 import { QspiderDatabase } from './db';
 
 export class WebStorage implements Storage {
@@ -31,5 +31,51 @@ export class WebStorage implements Storage {
       await this.db.games.delete(id);
       await this.db.gameSources.delete(id);
     });
+  }
+
+  async saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void> {
+    await this.db.gameSaves
+      .where({
+        game_id,
+        key,
+        slot: -1,
+      })
+      .delete();
+    const record: SaveData = {
+      timestamp: Date.now(),
+      game_id,
+      key,
+      slot: -1,
+      data,
+    };
+    await this.db.gameSaves.put(record);
+  }
+  async saveBySlot(game_id: string, slot: number, data: ArrayBuffer): Promise<void> {
+    await this.db.gameSaves
+      .where({
+        game_id,
+        key: '',
+        slot,
+      })
+      .delete();
+    const record: SaveData = {
+      timestamp: Date.now(),
+      game_id,
+      key: '',
+      slot,
+      data,
+    };
+    await this.db.gameSaves.put(record);
+  }
+  async getSaveDataByKey(game_id: string, key: string): Promise<ArrayBuffer | null> {
+    const record = await this.db.gameSaves.where({ game_id, key }).first();
+    return record?.data || null;
+  }
+  async getSaveDataBySlot(game_id: string, slot: number): Promise<ArrayBuffer | null> {
+    const record = await this.db.gameSaves.where({ game_id, slot }).first();
+    return record?.data || null;
+  }
+  async getSavedSlots(game_id: string): Promise<SaveData[]> {
+    return await this.db.gameSaves.where('slot').above(0).toArray();
   }
 }

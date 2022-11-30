@@ -1,4 +1,5 @@
-import { Resource } from '@qspider/contracts';
+import { GameDescriptor, Resource } from '@qspider/contracts';
+import { defer, resolvePath } from '@qspider/utils';
 import { create } from 'xoid';
 import { cleanPath, convertQsps, isZip, readZip } from './utils';
 
@@ -78,7 +79,7 @@ export async function getBinaryContent(file: string): Promise<ArrayBuffer> {
 
 export async function getTextContent(file: string): Promise<string> {
   const path = preparePath(file);
-  if (isLocalFSUsed$.value) {
+  if (isLocalFSUsed$.value && !file.startsWith('http')) {
     const content = localFS$.value[path.toLowerCase()];
     if (!content) throw new Error(`File ${file} not found`);
     const blob = new Blob([content]);
@@ -91,7 +92,84 @@ export async function getTextContent(file: string): Promise<string> {
 }
 
 function preparePath(path: string): string {
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${basePath$.value}${cleanPath(path)}`;
+}
+
+export async function loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
+  if (!resources) return;
+  const { styles, scripts, fonts } = resources;
+  const promisses = [];
+  if (styles) {
+    promisses.push(loadAdditionalStyles(styles));
+  }
+  if (scripts) {
+    promisses.push(loadAdditionalScripts(scripts));
+  }
+  if (fonts) {
+    loadAdditionalFonts(fonts);
+  }
+  await Promise.allSettled([...promisses, document.fonts.ready]);
+}
+
+async function loadAdditionalStyles(styles: string[]): Promise<void> {
+  const promises: Promise<void>[] = [];
+  for (const style of styles) {
+    const { url } = getResource(style);
+    const response = await fetch(url);
+    const text = await response.text();
+    const processed = text.replace(/url\(['"]?(.*?)['"]?\)/gim, (match, path) => {
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+        return `url("${path}")`;
+      }
+      const { url } = getResource(resolvePath(style, path));
+      return `url("${url}")`;
+    });
+    const gameStyle = document.createElement('style');
+    gameStyle.innerText = processed;
+    gameStyle.dataset['qspiderResource'] = 'style';
+    document.head.appendChild(gameStyle);
+  }
+  await Promise.allSettled(promises);
+}
+
+async function loadAdditionalScripts(scripts: string[]): Promise<void> {
+  const promises: Promise<void>[] = [];
+  for (const script of scripts) {
+    const gameScript = document.createElement('script');
+    gameScript.type = 'text/javascript';
+    gameScript.src = getResource(script).url;
+    gameScript.dataset['qspiderResource'] = 'script';
+    const defered = defer<void>();
+    gameScript.onload = (): void => defered.resolve();
+    gameScript.onerror = (): void => defered.reject(new Error(`File not found: ${script}`));
+    promises.push(defered.promise);
+    document.head.appendChild(gameScript);
+  }
+  await Promise.allSettled(promises);
+}
+
+function loadAdditionalFonts(fonts: [string, string, string, string][]): void {
+  const css = [];
+  for (const [name, path, weight, style] of fonts) {
+    css.push(`
+    @font-face {
+      font-family: "${name}";
+      src: url("${getResource(path).url}");
+      font-display: block;
+      font-style: ${style || 'normal'};
+      font-weight: ${weight || 'normal'};
+    }
+  `);
+  }
+  const gameStyle = document.createElement('style');
+  gameStyle.innerText = css.join('\n');
+  gameStyle.dataset['qspiderResource'] = 'style';
+  document.head.appendChild(gameStyle);
+}
+
+export function clearAdditionalResources(): void {
+  document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
 }
 
 export function clearResources(): void {

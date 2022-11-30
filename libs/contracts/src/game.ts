@@ -1,6 +1,6 @@
 export interface GameDescriptor {
   id: string;
-  mode: 'classic' | 'aero';
+  mode: 'classic' | 'aero' | 'qspider';
   title: string;
   description?: string;
   file: string;
@@ -22,6 +22,8 @@ export interface GameDescriptor {
     width: number;
     height: number;
   };
+  themes?: string[];
+  defaultTheme?: string;
 }
 
 export interface PlayerConfig {
