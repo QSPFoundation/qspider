@@ -11,7 +11,7 @@ export class QspiderDatabase extends Dexie {
     this.version(1).stores({
       games: 'id, title',
       gameSources: 'id',
-      gameSaves: '++, game_id, &[game_id+key+slot]',
+      gameSaves: '++, game_id, &[game_id+key+slot], slot, [game_id+slot], [game_id+key]',
     });
   }
 }

@@ -17,6 +17,8 @@ export type ThemeData = {
   qsp_object?: TemplateTag;
   qsp_menu_item?: TemplateTag;
   qsp_menu_separator?: TemplateTag;
+  qsp_pause_screen?: TemplateTag;
+  qsp_save_slot?: TemplateTag;
 };
 interface ThemeActions {
   add(alias: string, data: ThemeData): void;
@@ -86,6 +88,8 @@ function parseTheme(content: string): Record<string, ThemeData> {
       qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
       qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
       qsp_menu_separator: extractTagData(theme, 'template[is="qsp-menu-separator"]'),
+      qsp_pause_screen: extractTagData(theme, 'template[is="qsp-pause-screen"]'),
+      qsp_save_slot: extractTagData(theme, 'template[is="qsp-save-slot"]'),
     };
   }
   return themeData;

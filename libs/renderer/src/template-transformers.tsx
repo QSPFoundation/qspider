@@ -4,7 +4,7 @@ import { QspMainContent } from './theme-core/main-content';
 import { QspStats } from './theme-core/stats';
 import { QspStatsContent } from './theme-core/stats-content';
 import { QspActionImage, QspActionIndex, QspActionName, QspActions, QspActionsList } from './theme-core/actions';
-import { extractAttributes } from '@qspider/game-state';
+import { extractAttributes, GameAction } from '@qspider/game-state';
 import { QspObjectImage, QspObjectIndex, QspObjectName, QspObjects, QspObjectsList } from './theme-core/objects';
 import { QspCmd, QspCmdInput } from './theme-core/cmd';
 import { QspView, QspViewImage } from './theme-core/view';
@@ -12,6 +12,17 @@ import { QspMenu, QspMenuItemImage, QspMenuItemIndex, QspMenuItemName, QspMenuLi
 import { QspMsg, QspMsgContent } from './theme-core/msg';
 import { QspInput, QspInputContent, QspInputTag } from './theme-core/input';
 import { QspCancelButton, QspCloseButton, QspOkButton } from './theme-core/buttons';
+import {
+  QspPauseScreenContent,
+  QspPauseScreenCredits,
+  QspPauseScreenLoad,
+  QspPauseScreenPreferences,
+  QspPauseScreenSave,
+  QspSlotDate,
+  QspSlotIndex,
+  QspSlotsList,
+} from './theme-core/pause-screen';
+import { QspButton } from './theme-core/qsp-button';
 
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'qsp-main-content'() {
@@ -117,6 +128,44 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   'qsp-cancel-button'(node, children) {
     const attributes = extractAttributes(node);
     return <QspCancelButton attributes={attributes}>{children}</QspCancelButton>;
+  },
+  'qsp-button'(node, children) {
+    const action = (node.getAttribute('type') || 'credits') as GameAction;
+    const attributes = extractAttributes(node);
+    return (
+      <QspButton action={action} attributes={attributes}>
+        {children}
+      </QspButton>
+    );
+  },
+  'qsp-pause-screen-content'(node, children) {
+    const attributes = extractAttributes(node);
+    return <QspPauseScreenContent attributes={attributes}>{children}</QspPauseScreenContent>;
+  },
+  'qsp-pause-screen-credits'(node, children) {
+    const attributes = extractAttributes(node);
+    return <QspPauseScreenCredits attributes={attributes}>{children}</QspPauseScreenCredits>;
+  },
+  'qsp-pause-screen-preferences'(node, children) {
+    const attributes = extractAttributes(node);
+    return <QspPauseScreenPreferences attributes={attributes}>{children}</QspPauseScreenPreferences>;
+  },
+  'qsp-pause-screen-save'(node, children) {
+    const attributes = extractAttributes(node);
+    return <QspPauseScreenSave attributes={attributes}>{children}</QspPauseScreenSave>;
+  },
+  'qsp-pause-screen-load'(node, children) {
+    const attributes = extractAttributes(node);
+    return <QspPauseScreenLoad attributes={attributes}>{children}</QspPauseScreenLoad>;
+  },
+  'qsp-slots-list'() {
+    return <QspSlotsList />;
+  },
+  'qsp-save-slot-index'() {
+    return <QspSlotIndex />;
+  },
+  'qsp-save-slot-date'() {
+    return <QspSlotDate />;
   },
 };
 

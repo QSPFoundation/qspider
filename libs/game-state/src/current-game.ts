@@ -14,8 +14,10 @@ import {
 import { convertQsps, isZip } from './utils';
 import { qspApi$ } from './qsp-api';
 import { BASE_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
-import { withCounterPaused } from './counter';
-import { sounds$ } from './audio';
+import { isPaused$, withCounterPaused } from './counter';
+import { muted$, sounds$ } from './audio';
+import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
+import { loadSaveList } from './save';
 
 export const currentGame$ = create<GameDescriptor | null>();
 
@@ -50,6 +52,7 @@ export async function runGame(id: string): Promise<void> {
   currentGame$.set(descriptor);
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
+  loadSaveList();
 }
 
 export function stopCurrentGame(): void {
@@ -60,6 +63,48 @@ export function stopCurrentGame(): void {
   currentTheme$.set(BASE_THEME);
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
+}
+export type GameAction =
+  | 'save'
+  | 'load'
+  | 'restart'
+  | 'resume'
+  | 'quit'
+  | 'preferences'
+  | 'credits'
+  | 'mute'
+  | 'unmute'
+  | 'toggle-mute';
+export function onGameAction(action: GameAction): void {
+  switch (action) {
+    case 'quit':
+      stopCurrentGame();
+      break;
+    case 'restart':
+      isPaused$.set(true);
+      qspApi$.value?.restartGame();
+      isPauseScreenVisible$.set(false);
+      break;
+    case 'resume':
+      isPauseScreenVisible$.set(false);
+      break;
+    case 'save':
+    case 'load':
+    case 'preferences':
+    case 'credits':
+      if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
+      pauseScreenTab$.set(action);
+      break;
+    case 'mute':
+      muted$.set(true);
+      break;
+    case 'unmute':
+      muted$.set(false);
+      break;
+    case 'toggle-mute':
+      muted$.update((muted) => !muted);
+      break;
+  }
 }
 
 qspApi$.subscribe((api) => {
