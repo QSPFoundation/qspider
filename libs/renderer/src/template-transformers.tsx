@@ -23,8 +23,13 @@ import {
   QspSlotsList,
 } from './theme-core/pause-screen';
 import { QspButton } from './theme-core/qsp-button';
+import { QspScrollable } from './theme-core/scrollable';
 
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
+  'qsp-scrollable'(node, children) {
+    const { scroll, ...attributes } = extractAttributes(node);
+    return <QspScrollable attributes={attributes}>{children}</QspScrollable>;
+  },
   'qsp-main-content'() {
     return <QspMainContent />;
   },
