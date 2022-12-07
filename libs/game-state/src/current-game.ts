@@ -7,14 +7,13 @@ import {
   clearAdditionalResources,
   clearResources,
   fillLocalFS,
-  getBinaryContent,
   loadAdditionalResources,
   mainFileSource$,
 } from './resources';
 import { convertQsps, isZip } from './utils';
 import { qspApi$ } from './qsp-api';
 import { BASE_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
-import { isPaused$, withCounterPaused } from './counter';
+import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
 import { loadSaveList } from './save';
@@ -106,21 +105,3 @@ export function onGameAction(action: GameAction): void {
       break;
   }
 }
-
-qspApi$.subscribe((api) => {
-  api.on('open_game', async (file, isNewGame, onOpened) => {
-    withCounterPaused(async () => {
-      const source = await getBinaryContent(file);
-      let gameSource = source;
-      const isQsps = file.toLowerCase().endsWith('.qsps');
-      if (isQsps) {
-        gameSource = convertQsps(source);
-      }
-      if (isNewGame) {
-        basePath$.set(file.slice(0, file.lastIndexOf('/') + 1));
-      }
-      api.openGame(gameSource, isNewGame);
-      onOpened();
-    });
-  });
-});

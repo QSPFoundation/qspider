@@ -37,8 +37,3 @@ counterDelay$.subscribe(() => {
     scheduleCounter();
   }
 });
-qspApi$.subscribe((api) => {
-  api.on('timer', (ms) => {
-    counterDelay$.set(ms);
-  });
-});

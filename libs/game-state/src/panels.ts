@@ -1,8 +1,6 @@
-import { QspListItem, QspPanel } from '@qsp/wasm-engine';
-import { hashString } from '@qspider/utils';
+import { QspListItem } from '@qsp/wasm-engine';
 import { create } from 'xoid';
 import { qspApi$ } from './qsp-api';
-import { prepareContent, prepareList } from './utils';
 
 export const mainContent$ = create('');
 export const isNewLoc$ = create(false);
@@ -34,44 +32,4 @@ export function submitUserInput(): void {
 
 export const viewPath$ = create('');
 
-qspApi$.subscribe((api) => {
-  api.on('main_changed', (text) => {
-    const prevMain = mainContent$.value;
-    mainContent$.set(prepareContent(text));
-    isNewLoc$.set(!prevMain || (mainContent$.value !== prevMain && !mainContent$.value.startsWith(prevMain)));
-    if (isNewLoc$.value) {
-      newLocHash$.set(String(hashString(mainContent$.value)));
-    }
-  });
-  api.on('stats_changed', (text) => {
-    statsContent$.set(prepareContent(text));
-  });
-  api.on('actions_changed', (actions) => {
-    actions$.set(prepareList(actions));
-  });
-  api.on('objects_changed', (objects) => {
-    objects$.set(prepareList(objects));
-  });
-  api.on('user_input', (text) => {
-    cmdText$.set(text);
-  });
-  api.on('view', (path) => {
-    viewPath$.set(path);
-  });
-  api.on('panel_visibility', (type, isShown) => {
-    switch (type) {
-      case QspPanel.VARS:
-        isStatsVisible$.set(isShown);
-        break;
-      case QspPanel.ACTS:
-        isActsVisible$.set(isShown);
-        break;
-      case QspPanel.OBJS:
-        isObjsVisible$.set(isShown);
-        break;
-      case QspPanel.INPUT:
-        isCmdVisible$.set(isShown);
-        break;
-    }
-  });
-});
+export const regions$ = create<Record<string, string>>({});

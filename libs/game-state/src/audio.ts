@@ -1,10 +1,8 @@
 import { Howler } from 'howler';
 import { Resource } from '@qspider/contracts';
 import { normalizeVolume, Sound } from './sound';
-import { create, use } from 'xoid';
+import { create } from 'xoid';
 import { clamp } from './utils';
-import { qspApi$ } from './qsp-api';
-import { getResource } from './resources';
 
 const VOLUME_STEP = 10;
 
@@ -62,23 +60,6 @@ muted$.watch((isMuted) => {
 });
 volume$.watch((volume) => {
   Howler.volume(normalizeVolume(clamp(volume, 0, 100)));
-});
-qspApi$.subscribe((api) => {
-  api.on('is_play', (path, result) => {
-    result(use(sounds$).isPlaying(getResource(path).url));
-  });
-  api.on('play_file', (path, volume, ready) => {
-    use(sounds$).play(getResource(path), volume);
-    ready();
-  });
-  api.on('close_file', (path, ready) => {
-    if (path) {
-      use(sounds$).close(getResource(path).url);
-    } else {
-      use(sounds$).closeAll();
-    }
-    ready();
-  });
 });
 
 function getFileKey(path: string): string {

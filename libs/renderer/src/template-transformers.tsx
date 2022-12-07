@@ -24,6 +24,8 @@ import {
 } from './theme-core/pause-screen';
 import { QspButton } from './theme-core/qsp-button';
 import { QspScrollable } from './theme-core/scrollable';
+import { QspVariable } from './theme-core/qsp-variable';
+import { QspRegion } from './theme-core/qsp-region';
 
 const transformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'qsp-scrollable'(node, children) {
@@ -171,6 +173,20 @@ const transformers: Record<string, (node: HTMLElement, children: Node[]) => Reac
   },
   'qsp-save-slot-date'() {
     return <QspSlotDate />;
+  },
+  'qsp-variable'(node) {
+    const { name, key, index } = extractAttributes(node);
+    return (
+      <QspVariable
+        name={name as string}
+        key={key as string}
+        index={index ? parseInt(index as string, 10) : undefined}
+      />
+    );
+  },
+  'qsp-region'(node) {
+    const { name, ...attributes } = extractAttributes(node);
+    return <QspRegion name={name as string} attributes={attributes} />;
   },
 };
 
