@@ -10,8 +10,28 @@ export interface TemplateTag {
   attrs: Attributes;
   template: string;
 }
+export type CssVarDefinition = {
+  name: string;
+  from: string;
+  defaultValue: string;
+} & (
+  | { type: null }
+  | {
+      type: 'unit';
+      unit: string;
+    }
+  | {
+      type: 'color';
+      invert?: boolean;
+    }
+  | {
+      type: 'resource';
+    }
+);
+
 export type ThemeData = {
   is_user_defined: boolean;
+  css_variables: CssVarDefinition[];
   qsp_player?: TemplateTag;
   qsp_action?: TemplateTag;
   qsp_object?: TemplateTag;
@@ -49,8 +69,9 @@ export const currentTheme$ = create(BASE_THEME);
 export const currentThemeData$ = create((get) => {
   return get(themeRegistry$)[get(currentTheme$)];
 });
+export const currentCssVariables$ = currentThemeData$.focus((t) => t.css_variables);
 
-export function useThemeTemplate(tag: keyof Omit<ThemeData, 'is_user_defined'>): TemplateTag {
+export function useThemeTemplate(tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables'>): TemplateTag {
   const theme = useAtom(currentThemeData$);
   return (
     theme?.[tag] || {
@@ -83,6 +104,7 @@ function parseTheme(content: string): Record<string, ThemeData> {
     }
     themeData[name] = {
       is_user_defined: true,
+      css_variables: extractCssVariables(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
       qsp_action: extractTagData(theme, 'template[is="qsp-action"]'),
       qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
@@ -102,4 +124,22 @@ function extractTagData(root: HTMLElement, selector: string): TemplateTag | unde
     attrs: extractAttributes(node),
     template: node.innerHTML,
   };
+}
+
+function extractCssVariables(root: HTMLElement): CssVarDefinition[] {
+  const definitions: CssVarDefinition[] = [];
+  for (const node of root.querySelectorAll('qsp-css-variable')) {
+    const name = node.getAttribute('name');
+    const from = node.getAttribute('from');
+    if (!name || !from) continue;
+    definitions.push({
+      name,
+      from,
+      defaultValue: node.getAttribute('defaultValue') || '',
+      type: node.getAttribute('type'),
+      unit: node.getAttribute('unit'),
+      invert: Boolean(node.getAttribute('invert')),
+    } as CssVarDefinition);
+  }
+  return definitions;
 }

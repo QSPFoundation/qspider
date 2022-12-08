@@ -7,6 +7,7 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
+      'qsp-game-root': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-player': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-stats': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-actions': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
