@@ -15,7 +15,6 @@ export const QspCSSVariables: React.FC = () => {
 };
 
 export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ definition }) => {
-  console.log(definition.defaultValue);
   const value = useQspVariable(definition.from, '', 0, '') || definition.defaultValue;
   let preparedValue = value || 'none';
   if (definition.type === 'color') {

@@ -62,6 +62,16 @@ export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
   return value;
 }
 
+export function useQspExpression(expr: string): boolean {
+  const [value, setValue] = useState(false);
+  useEffect(() => {
+    if (!expr) return;
+    const unsubscribe = qspApi$.value?.watchExpression(expr, (v) => setValue(Boolean(v)));
+    return () => unsubscribe?.();
+  }, [expr]);
+  return value;
+}
+
 qspApi$.subscribe((api) => {
   api.on('version', (type, callback) => {
     switch (type) {

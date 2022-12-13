@@ -31,7 +31,7 @@
     "@iarna/toml": "^3.0.0",
     "@popperjs/core": "^2.11.6",
     "@qsp/converters": "^1.0.1",
-    "@qsp/wasm-engine": "^1.0.4",
+    "@qsp/wasm-engine": "^1.0.5",
     "@radix-ui/react-alert-dialog": "^1.0.2",
     "@radix-ui/react-dialog": "^1.0.2",
     "@radix-ui/react-dropdown-menu": "^2.0.1",
