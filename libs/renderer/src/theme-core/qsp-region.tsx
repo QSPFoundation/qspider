@@ -8,7 +8,7 @@ export const QspRegion: React.FC<{ name: string; attributes: Attributes }> = ({ 
     return regions$.focus((s) => s[name]);
   });
   const content = useAtom(content$);
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-region');
   return (
     <qsp-region data-name={name} {...preparedAttributes}>
       <ContentRenderer content={content} />

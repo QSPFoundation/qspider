@@ -7,7 +7,7 @@ export const QspPauseScreenCredits: React.FC<{ attributes: Attributes; children:
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-credits');
   return (
     <Tabs.Content value="credits">
       <qsp-pause-screen-credits {...preparedAttributes}>{children}</qsp-pause-screen-credits>

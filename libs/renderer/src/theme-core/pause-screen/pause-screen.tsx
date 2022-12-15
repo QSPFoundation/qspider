@@ -10,7 +10,7 @@ export const QspPauseScreen: React.FC = () => {
   const isVisible = useAtom(isPauseScreenVisible$);
   const currentGame = useAtom(currentGame$);
   const { template, attrs } = useThemeTemplate('qsp_pause_screen');
-  const preparedAttrs = useAttributes(attrs);
+  const preparedAttrs = useAttributes(attrs, 'qsp-pause-screen');
   const currentTab = useAtom(pauseScreenTab$);
   return (
     <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>

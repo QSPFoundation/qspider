@@ -8,7 +8,7 @@ import { buttonContext } from './buttons';
 
 export const QspInput: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
   const input = useAtom(input$);
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-input');
   if (!input) return null;
   return (
     <buttonContext.Provider
@@ -51,7 +51,7 @@ export const QspInputContent: React.FC = () => {
 
 export const QspInputTag: React.FC<{ attributes: Attributes }> = ({ attributes }) => {
   const value = useAtom(inputResult$);
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'input');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
     inputResult$.set((e.target as any).value);
   };

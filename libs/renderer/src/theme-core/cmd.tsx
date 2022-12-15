@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
 
 export const QspCmd: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-cmd');
   const isVisible = useAtom(isCmdVisible$);
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e): void => {
     e.preventDefault();
@@ -20,7 +20,7 @@ export const QspCmd: React.FC<{ attributes: Attributes; children: ReactNode }> =
 
 export const QspCmdInput: React.FC<{ attributes: Attributes }> = ({ attributes }) => {
   const value = useAtom(cmdText$);
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'input');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
     cmdText$.set((e.target as any).value);
   };

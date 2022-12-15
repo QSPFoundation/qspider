@@ -29,10 +29,10 @@ export const QspSlotsList: React.FC = () => {
 export const QspSlot: React.FC<{ index: number; date?: number }> = ({ index, date }) => {
   const { attrs, template } = useThemeTemplate('qsp_save_slot');
   const { tag, ...otherAttrs } = attrs;
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes);
+  const Tag = (tag || 'div') as 'div';
+  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (style as any)['--slot-index'] = `${index}`;
-  const Tag = (tag || 'div') as 'div';
   const { action } = useContext(slotActionContext);
   return (
     <slotContentContext.Provider value={{ index, date }}>

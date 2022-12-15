@@ -8,7 +8,7 @@ export const QspPauseScreenSave: React.FC<{ attributes: Attributes; children: Re
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-save');
   const action = async (index: number): Promise<void> => {
     await saveToSlot(index);
   };

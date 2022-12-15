@@ -7,7 +7,7 @@ export const QspPauseScreenPreferences: React.FC<{ attributes: Attributes; child
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-preferences');
   return (
     <Tabs.Content value="preferences">
       <qsp-pause-screen-preferences {...preparedAttributes}>{children}</qsp-pause-screen-preferences>

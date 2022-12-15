@@ -45,6 +45,18 @@ export async function initQspApi(): Promise<void> {
   qspApiInitialized$.set(true);
 }
 
+export function execCode(code: string): void {
+  qspApi$.value?.execCode(code);
+}
+
+export function onLinkClicked(href: string): void {
+  if (href.toLowerCase().startsWith('exec:')) {
+    execCode(href.substring(5));
+  } else {
+    window.location.href = href;
+  }
+}
+
 export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
   name: Name,
   key: string,

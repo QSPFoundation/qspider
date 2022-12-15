@@ -30,7 +30,7 @@ const voidTags = [
 
 export const Element: React.FC<ElementProps> = ({ attributes = {}, children = null, tagName }) => {
   const Tag = tagName as 'span';
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, Tag);
   const selfClose = voidTags.includes(tagName);
   return selfClose ? <Tag {...preparedAttributes} /> : <Tag {...preparedAttributes}>{children}</Tag>;
 };

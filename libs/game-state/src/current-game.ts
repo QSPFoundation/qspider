@@ -12,13 +12,14 @@ import {
 } from './resources';
 import { convertQsps, isZip } from './utils';
 import { qspApi$ } from './qsp-api';
-import { BASE_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
+import { CLASSIC_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
 import { loadSaveList } from './save';
 
 export const currentGame$ = create<GameDescriptor | null>();
+export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
 
 export async function runGame(id: string): Promise<void> {
   const descriptor = games$.value?.[id];
@@ -47,7 +48,11 @@ export async function runGame(id: string): Promise<void> {
   if (descriptor.themes) {
     await registerThemes(descriptor.themes);
   }
-  if (descriptor.defaultTheme) currentTheme$.set(descriptor.defaultTheme);
+  if (descriptor.defaultTheme) {
+    currentTheme$.set(descriptor.defaultTheme);
+  } else {
+    currentTheme$.set(CLASSIC_THEME);
+  }
   currentGame$.set(descriptor);
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
@@ -59,7 +64,7 @@ export function stopCurrentGame(): void {
   use(sounds$).clear();
   clearResources();
   clearAdditionalResources();
-  currentTheme$.set(BASE_THEME);
+  currentTheme$.set(CLASSIC_THEME);
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
 }

@@ -1,8 +1,12 @@
-export type AttributeValue = boolean | number | object | string;
+import React from 'react';
 
-export interface Attributes {
+export type AttributeValue = string;
+
+export type Attributes = {
+  style?: React.CSSProperties;
+} & {
   [attr: string]: AttributeValue;
-}
+};
 
 export function extractAttributes(node: HTMLElement): Attributes {
   const attributes: Attributes = {};
@@ -18,7 +22,7 @@ export function extractAttributes(node: HTMLElement): Attributes {
   return attributes;
 }
 
-function parseStyles(styles: string): Record<string, string> {
+function parseStyles(styles: string): Record<string, string | number> {
   return styles
     .split(';')
     .map((style) => {
@@ -26,8 +30,12 @@ function parseStyles(styles: string): Record<string, string> {
       const key = style
         .substring(0, separatorPosition)
         .trim()
+        .replace(/^-ms-/, 'ms-')
         .replace(/-./g, (c) => c.substring(1).toUpperCase());
-      const value = style.substring(separatorPosition + 1).trim();
+      let value: string | number = style.substring(separatorPosition + 1).trim();
+      if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
+        value = parseFloat(value);
+      }
       if (!key) return null;
       return [key, value];
     })
@@ -37,6 +45,6 @@ function parseStyles(styles: string): Record<string, string> {
         ...styleObj,
         ...(style ? { [style[0]]: style[1] } : {}),
       }),
-      {} as Record<string, string>
+      {} as Record<string, string | number>
     );
 }

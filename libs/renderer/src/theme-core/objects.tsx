@@ -12,7 +12,7 @@ const objectContext = createContext<{ object: QspListItem; index: number }>({
 });
 
 export const QspObjects: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-objects');
   const isVisible = useAtom(isObjsVisible$);
   if (!isVisible) return null;
   return <qsp-objects {...preparedAttributes}>{children}</qsp-objects>;
@@ -32,9 +32,9 @@ export const QspObjectsList: React.FC = () => {
 export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
   const { attrs, template } = useThemeTemplate('qsp_object');
   const { tag, ...otherAttrs } = attrs;
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes);
-  (style as any)['--object-image'] = `url(${getResource(object.image).url})`;
   const Tag = (tag || 'div') as 'div';
+  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
+  (style as any)['--object-image'] = `url(${getResource(object.image).url})`;
   const onClick: React.MouseEventHandler<HTMLDivElement> = (e): void => {
     selectObject(index);
   };

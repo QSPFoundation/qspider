@@ -1,10 +1,10 @@
 import { useAtom } from '@xoid/react';
-import { Attributes } from 'interweave';
 import { create, use } from 'xoid';
-import { extractAttributes } from './attributes';
+import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
+import themes from './themes.html';
 
-export const BASE_THEME = 'qspider-base';
+export const CLASSIC_THEME = 'qspider:classic';
 
 export interface TemplateTag {
   attrs: Attributes;
@@ -65,7 +65,7 @@ export const themeRegistry$ = create<Record<string, ThemeData>, ThemeActions>({}
     },
   };
 });
-export const currentTheme$ = create(BASE_THEME);
+export const currentTheme$ = create(CLASSIC_THEME);
 export const currentThemeData$ = create((get) => {
   return get(themeRegistry$)[get(currentTheme$)];
 });
@@ -92,7 +92,11 @@ export async function registerThemes(themes: string[]): Promise<void> {
 }
 
 const parser = new DOMParser();
-function parseTheme(content: string): Record<string, ThemeData> {
+const parsedThemes = parseTheme(themes, false);
+for (const [alias, data] of Object.entries(parsedThemes)) {
+  use(themeRegistry$).add(alias, data);
+}
+function parseTheme(content: string, is_user_defined = true): Record<string, ThemeData> {
   const themeData: Record<string, ThemeData> = {};
   const document = parser.parseFromString(content, 'text/html');
   const themes = document.querySelectorAll<HTMLElement>('qspider-theme');
@@ -103,7 +107,7 @@ function parseTheme(content: string): Record<string, ThemeData> {
       continue;
     }
     themeData[name] = {
-      is_user_defined: true,
+      is_user_defined,
       css_variables: extractCssVariables(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
       qsp_action: extractTagData(theme, 'template[is="qsp-action"]'),

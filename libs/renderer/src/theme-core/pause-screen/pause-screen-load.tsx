@@ -8,7 +8,7 @@ export const QspPauseScreenLoad: React.FC<{ attributes: Attributes; children: Re
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-load');
   const action = async (index: number): Promise<void> => {
     await restoreFromSlot(index);
   };

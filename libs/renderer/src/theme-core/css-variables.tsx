@@ -16,18 +16,19 @@ export const QspCSSVariables: React.FC = () => {
 
 export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ definition }) => {
   const value = useQspVariable(definition.from, '', 0, '') || definition.defaultValue;
-  let preparedValue = value || 'none';
+  let preparedValue: string | null = value;
   if (definition.type === 'color') {
-    preparedValue = convertColor(value as unknown as number, true) || 'transparent';
-    if (definition.invert) {
+    preparedValue = convertColor(value as unknown as number, true);
+    if (preparedValue && definition.invert) {
       preparedValue = Color(preparedValue).negate().hex();
     }
-  } else if (definition.type === 'unit') {
+  } else if (definition.type === 'unit' && value) {
     preparedValue = `${value}${definition.unit || ''}`;
   } else if (definition.type === 'resource') {
     const url = value && getResource(value).url;
     preparedValue = url ? `url(${url})` : 'none';
   }
+  if (!preparedValue) return null;
   const content = `qsp-game-root {${definition.name}: ${preparedValue};}`;
   return <style>{content}</style>;
 };

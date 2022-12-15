@@ -1,0 +1,274 @@
+<qspider-theme name="qspider:classic">
+  <definitions>
+    <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="pt" defaultValue="12"></qsp-css-variable>
+    <qsp-css-variable name="--font-name" from="$FNAME"></qsp-css-variable>
+    <qsp-css-variable name="--color" from="FCOLOR" type="color"></qsp-css-variable>
+    <qsp-css-variable name="--inverted-color" from="FCOLOR" type="color" invert></qsp-css-variable>
+    <qsp-css-variable name="--link-color" from="LCOLOR" type="color"></qsp-css-variable>
+    <qsp-css-variable name="--background-color" from="BCOLOR" type="color"></qsp-css-variable>
+    <qsp-css-variable name="--inverted-background-color" from="BCOLOR" type="color" invert></qsp-css-variable>
+    <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
+  </definitions>
+  <template is="qsp-player">
+    <style>
+      qsp-player button {
+        color: var(--color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+      }
+      qsp-player input {
+        color: var(--color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+      }
+      qsp-player a {
+        color: var(--link-color);
+      }
+      a.plain {
+        text-decoration: none;
+      }
+      qsp-player {
+        --border-color: grey;
+        width: 100vw;
+        height: 100vh;
+        background: var(--background-color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+        color: var(--color);
+        display: block;
+      }
+      .qsp-classic-layout {
+        width: 100%;
+        height: 100%;
+      }
+      .column {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        flex-basis: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .column > * + * {
+        margin-top: 3px;
+      }
+      .row {
+        display: flex;
+        flex-shrink: 0;
+        flex-basis: 0;
+        flex-direction: row;
+        align-items: stretch;
+        width: 100%;
+        height: 100%;
+      }
+      .row > * + * {
+        margin-left: 3px;
+      }
+      .grow {
+        flex-grow: 100;
+      }
+
+      qsp-menu {
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color, transparent);
+      }
+      nav {
+        outline: none;
+      }
+      .panel {
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        border: 1px solid var(--border-color);
+      }
+
+      .panel-background {
+        background-image: var(--background-image, none);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
+        min-height: 100%;
+        border: 1px solid var(--border-color);
+      }
+
+      .panel-content {
+        padding: 8px;
+        min-height: 100%;
+        white-space: pre-wrap;
+      }
+      qsp-cmd form {
+        display: block;
+        height: 100%;
+        width: 100%;
+      }
+      qsp-cmd input {
+        background: var(--background-color);
+        display: inline-block;
+        height: 100%;
+        width: 100%;
+        border: 0;
+      }
+      qsp-cmd input:focus {
+        outline: none;
+        box-shadow: inset 0 0 5px 0px rgba(0, 0, 0, 0.75);
+      }
+      .view-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .view-container img {
+        max-width: 100%;
+        max-height: 100%;
+      }
+      .menu-separator {
+        margin: 3px 10px;
+        border-top: 1px solid var(--border-color);
+      }
+      qsp-menu {
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color, transparent);
+      }
+      .action-item {
+        display: flex;
+        align-items: center;
+        padding: 4px 8px;
+        width: 100%;
+        text-align: left;
+        border-radius: 0;
+        border: 0;
+        cursor: pointer;
+        background-color: var(--background-color, transparent);
+        user-select: none;
+      }
+      .action-item:hover {
+        background-color: var(--inverted-background-color);
+        color: var(--inverted-color);
+      }
+      .action-item:focus {
+        outline: none;
+      }
+      .action-img {
+        margin-right: 8px;
+      }
+    </style>
+    <div class="qsp-classic-layout">
+      <div class="column">
+        <div class="column grow">
+          <div class="row grow">
+            <qsp-main class="grow">
+              <div class="panel-background" data-qsp="main">
+                <qsp-scrollable>
+                  <div class="panel-content">
+                    <qsp-main-content></qsp-main-content>
+                  </div>
+                </qsp-scrollable>
+              </div>
+            </qsp-main>
+            <qsp-objects style="width: 20%">
+              <div class="panel" data-qsp="objects">
+                <qsp-scrollable>
+                  <nav role="menu" data-qsp="objects-list">
+                    <qsp-objects-list></qsp-objects-list>
+                  </nav>
+                </qsp-scrollable>
+              </div>
+            </qsp-objects>
+          </div>
+          <div class="row" style="height: 28.6%">
+            <qsp-actions class="grow">
+              <div class="panel" data-qsp="actions">
+                <qsp-scrollable>
+                  <nav role="menu" data-qsp="actions-list">
+                    <qsp-actions-list></qsp-actions-list>
+                  </nav>
+                </qsp-scrollable>
+              </div>
+            </qsp-actions>
+            <qsp-stats style="width: 41%">
+              <div class="panel" data-qsp="stats">
+                <qsp-scrollable>
+                  <div class="panel-content">
+                    <qsp-stats-content></qsp-stats-content>
+                  </div>
+                </qsp-scrollable>
+              </div>
+            </qsp-stats>
+          </div>
+        </div>
+        <qsp-cmd style="flex-grow: 3.3">
+          <div class="panel" data-qsp="user-input">
+            <qsp-cmd-input></qsp-cmd-input>
+          </div>
+        </qsp-cmd>
+      </div>
+    </div>
+    <qsp-view>
+      <div class="panel">
+        <div class="view-container">
+          <qsp-view-image></qsp-view-image>
+        </div>
+      </div>
+    </qsp-view>
+    <qsp-menu>
+      <qsp-scrollable>
+        <nav role="menu" data-qsp="menu-list">
+          <qsp-menu-list></qsp-menu-list>
+        </nav>
+      </qsp-scrollable>
+    </qsp-menu>
+    <qsp-msg>
+      <qsp-close-button>x</qsp-close-button>
+      <qsp-msg-content></qsp-msg-content>
+      <qsp-ok-button focus>Ok</qsp-ok-button>
+    </qsp-msg>
+    <qsp-input>
+      <qsp-close-button>x</qsp-close-button>
+      <qsp-input-content></qsp-input-content>
+      <qsp-input-tag></qsp-input-tag>
+      <qsp-ok-button>Ok</qsp-ok-button>
+      <qsp-cancel-button>Cancel</qsp-cancel-button>
+    </qsp-input>
+  </template>
+  <template is="qsp-pause-screen">
+    <qsp-button type="resume">Resume</qsp-button>
+    <qsp-button type="restart">Restart</qsp-button>
+    <qsp-button type="save">Save</qsp-button>
+    <qsp-button type="load">Load</qsp-button>
+    <qsp-button type="preferences">Preferences</qsp-button>
+    <qsp-button type="quit">Quit</qsp-button>
+    <qsp-pause-screen-content>
+      <qsp-pause-screen-credits></qsp-pause-screen-credits>
+      <qsp-pause-screen-save>
+        <h2>Save game</h2>
+        <qsp-slots-list></qsp-slots-list>
+      </qsp-pause-screen-save>
+      <qsp-pause-screen-load>
+        <h2>Load game</h2>
+        <qsp-slots-list></qsp-slots-list>
+      </qsp-pause-screen-load>
+      <qsp-pause-screen-preferences>
+        <h2>Preferences</h2>
+      </qsp-pause-screen-preferences>
+    </qsp-pause-screen-content>
+  </template>
+  <template is="qsp-action" tag="button" class="action-item" data-qsp="action">
+    <qsp-action-image class="action-img" data-qsp="action-image"></qsp-action-image>
+    <qsp-action-name></qsp-action-name>
+  </template>
+  <template is="qsp-object" tag="button" class="action-item">
+    <qsp-object-image class="action-img" data-qsp="action-image"></qsp-object-image>
+    <qsp-object-name></qsp-object-name>
+  </template>
+  <template is="qsp-menu-item" tag="button" class="action-item">
+    <qsp-menu-image class="action-img" data-qsp="action-image"></qsp-menu-image>
+    <qsp-menu-name> </qsp-menu-name>
+  </template>
+  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
+  <template is="qsp-save-slot">
+    <qsp-save-slot-index></qsp-save-slot-index>
+    <qsp-save-slot-date></qsp-save-slot-date>
+  </template>
+</qspider-theme>

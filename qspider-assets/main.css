@@ -72,3 +72,21 @@ area:focus {
   right: 0;
   z-index: 10000000;
 }
+
+.classic-table {
+  border-color: rgb(238, 238, 237);
+  border-style: inset;
+  border-width: var(--table-border-width, 0);
+  border-spacing: var(--table-cellspacing, 0);
+}
+.classic-table td,
+.classic-table th {
+  border-spacing: var(--table-cellpadding, 0);
+  border-color: rgb(238, 238, 237);
+  border-style: inset;
+  border-width: var(--table-border-width, 0);
+}
+.classic-table td > img,
+.classic-table th > img {
+  vertical-align: bottom;
+}

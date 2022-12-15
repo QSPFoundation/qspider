@@ -6,6 +6,6 @@ export const QspPauseScreenContent: React.FC<{ attributes: Attributes; children:
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-content');
   return <qsp-pause-screen-content {...preparedAttributes}>{children}</qsp-pause-screen-content>;
 };

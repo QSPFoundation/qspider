@@ -7,7 +7,7 @@ import { useAttributes } from '../content/attributes';
 import { buttonContext } from './buttons';
 
 export const QspMsg: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-msg');
   const msg = useAtom(msg$);
   if (!msg) return null;
   return (

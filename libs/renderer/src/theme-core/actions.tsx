@@ -20,7 +20,7 @@ const actionContext = createContext<{ action: QspListItem; index: number }>({
 });
 
 export const QspActions: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'qsp-actions');
   const isVisible = useAtom(isActsVisible$);
   if (!isVisible) return null;
   return <qsp-actions {...preparedAttributes}>{children}</qsp-actions>;
@@ -40,9 +40,9 @@ export const QspActionsList: React.FC = () => {
 export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = ({ action, index }) => {
   const { attrs, template } = useThemeTemplate('qsp_action');
   const { tag, ...otherAttrs } = attrs;
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes);
-  (style as any)['--action-image'] = `url(${getResource(action.image).url})`;
   const Tag = (tag || 'div') as 'div';
+  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
+  (style as any)['--action-image'] = `url(${getResource(action.image).url})`;
   const onHover = (): void => {
     selectAction(index);
   };

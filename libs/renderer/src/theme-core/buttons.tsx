@@ -11,7 +11,7 @@ export const buttonContext = createContext({
 });
 
 export const QspCloseButton: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'button');
   return (
     <Dialog.Close asChild>
       <button {...preparedAttributes}>{children}</button>
@@ -20,7 +20,7 @@ export const QspCloseButton: React.FC<{ attributes: Attributes; children: ReactN
 };
 
 export const QspOkButton: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'button');
   const { okAction } = useContext(buttonContext);
   return (
     <button {...preparedAttributes} onClick={okAction}>
@@ -33,7 +33,7 @@ export const QspCancelButton: React.FC<{ attributes: Attributes; children: React
   attributes,
   children,
 }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'button');
   const { cancelAction } = useContext(buttonContext);
   return (
     <button {...preparedAttributes} onClick={cancelAction}>

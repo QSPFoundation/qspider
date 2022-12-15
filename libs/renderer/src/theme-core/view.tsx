@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
 
 export const QspView: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const { style = {}, ...preparedAttrs } = useAttributes(attributes);
+  const { style = {}, ...preparedAttrs } = useAttributes(attributes, 'qsp-view');
   const path = useAtom(viewPath$);
   if (!path) return null;
   (style as any)['--view-image'] = `url(${getResource(path).url})`;
@@ -16,7 +16,7 @@ export const QspView: React.FC<{ attributes: Attributes; children: ReactNode }> 
 };
 
 export const QspViewImage: React.FC<{ attributes: Attributes }> = ({ attributes }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'img');
   const path = useAtom(viewPath$);
   if (!path) return null;
   return <img src={getResource(path).url} alt="" {...preparedAttributes} />;

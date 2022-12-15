@@ -8,7 +8,7 @@ export const QspScrollable: React.FC<{
   attributes: Attributes;
   children: ReactNode;
 }> = ({ children, attributes, scroll = 'both' }) => {
-  const preparedAttributes = useAttributes(attributes);
+  const preparedAttributes = useAttributes(attributes, 'div');
   return (
     <ScrollArea.Root {...preparedAttributes}>
       <ScrollArea.Viewport>{children}</ScrollArea.Viewport>
