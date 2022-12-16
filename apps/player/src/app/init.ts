@@ -8,14 +8,17 @@ import {
   runGame,
   showError,
   storage$,
+  windowManager$,
 } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
 import { WebStorage } from '@qspider/web-storage';
 import { use } from 'xoid';
 import TOMLparse from '@iarna/toml/parse-string';
+import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
   storage$.set(new WebStorage());
+  windowManager$.set(windowManager);
   await loadGamesFromStorage();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);

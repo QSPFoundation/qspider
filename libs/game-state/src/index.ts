@@ -15,3 +15,4 @@ export * from './input';
 export * from './wait';
 export * from './pause-screen';
 export * from './save';
+export * from './window-manager';

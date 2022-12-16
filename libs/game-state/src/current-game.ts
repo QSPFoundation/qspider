@@ -7,6 +7,7 @@ import {
   clearAdditionalResources,
   clearResources,
   fillLocalFS,
+  getResource,
   loadAdditionalResources,
   mainFileSource$,
 } from './resources';
@@ -17,6 +18,8 @@ import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
 import { loadSaveList } from './save';
+import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
+import { windowManager$ } from './window-manager';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -44,6 +47,16 @@ export async function runGame(id: string): Promise<void> {
 
   const gameSource = mainFileSource$.value;
   if (!gameSource) throw new Error('Failed to load game');
+  windowManager$.value?.setTitle(descriptor.title);
+  setupGlobalHotKeys();
+  if (descriptor.hotkeys) {
+    setupCustomHotKeys(descriptor.hotkeys);
+  }
+  if (descriptor.resources?.icon) {
+    windowManager$.value?.setIcon(getResource(descriptor.resources?.icon).url);
+  } else {
+    windowManager$.value?.setIcon('assets/favicon.png');
+  }
   loadAdditionalResources(descriptor.resources);
   if (descriptor.themes) {
     await registerThemes(descriptor.themes);
@@ -61,9 +74,12 @@ export async function runGame(id: string): Promise<void> {
 
 export function stopCurrentGame(): void {
   currentGame$.set(null);
+  windowManager$.value?.setTitle('qSpider');
+  windowManager$.value?.setIcon('assets/favicon.png');
   use(sounds$).clear();
   clearResources();
   clearAdditionalResources();
+  clearHotkeys();
   currentTheme$.set(CLASSIC_THEME);
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
@@ -71,6 +87,8 @@ export function stopCurrentGame(): void {
 export type GameAction =
   | 'save'
   | 'load'
+  | 'quicksave'
+  | 'quickload'
   | 'restart'
   | 'resume'
   | 'quit'
@@ -79,6 +97,7 @@ export type GameAction =
   | 'mute'
   | 'unmute'
   | 'toggle-mute';
+
 export function onGameAction(action: GameAction): void {
   switch (action) {
     case 'quit':
