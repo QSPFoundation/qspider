@@ -220,7 +220,6 @@ class AeroLayout {
           width,
           height,
         };
-        this.manager.windowManager.resize(width, height + 20);
         const title = gameElement.getAttribute('title');
         if (title) {
           this.manager.currentGame.title = title;

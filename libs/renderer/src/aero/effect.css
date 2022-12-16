@@ -1,0 +1,492 @@
+/* fade */
+.fade-appear,
+.fade-enter {
+  opacity: 0;
+}
+.fade-appear-active,
+.fade-enter-active {
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+.fade-exit {
+  opacity: 1;
+}
+.fade-exit-active {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.quake-appear,
+.quake-enter {
+  opacity: 0;
+}
+
+.quake-appear-active,
+.quake-enter-active {
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+  animation: quake var(--effect-duration) ease-in;
+}
+
+.quake-exit {
+  opacity: 1;
+}
+
+.quake-exit-active {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+  animation: quake var(--effect-duration) ease-out;
+  animation-direction: reverse;
+}
+
+@keyframes quake {
+  10%,
+  90% {
+    transform: translate3d(-2px, 3px, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(4px, -5px, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-8px, 6px, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(8px, -3px, 0);
+  }
+}
+
+.blur-appear,
+.blur-enter {
+  opacity: 0;
+}
+
+.blur-appear-active,
+.blur-enter-active {
+  opacity: 1;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+  animation: blur var(--effect-duration) ease-in;
+}
+
+.blur-exit {
+  opacity: 1;
+}
+
+.blur-exit-active {
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+  animation: blur var(--effect-duration) ease-out;
+  animation-direction: reverse;
+}
+
+@keyframes blur {
+  0% {
+    filter: blur(15px);
+  }
+
+  100% {
+    filter: blur(0);
+  }
+}
+
+.h_blinds-appear,
+.h_blinds-appear-active,
+.h_blinds-appear-done,
+.h_blinds-enter,
+.h_blinds-enter-active,
+.h_blinds-enter-done,
+.h_blinds-exit,
+.h_blinds-exit-active,
+.h_blinds-exit-done {
+}
+.v_blinds-appear,
+.v_blinds-appear-active,
+.v_blinds-appear-done,
+.v_blinds-enter,
+.v_blinds-enter-active,
+.v_blinds-enter-done,
+.v_blinds-exit,
+.v_blinds-exit-active,
+.v_blinds-exit-done {
+}
+
+/* l_slide */
+.l_slide-appear,
+.l_slide-enter {
+  transform: translate3d(-100%, 0, 0);
+}
+.l_slide-appear-active,
+.l_slide-enter-active {
+  transform: translate3d(0, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.l_slide-exit {
+  transform: translate3d(0, 0, 0);
+}
+.l_slide-exit-active {
+  transform: translate3d(-100%, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+/* r_slide */
+.r_slide-appear,
+.r_slide-enter {
+  transform: translate3d(100%, 0, 0);
+}
+.r_slide-appear-active,
+.r_slide-enter-active {
+  transform: translate3d(0, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.r_slide-exit {
+  transform: translate3d(0, 0, 0);
+}
+.r_slide-exit-active {
+  transform: translate3d(100%, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+/* u_slide */
+.u_slide-appear,
+.u_slide-enter {
+  transform: translate3d(0, 100%, 0);
+}
+.u_slide-appear-active,
+.u_slide-enter-active {
+  transform: translate3d(0, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.u_slide-exit {
+  transform: translate3d(0, 0, 0);
+}
+.u_slide-exit-active {
+  transform: translate3d(0, 100%, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+/* d_slide */
+.d_slide-appear,
+.d_slide-enter {
+  transform: translate3d(0, -100%, 0);
+}
+.d_slide-appear-active,
+.d_slide-enter-active {
+  transform: translate3d(0, 0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.d_slide-exit {
+  transform: translate3d(0, 0, 0);
+}
+.d_slide-exit-active {
+  transform: translate3d(0, -100%, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.iris-appear,
+.iris-enter {
+  clip-path: circle(0 at center);
+}
+
+.iris-appear-active,
+.iris-enter-active {
+  clip-path: circle(120% at center);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+.iris-exit {
+  clip-path: circle(120% at center);
+}
+
+.iris-exit-active {
+  clip-path: circle(0 at center);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.photo-appear,
+.photo-enter {
+  box-shadow: inset 0 0 0 100px #fff;
+  opacity: 0;
+}
+
+.photo-appear-active,
+.photo-enter-active {
+  opacity: 1;
+  box-shadow: inset 0 0 0 0px #fff;
+  transition-property: box-shadow, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.photo-exit {
+  opacity: 1;
+  box-shadow: inset 0 0 0 0px #fff;
+}
+.photo-exit-active {
+  opacity: 0;
+  box-shadow: inset 0 0 0 100px #fff;
+  transition-property: box-shadow, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.pixels-appear,
+.pixels-appear-active,
+.pixels-appear-done,
+.pixels-enter,
+.pixels-enter-active,
+.pixels-enter-done,
+.pixels-exit,
+.pixels-exit-active,
+.pixels-exit-done {
+}
+
+/* rotate */
+.rotate-appear,
+.rotate-enter {
+  transform: rotate3d(0, 0, 1, -90deg);
+  opacity: 0;
+}
+.rotate-appear-active,
+.rotate-enter-active {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  transform-origin: center;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+.rotate-exit {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+}
+.rotate-exit-active {
+  transform: rotate3d(0, 0, 1, -90deg);
+  opacity: 0;
+  transform-origin: center;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.v_squeeze-appear,
+.v_squeeze-enter {
+  transform: scale(0, 1.5);
+  opacity: 0;
+}
+.v_squeeze-appear-active,
+.v_squeeze-enter-active {
+  transform: scale(1, 1);
+  opacity: 1;
+  transform-origin: center;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.v_squeeze-exit {
+  opacity: 1;
+  transform: scale(1, 1);
+}
+.v_squeeze-exit-active {
+  opacity: 0;
+  transform: scale(0, 1.5);
+  transform-origin: center;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.h_squeeze-appear,
+.h_squeeze-enter {
+  transform: scale(1.5, 0);
+  opacity: 0;
+}
+.h_squeeze-appear-active,
+.h_squeeze-enter-active {
+  transform: scale(1, 1);
+  opacity: 1;
+  transform-origin: center;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.h_squeeze-exit {
+  opacity: 1;
+  transform: scale(1, 1);
+}
+.h_squeeze-exit-active {
+  transform: scale(1.5, 0);
+  opacity: 0;
+  transition-property: transform, opacity;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.zoom-appear,
+.zoom-enter {
+  transform: scale(0, 0);
+}
+.zoom-appear-active,
+.zoom-enter-active {
+  transform: scale(1, 1);
+  transform-origin: center;
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.zoom-exit {
+  transform: scale(1, 1);
+}
+.zoom-exit-active {
+  transform: scale(0, 0);
+  transition-property: transform;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.wipe1-appear,
+.wipe1-enter {
+  clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+}
+
+.wipe1-appear-active,
+.wipe1-enter-active {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.wipe1-exit {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+.wipe1-exit-active {
+  clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.wipe2-appear,
+.wipe2-enter {
+  clip-path: polygon(100% 0, 100% 0, 100% 0, 100% 0);
+}
+
+.wipe2-appear-active,
+.wipe2-enter-active {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.wipe2-exit {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+.wipe2-exit-active {
+  clip-path: polygon(100% 0, 100% 0, 100% 0, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.wipe3-appear,
+.wipe3-enter {
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%);
+}
+
+.wipe3-appear-active,
+.wipe3-enter-active {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.wipe3-exit {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+.wipe3-exit-active {
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+
+.wipe4-appear,
+.wipe4-enter {
+  clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%);
+}
+
+.wipe4-appear-active,
+.wipe4-enter-active {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-in;
+}
+
+.wipe4-exit {
+  clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}
+.wipe4-exit-active {
+  clip-path: polygon(0 100%, 0 100%, 0 100%, 0 100%);
+  transition-property: clip-path;
+  transition-duration: var(--effect-duration);
+  transition-timing-function: ease-out;
+}

@@ -58,13 +58,14 @@ export function onLinkClicked(href: string): void {
 }
 
 export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
-  name: Name,
+  name: Name | undefined,
   key: string,
   index: number,
   defaultValue: T
 ): T {
   const [value, setValue] = useState(defaultValue);
   useEffect(() => {
+    if (!name) return;
     const unsubscribe = key
       ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue(value as unknown as T))
       : qspApi$.value?.watchVariable(name, index, (value) => setValue(value as unknown as T));
