@@ -370,62 +370,6 @@
         }
       }
     },
-    "player-desktop-e2e": {
-      "$schema": "../../node_modules/nx/schemas/project-schema.json",
-      "root": "apps/player-desktop-e2e",
-      "sourceRoot": "apps/player-desktop-e2e/src",
-      "projectType": "application",
-      "targets": {
-        "e2e": {
-          "executor": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/player-desktop-e2e/cypress.json",
-            "devServerTarget": "player-desktop:serve",
-            "tsConfig": "apps/player-desktop-e2e/tsconfig.json"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "player-desktop:serve:production"
-            }
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["apps/player-desktop-e2e/**/*.{js,ts}"]
-          }
-        }
-      }
-    },
-    "player-e2e": {
-      "$schema": "../../node_modules/nx/schemas/project-schema.json",
-      "root": "apps/player-e2e",
-      "sourceRoot": "apps/player-e2e/src",
-      "projectType": "application",
-      "targets": {
-        "e2e": {
-          "executor": "@nrwl/cypress:cypress",
-          "options": {
-            "cypressConfig": "apps/player-e2e/cypress.json",
-            "tsConfig": "apps/player-e2e/tsconfig.e2e.json",
-            "devServerTarget": "player:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "player:serve:production"
-            }
-          }
-        },
-        "lint": {
-          "executor": "@nrwl/linter:eslint",
-          "outputs": ["{options.outputFile}"],
-          "options": {
-            "lintFilePatterns": ["apps/player-e2e/**/*.{ts,tsx,js,jsx}"]
-          }
-        }
-      }
-    },
     "player-ui": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/player-ui",
