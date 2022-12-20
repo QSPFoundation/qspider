@@ -59,25 +59,31 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
   return style;
 };
 
-export const useAttributes = (attributes: Attributes, tag: string): Attributes => {
+export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
+  attributes: Attributes,
+  tagName: Tag
+): [Tag, React.CSSProperties, Omit<Attributes, 'style'>] => {
   const converted: Attributes = {};
-  for (const [key, value] of Object.entries(attributes)) {
+  const { tag = tagName, style = {}, ...attrs } = attributes;
+  for (const [key, value] of Object.entries(attrs)) {
     let newValue = value;
     if (resourceAttributes.includes(key)) {
       newValue = getResource(value as string).url;
     }
     converted[ATTRIBUTES_TO_PROPS[key] || key] = newValue as string;
   }
+
   if (tag.includes('-') && converted['className']) {
     converted['class'] = converted['className'];
     delete converted['className'];
   }
-  const style = attributesToStyle(attributes, tag);
-  if (Object.keys(style).length > 0) {
-    converted.style = {
-      ...(converted.style || {}),
+  const attributeStyles = attributesToStyle(attributes, tag);
+  return [
+    tag as Tag,
+    {
       ...style,
-    };
-  }
-  return converted;
+      ...attributeStyles,
+    },
+    converted,
+  ];
 };

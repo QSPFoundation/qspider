@@ -4,18 +4,17 @@ import { ReactNode } from 'react';
 import { useAttributes } from '../../content/attributes';
 import { slotActionContext } from './slots';
 
-export const QspPauseScreenSave: React.FC<{ attributes: Attributes; children: ReactNode }> = ({
-  attributes,
-  children,
-}) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-save');
+export const QspPauseScreenSave: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen-save');
   const action = async (index: number): Promise<void> => {
     await saveToSlot(index);
   };
   return (
     <slotActionContext.Provider value={{ action }}>
       <Tabs.Content value="save">
-        <qsp-pause-screen-save {...preparedAttributes}>{children}</qsp-pause-screen-save>
+        <Tag style={style} {...attributes}>
+          {children}
+        </Tag>
       </Tabs.Content>
     </slotActionContext.Provider>
   );

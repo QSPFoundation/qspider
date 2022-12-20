@@ -10,33 +10,32 @@ export const buttonContext = createContext({
   cancelAction: noop,
 });
 
-export const QspCloseButton: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'button');
+export const QspCloseButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [, style, attributes] = useAttributes(attrs, 'button');
   return (
     <Dialog.Close asChild>
-      <button {...preparedAttributes}>{children}</button>
+      <button style={style} {...attributes}>
+        {children}
+      </button>
     </Dialog.Close>
   );
 };
 
-export const QspOkButton: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'button');
+export const QspOkButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [, style, attributes] = useAttributes(attrs, 'button');
   const { okAction } = useContext(buttonContext);
   return (
-    <button {...preparedAttributes} onClick={okAction}>
+    <button style={style} {...attributes} onClick={okAction}>
       {children}
     </button>
   );
 };
 
-export const QspCancelButton: React.FC<{ attributes: Attributes; children: ReactNode }> = ({
-  attributes,
-  children,
-}) => {
-  const preparedAttributes = useAttributes(attributes, 'button');
+export const QspCancelButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [, style, attributes] = useAttributes(attrs, 'button');
   const { cancelAction } = useContext(buttonContext);
   return (
-    <button {...preparedAttributes} onClick={cancelAction}>
+    <button style={style} {...attributes} onClick={cancelAction}>
       {children}
     </button>
   );

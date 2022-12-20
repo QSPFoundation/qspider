@@ -3,12 +3,12 @@ import React from 'react';
 import { useAttributes } from '../../content/attributes';
 
 export const Video: React.FC<{
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ children, attributes }) => {
-  const preparedAttributes = useAttributes(attributes, 'video');
+}> = ({ children, attrs }) => {
+  const [, style, attributes] = useAttributes(attrs, 'video');
   return (
-    <video {...preparedAttributes} preload="auto" loop autoPlay>
+    <video style={style} {...attributes} preload="auto" loop autoPlay>
       {children}
     </video>
   );

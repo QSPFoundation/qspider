@@ -6,9 +6,9 @@ import { useAttributes } from '../content/attributes';
 import { ContentRenderer } from '../content-renderer';
 import { buttonContext } from './buttons';
 
-export const QspInput: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
+export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
-  const preparedAttributes = useAttributes(attributes, 'qsp-input');
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-input');
   if (!input) return null;
   return (
     <buttonContext.Provider
@@ -30,7 +30,9 @@ export const QspInput: React.FC<{ attributes: Attributes; children: ReactNode }>
                 submitInput();
               }}
             >
-              <qsp-input {...preparedAttributes}>{children}</qsp-input>
+              <Tag style={style} {...attributes}>
+                {children}
+              </Tag>
             </form>
           </Dialog.Content>
         </Dialog.Portal>
@@ -39,21 +41,24 @@ export const QspInput: React.FC<{ attributes: Attributes; children: ReactNode }>
   );
 };
 
-export const QspInputContent: React.FC = () => {
+export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const input = useAtom(input$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-input-contnet');
   if (!input) return null;
   return (
     <Dialog.Description>
-      <ContentRenderer content={input.text} />
+      <Tag style={style} {...attributes}>
+        <ContentRenderer content={input.text} />
+      </Tag>
     </Dialog.Description>
   );
 };
 
-export const QspInputTag: React.FC<{ attributes: Attributes }> = ({ attributes }) => {
+export const QspInputTag: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const value = useAtom(inputResult$);
-  const preparedAttributes = useAttributes(attributes, 'input');
+  const [, style, attributes] = useAttributes(attrs, 'input');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
     inputResult$.set((e.target as any).value);
   };
-  return <input {...preparedAttributes} type="text" value={value} onInput={onInput} autoFocus />;
+  return <input style={style} {...attributes} type="text" value={value} onInput={onInput} autoFocus />;
 };

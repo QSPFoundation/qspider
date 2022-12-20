@@ -34,7 +34,7 @@ export function defaultTransform(node: HTMLElement, children: Node[]): React.Rea
   const tagName = node.tagName.toLowerCase();
   const attributes = extractAttributes(node);
   return (
-    <Element tagName={tagName} attributes={attributes}>
+    <Element tagName={tagName} attrs={attributes}>
       {children}
     </Element>
   );
@@ -43,143 +43,143 @@ export function defaultTransform(node: HTMLElement, children: Node[]): React.Rea
 export const defaultTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'qsp-scrollable'(node, children) {
     const { scroll, ...attributes } = extractAttributes(node);
-    return <QspScrollable attributes={attributes}>{children}</QspScrollable>;
+    return <QspScrollable attrs={attributes}>{children}</QspScrollable>;
   },
-  'qsp-main-content'() {
-    return <QspMainContent />;
+  'qsp-main-content'(node) {
+    return <QspMainContent attrs={extractAttributes(node)} />;
   },
   'qsp-stats'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspStats attributes={attributes}>{children}</QspStats>;
+    return <QspStats attrs={attributes}>{children}</QspStats>;
   },
-  'qsp-stats-content'() {
-    return <QspStatsContent />;
+  'qsp-stats-content'(node) {
+    return <QspStatsContent attrs={extractAttributes(node)} />;
   },
   'qsp-actions'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspActions attributes={attributes}>{children}</QspActions>;
+    return <QspActions attrs={attributes}>{children}</QspActions>;
   },
-  'qsp-actions-list'() {
-    return <QspActionsList />;
+  'qsp-actions-list'(node) {
+    return <QspActionsList attrs={extractAttributes(node)} />;
   },
   'qsp-action-name'() {
     return <QspActionName />;
   },
-  'qsp-action-image'() {
-    return <QspActionImage />;
+  'qsp-action-image'(node) {
+    return <QspActionImage attrs={extractAttributes(node)} />;
   },
   'qsp-action-index'() {
     return <QspActionIndex />;
   },
   'qsp-objects'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspObjects attributes={attributes}>{children}</QspObjects>;
+    return <QspObjects attrs={attributes}>{children}</QspObjects>;
   },
-  'qsp-objects-list'() {
-    return <QspObjectsList />;
+  'qsp-objects-list'(node) {
+    return <QspObjectsList attrs={extractAttributes(node)} />;
   },
   'qsp-object-name'() {
     return <QspObjectName />;
   },
-  'qsp-object-image'() {
-    return <QspObjectImage />;
+  'qsp-object-image'(node) {
+    return <QspObjectImage attrs={extractAttributes(node)} />;
   },
   'qsp-object-index'() {
     return <QspObjectIndex />;
   },
   'qsp-cmd'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspCmd attributes={attributes}>{children}</QspCmd>;
+    return <QspCmd attrs={attributes}>{children}</QspCmd>;
   },
   'qsp-cmd-input'(node) {
     const attributes = extractAttributes(node);
-    return <QspCmdInput attributes={attributes} />;
+    return <QspCmdInput attrs={attributes} />;
   },
   'qsp-view'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspView attributes={attributes}>{children}</QspView>;
+    return <QspView attrs={attributes}>{children}</QspView>;
   },
   'qsp-view-image'(node) {
     const attributes = extractAttributes(node);
-    return <QspViewImage attributes={attributes} />;
+    return <QspViewImage attrs={attributes} />;
   },
   'qsp-menu'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspMenu attributes={attributes}>{children}</QspMenu>;
+    return <QspMenu attrs={attributes}>{children}</QspMenu>;
   },
-  'qsp-menu-list'() {
-    return <QspMenuList />;
+  'qsp-menu-list'(node) {
+    return <QspMenuList attrs={extractAttributes(node)} />;
   },
   'qsp-menu-name'() {
     return <QspMenuItemName />;
   },
-  'qsp-menu-image'() {
-    return <QspMenuItemImage />;
+  'qsp-menu-image'(node) {
+    return <QspMenuItemImage attrs={extractAttributes(node)} />;
   },
   'qsp-menu-index'() {
     return <QspMenuItemIndex />;
   },
   'qsp-msg'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspMsg attributes={attributes}>{children}</QspMsg>;
+    return <QspMsg attrs={attributes}>{children}</QspMsg>;
   },
-  'qsp-msg-content'() {
-    return <QspMsgContent />;
+  'qsp-msg-content'(node) {
+    return <QspMsgContent attrs={extractAttributes(node)} />;
   },
   'qsp-input'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspInput attributes={attributes}>{children}</QspInput>;
+    return <QspInput attrs={attributes}>{children}</QspInput>;
   },
-  'qsp-input-content'() {
-    return <QspInputContent />;
+  'qsp-input-content'(node) {
+    return <QspInputContent attrs={extractAttributes(node)} />;
   },
   'qsp-input-tag'(node) {
     const attributes = extractAttributes(node);
-    return <QspInputTag attributes={attributes} />;
+    return <QspInputTag attrs={attributes} />;
   },
   'qsp-close-button'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspCloseButton attributes={attributes}>{children}</QspCloseButton>;
+    return <QspCloseButton attrs={attributes}>{children}</QspCloseButton>;
   },
   'qsp-ok-button'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspOkButton attributes={attributes}>{children}</QspOkButton>;
+    return <QspOkButton attrs={attributes}>{children}</QspOkButton>;
   },
   'qsp-cancel-button'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspCancelButton attributes={attributes}>{children}</QspCancelButton>;
+    return <QspCancelButton attrs={attributes}>{children}</QspCancelButton>;
   },
   'qsp-button'(node, children) {
     const action = (node.getAttribute('type') || 'credits') as GameAction;
     const attributes = extractAttributes(node);
     return (
-      <QspButton action={action} attributes={attributes}>
+      <QspButton action={action} attrs={attributes}>
         {children}
       </QspButton>
     );
   },
   'qsp-pause-screen-content'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspPauseScreenContent attributes={attributes}>{children}</QspPauseScreenContent>;
+    return <QspPauseScreenContent attrs={attributes}>{children}</QspPauseScreenContent>;
   },
   'qsp-pause-screen-credits'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspPauseScreenCredits attributes={attributes}>{children}</QspPauseScreenCredits>;
+    return <QspPauseScreenCredits attrs={attributes}>{children}</QspPauseScreenCredits>;
   },
   'qsp-pause-screen-preferences'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspPauseScreenPreferences attributes={attributes}>{children}</QspPauseScreenPreferences>;
+    return <QspPauseScreenPreferences attrs={attributes}>{children}</QspPauseScreenPreferences>;
   },
   'qsp-pause-screen-save'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspPauseScreenSave attributes={attributes}>{children}</QspPauseScreenSave>;
+    return <QspPauseScreenSave attrs={attributes}>{children}</QspPauseScreenSave>;
   },
   'qsp-pause-screen-load'(node, children) {
     const attributes = extractAttributes(node);
-    return <QspPauseScreenLoad attributes={attributes}>{children}</QspPauseScreenLoad>;
+    return <QspPauseScreenLoad attrs={attributes}>{children}</QspPauseScreenLoad>;
   },
-  'qsp-slots-list'() {
-    return <QspSlotsList />;
+  'qsp-slots-list'(node) {
+    return <QspSlotsList attrs={extractAttributes(node)} />;
   },
   'qsp-save-slot-index'() {
     return <QspSlotIndex />;
@@ -199,7 +199,7 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-region'(node) {
     const { name, ...attributes } = extractAttributes(node);
-    return <QspRegion name={name as string} attributes={attributes} />;
+    return <QspRegion name={name as string} attrs={attributes} />;
   },
   'qsp-show'(node, children) {
     const condition = node.getAttribute('when') || '';
@@ -214,13 +214,13 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     if (href) {
       if (href.toLowerCase().startsWith('exec:')) {
         return (
-          <Link attributes={attributes} exec={href.substring(5)}>
+          <Link attrs={attributes} exec={href.substring(5)}>
             {children}
           </Link>
         );
       } else if (parseInt(href) > 0) {
         return (
-          <Link attributes={attributes} act={parseInt(href)}>
+          <Link attrs={attributes} act={parseInt(href)}>
             {children}
           </Link>
         );

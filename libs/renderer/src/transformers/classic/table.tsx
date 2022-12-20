@@ -6,12 +6,12 @@ export const Table: React.FC<{
   border: number;
   cellspacing: number;
   cellpadding: number;
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ border, cellspacing, cellpadding, attributes, children }) => {
-  const { className, style, ...preparedAttributes } = useAttributes(attributes, 'span');
+}> = ({ border, cellspacing, cellpadding, attrs, children }) => {
+  const [, style, { className, ...attributes }] = useAttributes(attrs, 'table');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     ...{
       '--table-border-width': `${border || 0}px`,
       '--table-cellspacing': `${cellspacing || 0}px`,
@@ -20,7 +20,7 @@ export const Table: React.FC<{
   };
   const preparedClassName = className ? `${className} classic-table` : 'classic-table';
   return (
-    <table {...preparedAttributes} style={preparedStyle} className={preparedClassName}>
+    <table {...attributes} style={preparedStyle} className={preparedClassName}>
       {children}
     </table>
   );

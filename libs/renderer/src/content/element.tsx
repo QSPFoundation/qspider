@@ -4,7 +4,7 @@ import { useAttributes } from './attributes';
 // import { useStyle } from '../hooks';
 
 export interface ElementProps {
-  attributes: Attributes;
+  attrs: Attributes;
   children?: React.ReactNode;
   tagName: string;
 }
@@ -28,9 +28,14 @@ const voidTags = [
   'wbr',
 ];
 
-export const Element: React.FC<ElementProps> = ({ attributes = {}, children = null, tagName }) => {
-  const Tag = tagName as 'span';
-  const preparedAttributes = useAttributes(attributes, Tag);
+export const Element: React.FC<ElementProps> = ({ attrs = {}, children = null, tagName }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, tagName as keyof JSX.IntrinsicElements);
   const selfClose = voidTags.includes(tagName);
-  return selfClose ? <Tag {...preparedAttributes} /> : <Tag {...preparedAttributes}>{children}</Tag>;
+  return selfClose ? (
+    <Tag style={style} {...attributes} />
+  ) : (
+    <Tag style={style} {...attributes}>
+      {children}
+    </Tag>
+  );
 };

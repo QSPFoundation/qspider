@@ -4,8 +4,8 @@ import { useAttributes } from '../../content/attributes';
 
 export const Area: React.FC<{
   href: string;
-  attributes: Attributes;
-}> = ({ href, attributes }) => {
+  attrs: Attributes;
+}> = ({ href, attrs }) => {
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLAreaElement, MouseEvent>) => {
       e.preventDefault();
@@ -14,5 +14,6 @@ export const Area: React.FC<{
     },
     [href]
   );
-  return <area {...useAttributes(attributes, 'area')} href="#" onClick={onClick} alt=""></area>;
+  const [, style, attributes] = useAttributes(attrs, 'area');
+  return <area {...attributes} style={style} href="#" onClick={onClick} alt=""></area>;
 };

@@ -5,12 +5,12 @@ import { useAttributes } from '../content/attributes';
 
 export const QspScrollable: React.FC<{
   scroll?: 'both' | 'horizontal' | 'vertical';
-  attributes: Attributes;
+  attrs: Attributes;
   children: ReactNode;
-}> = ({ children, attributes, scroll = 'both' }) => {
-  const preparedAttributes = useAttributes(attributes, 'div');
+}> = ({ children, attrs, scroll = 'both' }) => {
+  const [, style, attributes] = useAttributes(attrs, 'div');
   return (
-    <ScrollArea.Root {...preparedAttributes}>
+    <ScrollArea.Root style={style} {...attributes}>
       <ScrollArea.Viewport>{children}</ScrollArea.Viewport>
       {scroll === 'both' ? (
         <>

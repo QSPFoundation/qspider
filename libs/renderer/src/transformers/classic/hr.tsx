@@ -1,15 +1,15 @@
 import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../../content/attributes';
 
-export const Hr: React.FC<{ attributes: Attributes; width: string | null; size: string | null; noshade: boolean }> = ({
-  attributes,
+export const Hr: React.FC<{ attrs: Attributes; width: string | null; size: string | null; noshade: boolean }> = ({
+  attrs,
   width,
   size,
   noshade,
 }) => {
-  const { style, ...preparedAttributes } = useAttributes(attributes, 'span');
+  const [, style, attributes] = useAttributes(attrs, 'hr');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     borderWidth: Number(size) > 0 ? '1px' : '1px 0 0 0',
     borderStyle: noshade ? 'solid' : 'inset',
     borderColor: 'rgb(128, 128, 128)',
@@ -19,5 +19,5 @@ export const Hr: React.FC<{ attributes: Attributes; width: string | null; size: 
     width: width || '100%',
     backgroundColor: noshade ? 'rgb(128, 128, 128)' : 'transparent',
   };
-  return <div {...preparedAttributes} style={preparedStyle}></div>;
+  return <div {...attributes} style={preparedStyle}></div>;
 };

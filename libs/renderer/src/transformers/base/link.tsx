@@ -5,9 +5,9 @@ import { useAttributes } from '../../content/attributes';
 export const Link: React.FC<{
   exec?: string;
   act?: number;
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ exec, act, children, attributes }) => {
+}> = ({ exec, act, children, attrs }) => {
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
       e.preventDefault();
@@ -21,9 +21,10 @@ export const Link: React.FC<{
     },
     [exec, act]
   );
+  const [, style, attributes] = useAttributes(attrs, 'a');
   return (
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
-    <a {...useAttributes(attributes, 'a')} href="#" onClick={onClick}>
+    <a {...attributes} style={style} href="#" onClick={onClick}>
       {children}
     </a>
   );

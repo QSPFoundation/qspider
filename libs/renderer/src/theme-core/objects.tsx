@@ -11,36 +11,42 @@ const objectContext = createContext<{ object: QspListItem; index: number }>({
   index: -1,
 });
 
-export const QspObjects: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-objects');
+export const QspObjects: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-objects');
   const isVisible = useAtom(isObjsVisible$);
   if (!isVisible) return null;
-  return <qsp-objects {...preparedAttributes}>{children}</qsp-objects>;
+  return (
+    <Tag style={style} {...attributes}>
+      {children}
+    </Tag>
+  );
 };
 
-export const QspObjectsList: React.FC = () => {
+export const QspObjectsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const objects = useAtom(objects$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-objects-list');
   return (
-    <>
+    <Tag style={style} {...attributes}>
       {objects.map((object, index) => {
         return <QspObjectItem object={object} index={index} key={index} />;
       })}
-    </>
+    </Tag>
   );
 };
 
 export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
   const { attrs, template } = useThemeTemplate('qsp_object');
-  const { tag, ...otherAttrs } = attrs;
-  const Tag = (tag || 'div') as 'div';
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
-  (style as any)['--object-image'] = `url(${getResource(object.image).url})`;
-  const onClick: React.MouseEventHandler<HTMLDivElement> = (e): void => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-item');
+  const preparedStyle = {
+    ...style,
+    '--object-image': `url(${getResource(object.image).url})`,
+  };
+  const onClick = (): void => {
     selectObject(index);
   };
   return (
     <objectContext.Provider value={{ object, index }}>
-      <Tag {...preparedAttrs} style={style as React.CSSProperties} onClick={onClick}>
+      <Tag {...attributes} style={preparedStyle} onClick={onClick}>
         <TemplateRenderer template={template} {...attrs} />
       </Tag>
     </objectContext.Provider>
@@ -52,10 +58,12 @@ export const QspObjectName: React.FC = () => {
   return <ContentRenderer content={object.name} />;
 };
 
-export const QspObjectImage: React.FC = () => {
+export const QspObjectImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { object } = useContext(objectContext);
+  const [, style, attributes] = useAttributes(attrs, 'img');
   if (!object.image) return null;
-  return <img src={getResource(object.image).url} alt="" />;
+  // eslint-disable-next-line jsx-a11y/alt-text
+  return <img {...attributes} style={style} src={getResource(object.image).url} />;
 };
 
 export const QspObjectIndex: React.FC = () => {

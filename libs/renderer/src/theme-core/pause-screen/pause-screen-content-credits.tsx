@@ -3,14 +3,13 @@ import * as Tabs from '@radix-ui/react-tabs';
 import { ReactNode } from 'react';
 import { useAttributes } from '../../content/attributes';
 
-export const QspPauseScreenCredits: React.FC<{ attributes: Attributes; children: ReactNode }> = ({
-  attributes,
-  children,
-}) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-credits');
+export const QspPauseScreenCredits: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen-credits');
   return (
     <Tabs.Content value="credits">
-      <qsp-pause-screen-credits {...preparedAttributes}>{children}</qsp-pause-screen-credits>
+      <Tag style={style} {...attributes}>
+        {children}
+      </Tag>
     </Tabs.Content>
   );
 };

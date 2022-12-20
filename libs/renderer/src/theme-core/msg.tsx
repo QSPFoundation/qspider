@@ -6,8 +6,8 @@ import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { buttonContext } from './buttons';
 
-export const QspMsg: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-msg');
+export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
   const msg = useAtom(msg$);
   if (!msg) return null;
   return (
@@ -16,7 +16,9 @@ export const QspMsg: React.FC<{ attributes: Attributes; children: ReactNode }> =
         <Dialog.Portal>
           <Dialog.Overlay />
           <Dialog.Content>
-            <qsp-msg {...preparedAttributes}>{children}</qsp-msg>
+            <Tag style={style} {...attributes}>
+              {children}
+            </Tag>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
@@ -24,12 +26,15 @@ export const QspMsg: React.FC<{ attributes: Attributes; children: ReactNode }> =
   );
 };
 
-export const QspMsgContent: React.FC = () => {
+export const QspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const msg = useAtom(msg$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg-content');
   if (!msg) return null;
   return (
     <Dialog.Description>
-      <ContentRenderer content={msg.text} />
+      <Tag style={style} {...attributes}>
+        <ContentRenderer content={msg.text} />
+      </Tag>
     </Dialog.Description>
   );
 };

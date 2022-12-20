@@ -2,10 +2,11 @@ import { Attributes } from '@qspider/game-state';
 import { ReactNode } from 'react';
 import { useAttributes } from '../../content/attributes';
 
-export const QspPauseScreenContent: React.FC<{ attributes: Attributes; children: ReactNode }> = ({
-  attributes,
-  children,
-}) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-pause-screen-content');
-  return <qsp-pause-screen-content {...preparedAttributes}>{children}</qsp-pause-screen-content>;
+export const QspPauseScreenContent: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen-content');
+  return (
+    <Tag style={style} {...attributes}>
+      {children}
+    </Tag>
+  );
 };

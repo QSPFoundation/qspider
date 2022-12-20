@@ -3,8 +3,8 @@ import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
 
-export const QspCmd: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-cmd');
+export const QspCmd: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-cmd');
   const isVisible = useAtom(isCmdVisible$);
   const onSubmit: React.FormEventHandler<HTMLFormElement> = (e): void => {
     e.preventDefault();
@@ -12,17 +12,17 @@ export const QspCmd: React.FC<{ attributes: Attributes; children: ReactNode }> =
   };
   if (!isVisible) return null;
   return (
-    <qsp-cmd {...preparedAttributes}>
+    <Tag style={style} {...attributes}>
       <form onSubmit={onSubmit}>{children}</form>
-    </qsp-cmd>
+    </Tag>
   );
 };
 
-export const QspCmdInput: React.FC<{ attributes: Attributes }> = ({ attributes }) => {
+export const QspCmdInput: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const value = useAtom(cmdText$);
-  const preparedAttributes = useAttributes(attributes, 'input');
+  const [, style, attributes] = useAttributes(attrs, 'input');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
-    cmdText$.set((e.target as any).value);
+    cmdText$.set((e.target as HTMLInputElement).value);
   };
-  return <input {...preparedAttributes} type="text" value={value} onInput={onInput} />;
+  return <input style={style} {...attributes} type="text" value={value} onInput={onInput} />;
 };

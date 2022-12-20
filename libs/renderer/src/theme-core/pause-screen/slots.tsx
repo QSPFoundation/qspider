@@ -13,30 +13,30 @@ export const slotActionContext = createContext<{ action: (index: number) => void
 
 const baseSlots = Array.from({ length: 9 }, (_, index) => index + 1);
 
-export const QspSlotsList: React.FC = () => {
+export const QspSlotsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const savedSlots = useAtom(saveSlots$);
-  console.log(savedSlots);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-slots-list');
   return (
-    <>
+    <Tag style={style} {...attributes}>
       {baseSlots.map((index) => {
         const savedEntry = savedSlots.find((s) => s.slot === index);
         return <QspSlot key={index} index={index} date={savedEntry?.timestamp} />;
       })}
-    </>
+    </Tag>
   );
 };
 
 export const QspSlot: React.FC<{ index: number; date?: number }> = ({ index, date }) => {
   const { attrs, template } = useThemeTemplate('qsp_save_slot');
-  const { tag, ...otherAttrs } = attrs;
-  const Tag = (tag || 'div') as 'div';
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (style as any)['--slot-index'] = `${index}`;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
+  const preparedStyle = {
+    ...style,
+    '--slot-index': `${index}`,
+  };
   const { action } = useContext(slotActionContext);
   return (
     <slotContentContext.Provider value={{ index, date }}>
-      <Tag {...preparedAttrs} style={style as React.CSSProperties} onClick={(): void => action(index)}>
+      <Tag {...attributes} style={preparedStyle} onClick={(): void => action(index)}>
         <TemplateRenderer template={template} {...attrs} />
       </Tag>
     </slotContentContext.Provider>

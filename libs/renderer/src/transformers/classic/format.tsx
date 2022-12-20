@@ -3,48 +3,48 @@ import React from 'react';
 import { useAttributes } from '../../content/attributes';
 
 export const Strike: React.FC<{
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ children, attributes }) => {
-  const { style, ...preparedAttributes } = useAttributes(attributes, 'span');
+}> = ({ children, attrs }) => {
+  const [, style, attributes] = useAttributes(attrs, 'span');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     textDecoration: 'line-through',
   };
   return (
-    <span {...preparedAttributes} style={preparedStyle}>
+    <span {...attributes} style={preparedStyle}>
       {children}
     </span>
   );
 };
 
 export const Big: React.FC<{
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ children, attributes }) => {
-  const { style, ...preparedAttributes } = useAttributes(attributes, 'span');
+}> = ({ children, attrs }) => {
+  const [, style, attributes] = useAttributes(attrs, 'span');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     fontSize: 'larger',
   };
   return (
-    <span {...preparedAttributes} style={preparedStyle}>
+    <span {...attributes} style={preparedStyle}>
       {children}
     </span>
   );
 };
 
 export const Tt: React.FC<{
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ children, attributes }) => {
-  const { style, ...preparedAttributes } = useAttributes(attributes, 'span');
+}> = ({ children, attrs }) => {
+  const [, style, attributes] = useAttributes(attrs, 'span');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     fontFamily: 'monospace',
   };
   return (
-    <span {...preparedAttributes} style={preparedStyle}>
+    <span {...attributes} style={preparedStyle}>
       {children}
     </span>
   );

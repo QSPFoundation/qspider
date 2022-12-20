@@ -22,16 +22,16 @@ export const fontSizeMap: Record<string, string> = {
 
 export const Font: React.FC<{
   size: string | null;
-  attributes: Attributes;
+  attrs: Attributes;
   children: React.ReactNode;
-}> = ({ size, children, attributes }) => {
-  const { style, ...preparedAttributes } = useAttributes(attributes, 'span');
+}> = ({ size, children, attrs }) => {
+  const [, style, attributes] = useAttributes(attrs, 'span');
   const preparedStyle: React.CSSProperties = {
-    ...((style as React.CSSProperties) || {}),
+    ...style,
     fontSize: size != null ? fontSizeMap[size] || 'medium' : 'inherit',
   };
   return (
-    <span {...preparedAttributes} style={preparedStyle}>
+    <span {...attributes} style={preparedStyle}>
       {children}
     </span>
   );

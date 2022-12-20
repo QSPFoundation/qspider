@@ -19,40 +19,46 @@ const actionContext = createContext<{ action: QspListItem; index: number }>({
   index: -1,
 });
 
-export const QspActions: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-actions');
+export const QspActions: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-actions');
   const isVisible = useAtom(isActsVisible$);
   if (!isVisible) return null;
-  return <qsp-actions {...preparedAttributes}>{children}</qsp-actions>;
+  return (
+    <Tag style={style} {...attributes}>
+      {children}
+    </Tag>
+  );
 };
 
-export const QspActionsList: React.FC = () => {
+export const QspActionsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const actions = useAtom(actions$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-actions-list');
   return (
-    <>
+    <Tag style={style} {...attributes}>
       {actions.map((action, index) => {
         return <QspActionItem action={action} index={index} key={index} />;
       })}
-    </>
+    </Tag>
   );
 };
 
 export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = ({ action, index }) => {
   const { attrs, template } = useThemeTemplate('qsp_action');
-  const { tag, ...otherAttrs } = attrs;
-  const Tag = (tag || 'div') as 'div';
-  const { style = {}, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
-  (style as any)['--action-image'] = `url(${getResource(action.image).url})`;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-item');
+  const preparedStyle = {
+    ...style,
+    '--action-image': `url(${getResource(action.image).url})`,
+  };
   const onHover = (): void => {
     selectAction(index);
   };
-  const onClick: React.MouseEventHandler<HTMLDivElement> = (e): void => {
+  const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
     execSelectedAction();
   };
   return (
     <actionContext.Provider value={{ action, index }}>
-      <Tag {...preparedAttrs} style={style as React.CSSProperties} onMouseOver={onHover} onClick={onClick}>
+      <Tag {...attributes} style={preparedStyle} onMouseOver={onHover} onClick={onClick}>
         <TemplateRenderer template={template} {...attrs} />
       </Tag>
     </actionContext.Provider>
@@ -64,10 +70,11 @@ export const QspActionName: React.FC = () => {
   return <ContentRenderer content={action.name} />;
 };
 
-export const QspActionImage: React.FC = () => {
+export const QspActionImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { action } = useContext(actionContext);
+  const [, style, attributes] = useAttributes(attrs, 'img');
   if (!action.image) return null;
-  return <img src={getResource(action.image).url} alt="" />;
+  return <img alt="" style={style} {...attributes} src={getResource(action.image).url} />;
 };
 
 export const QspActionIndex: React.FC = () => {

@@ -10,7 +10,7 @@ export const QspPauseScreen: React.FC = () => {
   const isVisible = useAtom(isPauseScreenVisible$);
   const currentGame = useAtom(currentGame$);
   const { template, attrs } = useThemeTemplate('qsp_pause_screen');
-  const preparedAttrs = useAttributes(attrs, 'qsp-pause-screen');
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen');
   const currentTab = useAtom(pauseScreenTab$);
   return (
     <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>
@@ -22,9 +22,9 @@ export const QspPauseScreen: React.FC = () => {
           <Dialog.Description>Game pause screen</Dialog.Description>
           {/* </VisuallyHidden> */}
           <Tabs.Root asChild value={currentTab} onValueChange={(value): void => pauseScreenTab$.set(value)}>
-            <qsp-pause-screen {...preparedAttrs}>
+            <Tag style={style} {...attributes}>
               <TemplateRenderer template={template} />
-            </qsp-pause-screen>
+            </Tag>
           </Tabs.Root>
         </Dialog.Content>
       </Dialog.Portal>

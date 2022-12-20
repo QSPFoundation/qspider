@@ -13,8 +13,8 @@ const menuContext = createContext<{ item: QspListItem; index: number }>({
   index: -1,
 });
 
-export const QspMenu: React.FC<{ attributes: Attributes; children: ReactNode }> = ({ attributes, children }) => {
-  const preparedAttributes = useAttributes(attributes, 'qsp-menu');
+export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
   const isVisible = useAtom(menu$);
   const coordinates = hooks.useClickCoordinates();
   if (!isVisible) return null;
@@ -31,18 +31,22 @@ export const QspMenu: React.FC<{ attributes: Attributes; children: ReactNode }> 
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content>
-          <qsp-menu {...preparedAttributes}>{children}</qsp-menu>;
+          <Tag style={style} {...attributes}>
+            {children}
+          </Tag>
+          ;
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
   );
 };
 
-export const QspMenuList: React.FC = () => {
+export const QspMenuList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const menu = useAtom(menu$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
   if (!menu) return null;
   return (
-    <>
+    <Tag style={style} {...attributes}>
       {menu.items.map((item, index) => {
         return item.name === '-' ? (
           <QspMenuSeparator key={index} />
@@ -50,27 +54,25 @@ export const QspMenuList: React.FC = () => {
           <QspMenuItem item={item} index={index} key={index} />
         );
       })}
-    </>
+    </Tag>
   );
 };
 
 export const QspMenuItem: React.FC<{ item: QspListItem; index: number }> = ({ item, index }) => {
   const { attrs, template } = useThemeTemplate('qsp_menu_item');
-  const { tag, ...otherAttrs } = attrs;
-  const Tag = (tag || 'div') as 'div';
-  const { style, ...preparedAttrs } = useAttributes(otherAttrs as Attributes, Tag);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-item');
   const preapredStyle = {
-    ...(style as object),
+    ...style,
     '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : 'none',
   } as React.CSSProperties;
-  const onClick: React.MouseEventHandler<HTMLDivElement> = (e): void => {
+  const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
     selectMenuItem(index);
   };
   return (
     <menuContext.Provider value={{ item, index }}>
       <DropdownMenu.Item asChild>
-        <Tag {...preparedAttrs} style={preapredStyle} onClick={onClick}>
+        <Tag {...attributes} style={preapredStyle} onClick={onClick}>
           <TemplateRenderer template={template} />
         </Tag>
       </DropdownMenu.Item>
@@ -83,10 +85,11 @@ export const QspMenuItemName: React.FC = () => {
   return <ContentRenderer content={item.name} />;
 };
 
-export const QspMenuItemImage: React.FC = () => {
+export const QspMenuItemImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { item } = useContext(menuContext);
+  const [, style, attributes] = useAttributes(attrs, 'img');
   if (!item.image) return null;
-  return <img src={getResource(item.image).url} alt="" />;
+  return <img alt="" {...attributes} style={style} src={getResource(item.image).url} />;
 };
 
 export const QspMenuItemIndex: React.FC = () => {
@@ -97,12 +100,10 @@ export const QspMenuItemIndex: React.FC = () => {
 
 export const QspMenuSeparator: React.FC = () => {
   const { attrs, template } = useThemeTemplate('qsp_menu_separator');
-  const { tag, ...otherAttrs } = attrs;
-  const Tag = (tag || 'div') as 'div';
-  const preparedAttrs = useAttributes(otherAttrs, Tag);
+  const [Tag, style, attributes] = useAttributes(attrs, 'div');
   return (
     <DropdownMenu.Separator asChild>
-      <Tag {...preparedAttrs}>
+      <Tag style={style} {...attributes}>
         <TemplateRenderer template={template} />
       </Tag>
     </DropdownMenu.Separator>

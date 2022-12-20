@@ -161,18 +161,14 @@
             <qsp-main class="grow">
               <div class="panel-background" data-qsp="main">
                 <qsp-scrollable>
-                  <div class="panel-content">
-                    <qsp-main-content></qsp-main-content>
-                  </div>
+                  <qsp-main-content class="panel-content"></qsp-main-content>
                 </qsp-scrollable>
               </div>
             </qsp-main>
             <qsp-objects style="width: 20%">
               <div class="panel" data-qsp="objects">
                 <qsp-scrollable>
-                  <nav role="menu" data-qsp="objects-list">
-                    <qsp-objects-list></qsp-objects-list>
-                  </nav>
+                  <qsp-objects-list tag="nav" role="menu" data-qsp="objects-list"></qsp-objects-list>
                 </qsp-scrollable>
               </div>
             </qsp-objects>
@@ -181,18 +177,14 @@
             <qsp-actions class="grow">
               <div class="panel" data-qsp="actions">
                 <qsp-scrollable>
-                  <nav role="menu" data-qsp="actions-list">
-                    <qsp-actions-list></qsp-actions-list>
-                  </nav>
+                  <qsp-actions-list tag="nav" role="menu" data-qsp="actions-list"></qsp-actions-list>
                 </qsp-scrollable>
               </div>
             </qsp-actions>
             <qsp-stats style="width: 41%">
               <div class="panel" data-qsp="stats">
                 <qsp-scrollable>
-                  <div class="panel-content">
-                    <qsp-stats-content></qsp-stats-content>
-                  </div>
+                  <qsp-stats-content class="panel-content"></qsp-stats-content>
                 </qsp-scrollable>
               </div>
             </qsp-stats>
@@ -215,7 +207,7 @@
     <qsp-menu>
       <qsp-scrollable>
         <nav role="menu" data-qsp="menu-list">
-          <qsp-menu-list></qsp-menu-list>
+          <qsp-menu-list tag="nav" role="menu" data-qsp="menu-list"></qsp-menu-list>
         </nav>
       </qsp-scrollable>
     </qsp-menu>
