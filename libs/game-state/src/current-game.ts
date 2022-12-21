@@ -23,6 +23,8 @@ import { windowManager$ } from './window-manager';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
+export const currentAeroWidth$ = currentGame$.focus((state) => state?.aero?.width ?? 800);
+export const currentAeroHeight$ = currentGame$.focus((state) => state?.aero?.height ?? 600);
 
 export async function runGame(id: string): Promise<void> {
   const descriptor = games$.value?.[id];
