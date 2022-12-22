@@ -26,6 +26,7 @@ export type CssVarDefinition = {
     }
   | {
       type: 'resource';
+      withSize: boolean;
     }
 );
 
@@ -143,6 +144,7 @@ function extractCssVariables(root: HTMLElement): CssVarDefinition[] {
       type: node.getAttribute('type'),
       unit: node.getAttribute('unit'),
       invert: Boolean(node.getAttribute('invert')),
+      withSize: Boolean(node.getAttribute('with-size')),
     } as CssVarDefinition);
   }
   return definitions;
