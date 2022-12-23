@@ -187,6 +187,11 @@
                 "input": "./game",
                 "glob": "**/*",
                 "output": "./game"
+              },
+              {
+                "input": "test-assets",
+                "glob": "**/*",
+                "output": "test-assets"
               }
             ],
             "styles": [],
@@ -378,7 +383,7 @@
         "e2e": {
           "executor": "@nrwl/cypress:cypress",
           "options": {
-            "cypressConfig": "apps/player-e2e/cypress.json",
+            "cypressConfig": "apps/player-e2e/cypress.config.js",
             "devServerTarget": "player:serve:development",
             "testingType": "e2e"
           },
