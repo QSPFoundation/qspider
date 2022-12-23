@@ -14,7 +14,7 @@ export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ a
     <buttonContext.Provider value={{ okAction: closeMsg, cancelAction: closeMsg }}>
       <Dialog.Root open={true} onOpenChange={(): void => closeMsg()}>
         <Dialog.Portal>
-          <Dialog.Overlay />
+          <Dialog.Overlay className="qsp-overlay" />
           <Dialog.Content>
             <Tag style={style} {...attributes}>
               {children}

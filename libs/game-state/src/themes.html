@@ -153,6 +153,15 @@
       .action-img {
         margin-right: 8px;
       }
+      .qsp-overlay {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--background-color);
+        opacity: 0.2;
+      }
     </style>
     <div class="qsp-classic-layout">
       <div class="column">
@@ -607,6 +616,14 @@
       unit="px"
       defaultValue="123"
     ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-disable-shade"
+      from="DISABLESHADE"
+      type="unit"
+      unit=""
+      defaultValue="0"
+    ></qsp-css-variable>
   </definitions>
   <template is="qsp-player">
     <style>
@@ -878,6 +895,15 @@
         top: var(--aero-menu-list-y);
         width: var(--aero-menu-list-w);
         height: var(--aero-menu-list-h);
+      }
+      .qsp-overlay {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--background-color);
+        opacity: calc(0.2 * (1 - var(--aero-disable-shade, 0)));
       }
     </style>
     <aero-styles></aero-styles>
