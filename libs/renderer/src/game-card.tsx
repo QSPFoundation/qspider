@@ -1,5 +1,5 @@
 import { GameDescriptor } from '@qspider/contracts';
-import { games$, runGame } from '@qspider/game-state';
+import { games$, runGame, showError } from '@qspider/game-state';
 import { useCallback } from 'react';
 import { use } from 'xoid';
 
@@ -7,8 +7,8 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   const onRunGame = useCallback(async () => {
     try {
       await runGame(game.id);
-    } catch {
-      // TODO show error
+    } catch (e) {
+      showError(e instanceof Error ? e.message : String(e));
     }
   }, [game.id]);
   const removeGame = useCallback(() => {

@@ -1,4 +1,4 @@
-import { GameDescriptor } from '@qspider/contracts';
+import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
 import { create, use } from 'xoid';
 import { games$ } from './game-shelf';
 import { storage$ } from './storage';
@@ -8,6 +8,7 @@ import {
   clearResources,
   fillLocalFS,
   getResource,
+  getTextContent,
   loadAdditionalResources,
   mainFileSource$,
 } from './resources';
@@ -20,6 +21,7 @@ import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
 import { loadSaveList } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
+import TOMLparse from '@iarna/toml/parse-string';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -27,14 +29,17 @@ export const currentAeroWidth$ = currentGame$.focus((state) => state?.aero?.widt
 export const currentAeroHeight$ = currentGame$.focus((state) => state?.aero?.height ?? 600);
 
 export async function runGame(id: string): Promise<void> {
-  const descriptor = games$.value?.[id];
+  let descriptor = games$.value?.[id];
   if (!descriptor) throw new Error('Game not found');
   const { file } = descriptor;
   const source = await storage$.value?.getGameSource(id);
   if (source) {
     fillLocalFS(source, file);
   } else {
-    const source = await fetch(file).then((r) => r.arrayBuffer());
+    const source = await fetch(file).then((r) => {
+      if (!r.ok) throw new Error('game file not found');
+      return r.arrayBuffer();
+    });
     if (isZip(source.slice(0, 4))) {
       fillLocalFS(source, file);
     } else {
@@ -45,6 +50,20 @@ export async function runGame(id: string): Promise<void> {
       } else mainFileSource$.set(new Uint8Array(source));
       basePath$.set(file.slice(0, file.lastIndexOf('/') + 1));
     }
+  }
+
+  try {
+    const configContent = await getTextContent('game.cfg');
+    const config = TOMLparse(configContent) as unknown as PlayerConfig;
+    if (config.game?.length === 1) {
+      [descriptor] = config.game;
+    } else {
+      const found = config.game?.find((game) => game.id === id);
+      if (!found) throw new Error('Config not found');
+      descriptor = found;
+    }
+  } catch {
+    // no-op
   }
 
   const gameSource = mainFileSource$.value;
