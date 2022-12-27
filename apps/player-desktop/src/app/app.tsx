@@ -1,70 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { Global, css } from '@emotion/react';
-import { BaseLayoutProvider, ComponentsProvider, GameManagerProvider, ResourceProvider } from '@qspider/providers';
-import { ResourceManager } from '@qspider/resources';
-import { BaseLayout, GameManager, Theme } from '@qspider/core';
-import { Game, GameListDialog } from '@qspider/player-ui';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
-import { event, path, cli, os } from '@tauri-apps/api';
+import { event, path } from '@tauri-apps/api';
 
-import { isSupportedFileType, openGameFromDisk } from './utils';
-import { FileDropArea } from './file-drop-area';
-import { Icon, IconType } from '@qspider/icons';
-import { windowManager } from './window-manager';
-import { PlayerMode } from './player-mode';
+import { isSupportedFileType, prepareGameFromDisk } from './utils';
+
+import { init } from './init';
+import { ErrorAlert, GameRunner, GameShelf } from '@qspider/renderer';
+import { baseInit$, currentGame$, runGame } from '@qspider/game-state';
+import { useAtom } from '@xoid/react';
+import { ComponentsProvider } from '@qspider/providers';
 
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
 };
-const resources = new ResourceManager();
-const manager = new GameManager(resources, windowManager);
-const layout = new BaseLayout(manager, resources);
+init();
 
 export const App: React.FC = () => {
   const [isFileDropHovered, setIsFileDropHovered] = useState(false);
   const [unsupportedType, setUnsupportedType] = useState('');
   useEffect(() => {
-    os.type().then((type) => {
-      switch (type) {
-        case 'Darwin':
-          manager.platform = 'Macintosh';
-          break;
-        case 'Linux':
-          manager.platform = 'Linux';
-          break;
-        case 'Windows_NT':
-          manager.platform = 'Windows';
-          break;
-      }
-    });
-    cli.getMatches().then(async (matches) => {
-      await manager.initialize();
-      const filePath = (matches.args.file.value || matches.args.filePath.value) as string | undefined;
-      if (filePath) {
-        try {
-          if (await path.isAbsolute(filePath)) {
-            return openGameFromDisk(filePath, manager);
-          } else {
-            const resolvedPath = await path.resolve(filePath);
-            return openGameFromDisk(resolvedPath, manager);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      manager.runConfig('https://qspfoundation.github.io/qspider/game/game.cfg');
-    });
-
     let fileDropUnlisten: event.UnlistenFn | null = null;
     let fileDropHoverUnlisten: event.UnlistenFn | null = null;
     let fileDropCancelledUnlisten: event.UnlistenFn | null = null;
 
     const setupCallbacks = async (): Promise<void> => {
-      fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', (e) => {
+      fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', async (e) => {
         const [filePath] = e.payload;
         if (isSupportedFileType(filePath)) {
-          openGameFromDisk(filePath, manager);
+          const id = await prepareGameFromDisk(filePath);
+          runGame(id);
         }
         setIsFileDropHovered(false);
       });
@@ -82,51 +47,24 @@ export const App: React.FC = () => {
     };
     setupCallbacks();
     return (): void => {
-      fileDropUnlisten && fileDropUnlisten();
-      fileDropHoverUnlisten && fileDropHoverUnlisten();
-      fileDropCancelledUnlisten && fileDropCancelledUnlisten();
+      fileDropUnlisten?.();
+      fileDropHoverUnlisten?.();
+      fileDropCancelledUnlisten?.();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const initialized = useAtom(baseInit$);
+  const currentGame = useAtom(currentGame$);
+  if (!initialized) return <>loading</>;
   return (
     <ComponentsProvider value={components}>
-      <ResourceProvider value={resources}>
-        <GameManagerProvider value={manager}>
-          <BaseLayoutProvider value={layout}>
-            <Theme>
-              <Global
-                styles={css`
-                  body {
-                    margin: 0;
-                  }
-                  *,
-                  *:before,
-                  *:after {
-                    box-sizing: border-box;
-                  }
-                `}
-              />
-              <Game>
-                <PlayerMode />
-                <GameListDialog closable={true} />
-              </Game>
-              {isFileDropHovered ? (
-                <FileDropArea className={unsupportedType ? 'disabled' : ''}>
-                  {unsupportedType ? (
-                    `File extension ${unsupportedType} is not supported`
-                  ) : (
-                    <div>
-                      <Icon icon={IconType.upload} />
-                      <br /> Drop file to start game
-                    </div>
-                  )}
-                </FileDropArea>
-              ) : null}
-            </Theme>
-          </BaseLayoutProvider>
-        </GameManagerProvider>
-      </ResourceProvider>
+      {currentGame ? <GameRunner /> : <GameShelf />}
+      <ErrorAlert />
+      {isFileDropHovered ? (
+        <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
+          {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}
+        </div>
+      ) : null}
     </ComponentsProvider>
   );
 };

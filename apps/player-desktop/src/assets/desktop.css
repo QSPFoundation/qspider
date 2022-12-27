@@ -1,6 +1,4 @@
-import styled from '@emotion/styled';
-
-export const FileDropArea = styled.div`
+.file-drop-area {
   position: fixed;
   top: 0;
   bottom: 0;
@@ -23,10 +21,9 @@ export const FileDropArea = styled.div`
   font-size: 48px;
 
   transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
-
-  &.disabled {
-    background-color: brown;
-    color: white;
-    cursor: no-drop;
-  }
-`;
+}
+.file-drop-area.disabled {
+  background-color: brown;
+  color: white;
+  cursor: no-drop;
+}

@@ -1,44 +1,9 @@
 import React, { useCallback } from 'react';
-import styled from '@emotion/styled';
-import { Icon, IconType } from '@qspider/icons';
-import { useGameManager } from '@qspider/providers';
 import { dialog } from '@tauri-apps/api';
-import { openGameFromDisk } from './utils';
-
-const OpenButton = styled.div`
-  -webkit-font-smoothing: antialiased;
-  -webkit-appearance: none;
-  cursor: pointer;
-  position: relative;
-  border-radius: 4px;
-
-  background-color: var(--inverted-background-color);
-  color: var(--background-color);
-  border: 1px solid var(--inverted-background-color);
-
-  padding: 0;
-  margin: 0;
-  width: 32px;
-  height: 32px;
-  overflow: hidden;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: none;
-
-  &:hover {
-    background-color: var(--background-color);
-    color: var(--inverted-background-color);
-    border: 1px solid var(--inverted-background-color);
-  }
-  &:focus {
-    outline: none;
-  }
-`;
+import { prepareGameFromDisk } from './utils';
+import { runGame } from '@qspider/game-state';
 
 export const OpenGameButton: React.FC = () => {
-  const gameManager = useGameManager();
   const selectGame = useCallback(async () => {
     const file_path = await dialog.open({
       filters: [
@@ -49,12 +14,9 @@ export const OpenGameButton: React.FC = () => {
       ],
     });
     if (file_path) {
-      openGameFromDisk(file_path as string, gameManager);
+      const id = await prepareGameFromDisk(file_path as string);
+      runGame(id);
     }
-  }, [gameManager]);
-  return (
-    <OpenButton onClick={selectGame}>
-      <Icon icon={IconType.open} />
-    </OpenButton>
-  );
+  }, []);
+  return <div onClick={selectGame}>Open game</div>;
 };
