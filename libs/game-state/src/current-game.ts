@@ -66,6 +66,25 @@ export async function runGame(id: string): Promise<void> {
     // no-op
   }
 
+  if (descriptor.mode === 'aero' && !descriptor.aero) {
+    try {
+      const content = await getTextContent('config.xml');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'application/xml');
+      const gameElement = doc.querySelector('game');
+      if (gameElement) {
+        const width = parseInt(gameElement.getAttribute('width') || '800');
+        const height = parseInt(gameElement.getAttribute('height') || '600');
+        descriptor.aero = {
+          width,
+          height,
+        };
+      }
+    } catch {
+      // no-op
+    }
+  }
+
   const gameSource = mainFileSource$.value;
   if (!gameSource) throw new Error('Failed to load game');
   windowManager$.value?.setTitle(descriptor.title);
