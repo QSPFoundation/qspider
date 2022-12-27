@@ -8,9 +8,10 @@ import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
 import { hooks } from '@qspider/components';
 
-const menuContext = createContext<{ item: QspListItem; index: number }>({
+const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
   item: { name: 'unknown', image: '' },
   index: -1,
+  displayIndex: -1,
 });
 
 export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
@@ -34,7 +35,6 @@ export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
           <Tag style={style} {...attributes}>
             {children}
           </Tag>
-          ;
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
@@ -45,20 +45,25 @@ export const QspMenuList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const menu = useAtom(menu$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
   if (!menu) return null;
+  let displayIndex = 1;
   return (
     <Tag style={style} {...attributes}>
       {menu.items.map((item, index) => {
         return item.name === '-' ? (
           <QspMenuSeparator key={index} />
         ) : (
-          <QspMenuItem item={item} index={index} key={index} />
+          <QspMenuItem item={item} index={index} key={index} displayIndex={displayIndex++} />
         );
       })}
     </Tag>
   );
 };
 
-export const QspMenuItem: React.FC<{ item: QspListItem; index: number }> = ({ item, index }) => {
+export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIndex: number }> = ({
+  item,
+  index,
+  displayIndex,
+}) => {
   const { attrs, template } = useThemeTemplate('qsp_menu_item');
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-item');
   const preapredStyle = {
@@ -70,7 +75,7 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number }> = ({ it
     selectMenuItem(index);
   };
   return (
-    <menuContext.Provider value={{ item, index }}>
+    <menuContext.Provider value={{ item, index, displayIndex }}>
       <DropdownMenu.Item asChild>
         <Tag {...attributes} style={preapredStyle} onClick={onClick}>
           <TemplateRenderer template={template} />
@@ -93,9 +98,9 @@ export const QspMenuItemImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => 
 };
 
 export const QspMenuItemIndex: React.FC = () => {
-  const { index } = useContext(menuContext);
+  const { displayIndex } = useContext(menuContext);
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{index + 1}</>;
+  return <>{displayIndex}</>;
 };
 
 export const QspMenuSeparator: React.FC = () => {
