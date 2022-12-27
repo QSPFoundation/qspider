@@ -1,6 +1,7 @@
 import { GameDescriptor, Resource } from '@qspider/contracts';
-import { defer, resolvePath } from '@qspider/utils';
+import { defer } from '@qspider/utils';
 import { create } from 'xoid';
+import { prepareCss } from './css';
 import { cleanPath, convertQsps, isZip, readZip } from './utils';
 
 export const localFS$ = create<Record<string, Uint8Array>>({});
@@ -117,14 +118,9 @@ async function loadAdditionalStyles(styles: string[]): Promise<void> {
   for (const style of styles) {
     const { url } = getResource(style);
     const response = await fetch(url);
+    if (!response.ok) continue;
     const text = await response.text();
-    const processed = text.replace(/url\(['"]?(.*?)['"]?\)/gim, (match, path) => {
-      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
-        return `url("${path}")`;
-      }
-      const { url } = getResource(resolvePath(style, path));
-      return `url("${url}")`;
-    });
+    const processed = await prepareCss(text, style);
     const gameStyle = document.createElement('style');
     gameStyle.innerText = processed;
     gameStyle.dataset['qspiderResource'] = 'style';
