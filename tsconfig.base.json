@@ -33,6 +33,7 @@
       "@qspider/providers": ["libs/providers/src/index.ts"],
       "@qspider/renderer": ["libs/renderer/src/index.ts"],
       "@qspider/resources": ["libs/resources/src/index.ts"],
+      "@qspider/tauri-storage": ["libs/tauri-storage/src/index.ts"],
       "@qspider/utils": ["libs/utils/src/index.ts"],
       "@qspider/web-storage": ["libs/web-storage/src/index.ts"]
     }

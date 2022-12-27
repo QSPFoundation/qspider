@@ -1,4 +1,5 @@
 import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
+import { WebSaveData } from './contracts';
 import { QspiderDatabase } from './db';
 
 export class WebStorage implements Storage {
@@ -10,9 +11,6 @@ export class WebStorage implements Storage {
       acc[game.id] = game;
       return acc;
     }, {});
-  }
-  async saveGames(games: GameDescriptor[]): Promise<void> {
-    await this.db.games.bulkPut(games);
   }
   async addGame(id: string, data: GameDescriptor): Promise<void> {
     await this.db.games.put(data, id);
@@ -41,7 +39,7 @@ export class WebStorage implements Storage {
         slot: -1,
       })
       .delete();
-    const record: SaveData = {
+    const record: WebSaveData = {
       timestamp: Date.now(),
       game_id,
       key,
@@ -58,7 +56,7 @@ export class WebStorage implements Storage {
         slot,
       })
       .delete();
-    const record: SaveData = {
+    const record: WebSaveData = {
       timestamp: Date.now(),
       game_id,
       key: '',

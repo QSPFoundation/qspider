@@ -488,6 +488,21 @@
         }
       }
     },
+    "tauri-storage": {
+      "root": "libs/tauri-storage",
+      "sourceRoot": "libs/tauri-storage/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "outputs": ["{options.outputFile}"],
+          "options": {
+            "lintFilePatterns": ["libs/tauri-storage/**/*.ts"]
+          }
+        }
+      },
+      "tags": []
+    },
     "utils": {
       "$schema": "../../node_modules/nx/schemas/project-schema.json",
       "root": "libs/utils",

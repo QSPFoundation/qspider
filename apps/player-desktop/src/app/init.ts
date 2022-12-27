@@ -7,9 +7,10 @@ import {
   platform$,
   runGame,
   showError,
-  // storage$,
+  storage$,
   windowManager$,
 } from '@qspider/game-state';
+import { TauriStorage } from '@qspider/tauri-storage';
 import { cli, os, path } from '@tauri-apps/api';
 import { use } from 'xoid';
 import { prepareGameFromDisk } from './utils';
@@ -17,7 +18,7 @@ import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
   fillPlatform();
-  // storage$.set(new WebStorage());
+  storage$.set(new TauriStorage());
   windowManager$.set(windowManager);
   await loadGamesFromStorage();
 

@@ -3,7 +3,6 @@ import { SaveData } from './save';
 
 export interface Storage {
   getGames(): Promise<Record<string, GameDescriptor>>;
-  saveGames(games: GameDescriptor[]): Promise<void>;
   addGame(id: string, data: GameDescriptor): Promise<void>;
   addGameSource(id: string, content: ArrayBuffer): Promise<void>;
   getGameSource(id: string): Promise<ArrayBuffer | undefined>;

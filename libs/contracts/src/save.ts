@@ -18,5 +18,4 @@ export interface SaveData {
   timestamp: number;
   key: string;
   slot: number;
-  data: ArrayBuffer;
 }
