@@ -1,3 +1,5 @@
+import './i18n';
+
 export * from './game-shelf';
 export * from './game-runner';
 export * from './theme-core';
