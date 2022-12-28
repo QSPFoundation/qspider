@@ -5,6 +5,7 @@
   "scripts": {
     "nx": "nx",
     "start": "nx serve player",
+    "start:desktop": "tauri dev",
     "serve:desktop": "nx serve player-desktop",
     "prebuild": "rimraf ./dist",
     "build": "nx build --prod",
@@ -67,6 +68,7 @@
     "react-transition-group": "^4.4.5",
     "regenerator-runtime": "0.13.7",
     "tslib": "^2.3.0",
+    "uuid": "^9.0.0",
     "xoid": "^1.0.0-beta.0"
   },
   "devDependencies": {
@@ -100,6 +102,7 @@
     "@types/react-dom": "18.0.9",
     "@types/react-transition-group": "^4.4.5",
     "@types/svg-sprite-loader": "^3.9.5",
+    "@types/uuid": "^9.0.0",
     "@typescript-eslint/eslint-plugin": "^5.42.1",
     "@typescript-eslint/parser": "^5.42.1",
     "babel-jest": "28.1.3",

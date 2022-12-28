@@ -23,5 +23,9 @@ module.exports = (config, context) => {
       'svgo-loader',
     ],
   });
+  updatedConfig.module.rules.push({
+    test: /\.html$/,
+    loader: 'raw-loader',
+  });
   return updatedConfig;
 };

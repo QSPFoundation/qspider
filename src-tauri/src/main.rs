@@ -17,28 +17,27 @@ use uuid::Uuid;
 struct GamesPath(Arc<Mutex<HashMap<Uuid, String>>>);
 
 #[command]
-fn prepare_game_start(path: Option<String>, state: State<'_, GamesPath>) -> Result<Uuid, String> {
-  let uuid = Uuid::new_v4();
-  match path {
-    Some(p) => {
-      let d = decode(&p);
-      match d {
-        Ok(decoded) => {
-          let uri = decoded.into_owned();
-          let file_path = Path::new(&uri);
-          if !file_path.exists() {
-            return Err("path does not exists".to_string());
-          }
-          state.0.lock().unwrap().insert(
-            uuid,
-            file_path.parent().unwrap().to_string_lossy().to_string(),
-          );
-          return Ok(uuid);
-        }
-        _ => return Err("".to_string()),
+fn prepare_game_start(
+  path: String,
+  id: String,
+  state: State<'_, GamesPath>,
+) -> Result<bool, String> {
+  let uuid = Uuid::parse_str(&id).unwrap();
+  let d = decode(&path);
+  match d {
+    Ok(decoded) => {
+      let uri = decoded.into_owned();
+      let file_path = Path::new(&uri);
+      if !file_path.exists() {
+        return Err("path does not exists".to_string());
       }
+      state.0.lock().unwrap().insert(
+        uuid,
+        file_path.parent().unwrap().to_string_lossy().to_string(),
+      );
+      return Ok(true);
     }
-    None => return Err("path is required".to_string()),
+    _ => return Err("".to_string()),
   }
 }
 

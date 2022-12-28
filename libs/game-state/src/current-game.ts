@@ -34,14 +34,14 @@ export async function runGame(id: string): Promise<void> {
   const { file } = descriptor;
   const source = await storage$.value?.getGameSource(id);
   if (source) {
-    fillLocalFS(source, file);
+    await fillLocalFS(source, file);
   } else {
     const source = await fetch(file).then((r) => {
       if (!r.ok) throw new Error('game file not found');
       return r.arrayBuffer();
     });
     if (isZip(source.slice(0, 4))) {
-      fillLocalFS(source, file);
+      await fillLocalFS(source, file);
     } else {
       const isQsps = file.toLowerCase().endsWith('.qsps');
       if (isQsps) {

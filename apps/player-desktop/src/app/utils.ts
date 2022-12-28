@@ -4,9 +4,11 @@ import { tauri, path } from '@tauri-apps/api';
 import TOMLparse from '@iarna/toml/parse-string';
 import { use } from 'xoid';
 import { games$ } from '@qspider/game-state';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function prepareGameFromDisk(filePath: string): Promise<string> {
-  const uuid = await tauri.invoke('prepare_game_start', { path: filePath });
+  const uuid = uuidv4();
+  await tauri.invoke('prepare_game_start', { path: filePath, id: uuid });
   const name = await path.basename(filePath);
 
   let urlPrefix = `qsp://${uuid}/`;
@@ -28,6 +30,9 @@ export async function prepareGameFromDisk(filePath: string): Promise<string> {
       descriptor = found;
     }
     id = descriptor.id;
+    descriptor.local_path = filePath;
+    descriptor.local_id = uuid;
+    descriptor.file = `${urlPrefix}${name}`;
   } catch (err) {
     id = cyrb53(filePath);
     descriptor = {
@@ -35,12 +40,14 @@ export async function prepareGameFromDisk(filePath: string): Promise<string> {
       title: name,
       mode: name.endsWith('aqsp') ? 'aero' : 'classic',
       file: `${urlPrefix}${name}`,
+      local_id: uuid,
+      local_path: filePath,
     };
   }
   use(games$).update(id, descriptor);
   return id;
 }
-
+const supportedFileTypes = ['.qsp', '.qsps', '.aqsp', '.zip'];
 export function isSupportedFileType(path: string): boolean {
-  return path.endsWith('.qsp') || path.endsWith('.qsps') || path.endsWith('.aqsp') || path.endsWith('zip');
+  return supportedFileTypes.some((ext) => path.endsWith(ext));
 }

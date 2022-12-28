@@ -4,6 +4,8 @@ export interface GameDescriptor {
   title: string;
   description?: string;
   file: string;
+  local_path?: string;
+  local_id?: string;
   hotkeys?: Record<string, string>;
   resources?: {
     styles?: string[];
