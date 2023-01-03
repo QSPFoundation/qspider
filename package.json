@@ -60,6 +60,7 @@
     "mobx": "^6.6.2",
     "mobx-react-lite": "^3.4.0",
     "mousetrap": "^1.6.5",
+    "node-unrar-js": "^2.0.0",
     "overlayscrollbars": "^1.13.3",
     "overlayscrollbars-react": "^0.3.0",
     "postcss": "^8.4.20",

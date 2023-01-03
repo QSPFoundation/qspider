@@ -2,7 +2,16 @@ import { GameDescriptor, Resource } from '@qspider/contracts';
 import { defer } from '@qspider/utils';
 import { create } from 'xoid';
 import { prepareCss } from './css';
-import { cleanPath, convertQsps, isZip, readZip } from './utils';
+import {
+  ArchiveContent,
+  cleanPath,
+  convertQsps,
+  extractFileTree,
+  FileDir,
+  File,
+  isSupportedArchive,
+  readSupportedArchive,
+} from './utils';
 
 export const localFS$ = create<Record<string, Uint8Array>>({});
 export const isLocalFSUsed$ = create(false);
@@ -11,23 +20,15 @@ export const basePath$ = create('');
 const localFsUrls = new Map<string, string>();
 
 export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<void> {
-  const files: Record<string, Uint8Array> = {};
-  if (isZip(source.slice(0, 4))) {
-    let qspFilePath = '';
-    let qspsFilePath = '';
-    const resources = await readZip(source);
-    for (const [path, file] of Object.entries(resources)) {
-      const preparedPath = path.toLowerCase();
-      files[preparedPath] = file;
-      if (!qspFilePath && preparedPath.endsWith('.qsp') && !preparedPath.includes('/')) qspFilePath = preparedPath;
-      if (!qspFilePath && !qspsFilePath && preparedPath.endsWith('.qsps') && !preparedPath.includes('/')) {
-        qspsFilePath = preparedPath;
-      }
-    }
-    if (qspFilePath) {
-      mainFileSource$.set(files[qspFilePath]);
-    } else if (qspsFilePath) {
-      const source = convertQsps(files[qspsFilePath].buffer);
+  localFS$.set({});
+  if (isSupportedArchive(source.slice(0, 4))) {
+    const resources = await readSupportedArchive(source);
+    const [files, mainFilePath] = normalizeFSTree(resources);
+    localFS$.set(files);
+    if (mainFilePath.endsWith('.qsp')) {
+      mainFileSource$.set(files[mainFilePath]);
+    } else if (mainFilePath.endsWith('.qsps')) {
+      const source = convertQsps(files[mainFilePath].buffer);
       mainFileSource$.set(new Uint8Array(source));
     } else {
       throw new Error('Game file not found');
@@ -38,7 +39,7 @@ export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<vo
       mainFileSource$.set(new Uint8Array(gameSource));
     } else mainFileSource$.set(new Uint8Array(source));
   }
-  localFS$.set(files);
+
   isLocalFSUsed$.set(true);
 }
 
@@ -177,4 +178,38 @@ export function clearResources(): void {
     URL.revokeObjectURL(value);
   }
   localFsUrls.clear();
+}
+
+function normalizeFSTree(content: ArchiveContent): [ArchiveContent, string] {
+  let root = extractFileTree(content);
+  if (root.content.length === 1 && root.content[0].type === 'dir') {
+    root = root.content[0];
+  }
+
+  let qspFilePath = '';
+  let qspsFilePath = '';
+  for (const entry of root.content) {
+    if (entry.type === 'dir') continue;
+    const name = entry.name.toLocaleLowerCase();
+    if (!qspFilePath && name.endsWith('.qsp') && !name.includes('/')) qspFilePath = name;
+    if (!qspsFilePath && name.endsWith('.qsps') && !name.includes('/')) qspsFilePath = name;
+  }
+  if (!qspFilePath && !qspsFilePath) throw new Error('Game file not found');
+
+  const normalized: ArchiveContent = {};
+  for (const entry of root.content) {
+    processFSEntry(entry, normalized, '');
+  }
+  return [normalized, qspFilePath || qspsFilePath];
+}
+
+function processFSEntry(entry: FileDir | File, repo: ArchiveContent, prefix: string): void {
+  if (entry.type === 'dir') {
+    prefix += entry.name.toLocaleLowerCase() + '/';
+    for (const child of entry.content) {
+      processFSEntry(child, repo, prefix);
+    }
+  } else {
+    repo[prefix + entry.name.toLocaleLowerCase()] = entry.data;
+  }
 }

@@ -9,7 +9,7 @@ export const OpenGameButton: React.FC = () => {
       filters: [
         {
           name: 'Qsp files',
-          extensions: ['qsp', 'qsps', 'aqsp', 'zip'],
+          extensions: ['qsp', 'qsps', 'aqsp', 'zip', 'rar'],
         },
       ],
     });

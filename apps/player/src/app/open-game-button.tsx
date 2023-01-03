@@ -27,7 +27,7 @@ export const OpenGameButton: React.FC = () => {
   }, []);
   return (
     <div className="open-game-button">
-      <input type="file" id="openGame" accept=".zip, .aqsp, .qsp, .qsps" onChange={onChange} />
+      <input type="file" id="openGame" accept=".zip, .aqsp, .qsp, .qsps, .rar" onChange={onChange} />
       <label htmlFor="openGame">Open game</label>
     </div>
   );

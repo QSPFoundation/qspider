@@ -1,6 +1,16 @@
 import { readQsps, writeQsp } from '@qsp/converters';
 import { QspListItem } from '@qsp/wasm-engine';
-import { unzip, Unzipped } from 'fflate';
+import { unzip } from 'fflate';
+import { createExtractorFromData } from 'node-unrar-js';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import unrarWasm from 'node-unrar-js/esm/js/unrar.wasm';
+
+export type ArchiveContent = Record<string, Uint8Array>;
+
+export const isSupportedArchive = (buffer: ArrayBuffer): boolean => {
+  return isZip(buffer) || isRar(buffer);
+};
 
 export const isZip = (buffer: ArrayBuffer): boolean => {
   const data = new Uint8Array(buffer);
@@ -12,7 +22,18 @@ export const isZip = (buffer: ArrayBuffer): boolean => {
   );
 };
 
-export const readZip = (buffer: ArrayBuffer): Promise<Unzipped> => {
+export const isRar = (buffer: ArrayBuffer): boolean => {
+  const data = new Uint8Array(buffer);
+  return data[0] === 0x52 && data[1] === 0x61 && data[2] === 0x72 && data[3] === 0x21;
+};
+
+export const readSupportedArchive = (buffer: ArrayBuffer): Promise<ArchiveContent> => {
+  if (isZip(buffer)) return readZip(buffer);
+  if (isRar(buffer)) return readRar(buffer);
+  throw new Error('upsupported archive format');
+};
+
+export const readZip = (buffer: ArrayBuffer): Promise<ArchiveContent> => {
   return new Promise((resolve, reject) => {
     unzip(new Uint8Array(buffer), (err, data) => {
       if (err) {
@@ -23,6 +44,76 @@ export const readZip = (buffer: ArrayBuffer): Promise<Unzipped> => {
     });
   });
 };
+
+let wasmBinary: ArrayBuffer | undefined = undefined;
+const getWasmBinary = async (): Promise<ArrayBuffer | undefined> => {
+  if (wasmBinary) return wasmBinary;
+  wasmBinary = await fetch(unrarWasm).then((r) => r.arrayBuffer());
+  return wasmBinary;
+};
+
+export const readRar = async (buffer: ArrayBuffer): Promise<ArchiveContent> => {
+  const wasmBinary = await getWasmBinary();
+  const extractor = await createExtractorFromData({ data: buffer, wasmBinary });
+  const extracted = extractor.extract();
+  const content: ArchiveContent = {};
+  for (const file of extracted.files) {
+    if (file.fileHeader.flags.directory) continue;
+    const data = file.extraction;
+    if (data) {
+      content[file.fileHeader.name] = data;
+    }
+  }
+  return content;
+};
+
+export type FileDir = {
+  type: 'dir';
+  name: string;
+  content: Array<FileDir | File>;
+};
+
+export type File = {
+  type: 'file';
+  name: string;
+  data: Uint8Array;
+};
+
+export function extractFileTree(content: ArchiveContent): FileDir {
+  const root: FileDir = {
+    type: 'dir',
+    name: '.',
+    content: [],
+  };
+  for (const [filename, data] of Object.entries(content)) {
+    const path = filename.split('/');
+    const file = path.pop();
+    let dir: FileDir = root;
+    for (const dirName of path) {
+      const existing = dir.content.find((d): d is FileDir => d.type === 'dir' && d.name === dirName);
+      if (existing) {
+        dir = existing;
+      } else {
+        const newDir: FileDir = {
+          type: 'dir',
+          name: dirName,
+          content: [],
+        };
+        dir.content.push(newDir);
+        dir = newDir;
+      }
+    }
+    if (file) {
+      dir.content.push({
+        type: 'file',
+        name: file,
+        data,
+      });
+    }
+  }
+
+  return root;
+}
 
 export function convertQsps(source: ArrayBuffer): ArrayBuffer {
   const data = new Uint8Array(source.slice(0, 2));

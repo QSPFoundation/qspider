@@ -47,7 +47,7 @@ export async function prepareGameFromDisk(filePath: string): Promise<string> {
   use(games$).update(id, descriptor);
   return id;
 }
-const supportedFileTypes = ['.qsp', '.qsps', '.aqsp', '.zip'];
+const supportedFileTypes = ['.qsp', '.qsps', '.aqsp', '.zip', '.rar'];
 export function isSupportedFileType(path: string): boolean {
   return supportedFileTypes.some((ext) => path.endsWith(ext));
 }
