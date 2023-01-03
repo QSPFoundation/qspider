@@ -16,3 +16,4 @@ export * from './wait';
 export * from './pause-screen';
 export * from './save';
 export * from './window-manager';
+export * from './qsp-catalog';
