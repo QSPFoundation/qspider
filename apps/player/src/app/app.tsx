@@ -1,7 +1,7 @@
 import { ProvidedComponents } from '@qspider/contracts';
 import { baseInit$, currentGame$ } from '@qspider/game-state';
 import { ComponentsProvider } from '@qspider/providers';
-import { ErrorAlert, GameRunner, GameShelf } from '@qspider/renderer';
+import { ErrorAlert, GameRunner, GameShelf, NoticeToast } from '@qspider/renderer';
 import { useAtom } from '@xoid/react';
 import { init } from './init';
 import { OpenGameButton } from './open-game-button';
@@ -20,6 +20,7 @@ export const App: React.FC = () => {
     <ComponentsProvider value={components}>
       {currentGame ? <GameRunner /> : <GameShelf />}
       <ErrorAlert />
+      <NoticeToast />
     </ComponentsProvider>
   );
 };

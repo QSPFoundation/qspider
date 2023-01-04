@@ -6,7 +6,7 @@ import { event, path } from '@tauri-apps/api';
 import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
-import { ErrorAlert, GameRunner, GameShelf } from '@qspider/renderer';
+import { ErrorAlert, GameRunner, GameShelf, NoticeToast } from '@qspider/renderer';
 import { baseInit$, currentGame$, runGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ComponentsProvider } from '@qspider/providers';
@@ -60,6 +60,7 @@ export const App: React.FC = () => {
     <ComponentsProvider value={components}>
       {currentGame ? <GameRunner /> : <GameShelf />}
       <ErrorAlert />
+      <NoticeToast />
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
           {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}

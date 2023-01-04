@@ -8,7 +8,7 @@ export * from './resources';
 export * from './panels';
 export * from './audio';
 export * from './attributes';
-export * from './error';
+export * from './toasts';
 export * from './menu';
 export * from './msg';
 export * from './input';

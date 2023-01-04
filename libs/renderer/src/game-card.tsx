@@ -2,6 +2,7 @@ import { GameDescriptor } from '@qspider/contracts';
 import { games$, runGame, showError } from '@qspider/game-state';
 import { useCallback } from 'react';
 import { use } from 'xoid';
+import { ContentRenderer } from './content-renderer';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   const onRunGame = useCallback(async () => {
@@ -17,7 +18,11 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   return (
     <div className="game-shelf__card">
       <h3 className="game-shelf__card-title">{game.title}</h3>
-      {game.description && <p>{game.description}</p>}
+      {game.description && (
+        <div>
+          <ContentRenderer content={game.description} />
+        </div>
+      )}
       <button type="button" onClick={onRunGame}>
         Run
       </button>

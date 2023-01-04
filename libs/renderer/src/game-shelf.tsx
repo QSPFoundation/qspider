@@ -15,7 +15,7 @@ export const GameShelf: React.FC = () => {
         <OpenGameButton />{' '}
         <button
           onClick={(): void => {
-            showCatalog$.value = true;
+            showCatalog$.set(true);
           }}
         >
           Qsp Game Catalog

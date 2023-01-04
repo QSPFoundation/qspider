@@ -1,4 +1,8 @@
-import { create } from 'xoid';
+import { GameDescriptor } from '@qspider/contracts';
+import { create, use } from 'xoid';
+import { showError, showNotice } from './toasts';
+import { games$ } from './game-shelf';
+import { storage$ } from './storage';
 
 export interface CatalogGame {
   id: number;
@@ -51,12 +55,13 @@ export const qspAuthors$ = create((get) => {
 type CatalogLoadingState = 'pending' | 'loading' | 'loaded' | 'failed';
 
 export const catalogLoading$ = create<CatalogLoadingState>('pending');
-
+export const idPrefix = 'org.qsp.game-';
+const CATALOG_URL = 'https://catalog-proxy.qspider.workers.dev/';
 export async function loadQspCatalog(): Promise<void> {
   if (catalogLoading$.value === 'loading') return;
   catalogLoading$.value = 'loading';
   try {
-    const request = await fetch('https://catalog-proxy.qspider.workers.dev/');
+    const request = await fetch(CATALOG_URL);
     if (!request.ok) throw new Error('Failed to load');
     const data = await request.json();
     qspCatalogList$.value = data;
@@ -66,8 +71,34 @@ export async function loadQspCatalog(): Promise<void> {
   }
 }
 
+export async function moveToShelf(game: CatalogGame): Promise<void> {
+  const request = await fetch(`${CATALOG_URL}game-source?id=${game.id}`);
+  if (!request.ok) {
+    showError(`Failed to load source for game ${game.title}`);
+    return;
+  }
+  const source = await request.arrayBuffer();
+  const descriptor = convertGameToDescriptor(game);
+  use(games$).add(descriptor.id, descriptor);
+  storage$.value?.addGameSource(descriptor.id, source);
+  showNotice(`${game.title} added to shelf`);
+}
+
 export function toggleSortDirection(): void {
   qspSortDirection$.update((current) => (current === 'asc' ? 'desc' : 'asc'));
+}
+
+function convertGameToDescriptor(game: CatalogGame): GameDescriptor {
+  return {
+    id: idPrefix + game.id,
+    mode: game.file_ext === 'aqsp' ? 'aero' : 'classic',
+    title: `${game.title} by ${game.author} (v${game.version})`,
+    file: '',
+    description: game.description,
+    meta: {
+      source: 'org.qsp.games',
+    },
+  };
 }
 
 function sortByField<T, K extends keyof T>(fieldName: K) {

@@ -4,6 +4,7 @@ export * from './game-shelf';
 export * from './game-runner';
 export * from './theme-core';
 export * from './error-alert';
+export * from './notice-toast';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

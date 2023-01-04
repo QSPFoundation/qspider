@@ -26,6 +26,9 @@ export interface GameDescriptor {
   };
   themes?: string[];
   defaultTheme?: string;
+  meta?: {
+    source: string;
+  };
 }
 
 export interface PlayerConfig {
