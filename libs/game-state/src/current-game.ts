@@ -111,6 +111,9 @@ export async function runGame(id: string): Promise<void> {
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
   loadSaveList();
+  if (descriptor.window?.fullscreen) {
+    setTimeout(() => windowManager$.value?.goFullscreen(), 0);
+  }
 }
 
 export function stopCurrentGame(): void {

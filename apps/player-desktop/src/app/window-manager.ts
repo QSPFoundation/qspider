@@ -1,5 +1,5 @@
 import { IWindowManager } from '@qspider/contracts';
-import { window } from '@tauri-apps/api';
+import { appWindow } from '@tauri-apps/api/window';
 
 export const windowManager: IWindowManager = {
   // async resize(width: number, height: number): Promise<void> {
@@ -27,10 +27,16 @@ export const windowManager: IWindowManager = {
   //   window.appWindow.setResizable(isResizable);
   // },
   setTitle(title: string): void {
-    window.appWindow.setTitle(title);
+    appWindow.setTitle(title);
   },
   async setIcon(icon: string): Promise<void> {
     const source = await fetch(icon).then((r) => r.arrayBuffer());
-    window.appWindow.setIcon(new Uint8Array(source));
+    appWindow.setIcon(new Uint8Array(source));
+  },
+  async goFullscreen(): Promise<void> {
+    await appWindow.setFullscreen(true);
+  },
+  async goWindowed(): Promise<void> {
+    await appWindow.setFullscreen(false);
   },
 };

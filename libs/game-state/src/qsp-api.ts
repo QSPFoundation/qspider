@@ -31,6 +31,7 @@ import { input$ } from './input';
 import { basePath$, getBinaryContent, getResource } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
+import { windowManager$ } from './window-manager';
 
 export const qspApi$ = create<QspAPI>();
 export const qspApiInitialized$ = create(false);
@@ -127,6 +128,13 @@ qspApi$.subscribe((api) => {
       const [, name] = _cmd.split(':');
       const region$ = regions$.focus((s) => s[name]);
       region$.set(api.readVariableByKey('$qspider_region', name));
+    } else if (_cmd.startsWith('fullscreen:')) {
+      const [, state] = _cmd.split(':');
+      if (state === 'on') {
+        windowManager$.value?.goFullscreen();
+      } else {
+        windowManager$.value?.goWindowed();
+      }
     }
   });
   api.on('is_play', (path, result) => {

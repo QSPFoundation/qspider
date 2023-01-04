@@ -19,6 +19,7 @@ export interface GameDescriptor {
     resizable?: boolean;
     minWidth?: number;
     minHeight?: number;
+    fullscreen?: boolean;
   };
   aero?: {
     width: number;
