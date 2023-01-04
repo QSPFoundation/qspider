@@ -1,7 +1,7 @@
 import safeParser from 'postcss-safe-parser';
 import valueParser from 'postcss-value-parser';
 import postcss, { AcceptedPlugin, Parser } from 'postcss';
-import { resolvePath } from '@qspider/utils';
+import { fetchProxyFallback, resolvePath } from '@qspider/utils';
 import { getResource } from './resources';
 
 export async function prepareCss(content: string, rootPath: string): Promise<string> {
@@ -21,7 +21,7 @@ export async function prepareCss(content: string, rootPath: string): Promise<str
           url = resolvePath(rootPath, urlPart.value);
         }
         if (url) {
-          const response = await fetch(getResource(url).url);
+          const response = await fetchProxyFallback(getResource(url).url);
           if (response.ok) {
             const text = await response.text();
             additionalStyles.push(await prepareCss(text, url));

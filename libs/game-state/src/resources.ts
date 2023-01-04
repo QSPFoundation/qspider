@@ -1,5 +1,5 @@
 import { GameDescriptor, Resource } from '@qspider/contracts';
-import { defer } from '@qspider/utils';
+import { defer, fetchProxyFallback } from '@qspider/utils';
 import { create } from 'xoid';
 import { prepareCss } from './css';
 import {
@@ -73,7 +73,7 @@ export async function getBinaryContent(file: string): Promise<ArrayBuffer> {
     return content;
   }
 
-  return fetch(path).then((r) => {
+  return fetchProxyFallback(path).then((r) => {
     if (!r.ok) throw new Error(`File ${file} not found`);
     return r.arrayBuffer();
   });
@@ -87,7 +87,7 @@ export async function getTextContent(file: string): Promise<string> {
     const blob = new Blob([content]);
     return blob.text();
   }
-  return fetch(path).then((r) => {
+  return fetchProxyFallback(path).then((r) => {
     if (!r.ok) throw new Error(`File ${file} not found`);
     return r.text();
   });
@@ -118,7 +118,7 @@ async function loadAdditionalStyles(styles: string[]): Promise<void> {
   const promises: Promise<void>[] = [];
   for (const style of styles) {
     const { url } = getResource(style);
-    const response = await fetch(url);
+    const response = await fetchProxyFallback(url);
     if (!response.ok) continue;
     const text = await response.text();
     const processed = await prepareCss(text, style);

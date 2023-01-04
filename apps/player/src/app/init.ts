@@ -10,7 +10,7 @@ import {
   storage$,
   windowManager$,
 } from '@qspider/game-state';
-import { cyrb53 } from '@qspider/utils';
+import { cyrb53, fetchProxyFallback } from '@qspider/utils';
 import { WebStorage } from '@qspider/web-storage';
 import { use } from 'xoid';
 import TOMLparse from '@iarna/toml/parse-string';
@@ -30,10 +30,10 @@ export async function init(): Promise<void> {
     const filename = gameUrl.slice(gameUrl.lastIndexOf('/') + 1);
     let id: string;
     let descriptor: GameDescriptor;
-    const response = await fetch(gameUrl);
+    const response = await fetchProxyFallback(gameUrl);
     if (response.ok) {
       try {
-        const rawConfig = await fetch(gameConfigUrl).then((r) => r.text());
+        const rawConfig = await fetchProxyFallback(gameConfigUrl).then((r) => r.text());
         const config = TOMLparse(rawConfig) as unknown as PlayerConfig;
         if (config.game.length === 1) {
           [descriptor] = config.game;

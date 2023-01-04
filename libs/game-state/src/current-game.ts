@@ -22,6 +22,7 @@ import { loadSaveList } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
 import TOMLparse from '@iarna/toml/parse-string';
+import { fetchProxyFallback } from '@qspider/utils';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -36,7 +37,7 @@ export async function runGame(id: string): Promise<void> {
   if (source) {
     await fillLocalFS(source, file);
   } else {
-    const source = await fetch(file).then((r) => {
+    const source = await fetchProxyFallback(file).then((r) => {
       if (!r.ok) throw new Error('game file not found');
       return r.arrayBuffer();
     });
