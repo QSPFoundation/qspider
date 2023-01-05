@@ -30,9 +30,16 @@ export type CssVarDefinition = {
     }
 );
 
+export interface ThemeTranslation {
+  lang: string;
+  tkey: string;
+  value: string;
+}
+
 export type ThemeData = {
   is_user_defined: boolean;
   css_variables: CssVarDefinition[];
+  translations: ThemeTranslation[];
   qsp_player?: TemplateTag;
   qsp_action?: TemplateTag;
   qsp_object?: TemplateTag;
@@ -72,7 +79,9 @@ export const currentThemeData$ = create((get) => {
 });
 export const currentCssVariables$ = currentThemeData$.focus((t) => t.css_variables);
 
-export function useThemeTemplate(tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables'>): TemplateTag {
+export function useThemeTemplate(
+  tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>
+): TemplateTag {
   const theme = useAtom(currentThemeData$);
   return (
     theme?.[tag] || {
@@ -110,6 +119,7 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
     themeData[name] = {
       is_user_defined,
       css_variables: extractCssVariables(theme),
+      translations: extractTranslations(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
       qsp_action: extractTagData(theme, 'template[is="qsp-action"]'),
       qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
@@ -133,7 +143,7 @@ function extractTagData(root: HTMLElement, selector: string): TemplateTag | unde
 
 function extractCssVariables(root: HTMLElement): CssVarDefinition[] {
   const definitions: CssVarDefinition[] = [];
-  for (const node of root.querySelectorAll('qsp-css-variable')) {
+  for (const node of root.querySelectorAll('definitions qsp-css-variable')) {
     const name = node.getAttribute('name');
     const from = node.getAttribute('from');
     if (!name || !from) continue;
@@ -148,4 +158,19 @@ function extractCssVariables(root: HTMLElement): CssVarDefinition[] {
     } as CssVarDefinition);
   }
   return definitions;
+}
+
+function extractTranslations(root: HTMLElement): ThemeTranslation[] {
+  const translations: ThemeTranslation[] = [];
+  for (const node of root.querySelectorAll('definitions qsp-translation')) {
+    const lang = node.getAttribute('lang') || '';
+    const tkey = node.getAttribute('tkey') || '';
+    const value = node.getAttribute('value') || '';
+    translations.push({
+      lang,
+      tkey,
+      value,
+    });
+  }
+  return translations;
 }
