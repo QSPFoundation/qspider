@@ -29,6 +29,7 @@ import { QspStatsContent } from '../theme-core/stats-content';
 import { QspView, QspViewImage } from '../theme-core/view';
 import { Link } from './base/link';
 import { Element } from '../content/element';
+import { QspT } from '../qsp-t';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -208,6 +209,10 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-style'(node) {
     const from = node.getAttribute('from') || '';
     return <QspStyle from={from} />;
+  },
+  'qsp-t'(node) {
+    const tkey = node.getAttribute('tkey') || '';
+    return <QspT tkey={tkey} />;
   },
   a: (node, children) => {
     const { href, ...attributes } = extractAttributes(node);
