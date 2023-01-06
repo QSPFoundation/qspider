@@ -24,6 +24,7 @@ export async function init(): Promise<void> {
   const urlParams = new URLSearchParams(queryString);
   const configUrl = urlParams.get('config');
   const gameUrl = urlParams.get('game');
+  let toRun: string | null = null;
   if (gameUrl) {
     const base = gameUrl.slice(0, gameUrl.lastIndexOf('/') + 1);
     const gameConfigUrl = `${base}game.cfg`;
@@ -57,6 +58,7 @@ export async function init(): Promise<void> {
       if (!existingGame) {
         use(games$).add(id, descriptor);
       }
+      toRun = id;
     }
   } else if (configUrl) {
     const games = await loadGamesFromConfig(configUrl);
@@ -71,10 +73,9 @@ export async function init(): Promise<void> {
   }
   baseInit$.set(true);
   await initQspApi();
-  if (Object.keys(games$.value).length === 1) {
-    const [id] = Object.keys(games$.value);
+  if (toRun) {
     try {
-      await runGame(id);
+      await runGame(toRun);
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
     }

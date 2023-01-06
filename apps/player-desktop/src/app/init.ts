@@ -46,11 +46,8 @@ export async function init(): Promise<void> {
   baseInit$.set(true);
   await initQspApi();
   if (toRun) {
-    runGame(toRun);
-  } else if (Object.keys(games$.value).length === 1) {
-    const [id] = Object.keys(games$.value);
     try {
-      await runGame(id);
+      await runGame(toRun);
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
     }
