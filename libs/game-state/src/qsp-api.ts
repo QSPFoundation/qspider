@@ -15,7 +15,6 @@ import {
   mainContent$,
   newLocHash$,
   objects$,
-  regions$,
   statsContent$,
   viewPath$,
 } from './panels';
@@ -31,7 +30,7 @@ import { input$ } from './input';
 import { basePath$, getBinaryContent, getResource } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
-import { windowManager$ } from './window-manager';
+import { qspiderCommands } from './qspider-commands';
 
 export const qspApi$ = create<QspAPI>();
 export const qspApiInitialized$ = create(false);
@@ -100,40 +99,10 @@ qspApi$.subscribe((api) => {
   api.on('system_cmd', (cmd: string): void => {
     if (!cmd.startsWith('qspider')) return;
     const [, _cmd] = cmd.split('.');
-    if (_cmd.startsWith('event:')) {
-      const [, event] = _cmd.split(':');
-      const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
-      if (match) {
-        const name = match[1];
-        const args = match[3].split(',').map((arg) => {
-          const prepared = arg.trim();
-          if (prepared.startsWith('"') || prepared.startsWith("'")) {
-            return prepared.replace(/['"](.*?)['"]/gim, (_, path) => path);
-          }
-          return parseInt(prepared);
-        });
-        window.dispatchEvent(
-          new CustomEvent('qspider-event', {
-            detail: { name, args },
-          })
-        );
-      } else {
-        window.dispatchEvent(
-          new CustomEvent('qspider-event', {
-            detail: { name: event.trim() },
-          })
-        );
-      }
-    } else if (_cmd.startsWith('update_region:')) {
-      const [, name] = _cmd.split(':');
-      const region$ = regions$.focus((s) => s[name]);
-      region$.set(api.readVariableByKey('$qspider_region', name));
-    } else if (_cmd.startsWith('fullscreen:')) {
-      const [, state] = _cmd.split(':');
-      if (state === 'on') {
-        windowManager$.value?.goFullscreen();
-      } else {
-        windowManager$.value?.goWindowed();
+    for (const [prefix, processor] of Object.entries(qspiderCommands)) {
+      if (_cmd.trim().startsWith(prefix)) {
+        const data = _cmd.replace(prefix, '');
+        processor(data);
       }
     }
   });
