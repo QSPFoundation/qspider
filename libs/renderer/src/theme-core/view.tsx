@@ -2,8 +2,13 @@ import { Attributes, getResource, viewPath$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
+import * as Dialog from '@radix-ui/react-dialog';
 
-export const QspView: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: ReactNode }> = ({
+  attrs,
+  modal,
+  children,
+}) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-view');
   const path = useAtom(viewPath$);
   if (!path) return null;
@@ -11,6 +16,18 @@ export const QspView: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
     ...style,
     '--view-image': `url(${getResource(path).url})`,
   };
+  if (modal) {
+    <Dialog.Root open={true} onOpenChange={(): void => viewPath$.set('')}>
+      <Dialog.Portal>
+        <Dialog.Overlay />
+        <Dialog.Content>
+          <Tag {...attributes} style={preparedStyle}>
+            {children}
+          </Tag>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>;
+  }
   return (
     <Tag {...attributes} style={preparedStyle}>
       {children}

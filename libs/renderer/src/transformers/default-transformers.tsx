@@ -101,8 +101,12 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return <QspCmdInput attrs={attributes} />;
   },
   'qsp-view'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspView attrs={attributes}>{children}</QspView>;
+    const { modal, ...attributes } = extractAttributes(node);
+    return (
+      <QspView attrs={attributes} modal={Boolean(modal)}>
+        {children}
+      </QspView>
+    );
   },
   'qsp-view-image'(node) {
     const attributes = extractAttributes(node);
