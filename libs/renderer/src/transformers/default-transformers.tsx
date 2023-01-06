@@ -30,6 +30,7 @@ import { QspView, QspViewImage } from '../theme-core/view';
 import { Link } from './base/link';
 import { Element } from '../content/element';
 import { QspT } from '../qsp-t';
+import { QspMain } from '../theme-core/main';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -45,6 +46,9 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-scrollable'(node, children) {
     const { scroll, ...attributes } = extractAttributes(node);
     return <QspScrollable attrs={attributes}>{children}</QspScrollable>;
+  },
+  'qsp-main'(node, children) {
+    return <QspMain attrs={extractAttributes(node)}>{children}</QspMain>;
   },
   'qsp-main-content'(node) {
     return <QspMainContent attrs={extractAttributes(node)} />;
