@@ -95,8 +95,6 @@ export async function runGame(id: string): Promise<void> {
   }
   if (descriptor.resources?.icon) {
     windowManager$.value?.setIcon(getResource(descriptor.resources?.icon).url);
-  } else {
-    windowManager$.value?.setIcon('assets/favicon.png');
   }
   loadAdditionalResources(descriptor.resources);
   if (descriptor.themes) {
@@ -111,15 +109,41 @@ export async function runGame(id: string): Promise<void> {
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
   loadSaveList();
-  if (descriptor.window?.fullscreen) {
-    setTimeout(() => windowManager$.value?.goFullscreen(), 0);
+  applyWindowSettings(descriptor.window);
+}
+
+let wasResized = false;
+function applyWindowSettings(window: GameDescriptor['window']): void {
+  if (window) {
+    if (window.minWidth && window.minHeight) {
+      windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
+    }
+    if (window.maxWidth && window.maxHeight) {
+      windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
+    }
+    const resizable = window.resizable ?? true;
+    windowManager$.value?.setResizable(resizable);
+    if (window.width && window.height) {
+      windowManager$.value?.resize(window.width, window.height);
+      wasResized = true;
+    }
+    if (window.fullscreen) {
+      setTimeout(() => windowManager$.value?.goFullscreen(), 0);
+    }
   }
 }
 
 export function stopCurrentGame(): void {
   currentGame$.set(null);
-  windowManager$.value?.setTitle('qSpider');
-  windowManager$.value?.setIcon('assets/favicon.png');
+  const windowManager = windowManager$.value;
+  if (windowManager) {
+    windowManager.setTitle('qSpider');
+    windowManager.setIcon('assets/favicon.png');
+    windowManager.setResizable(true);
+    windowManager.unsetMaxSize();
+    windowManager.unsetMinSize();
+    if (wasResized) windowManager.resize(1024, 768);
+  }
   use(sounds$).clear();
   clearResources();
   clearAdditionalResources();
@@ -127,6 +151,7 @@ export function stopCurrentGame(): void {
   currentTheme$.set(CLASSIC_THEME);
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
+  wasResized = false;
 }
 export type GameAction =
   | 'save'

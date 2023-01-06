@@ -85,6 +85,7 @@ fn main() {
       }
     })
     .invoke_handler(tauri::generate_handler![prepare_game_start])
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .run(context)
     .expect("error while running tauri application");
 }
