@@ -6,6 +6,8 @@ import { useAtom } from '@xoid/react';
 import { init } from './init';
 import { OpenGameButton } from './open-game-button';
 
+import './theme.css';
+
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
 };

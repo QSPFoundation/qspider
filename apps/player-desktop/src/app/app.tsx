@@ -11,6 +11,8 @@ import { baseInit$, currentGame$, runGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ComponentsProvider } from '@qspider/providers';
 
+import './theme.css';
+
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
 };

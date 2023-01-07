@@ -1,5 +1,37 @@
+:root {
+  --app-background: var(--indigo1);
+  --subtle-background: var(--indigo2);
+  --ui-element-background: var(--indigo3);
+  --ui-element-hover-background: var(--indigo4);
+  --ui-element-active-background: var(--indigo5);
+  --subtle-border: var(--indigo6);
+  --border: var(--indigo7);
+  --hover-border: var(--indigo8);
+  --solid-background: var(--indigo9);
+  --solid-hover-background: var(--indigo10);
+  --text-lc: var(--indigo11);
+  --text-hc: var(--indigo12);
+}
+
+.dark-theme {
+  --app-background: var(--indigo1);
+  --subtle-background: var(--indigo2);
+  --ui-element-background: var(--indigo3);
+  --ui-element-hover-background: var(--indigo4);
+  --ui-element-active-background: var(--indigo5);
+  --subtle-border: var(--indigo6);
+  --border: var(--indigo7);
+  --hover-border: var(--indigo8);
+  --solid-background: var(--indigo9);
+  --solid-hover-background: var(--indigo10);
+  --text-lc: var(--indigo11);
+  --text-hc: var(--indigo12);
+}
+
 body {
   margin: 0;
+  color: var(--text-hc);
+  background: var(--app-background);
 }
 *,
 *:before,
