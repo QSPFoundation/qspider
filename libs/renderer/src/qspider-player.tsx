@@ -1,12 +1,13 @@
 import { useComponents } from '@qspider/providers';
 import { NavLink, Outlet } from 'react-router-dom';
+import { QspiderThemeSwitch } from './qspider-theme-switch';
 
 export const QspiderPlayer: React.FC = () => {
   const { OpenGameButton } = useComponents();
   return (
     <div className="qspider-player">
       <nav className="qspider-navbar">
-        <div className="qspider-logo"></div>
+        <div className="qspider-logo">spider</div>
         <div className="qspider-nav">
           <ul>
             <li>
@@ -21,7 +22,10 @@ export const QspiderPlayer: React.FC = () => {
               </NavLink>
             </li>
           </ul>
-          <OpenGameButton />
+          <div className="qspider-block">
+            <OpenGameButton />
+            <QspiderThemeSwitch />
+          </div>
         </div>
       </nav>
       <main className="qspider-player-main">

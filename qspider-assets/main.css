@@ -181,17 +181,30 @@ area:focus {
   box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
 }
 .qspider-logo {
-  width: 48px;
   height: 48px;
+  padding-left: 42px;
+  font-size: 24px;
+  line-height: 48px;
+  text-transform: uppercase;
+  font-weight: bold;
+  color: #ff0002;
   background: url(./qspider-logo.png);
   background-repeat: no-repeat;
   background-size: contain;
+  margin-right: var(--spacer--md);
 }
 .qspider-nav {
   flex: 1 1 auto;
   display: flex;
   justify-content: space-between;
   padding: 0 var(--spacer--md) 0 0;
+}
+.qspider-nav .qspider-block {
+  display: flex;
+  align-items: center;
+}
+.qspider-nav .qspider-block .q-button + button {
+  margin-left: var(--spacer--sm);
 }
 .qspider-nav ul {
   padding: 0;
@@ -247,6 +260,28 @@ area:focus {
 .classic-table td > img,
 .classic-table th > img {
   vertical-align: bottom;
+}
+
+.q-ghost-button {
+  appearance: none;
+  -webkit-font-smoothing: antialiased;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  margin: 0;
+  overflow: hidden;
+  user-select: none;
+  font-size: 1rem;
+  color: var(--text-hc);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--sm);
+}
+.q-ghost-button:hover {
+  background-color: var(--ui-element-hover-background);
 }
 
 .q-button {

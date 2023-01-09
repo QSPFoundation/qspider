@@ -4,6 +4,7 @@ import {
   goToGame,
   initDefered$,
   initQspApi,
+  initTheme,
   loadGamesFromConfig,
   loadGamesFromStorage,
   platform$,
@@ -19,6 +20,7 @@ import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
   fillPlatform();
+  initTheme();
   storage$.set(new TauriStorage());
   windowManager$.set(windowManager);
   await loadGamesFromStorage();

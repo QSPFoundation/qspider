@@ -5,6 +5,7 @@ import {
   goToGame,
   initDefered$,
   initQspApi,
+  initTheme,
   loadGamesFromConfig,
   loadGamesFromStorage,
   showError,
@@ -18,6 +19,7 @@ import TOMLparse from '@iarna/toml/parse-string';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
+  initTheme();
   storage$.set(new WebStorage());
   windowManager$.set(windowManager);
   await loadGamesFromStorage();
