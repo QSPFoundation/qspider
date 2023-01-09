@@ -29,6 +29,10 @@ export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'clas
 export const currentAeroWidth$ = currentGame$.focus((state) => state?.aero?.width ?? 800);
 export const currentAeroHeight$ = currentGame$.focus((state) => state?.aero?.height ?? 600);
 
+export function goToGame(id: string): void {
+  window.location.href = `/game/${id}`;
+}
+
 export async function runGame(id: string): Promise<void> {
   let descriptor = games$.value?.[id];
   if (!descriptor) throw new Error('Game not found');

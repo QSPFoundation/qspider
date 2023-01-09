@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { dialog } from '@tauri-apps/api';
 import { prepareGameFromDisk } from './utils';
-import { runGame } from '@qspider/game-state';
+import { goToGame } from '@qspider/game-state';
 
 export const OpenGameButton: React.FC = () => {
   const selectGame = useCallback(async () => {
@@ -15,7 +15,7 @@ export const OpenGameButton: React.FC = () => {
     });
     if (file_path) {
       const id = await prepareGameFromDisk(file_path as string);
-      runGame(id);
+      goToGame(id);
     }
   }, []);
   return (

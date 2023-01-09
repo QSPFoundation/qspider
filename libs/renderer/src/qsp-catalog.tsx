@@ -7,7 +7,6 @@ import {
   qspSortByField$,
   qspSortDirection$,
   qspTitleSearch$,
-  showCatalog$,
   toggleSortDirection,
 } from '@qspider/game-state';
 
@@ -80,7 +79,6 @@ export const QspCatalog: React.FC = () => {
         value={search}
         onInput={(e): void => qspTitleSearch$.set((e.target as any).value)}
       />
-      <button onClick={(): void => showCatalog$.set(false)}>Close</button>
       <div>
         {games.map((game) => (
           <CatalogGameCard key={game.id} game={game} />

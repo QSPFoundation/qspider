@@ -20,7 +20,6 @@ export interface CatalogGame {
   description: string;
 }
 
-export const showCatalog$ = create(false);
 export const qspCatalogList$ = create<CatalogGame[]>([]);
 export const qspAuthorFilter$ = create('');
 export const qspSortByField$ = create('title');

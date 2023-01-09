@@ -1,11 +1,12 @@
 import {
   baseInit$,
   games$,
+  goToGame,
+  initDefered$,
   initQspApi,
   loadGamesFromConfig,
   loadGamesFromStorage,
   platform$,
-  runGame,
   showError,
   storage$,
   windowManager$,
@@ -44,13 +45,10 @@ export async function init(): Promise<void> {
   }
 
   baseInit$.set(true);
+  initDefered$.value.resolve();
   await initQspApi();
   if (toRun) {
-    try {
-      await runGame(toRun);
-    } catch (err) {
-      showError(err instanceof Error ? err.message : String(err));
-    }
+    goToGame(toRun);
   }
 }
 

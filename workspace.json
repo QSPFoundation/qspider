@@ -170,7 +170,7 @@
         "build": {
           "executor": "@nrwl/webpack:webpack",
           "options": {
-            "baseHref": "",
+            "baseHref": "/",
             "outputPath": "dist/apps/player",
             "index": "apps/player/src/index.html",
             "main": "apps/player/src/main.tsx",
@@ -292,6 +292,7 @@
           "executor": "@nrwl/webpack:webpack",
           "outputs": ["{options.outputPath}"],
           "options": {
+            "baseHref": "/",
             "outputPath": "dist/apps/player-desktop",
             "index": "apps/player-desktop/src/index.html",
             "main": "apps/player-desktop/src/main.tsx",

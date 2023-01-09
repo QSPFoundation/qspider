@@ -1,17 +1,11 @@
 import { GameDescriptor } from '@qspider/contracts';
-import { games$, runGame, showError } from '@qspider/game-state';
+import { games$ } from '@qspider/game-state';
 import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { use } from 'xoid';
 import { ContentRenderer } from './content-renderer';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
-  const onRunGame = useCallback(async () => {
-    try {
-      await runGame(game.id);
-    } catch (e) {
-      showError(e instanceof Error ? e.message : String(e));
-    }
-  }, [game.id]);
   const removeGame = useCallback(() => {
     use(games$).remove(game.id);
   }, [game.id]);
@@ -23,9 +17,7 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
           <ContentRenderer content={game.description} />
         </div>
       )}
-      <button type="button" className="q-button" onClick={onRunGame}>
-        Run
-      </button>
+      <Link to={`/game/${game.id}`}>Run</Link>
       <button type="button" className="q-button q-danger" onClick={removeGame}>
         Remove from shelf
       </button>

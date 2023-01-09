@@ -6,12 +6,13 @@ import { event, path } from '@tauri-apps/api';
 import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
-import { ErrorAlert, GameRunner, GameShelf, NoticeToast } from '@qspider/renderer';
-import { baseInit$, currentGame$, runGame } from '@qspider/game-state';
+import { ErrorAlert, NoticeToast, router } from '@qspider/renderer';
+import { baseInit$, goToGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ComponentsProvider } from '@qspider/providers';
 
 import './theme.css';
+import { RouterProvider } from 'react-router-dom';
 
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
@@ -31,7 +32,7 @@ export const App: React.FC = () => {
         const [filePath] = e.payload;
         if (isSupportedFileType(filePath)) {
           const id = await prepareGameFromDisk(filePath);
-          runGame(id);
+          goToGame(id);
         }
         setIsFileDropHovered(false);
       });
@@ -56,11 +57,10 @@ export const App: React.FC = () => {
   }, []);
 
   const initialized = useAtom(baseInit$);
-  const currentGame = useAtom(currentGame$);
   if (!initialized) return <>loading</>;
   return (
     <ComponentsProvider value={components}>
-      {currentGame ? <GameRunner /> : <GameShelf />}
+      <RouterProvider router={router} />
       <ErrorAlert />
       <NoticeToast />
       {isFileDropHovered ? (

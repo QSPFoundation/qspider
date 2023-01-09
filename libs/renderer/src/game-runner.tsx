@@ -9,11 +9,11 @@ import { WaitLock } from './wait-lock';
 
 export const GameRunner: React.FC = () => {
   const currentGame = useAtom(currentGame$);
+  if (!currentGame) return <>loading</>;
   return (
     <qsp-game-root>
       <ClickCoordinates />
       <QspCSSVariables />
-      Runnign {currentGame?.title}
       <button onClick={(): void => isPauseScreenVisible$.set(true)}>Pause</button>
       <button onClick={stopCurrentGame}>Stop</button>
       <QspPlayer />
