@@ -14,6 +14,7 @@ export const GameShelf: React.FC = () => {
       <div>
         <OpenGameButton />{' '}
         <button
+          className="q-button"
           onClick={(): void => {
             showCatalog$.set(true);
           }}

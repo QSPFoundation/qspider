@@ -18,5 +18,9 @@ export const OpenGameButton: React.FC = () => {
       runGame(id);
     }
   }, []);
-  return <div onClick={selectGame}>Open game</div>;
+  return (
+    <button className="q-button" onClick={selectGame}>
+      Open game
+    </button>
+  );
 };

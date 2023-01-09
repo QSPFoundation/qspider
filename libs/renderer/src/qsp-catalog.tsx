@@ -63,7 +63,7 @@ export const QspCatalog: React.FC = () => {
         options={authors.map((author) => ({ label: author, value: author }))}
         placehoder="Filter by author"
         label="Author"
-        value={authorsFilter}
+        value={authorsFilter || undefined}
         onValueChange={(value): void => qspAuthorFilter$.set(value)}
       />
       <Select
@@ -74,7 +74,12 @@ export const QspCatalog: React.FC = () => {
         onValueChange={(value): void => qspSortByField$.set(value)}
       />
       <button onClick={toggleSortDirection}>{sortDirection}</button>
-      <input type="text" value={search} onInput={(e): void => qspTitleSearch$.set((e.target as any).value)} />
+      <input
+        type="text"
+        className="q-input"
+        value={search}
+        onInput={(e): void => qspTitleSearch$.set((e.target as any).value)}
+      />
       <button onClick={(): void => showCatalog$.set(false)}>Close</button>
       <div>
         {games.map((game) => (

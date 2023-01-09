@@ -8,7 +8,9 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = ({ game }) => {
   return (
     <div>
       <h5>{game.title}</h5>
-      <button onClick={(): Promise<void> => moveToShelf(game)}>Add to shelf</button>
+      <button className="q-button" onClick={(): Promise<void> => moveToShelf(game)}>
+        Add to shelf
+      </button>
       <div>Author: {game.author}</div>
       {game.ported_by && <div>Ported by: {game.ported_by}</div>}
       <div>Version: {game.version}</div>

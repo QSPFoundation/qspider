@@ -1,41 +1,8 @@
-.open-game-button {
-  -webkit-font-smoothing: antialiased;
-  appearance: none;
-  cursor: pointer;
-  position: relative;
-  border-radius: 4px;
-
-  /* background-color: var(--inverted-background-color);
-  color: var(--background-color);
-  border: 1px solid var(--inverted-background-color); */
-
-  padding: 0;
-  margin: 0;
-  height: 32px;
-  overflow: hidden;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: none;
-}
-.open-game-button:hover {
-  /* background-color: var(--background-color);
-  color: var(--inverted-background-color);
-  border: 1px solid var(--inverted-background-color); */
-}
-.open-game-button:focus {
-  outline: none;
-}
-
-.open-game-button input {
+.q-open-game-button input {
   width: 0.1px;
   height: 0.1px;
   opacity: 0;
   overflow: hidden;
   position: absolute;
   z-index: -1;
-}
-.open-game-button label {
-  cursor: pointer;
 }

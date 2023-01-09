@@ -23,10 +23,10 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
           <ContentRenderer content={game.description} />
         </div>
       )}
-      <button type="button" onClick={onRunGame}>
+      <button type="button" className="q-button" onClick={onRunGame}>
         Run
       </button>
-      <button type="button" onClick={removeGame}>
+      <button type="button" className="q-button q-danger" onClick={removeGame}>
         Remove from shelf
       </button>
     </div>

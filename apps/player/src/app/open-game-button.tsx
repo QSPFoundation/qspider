@@ -26,9 +26,9 @@ export const OpenGameButton: React.FC = () => {
     reader.readAsArrayBuffer(file);
   }, []);
   return (
-    <div className="open-game-button">
+    <label className="q-button q-open-game-button" htmlFor="openGame">
+      Open game
       <input type="file" id="openGame" accept=".zip, .aqsp, .qsp, .qsps, .rar" onChange={onChange} />
-      <label htmlFor="openGame">Open game</label>
-    </div>
+    </label>
   );
 };
