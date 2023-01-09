@@ -41,7 +41,7 @@ export const QspCatalog: React.FC = () => {
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
-  if (loadingState === 'pending' || loadingState === 'loading') return <>Loading</>;
+  if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <>Loading</>;
   if (loadingState === 'failed')
     return (
       <>
@@ -57,7 +57,6 @@ export const QspCatalog: React.FC = () => {
     );
   return (
     <div>
-      Catalog
       <Select
         options={authors.map((author) => ({ label: author, value: author }))}
         placehoder="Filter by author"

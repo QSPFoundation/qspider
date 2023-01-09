@@ -51,6 +51,9 @@ body {
     'Segoe UI Emoji', 'Segoe UI Symbol';
   font-size: 16px;
   line-height: 1.2;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
 }
 *,
 *:before,
@@ -150,9 +153,67 @@ area:focus {
     --game-columns: 5;
   }
 }
+.qspider-player a {
+  color: var(--solid-background);
+  text-decoration: none;
+}
+.qspider-player a:visited {
+  color: var(--solid-background);
+}
+
+.qspider-player {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.qspider-player-main {
+  flex: 1 1 auto;
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: var(--spacer--md);
+}
+.qspider-navbar {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+.qspider-logo {
+  width: 48px;
+  height: 48px;
+  background: url(./qspider-logo.png);
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.qspider-nav {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--spacer--md) 0 0;
+}
+.qspider-nav ul {
+  padding: 0;
+  list-style: none;
+}
+.qspider-nav ul li {
+  display: inline-block;
+  border-radius: var(--border-radius);
+}
+.qspider-nav ul li a {
+  display: inline-block;
+  padding: var(--spacer--sm) var(--spacer--md);
+}
+.qspider-nav ul li:hover {
+  background: var(--ui-element-hover-background);
+}
+.qspider-active {
+  border-radius: var(--border-radius);
+  background: var(--ui-element-active-background);
+}
 
 .game-shelf {
-  width: 100vw;
   padding: 1rem;
 }
 .game-shelf__list {

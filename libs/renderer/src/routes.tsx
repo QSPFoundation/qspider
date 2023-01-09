@@ -3,16 +3,23 @@ import { createBrowserRouter } from 'react-router-dom';
 import { GameRunner } from './game-runner';
 import { GameShelf } from './game-shelf';
 import { QspCatalog } from './qsp-catalog';
+import { QspiderPlayer } from './qspider-player';
 
 export const router = createBrowserRouter(
   [
     {
       path: '/',
-      element: <GameShelf />,
-    },
-    {
-      path: '/catalog',
-      element: <QspCatalog />,
+      element: <QspiderPlayer />,
+      children: [
+        {
+          path: '/catalog',
+          element: <QspCatalog />,
+        },
+        {
+          path: '/',
+          element: <GameShelf />,
+        },
+      ],
     },
     {
       path: '/game/:id',
