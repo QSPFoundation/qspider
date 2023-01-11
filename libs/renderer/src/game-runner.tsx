@@ -1,6 +1,7 @@
 import { currentGame$, isPauseScreenVisible$, stopCurrentGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
+import { QspiderLoader } from './loader';
 import { QspErrorAlert } from './qsp-error-alert';
 import { QspPlayer } from './theme-core';
 import { QspCSSVariables } from './theme-core/css-variables';
@@ -9,7 +10,7 @@ import { WaitLock } from './wait-lock';
 
 export const GameRunner: React.FC = () => {
   const currentGame = useAtom(currentGame$);
-  if (!currentGame) return <>loading</>;
+  if (!currentGame) return <QspiderLoader />;
   return (
     <qsp-game-root>
       <ClickCoordinates />

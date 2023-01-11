@@ -6,7 +6,7 @@ import { event, path } from '@tauri-apps/api';
 import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
-import { ErrorAlert, NoticeToast, router } from '@qspider/renderer';
+import { ErrorAlert, NoticeToast, QspiderLoader, router } from '@qspider/renderer';
 import { baseInit$, goToGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ComponentsProvider } from '@qspider/providers';
@@ -57,7 +57,7 @@ export const App: React.FC = () => {
   }, []);
 
   const initialized = useAtom(baseInit$);
-  if (!initialized) return <>loading</>;
+  if (!initialized) return <QspiderLoader />;
   return (
     <ComponentsProvider value={components}>
       <RouterProvider router={router} />

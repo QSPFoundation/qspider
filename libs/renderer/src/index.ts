@@ -6,6 +6,7 @@ export * from './theme-core';
 export * from './error-alert';
 export * from './notice-toast';
 export * from './routes';
+export * from './loader';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

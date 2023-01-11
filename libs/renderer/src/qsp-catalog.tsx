@@ -13,6 +13,7 @@ import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/re
 
 import { useAtom } from '@xoid/react';
 import { useEffect } from 'react';
+import { QspiderLoader } from './loader';
 import { Select } from './primitives/select';
 import { CatalogGameCard } from './qsp-catalog-game-card';
 
@@ -42,7 +43,7 @@ export const QspCatalog: React.FC = () => {
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
-  if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <>Loading</>;
+  if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <QspiderLoader />;
   if (loadingState === 'failed')
     return (
       <>

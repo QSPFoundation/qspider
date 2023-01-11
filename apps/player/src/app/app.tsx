@@ -1,7 +1,7 @@
 import { ProvidedComponents } from '@qspider/contracts';
 import { baseInit$ } from '@qspider/game-state';
 import { ComponentsProvider } from '@qspider/providers';
-import { ErrorAlert, NoticeToast, router } from '@qspider/renderer';
+import { ErrorAlert, NoticeToast, QspiderLoader, router } from '@qspider/renderer';
 import { useAtom } from '@xoid/react';
 import { RouterProvider } from 'react-router-dom';
 import { init } from './init';
@@ -17,7 +17,7 @@ init();
 
 export const App: React.FC = () => {
   const initialized = useAtom(baseInit$);
-  if (!initialized) return <>loading</>;
+  if (!initialized) return <QspiderLoader />;
   return (
     <ComponentsProvider value={components}>
       <RouterProvider router={router} />
