@@ -547,6 +547,82 @@ area:focus {
   box-shadow: 0 0 0 0.2rem var(--subtle-border);
 }
 
+.q-tooltip {
+  z-index: 10;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--sm) var(--spacer--md);
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--violet11);
+  background-color: var(--app-background);
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  user-select: none;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+.q-tooltip[data-state='delayed-open'][data-side='top'] {
+  animation-name: q-slideDownAndFade;
+}
+.q-tooltip[data-state='delayed-open'][data-side='right'] {
+  animation-name: q-slideLeftAndFade;
+}
+.q-tooltip[data-state='delayed-open'][data-side='bottom'] {
+  animation-name: q-slideUpAndFade;
+}
+.q-tooltip[data-state='delayed-open'][data-side='left'] {
+  animation-name: q-slideRightAndFade;
+}
+
+.q-tooltip-arrow {
+  fill: var(--app-background);
+  filter: drop-shadow(0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%));
+}
+
+@keyframes q-slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes q-slideRightAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes q-slideDownAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes q-slideLeftAndFade {
+  from {
+    opacity: 0;
+    transform: translateX(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .q-loader {
   width: 100%;
   height: 100%;

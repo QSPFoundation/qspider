@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { QspiderLoader } from './loader';
 import { Select } from './primitives/select';
 import { CatalogGameCard } from './qsp-catalog-game-card';
+import { QspiderTooltip } from './tooltip';
 
 const sortOptions = [
   {
@@ -73,13 +74,15 @@ export const QspCatalog: React.FC = () => {
             />
           </div>
           {authorsFilter ? (
-            <button
-              className="q-ghost-button"
-              aria-label="Clear Author filter"
-              onClick={(): void => qspAuthorFilter$.set('')}
-            >
-              <Cross1Icon />
-            </button>
+            <QspiderTooltip content="Clear Author filter">
+              <button
+                className="q-ghost-button"
+                aria-label="Clear Author filter"
+                onClick={(): void => qspAuthorFilter$.set('')}
+              >
+                <Cross1Icon />
+              </button>
+            </QspiderTooltip>
           ) : null}
         </div>
         <div className="q-catalog__filterbar-block">
