@@ -22,10 +22,11 @@ export const Select: React.FC<{
   placehoder: string;
   label: string;
   value: string | undefined;
+  name?: string;
   onValueChange: (value: string) => void;
-}> = ({ options, placehoder, label, value, onValueChange }) => {
+}> = ({ options, placehoder, label, value, name, onValueChange }) => {
   return (
-    <RadixSelect.Root value={value} onValueChange={onValueChange}>
+    <RadixSelect.Root value={value} onValueChange={onValueChange} name={name}>
       <RadixSelect.Trigger className="q-select" aria-label={label}>
         <RadixSelect.Value placeholder={placehoder} />
         <RadixSelect.Icon className="q-select-icon">

@@ -145,7 +145,7 @@ area:focus {
 }
 @media only screen and (min-width: 1200px) {
   :root {
-    --game-columns: 4;
+    --game-columns: 3;
   }
 }
 @media only screen and (min-width: 2200px) {
@@ -173,8 +173,10 @@ area:focus {
   max-height: calc(100vh - 48px);
   overflow: auto;
   padding: var(--spacer--md);
+  background-color: var(--subtle-background);
 }
 .qspider-navbar {
+  z-index: 1;
   height: 48px;
   display: flex;
   align-items: center;
@@ -226,15 +228,106 @@ area:focus {
   background: var(--ui-element-active-background);
 }
 
-.game-shelf {
-  padding: 1rem;
-}
 .game-shelf__list {
   display: grid;
   grid-template-columns: repeat(var(--game-columns, 3), 1fr);
-  column-gap: 1rem;
-  row-gap: 1rem;
+  column-gap: var(--spacer--md);
+  row-gap: var(--spacer--md);
 }
+
+.game-shelf__card {
+  position: relative;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--sm);
+  background-color: var(--app-background);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+}
+.game-shelf__card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 20px 2px rgba(0, 0, 0, 0.25);
+}
+.game-shelf__card-content {
+  flex: 1 1 auto;
+}
+.game-shelf__card-content h3 {
+  margin-top: 0;
+  padding-right: var(--spacer--sm);
+}
+.game-shelf__card-actions {
+  margin-top: var(--spacer--sm);
+  display: flex;
+  justify-content: end;
+}
+
+.game-shelf__card .q-remove-game-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.q-catalog__list {
+  display: grid;
+  grid-template-columns: repeat(var(--game-columns, 3), 1fr);
+  column-gap: var(--spacer--md);
+  row-gap: var(--spacer--md);
+}
+.q-catalog__card {
+  position: relative;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--sm);
+  background-color: var(--app-background);
+  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5);
+}
+.q-catalog__card-details {
+  display: flex;
+}
+.q-catalog__card-details > div {
+  max-width: 49%;
+  min-width: 35%;
+}
+.q-catalog__card-details > div + div {
+  margin-left: var(--spacer--md);
+}
+.q-catalog__card-details-row {
+  margin-bottom: var(--spacer--xs);
+}
+.q-catalog__card-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+.q-catalog__card-description {
+  margin-top: var(--spacer--sm);
+  padding: var(--spacer--sm) 0;
+  border-top: 1px solid var(--subtle-border);
+}
+.q-catalog__card-description p {
+  margin-top: 0;
+}
+.q-catalog__card-description p:last-child {
+  margin-bottom: 0;
+}
+
+.q-catalog__filterbar {
+  margin-bottom: var(--spacer--md);
+  display: flex;
+}
+.q-catalog__filterbar-block {
+  display: flex;
+  align-items: center;
+  margin-right: var(--spacer--md);
+}
+.q-catalog__filterbar-block label {
+  margin-right: var(--spacer--sm);
+}
+.q-catalog__filterbar-block label + div {
+  min-width: 150px;
+}
+.q-catalog__filterbar-block > button:last-child {
+  margin-left: var(--spacer--xs);
+}
+
 .wait-lock {
   position: fixed;
   top: 0;
@@ -336,14 +429,14 @@ area:focus {
   appearance: none;
   -webkit-font-smoothing: antialiased;
   display: inline-flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   text-align: center;
   cursor: pointer;
   margin: 0;
   user-select: none;
-  font-weight: bold;
   font-size: 1rem;
+  width: 100%;
 
   background: var(--app-background);
   border: 1px solid var(--border);

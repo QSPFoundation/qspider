@@ -9,6 +9,7 @@ import {
   qspTitleSearch$,
   toggleSortDirection,
 } from '@qspider/game-state';
+import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
 
 import { useAtom } from '@xoid/react';
 import { useEffect } from 'react';
@@ -57,28 +58,62 @@ export const QspCatalog: React.FC = () => {
     );
   return (
     <div>
-      <Select
-        options={authors.map((author) => ({ label: author, value: author }))}
-        placehoder="Filter by author"
-        label="Author"
-        value={authorsFilter || undefined}
-        onValueChange={(value): void => qspAuthorFilter$.set(value)}
-      />
-      <Select
-        options={sortOptions}
-        placehoder="Sort by"
-        label="Sort field"
-        value={sortField}
-        onValueChange={(value): void => qspSortByField$.set(value)}
-      />
-      <button onClick={toggleSortDirection}>{sortDirection}</button>
-      <input
-        type="text"
-        className="q-input"
-        value={search}
-        onInput={(e): void => qspTitleSearch$.set((e.target as any).value)}
-      />
-      <div>
+      <div className="q-catalog__filterbar">
+        <div className="q-catalog__filterbar-block">
+          <label>Filter by Author:</label>
+          <div>
+            <Select
+              name="author-filter"
+              options={authors.map((author) => ({ label: author, value: author }))}
+              placehoder=""
+              label="Author"
+              value={authorsFilter}
+              onValueChange={(value): void => qspAuthorFilter$.set(value)}
+            />
+          </div>
+          {authorsFilter ? (
+            <button
+              className="q-ghost-button"
+              aria-label="Clear Author filter"
+              onClick={(): void => qspAuthorFilter$.set('')}
+            >
+              <Cross1Icon />
+            </button>
+          ) : null}
+        </div>
+        <div className="q-catalog__filterbar-block">
+          <label>Sort by:</label>
+          <div>
+            <Select
+              options={sortOptions}
+              placehoder="Sort by"
+              label="Sort field"
+              value={sortField}
+              onValueChange={(value): void => qspSortByField$.set(value)}
+            />
+          </div>
+          <button
+            className="q-ghost-button"
+            onClick={toggleSortDirection}
+            aria-label={sortDirection === 'asc' ? 'Sort Ascending' : 'Sort Descending'}
+          >
+            {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
+          </button>
+        </div>
+        <div className="q-catalog__filterbar-block">
+          <label htmlFor="search-input">Search:</label>
+          <div>
+            <input
+              name="search-input"
+              type="text"
+              className="q-input"
+              value={search}
+              onInput={(e): void => qspTitleSearch$.set((e.target as any).value)}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="q-catalog__list">
         {games.map((game) => (
           <CatalogGameCard key={game.id} game={game} />
         ))}
