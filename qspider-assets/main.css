@@ -274,14 +274,25 @@ area:focus {
   row-gap: var(--spacer--md);
 }
 .q-catalog__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   position: relative;
   border-radius: var(--border-radius);
   padding: var(--spacer--sm);
   background-color: var(--app-background);
   box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.5);
 }
+.q-catalog__card .q-title {
+  display: flex;
+  align-items: center;
+}
+.q-catalog__card .q-title img {
+  margin-right: var(--spacer--sm);
+}
 .q-catalog__card-details {
   display: flex;
+  margin-bottom: var(--spacer--sm);
 }
 .q-catalog__card-details > div {
   max-width: 49%;

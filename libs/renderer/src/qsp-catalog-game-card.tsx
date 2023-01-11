@@ -10,7 +10,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = ({ game }) => {
   const icon = game.icon ? game.icon.substring(game.icon.lastIndexOf('com_sobi2')) : null;
   return (
     <div className="q-catalog__card">
-      <h5>
+      <h5 className="q-title">
         {game.icon && <img alt="" src={'https://qsp.su/gamestock/image.php?name=' + icon} loading="lazy" />}
         {game.title}
       </h5>
