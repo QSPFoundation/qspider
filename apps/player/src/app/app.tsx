@@ -1,13 +1,10 @@
 import { ProvidedComponents } from '@qspider/contracts';
 import { baseInit$ } from '@qspider/game-state';
 import { ComponentsProvider } from '@qspider/providers';
-import { ErrorAlert, NoticeToast, QspiderLoader, router } from '@qspider/renderer';
+import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
 import { useAtom } from '@xoid/react';
-import { RouterProvider } from 'react-router-dom';
 import { init } from './init';
 import { OpenGameButton } from './open-game-button';
-
-import './theme.css';
 
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
@@ -20,9 +17,7 @@ export const App: React.FC = () => {
   if (!initialized) return <QspiderLoader />;
   return (
     <ComponentsProvider value={components}>
-      <RouterProvider router={router} />
-      <ErrorAlert />
-      <NoticeToast />
+      <QspiderRoot />
     </ComponentsProvider>
   );
 };

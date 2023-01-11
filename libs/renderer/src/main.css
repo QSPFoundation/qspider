@@ -1,3 +1,9 @@
+@import '~@radix-ui/colors/indigo.css';
+@import '~@radix-ui/colors/indigoDark.css';
+@import '~@radix-ui/colors/slate.css';
+@import '~@radix-ui/colors/tomato.css';
+@import '~@radix-ui/colors/tomatoDark.css';
+
 :root {
   --app-background: var(--indigo1);
   --subtle-background: var(--indigo2);
@@ -190,7 +196,7 @@ area:focus {
   text-transform: uppercase;
   font-weight: bold;
   color: #ff0002;
-  background: url(./qspider-logo.png);
+  background: url(/assets/qspider-logo.png);
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: var(--spacer--md);
@@ -258,7 +264,7 @@ area:focus {
 .game-shelf__card-actions {
   margin-top: var(--spacer--sm);
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
 }
 
 .game-shelf__card .q-remove-game-button {
@@ -979,4 +985,12 @@ area:focus {
   96% {
     transform: rotateZ(-90deg);
   }
+}
+.q-open-game-button input {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
 }

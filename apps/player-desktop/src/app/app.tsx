@@ -6,13 +6,12 @@ import { event, path } from '@tauri-apps/api';
 import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
-import { ErrorAlert, NoticeToast, QspiderLoader, router } from '@qspider/renderer';
+import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
 import { baseInit$, goToGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ComponentsProvider } from '@qspider/providers';
 
-import './theme.css';
-import { RouterProvider } from 'react-router-dom';
+import './desktop.css';
 
 const components = {
   [ProvidedComponents.OpenGameButton]: OpenGameButton,
@@ -60,9 +59,7 @@ export const App: React.FC = () => {
   if (!initialized) return <QspiderLoader />;
   return (
     <ComponentsProvider value={components}>
-      <RouterProvider router={router} />
-      <ErrorAlert />
-      <NoticeToast />
+      <QspiderRoot />
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
           {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}

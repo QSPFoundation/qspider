@@ -1,11 +1,7 @@
 import './i18n';
 
-export * from './game-shelf';
-export * from './game-runner';
+export * from './root';
 export * from './theme-core';
-export * from './error-alert';
-export * from './notice-toast';
-export * from './routes';
 export * from './loader';
 
 declare global {
