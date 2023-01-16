@@ -1,11 +1,12 @@
 import { Node } from 'interweave';
-import { extractAttributes } from '@qspider/game-state';
+import { DockPlace, extractAttributes } from '@qspider/game-state';
 import { Font } from './classic/font';
 import { Big, Strike, Tt } from './classic/format';
 import { Hr } from './classic/hr';
 import { Table } from './classic/table';
 import { Area } from './classic/area';
 import { Video } from './classic/video';
+import { QspCL, QspCLDefaults, QspCLDock, QspCLLayer, QspCLPane } from './classic/classic-layout';
 
 export const classicTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   font: (node, children) => {
@@ -48,4 +49,32 @@ export const classicTransformers: Record<string, (node: HTMLElement, children: N
     return <Area href={href || ''} attrs={attributes}></Area>;
   },
   video: (node, children) => <Video attrs={extractAttributes(node)}>{children}</Video>,
+  'qsp-cl': (_, children) => {
+    return <QspCL>{children}</QspCL>;
+  },
+  'qsp-cl-layer': (_, children) => {
+    return <QspCLLayer>{children}</QspCLLayer>;
+  },
+  'qsp-cl-dock': (node, children) => {
+    const place: DockPlace = (node.getAttribute('place') || 'center') as DockPlace;
+    const visibility = node.getAttribute('visibility');
+    const size = node.getAttribute('size') ?? 0;
+    return (
+      <QspCLDock place={place} visibility={visibility} size={Number(size)}>
+        {children}
+      </QspCLDock>
+    );
+  },
+  'qsp-cl-pane': (node, children) => {
+    const proportion = node.getAttribute('proportion') ?? 1;
+    const visibility = node.getAttribute('visibility');
+    return (
+      <QspCLPane visibility={visibility} proportion={Number(proportion)}>
+        {children}
+      </QspCLPane>
+    );
+  },
+  'qsp-cl-defaults'() {
+    return <QspCLDefaults />;
+  },
 };

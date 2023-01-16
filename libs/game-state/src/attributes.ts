@@ -17,7 +17,7 @@ export function extractAttributes(node: HTMLElement): Attributes {
     if (name === 'style') {
       attributes[name] = processStyles(value);
     } else {
-      attributes[name] = value;
+      attributes[name] = value ?? true;
     }
   });
   return attributes;

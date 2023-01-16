@@ -12,6 +12,7 @@ import {
   isNewLoc$,
   isObjsVisible$,
   isStatsVisible$,
+  isViewVisible$,
   mainContent$,
   newLocHash$,
   objects$,
@@ -173,6 +174,7 @@ qspApi$.subscribe((api) => {
   });
   api.on('view', (path) => {
     viewPath$.set(path);
+    isViewVisible$.set(Boolean(path));
   });
   api.on('panel_visibility', (type, isShown) => {
     switch (type) {

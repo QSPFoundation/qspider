@@ -77,6 +77,9 @@ export const currentTheme$ = create(CLASSIC_THEME);
 export const currentThemeData$ = create((get) => {
   return get(themeRegistry$)[get(currentTheme$)];
 });
+export const defaultClassicTheme$ = create((get) => {
+  return get(themeRegistry$)['qspider:classic'];
+});
 export const currentCssVariables$ = currentThemeData$.focus((t) => t.css_variables);
 
 export function useThemeTemplate(

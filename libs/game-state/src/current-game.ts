@@ -23,6 +23,7 @@ import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys'
 import { windowManager$ } from './window-manager';
 import TOMLparse from '@iarna/toml/parse-string';
 import { fetchProxyFallback } from '@qspider/utils';
+import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -69,6 +70,16 @@ export async function runGame(id: string): Promise<void> {
     }
   } catch {
     // no-op
+  }
+
+  if (descriptor.mode === 'classic' || !descriptor.mode) {
+    try {
+      const cfgContent = await getTextContent('qspgui.cfg');
+      const cfgData = parseCfg(cfgContent);
+      qspGuiCfg$.set(cfgData);
+    } catch {
+      // no-op
+    }
   }
 
   if (descriptor.mode === 'aero' && !descriptor.aero) {
@@ -139,6 +150,7 @@ function applyWindowSettings(window: GameDescriptor['window']): void {
 
 export function stopCurrentGame(): void {
   currentGame$.set(null);
+  qspGuiCfg$.set(null);
   const windowManager = windowManager$.value;
   if (windowManager) {
     windowManager.setTitle('qSpider');

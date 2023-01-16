@@ -17,16 +17,18 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
     '--view-image': `url(${getResource(path).url})`,
   };
   if (modal) {
-    <Dialog.Root open={true} onOpenChange={(): void => viewPath$.set('')}>
-      <Dialog.Portal>
-        <Dialog.Overlay />
-        <Dialog.Content>
-          <Tag {...attributes} style={preparedStyle}>
-            {children}
-          </Tag>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>;
+    return (
+      <Dialog.Root open={true} onOpenChange={(): void => viewPath$.set('')}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="qsp-overlay" />
+          <Dialog.Content>
+            <Tag {...attributes} style={preparedStyle}>
+              {children}
+            </Tag>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    );
   }
   return (
     <Tag {...attributes} style={preparedStyle}>

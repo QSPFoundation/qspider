@@ -101,9 +101,9 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return <QspCmdInput attrs={attributes} />;
   },
   'qsp-view'(node, children) {
-    const { modal, ...attributes } = extractAttributes(node);
+    const attributes = extractAttributes(node);
     return (
-      <QspView attrs={attributes} modal={Boolean(modal)}>
+      <QspView attrs={attributes} modal={'modal' in attributes}>
         {children}
       </QspView>
     );

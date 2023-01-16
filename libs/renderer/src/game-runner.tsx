@@ -1,4 +1,4 @@
-import { currentGame$, isPauseScreenVisible$, stopCurrentGame } from '@qspider/game-state';
+import { currentGame$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
 import { QspiderLoader } from './loader';
@@ -15,8 +15,6 @@ export const GameRunner: React.FC = () => {
     <qsp-game-root>
       <ClickCoordinates />
       <QspCSSVariables />
-      <button onClick={(): void => isPauseScreenVisible$.set(true)}>Pause</button>
-      <button onClick={stopCurrentGame}>Stop</button>
       <QspPlayer />
       <WaitLock />
       <QspPauseScreen />

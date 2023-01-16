@@ -10,19 +10,17 @@
     <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
   </definitions>
   <template is="qsp-player">
+    <qsp-cl-defaults></qsp-cl-defaults>
     <style>
-      qsp-player button {
-        color: var(--color);
-        font-size: var(--font-size);
-        font-family: var(--font-name);
-      }
+      qsp-player button,
       qsp-player input {
-        color: var(--color);
-        font-size: var(--font-size);
-        font-family: var(--font-name);
+        color: var(--color, --cl-color);
+        font-size: var(--font-size, --cl-font-size);
+        font-family: var(--font-name, --cl-font-name);
       }
-      qsp-player a {
-        color: var(--link-color);
+      qsp-player a,
+      qsp-player a:visited {
+        color: var(--link-color, --cl-link-color);
       }
       a.plain {
         text-decoration: none;
@@ -31,46 +29,22 @@
         --border-color: grey;
         width: 100vw;
         height: 100vh;
-        background: var(--background-color);
-        font-size: var(--font-size);
-        font-family: var(--font-name);
-        color: var(--color);
+        background: var(--background-color, --cl-background-color);
+        font-size: var(--font-size, --cl-font-size);
+        font-family: var(--font-name, --cl-font-name);
+        color: var(--color, --cl-color);
         display: block;
       }
       .qsp-classic-layout {
         width: 100%;
         height: 100%;
       }
-      .column {
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0;
-        flex-basis: 0;
+      qsp-main {
         width: 100%;
-        height: 100%;
       }
-      .column > * + * {
-        margin-top: 3px;
-      }
-      .row {
-        display: flex;
-        flex-shrink: 0;
-        flex-basis: 0;
-        flex-direction: row;
-        align-items: stretch;
-        width: 100%;
-        height: 100%;
-      }
-      .row > * + * {
-        margin-left: 3px;
-      }
-      .grow {
-        flex-grow: 100;
-      }
-
       qsp-menu {
-        border: 1px solid var(--border-color);
-        background-color: var(--background-color, transparent);
+        border: 1px solid var(--border-color, --cl-border-color);
+        background-color: var(--background-color, --cl-background-color);
       }
       nav {
         outline: none;
@@ -102,7 +76,7 @@
         width: 100%;
       }
       qsp-cmd input {
-        background: var(--background-color);
+        background: var(--background-color, --cl-background-color);
         display: inline-block;
         height: 100%;
         width: 100%;
@@ -129,7 +103,7 @@
       }
       qsp-menu {
         border: 1px solid var(--border-color);
-        background-color: var(--background-color, transparent);
+        background-color: var(--background-color, --cl-background-color);
       }
       .action-item {
         display: flex;
@@ -140,12 +114,12 @@
         border-radius: 0;
         border: 0;
         cursor: pointer;
-        background-color: var(--background-color, transparent);
+        background-color: var(--background-color, --cl-background-color);
         user-select: none;
       }
       .action-item:hover {
-        background-color: var(--inverted-background-color);
-        color: var(--inverted-color);
+        background-color: var(--inverted-background-color, --cl-inverted-background-color);
+        color: var(--inverted-color, --cl-inverted-color);
       }
       .action-item:focus {
         outline: none;
@@ -159,60 +133,76 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background-color: var(--background-color);
+        background-color: var(--background-color, --cl-background-color);
         opacity: 0.2;
       }
     </style>
-    <div class="qsp-classic-layout">
-      <div class="column">
-        <div class="column grow">
-          <div class="row grow">
-            <qsp-main class="grow">
-              <div class="panel-background" data-qsp="main">
-                <qsp-scrollable>
-                  <qsp-main-content class="panel-content"></qsp-main-content>
-                </qsp-scrollable>
+    <qsp-cl>
+      <qsp-cl-layer>
+        <qsp-cl-dock place="center">
+          <qsp-cl-layer>
+            <qsp-cl-dock place="center">
+              <qsp-cl-pane>
+                <qsp-main>
+                  <div class="panel-background" data-qsp="main">
+                    <qsp-scrollable>
+                      <qsp-main-content class="panel-content"></qsp-main-content>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-main>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+            <qsp-cl-dock place="right" visibility="objs" size="215">
+              <qsp-cl-pane visibility="objs">
+                <qsp-objects>
+                  <div class="panel" data-qsp="objects">
+                    <qsp-scrollable>
+                      <qsp-objects-list tag="nav" role="menu" data-qsp="objects-list"></qsp-objects-list>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-objects>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+            <qsp-cl-dock place="bottom" visibility="acts|vars" size="204">
+              <qsp-cl-pane proportion="117349" visibility="acts">
+                <qsp-actions>
+                  <div class="panel" data-qsp="actions">
+                    <qsp-scrollable>
+                      <qsp-actions-list tag="nav" role="menu" data-qsp="actions-list"></qsp-actions-list>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-actions>
+              </qsp-cl-pane>
+              <qsp-cl-pane proportion="82651" visibility="vars">
+                <qsp-stats>
+                  <div class="panel" data-qsp="stats">
+                    <qsp-scrollable>
+                      <qsp-stats-content class="panel-content"></qsp-stats-content>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-stats>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+          </qsp-cl-layer>
+        </qsp-cl-dock>
+        <qsp-cl-dock place="bottom" visibility="input" size="41">
+          <qsp-cl-pane visibility="input">
+            <qsp-cmd>
+              <div class="panel" data-qsp="user-input">
+                <qsp-cmd-input></qsp-cmd-input>
               </div>
-            </qsp-main>
-            <qsp-objects style="width: 20%">
-              <div class="panel" data-qsp="objects">
-                <qsp-scrollable>
-                  <qsp-objects-list tag="nav" role="menu" data-qsp="objects-list"></qsp-objects-list>
-                </qsp-scrollable>
-              </div>
-            </qsp-objects>
-          </div>
-          <div class="row" style="height: 28.6%">
-            <qsp-actions class="grow">
-              <div class="panel" data-qsp="actions">
-                <qsp-scrollable>
-                  <qsp-actions-list tag="nav" role="menu" data-qsp="actions-list"></qsp-actions-list>
-                </qsp-scrollable>
-              </div>
-            </qsp-actions>
-            <qsp-stats style="width: 41%">
-              <div class="panel" data-qsp="stats">
-                <qsp-scrollable>
-                  <qsp-stats-content class="panel-content"></qsp-stats-content>
-                </qsp-scrollable>
-              </div>
-            </qsp-stats>
+            </qsp-cmd>
+          </qsp-cl-pane>
+        </qsp-cl-dock>
+      </qsp-cl-layer>
+      <qsp-view modal>
+        <div class="panel">
+          <div class="view-container">
+            <qsp-view-image></qsp-view-image>
           </div>
         </div>
-        <qsp-cmd style="flex-grow: 3.3">
-          <div class="panel" data-qsp="user-input">
-            <qsp-cmd-input></qsp-cmd-input>
-          </div>
-        </qsp-cmd>
-      </div>
-    </div>
-    <qsp-view modal>
-      <div class="panel">
-        <div class="view-container">
-          <qsp-view-image></qsp-view-image>
-        </div>
-      </div>
-    </qsp-view>
+      </qsp-view>
+    </qsp-cl>
     <qsp-menu>
       <qsp-scrollable>
         <nav role="menu" data-qsp="menu-list">
