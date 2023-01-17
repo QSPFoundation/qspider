@@ -2,7 +2,8 @@ import { useAtom } from '@xoid/react';
 import { create, use } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
-import themes from './themes.html';
+import classicTheme from './themes/classic.html';
+import aeroTheme from './themes/aero.html';
 
 export const CLASSIC_THEME = 'qspider:classic';
 
@@ -105,10 +106,16 @@ export async function registerThemes(themes: string[]): Promise<void> {
 }
 
 const parser = new DOMParser();
-const parsedThemes = parseTheme(themes, false);
-for (const [alias, data] of Object.entries(parsedThemes)) {
-  use(themeRegistry$).add(alias, data);
+
+function loadTheme(content: string): void {
+  const parsedThemes = parseTheme(content, false);
+  for (const [alias, data] of Object.entries(parsedThemes)) {
+    use(themeRegistry$).add(alias, data);
+  }
 }
+loadTheme(classicTheme);
+loadTheme(aeroTheme);
+
 function parseTheme(content: string, is_user_defined = true): Record<string, ThemeData> {
   const themeData: Record<string, ThemeData> = {};
   const document = parser.parseFromString(content, 'text/html');
