@@ -14,9 +14,9 @@ export const QspPauseScreen: React.FC = () => {
   const currentTab = useAtom(pauseScreenTab$);
   return (
     <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>
-      <Dialog.Portal>
+      <Dialog.Portal container={document.getElementById('portal-container')}>
         <Dialog.Overlay />
-        <Dialog.Content>
+        <Dialog.Content className="qsp-dialog-container">
           <Dialog.Title>{currentGame?.title || 'Pause'}</Dialog.Title>
           {/* <VisuallyHidden asChild> */}
           <Dialog.Description>Game pause screen</Dialog.Description>

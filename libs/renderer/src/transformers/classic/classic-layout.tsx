@@ -172,6 +172,6 @@ export const QspCLDefaults: React.FC = () => {
   if (config.FontName) {
     rules.push(`--cl-font-name: ${config.FontName}`);
   }
-  const style = `qsp-game-root{${rules.join(';')}}`;
+  const style = `qsp-game-root, #portal-container {${rules.join(';')}}`;
   return <style>{style}</style>;
 };

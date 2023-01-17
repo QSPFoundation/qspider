@@ -22,7 +22,7 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
 }) => {
   const size = useImageSize(url);
   const sizeDefinitions = withSize ? `${name}-w: ${size.width}px; ${name}-h: ${size.height}px` : '';
-  const content = `qsp-game-root {${name}: ${url ? `url(${url})` : 'none'};${sizeDefinitions}}`;
+  const content = `qsp-game-root, #portal-container {${name}: ${url ? `url(${url})` : 'none'};${sizeDefinitions}}`;
   return <style>{content}</style>;
 };
 
@@ -43,6 +43,6 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
     );
   }
   if (!preparedValue) return null;
-  const content = `qsp-game-root {${definition.name}: ${preparedValue};}`;
+  const content = `qsp-game-root, #portal-container {${definition.name}: ${preparedValue};}`;
   return <style>{content}</style>;
 };

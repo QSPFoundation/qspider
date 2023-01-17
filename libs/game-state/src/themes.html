@@ -14,13 +14,13 @@
     <style>
       qsp-player button,
       qsp-player input {
-        color: var(--color, --cl-color);
-        font-size: var(--font-size, --cl-font-size);
-        font-family: var(--font-name, --cl-font-name);
+        color: var(--color, var(--cl-color));
+        font-size: var(--font-size, var(--cl-font-size));
+        font-family: var(--font-name, var(--cl-font-name));
       }
       qsp-player a,
       qsp-player a:visited {
-        color: var(--link-color, --cl-link-color);
+        color: var(--link-color, var(--cl-link-color));
       }
       a.plain {
         text-decoration: none;
@@ -29,10 +29,10 @@
         --border-color: grey;
         width: 100vw;
         height: 100vh;
-        background: var(--background-color, --cl-background-color);
-        font-size: var(--font-size, --cl-font-size);
-        font-family: var(--font-name, --cl-font-name);
-        color: var(--color, --cl-color);
+        background: var(--background-color, var(--cl-background-color));
+        font-size: var(--font-size, var(--cl-font-size));
+        font-family: var(--font-name, var(--cl-font-name));
+        color: var(--color, var(--cl-color));
         display: block;
       }
       .qsp-classic-layout {
@@ -43,8 +43,8 @@
         width: 100%;
       }
       qsp-menu {
-        border: 1px solid var(--border-color, --cl-border-color);
-        background-color: var(--background-color, --cl-background-color);
+        border: 1px solid var(--border-color, var(--cl-border-color));
+        background-color: var(--background-color, var(--cl-background-color));
       }
       nav {
         outline: none;
@@ -76,7 +76,7 @@
         width: 100%;
       }
       qsp-cmd input {
-        background: var(--background-color, --cl-background-color);
+        background: var(--background-color, var(--cl-background-color));
         display: inline-block;
         height: 100%;
         width: 100%;
@@ -103,7 +103,7 @@
       }
       qsp-menu {
         border: 1px solid var(--border-color);
-        background-color: var(--background-color, --cl-background-color);
+        background-color: var(--background-color, var(--cl-background-color));
       }
       .action-item {
         display: flex;
@@ -114,12 +114,12 @@
         border-radius: 0;
         border: 0;
         cursor: pointer;
-        background-color: var(--background-color, --cl-background-color);
+        background-color: var(--background-color, var(--cl-background-color));
         user-select: none;
       }
       .action-item:hover {
-        background-color: var(--inverted-background-color, --cl-inverted-background-color);
-        color: var(--inverted-color, --cl-inverted-color);
+        background-color: var(--inverted-background-color, var(--cl-inverted-background-color));
+        color: var(--inverted-color, var(--cl-inverted-color));
       }
       .action-item:focus {
         outline: none;
@@ -129,12 +129,67 @@
       }
       .qsp-overlay {
         position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background-color: var(--background-color, --cl-background-color);
-        opacity: 0.2;
+        inset: 0;
+        background-color: var(--background-color, var(--cl-background-color, black));
+        opacity: 0.8;
+      }
+      .qsp-dialog-container {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .qsp-dialog-container > * {
+        position: relative;
+        pointer-events: auto;
+        border-radius: var(--border-radius);
+        min-width: 400px;
+        padding: var(--spacer--md);
+        background-color: var(--background-color, var(--cl-background-color, black));
+        animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+      }
+      .qsp-dialog-container p {
+        margin: 0;
+      }
+
+      @keyframes contentShow {
+        from {
+          opacity: 0;
+          transform: translate(0, -2%) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+      }
+      .close-button {
+        background: transparent;
+        border: none;
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        cursor: pointer;
+      }
+      .close-button:focus {
+        outline: none;
+      }
+      .qsp-button {
+        cursor: pointer;
+        background-color: var(--background-color, var(--cl-background-color));
+        border-radius: 4px;
+        padding: 4px 16px;
+        border: 1px solid var(--border-color);
+      }
+      .qsp-button:hover {
+        background-color: var(--inverted-border-color, var(--cl-inverted-background-color));
+        color: var(--inverted-color, var(--cl-inverted-color));
+        border-color: var(--inverted-border-color);
+      }
+      .qsp-button:focus {
+        outline: none;
       }
     </style>
     <qsp-cl>
@@ -211,16 +266,16 @@
       </qsp-scrollable>
     </qsp-menu>
     <qsp-msg>
-      <qsp-close-button>x</qsp-close-button>
       <qsp-msg-content></qsp-msg-content>
-      <qsp-ok-button focus>Ok</qsp-ok-button>
+      <qsp-ok-button class="qsp-button" focus>Ok</qsp-ok-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-msg>
     <qsp-input>
-      <qsp-close-button>x</qsp-close-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
       <qsp-input-content></qsp-input-content>
       <qsp-input-tag></qsp-input-tag>
-      <qsp-ok-button>Ok</qsp-ok-button>
-      <qsp-cancel-button>Cancel</qsp-cancel-button>
+      <qsp-ok-button class="qsp-button">Ok</qsp-ok-button>
+      <qsp-cancel-button class="qsp-button">Cancel</qsp-cancel-button>
     </qsp-input>
   </template>
   <template is="qsp-pause-screen">
@@ -888,10 +943,7 @@
       }
       .qsp-overlay {
         position: fixed;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+        inset: 0;
         background-color: var(--background-color);
         opacity: calc(0.2 * (1 - var(--aero-disable-shade, 0)));
       }

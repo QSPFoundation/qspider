@@ -21,9 +21,9 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
       }}
     >
       <Dialog.Root open={true} onOpenChange={(): void => submitInput()}>
-        <Dialog.Portal>
+        <Dialog.Portal container={document.getElementById('portal-container')}>
           <Dialog.Overlay />
-          <Dialog.Content>
+          <Dialog.Content className="qsp-dialog-container">
             <form
               onSubmit={(e): void => {
                 e.preventDefault();
