@@ -1,12 +1,17 @@
 <qspider-theme name="qspider:aero">
   <definitions>
-    <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="pt" defaultValue="12"></qsp-css-variable>
+    <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="pt" default-value="12"></qsp-css-variable>
     <qsp-css-variable name="--font-name" from="$FNAME"></qsp-css-variable>
-    <qsp-css-variable name="--color" from="FCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--inverted-color" from="FCOLOR" type="color" invert></qsp-css-variable>
-    <qsp-css-variable name="--link-color" from="LCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--background-color" from="BCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--inverted-background-color" from="BCOLOR" type="color" invert></qsp-css-variable>
+    <qsp-css-variable name="--color" from="FCOLOR" type="color" default-value="#000000"></qsp-css-variable>
+    <qsp-css-variable name="--link-color" from="LCOLOR" type="color" defaul-value="#0000ff"></qsp-css-variable>
+    <qsp-css-variable
+      name="--background-color"
+      from="BCOLOR"
+      type="color"
+      default-value="#e0e0e0"
+      with-contrast
+      with-inverted
+    ></qsp-css-variable>
     <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
 
     <qsp-css-variable name="--aero-foreground-image" from="$TOPIMAGE" type="resource"></qsp-css-variable>
@@ -15,28 +20,28 @@
       from="STATDESC_X"
       type="unit"
       unit="px"
-      defaultValue="596"
+      default-value="596"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-statdesc-y"
       from="STATDESC_Y"
       type="unit"
       unit="px"
-      defaultValue="396"
+      default-value="396"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-statdesc-w"
       from="STATDESC_W"
       type="unit"
       unit="px"
-      defaultValue="200"
+      default-value="200"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-statdesc-h"
       from="STATDESC_H"
       type="unit"
       unit="px"
-      defaultValue="200"
+      default-value="200"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-statdesc-image" from="$STATDESC_BACKIMAGE" type="resource"></qsp-css-variable>
     <qsp-css-variable
@@ -44,28 +49,28 @@
       from="MAINDESC_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-maindesc-y"
       from="MAINDESC_Y"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-maindesc-w"
       from="MAINDESC_W"
       type="unit"
       unit="px"
-      defaultValue="589"
+      default-value="589"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-maindesc-h"
       from="MAINDESC_H"
       type="unit"
       unit="px"
-      defaultValue="389"
+      default-value="389"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-maindesc-image" from="$MAINDESC_BACKIMAGE" type="resource"></qsp-css-variable>
     <qsp-css-variable
@@ -73,28 +78,28 @@
       from="ACTIONS_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-actions-y"
       from="ACTIONS_Y"
       type="unit"
       unit="px"
-      defaultValue="396"
+      default-value="396"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-actions-w"
       from="ACTIONS_W"
       type="unit"
       unit="px"
-      defaultValue="589"
+      default-value="589"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-actions-h"
       from="ACTIONS_H"
       type="unit"
       unit="px"
-      defaultValue="169"
+      default-value="169"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-actions-image" from="$ACTIONS_BACKIMAGE" type="resource"></qsp-css-variable>
     <qsp-css-variable
@@ -102,81 +107,87 @@
       from="OBJECTS_X"
       type="unit"
       unit="px"
-      defaultValue="596"
+      default-value="596"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-objects-y"
       from="OBJECTS_Y"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-objects-w"
       from="OBJECTS_W"
       type="unit"
       unit="px"
-      defaultValue="200"
+      default-value="200"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-objects-h"
       from="OBJECTS_H"
       type="unit"
       unit="px"
-      defaultValue="389"
+      default-value="389"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-objects-image" from="$OBJECTS_BACKIMAGE" type="resource"></qsp-css-variable>
-    <qsp-css-variable name="--aero-cmd-x" from="USERINPUT_X" type="unit" unit="px" defaultValue="4"></qsp-css-variable>
+    <qsp-css-variable name="--aero-cmd-x" from="USERINPUT_X" type="unit" unit="px" default-value="4"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-cmd-y"
       from="USERINPUT_Y"
       type="unit"
       unit="px"
-      defaultValue="568"
+      default-value="568"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-cmd-w"
       from="USERINPUT_W"
       type="unit"
       unit="px"
-      defaultValue="589"
+      default-value="589"
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-cmd-h" from="USERINPUT_H" type="unit" unit="px" defaultValue="28"></qsp-css-variable>
-    <qsp-css-variable name="--aero-view-x" from="VIEW_X" type="unit" unit="px" defaultValue="250"></qsp-css-variable>
-    <qsp-css-variable name="--aero-view-y" from="VIEW_Y" type="unit" unit="px" defaultValue="150"></qsp-css-variable>
-    <qsp-css-variable name="--aero-view-w" from="VIEW_W" type="unit" unit="px" defaultValue="300"></qsp-css-variable>
-    <qsp-css-variable name="--aero-view-h" from="VIEW_H" type="unit" unit="px" defaultValue="300"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-cmd-h"
+      from="USERINPUT_H"
+      type="unit"
+      unit="px"
+      default-value="28"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-x" from="VIEW_X" type="unit" unit="px" default-value="250"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-y" from="VIEW_Y" type="unit" unit="px" default-value="150"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-w" from="VIEW_W" type="unit" unit="px" default-value="300"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-h" from="VIEW_H" type="unit" unit="px" default-value="300"></qsp-css-variable>
 
     <qsp-css-variable name="--aero-msg-backimage" from="$MSG_BACKIMAGE" type="resource" with-size></qsp-css-variable>
-    <qsp-css-variable name="--aero-msg-x" from="MSG_X" type="unit" unit="px" defaultValue="200"></qsp-css-variable>
-    <qsp-css-variable name="--aero-msg-y" from="MSG_Y" type="unit" unit="px" defaultValue="165"></qsp-css-variable>
+    <qsp-css-variable name="--aero-msg-x" from="MSG_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
+    <qsp-css-variable name="--aero-msg-y" from="MSG_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-text-x"
       from="MSG_TEXT_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-text-y"
       from="MSG_TEXT_Y"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-text-w"
       from="MSG_TEXT_W"
       type="unit"
       unit="px"
-      defaultValue="392"
+      default-value="392"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-text-h"
       from="MSG_TEXT_H"
       type="unit"
       unit="px"
-      defaultValue="392"
+      default-value="392"
     ></qsp-css-variable>
 
     <qsp-css-variable
@@ -184,14 +195,14 @@
       from="MSG_OK_X"
       type="unit"
       unit="px"
-      defaultValue="186"
+      default-value="186"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-ok-y"
       from="MSG_OK_Y"
       type="unit"
       unit="px"
-      defaultValue="239"
+      default-value="239"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-msg-ok-image" from="$MSG_OK_IMAGE" type="resource" with-size></qsp-css-variable>
 
@@ -201,77 +212,77 @@
       type="resource"
       with-size
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-input-x" from="INPUT_X" type="unit" unit="px" defaultValue="200"></qsp-css-variable>
-    <qsp-css-variable name="--aero-input-y" from="INPUT_Y" type="unit" unit="px" defaultValue="165"></qsp-css-variable>
+    <qsp-css-variable name="--aero-input-x" from="INPUT_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
+    <qsp-css-variable name="--aero-input-y" from="INPUT_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-text-x"
       from="INPUT_TEXT_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-text-y"
       from="INPUT_TEXT_Y"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-text-w"
       from="INPUT_TEXT_W"
       type="unit"
       unit="px"
-      defaultValue="392"
+      default-value="392"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-text-h"
       from="INPUT_TEXT_H"
       type="unit"
       unit="px"
-      defaultValue="231"
+      default-value="231"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-bar-x"
       from="INPUT_BAR_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-bar-y"
       from="INPUT_BAR_y"
       type="unit"
       unit="px"
-      defaultValue="238"
+      default-value="238"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-bar-w"
       from="INPUT_BAR_W"
       type="unit"
       unit="px"
-      defaultValue="312"
+      default-value="312"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-bar-h"
       from="INPUT_BAR_H"
       type="unit"
       unit="px"
-      defaultValue="28"
+      default-value="28"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-ok-x"
       from="INPUT_OK_X"
       type="unit"
       unit="px"
-      defaultValue="324"
+      default-value="324"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-ok-y"
       from="INPUT_OK_X"
       type="unit"
       unit="px"
-      defaultValue="239"
+      default-value="239"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-input-ok-image" from="$INPUT_OK_IMAGE" type="resource" with-size></qsp-css-variable>
     <qsp-css-variable
@@ -285,14 +296,14 @@
       from="INPUT_CANCEL_X"
       type="unit"
       unit="px"
-      defaultValue="362"
+      default-value="362"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-cancel-y"
       from="INPUT_CANCEL_Y"
       type="unit"
       unit="px"
-      defaultValue="239"
+      default-value="239"
     ></qsp-css-variable>
 
     <qsp-css-variable
@@ -300,46 +311,46 @@
       from="MENU_PADDING"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-border"
       from="MENU_PADDING"
       type="unit"
       unit="px"
-      defaultValue="1"
+      default-value="1"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-menu-border-color" from="MENU_BORDER_COLOR" type="color"></qsp-css-variable>
     <qsp-css-variable name="--aero-menu-backimage" from="$MENU_BACKIMAGE" type="resource" with-size></qsp-css-variable>
-    <qsp-css-variable name="--aero-menu-x" from="MENU_X" type="unit" unit="px" defaultValue="-1"></qsp-css-variable>
-    <qsp-css-variable name="--aero-menu-y" from="MENU_Y" type="unit" unit="px" defaultValue="-1"></qsp-css-variable>
+    <qsp-css-variable name="--aero-menu-x" from="MENU_X" type="unit" unit="px" default-value="-1"></qsp-css-variable>
+    <qsp-css-variable name="--aero-menu-y" from="MENU_Y" type="unit" unit="px" default-value="-1"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-list-x"
       from="MENU_LIST_X"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-list-y"
       from="MENU_LIST_Y"
       type="unit"
       unit="px"
-      defaultValue="4"
+      default-value="4"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-list-w"
       from="MENU_LIST_W"
       type="unit"
       unit="px"
-      defaultValue="153"
+      default-value="153"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-list-h"
       from="MENU_LIST_H"
       type="unit"
       unit="px"
-      defaultValue="123"
+      default-value="123"
     ></qsp-css-variable>
 
     <qsp-css-variable
@@ -347,7 +358,7 @@
       from="DISABLESHADE"
       type="unit"
       unit=""
-      defaultValue="0"
+      default-value="0"
     ></qsp-css-variable>
   </definitions>
   <template is="qsp-player">
@@ -376,8 +387,11 @@
       a.plain {
         text-decoration: none;
       }
+      qsp-game-root,
+      #portal-container {
+        --border-color: var(--background-color-contrast, gray);
+      }
       qsp-player {
-        --border-color: grey;
         width: 100vw;
         height: 100vh;
         background: var(--background-color);

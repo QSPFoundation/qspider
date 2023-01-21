@@ -7,37 +7,41 @@ export const QspErrorAlert: React.FC = () => {
   if (!errorData) return null;
   return (
     <AlertDialog.Root open={true} onOpenChange={(): void => qspError$.set(null)}>
-      <AlertDialog.Portal>
-        <AlertDialog.Overlay />
-        <AlertDialog.Content>
-          <AlertDialog.Title>Error</AlertDialog.Title>
-          <AlertDialog.Description>
-            Error: {errorData.description}
-            <br />
-            {errorData.code >= 0 ? (
-              <>
-                Error code: {errorData.code}
-                <br />
-              </>
-            ) : (
-              ''
-            )}
-            {errorData.location && (
-              <>
-                Location: {errorData.location}
-                <br />
-              </>
-            )}
-            {errorData.actionIndex >= 0 ? (
-              <>
-                Action index: {errorData.actionIndex} <br />
-              </>
-            ) : (
-              ''
-            )}
-            {errorData.line >= 0 ? 'Line: ' + errorData.line : ''}
-          </AlertDialog.Description>
-          <AlertDialog.Cancel>Close</AlertDialog.Cancel>
+      <AlertDialog.Portal container={document.getElementById('portal-container')}>
+        <AlertDialog.Overlay className="qsp-overlay" />
+        <AlertDialog.Content className="qsp-dialog-container">
+          <div>
+            <AlertDialog.Title>Error</AlertDialog.Title>
+            <AlertDialog.Description>
+              Error: {errorData.description}
+              <br />
+              {errorData.code >= 0 ? (
+                <>
+                  Error code: {errorData.code}
+                  <br />
+                </>
+              ) : (
+                ''
+              )}
+              {errorData.location && (
+                <>
+                  Location: {errorData.location}
+                  <br />
+                </>
+              )}
+              {errorData.actionIndex >= 0 ? (
+                <>
+                  Action index: {errorData.actionIndex} <br />
+                </>
+              ) : (
+                ''
+              )}
+              {errorData.line >= 0 ? 'Line: ' + errorData.line : ''}
+            </AlertDialog.Description>
+            <div className="qsp-dialog-buttons">
+              <AlertDialog.Cancel className="qsp-button">Close</AlertDialog.Cancel>
+            </div>
+          </div>
         </AlertDialog.Content>
       </AlertDialog.Portal>
     </AlertDialog.Root>

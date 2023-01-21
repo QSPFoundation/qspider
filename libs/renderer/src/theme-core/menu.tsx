@@ -30,7 +30,7 @@ export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
           }}
         ></div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Portal>
+      <DropdownMenu.Portal container={document.getElementById('portal-container')}>
         <DropdownMenu.Content>
           <Tag style={style} {...attributes}>
             {children}

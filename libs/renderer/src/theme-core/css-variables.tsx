@@ -1,7 +1,6 @@
 import { CssVarDefinition, currentCssVariables$, getResource, useQspVariable } from '@qspider/game-state';
-import { convertColor } from '@qspider/utils';
+import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
-import Color from 'color';
 import { useImageSize } from '../hooks/image-size';
 
 export const QspCSSVariables: React.FC = () => {
@@ -27,22 +26,33 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
 };
 
 export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ definition }) => {
-  const value = useQspVariable(definition.from, '', 0, '') || definition.defaultValue;
-  let preparedValue: string | null = value;
+  const value = useQspVariable(definition.from, '', 0, '');
+  const rules: string[] = [];
   if (definition.type === 'color') {
-    preparedValue = convertColor(value as unknown as number, true);
-    if (preparedValue && definition.invert) {
-      preparedValue = Color(preparedValue).negate().hex();
+    const preparedValue = value ? convertColor(Number(value), true) : definition.defaultValue;
+    if (preparedValue) {
+      rules.push(`${definition.name}: ${preparedValue}`);
+      if (definition.withContrast) {
+        rules.push(`${definition.name}-contrast: ${getContrastColor(preparedValue)}`);
+      }
+      if (definition.withInverted) {
+        const inverted = invertColor(preparedValue);
+        rules.push(`${definition.name}-inverted: ${inverted}`);
+        if (definition.withContrast) {
+          rules.push(`${definition.name}-inverted-contrast: ${getContrastColor(inverted)}`);
+        }
+      }
     }
-  } else if (definition.type === 'unit' && value) {
-    preparedValue = `${value}${definition.unit || ''}`;
+  } else if (definition.type === 'unit') {
+    const preparedValue = `${value || definition.defaultValue}${definition.unit || ''}`;
+    rules.push(`${definition.name}: ${preparedValue}`);
   } else if (definition.type === 'resource') {
     if (!value) return null;
     return (
       <QspCssVariableResource name={definition.name} url={getResource(value).url} withSize={definition.withSize} />
     );
   }
-  if (!preparedValue) return null;
-  const content = `qsp-game-root, #portal-container {${definition.name}: ${preparedValue};}`;
+  if (!rules.length) return null;
+  const content = `qsp-game-root, #portal-container {${rules.join('; ')}}`;
   return <style>{content}</style>;
 };

@@ -6,7 +6,7 @@ export const QspiderTooltip: React.FC<{ children: React.ReactNode; content: stri
     <Tooltip.Provider>
       <Tooltip.Root>
         <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
-        <Tooltip.Portal>
+        <Tooltip.Portal container={document.getElementById('portal-container')}>
           <Tooltip.Content className="q-tooltip" sideOffset={5}>
             {content}
             <Tooltip.Arrow className="q-tooltip-arrow" />

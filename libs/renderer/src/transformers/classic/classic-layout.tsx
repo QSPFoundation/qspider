@@ -8,9 +8,8 @@ import {
   qspGuiCfg$,
   qspGuiLayout$,
 } from '@qspider/game-state';
-import { convertColor } from '@qspider/utils';
+import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
-import Color from 'color';
 import React, { isValidElement } from 'react';
 import { Atom, create } from 'xoid';
 import { TemplateRenderer } from '../../template-renderer';
@@ -149,15 +148,17 @@ export const QspCLDefaults: React.FC = () => {
   if (config.BackColor) {
     const color = convertColor(config.BackColor, false);
     if (color) {
+      const inverted = invertColor(color);
       rules.push(`--cl-background-color: ${color}`);
-      rules.push(`--cl-inverted-background-color: ${Color(color).negate().hex()}`);
+      rules.push(`--cl-background-color-contrast: ${getContrastColor(color)}`);
+      rules.push(`--cl-background-color-inverted: ${inverted}`);
+      rules.push(`--cl-background-color-inverted-contrast: ${getContrastColor(inverted)}`);
     }
   }
   if (config.FontColor) {
     const color = convertColor(config.FontColor, false);
     if (color) {
       rules.push(`--cl-color: ${color}`);
-      rules.push(`--cl-inverted-color: ${Color(color).negate().hex()}`);
     }
   }
   if (config.LinkColor) {

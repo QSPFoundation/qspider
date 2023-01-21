@@ -8,9 +8,11 @@ export const WaitLock: React.FC = () => {
   hooks.useEventListener(
     'keypress',
     (e: KeyboardEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      finishWait();
+      if (wait$.value) {
+        e.preventDefault();
+        e.stopPropagation();
+        finishWait();
+      }
     },
     document
   );

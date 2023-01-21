@@ -24,6 +24,8 @@ export type CssVarDefinition = {
   | {
       type: 'color';
       invert?: boolean;
+      withContrast?: boolean;
+      withInverted?: boolean;
     }
   | {
       type: 'resource';
@@ -160,11 +162,12 @@ function extractCssVariables(root: HTMLElement): CssVarDefinition[] {
     definitions.push({
       name,
       from,
-      defaultValue: node.getAttribute('defaultValue') || '',
+      defaultValue: node.getAttribute('default-value') || '',
       type: node.getAttribute('type'),
       unit: node.getAttribute('unit'),
-      invert: Boolean(node.getAttribute('invert')),
-      withSize: Boolean(node.getAttribute('with-size')),
+      withSize: node.hasAttribute('with-size'),
+      withContrast: node.hasAttribute('with-contrast'),
+      withInverted: node.hasAttribute('with-inverted'),
     } as CssVarDefinition);
   }
   return definitions;

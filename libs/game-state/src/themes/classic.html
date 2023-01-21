@@ -1,38 +1,61 @@
 <qspider-theme name="qspider:classic">
   <definitions>
-    <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="pt" defaultValue="12"></qsp-css-variable>
-    <qsp-css-variable name="--font-name" from="$FNAME"></qsp-css-variable>
-    <qsp-css-variable name="--color" from="FCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--inverted-color" from="FCOLOR" type="color" invert></qsp-css-variable>
-    <qsp-css-variable name="--link-color" from="LCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--background-color" from="BCOLOR" type="color"></qsp-css-variable>
-    <qsp-css-variable name="--inverted-background-color" from="BCOLOR" type="color" invert></qsp-css-variable>
-    <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable name="--code-font-size" from="FSIZE" type="unit" unit="pt" default-value="12"></qsp-css-variable>
+    <qsp-css-variable name="--code-font-name" from="$FNAME"></qsp-css-variable>
+    <qsp-css-variable name="--code-color" from="FCOLOR" type="color" default-value="#000000"></qsp-css-variable>
+    <qsp-css-variable name="--code-link-color" from="LCOLOR" type="color" defaul-value="#0000ff"></qsp-css-variable>
+    <qsp-css-variable
+      name="--code-background-color"
+      from="BCOLOR"
+      type="color"
+      default-value="#e0e0e0"
+      with-contrast
+      with-inverted
+    ></qsp-css-variable>
+    <qsp-css-variable name="background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
   </definitions>
   <template is="qsp-player">
     <qsp-cl-defaults></qsp-cl-defaults>
     <style>
+      qsp-game-root,
+      #portal-container {
+        --border-color: var(--background-color-contrast, var(--cl-background-color-contrast, gray));
+        --font-size: var(--code-font-size, var(--cl-font-size));
+        --font-name: var(--code-font-name, var(--cl-font-name));
+        --color: var(--code-color, var(--cl-color));
+        --link-color: var(--code-link-color, var(--cl-link-color));
+        --background-color: var(--code-background-color, var(--cl-background-color));
+        --background-color-inverted: var(--code-background-color-inverted, var(--cl-background-color-inverted));
+        --background-color-contrast: var(--code-background-color-contrast, var(--cl-background-color-contrast));
+        --background-color-inverted-contrast: var(
+          --code-background-color-inverted-contrast,
+          var(--cl-background-color-inverted-contrast)
+        );
+      }
       qsp-player button,
-      qsp-player input {
-        color: var(--color, var(--cl-color));
-        font-size: var(--font-size, var(--cl-font-size));
-        font-family: var(--font-name, var(--cl-font-name));
+      qsp-player input,
+      #portal-container input {
+        color: var(--color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
       }
       qsp-player a,
-      qsp-player a:visited {
-        color: var(--link-color, var(--cl-link-color));
+      qsp-player a:visited,
+      #portal-container a,
+      #portal-container a:visited {
+        color: var(--link-color);
       }
       a.plain {
         text-decoration: none;
       }
+
       qsp-player {
-        --border-color: grey;
         width: 100vw;
         height: 100vh;
-        background: var(--background-color, var(--cl-background-color));
-        font-size: var(--font-size, var(--cl-font-size));
-        font-family: var(--font-name, var(--cl-font-name));
-        color: var(--color, var(--cl-color));
+        background: var(--background-color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+        color: var(--color);
         display: block;
       }
       .qsp-classic-layout {
@@ -43,8 +66,8 @@
         width: 100%;
       }
       qsp-menu {
-        border: 1px solid var(--border-color, var(--cl-border-color));
-        background-color: var(--background-color, var(--cl-background-color));
+        border: 1px solid var(--border-color);
+        background-color: var(--background-color);
       }
       nav {
         outline: none;
@@ -76,7 +99,7 @@
         width: 100%;
       }
       qsp-cmd input {
-        background: var(--background-color, var(--cl-background-color));
+        background: var(--background-color);
         display: inline-block;
         height: 100%;
         width: 100%;
@@ -102,8 +125,9 @@
         border-top: 1px solid var(--border-color);
       }
       qsp-menu {
+        display: block;
         border: 1px solid var(--border-color);
-        background-color: var(--background-color, var(--cl-background-color));
+        background-color: var(--background-color);
       }
       .action-item {
         display: flex;
@@ -114,12 +138,12 @@
         border-radius: 0;
         border: 0;
         cursor: pointer;
-        background-color: var(--background-color, var(--cl-background-color));
+        background-color: var(--background-color);
         user-select: none;
       }
       .action-item:hover {
-        background-color: var(--inverted-background-color, var(--cl-inverted-background-color));
-        color: var(--inverted-color, var(--cl-inverted-color));
+        background-color: var(--background-color-inverted);
+        color: var(--background-color-inverted-contrast);
       }
       .action-item:focus {
         outline: none;
@@ -130,7 +154,7 @@
       .qsp-overlay {
         position: fixed;
         inset: 0;
-        background-color: var(--background-color, var(--cl-background-color, black));
+        background-color: var(--background-color, black);
         opacity: 0.8;
       }
       .qsp-dialog-container {
@@ -147,7 +171,7 @@
         border-radius: var(--border-radius);
         min-width: 400px;
         padding: var(--spacer--md);
-        background-color: var(--background-color, var(--cl-background-color, black));
+        background-color: var(--background-color, black);
         animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
       }
@@ -178,18 +202,38 @@
       }
       .qsp-button {
         cursor: pointer;
-        background-color: var(--background-color, var(--cl-background-color));
+        background-color: var(--background-color);
         border-radius: 4px;
         padding: 4px 16px;
         border: 1px solid var(--border-color);
       }
       .qsp-button:hover {
-        background-color: var(--inverted-border-color, var(--cl-inverted-background-color));
-        color: var(--inverted-color, var(--cl-inverted-color));
-        border-color: var(--inverted-border-color);
+        background-color: var(--background-color-inverted);
+        color: var(--background-color-inverted-contrast);
+        border-color: var(--background-color-inverted);
       }
       .qsp-button:focus {
         outline: none;
+      }
+      .qsp-button + .qsp-button {
+        margin-left: var(--spacer--sm);
+      }
+      .qsp-dialog-buttons {
+        margin-top: var(--spacer--md);
+        display: flex;
+        justify-content: flex-end;
+      }
+      .qsp-input {
+        margin-top: var(--spacer--sm);
+        width: 100%;
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--border-radius);
+        line-height: 1.8;
+      }
+      .qsp-input:focus {
+        outline: none;
+        box-shadow: 0 0 3px 1px var(--background-color-contrast);
       }
     </style>
     <qsp-cl>
@@ -260,22 +304,24 @@
     </qsp-cl>
     <qsp-menu>
       <qsp-scrollable>
-        <nav role="menu" data-qsp="menu-list">
-          <qsp-menu-list tag="nav" role="menu" data-qsp="menu-list"></qsp-menu-list>
-        </nav>
+        <qsp-menu-list tag="nav" role="menu" data-qsp="menu-list"></qsp-menu-list>
       </qsp-scrollable>
     </qsp-menu>
     <qsp-msg>
       <qsp-msg-content></qsp-msg-content>
-      <qsp-ok-button class="qsp-button" focus>Ok</qsp-ok-button>
+      <div class="qsp-dialog-buttons">
+        <qsp-ok-button class="qsp-button" focus>Ok</qsp-ok-button>
+      </div>
       <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-msg>
     <qsp-input>
-      <qsp-close-button class="close-button">x</qsp-close-button>
       <qsp-input-content></qsp-input-content>
-      <qsp-input-tag></qsp-input-tag>
-      <qsp-ok-button class="qsp-button">Ok</qsp-ok-button>
-      <qsp-cancel-button class="qsp-button">Cancel</qsp-cancel-button>
+      <qsp-input-tag class="qsp-input"></qsp-input-tag>
+      <div class="qsp-dialog-buttons">
+        <qsp-ok-button class="qsp-button">Ok</qsp-ok-button>
+        <qsp-cancel-button class="qsp-button">Cancel</qsp-cancel-button>
+      </div>
+      <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-input>
   </template>
   <template is="qsp-pause-screen">
