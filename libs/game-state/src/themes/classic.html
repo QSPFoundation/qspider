@@ -243,7 +243,7 @@
             <qsp-cl-dock place="center">
               <qsp-cl-pane>
                 <qsp-main>
-                  <div class="panel-background" data-qsp="main">
+                  <div class="panel-background">
                     <qsp-scrollable>
                       <qsp-main-content class="panel-content"></qsp-main-content>
                     </qsp-scrollable>
@@ -254,9 +254,9 @@
             <qsp-cl-dock place="right" visibility="objs" size="215">
               <qsp-cl-pane visibility="objs">
                 <qsp-objects>
-                  <div class="panel" data-qsp="objects">
+                  <div class="panel">
                     <qsp-scrollable>
-                      <qsp-objects-list tag="nav" role="menu" data-qsp="objects-list"></qsp-objects-list>
+                      <qsp-objects-list tag="nav" role="menu"></qsp-objects-list>
                     </qsp-scrollable>
                   </div>
                 </qsp-objects>
@@ -265,16 +265,16 @@
             <qsp-cl-dock place="bottom" visibility="acts|vars" size="204">
               <qsp-cl-pane proportion="117349" visibility="acts">
                 <qsp-actions>
-                  <div class="panel" data-qsp="actions">
+                  <div class="panel">
                     <qsp-scrollable>
-                      <qsp-actions-list tag="nav" role="menu" data-qsp="actions-list"></qsp-actions-list>
+                      <qsp-actions-list tag="nav" role="menu"></qsp-actions-list>
                     </qsp-scrollable>
                   </div>
                 </qsp-actions>
               </qsp-cl-pane>
               <qsp-cl-pane proportion="82651" visibility="vars">
                 <qsp-stats>
-                  <div class="panel" data-qsp="stats">
+                  <div class="panel">
                     <qsp-scrollable>
                       <qsp-stats-content class="panel-content"></qsp-stats-content>
                     </qsp-scrollable>
@@ -287,7 +287,7 @@
         <qsp-cl-dock place="bottom" visibility="input" size="41">
           <qsp-cl-pane visibility="input">
             <qsp-cmd>
-              <div class="panel" data-qsp="user-input">
+              <div class="panel">
                 <qsp-cmd-input></qsp-cmd-input>
               </div>
             </qsp-cmd>
@@ -304,7 +304,7 @@
     </qsp-cl>
     <qsp-menu>
       <qsp-scrollable>
-        <qsp-menu-list tag="nav" role="menu" data-qsp="menu-list"></qsp-menu-list>
+        <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
       </qsp-scrollable>
     </qsp-menu>
     <qsp-msg>
@@ -346,16 +346,16 @@
       </qsp-pause-screen-preferences>
     </qsp-pause-screen-content>
   </template>
-  <template is="qsp-action" tag="button" class="action-item" data-qsp="action">
-    <qsp-action-image class="action-img" data-qsp="action-image"></qsp-action-image>
+  <template is="qsp-action" tag="button" class="action-item">
+    <qsp-action-image class="action-img"></qsp-action-image>
     <qsp-action-name></qsp-action-name>
   </template>
   <template is="qsp-object" tag="button" class="action-item">
-    <qsp-object-image class="action-img" data-qsp="action-image"></qsp-object-image>
+    <qsp-object-image class="action-img"></qsp-object-image>
     <qsp-object-name></qsp-object-name>
   </template>
   <template is="qsp-menu-item" tag="button" class="action-item">
-    <qsp-menu-image class="action-img" data-qsp="action-image"></qsp-menu-image>
+    <qsp-menu-image class="action-img"></qsp-menu-image>
     <qsp-menu-name> </qsp-menu-name>
   </template>
   <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>

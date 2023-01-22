@@ -14,7 +14,7 @@ import {
 } from './resources';
 import { convertQsps, isZip } from './utils';
 import { qspApi$ } from './qsp-api';
-import { CLASSIC_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
+import { AERO_THEME, CLASSIC_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
@@ -117,6 +117,8 @@ export async function runGame(id: string): Promise<void> {
   }
   if (descriptor.defaultTheme) {
     currentTheme$.set(descriptor.defaultTheme);
+  } else if (descriptor.mode === 'aero') {
+    currentTheme$.set(AERO_THEME);
   } else {
     currentTheme$.set(CLASSIC_THEME);
   }

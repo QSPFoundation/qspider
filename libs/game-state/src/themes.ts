@@ -4,8 +4,13 @@ import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
 import classicTheme from './themes/classic.html';
 import aeroTheme from './themes/aero.html';
+import { useQspVariable } from './qsp-api';
 
 export const CLASSIC_THEME = 'qspider:classic';
+export const AERO_THEME = 'qspider:aero';
+
+export const TEXT_PLACEHOLDER = '%TEXT%';
+export const IMAGE_PLACEHOLDER = '%IMAGE%';
 
 export interface TemplateTag {
   attrs: Attributes;
@@ -45,8 +50,11 @@ export type ThemeData = {
   translations: ThemeTranslation[];
   qsp_player?: TemplateTag;
   qsp_action?: TemplateTag;
+  qsp_action_selected?: TemplateTag;
   qsp_object?: TemplateTag;
+  qsp_object_selected?: TemplateTag;
   qsp_menu_item?: TemplateTag;
+  qsp_menu_item_selected?: TemplateTag;
   qsp_menu_separator?: TemplateTag;
   qsp_pause_screen?: TemplateTag;
   qsp_save_slot?: TemplateTag;
@@ -86,17 +94,22 @@ export const defaultClassicTheme$ = create((get) => {
 export const currentCssVariables$ = currentThemeData$.focus((t) => t.css_variables);
 
 export function useThemeTemplate(
-  tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>
+  tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>,
+  fallback?: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>
 ): TemplateTag {
   const theme = useAtom(currentThemeData$);
   return (
-    theme?.[tag] || {
+    theme?.[tag] ||
+    (fallback && theme?.[fallback]) || {
       attrs: {},
       template: `failed to find ${tag} template`,
     }
   );
 }
 
+export function useFormat(variableName?: string): string {
+  return useQspVariable(variableName, '', 0, '');
+}
 export async function registerThemes(themes: string[]): Promise<void> {
   for (const themeUrl of themes) {
     const content = await getTextContent(themeUrl);
@@ -134,8 +147,11 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       translations: extractTranslations(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
       qsp_action: extractTagData(theme, 'template[is="qsp-action"]'),
+      qsp_action_selected: extractTagData(theme, 'template[is="qsp-action-selected"]'),
       qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
+      qsp_object_selected: extractTagData(theme, 'template[is="qsp-object-selected"]'),
       qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
+      qsp_menu_item_selected: extractTagData(theme, 'template[is="qsp-menu-item-selected"]'),
       qsp_menu_separator: extractTagData(theme, 'template[is="qsp-menu-separator"]'),
       qsp_pause_screen: extractTagData(theme, 'template[is="qsp-pause-screen"]'),
       qsp_save_slot: extractTagData(theme, 'template[is="qsp-save-slot"]'),

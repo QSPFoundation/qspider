@@ -4,8 +4,12 @@ import {
   Attributes,
   execSelectedAction,
   getResource,
+  IMAGE_PLACEHOLDER,
   isActsVisible$,
   selectAction,
+  selectedAction$,
+  TEXT_PLACEHOLDER,
+  useFormat,
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -43,24 +47,59 @@ export const QspActionsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 };
 
 export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = ({ action, index }) => {
+  const selectedAction = useAtom(selectedAction$);
   const { attrs, template } = useThemeTemplate('qsp_action');
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-item');
+  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_action_selected', 'qsp_action');
+  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-action-item');
   const preparedStyle = {
     ...style,
-    '--action-image': `url(${getResource(action.image).url})`,
+    '--action-image': action.image ? `url(${getResource(action.image).url})` : '',
   };
+  const preparedSelectedStyle = {
+    ...selectedStyle,
+    '--action-image': action.image ? `url(${getResource(action.image).url})` : '',
+  };
+
+  const format = useFormat(attributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, action.name)
+    .replace(IMAGE_PLACEHOLDER, action.image ? action.image : '');
+  const selectedFormat = useFormat(selectedAttributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, action.name)
+    .replace(IMAGE_PLACEHOLDER, action.image ? action.image : '');
+
   const onHover = (): void => {
     selectAction(index);
+  };
+  const onMouseLeave = (): void => {
+    selectAction(-1);
   };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
     execSelectedAction();
   };
+
+  const isSelected = selectedAction === index;
   return (
     <actionContext.Provider value={{ action, index }}>
-      <Tag {...attributes} style={preparedStyle} onMouseOver={onHover} onClick={onClick}>
-        <TemplateRenderer template={template} {...attrs} />
-      </Tag>
+      {isSelected ? (
+        <SelectedTag
+          {...selectedAttributes}
+          style={preparedSelectedStyle}
+          onMouseLeave={onMouseLeave}
+          onClick={onClick}
+        >
+          {selectedFormat ? (
+            <ContentRenderer content={selectedFormat} />
+          ) : (
+            <TemplateRenderer template={selectedTemplate} />
+          )}
+        </SelectedTag>
+      ) : (
+        <Tag {...attributes} style={preparedStyle} onMouseOver={onHover} onClick={onClick}>
+          {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
+        </Tag>
+      )}
     </actionContext.Provider>
   );
 };

@@ -73,6 +73,8 @@ export function processStyles(content: string): Record<string, string | number> 
           }
         });
         preparedValue = parsed.toString();
+      } else if (name === 'backgroundImage') {
+        preparedValue = `url(${getResource(value).url})`;
       } else if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
         preparedValue = parseFloat(value);
       }

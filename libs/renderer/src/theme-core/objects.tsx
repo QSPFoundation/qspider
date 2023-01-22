@@ -1,7 +1,17 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, getResource, isObjsVisible$, objects$, selectObject, useThemeTemplate } from '@qspider/game-state';
+import {
+  Attributes,
+  getResource,
+  IMAGE_PLACEHOLDER,
+  isObjsVisible$,
+  objects$,
+  selectObject,
+  TEXT_PLACEHOLDER,
+  useFormat,
+  useThemeTemplate,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
@@ -35,20 +45,58 @@ export const QspObjectsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 };
 
 export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
+  const [isSelected, setIsSelected] = useState(false);
   const { attrs, template } = useThemeTemplate('qsp_object');
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-item');
+
+  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_object_selected', 'qsp_object');
+  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-object-item');
+
   const preparedStyle = {
     ...style,
-    '--object-image': `url(${getResource(object.image).url})`,
+    '--object-image': object.image ? `url(${getResource(object.image).url})` : '',
+  };
+  const preparedSelectedStyle = {
+    ...selectedStyle,
+    '--object-image': object.image ? `url(${getResource(object.image).url})` : '',
+  };
+
+  const format = useFormat(attributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, object.name)
+    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
+  const selectedFormat = useFormat(selectedAttributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, object.name)
+    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
+
+  const onHover = (): void => {
+    setIsSelected(true);
+  };
+  const onMouseLeave = (): void => {
+    setIsSelected(false);
   };
   const onClick = (): void => {
     selectObject(index);
   };
   return (
     <objectContext.Provider value={{ object, index }}>
-      <Tag {...attributes} style={preparedStyle} onClick={onClick}>
-        <TemplateRenderer template={template} {...attrs} />
-      </Tag>
+      {isSelected ? (
+        <SelectedTag
+          {...selectedAttributes}
+          style={preparedSelectedStyle}
+          onClick={onClick}
+          onMouseLeave={onMouseLeave}
+        >
+          {selectedFormat ? (
+            <ContentRenderer content={selectedFormat} />
+          ) : (
+            <TemplateRenderer template={selectedTemplate} />
+          )}
+        </SelectedTag>
+      ) : (
+        <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover}>
+          {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
+        </Tag>
+      )}
     </objectContext.Provider>
   );
 };

@@ -11,10 +11,13 @@ export const statsContent$ = create('');
 
 export const isActsVisible$ = create(false);
 export const actions$ = create<QspListItem[]>([]);
+export const selectedAction$ = create(-1);
 export function selectAction(index: number): void {
+  selectedAction$.set(index);
   qspApi$.value?.selectAction(index);
 }
 export function execSelectedAction(): void {
+  selectedAction$.set(-1);
   qspApi$.value?.execSelectedAction();
 }
 

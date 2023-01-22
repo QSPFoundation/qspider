@@ -8,7 +8,7 @@ export function convertColor(value: number, withAlpha = true): string | null {
 
   if (withAlpha) {
     const [alpha, blue, green, red] = arr;
-    return `rgba(${red},${green},${blue},${alpha / 256})`;
+    return `rgba(${red},${green},${blue},${alpha / 255})`;
   }
 
   const [, blue, green, red] = arr;

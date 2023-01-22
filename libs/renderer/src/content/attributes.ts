@@ -10,6 +10,7 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   srclang: 'srcLang',
   srcset: 'srcSet',
   usemap: 'useMap',
+  cellspacing: 'cellSpacing',
 });
 
 const attributeToStyle: Record<string, string> = {

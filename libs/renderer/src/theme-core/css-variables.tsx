@@ -29,7 +29,7 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
   const value = useQspVariable(definition.from, '', 0, '');
   const rules: string[] = [];
   if (definition.type === 'color') {
-    const preparedValue = value ? convertColor(Number(value), true) : definition.defaultValue;
+    const preparedValue = value ? convertColor(Number(value)) : definition.defaultValue;
     if (preparedValue) {
       rules.push(`${definition.name}: ${preparedValue}`);
       if (definition.withContrast) {

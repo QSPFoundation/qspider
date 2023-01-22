@@ -68,10 +68,10 @@ export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
   useEffect(() => {
     if (!name) return;
     const unsubscribe = key
-      ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue(value as unknown as T))
-      : qspApi$.value?.watchVariable(name, index, (value) => setValue(value as unknown as T));
+      ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue((value as unknown as T) || defaultValue))
+      : qspApi$.value?.watchVariable(name, index, (value) => setValue((value as unknown as T) || defaultValue));
     return () => unsubscribe?.();
-  }, [name, key, index]);
+  }, [name, key, index, defaultValue]);
 
   return value;
 }

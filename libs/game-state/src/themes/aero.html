@@ -322,8 +322,6 @@
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-menu-border-color" from="MENU_BORDER_COLOR" type="color"></qsp-css-variable>
     <qsp-css-variable name="--aero-menu-backimage" from="$MENU_BACKIMAGE" type="resource" with-size></qsp-css-variable>
-    <qsp-css-variable name="--aero-menu-x" from="MENU_X" type="unit" unit="px" default-value="-1"></qsp-css-variable>
-    <qsp-css-variable name="--aero-menu-y" from="MENU_Y" type="unit" unit="px" default-value="-1"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-menu-list-x"
       from="MENU_LIST_X"
@@ -437,13 +435,13 @@
         top: var(--aero-statdesc-y);
         width: var(--aero-statdesc-w);
         height: var(--aero-statdesc-h);
-
-        white-space: pre-wrap;
-
         background-image: var(--aero-statdesc-image);
         background-repeat: no-repeat;
         background-size: contain;
         background-position: center center;
+      }
+      qsp-stats-content {
+        white-space: pre-wrap;
       }
       qsp-main {
         position: absolute;
@@ -451,13 +449,13 @@
         top: var(--aero-maindesc-y);
         width: var(--aero-maindesc-w);
         height: var(--aero-maindesc-h);
-
-        white-space: pre-wrap;
-
         background-image: var(--aero-maindesc-image);
         background-repeat: no-repeat;
         background-size: contain;
         background-position: center center;
+      }
+      qsp-main-content {
+        white-space: pre-wrap;
       }
       .integrated-actions {
         padding-top: 20px;
@@ -468,9 +466,6 @@
         top: var(--aero-actions-y);
         width: var(--aero-actions-w);
         height: var(--aero-actions-h);
-
-        white-space: pre-wrap;
-
         background-image: var(--aero-actions-image);
         background-repeat: no-repeat;
         background-size: contain;
@@ -482,9 +477,6 @@
         top: var(--aero-objects-y);
         width: var(--aero-objects-w);
         height: var(--aero-objects-h);
-
-        white-space: pre-wrap;
-
         background-image: var(--aero-objects-image);
         background-repeat: no-repeat;
         background-size: contain;
@@ -618,21 +610,26 @@
         background-image: var(--aero-input-cancel-image);
       }
       qsp-menu {
+        display: block;
         position: relative;
+        border-style: solid;
         border-width: var(--aero-menu-border);
         border-color: var(--aero-menu-border-color, rgba(64, 64, 64, 150));
         background-color: var(--background-color);
         background-image: var(--aero-menu-backimage);
         padding: var(--aero-menu-padding);
-
-        left: var(--aero-menu-x);
-        top: var(--aero-menu-y);
+      }
+      qsp-menu.aero-fixed-menu {
+        width: var(--aero-menu-backimage-w, calc(var(--aero-menu-list-w) + var(--aero-menu-list-x)));
+        height: var(--aero-menu-backimage-h, calc(var(--aero-menu-list-h) + var(--aero-menu-list-y)));
       }
       qsp-menu .list-wrapper {
+        width: var(--aero-menu-list-w);
+      }
+      qsp-menu.aero-fixed-menu .list-wrapper {
         position: absolute;
         left: var(--aero-menu-list-x);
         top: var(--aero-menu-list-y);
-        width: var(--aero-menu-list-w);
         height: var(--aero-menu-list-h);
       }
       .qsp-overlay {
@@ -640,6 +637,32 @@
         inset: 0;
         background-color: var(--background-color);
         opacity: calc(0.2 * (1 - var(--aero-disable-shade, 0)));
+      }
+
+      .action-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        background-color: transparent;
+        user-select: none;
+        border-radius: 0;
+        border: 0;
+        padding: 0;
+        color: var(--color);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+        white-space: pre-wrap;
+      }
+      .action-item:focus {
+        outline: none;
+      }
+      .action-item table td {
+        padding: 0;
+        vertical-align: middle;
+      }
+      .action-item table img {
+        display: inherit;
       }
     </style>
     <aero-styles></aero-styles>
@@ -652,17 +675,17 @@
           sequence="NEWLOC_EFFECT_SEQ"
           key="@@location@@"
         >
-          <qsp-stats data-type="stats">
+          <qsp-stats>
             <qsp-scrollable>
-              <qsp-stats-content></qsp-stats-content>
+              <qsp-stats-content use-format="$STAT_FORMAT"></qsp-stats-content>
             </qsp-scrollable>
           </qsp-stats>
-          <qsp-main data-type="main">
+          <qsp-main>
             <qsp-scrollable>
-              <qsp-main-content></qsp-main-content>
+              <qsp-main-content use-format="$MAIN_FORMAT"></qsp-main-content>
               <qsp-show when="INTEGRATED_ACTIONS=1">
                 <div class="integrated-actions">
-                  <qsp-actions data-type="actions">
+                  <qsp-actions>
                     <qsp-scrollable>
                       <qsp-actions-list></qsp-actions-list>
                     </qsp-scrollable>
@@ -677,7 +700,7 @@
             </qsp-scrollable>
           </qsp-objects>
           <qsp-show when="INTEGRATED_ACTIONS=0">
-            <qsp-actions class="regular-actions" data-type="actions">
+            <qsp-actions class="regular-actions">
               <qsp-scrollable>
                 <qsp-actions-list></qsp-actions-list>
               </qsp-scrollable>
@@ -693,13 +716,13 @@
         <div class="aero-player-foreground"></div>
         <aero-effect name="$MSG_EFFECT" duration="MSG_EFFECT_TIME">
           <qsp-msg>
-            <qsp-msg-content></qsp-msg-content>
+            <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
             <qsp-ok-button focus>Ok</qsp-ok-button>
           </qsp-msg>
         </aero-effect>
         <aero-effect name="$INPUT_EFFECT" duration="INPUT_EFFECT_TIME">
           <qsp-input>
-            <qsp-input-content></qsp-input-content>
+            <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
             <qsp-input-tag></qsp-input-tag>
             <qsp-ok-button>Ok</qsp-ok-button>
             <qsp-cancel-button>Cancel</qsp-cancel-button>
@@ -709,12 +732,87 @@
           <qsp-menu>
             <div class="list-wrapper">
               <qsp-scrollable>
-                <qsp-menu-list tag="nav" role="menu" data-qsp="menu-list"></qsp-menu-list>
+                <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
               </qsp-scrollable>
             </div>
           </qsp-menu>
         </aero-effect>
       </div>
     </div>
+  </template>
+  <template is="qsp-pause-screen">
+    <qsp-button type="resume">Resume</qsp-button>
+    <qsp-button type="restart">Restart</qsp-button>
+    <qsp-button type="save">Save</qsp-button>
+    <qsp-button type="load">Load</qsp-button>
+    <qsp-button type="preferences">Preferences</qsp-button>
+    <qsp-button type="quit">Quit</qsp-button>
+    <qsp-pause-screen-content>
+      <qsp-pause-screen-credits></qsp-pause-screen-credits>
+      <qsp-pause-screen-save>
+        <h2>Save game</h2>
+        <qsp-slots-list></qsp-slots-list>
+      </qsp-pause-screen-save>
+      <qsp-pause-screen-load>
+        <h2>Load game</h2>
+        <qsp-slots-list></qsp-slots-list>
+      </qsp-pause-screen-load>
+      <qsp-pause-screen-preferences>
+        <h2>Preferences</h2>
+      </qsp-pause-screen-preferences>
+    </qsp-pause-screen-content>
+  </template>
+  <template is="qsp-action" tag="button" class="action-item" use-format="$ACTION_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-action-image></qsp-action-image></td>
+        <td style="width: 100%"><qsp-action-name></qsp-action-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-action-selected" tag="button" class="action-item" use-format="$SEL_ACTION_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-action-image></qsp-action-image></td>
+        <td style="width: 100%; color: #0000ff"><qsp-action-name></qsp-action-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-object" tag="button" class="action-item" use-format="$OBJECT_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-object-image></qsp-object-image></td>
+        <td style="width: 100%"><qsp-object-name></qsp-object-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-object-selected" tag="button" class="action-item" use-format="$SEL_OBJECT_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-object-image></qsp-object-image></td>
+        <td style="width: 100%; color: #0000ff"><qsp-object-name></qsp-object-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-menu-item" tag="button" class="action-item" use-format="$MENU_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-menu-image></qsp-menu-image></td>
+        <td style="width: 100%"><qsp-menu-name></qsp-menu-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-menu-item-selected" tag="button" class="action-item" use-format="$SEL_MENU_FORMAT">
+    <table>
+      <tr>
+        <td><qsp-menu-image></qsp-menu-image></td>
+        <td style="width: 100%; color: #0000ff"><qsp-menu-name></qsp-menu-name></td>
+      </tr>
+    </table>
+  </template>
+  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
+  <template is="qsp-save-slot">
+    <qsp-save-slot-index></qsp-save-slot-index>
+    <qsp-save-slot-date></qsp-save-slot-date>
   </template>
 </qspider-theme>

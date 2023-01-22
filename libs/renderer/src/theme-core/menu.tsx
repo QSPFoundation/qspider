@@ -1,8 +1,17 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, getResource, menu$, selectMenuItem, useThemeTemplate } from '@qspider/game-state';
+import {
+  Attributes,
+  getResource,
+  IMAGE_PLACEHOLDER,
+  menu$,
+  selectMenuItem,
+  TEXT_PLACEHOLDER,
+  useFormat,
+  useThemeTemplate,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
@@ -31,7 +40,7 @@ export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
         ></div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal container={document.getElementById('portal-container')}>
-        <DropdownMenu.Content>
+        <DropdownMenu.Content align="start">
           <Tag style={style} {...attributes}>
             {children}
           </Tag>
@@ -64,12 +73,39 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIn
   index,
   displayIndex,
 }) => {
+  const [isSelected, setIsSelected] = useState(false);
+
   const { attrs, template } = useThemeTemplate('qsp_menu_item');
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-item');
+
+  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate(
+    'qsp_menu_item_selected',
+    'qsp_menu_item'
+  );
+  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-menu-item');
+
   const preapredStyle = {
     ...style,
-    '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : 'none',
+    '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : '',
   } as React.CSSProperties;
+  const preapredSelectedStyle = {
+    ...selectedStyle,
+    '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : '',
+  } as React.CSSProperties;
+
+  const format = useFormat(attributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, item.name)
+    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
+  const selectedFormat = useFormat(selectedAttributes['use-format'])
+    .replace(TEXT_PLACEHOLDER, item.name)
+    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
+
+  const onHover = (): void => {
+    setIsSelected(true);
+  };
+  const onMouseLeave = (): void => {
+    setIsSelected(false);
+  };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
     selectMenuItem(index);
@@ -77,9 +113,24 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIn
   return (
     <menuContext.Provider value={{ item, index, displayIndex }}>
       <DropdownMenu.Item asChild>
-        <Tag {...attributes} style={preapredStyle} onClick={onClick}>
-          <TemplateRenderer template={template} />
-        </Tag>
+        {isSelected ? (
+          <SelectedTag
+            {...selectedAttributes}
+            style={preapredSelectedStyle}
+            onClick={onClick}
+            onMouseLeave={onMouseLeave}
+          >
+            {selectedFormat ? (
+              <ContentRenderer content={selectedFormat} />
+            ) : (
+              <TemplateRenderer template={selectedTemplate} />
+            )}
+          </SelectedTag>
+        ) : (
+          <Tag {...attributes} style={preapredStyle} onClick={onClick} onMouseOver={onHover}>
+            {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
+          </Tag>
+        )}
       </DropdownMenu.Item>
     </menuContext.Provider>
   );
