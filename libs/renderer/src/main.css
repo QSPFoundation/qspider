@@ -127,6 +127,89 @@ area:focus {
   outline: none;
 }
 
+qsp-main,
+qsp-main-content,
+qsp-stats,
+qsp-stats-content,
+qsp-actions,
+qsp-actions-list,
+qsp-objects,
+qsp-objects-list,
+qsp-cmd,
+qsp-view,
+qsp-menu,
+qsp-menu-list,
+qsp-msg,
+qsp-msg-content,
+qsp-input,
+qsp-input-content,
+qsp-pause-screen-content,
+qsp-pause-screen-credits,
+qsp-pause-screen-preferences,
+qsp-pause-screen-save,
+qsp-pause-screen-load,
+qsp-slots-list,
+qsp-region {
+  display: block;
+}
+
+.qsp-scroll-root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+.qsp-scroll-area {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: inherit;
+}
+
+.qsp-scrollbar {
+  display: flex;
+  /* ensures no selection */
+  user-select: none;
+  /* disable browser handling of all panning and zooming gestures on touch devices */
+  touch-action: none;
+  padding: 2px;
+  --scrollbar-size: 10px;
+}
+.qsp-scrollbar[data-orientation='vertical'] {
+  width: var(--scrollbar-size);
+}
+.qsp-scrollbar[data-orientation='horizontal'] {
+  flex-direction: column;
+  height: var(--scrollbar-size);
+}
+
+.qsp-scrollbar-thumb {
+  flex: 1;
+  background: var(--code-background-color-contrast);
+  opacity: 0.4;
+  border-radius: var(--scrollbar-size);
+  position: relative;
+}
+/* increase target size for touch devices https://www.w3.org/WAI/WCAG21/Understanding/target-size.html */
+.qsp-scrollbar-thumb::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.qsp-scrollbar-corner {
+  background: var(--code-background-color-contrast);
+}
+
 :root {
   --game-columns: 3;
 }
@@ -585,7 +668,9 @@ qsp-cl {
 }
 qsp-cl-layer {
   width: 100%;
+  max-width: 100%;
   height: 100%;
+  max-height: 100%;
   display: grid;
   column-gap: var(--spacer--xs);
   row-gap: var(--spacer--xs);
@@ -593,12 +678,22 @@ qsp-cl-layer {
 qsp-cl-dock {
   display: flex;
   width: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 qsp-cl-dock[data-place='top'] {
   grid-area: top;
 }
 qsp-cl-dock[data-place='bottom'] {
   grid-area: bottom;
+}
+qsp-cl-dock[data-place='top'] qsp-cl-pane,
+qsp-cl-dock[data-place='bottom'] qsp-cl-pane {
+  max-height: 100%;
+}
+qsp-cl-dock[data-place='top'] qsp-cl-pane:only-child,
+qsp-cl-dock[data-place='bottom'] qsp-cl-pane:only-child {
+  max-width: 100%;
 }
 qsp-cl-dock[data-place='left'] {
   grid-area: left;
@@ -608,11 +703,30 @@ qsp-cl-dock[data-place='right'] {
   grid-area: right;
   flex-direction: column;
 }
+qsp-cl-dock[data-place='left'] > qsp-cl-pane,
+qsp-cl-dock[data-place='right'] > qsp-cl-pane {
+  max-width: 100%;
+}
+qsp-cl-dock[data-place='left'] > qsp-cl-pane:only-child,
+qsp-cl-dock[data-place='right'] > qsp-cl-pane:only-child {
+  max-height: 100%;
+}
 qsp-cl-dock[data-place='center'] {
   grid-area: center;
 }
+qsp-cl-dock[data-place='center'] > qsp-cl-pane {
+  max-width: 100%;
+  max-height: 100%;
+}
 qsp-cl-pane {
   flex-shrink: 0;
+  flex-basis: 0;
+  min-width: 0;
+  min-height: 0;
+}
+qsp-cl-pane > * {
+  width: 100%;
+  height: 100%;
 }
 qsp-cl-dock[data-place='left'] > qsp-cl-pane + qsp-cl-pane,
 qsp-cl-dock[data-place='right'] > qsp-cl-pane + qsp-cl-pane {

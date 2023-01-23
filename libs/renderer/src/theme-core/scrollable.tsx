@@ -13,7 +13,7 @@ export const QspScrollable: React.FC<{
   attrs: Attributes;
   children: ReactNode;
 }> = ({ children, attrs, scroll = 'both' }) => {
-  const [, style, attributes] = useAttributes(attrs, 'div');
+  const [, style, { className = '', ...attributes }] = useAttributes(attrs, 'div');
   const ref = useRef<HTMLDivElement>(null);
   const scrollTrigger = useAtom(useContext(scrollContext));
   useEffect(() => {
@@ -23,23 +23,25 @@ export const QspScrollable: React.FC<{
   }, [scrollTrigger]);
 
   return (
-    <ScrollArea.Root style={style} {...attributes}>
-      <ScrollArea.Viewport ref={ref}>{children}</ScrollArea.Viewport>
+    <ScrollArea.Root style={style} {...attributes} className={className + ' qsp-scroll-root'}>
+      <ScrollArea.Viewport ref={ref} className="qsp-scroll-area">
+        {children}
+      </ScrollArea.Viewport>
       {scroll === 'both' ? (
         <>
-          <ScrollArea.Scrollbar orientation="horizontal">
-            <ScrollArea.Thumb />
+          <ScrollArea.Scrollbar className="qsp-scrollbar" orientation="horizontal">
+            <ScrollArea.Thumb className="qsp-scrollbar-thumb" />
           </ScrollArea.Scrollbar>
-          <ScrollArea.Scrollbar orientation="vertical">
-            <ScrollArea.Thumb />
+          <ScrollArea.Scrollbar className="qsp-scrollbar" orientation="vertical">
+            <ScrollArea.Thumb className="qsp-scrollbar-thumb" />
           </ScrollArea.Scrollbar>
         </>
       ) : (
-        <ScrollArea.Scrollbar orientation={scroll}>
-          <ScrollArea.Thumb />
+        <ScrollArea.Scrollbar className="qsp-scrollbar" orientation={scroll}>
+          <ScrollArea.Thumb className="qsp-scrollbar-thumb" />
         </ScrollArea.Scrollbar>
       )}
-      <ScrollArea.Corner />
+      <ScrollArea.Corner className="qsp-scrollbar-corner" />
     </ScrollArea.Root>
   );
 };

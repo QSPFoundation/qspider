@@ -91,7 +91,7 @@ export const currentThemeData$ = create((get) => {
 export const defaultClassicTheme$ = create((get) => {
   return get(themeRegistry$)['qspider:classic'];
 });
-export const currentCssVariables$ = currentThemeData$.focus((t) => t.css_variables);
+export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables);
 
 export function useThemeTemplate(
   tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>,
