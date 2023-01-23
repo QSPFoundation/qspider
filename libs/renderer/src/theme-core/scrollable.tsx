@@ -1,9 +1,9 @@
-import { createContext, ReactNode, useContext, useEffect, useRef } from 'react';
+import { createContext, ReactNode, useContext, useEffect, useLayoutEffect, useRef } from 'react';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../content/attributes';
 import { create } from 'xoid';
-import { useAtom } from '@xoid/react';
+import { useAtom, useSetup } from '@xoid/react';
 
 export const noopScrollAtom$ = create(0);
 export const scrollContext = createContext(noopScrollAtom$);
@@ -16,14 +16,50 @@ export const QspScrollable: React.FC<{
   const [, style, { className = '', ...attributes }] = useAttributes(attrs, 'div');
   const ref = useRef<HTMLDivElement>(null);
   const scrollTrigger = useAtom(useContext(scrollContext));
+
+  const upScroll$ = useSetup(() => create(false));
+  const upScroll = useAtom(upScroll$);
+  const downScroll$ = useSetup(() => create(false));
+  const downScroll = useAtom(downScroll$);
+
   useEffect(() => {
     if (ref.current && scrollTrigger) {
       ref.current.scrollTop = scrollTrigger > 0 ? ref.current.scrollHeight : 0;
     }
   }, [scrollTrigger]);
 
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    function onScroll(): void {
+      const hasUpScroll = ref.current ? ref.current.scrollTop > 0 : false;
+      if (upScroll$.value !== hasUpScroll) {
+        upScroll$.set(hasUpScroll);
+      }
+      const hasDownScroll = ref.current
+        ? ref.current.offsetHeight + ref.current.scrollTop < ref.current.scrollHeight
+        : true;
+      if (hasDownScroll !== downScroll$.value) {
+        downScroll$.set(hasDownScroll);
+      }
+    }
+    onScroll();
+    const interval = setInterval(onScroll, 300);
+    node.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      node.removeEventListener('scroll', onScroll);
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <ScrollArea.Root style={style} {...attributes} className={className + ' qsp-scroll-root'}>
+    <ScrollArea.Root
+      style={style}
+      {...attributes}
+      className={className + ' qsp-scroll-root'}
+      data-upscroll={upScroll || undefined}
+      data-downscroll={downScroll || undefined}
+    >
       <ScrollArea.Viewport ref={ref} className="qsp-scroll-area">
         {children}
       </ScrollArea.Viewport>

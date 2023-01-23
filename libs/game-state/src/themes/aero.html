@@ -12,6 +12,9 @@
       with-contrast
       with-inverted
     ></qsp-css-variable>
+    <qsp-css-variable name="--up-arrow" from="$UP_ARROW_IMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable name="--down-arrow" from="$DOWN_ARROW_IMAGE" type="resource" with-size></qsp-css-variable>
+
     <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
 
     <qsp-css-variable name="--aero-foreground-image" from="$TOPIMAGE" type="resource"></qsp-css-variable>
@@ -358,6 +361,13 @@
       unit=""
       default-value="0"
     ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-hide-scroll-arrows"
+      from="HIDE_SCROLL_ARROWS"
+      type="unit"
+      unit=""
+      default-value="0"
+    ></qsp-css-variable>
   </definitions>
   <template is="qsp-player">
     <style>
@@ -664,6 +674,41 @@
       .action-item table img {
         display: inherit;
       }
+      .qsp-scrollbar[data-orientation='vertical']::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: var(--up-arrow-w);
+        height: var(--up-arrow-h);
+        background-image: var(--up-arrow);
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+      }
+
+      [data-upscroll] > .qsp-scrollbar[data-orientation='vertical']::before {
+        opacity: calc(1 * (1 - var(--aero-hide-scroll-arrows)));
+      }
+
+      .qsp-scrollbar[data-orientation='vertical']::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: var(--down-arrow-w);
+        height: var(--down-arrow-h);
+        background-image: var(--down-arrow);
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+      }
+
+      [data-downscroll] > .qsp-scrollbar[data-orientation='vertical']::after {
+        opacity: calc(1 * (1 - var(--aero-hide-scroll-arrows)));
+      }
+      .qsp-scrollbar-thumb {
+        display: none;
+      }
     </style>
     <aero-styles></aero-styles>
     <qsp-style from="$STYLESHEET"></qsp-style>
@@ -686,9 +731,7 @@
               <qsp-show when="INTEGRATED_ACTIONS=1">
                 <div class="integrated-actions">
                   <qsp-actions>
-                    <qsp-scrollable>
-                      <qsp-actions-list></qsp-actions-list>
-                    </qsp-scrollable>
+                    <qsp-actions-list></qsp-actions-list>
                   </qsp-actions>
                 </div>
               </qsp-show>
