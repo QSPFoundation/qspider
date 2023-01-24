@@ -165,7 +165,7 @@ function extractTagData(root: HTMLElement, selector: string): TemplateTag | unde
   if (!node) return;
   return {
     attrs: extractAttributes(node),
-    template: node.innerHTML,
+    template: node.innerHTML.replace(/[ \t]*\r?\n[ \t]*/gm, ''),
   };
 }
 
