@@ -170,6 +170,7 @@ export function stopCurrentGame(): void {
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
+  window.location.href = '/';
 }
 export type GameAction =
   | 'save'

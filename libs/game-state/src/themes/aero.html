@@ -398,6 +398,9 @@
       qsp-game-root,
       #portal-container {
         --border-color: var(--background-color-contrast, gray);
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+        color: var(--color);
       }
       qsp-player {
         width: 100vw;
@@ -646,7 +649,7 @@
         position: fixed;
         inset: 0;
         background-color: var(--background-color);
-        opacity: calc(0.2 * (1 - var(--aero-disable-shade, 0)));
+        opacity: calc(0.8 * (1 - var(--aero-disable-shade, 0)));
       }
 
       .action-item {
@@ -708,6 +711,65 @@
       }
       .qsp-scrollbar-thumb {
         display: none;
+      }
+      .qsp-button {
+        cursor: pointer;
+        background-color: var(--background-color);
+        color: var(--color);
+        border-radius: 4px;
+        padding: 4px 16px;
+        border: 1px solid var(--border-color);
+      }
+      .qsp-button:hover {
+        background-color: var(--background-color-inverted);
+        color: var(--background-color-inverted-contrast);
+        border-color: var(--background-color-inverted);
+      }
+      .qsp-button:focus {
+        outline: none;
+      }
+      .qsp-dialog-container {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .qsp-dialog-container > * {
+        position: relative;
+        pointer-events: auto;
+        border-radius: var(--border-radius);
+        min-width: 400px;
+        padding: var(--spacer--md);
+        background-color: var(--background-color, black);
+        animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+      }
+      .qsp-dialog-container p {
+        margin: 0;
+      }
+      .qsp-pause-screen {
+        display: flex;
+      }
+      .qsp-pause-dialog {
+        width: 90vw;
+      }
+      qsp-pause-screen-content {
+        flex: 1;
+      }
+      .qsp-pause-screen-buttons {
+        display: flex;
+        flex-direction: column;
+        width: 120px;
+        margin-right: 24px;
+      }
+      .qsp-pause-screen-buttons .qsp-button {
+        width: 100%;
+      }
+      .qsp-pause-screen-buttons .qsp-button + .qsp-button {
+        margin-top: 8px;
+        margin-left: 0;
       }
     </style>
     <aero-styles></aero-styles>
@@ -784,26 +846,34 @@
     </div>
   </template>
   <template is="qsp-pause-screen">
-    <qsp-button type="resume">Resume</qsp-button>
-    <qsp-button type="restart">Restart</qsp-button>
-    <qsp-button type="save">Save</qsp-button>
-    <qsp-button type="load">Load</qsp-button>
-    <qsp-button type="preferences">Preferences</qsp-button>
-    <qsp-button type="quit">Quit</qsp-button>
-    <qsp-pause-screen-content>
-      <qsp-pause-screen-credits></qsp-pause-screen-credits>
-      <qsp-pause-screen-save>
-        <h2>Save game</h2>
-        <qsp-slots-list></qsp-slots-list>
-      </qsp-pause-screen-save>
-      <qsp-pause-screen-load>
-        <h2>Load game</h2>
-        <qsp-slots-list></qsp-slots-list>
-      </qsp-pause-screen-load>
-      <qsp-pause-screen-preferences>
-        <h2>Preferences</h2>
-      </qsp-pause-screen-preferences>
-    </qsp-pause-screen-content>
+    <div class="qsp-pause-screen">
+      <div class="qsp-pause-screen-buttons">
+        <qsp-button type="resume" class="qsp-button">Resume</qsp-button>
+        <qsp-button type="restart" class="qsp-button">Restart</qsp-button>
+        <qsp-show when="NOSAVE=0">
+          <qsp-button type="save" class="qsp-button">Save</qsp-button>
+          <qsp-button type="load" class="qsp-button">Load</qsp-button>
+        </qsp-show>
+        <qsp-button type="preferences" class="qsp-button">Preferences</qsp-button>
+        <qsp-button type="quit" class="qsp-button">Quit</qsp-button>
+      </div>
+      <qsp-pause-screen-content>
+        <qsp-pause-screen-credits></qsp-pause-screen-credits>
+        <qsp-show when="NOSAVE=0">
+          <qsp-pause-screen-save>
+            <h2>Save game</h2>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-save>
+          <qsp-pause-screen-load>
+            <h2>Load game</h2>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-load>
+        </qsp-show>
+        <qsp-pause-screen-preferences>
+          <h2>Preferences</h2>
+        </qsp-pause-screen-preferences>
+      </qsp-pause-screen-content>
+    </div>
   </template>
   <template is="qsp-action" tag="button" class="action-item" use-format="$ACTION_FORMAT">
     <table>

@@ -193,8 +193,8 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-save-slot-index'() {
     return <QspSlotIndex />;
   },
-  'qsp-save-slot-date'() {
-    return <QspSlotDate />;
+  'qsp-save-slot-date'(_, children) {
+    return <QspSlotDate>{children}</QspSlotDate>;
   },
   'qsp-variable'(node) {
     const { name, key, index } = extractAttributes(node);

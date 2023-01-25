@@ -10,7 +10,7 @@ export const QspPauseScreenLoad: React.FC<{ attrs: Attributes; children: ReactNo
     await restoreFromSlot(index);
   };
   return (
-    <slotActionContext.Provider value={{ action }}>
+    <slotActionContext.Provider value={{ action, disableEmpty: true }}>
       <Tabs.Content value="load">
         <Tag style={style} {...attributes}>
           {children}

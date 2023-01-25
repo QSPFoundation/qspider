@@ -22,6 +22,8 @@ export async function loadSaveList(): Promise<void> {
 }
 
 export async function saveToSlot(slot: number): Promise<void> {
+  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  if (nosave) return;
   const currentGame = currentGame$.value;
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
@@ -35,6 +37,8 @@ export async function saveToSlot(slot: number): Promise<void> {
 }
 
 export async function restoreFromSlot(slot: number): Promise<void> {
+  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  if (nosave) return;
   const currentGame = currentGame$.value;
   if (!currentGame) return;
   const saveData = await storage$.value?.getSaveDataBySlot(currentGame.id, slot);
@@ -47,6 +51,8 @@ export async function restoreFromSlot(slot: number): Promise<void> {
 }
 
 export async function quickSave(): Promise<void> {
+  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  if (nosave) return;
   const currentGame = currentGame$.value;
   if (!currentGame) return;
   await withCounterPaused(async () => {
@@ -57,6 +63,8 @@ export async function quickSave(): Promise<void> {
 }
 
 export async function quickLoad(): Promise<void> {
+  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  if (nosave) return;
   const currentGame = currentGame$.value;
   if (!currentGame) return;
   await withCounterPaused(async () => {

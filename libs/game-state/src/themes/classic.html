@@ -31,6 +31,9 @@
           --code-background-color-inverted-contrast,
           var(--cl-background-color-inverted-contrast)
         );
+        font-size: var(--font-size);
+        font-family: var(--font-name);
+        color: var(--color);
       }
       qsp-player button,
       qsp-player input,
@@ -53,9 +56,6 @@
         width: 100vw;
         height: 100vh;
         background: var(--background-color);
-        font-size: var(--font-size);
-        font-family: var(--font-name);
-        color: var(--color);
         display: block;
       }
       .qsp-classic-layout {
@@ -237,6 +237,54 @@
         outline: none;
         box-shadow: 0 0 3px 1px var(--background-color-contrast);
       }
+      .qsp-pause-screen {
+        display: flex;
+      }
+      .qsp-pause-dialog {
+        width: 90vw;
+      }
+      qsp-pause-screen-content {
+        flex: 1;
+      }
+      .qsp-pause-screen-buttons {
+        display: flex;
+        flex-direction: column;
+        width: 120px;
+        margin-right: 24px;
+      }
+      .qsp-pause-screen-buttons .qsp-button {
+        width: 100%;
+      }
+      .qsp-pause-screen-buttons .qsp-button + .qsp-button {
+        margin-top: 8px;
+        margin-left: 0;
+      }
+      qsp-slots-list {
+        display: grid;
+        row-gap: 8px;
+        column-gap: 8px;
+        grid-template-columns: repeat(var(--game-columns, 3), 1fr);
+      }
+      .qsp-save-slot {
+        all: unset;
+        cursor: pointer;
+        padding: 4px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        border-radius: var(--border-radius, 4px);
+      }
+      .qsp-save-slot:hover {
+        background-color: var(--background-color-inverted);
+        color: var(--background-color-inverted-contrast);
+      }
+      .qsp-save-slot:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      .qsp-save-slot:disabled:hover {
+        background-color: inherit;
+        color: inherit;
+      }
     </style>
     <qsp-cl>
       <qsp-cl-layer>
@@ -327,26 +375,34 @@
     </qsp-input>
   </template>
   <template is="qsp-pause-screen">
-    <qsp-button type="resume">Resume</qsp-button>
-    <qsp-button type="restart">Restart</qsp-button>
-    <qsp-button type="save">Save</qsp-button>
-    <qsp-button type="load">Load</qsp-button>
-    <qsp-button type="preferences">Preferences</qsp-button>
-    <qsp-button type="quit">Quit</qsp-button>
-    <qsp-pause-screen-content>
-      <qsp-pause-screen-credits></qsp-pause-screen-credits>
-      <qsp-pause-screen-save>
-        <h2>Save game</h2>
-        <qsp-slots-list></qsp-slots-list>
-      </qsp-pause-screen-save>
-      <qsp-pause-screen-load>
-        <h2>Load game</h2>
-        <qsp-slots-list></qsp-slots-list>
-      </qsp-pause-screen-load>
-      <qsp-pause-screen-preferences>
-        <h2>Preferences</h2>
-      </qsp-pause-screen-preferences>
-    </qsp-pause-screen-content>
+    <div class="qsp-pause-screen">
+      <div class="qsp-pause-screen-buttons">
+        <qsp-button type="resume" class="qsp-button">Resume</qsp-button>
+        <qsp-button type="restart" class="qsp-button">Restart</qsp-button>
+        <qsp-show when="NOSAVE=0">
+          <qsp-button type="save" class="qsp-button">Save</qsp-button>
+          <qsp-button type="load" class="qsp-button">Load</qsp-button>
+        </qsp-show>
+        <qsp-button type="preferences" class="qsp-button">Preferences</qsp-button>
+        <qsp-button type="quit" class="qsp-button">Quit</qsp-button>
+      </div>
+      <qsp-pause-screen-content>
+        <qsp-pause-screen-credits></qsp-pause-screen-credits>
+        <qsp-show when="NOSAVE=0">
+          <qsp-pause-screen-save>
+            <h4>Save game</h4>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-save>
+          <qsp-pause-screen-load>
+            <h4>Load game</h4>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-load>
+        </qsp-show>
+        <qsp-pause-screen-preferences>
+          <h2>Preferences</h2>
+        </qsp-pause-screen-preferences>
+      </qsp-pause-screen-content>
+    </div>
   </template>
   <template is="qsp-action" tag="button" class="action-item">
     <qsp-action-image class="action-img"></qsp-action-image>
@@ -361,8 +417,12 @@
     <qsp-menu-name> </qsp-menu-name>
   </template>
   <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
-  <template is="qsp-save-slot">
-    <qsp-save-slot-index></qsp-save-slot-index>
-    <qsp-save-slot-date></qsp-save-slot-date>
+  <template is="qsp-save-slot" class="qsp-save-slot">
+    <h5 class="qsp-slot-index">
+      <qsp-save-slot-index></qsp-save-slot-index>
+    </h5>
+    <div class="qsp-slot-date">
+      <qsp-save-slot-date>Empty</qsp-save-slot-date>
+    </div>
   </template>
 </qspider-theme>

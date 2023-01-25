@@ -10,7 +10,7 @@ export const QspPauseScreenSave: React.FC<{ attrs: Attributes; children: ReactNo
     await saveToSlot(index);
   };
   return (
-    <slotActionContext.Provider value={{ action }}>
+    <slotActionContext.Provider value={{ action, disableEmpty: false }}>
       <Tabs.Content value="save">
         <Tag style={style} {...attributes}>
           {children}
