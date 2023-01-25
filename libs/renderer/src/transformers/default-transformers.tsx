@@ -31,6 +31,7 @@ import { Link } from './base/link';
 import { Element } from '../content/element';
 import { QspT } from '../qsp-t';
 import { QspMain } from '../theme-core/main';
+import { QspLayer } from '../theme-core/layer';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -209,6 +210,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-region'(node) {
     const { name, ...attributes } = extractAttributes(node);
     return <QspRegion name={name as string} attrs={attributes} />;
+  },
+  'qsp-layer'(node, children) {
+    const { name, index, ...attributes } = extractAttributes(node);
+    return (
+      <QspLayer name={name as string} index={parseInt(index)} attrs={attributes}>
+        {children}
+      </QspLayer>
+    );
   },
   'qsp-show'(node, children) {
     const condition = node.getAttribute('when') || '';

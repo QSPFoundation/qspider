@@ -37,3 +37,14 @@ export const viewPath$ = create('');
 export const isViewVisible$ = create(false);
 
 export const regions$ = create<Record<string, string>>({});
+
+export const layers$ = create<Record<string, boolean>>({});
+export function readLayerState(name: string): boolean {
+  return Boolean(qspApi$.value?.readVariableByKey('qspider_layers', name) ?? 0);
+}
+export function registerLayer(name: string): void {
+  layers$.update((current) => ({
+    ...current,
+    [name]: readLayerState(name),
+  }));
+}

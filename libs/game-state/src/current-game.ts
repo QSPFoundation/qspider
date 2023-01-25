@@ -122,9 +122,9 @@ export async function runGame(id: string): Promise<void> {
   } else {
     currentTheme$.set(CLASSIC_THEME);
   }
-  currentGame$.set(descriptor);
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
+  currentGame$.set(descriptor);
   loadSaveList();
   applyWindowSettings(descriptor.window);
 }

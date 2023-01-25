@@ -149,8 +149,19 @@ qsp-pause-screen-preferences,
 qsp-pause-screen-save,
 qsp-pause-screen-load,
 qsp-slots-list,
-qsp-region {
+qsp-region,
+qsp-layer {
   display: block;
+}
+
+qsp-layer {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+qsp-layer > * {
+  pointer-events: all;
 }
 
 .qsp-scroll-root {

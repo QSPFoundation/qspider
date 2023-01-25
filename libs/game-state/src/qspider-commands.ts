@@ -1,5 +1,5 @@
 import { stopCurrentGame } from './current-game';
-import { regions$ } from './panels';
+import { layers$, readLayerState, regions$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { windowManager$ } from './window-manager';
 
@@ -31,6 +31,18 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
   'update_region:'(name: string): void {
     const region$ = regions$.focus((s) => s[name]);
     region$.set(qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '');
+  },
+  'update_layer:'(name: string): void {
+    const layer$ = layers$.focus((s) => s[name]);
+    layer$.set(readLayerState(name));
+  },
+  update_layers(): void {
+    const layers = layers$.value ?? {};
+    const updated: Record<string, boolean> = {};
+    for (const name of Object.keys(layers)) {
+      updated[name] = readLayerState(name);
+    }
+    layers$.set(updated);
   },
   'fullscreen:'(state: string): void {
     if (state === 'on') {
