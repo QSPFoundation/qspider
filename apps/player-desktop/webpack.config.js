@@ -27,5 +27,9 @@ module.exports = (config, context) => {
     test: /\.html$/,
     loader: 'raw-loader',
   });
+  updatedConfig.module.rules.push({
+    test: /\.qsps$/,
+    loader: 'raw-loader',
+  });
   return updatedConfig;
 };

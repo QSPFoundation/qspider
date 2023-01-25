@@ -32,11 +32,14 @@ import { basePath$, getBinaryContent, getResource } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
+import qspiderModuleContent from './modules/qspider.qsps';
+import { readQsps, writeQsp } from '@qsp/converters';
 
 export const qspApi$ = create<QspAPI>();
 export const qspApiInitialized$ = create(false);
 export const platform$ = create('browser');
 export const qspError$ = create<QspErrorData | null>(null);
+export const qspiderModule$ = create(writeQsp(readQsps(qspiderModuleContent)));
 
 export async function initQspApi(): Promise<void> {
   const wasm = await fetch(wasmUrl).then((r) => r.arrayBuffer());
@@ -126,6 +129,12 @@ qspApi$.subscribe((api) => {
     counterDelay$.set(ms);
   });
   api.on('open_game', async (file, isNewGame, onOpened) => {
+    if (file === 'qspider') {
+      api.openGame(qspiderModule$.value, false);
+      onOpened();
+      return;
+    }
+    console.log(file);
     withCounterPaused(async () => {
       const source = await getBinaryContent(file);
       let gameSource = source;
