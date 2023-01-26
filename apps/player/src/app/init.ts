@@ -1,6 +1,7 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
 import {
   baseInit$,
+  basename$,
   games$,
   goToGame,
   initDefered$,
@@ -19,6 +20,7 @@ import TOMLparse from '@iarna/toml/parse-string';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
+  basename$.set(new URL(document.querySelector('base')?.href || '/').pathname);
   initTheme();
   storage$.set(new WebStorage());
   windowManager$.set(windowManager);

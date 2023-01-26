@@ -1,4 +1,4 @@
-import { initDefered$, runGame } from '@qspider/game-state';
+import { basename$, initDefered$, runGame } from '@qspider/game-state';
 import { createBrowserRouter } from 'react-router-dom';
 import { GameRunner } from './game-runner';
 import { GameShelf } from './game-shelf';
@@ -34,6 +34,6 @@ export const router = createBrowserRouter(
     },
   ],
   {
-    basename: new URL(document.querySelector('base')?.href || '/').pathname,
+    basename: basename$.value,
   }
 );

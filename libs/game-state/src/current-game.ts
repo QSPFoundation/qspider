@@ -24,6 +24,7 @@ import { windowManager$ } from './window-manager';
 import TOMLparse from '@iarna/toml/parse-string';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
+import { navigateTo } from './navigation';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -31,7 +32,7 @@ export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width 
 export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.height ?? 600);
 
 export function goToGame(id: string): void {
-  window.location.href = `/game/${id}`;
+  navigateTo(`game/${id}`);
 }
 
 export async function runGame(id: string): Promise<void> {
@@ -170,7 +171,7 @@ export function stopCurrentGame(): void {
   use(themeRegistry$).reset();
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
-  window.location.href = '/';
+  navigateTo('');
 }
 export type GameAction =
   | 'save'

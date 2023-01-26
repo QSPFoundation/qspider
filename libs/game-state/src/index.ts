@@ -20,3 +20,4 @@ export * from './qsp-catalog';
 export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
+export * from './navigation';
