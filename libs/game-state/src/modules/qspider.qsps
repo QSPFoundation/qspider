@@ -1,3 +1,8 @@
+# qspider_change_theme
+! $args[0] - theme name
+exec('qspider.change_theme:<<$args[0]>>')
+---
+
 # qspider_update_region
 ! $args[0] - region name
 ! $args[1] - content

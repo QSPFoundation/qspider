@@ -1,6 +1,8 @@
 import { stopCurrentGame } from './current-game';
 import { layers$, readLayerState, regions$ } from './panels';
 import { qspApi$ } from './qsp-api';
+import { currentTheme$, themeRegistry$ } from './themes';
+import { errorMessage$ } from './toasts';
 import { windowManager$ } from './window-manager';
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
@@ -27,6 +29,15 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
         })
       );
     }
+  },
+  'change_theme:'(name: string): void {
+    const themes = themeRegistry$.value;
+    const esistingTheme = themes[name];
+    if (!esistingTheme) {
+      errorMessage$.set(`Theme ${name} is not registered`);
+      return;
+    }
+    currentTheme$.set(name);
   },
   'update_region:'(name: string): void {
     const region$ = regions$.focus((s) => s[name]);
