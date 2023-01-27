@@ -715,7 +715,7 @@
       .qsp-button {
         cursor: pointer;
         background-color: var(--background-color);
-        color: var(--color);
+        color: var(--background-color-contrast);
         border-radius: 4px;
         padding: 4px 16px;
         border: 1px solid var(--border-color);
@@ -725,8 +725,11 @@
         color: var(--background-color-inverted-contrast);
         border-color: var(--background-color-inverted);
       }
-      .qsp-button:focus {
+      .qsp-button:focus,
+      .qsp-button:focus-within,
+      .qsp-button:focus-visible {
         outline: none;
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
       }
       .qsp-dialog-container {
         position: fixed;
@@ -770,6 +773,35 @@
       .qsp-pause-screen-buttons .qsp-button + .qsp-button {
         margin-top: 8px;
         margin-left: 0;
+      }
+      qsp-slots-list {
+        display: grid;
+        row-gap: 8px;
+        column-gap: 8px;
+        grid-template-columns: repeat(var(--game-columns, 3), 1fr);
+      }
+      .qsp-save-slot {
+        all: unset;
+        cursor: pointer;
+        padding: 4px;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        border-radius: var(--border-radius, 4px);
+      }
+      .qsp-save-slot:focus {
+        box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
+      }
+      .qsp-save-slot:hover {
+        background-color: var(--background-color-inverted);
+        color: var(--background-color-inverted-contrast);
+      }
+      .qsp-save-slot:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+      .qsp-save-slot:disabled:hover {
+        background-color: inherit;
+        color: inherit;
       }
     </style>
     <aero-styles></aero-styles>
@@ -924,8 +956,12 @@
     </table>
   </template>
   <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
-  <template is="qsp-save-slot">
-    <qsp-save-slot-index></qsp-save-slot-index>
-    <qsp-save-slot-date></qsp-save-slot-date>
+  <template is="qsp-save-slot" class="qsp-save-slot">
+    <h5 class="qsp-slot-index">
+      <qsp-save-slot-index></qsp-save-slot-index>
+    </h5>
+    <div class="qsp-slot-date">
+      <qsp-save-slot-date>Empty</qsp-save-slot-date>
+    </div>
   </template>
 </qspider-theme>
