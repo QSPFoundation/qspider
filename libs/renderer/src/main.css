@@ -358,7 +358,8 @@ qsp-layer > * {
 .game-shelf__card-actions {
   margin-top: var(--spacer--sm);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .game-shelf__card .q-remove-game-button {
@@ -672,6 +673,40 @@ qsp-layer > * {
 .q-tooltip-arrow {
   fill: var(--app-background);
   filter: drop-shadow(0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%));
+}
+
+.q-popover-content {
+  border-radius: var(--border-radius);
+  padding: var(--spacer--lg);
+  max-width: 420px;
+  background-color: var(--app-background);
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  z-index: 110;
+}
+.q-popover-content[data-state='open'][data-side='top'] {
+  animation-name: q-slideDownAndFade;
+}
+.q-popover-content[data-state='open'][data-side='right'] {
+  animation-name: q-slideLeftAndFade;
+}
+.q-popover-content[data-state='open'][data-side='bottom'] {
+  animation-name: q-slideUpAndFade;
+}
+.q-popover-content[data-state='open'][data-side='left'] {
+  animation-name: q-slideRightAndFade;
+}
+
+.q-popover-arrow {
+  fill: var(--app-background);
+}
+
+.q-popover-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 
 qsp-cl {
