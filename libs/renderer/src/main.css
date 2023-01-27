@@ -785,6 +785,22 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
   margin-left: var(--spacer--xs);
 }
 
+.q-spin {
+  animation-name: q-spin;
+  animation-duration: 5000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}
+
+@keyframes q-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes q-slideUpAndFade {
   from {
     opacity: 0;
