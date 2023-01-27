@@ -1,9 +1,10 @@
-import { Attributes, saveSlots$, useThemeTemplate } from '@qspider/game-state';
+import { Attributes, saveSlots$, saveSlotsCount$, useThemeTemplate } from '@qspider/game-state';
 import { createContext, ReactNode, useContext } from 'react';
 import { DateTime } from 'luxon';
 import { useAttributes } from '../../content/attributes';
 import { TemplateRenderer } from '../../template-renderer';
 import { useAtom } from '@xoid/react';
+import { create } from 'xoid';
 
 const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 export const slotActionContext = createContext<{ disableEmpty: boolean; action: (index: number) => void }>({
@@ -12,9 +13,10 @@ export const slotActionContext = createContext<{ disableEmpty: boolean; action: 
   disableEmpty: false,
 });
 
-const baseSlots = Array.from({ length: 9 }, (_, index) => index + 1);
+const baseSlots$ = create((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
 
 export const QspSlotsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+  const baseSlots = useAtom(baseSlots$);
   const savedSlots = useAtom(saveSlots$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-slots-list');
   return (

@@ -3,6 +3,7 @@ export interface GameDescriptor {
   mode: 'classic' | 'aero' | 'qspider';
   title: string;
   description?: string;
+  save_slots?: number;
   file: string;
   local_path?: string;
   local_id?: string;

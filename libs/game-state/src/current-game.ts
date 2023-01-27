@@ -30,6 +30,7 @@ export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
 export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width ?? 800);
 export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.height ?? 600);
+export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
 
 export function goToGame(id: string): void {
   navigateTo(`game/${id}`);
