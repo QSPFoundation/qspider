@@ -408,6 +408,7 @@ qsp-layer > * {
 .q-catalog__card-buttons {
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 .q-catalog__card-description {
   margin-top: var(--spacer--sm);

@@ -1,11 +1,24 @@
-import { CatalogGame, moveToShelf } from '@qspider/game-state';
+import { CatalogGame, games$, idPrefix, moveToShelf } from '@qspider/game-state';
 import { Cross1Icon } from '@radix-ui/react-icons';
 import * as Popover from '@radix-ui/react-popover';
+import { useAtom, useSetup } from '@xoid/react';
 import { DateTime } from 'luxon';
+import { create } from 'xoid';
 import { ContentRenderer } from './content-renderer';
 import { formatBytes } from './formatters';
 
-export const CatalogGameCard: React.FC<{ game: CatalogGame }> = ({ game }) => {
+export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
+  const isOnShelf$ = useSetup((props$) => {
+    const gameId$ = props$.focus((p) => p.game.id);
+    return create((get) => {
+      const games = get(games$);
+      const gameId = idPrefix + get(gameId$);
+      console.log(gameId);
+      return gameId in games;
+    });
+  }, props);
+  const isOnShelf = useAtom(isOnShelf$);
+  const { game } = props;
   const icon = game.icon ? game.icon.substring(game.icon.lastIndexOf('com_sobi2')) : null;
   return (
     <Popover.Root>
@@ -33,9 +46,13 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = ({ game }) => {
           <Popover.Trigger asChild>
             <button className="q-ghost-button">Read Description</button>
           </Popover.Trigger>
-          <button className="q-button" onClick={(): Promise<void> => moveToShelf(game)}>
-            Add to shelf
-          </button>
+          {isOnShelf ? (
+            <span>On Shelf</span>
+          ) : (
+            <button className="q-button" onClick={(): Promise<void> => moveToShelf(game)}>
+              Add to shelf
+            </button>
+          )}
         </div>
         <Popover.Portal>
           <Popover.Content className="q-popover-content" sideOffset={5}>
