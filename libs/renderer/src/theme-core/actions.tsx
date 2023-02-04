@@ -76,6 +76,7 @@ export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = (
   };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
+    if (selectedAction$.value < 0) selectAction(index);
     execSelectedAction();
   };
 
