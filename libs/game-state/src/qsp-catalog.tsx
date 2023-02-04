@@ -91,7 +91,10 @@ function convertGameToDescriptor(game: CatalogGame): GameDescriptor {
   return {
     id: idPrefix + game.id,
     mode: game.file_ext === 'aqsp' ? 'aero' : 'classic',
-    title: `${game.title} by ${game.author} (v${game.version})`,
+    title: game.title,
+    author: game.author,
+    ported_by: game.ported_by,
+    version: game.version,
     file: '',
     description: game.description,
     meta: {

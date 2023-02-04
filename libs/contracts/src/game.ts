@@ -2,6 +2,9 @@ export interface GameDescriptor {
   id: string;
   mode: 'classic' | 'aero' | 'qspider';
   title: string;
+  author?: string;
+  ported_by?: string;
+  version?: string;
   description?: string;
   save_slots?: number;
   file: string;

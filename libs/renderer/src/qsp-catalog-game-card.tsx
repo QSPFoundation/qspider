@@ -1,6 +1,7 @@
 import { CatalogGame, games$, idPrefix, moveToShelf } from '@qspider/game-state';
 import { Cross1Icon, UpdateIcon } from '@radix-ui/react-icons';
-import * as Popover from '@radix-ui/react-popover';
+import * as ScrollArea from '@radix-ui/react-scroll-area';
+import * as Dialog from '@radix-ui/react-dialog';
 import { useAtom, useSetup } from '@xoid/react';
 import { DateTime } from 'luxon';
 import { useCallback, useState } from 'react';
@@ -27,8 +28,8 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
     setIsMoving(false);
   }, [game]);
   return (
-    <Popover.Root>
-      <div className="q-catalog__card">
+    <Dialog.Root>
+      <div className="q-catalog__card" data-id={game.id}>
         <h5 className="q-title">
           {game.icon && <img alt="" src={'https://qsp.su/gamestock/image.php?name=' + icon} loading="lazy" />}
           {game.title}
@@ -49,9 +50,13 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
           </div>
         </div>
         <div className="q-catalog__card-buttons">
-          <Popover.Trigger asChild>
-            <button className="q-ghost-button">Read Description</button>
-          </Popover.Trigger>
+          {game.description ? (
+            <Dialog.Trigger asChild>
+              <button className="q-ghost-button">Read Description</button>
+            </Dialog.Trigger>
+          ) : (
+            <div></div>
+          )}
           {isOnShelf ? (
             <span>On Shelf</span>
           ) : (
@@ -66,16 +71,25 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
             </button>
           )}
         </div>
-        <Popover.Portal>
-          <Popover.Content className="q-popover-content" sideOffset={5}>
-            <ContentRenderer content={game.description} />
-            <Popover.Close className="q-ghost-button q-popover-close" aria-label="Close">
-              <Cross1Icon />
-            </Popover.Close>
-            <Popover.Arrow className="q-popover-arrow" />
-          </Popover.Content>
-        </Popover.Portal>
+        {game.description ? (
+          <Dialog.Portal>
+            <Dialog.Overlay className="qspider-dialog-overlay" />
+            <Dialog.Content className="qspider-dialog-content">
+              <ScrollArea.Root className="qspider-scroll-root">
+                <ScrollArea.Viewport className="qspider-scroll-area">
+                  <ContentRenderer content={game.description} />
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar className="qspider-scroll-bar" orientation="vertical">
+                  <ScrollArea.Thumb className="qspider-scroll-thumb" />
+                </ScrollArea.Scrollbar>
+              </ScrollArea.Root>
+              <Dialog.Close className="q-ghost-button q-dialog-close" aria-label="Close">
+                <Cross1Icon />
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        ) : null}
       </div>
-    </Popover.Root>
+    </Dialog.Root>
   );
 };
