@@ -2,7 +2,6 @@ import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import { tauri, path } from '@tauri-apps/api';
 import TOMLparse from '@iarna/toml/parse-string';
-import { use } from 'xoid';
 import { games$ } from '@qspider/game-state';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -44,7 +43,7 @@ export async function prepareGameFromDisk(filePath: string): Promise<string> {
       local_path: filePath,
     };
   }
-  use(games$).update(id, descriptor);
+  games$.actions.update(id, descriptor);
   return id;
 }
 const supportedFileTypes = ['.qsp', '.qsps', '.aqsp', '.zip', '.rar'];

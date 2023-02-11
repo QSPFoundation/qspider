@@ -31,5 +31,11 @@ module.exports = (config, context) => {
     test: /\.qsps$/,
     loader: 'raw-loader',
   });
+  updatedConfig.resolve.fallback = {
+    ...(updatedConfig.resolve.fallback || {}),
+    path: false,
+    fs: false,
+  };
+  updatedConfig.ignoreWarnings = [/Failed to parse source map/];
   return updatedConfig;
 };

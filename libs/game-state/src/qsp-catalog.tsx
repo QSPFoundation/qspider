@@ -1,5 +1,5 @@
 import { GameDescriptor } from '@qspider/contracts';
-import { create, use } from 'xoid';
+import { create } from 'xoid';
 import { showError, showNotice } from './toasts';
 import { games$ } from './game-shelf';
 import { storage$ } from './storage';
@@ -78,7 +78,7 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
   }
   const source = await request.arrayBuffer();
   const descriptor = convertGameToDescriptor(game);
-  use(games$).add(descriptor.id, descriptor);
+  games$.actions.add(descriptor.id, descriptor);
   storage$.value?.addGameSource(descriptor.id, source);
   showNotice(`${game.title} added to shelf`);
 }

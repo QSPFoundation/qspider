@@ -1,7 +1,6 @@
 import { games$, storage$ } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
 import { ChangeEvent, useCallback } from 'react';
-import { use } from 'xoid';
 
 export const OpenGameButton: React.FC = () => {
   const onChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
@@ -10,7 +9,7 @@ export const OpenGameButton: React.FC = () => {
     const id = cyrb53(file.name);
     const existingGame = games$.value[id];
     if (!existingGame) {
-      use(games$).add(id, {
+      games$.actions.add(id, {
         id,
         title: file.name.slice(file.name.lastIndexOf('/') + 1),
         mode: file.name.endsWith('aqsp') ? 'aero' : 'classic',

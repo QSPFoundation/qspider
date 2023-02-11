@@ -1,5 +1,5 @@
 import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVaribleType } from '@qsp/wasm-engine';
-import { create, use } from 'xoid';
+import { create } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm';
@@ -111,17 +111,17 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('is_play', (path, result) => {
-    result(use(sounds$).isPlaying(getResource(path).url));
+    result(sounds$.actions.isPlaying(getResource(path).url));
   });
   api.on('play_file', (path, volume, ready) => {
-    use(sounds$).play(getResource(path), volume);
+    sounds$.actions.play(getResource(path), volume);
     ready();
   });
   api.on('close_file', (path, ready) => {
     if (path) {
-      use(sounds$).close(getResource(path).url);
+      sounds$.actions.close(getResource(path).url);
     } else {
-      use(sounds$).closeAll();
+      sounds$.actions.closeAll();
     }
     ready();
   });

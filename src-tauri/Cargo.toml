@@ -10,7 +10,7 @@ edition = "2018"
 build = "src/build.rs"
 
 [build-dependencies.tauri-build]
-version = "1.2.0"
+version = "1.2.1"
 features = [ ]
 
 [dependencies]
@@ -25,7 +25,7 @@ tauri-plugin-window-state = "0.1"
   features = [ "derive" ]
 
   [dependencies.tauri]
-  version = "1.2.0"
+  version = "1.2.1"
   features = [ "api-all", "cli", "devtools", "icon-png", "updater" ]
 
   [dependencies.uuid]

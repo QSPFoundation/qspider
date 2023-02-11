@@ -14,7 +14,6 @@ import {
 } from '@qspider/game-state';
 import { TauriStorage } from '@qspider/tauri-storage';
 import { cli, os, path } from '@tauri-apps/api';
-import { use } from 'xoid';
 import { prepareGameFromDisk } from './utils';
 import { windowManager } from './window-manager';
 
@@ -42,7 +41,7 @@ export async function init(): Promise<void> {
   } else if (!Object.keys(games$.value).length) {
     const games = await loadGamesFromConfig(`https://qspfoundation.github.io/qspider/game/game.cfg`);
     for (const game of games) {
-      use(games$).add(game.id, game);
+      games$.actions.add(game.id, game);
     }
   }
 

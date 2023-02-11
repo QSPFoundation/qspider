@@ -1,5 +1,5 @@
 import { useAtom } from '@xoid/react';
-import { create, use } from 'xoid';
+import { create } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
 import classicTheme from './themes/classic.html';
@@ -115,7 +115,7 @@ export async function registerThemes(themes: string[]): Promise<void> {
     const content = await getTextContent(themeUrl);
     const parsedThemes = parseTheme(content);
     for (const [alias, data] of Object.entries(parsedThemes)) {
-      use(themeRegistry$).add(alias, data);
+      themeRegistry$.actions.add(alias, data);
     }
   }
 }
@@ -125,7 +125,7 @@ const parser = new DOMParser();
 function loadTheme(content: string): void {
   const parsedThemes = parseTheme(content, false);
   for (const [alias, data] of Object.entries(parsedThemes)) {
-    use(themeRegistry$).add(alias, data);
+    themeRegistry$.actions.add(alias, data);
   }
 }
 loadTheme(classicTheme);

@@ -1,5 +1,4 @@
 import Mousetrap from 'mousetrap';
-import { use } from 'xoid';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
 import { onGameAction } from './current-game';
@@ -48,11 +47,11 @@ export function setupGlobalHotKeys(): void {
     return false;
   });
   Mousetrap.bind(['pageup'], () => {
-    use(volume$).increase();
+    volume$.actions.increase();
     return false;
   });
   Mousetrap.bind(['pagedown'], () => {
-    use(volume$).decrease();
+    volume$.actions.decrease();
     return false;
   });
   Mousetrap.bind(['home'], () => {

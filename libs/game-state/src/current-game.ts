@@ -1,5 +1,5 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
-import { create, use } from 'xoid';
+import { create } from 'xoid';
 import { games$ } from './game-shelf';
 import { storage$ } from './storage';
 import {
@@ -164,12 +164,12 @@ export function stopCurrentGame(): void {
     windowManager.unsetMinSize();
     if (wasResized) windowManager.resize(1024, 768);
   }
-  use(sounds$).clear();
+  sounds$.actions.clear();
   clearResources();
   clearAdditionalResources();
   clearHotkeys();
   currentTheme$.set(CLASSIC_THEME);
-  use(themeRegistry$).reset();
+  themeRegistry$.actions.reset();
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
   navigateTo('');

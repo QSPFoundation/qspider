@@ -5,12 +5,11 @@ import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { use } from 'xoid';
 import { ContentRenderer } from './content-renderer';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   const removeGame = useCallback(() => {
-    use(games$).remove(game.id);
+    games$.actions.remove(game.id);
   }, [game.id]);
   return (
     <Dialog.Root>

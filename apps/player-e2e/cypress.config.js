@@ -12,7 +12,7 @@ module.exports = defineConfig({
     testIsolation: 'on',
     experimentalSessionAndOrigin: true,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    setupNodeEvents(on, config) {},
+    setupNodeEvents() {},
     specPattern: './src/integration/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: './src/support/index.ts',
   },

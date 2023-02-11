@@ -15,7 +15,6 @@ import {
 } from '@qspider/game-state';
 import { cyrb53, fetchProxyFallback } from '@qspider/utils';
 import { WebStorage } from '@qspider/web-storage';
-import { use } from 'xoid';
 import TOMLparse from '@iarna/toml/parse-string';
 import { windowManager } from './window-manager';
 
@@ -61,19 +60,19 @@ export async function init(): Promise<void> {
       }
       const existingGame = games$.value[id];
       if (!existingGame) {
-        use(games$).add(id, descriptor);
+        games$.actions.add(id, descriptor);
       }
       toRun = id;
     }
   } else if (configUrl) {
     const games = await loadGamesFromConfig(configUrl);
     for (const game of games) {
-      use(games$).add(game.id, game);
+      games$.actions.add(game.id, game);
     }
   } else if (!Object.keys(games$.value).length) {
     const games = await loadGamesFromConfig(`game/game.cfg`);
     for (const game of games) {
-      use(games$).add(game.id, game);
+      games$.actions.add(game.id, game);
     }
   }
   baseInit$.set(true);
