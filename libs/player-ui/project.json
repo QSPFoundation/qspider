@@ -10,14 +10,6 @@
       "options": {
         "lintFilePatterns": ["libs/player-ui/**/*.{ts,tsx,js,jsx}"]
       }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/player-ui"],
-      "options": {
-        "jestConfig": "libs/player-ui/jest.config.ts",
-        "passWithNoTests": true
-      }
     }
   }
 }

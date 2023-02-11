@@ -31,10 +31,10 @@
         "babel": true
       },
       "component": {
-        "style": "@emotion/styled"
+        "style": "css"
       },
       "library": {
-        "style": "@emotion/styled",
+        "style": "css",
         "linter": "eslint"
       }
     },
@@ -86,7 +86,7 @@
       "inputs": ["default", "^production"]
     },
     "test": {
-      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
+      "inputs": ["default", "^production"]
     },
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
@@ -94,18 +94,12 @@
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
-    "sharedGlobals": [
-      "{workspaceRoot}/workspace.json",
-      "{workspaceRoot}/nx.json",
-      "{workspaceRoot}/tsconfig.base.json",
-      "{workspaceRoot}/babel.config.json"
-    ],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/jest.config.[jt]s",
       "!{projectRoot}/.eslintrc.json"
-    ]
+    ],
+    "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
   }
 }

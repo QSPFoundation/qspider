@@ -108,14 +108,6 @@
       "options": {
         "lintFilePatterns": ["apps/player/**/*.{ts,tsx,js,jsx}"]
       }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "options": {
-        "jestConfig": "apps/player/jest.config.js",
-        "passWithNoTests": true
-      },
-      "outputs": ["coverage/apps/player"]
     }
   }
 }

@@ -10,14 +10,6 @@
       "options": {
         "lintFilePatterns": ["libs/aero/**/*.{ts,tsx,js,jsx}"]
       }
-    },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/aero"],
-      "options": {
-        "jestConfig": "libs/aero/jest.config.ts",
-        "passWithNoTests": true
-      }
     }
   }
 }
