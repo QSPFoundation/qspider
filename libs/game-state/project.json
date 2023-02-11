@@ -1,0 +1,15 @@
+{
+  "root": "libs/game-state",
+  "sourceRoot": "libs/game-state/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/game-state/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

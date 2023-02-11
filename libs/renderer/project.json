@@ -1,0 +1,15 @@
+{
+  "root": "libs/renderer",
+  "sourceRoot": "libs/renderer/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/renderer/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

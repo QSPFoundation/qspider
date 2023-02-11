@@ -1,0 +1,23 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/player-ui",
+  "sourceRoot": "libs/player-ui/src",
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/player-ui/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/player-ui"],
+      "options": {
+        "jestConfig": "libs/player-ui/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}

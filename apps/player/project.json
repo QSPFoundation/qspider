@@ -1,0 +1,121 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/player",
+  "sourceRoot": "apps/player/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "options": {
+        "baseHref": "/",
+        "outputPath": "dist/apps/player",
+        "index": "apps/player/src/index.html",
+        "main": "apps/player/src/main.tsx",
+        "polyfills": "apps/player/src/polyfills.ts",
+        "tsConfig": "apps/player/tsconfig.app.json",
+        "assets": [
+          "apps/player/src/assets",
+          {
+            "input": "qspider-assets",
+            "glob": "**/*",
+            "output": "assets"
+          },
+          {
+            "input": "./game",
+            "glob": "**/*",
+            "output": "./game"
+          },
+          {
+            "input": "test-assets",
+            "glob": "**/*",
+            "output": "test-assets"
+          }
+        ],
+        "styles": [],
+        "scripts": [],
+        "webpackConfig": "apps/player/webpack.config.js",
+        "buildLibsFromSource": true
+      },
+      "configurations": {
+        "production": {
+          "assets": [
+            "apps/player/src/assets",
+            {
+              "input": "qspider-assets",
+              "glob": "**/*",
+              "output": "assets"
+            },
+            {
+              "input": "./demo",
+              "glob": "**/*",
+              "output": "./"
+            },
+            {
+              "input": "./",
+              "glob": "updater.json",
+              "output": "./"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/player/src/environments/environment.ts",
+              "with": "apps/player/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "extractCss": true,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "2mb",
+              "maximumError": "5mb"
+            }
+          ]
+        },
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        }
+      },
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/webpack:dev-server",
+      "options": {
+        "buildTarget": "player:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "player:build:production"
+        },
+        "development": {
+          "buildTarget": "player:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/player/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "options": {
+        "jestConfig": "apps/player/jest.config.js",
+        "passWithNoTests": true
+      },
+      "outputs": ["coverage/apps/player"]
+    }
+  }
+}

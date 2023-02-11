@@ -1,0 +1,94 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/player-desktop",
+  "sourceRoot": "apps/player-desktop/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "baseHref": "/",
+        "outputPath": "dist/apps/player-desktop",
+        "index": "apps/player-desktop/src/index.html",
+        "main": "apps/player-desktop/src/main.tsx",
+        "polyfills": "apps/player-desktop/src/polyfills.ts",
+        "tsConfig": "apps/player-desktop/tsconfig.app.json",
+        "assets": [
+          "apps/player-desktop/src/assets",
+          {
+            "input": "qspider-assets",
+            "glob": "**/*",
+            "output": "assets"
+          }
+        ],
+        "styles": [],
+        "scripts": [],
+        "webpackConfig": "apps/player-desktop/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "assets": [
+            "apps/player-desktop/src/assets",
+            {
+              "input": "qspider-assets",
+              "glob": "**/*",
+              "output": "assets"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/player-desktop/src/environments/environment.ts",
+              "with": "apps/player-desktop/src/environments/environment.prod.ts"
+            }
+          ],
+          "optimization": true,
+          "outputHashing": "all",
+          "sourceMap": false,
+          "extractCss": true,
+          "namedChunks": false,
+          "extractLicenses": true,
+          "vendorChunk": false,
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "2mb",
+              "maximumError": "5mb"
+            }
+          ]
+        },
+        "development": {
+          "extractLicenses": false,
+          "optimization": false,
+          "sourceMap": true,
+          "vendorChunk": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/webpack:dev-server",
+      "options": {
+        "buildTarget": "player-desktop:build",
+        "hmr": true
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "player-desktop:build:production",
+          "hmr": false
+        },
+        "development": {
+          "buildTarget": "player-desktop:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/player-desktop/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}
