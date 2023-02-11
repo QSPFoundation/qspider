@@ -1,4 +1,5 @@
 {
+  "name": "player-e2e",
   "root": "apps/player-e2e",
   "sourceRoot": "apps/player-e2e/src",
   "projectType": "application",

@@ -1,4 +1,6 @@
 {
+  "name": "core",
+  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "libs/core",
   "sourceRoot": "libs/core/src",

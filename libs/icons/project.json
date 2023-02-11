@@ -1,4 +1,6 @@
 {
+  "name": "icons",
+  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "libs/icons",
   "sourceRoot": "libs/icons/src",

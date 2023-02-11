@@ -1,8 +1,9 @@
 {
+  "name": "web-storage",
+  "tags": [],
   "root": "libs/web-storage",
   "sourceRoot": "libs/web-storage/src",
   "projectType": "library",
-  "tags": [],
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",

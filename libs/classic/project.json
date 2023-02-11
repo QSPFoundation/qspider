@@ -1,4 +1,6 @@
 {
+  "name": "classic",
+  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "libs/classic",
   "sourceRoot": "libs/classic/src",

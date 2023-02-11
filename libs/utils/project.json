@@ -1,4 +1,6 @@
 {
+  "name": "utils",
+  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "libs/utils",
   "sourceRoot": "libs/utils/src",

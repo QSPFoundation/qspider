@@ -1,87 +1,57 @@
 {
+  "name": "player-desktop",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "apps/player-desktop",
   "sourceRoot": "apps/player-desktop/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nrwl/vite:build",
       "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "baseHref": "/",
-        "outputPath": "dist/apps/player-desktop",
-        "index": "apps/player-desktop/src/index.html",
-        "main": "apps/player-desktop/src/main.tsx",
-        "polyfills": "apps/player-desktop/src/polyfills.ts",
-        "tsConfig": "apps/player-desktop/tsconfig.app.json",
-        "assets": [
-          "apps/player-desktop/src/assets",
-          {
-            "input": "qspider-assets",
-            "glob": "**/*",
-            "output": "assets"
-          }
-        ],
-        "styles": [],
-        "scripts": [],
-        "webpackConfig": "apps/player-desktop/webpack.config.js"
+        "outputPath": "dist/apps/player-desktop"
       },
       "configurations": {
-        "production": {
-          "assets": [
-            "apps/player-desktop/src/assets",
-            {
-              "input": "qspider-assets",
-              "glob": "**/*",
-              "output": "assets"
-            }
-          ],
-          "fileReplacements": [
-            {
-              "replace": "apps/player-desktop/src/environments/environment.ts",
-              "with": "apps/player-desktop/src/environments/environment.prod.ts"
-            }
-          ],
-          "optimization": true,
-          "outputHashing": "all",
-          "sourceMap": false,
-          "extractCss": true,
-          "namedChunks": false,
-          "extractLicenses": true,
-          "vendorChunk": false,
-          "budgets": [
-            {
-              "type": "initial",
-              "maximumWarning": "2mb",
-              "maximumError": "5mb"
-            }
-          ]
-        },
         "development": {
-          "extractLicenses": false,
-          "optimization": false,
-          "sourceMap": true,
-          "vendorChunk": true
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
         }
-      },
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
-      "executor": "@nrwl/webpack:dev-server",
+      "executor": "@nrwl/vite:dev-server",
       "options": {
-        "buildTarget": "player-desktop:build",
-        "hmr": true
+        "buildTarget": "player-desktop:build"
       },
       "configurations": {
         "production": {
           "buildTarget": "player-desktop:build:production",
-          "hmr": false
+          "hmr": true
         },
         "development": {
-          "buildTarget": "player-desktop:build:development"
+          "buildTarget": "player-desktop:build:development",
+          "hmr": true
         }
       },
       "defaultConfiguration": "development"
+    },
+    "preview": {
+      "executor": "@nrwl/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "player-desktop:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "player-desktop:build:development"
+        },
+        "production": {
+          "buildTarget": "player-desktop:build:production"
+        }
+      }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
@@ -90,5 +60,6 @@
         "lintFilePatterns": ["apps/player-desktop/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  }
+  },
+  "tags": []
 }

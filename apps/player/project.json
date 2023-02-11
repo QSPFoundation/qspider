@@ -1,106 +1,57 @@
 {
+  "name": "player",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "apps/player",
   "sourceRoot": "apps/player/src",
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/webpack:webpack",
+      "executor": "@nrwl/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
       "options": {
-        "baseHref": "/",
-        "outputPath": "dist/apps/player",
-        "index": "apps/player/src/index.html",
-        "main": "apps/player/src/main.tsx",
-        "polyfills": "apps/player/src/polyfills.ts",
-        "tsConfig": "apps/player/tsconfig.app.json",
-        "assets": [
-          "apps/player/src/assets",
-          {
-            "input": "qspider-assets",
-            "glob": "**/*",
-            "output": "assets"
-          },
-          {
-            "input": "./game",
-            "glob": "**/*",
-            "output": "./game"
-          },
-          {
-            "input": "test-assets",
-            "glob": "**/*",
-            "output": "test-assets"
-          }
-        ],
-        "styles": [],
-        "scripts": [],
-        "webpackConfig": "apps/player/webpack.config.js",
-        "buildLibsFromSource": true
+        "outputPath": "dist/apps/player"
       },
       "configurations": {
-        "production": {
-          "assets": [
-            "apps/player/src/assets",
-            {
-              "input": "qspider-assets",
-              "glob": "**/*",
-              "output": "assets"
-            },
-            {
-              "input": "./demo",
-              "glob": "**/*",
-              "output": "./"
-            },
-            {
-              "input": "./",
-              "glob": "updater.json",
-              "output": "./"
-            }
-          ],
-          "fileReplacements": [
-            {
-              "replace": "apps/player/src/environments/environment.ts",
-              "with": "apps/player/src/environments/environment.prod.ts"
-            }
-          ],
-          "optimization": true,
-          "outputHashing": "all",
-          "sourceMap": false,
-          "extractCss": true,
-          "namedChunks": false,
-          "extractLicenses": true,
-          "vendorChunk": false,
-          "budgets": [
-            {
-              "type": "initial",
-              "maximumWarning": "2mb",
-              "maximumError": "5mb"
-            }
-          ]
-        },
         "development": {
-          "extractLicenses": false,
-          "optimization": false,
-          "sourceMap": true,
-          "vendorChunk": true
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
         }
-      },
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production"
+      }
     },
     "serve": {
-      "executor": "@nrwl/webpack:dev-server",
+      "executor": "@nrwl/vite:dev-server",
+      "defaultConfiguration": "development",
       "options": {
         "buildTarget": "player:build"
       },
       "configurations": {
         "production": {
-          "buildTarget": "player:build:production"
+          "buildTarget": "player:build:production",
+          "hmr": true
         },
         "development": {
-          "buildTarget": "player:build:development"
+          "buildTarget": "player:build:development",
+          "hmr": true
         }
+      }
+    },
+    "preview": {
+      "executor": "@nrwl/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "player:build"
       },
-      "defaultConfiguration": "development"
+      "configurations": {
+        "development": {
+          "buildTarget": "player:build:development"
+        },
+        "production": {
+          "buildTarget": "player:build:production"
+        }
+      }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
@@ -109,5 +60,6 @@
         "lintFilePatterns": ["apps/player/**/*.{ts,tsx,js,jsx}"]
       }
     }
-  }
+  },
+  "tags": []
 }

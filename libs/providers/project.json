@@ -1,4 +1,6 @@
 {
+  "name": "providers",
+  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "libs/providers",
   "sourceRoot": "libs/providers/src",

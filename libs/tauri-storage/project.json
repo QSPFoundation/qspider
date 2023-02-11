@@ -1,4 +1,6 @@
 {
+  "name": "tauri-storage",
+  "tags": [],
   "root": "libs/tauri-storage",
   "sourceRoot": "libs/tauri-storage/src",
   "projectType": "library",
@@ -10,6 +12,5 @@
         "lintFilePatterns": ["libs/tauri-storage/**/*.ts"]
       }
     }
-  },
-  "tags": []
+  }
 }

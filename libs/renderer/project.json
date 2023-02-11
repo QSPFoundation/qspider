@@ -1,8 +1,9 @@
 {
+  "name": "renderer",
+  "tags": [],
   "root": "libs/renderer",
   "sourceRoot": "libs/renderer/src",
   "projectType": "library",
-  "tags": [],
   "targets": {
     "lint": {
       "executor": "@nrwl/linter:eslint",
