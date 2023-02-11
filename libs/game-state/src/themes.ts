@@ -2,8 +2,8 @@ import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
-import classicTheme from './themes/classic.html';
-import aeroTheme from './themes/aero.html';
+import classicTheme from './themes/classic.html?raw';
+import aeroTheme from './themes/aero.html?raw';
 import { useQspVariable } from './qsp-api';
 
 export const CLASSIC_THEME = 'qspider:classic';

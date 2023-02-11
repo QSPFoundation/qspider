@@ -2,7 +2,7 @@ import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVaribleType } from '@
 import { create } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm';
+import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm?url';
 import { useEffect, useState } from 'react';
 import {
   actions$,
@@ -32,7 +32,7 @@ import { basePath$, getBinaryContent, getResource } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
-import qspiderModuleContent from './modules/qspider.qsps';
+import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 
 export const qspApi$ = create<QspAPI>();

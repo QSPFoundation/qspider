@@ -4,7 +4,7 @@ import { unzip } from 'fflate';
 import { createExtractorFromData } from 'node-unrar-js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import unrarWasm from 'node-unrar-js/esm/js/unrar.wasm';
+import unrarWasm from 'node-unrar-js/esm/js/unrar.wasm?url';
 
 export type ArchiveContent = Record<string, Uint8Array>;
 

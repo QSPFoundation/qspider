@@ -1,8 +1,8 @@
-@import '~@radix-ui/colors/indigo.css';
-@import '~@radix-ui/colors/indigoDark.css';
-@import '~@radix-ui/colors/slate.css';
-@import '~@radix-ui/colors/tomato.css';
-@import '~@radix-ui/colors/tomatoDark.css';
+@import '@radix-ui/colors/indigo.css';
+@import '@radix-ui/colors/indigoDark.css';
+@import '@radix-ui/colors/slate.css';
+@import '@radix-ui/colors/tomato.css';
+@import '@radix-ui/colors/tomatoDark.css';
 
 :root {
   --app-background: var(--indigo1);
@@ -328,7 +328,7 @@ qsp-layer > * {
   text-transform: uppercase;
   font-weight: bold;
   color: #ff0002;
-  background: url(/assets/qspider-logo.png);
+  background: url(/qspider-logo.png);
   background-repeat: no-repeat;
   background-size: contain;
   margin-right: var(--spacer--md);

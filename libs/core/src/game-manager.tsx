@@ -2,7 +2,7 @@ import { observable, action, makeObservable, runInAction } from 'mobx';
 import { initQspEngine, QspAPI, QspErrorData, QspEvents, QspListItem } from '@qsp/wasm-engine';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm';
+import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm?url';
 import { prepareContent, prepareList } from './helpers';
 import { SaveManager } from './save-manager';
 import { HotKeysManager } from './hotkeys';
