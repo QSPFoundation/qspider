@@ -62,7 +62,7 @@ export async function loadQspCatalog(): Promise<void> {
   catalogLoading$.value = 'loading';
   try {
     const request = await fetch(CATALOG_URL);
-    if (!request.ok) throw new Error('Failed to load');
+    if (!request.ok) throw new Error('Failed to load catalog');
     const data = await request.json();
     qspCatalogList$.value = data;
     catalogLoading$.value = 'loaded';

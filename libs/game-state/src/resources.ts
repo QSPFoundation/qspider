@@ -70,12 +70,12 @@ export async function getBinaryContent(file: string): Promise<ArrayBuffer> {
   const path = preparePath(file);
   if (isLocalFSUsed$.value) {
     const content = localFS$.value[path.toLowerCase()];
-    if (!content) new Error(`File ${file} not found`);
+    if (!content) new Error(`File not found`);
     return content;
   }
 
   return fetchProxyFallback(path).then((r) => {
-    if (!r.ok) throw new Error(`File ${file} not found`);
+    if (!r.ok) throw new Error(`File not found`);
     return r.arrayBuffer();
   });
 }
@@ -84,12 +84,12 @@ export async function getTextContent(file: string): Promise<string> {
   const path = preparePath(file);
   if (isLocalFSUsed$.value && !file.startsWith('http')) {
     const content = localFS$.value[path.toLowerCase()];
-    if (!content) throw new Error(`File ${file} not found`);
+    if (!content) throw new Error(`File not found`);
     const blob = new Blob([content]);
     return blob.text();
   }
   return fetchProxyFallback(path).then((r) => {
-    if (!r.ok) throw new Error(`File ${file} not found`);
+    if (!r.ok) throw new Error(`File not found`);
     return r.text();
   });
 }

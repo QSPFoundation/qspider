@@ -45,7 +45,7 @@ export async function runGame(id: string): Promise<void> {
     await fillLocalFS(source, file);
   } else {
     const source = await fetchProxyFallback(file).then((r) => {
-      if (!r.ok) throw new Error('game file not found');
+      if (!r.ok) throw new Error('Game file not found');
       return r.arrayBuffer();
     });
     if (isZip(source.slice(0, 4))) {
