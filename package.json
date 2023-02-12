@@ -119,10 +119,6 @@
   "standard-version": {
     "bumpFiles": [
       {
-        "filename": "src-tauri/tauri.conf.json",
-        "updater": "tools/tauri-version-updater.js"
-      },
-      {
         "filename": "src-tauri/Cargo.toml",
         "updater": "tools/cargo-version-updater.js"
       },
