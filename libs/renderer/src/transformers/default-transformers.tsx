@@ -114,8 +114,25 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return <QspViewImage attrs={attributes} />;
   },
   'qsp-menu'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspMenu attrs={attributes}>{children}</QspMenu>;
+    const {
+      'show-as': showAs,
+      'show-at': showAt,
+      'offset-x': offsetX,
+      'offset-y': offsetY,
+      ...attributes
+    } = extractAttributes(node);
+
+    return (
+      <QspMenu
+        showAs={showAs as 'mouse'}
+        showAt={showAt}
+        offsetX={offsetX ? parseInt(offsetX, 10) : 0}
+        offsetY={offsetY ? parseInt(offsetY, 10) : 0}
+        attrs={attributes}
+      >
+        {children}
+      </QspMenu>
+    );
   },
   'qsp-menu-list'(node) {
     return <QspMenuList attrs={extractAttributes(node)} />;

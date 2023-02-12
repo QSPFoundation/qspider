@@ -11,7 +11,7 @@ import {
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, CSSProperties, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
@@ -23,24 +23,61 @@ const menuContext = createContext<{ item: QspListItem; index: number; displayInd
   displayIndex: -1,
 });
 
-export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+export const QspMenu: React.FC<{
+  showAs: 'mouse' | 'fixed';
+  showAt?: string;
+  offsetX: number;
+  offsetY: number;
+  attrs: Attributes;
+  children: ReactNode;
+}> = ({ attrs, showAs, showAt, offsetX, offsetY, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
   const isVisible = useAtom(menu$);
   const coordinates = useClickCoordinates();
+  const triggerStyle: CSSProperties = { position: 'fixed' };
+  let align: 'center' | 'start' | 'end' = 'start';
+  let side: 'bottom' | 'left' | 'right' | 'top' = 'bottom';
+  if (showAs === 'fixed') {
+    const [x, y] = (showAt ?? 'left top').split(' ');
+    switch (x) {
+      case 'left':
+        triggerStyle.left = offsetX;
+        break;
+      case 'center':
+        triggerStyle.left = `calc(50% - ${offsetX}px)`;
+        align = 'center';
+        break;
+      case 'right':
+        triggerStyle.right = offsetX;
+        align = 'end';
+        break;
+    }
+    switch (y) {
+      case 'top':
+        triggerStyle.top = offsetY;
+        break;
+      case 'center':
+        triggerStyle.top = `calc(50% - ${offsetY}px)`;
+        side = 'left';
+        break;
+      case 'bottom':
+        triggerStyle.bottom = offsetY;
+        side = 'top';
+        break;
+    }
+  } else {
+    triggerStyle.left = coordinates.x ?? 0;
+    triggerStyle.top = coordinates.y ?? 0;
+  }
+  console.log(triggerStyle, offsetX);
   if (!isVisible) return null;
   return (
     <DropdownMenu.Root open={true} onOpenChange={(): void => selectMenuItem(-1)}>
       <DropdownMenu.Trigger asChild>
-        <div
-          style={{
-            position: 'fixed',
-            left: coordinates.x || 0,
-            top: coordinates.y || 0,
-          }}
-        ></div>
+        <div style={triggerStyle}></div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal container={document.getElementById('portal-container')}>
-        <DropdownMenu.Content align="start">
+        <DropdownMenu.Content align={align} side={side} loop>
           <Tag style={style} {...attributes}>
             {children}
           </Tag>
