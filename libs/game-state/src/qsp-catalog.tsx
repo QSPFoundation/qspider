@@ -3,6 +3,7 @@ import { create } from 'xoid';
 import { showError, showNotice } from './toasts';
 import { games$ } from './game-shelf';
 import { storage$ } from './storage';
+import { extractGameDescriptor } from './resources';
 
 export interface CatalogGame {
   id: number;
@@ -77,7 +78,15 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
     return;
   }
   const source = await request.arrayBuffer();
-  const descriptor = convertGameToDescriptor(game);
+  let descriptor = await extractGameDescriptor(source);
+  if (descriptor) {
+    descriptor.id = idPrefix + game.id;
+    descriptor.meta = {
+      source: 'org.qsp.games',
+    };
+  } else {
+    descriptor = convertGameToDescriptor(game);
+  }
   games$.actions.add(descriptor.id, descriptor);
   storage$.value?.addGameSource(descriptor.id, source);
   showNotice(`${game.title} added to shelf`);

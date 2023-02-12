@@ -12,6 +12,7 @@ import {
   isSupportedArchive,
   readSupportedArchive,
 } from './utils';
+import { parse } from 'iarna-toml-esm';
 
 export const localFS$ = create<Record<string, Uint8Array>>({});
 export const isLocalFSUsed$ = create(false);
@@ -212,4 +213,18 @@ function processFSEntry(entry: FileDir | File, repo: ArchiveContent, prefix: str
   } else {
     repo[prefix + entry.name.toLocaleLowerCase()] = entry.data;
   }
+}
+
+export async function extractGameDescriptor(source: ArrayBuffer): Promise<GameDescriptor | null> {
+  if (isSupportedArchive(source.slice(0, 4))) {
+    const resources = await readSupportedArchive(source);
+    const [files] = normalizeFSTree(resources);
+    if ('game.cfg' in files) {
+      const blob = new Blob([files['game.cfg']]);
+      const text = await blob.text();
+      const descriptor = parse(text) as unknown as GameDescriptor;
+      return descriptor;
+    }
+  }
+  return null;
 }
