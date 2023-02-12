@@ -21,7 +21,7 @@ import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
 import { loadSaveList } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
-import TOMLparse from '@iarna/toml/parse-string';
+import { parse } from 'iarna-toml-esm';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { navigateTo } from './navigation';
@@ -62,7 +62,7 @@ export async function runGame(id: string): Promise<void> {
 
   try {
     const configContent = await getTextContent('game.cfg');
-    const config = TOMLparse(configContent) as unknown as PlayerConfig;
+    const config = parse(configContent) as unknown as PlayerConfig;
     if (config.game?.length === 1) {
       [descriptor] = config.game;
     } else {

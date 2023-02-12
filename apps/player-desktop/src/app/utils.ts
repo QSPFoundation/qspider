@@ -1,7 +1,7 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import { tauri, path } from '@tauri-apps/api';
-import TOMLparse from '@iarna/toml/parse-string';
+import { parse } from 'iarna-toml-esm';
 import { games$ } from '@qspider/game-state';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -20,7 +20,7 @@ export async function prepareGameFromDisk(filePath: string): Promise<string> {
   let descriptor: GameDescriptor;
   try {
     const rawConfig = await fetch(gameConfigUrl).then((r) => r.text());
-    const config = TOMLparse(rawConfig) as unknown as PlayerConfig;
+    const config = parse(rawConfig) as unknown as PlayerConfig;
     if (config.game.length === 1) {
       [descriptor] = config.game;
     } else {

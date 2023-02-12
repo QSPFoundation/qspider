@@ -30,7 +30,6 @@
   "dependencies": {
     "@emotion/react": "11.10.5",
     "@emotion/styled": "11.10.5",
-    "@iarna/toml": "^3.0.0",
     "@popperjs/core": "^2.11.6",
     "@qsp/converters": "^1.0.1",
     "@qsp/wasm-engine": "^1.0.5",
@@ -60,6 +59,7 @@
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-chained-backend": "^4.2.0",
     "i18next-fetch-backend": "^5.0.2",
+    "iarna-toml-esm": "^3.0.5",
     "interweave": "^13.0.0",
     "localforage": "^1.10.0",
     "luxon": "^3.2.1",

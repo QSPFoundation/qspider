@@ -16,7 +16,7 @@ import {
 } from '@qspider/contracts';
 import { defer, Defered, hashString } from '@qspider/utils';
 import { AudioEngine } from '@qspider/audio';
-import TOMLparse from '@iarna/toml/parse-string';
+import { parse } from 'iarna-toml-esm';
 
 export class GameManager implements IGameManager {
   config: PlayerConfig | null = null;
@@ -151,7 +151,7 @@ export class GameManager implements IGameManager {
     try {
       this.config = await fetch(mainConfig)
         .then((r) => r.text())
-        .then((text) => TOMLparse(text) as unknown as PlayerConfig);
+        .then((text) => parse(text) as unknown as PlayerConfig);
       this.configPath = mainConfig.slice(0, mainConfig.lastIndexOf('/') + 1);
     } catch (err) {
       this.errorData = {
@@ -211,7 +211,7 @@ export class GameManager implements IGameManager {
   async runGame(gameSource: ArrayBuffer, descriptor: GameDescriptor): Promise<void> {
     try {
       const gameConfigContent = await this.resources.getTextContent('game.cfg');
-      const config = TOMLparse(gameConfigContent) as unknown as PlayerConfig;
+      const config = parse(gameConfigContent) as unknown as PlayerConfig;
       const [descriptor] = config.game;
       if (!descriptor) throw new Error('failed to load game config');
       runInAction(() => {
