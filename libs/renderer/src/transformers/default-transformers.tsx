@@ -245,8 +245,8 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return <QspStyle from={from} />;
   },
   'qsp-t'(node) {
-    const tkey = node.getAttribute('tkey') || '';
-    return <QspT tkey={tkey} />;
+    const children = node.innerText;
+    return <QspT>{children}</QspT>;
   },
   a: (node, children) => {
     const { href, ...attributes } = extractAttributes(node);

@@ -13,6 +13,7 @@ import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/re
 
 import { useAtom } from '@xoid/react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { QspiderLoader } from './loader';
 import { Select } from './primitives/select';
 import { CatalogGameCard } from './qsp-catalog-game-card';
@@ -37,6 +38,7 @@ export const QspCatalog: React.FC = () => {
   useEffect(() => {
     loadQspCatalog();
   }, []);
+  const { t } = useTranslation();
   const loadingState = useAtom(catalogLoading$);
   const games = useAtom(qspCatalogPreparedList$);
   const authors = useAtom(qspAuthors$);
@@ -44,17 +46,18 @@ export const QspCatalog: React.FC = () => {
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
+
   if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <QspiderLoader />;
   if (loadingState === 'failed')
     return (
       <>
-        Loading failed{' '}
+        {t('Loading failed')}
         <button
           onClick={(): void => {
             loadQspCatalog();
           }}
         >
-          Retry
+          {t('Retry')}
         </button>
       </>
     );
@@ -62,7 +65,7 @@ export const QspCatalog: React.FC = () => {
     <div>
       <div className="q-catalog__filterbar">
         <div className="q-catalog__filterbar-block">
-          <label>Filter by Author:</label>
+          <label>{t('Filter by Author')}:</label>
           <div>
             <Select
               name="author-filter"
@@ -74,10 +77,10 @@ export const QspCatalog: React.FC = () => {
             />
           </div>
           {authorsFilter ? (
-            <QspiderTooltip content="Clear Author filter">
+            <QspiderTooltip content={t('Clear Author filter')}>
               <button
                 className="q-ghost-button"
-                aria-label="Clear Author filter"
+                aria-label={t('Clear Author filter') ?? ''}
                 onClick={(): void => qspAuthorFilter$.set('')}
               >
                 <Cross1Icon />
@@ -86,26 +89,28 @@ export const QspCatalog: React.FC = () => {
           ) : null}
         </div>
         <div className="q-catalog__filterbar-block">
-          <label>Sort by:</label>
+          <label>{t('Sort by')}:</label>
           <div>
             <Select
               options={sortOptions}
-              placehoder="Sort by"
-              label="Sort field"
+              placehoder={t('Sort by')}
+              label={t('Sort field')}
               value={sortField}
               onValueChange={(value): void => qspSortByField$.set(value)}
             />
           </div>
-          <button
-            className="q-ghost-button"
-            onClick={toggleSortDirection}
-            aria-label={sortDirection === 'asc' ? 'Sort Ascending' : 'Sort Descending'}
-          >
-            {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
-          </button>
+          <QspiderTooltip content={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}>
+            <button
+              className="q-ghost-button"
+              onClick={toggleSortDirection}
+              aria-label={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}
+            >
+              {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
+            </button>
+          </QspiderTooltip>
         </div>
         <div className="q-catalog__filterbar-block">
-          <label htmlFor="search-input">Search:</label>
+          <label htmlFor="search-input">{t('Search')}:</label>
           <div>
             <input
               name="search-input"

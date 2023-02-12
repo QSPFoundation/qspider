@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
-export const QspT: React.FC<{ tkey: string }> = ({ tkey }) => {
+export const QspT: React.FC<{ children: string }> = ({ children }) => {
   const [t] = useTranslation();
 
-  return <>{t(tkey)}</>;
+  return <>{t(children)}</>;
 };

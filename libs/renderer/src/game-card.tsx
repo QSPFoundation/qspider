@@ -6,8 +6,10 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ContentRenderer } from './content-renderer';
+import { useTranslation } from 'react-i18next';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
+  const { t } = useTranslation();
   const removeGame = useCallback(() => {
     games$.actions.remove(game.id);
   }, [game.id]);
@@ -26,19 +28,31 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
           <h3 className="game-shelf__card-title">{game.title}</h3>
         </div>
         <div className="game-shelf__card-details">
-          {game.author && <div className="game-shelf__card-details-row">Author: {game.author}</div>}
-          {game.ported_by && <div className="game-shelf__card-details-row">Ported by: {game.ported_by}</div>}
-          {game.version && <div className="game-shelf__card-details-row">Version: {game.version}</div>}
+          {game.author && (
+            <div className="game-shelf__card-details-row">
+              {t('Author')}: {game.author}
+            </div>
+          )}
+          {game.ported_by && (
+            <div className="game-shelf__card-details-row">
+              {t('Ported by')}: {game.ported_by}
+            </div>
+          )}
+          {game.version && (
+            <div className="game-shelf__card-details-row">
+              {t('Version')}: {game.version}
+            </div>
+          )}
         </div>
         <div className="game-shelf__card-actions">
           {game.description ? (
             <Dialog.Trigger asChild>
-              <button className="q-ghost-button">Read Description</button>
+              <button className="q-ghost-button">{t('Read Description')}</button>
             </Dialog.Trigger>
           ) : (
             <div></div>
           )}
-          <Link to={`/game/${game.id}`}>Run</Link>
+          <Link to={`/game/${game.id}`}>{t('Run')}</Link>
         </div>
         {game.description && (
           <Dialog.Portal>

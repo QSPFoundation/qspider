@@ -365,7 +365,7 @@
     <qsp-msg>
       <qsp-msg-content></qsp-msg-content>
       <div class="qsp-dialog-buttons">
-        <qsp-ok-button class="qsp-button" focus>Ok</qsp-ok-button>
+        <qsp-ok-button class="qsp-button" focus><qsp-t>Ok</qsp-t></qsp-ok-button>
       </div>
       <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-msg>
@@ -373,8 +373,8 @@
       <qsp-input-content></qsp-input-content>
       <qsp-input-tag class="qsp-input"></qsp-input-tag>
       <div class="qsp-dialog-buttons">
-        <qsp-ok-button class="qsp-button">Ok</qsp-ok-button>
-        <qsp-cancel-button class="qsp-button">Cancel</qsp-cancel-button>
+        <qsp-ok-button class="qsp-button"><qsp-t>Ok</qsp-t></qsp-ok-button>
+        <qsp-cancel-button class="qsp-button"><qsp-t>Cancel</qsp-t></qsp-cancel-button>
       </div>
       <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-input>
@@ -382,29 +382,29 @@
   <template is="qsp-pause-screen">
     <div class="qsp-pause-screen">
       <div class="qsp-pause-screen-buttons">
-        <qsp-button type="resume" class="qsp-button">Resume</qsp-button>
-        <qsp-button type="restart" class="qsp-button">Restart</qsp-button>
+        <qsp-button type="resume" class="qsp-button"><qsp-t>Resume</qsp-t></qsp-button>
+        <qsp-button type="restart" class="qsp-button"><qsp-t>Restart</qsp-t></qsp-button>
         <qsp-show when="NOSAVE=0">
-          <qsp-button type="save" class="qsp-button">Save</qsp-button>
-          <qsp-button type="load" class="qsp-button">Load</qsp-button>
+          <qsp-button type="save" class="qsp-button"><qsp-t>Save</qsp-t></qsp-button>
+          <qsp-button type="load" class="qsp-button"><qsp-t>Load</qsp-t></qsp-button>
         </qsp-show>
-        <qsp-button type="preferences" class="qsp-button">Preferences</qsp-button>
-        <qsp-button type="quit" class="qsp-button">Quit</qsp-button>
+        <qsp-button type="preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></qsp-button>
+        <qsp-button type="quit" class="qsp-button"><qsp-t>Quit</qsp-t></qsp-button>
       </div>
       <qsp-pause-screen-content>
         <qsp-pause-screen-credits></qsp-pause-screen-credits>
         <qsp-show when="NOSAVE=0">
           <qsp-pause-screen-save>
-            <h4>Save game</h4>
+            <h4><qsp-t>Save game</qsp-t>Save game</h4>
             <qsp-slots-list></qsp-slots-list>
           </qsp-pause-screen-save>
           <qsp-pause-screen-load>
-            <h4>Load game</h4>
+            <h4><qsp-t>Load game</qsp-t></h4>
             <qsp-slots-list></qsp-slots-list>
           </qsp-pause-screen-load>
         </qsp-show>
         <qsp-pause-screen-preferences>
-          <h2>Preferences</h2>
+          <h2><qsp-t>Preferences</qsp-t></h2>
         </qsp-pause-screen-preferences>
       </qsp-pause-screen-content>
     </div>
@@ -427,7 +427,7 @@
       <qsp-save-slot-index></qsp-save-slot-index>
     </h5>
     <div class="qsp-slot-date">
-      <qsp-save-slot-date>Empty</qsp-save-slot-date>
+      <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
     </div>
   </template>
 </qspider-theme>

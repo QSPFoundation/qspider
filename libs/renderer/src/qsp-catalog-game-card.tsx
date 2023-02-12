@@ -8,8 +8,10 @@ import { useCallback, useState } from 'react';
 import { create } from 'xoid';
 import { ContentRenderer } from './content-renderer';
 import { formatBytes } from './formatters';
+import { useTranslation } from 'react-i18next';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
+  const { t } = useTranslation();
   const isOnShelf$ = useSetup((props$) => {
     const gameId$ = props$.focus((p) => p.game.id);
     return create((get) => {
@@ -37,28 +39,40 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
 
         <div className="q-catalog__card-details">
           <div>
-            <div className="q-catalog__card-details-row">Author: {game.author}</div>
-            {game.ported_by && <div className="q-catalog__card-details-row">Ported by: {game.ported_by}</div>}
-            <div className="q-catalog__card-details-row">Version: {game.version}</div>
+            <div className="q-catalog__card-details-row">
+              {t('Author')}: {game.author}
+            </div>
+            {game.ported_by && (
+              <div className="q-catalog__card-details-row">
+                {t('Ported by')}: {game.ported_by}
+              </div>
+            )}
+            <div className="q-catalog__card-details-row">
+              {t('Version')}: {game.version}
+            </div>
           </div>
           <div>
-            <div className="q-catalog__card-details-row">Size: {formatBytes(game.file_size)}</div>
-            <div className="q-catalog__card-details-row">Type: {game.file_ext}</div>
             <div className="q-catalog__card-details-row">
-              Last update: {DateTime.fromMillis(game.mod_date).toLocaleString(DateTime.DATETIME_FULL)}
+              {t('Size')}: {formatBytes(game.file_size)}
+            </div>
+            <div className="q-catalog__card-details-row">
+              {t('Type')}: {game.file_ext}
+            </div>
+            <div className="q-catalog__card-details-row">
+              {t('Last update')}: {DateTime.fromMillis(game.mod_date).toLocaleString(DateTime.DATETIME_FULL)}
             </div>
           </div>
         </div>
         <div className="q-catalog__card-buttons">
           {game.description ? (
             <Dialog.Trigger asChild>
-              <button className="q-ghost-button">Read Description</button>
+              <button className="q-ghost-button">{t('Read Description')}</button>
             </Dialog.Trigger>
           ) : (
             <div></div>
           )}
           {isOnShelf ? (
-            <span>On Shelf</span>
+            <span>{t('On Shelf')}</span>
           ) : (
             <button className="q-button" disabled={isMoving} onClick={doMove}>
               {isMoving ? (
@@ -66,7 +80,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
                   <UpdateIcon />
                 </span>
               ) : (
-                'Add to shelf'
+                t('Add to shelf')
               )}
             </button>
           )}
