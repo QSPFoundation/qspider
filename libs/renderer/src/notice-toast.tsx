@@ -8,6 +8,7 @@ export const NoticeToast: React.FC = () => {
   const isOpen = useAtom(isNoticeShown$);
   const message = useAtom(noticeMessage$);
   const { t } = useTranslation();
+  if (!isOpen) return null;
   return (
     <AlertDialog.Root open={isOpen} onOpenChange={isNoticeShown$.set}>
       <AlertDialog.Portal>

@@ -1,8 +1,10 @@
 import { extractGameDescriptor, games$, storage$ } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
 import { ChangeEvent, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export const OpenGameButton: React.FC = () => {
+  const { t } = useTranslation();
   const onChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -26,7 +28,7 @@ export const OpenGameButton: React.FC = () => {
   }, []);
   return (
     <label className="q-button q-open-game-button" htmlFor="openGame">
-      Open game
+      {t('Open game')}
       <input type="file" id="openGame" accept=".zip, .aqsp, .qsp, .qsps, .rar" onChange={onChange} />
     </label>
   );

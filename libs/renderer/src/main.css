@@ -518,6 +518,7 @@ qsp-layer > * {
   overflow: hidden;
   user-select: none;
   font-size: 1rem;
+  min-width: fit-content;
   color: var(--text-hc);
   background: transparent;
   border: 1px solid transparent;
@@ -542,6 +543,8 @@ qsp-layer > * {
   box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
   font-weight: bold;
   font-size: 1rem;
+  white-space: nowrap;
+  min-width: fit-content;
 
   background: var(--solid-background);
   border: 1px solid var(--solid-background);

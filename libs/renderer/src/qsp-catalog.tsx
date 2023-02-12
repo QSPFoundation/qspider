@@ -92,7 +92,7 @@ export const QspCatalog: React.FC = () => {
           <label>{t('Sort by')}:</label>
           <div>
             <Select
-              options={sortOptions}
+              options={sortOptions.map((o) => ({ ...o, label: t(o.label) }))}
               placehoder={t('Sort by')}
               label={t('Sort field')}
               value={sortField}

@@ -8,6 +8,7 @@ export const ErrorAlert: React.FC = () => {
   const { t } = useTranslation();
   const isOpen = useAtom(isErrorShown$);
   const message = useAtom(errorMessage$);
+  if (!isOpen) return null;
   return (
     <AlertDialog.Root open={isOpen} onOpenChange={isErrorShown$.set}>
       <AlertDialog.Portal>

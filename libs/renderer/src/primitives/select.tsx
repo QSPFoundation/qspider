@@ -1,6 +1,5 @@
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 import * as RadixSelect from '@radix-ui/react-select';
-import { useTranslation } from 'react-i18next';
 
 export interface SelectOption {
   label: string;
@@ -26,7 +25,6 @@ export const Select: React.FC<{
   name?: string;
   onValueChange: (value: string) => void;
 }> = ({ options, placehoder, label, value, name, onValueChange }) => {
-  const { t } = useTranslation();
   return (
     <RadixSelect.Root value={value} onValueChange={onValueChange} name={name}>
       <RadixSelect.Trigger className="q-select" aria-label={label}>
@@ -43,7 +41,7 @@ export const Select: React.FC<{
           <RadixSelect.Viewport className="SelectViewport">
             {options.map((option) => (
               <SelectItem key={option.value} value={option.value}>
-                {t(option.label)}
+                {option.label}
               </SelectItem>
             ))}
           </RadixSelect.Viewport>

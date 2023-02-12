@@ -10,6 +10,8 @@ i18n
   .use(initReactI18next)
   .init<ChainedBackendOptions>({
     fallbackLng: 'en',
+    supportedLngs: ['en-US', 'en', 'ru-RU', 'uk-UA'],
+    load: 'currentOnly',
     debug: true,
     interpolation: {
       escapeValue: false, // not needed for react as it escapes by default

@@ -74,5 +74,6 @@
   "Failed to load game": "Failed to load game",
   "Failed to load catalog": "Failed to load catalog",
   "Upsupported archive format": "Upsupported archive format",
-  "File not found": "File not found"
+  "File not found": "File not found",
+  "Open game": "Open game"
 }

@@ -2,8 +2,10 @@ import React, { useCallback } from 'react';
 import { dialog } from '@tauri-apps/api';
 import { prepareGameFromDisk } from './utils';
 import { goToGame } from '@qspider/game-state';
+import { useTranslation } from 'react-i18next';
 
 export const OpenGameButton: React.FC = () => {
+  const { t } = useTranslation();
   const selectGame = useCallback(async () => {
     const file_path = await dialog.open({
       filters: [
@@ -20,7 +22,7 @@ export const OpenGameButton: React.FC = () => {
   }, []);
   return (
     <button className="q-button" onClick={selectGame}>
-      Open game
+      {t('Open game')}
     </button>
   );
 };
