@@ -7,15 +7,12 @@ import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
-import { baseInit$, goToGame } from '@qspider/game-state';
+import { baseInit$, componentsRegistry$, goToGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { ComponentsProvider } from '@qspider/providers';
 
 import './desktop.css';
 
-const components = {
-  [ProvidedComponents.OpenGameButton]: OpenGameButton,
-};
+componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
 init();
 
 export const App: React.FC = () => {
@@ -58,13 +55,13 @@ export const App: React.FC = () => {
   const initialized = useAtom(baseInit$);
   if (!initialized) return <QspiderLoader />;
   return (
-    <ComponentsProvider value={components}>
+    <>
       <QspiderRoot />
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
           {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}
         </div>
       ) : null}
-    </ComponentsProvider>
+    </>
   );
 };

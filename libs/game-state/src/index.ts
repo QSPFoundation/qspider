@@ -21,3 +21,4 @@ export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
 export * from './navigation';
+export * from './components';

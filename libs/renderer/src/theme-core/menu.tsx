@@ -15,7 +15,7 @@ import { createContext, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
-import { hooks } from '@qspider/components';
+import { useClickCoordinates } from '../hooks/click-coordinates';
 
 const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
   item: { name: 'unknown', image: '' },
@@ -26,7 +26,7 @@ const menuContext = createContext<{ item: QspListItem; index: number; displayInd
 export const QspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
   const isVisible = useAtom(menu$);
-  const coordinates = hooks.useClickCoordinates();
+  const coordinates = useClickCoordinates();
   if (!isVisible) return null;
   return (
     <DropdownMenu.Root open={true} onOpenChange={(): void => selectMenuItem(-1)}>

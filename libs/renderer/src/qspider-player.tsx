@@ -1,9 +1,10 @@
-import { useComponents } from '@qspider/providers';
+import { ProvidedComponents } from '@qspider/contracts';
+import { useComponent } from '@qspider/game-state';
 import { NavLink, Outlet } from 'react-router-dom';
 import { QspiderThemeSwitch } from './qspider-theme-switch';
 
 export const QspiderPlayer: React.FC = () => {
-  const { OpenGameButton } = useComponents();
+  const OpenGameButton = useComponent(ProvidedComponents.OpenGameButton);
   return (
     <div className="qspider-player">
       <nav className="qspider-navbar">

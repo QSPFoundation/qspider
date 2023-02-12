@@ -1,11 +1,11 @@
 import React from 'react';
-import { hooks } from '@qspider/components';
 import { useAtom } from '@xoid/react';
 import { finishWait, wait$ } from '@qspider/game-state';
+import { useEventListener } from './hooks/event-listener';
 
 export const WaitLock: React.FC = () => {
   const wait = useAtom(wait$);
-  hooks.useEventListener(
+  useEventListener(
     'keypress',
     (e: KeyboardEvent) => {
       if (wait$.value) {

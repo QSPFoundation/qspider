@@ -6,3 +6,6 @@ export enum QspGUIPanel {
   Input = 'input',
   ImageView = 'imgview',
 }
+export enum ProvidedComponents {
+  OpenGameButton = 'OpenGameButton',
+}
