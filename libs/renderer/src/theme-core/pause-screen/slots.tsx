@@ -1,10 +1,10 @@
 import { Attributes, saveSlots$, saveSlotsCount$, useThemeTemplate } from '@qspider/game-state';
 import { createContext, ReactNode, useContext } from 'react';
-import { DateTime } from 'luxon';
 import { useAttributes } from '../../content/attributes';
 import { TemplateRenderer } from '../../template-renderer';
 import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
+import { formatDate } from '../../i18n';
 
 const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 export const slotActionContext = createContext<{ disableEmpty: boolean; action: (index: number) => void }>({
@@ -62,5 +62,5 @@ export const QspSlotDate: React.FC<{ children: ReactNode }> = ({ children }) => 
   const { date } = useContext(slotContentContext);
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!date) return <>{children}</>;
-  return <>{DateTime.fromMillis(date).toLocaleString(DateTime.DATETIME_FULL)}</>;
+  return <>{formatDate(new Date(date))}</>;
 };

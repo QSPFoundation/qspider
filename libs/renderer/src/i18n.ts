@@ -25,4 +25,9 @@ i18n
       backendOptions: [{}],
     },
   });
+
+export function formatDate(date: Date): string {
+  return new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long', timeStyle: 'short' }).format(date);
+}
+
 export default i18n;

@@ -3,12 +3,12 @@ import { Cross1Icon, UpdateIcon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useAtom, useSetup } from '@xoid/react';
-import { DateTime } from 'luxon';
 import { useCallback, useState } from 'react';
 import { create } from 'xoid';
 import { ContentRenderer } from './content-renderer';
 import { formatBytes } from './formatters';
 import { useTranslation } from 'react-i18next';
+import { formatDate } from './i18n';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();
@@ -59,7 +59,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
               {t('Type')}: {game.file_ext}
             </div>
             <div className="q-catalog__card-details-row">
-              {t('Last update')}: {DateTime.fromMillis(game.mod_date).toLocaleString(DateTime.DATETIME_FULL)}
+              {t('Last update')}: {formatDate(new Date(game.mod_date))}
             </div>
           </div>
         </div>
