@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
+import pluginRewriteAll from 'vite-plugin-rewrite-all';
 
 export default defineConfig({
   cacheDir: '../../node_modules/.vite/player',
@@ -21,6 +22,7 @@ export default defineConfig({
     viteTsConfigPaths({
       root: '../../',
     }),
+    pluginRewriteAll(),
   ],
 
   // Uncomment this if you are using workers.
