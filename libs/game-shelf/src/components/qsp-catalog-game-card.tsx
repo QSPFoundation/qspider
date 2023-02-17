@@ -1,14 +1,14 @@
-import { CatalogGame, games$, idPrefix, moveToShelf } from '@qspider/game-state';
 import { Cross1Icon, UpdateIcon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useAtom, useSetup } from '@xoid/react';
 import { useCallback, useState } from 'react';
 import { create } from 'xoid';
-import { ContentRenderer } from './content-renderer';
-import { formatBytes } from './formatters';
 import { useTranslation } from 'react-i18next';
-import { formatDate } from './i18n';
+import { games$ } from '../game-shelf';
+import { CatalogGame, idPrefix, moveToShelf } from '../qsp-catalog';
+import { ContentRenderer, formatDate } from '@qspider/renderer';
+import { formatBytes } from '../formatters';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();

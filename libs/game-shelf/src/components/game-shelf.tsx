@@ -1,5 +1,5 @@
-import { gamesList$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
+import { gamesList$ } from '../game-shelf';
 import { GameCard } from './game-card';
 
 export const GameShelf: React.FC = () => {

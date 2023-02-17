@@ -1,12 +1,11 @@
+import { games$, loadGamesFromStorage } from '@qspider/game-shelf';
 import {
   baseInit$,
-  games$,
   goToGame,
   initDefered$,
   initQspApi,
   initTheme,
   loadGamesFromConfig,
-  loadGamesFromStorage,
   platform$,
   showError,
   storage$,

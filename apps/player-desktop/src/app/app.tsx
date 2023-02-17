@@ -11,6 +11,7 @@ import { baseInit$, componentsRegistry$, goToGame } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
+import { PlayerWithShelf } from '@qspider/game-shelf';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
 init();
@@ -56,7 +57,9 @@ export const App: React.FC = () => {
   if (!initialized) return <QspiderLoader />;
   return (
     <>
-      <QspiderRoot />
+      <QspiderRoot>
+        <PlayerWithShelf />
+      </QspiderRoot>
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
           {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}

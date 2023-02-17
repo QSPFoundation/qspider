@@ -1,12 +1,12 @@
 import { GameDescriptor } from '@qspider/contracts';
-import { games$ } from '@qspider/game-state';
 import { Cross1Icon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ContentRenderer } from './content-renderer';
 import { useTranslation } from 'react-i18next';
+import { games$ } from '../game-shelf';
+import { ContentRenderer } from '@qspider/renderer';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   const { t } = useTranslation();

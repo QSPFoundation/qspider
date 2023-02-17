@@ -1,3 +1,9 @@
+import { QspiderLoader, Select, Tooltip } from '@qspider/renderer';
+import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
+
+import { useAtom } from '@xoid/react';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   catalogLoading$,
   loadQspCatalog,
@@ -8,16 +14,8 @@ import {
   qspSortDirection$,
   qspTitleSearch$,
   toggleSortDirection,
-} from '@qspider/game-state';
-import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
-
-import { useAtom } from '@xoid/react';
-import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { QspiderLoader } from './loader';
-import { Select } from './primitives/select';
+} from '../qsp-catalog';
 import { CatalogGameCard } from './qsp-catalog-game-card';
-import { QspiderTooltip } from './tooltip';
 
 const sortOptions = [
   {
@@ -77,7 +75,7 @@ export const QspCatalog: React.FC = () => {
             />
           </div>
           {authorsFilter ? (
-            <QspiderTooltip content={t('Clear Author filter')}>
+            <Tooltip content={t('Clear Author filter')}>
               <button
                 className="q-ghost-button"
                 aria-label={t('Clear Author filter') ?? ''}
@@ -85,7 +83,7 @@ export const QspCatalog: React.FC = () => {
               >
                 <Cross1Icon />
               </button>
-            </QspiderTooltip>
+            </Tooltip>
           ) : null}
         </div>
         <div className="q-catalog__filterbar-block">
@@ -99,7 +97,7 @@ export const QspCatalog: React.FC = () => {
               onValueChange={(value): void => qspSortByField$.set(value)}
             />
           </div>
-          <QspiderTooltip content={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}>
+          <Tooltip content={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}>
             <button
               className="q-ghost-button"
               onClick={toggleSortDirection}
@@ -107,7 +105,7 @@ export const QspCatalog: React.FC = () => {
             >
               {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
             </button>
-          </QspiderTooltip>
+          </Tooltip>
         </div>
         <div className="q-catalog__filterbar-block">
           <label htmlFor="search-input">{t('Search')}:</label>

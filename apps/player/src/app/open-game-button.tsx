@@ -1,4 +1,5 @@
-import { extractGameDescriptor, games$, storage$ } from '@qspider/game-state';
+import { games$ } from '@qspider/game-shelf';
+import { extractGameDescriptor, storage$ } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
 import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';

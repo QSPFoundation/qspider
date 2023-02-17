@@ -1,0 +1,16 @@
+{
+  "name": "game-shelf",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/game-shelf/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/game-shelf/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  }
+}

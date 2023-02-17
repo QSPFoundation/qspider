@@ -1,12 +1,12 @@
 import { toggleTheme } from '@qspider/game-state';
 import { SunIcon } from '@radix-ui/react-icons';
 import { useTranslation } from 'react-i18next';
-import { QspiderTooltip } from './tooltip';
+import { Tooltip } from './primitives';
 
 export const QspiderThemeSwitch: React.FC = () => {
   const { t } = useTranslation();
   return (
-    <QspiderTooltip content={t('Toggle theme') ?? ''}>
+    <Tooltip content={t('Toggle theme') ?? ''}>
       <button
         className="q-ghost-button"
         aria-label={t('toggle a light and dark color scheme') ?? ''}
@@ -14,6 +14,6 @@ export const QspiderThemeSwitch: React.FC = () => {
       >
         <SunIcon />
       </button>
-    </QspiderTooltip>
+    </Tooltip>
   );
 };

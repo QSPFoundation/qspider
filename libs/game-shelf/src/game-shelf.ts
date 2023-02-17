@@ -1,7 +1,6 @@
 import { GameDescriptor } from '@qspider/contracts';
-import { defer } from '@qspider/utils';
+import { storage$ } from '@qspider/game-state';
 import { create } from 'xoid';
-import { storage$ } from './storage';
 
 interface GamesActions {
   add(id: string, data: GameDescriptor): void;
@@ -9,8 +8,6 @@ interface GamesActions {
   remove(id: string): void;
 }
 
-export const baseInit$ = create(false);
-export const initDefered$ = create(defer<void>());
 export const games$ = create<Record<string, GameDescriptor>, GamesActions>({}, (atom) => {
   return {
     add(id: string, data: GameDescriptor): void {

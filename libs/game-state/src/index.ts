@@ -1,4 +1,3 @@
-export * from './game-shelf';
 export * from './storage';
 export * from './loaders';
 export * from './qsp-api';
@@ -16,9 +15,9 @@ export * from './wait';
 export * from './pause-screen';
 export * from './save';
 export * from './window-manager';
-export * from './qsp-catalog';
 export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
 export * from './navigation';
 export * from './components';
+export * from './init';

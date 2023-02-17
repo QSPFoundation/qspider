@@ -1,9 +1,8 @@
 import { ProvidedComponents } from '@qspider/contracts';
 import { useComponent } from '@qspider/game-state';
+import { LocaleSelector, QspiderThemeSwitch } from '@qspider/renderer';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LocaleSelector } from './locale-selector';
-import { QspiderThemeSwitch } from './qspider-theme-switch';
 
 export const QspiderPlayer: React.FC = () => {
   const { t } = useTranslation();

@@ -1,4 +1,5 @@
 import { ProvidedComponents } from '@qspider/contracts';
+import { PlayerWithShelf } from '@qspider/game-shelf';
 import { baseInit$, componentsRegistry$ } from '@qspider/game-state';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
 import { useAtom } from '@xoid/react';
@@ -11,5 +12,9 @@ init();
 export const App: React.FC = () => {
   const initialized = useAtom(baseInit$);
   if (!initialized) return <QspiderLoader />;
-  return <QspiderRoot />;
+  return (
+    <QspiderRoot>
+      <PlayerWithShelf />
+    </QspiderRoot>
+  );
 };

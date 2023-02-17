@@ -1,6 +1,8 @@
 import { basename$, initDefered$, runGame } from '@qspider/game-state';
+import { GameRunner } from '@qspider/renderer';
 import { createBrowserRouter } from 'react-router-dom';
-import { GameRunner } from './game-runner';
+import { games$ } from '../game-shelf';
+
 import { GameShelf } from './game-shelf';
 import { QspCatalog } from './qsp-catalog';
 import { QspiderPlayer } from './qspider-player';
@@ -28,7 +30,8 @@ export const router = createBrowserRouter(
         const id = params['id'];
         if (!id) return null;
         await initDefered$.value.promise;
-        await runGame(id);
+        const descriptor = games$.value[id];
+        await runGame(descriptor);
         return null;
       },
     },

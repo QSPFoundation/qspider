@@ -1,9 +1,7 @@
 import { GameDescriptor } from '@qspider/contracts';
+import { extractGameDescriptor, showError, showNotice, storage$ } from '@qspider/game-state';
 import { create } from 'xoid';
-import { showError, showNotice } from './toasts';
 import { games$ } from './game-shelf';
-import { storage$ } from './storage';
-import { extractGameDescriptor } from './resources';
 
 export interface CatalogGame {
   id: number;

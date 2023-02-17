@@ -1,6 +1,5 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
 import { create } from 'xoid';
-import { games$ } from './game-shelf';
 import { storage$ } from './storage';
 import {
   basePath$,
@@ -36,11 +35,10 @@ export function goToGame(id: string): void {
   navigateTo(`game/${id}`);
 }
 
-export async function runGame(id: string): Promise<void> {
-  let descriptor = games$.value?.[id];
+export async function runGame(descriptor: GameDescriptor): Promise<void> {
   if (!descriptor) throw new Error('Game not found');
   const { file } = descriptor;
-  const source = await storage$.value?.getGameSource(id);
+  const source = await storage$.value?.getGameSource(descriptor.id);
   if (source) {
     await fillLocalFS(source, file);
   } else {
@@ -66,7 +64,7 @@ export async function runGame(id: string): Promise<void> {
     if (config.game?.length === 1) {
       [descriptor] = config.game;
     } else {
-      const found = config.game?.find((game) => game.id === id);
+      const found = config.game?.find((game) => game.id === descriptor.id);
       if (!found) throw new Error('Config not found');
       descriptor = found;
     }

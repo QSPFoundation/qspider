@@ -1,14 +1,13 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
+import { games$, loadGamesFromStorage } from '@qspider/game-shelf';
 import {
   baseInit$,
   basename$,
-  games$,
   goToGame,
   initDefered$,
   initQspApi,
   initTheme,
   loadGamesFromConfig,
-  loadGamesFromStorage,
   showError,
   storage$,
   windowManager$,
