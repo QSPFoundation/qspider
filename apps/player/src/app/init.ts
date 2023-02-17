@@ -1,13 +1,12 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
-import { games$, loadGamesFromStorage } from '@qspider/game-shelf';
+import { basename$, games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
-  basename$,
-  goToGame,
   initDefered$,
   initQspApi,
   initTheme,
   loadGamesFromConfig,
+  onGameEnd$,
   showError,
   storage$,
   windowManager$,
@@ -18,6 +17,7 @@ import { parse } from 'iarna-toml-esm';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
+  onGameEnd$.set(() => navigateTo(''));
   basename$.set(new URL(document.querySelector('base')?.href || '/').pathname);
   initTheme();
   storage$.set(new WebStorage());

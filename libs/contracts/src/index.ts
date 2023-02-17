@@ -14,3 +14,9 @@ export interface SaveData {
   key: string;
   slot: number;
 }
+
+export interface ThemeTranslation {
+  lang: string;
+  tkey: string;
+  value: string;
+}

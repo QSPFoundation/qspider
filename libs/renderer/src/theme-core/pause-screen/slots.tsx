@@ -4,7 +4,7 @@ import { useAttributes } from '../../content/attributes';
 import { TemplateRenderer } from '../../template-renderer';
 import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
-import { formatDate } from '../../i18n';
+import { formatDate } from '@qspider/i18n';
 
 const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 export const slotActionContext = createContext<{ disableEmpty: boolean; action: (index: number) => void }>({

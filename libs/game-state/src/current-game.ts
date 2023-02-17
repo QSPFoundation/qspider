@@ -13,7 +13,14 @@ import {
 } from './resources';
 import { convertQsps, isZip } from './utils';
 import { qspApi$ } from './qsp-api';
-import { AERO_THEME, CLASSIC_THEME, currentTheme$, registerThemes, themeRegistry$ } from './themes';
+import {
+  AERO_THEME,
+  CLASSIC_THEME,
+  currentTheme$,
+  currentTranslations$,
+  registerThemes,
+  themeRegistry$,
+} from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
@@ -23,17 +30,14 @@ import { windowManager$ } from './window-manager';
 import { parse } from 'iarna-toml-esm';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
-import { navigateTo } from './navigation';
+import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
 export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width ?? 800);
 export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.height ?? 600);
 export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
-
-export function goToGame(id: string): void {
-  navigateTo(`game/${id}`);
-}
+export const onGameEnd$ = create<null | (() => void)>(null);
 
 export async function runGame(descriptor: GameDescriptor): Promise<void> {
   if (!descriptor) throw new Error('Game not found');
@@ -122,6 +126,7 @@ export async function runGame(descriptor: GameDescriptor): Promise<void> {
   } else {
     currentTheme$.set(CLASSIC_THEME);
   }
+  loadThemeTranslations(currentTranslations$.value);
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
   currentGame$.set(descriptor);
@@ -166,11 +171,12 @@ export function stopCurrentGame(): void {
   clearResources();
   clearAdditionalResources();
   clearHotkeys();
+  unloadThemeTranslations();
   currentTheme$.set(CLASSIC_THEME);
   themeRegistry$.actions.reset();
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
-  navigateTo('');
+  onGameEnd$.value?.();
 }
 export type GameAction =
   | 'save'

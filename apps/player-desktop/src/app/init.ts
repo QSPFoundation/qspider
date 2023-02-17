@@ -1,11 +1,11 @@
-import { games$, loadGamesFromStorage } from '@qspider/game-shelf';
+import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
-  goToGame,
   initDefered$,
   initQspApi,
   initTheme,
   loadGamesFromConfig,
+  onGameEnd$,
   platform$,
   showError,
   storage$,
@@ -19,6 +19,7 @@ import { windowManager } from './window-manager';
 export async function init(): Promise<void> {
   fillPlatform();
   initTheme();
+  onGameEnd$.set(() => navigateTo(''));
   storage$.set(new TauriStorage());
   windowManager$.set(windowManager);
   await loadGamesFromStorage();

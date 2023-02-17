@@ -24,6 +24,7 @@
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
       "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
       "@qspider/game-state": ["libs/game-state/src/index.ts"],
+      "@qspider/i18n": ["libs/i18n/src/index.ts"],
       "@qspider/renderer": ["libs/renderer/src/index.ts"],
       "@qspider/tauri-storage": ["libs/tauri-storage/src/index.ts"],
       "@qspider/utils": ["libs/utils/src/index.ts"],

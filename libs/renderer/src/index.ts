@@ -1,4 +1,3 @@
-export * from './i18n';
 export * from './root';
 export * from './theme-core';
 export * from './loader';

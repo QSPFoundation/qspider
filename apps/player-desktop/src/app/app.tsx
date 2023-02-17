@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
 import { event, path } from '@tauri-apps/api';
@@ -7,11 +7,11 @@ import { isSupportedFileType, prepareGameFromDisk } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
-import { baseInit$, componentsRegistry$, goToGame } from '@qspider/game-state';
+import { baseInit$, componentsRegistry$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { PlayerWithShelf } from '@qspider/game-shelf';
+import { goToGame, PlayerWithShelf } from '@qspider/game-shelf';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
 init();
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
   const initialized = useAtom(baseInit$);
   if (!initialized) return <QspiderLoader />;
   return (
-    <>
+    <Suspense fallback={<QspiderLoader />}>
       <QspiderRoot>
         <PlayerWithShelf />
       </QspiderRoot>
@@ -65,6 +65,6 @@ export const App: React.FC = () => {
           {unsupportedType ? `File extension ${unsupportedType} is not supported` : <div>Drop file to start game</div>}
         </div>
       ) : null}
-    </>
+    </Suspense>
   );
 };

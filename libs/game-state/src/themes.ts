@@ -5,6 +5,7 @@ import { getTextContent } from './resources';
 import classicTheme from './themes/classic.html?raw';
 import aeroTheme from './themes/aero.html?raw';
 import { useQspVariable } from './qsp-api';
+import { ThemeTranslation } from '@qspider/contracts';
 
 export const CLASSIC_THEME = 'qspider:classic';
 export const AERO_THEME = 'qspider:aero';
@@ -37,12 +38,6 @@ export type CssVarDefinition = {
       withSize: boolean;
     }
 );
-
-export interface ThemeTranslation {
-  lang: string;
-  tkey: string;
-  value: string;
-}
 
 export type ThemeData = {
   is_user_defined: boolean;
@@ -92,6 +87,7 @@ export const defaultClassicTheme$ = create((get) => {
   return get(themeRegistry$)['qspider:classic'];
 });
 export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables);
+export const currentTranslations$ = create((get) => get(currentThemeData$).translations);
 
 export function useThemeTemplate(
   tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>,

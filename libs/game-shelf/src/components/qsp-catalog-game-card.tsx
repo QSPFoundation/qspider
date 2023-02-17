@@ -7,8 +7,9 @@ import { create } from 'xoid';
 import { useTranslation } from 'react-i18next';
 import { games$ } from '../game-shelf';
 import { CatalogGame, idPrefix, moveToShelf } from '../qsp-catalog';
-import { ContentRenderer, formatDate } from '@qspider/renderer';
+import { ContentRenderer } from '@qspider/renderer';
 import { formatBytes } from '../formatters';
+import { formatDate } from '@qspider/i18n';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();

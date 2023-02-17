@@ -8,6 +8,12 @@ interface GamesActions {
   remove(id: string): void;
 }
 
+export const basename$ = create('/');
+
+export function navigateTo(path: string): void {
+  window.location.href = basename$.value + path;
+}
+
 export const games$ = create<Record<string, GameDescriptor>, GamesActions>({}, (atom) => {
   return {
     add(id: string, data: GameDescriptor): void {
@@ -38,6 +44,10 @@ export const games$ = create<Record<string, GameDescriptor>, GamesActions>({}, (
 });
 
 export const gamesList$ = create((get) => Object.values(get(games$)).sort((a, b) => a.title.localeCompare(b.title)));
+
+export function goToGame(id: string): void {
+  navigateTo(`game/${id}`);
+}
 
 export async function loadGamesFromStorage(): Promise<void> {
   const games = await storage$.value?.getGames();

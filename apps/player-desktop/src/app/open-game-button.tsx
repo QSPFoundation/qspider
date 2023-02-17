@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { dialog } from '@tauri-apps/api';
 import { prepareGameFromDisk } from './utils';
-import { goToGame } from '@qspider/game-state';
 import { useTranslation } from 'react-i18next';
+import { goToGame } from '@qspider/game-shelf';
 
 export const OpenGameButton: React.FC = () => {
   const { t } = useTranslation();

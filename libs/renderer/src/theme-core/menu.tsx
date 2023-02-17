@@ -69,7 +69,6 @@ export const QspMenu: React.FC<{
     triggerStyle.left = coordinates.x ?? 0;
     triggerStyle.top = coordinates.y ?? 0;
   }
-  console.log(triggerStyle, offsetX);
   if (!isVisible) return null;
   return (
     <DropdownMenu.Root open={true} onOpenChange={(): void => selectMenuItem(-1)}>

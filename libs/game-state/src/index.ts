@@ -18,6 +18,5 @@ export * from './window-manager';
 export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
-export * from './navigation';
 export * from './components';
 export * from './init';

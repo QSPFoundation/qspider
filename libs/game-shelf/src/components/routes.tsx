@@ -1,7 +1,7 @@
-import { basename$, initDefered$, runGame } from '@qspider/game-state';
+import { initDefered$, runGame } from '@qspider/game-state';
 import { GameRunner } from '@qspider/renderer';
 import { createBrowserRouter } from 'react-router-dom';
-import { games$ } from '../game-shelf';
+import { basename$, games$ } from '../game-shelf';
 
 import { GameShelf } from './game-shelf';
 import { QspCatalog } from './qsp-catalog';
