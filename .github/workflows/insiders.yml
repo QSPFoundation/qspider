@@ -1,9 +1,6 @@
 name: Release
 
-on:
-  push:
-    branches:
-      - release
+on: workflow_dispatch
 
 jobs:
   create-release:
@@ -11,19 +8,13 @@ jobs:
       contents: write
     runs-on: ubuntu-20.04
     outputs:
+      build_date: ${{ steps.date.outputs.date }}
       release_id: ${{ steps.create-release.outputs.result }}
 
     steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v3
-        with:
-          ref: release
-      - name: setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: get version
-        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: create release
         id: create-release
         uses: actions/github-script@v6
@@ -32,17 +23,17 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `v${process.env.PACKAGE_VERSION}`,
-              target_commitish: 'release',
-              name: `qSpider v${process.env.PACKAGE_VERSION}`,
+              tag_name: `insiders-v${steps.date.outputs.date}`,
+              target_commitish: 'insiders',
+              name: `qSpider Insiders build v${steps.date.outputs.date}`,
               body: 'Take a look at the assets to download and install this app.',
               draft: true,
-              prerelease: false
+              prerelease: true
             })
 
             return data.id
   build-web:
-    needs: [create-release, build-desktop]
+    needs: [create-release]
     runs-on: ubuntu-latest
     env:
       CYPRESS_INSTALL_BINARY: 0
@@ -50,7 +41,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
         with:
-          ref: release
+          ref: insiders
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -58,13 +49,6 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@3.6.2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: dist/apps/player # The folder the action should deploy.
-          CLEAN: true # Automatically remove deleted files from the deploy
       - name: Archive Release
         uses: thedoctor0/zip-release@master
         with:
@@ -100,7 +84,7 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
         with:
-          ref: release
+          ref: insiders
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -142,5 +126,5 @@ jobs:
               repo: context.repo.repo,
               release_id: process.env.release_id,
               draft: false,
-              prerelease: false
+              prerelease: true
             })
