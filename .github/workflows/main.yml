@@ -1,29 +1,45 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release_name:
-        description: 'Release name'
-        required: true
+  push:
+    branches:
+      - release
 
 jobs:
   create-release:
-    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    runs-on: ubuntu-20.04
     outputs:
-      RELEASE_UPLOAD_ID: ${{ steps.create_release.outputs.id }}
-      RELEASE_UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create-release.outputs.result }}
+
     steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
         with:
-          tag_name: ${{ github.event.inputs.release_name }}
-          release_name: qSpider ${{ github.event.inputs.release_name }}
-          draft: false
-          prerelease: false
+          ref: release
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: get version
+        run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+      - name: create release
+        id: create-release
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data } = await github.rest.repos.createRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              tag_name: `v${process.env.PACKAGE_VERSION}`,
+              name: `qSpider v${process.env.PACKAGE_VERSION}`,
+              body: 'Take a look at the assets to download and install this app.',
+              draft: true,
+              prerelease: false
+            })
+
+            return data.id
   build-web:
     needs: [create-release, build-desktop]
     runs-on: ubuntu-latest
@@ -31,9 +47,9 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          ref: release
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -56,15 +72,20 @@ jobs:
           directory: dist/apps/player
           exclusions: updater.json
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+        uses: actions/github-script@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_id: ${{ needs.create-release.outputs.release_id }}
         with:
-          upload_url: ${{ needs.create-release.outputs.RELEASE_UPLOAD_URL }}
-          asset_path: ./dist/apps/player/qspider-player.zip
-          asset_name: qspider-player.zip
-          asset_content_type: application/zip
+          script: |
+            const fs = require('fs');
+            // Upload the release asset
+            await github.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: "qspider-player.zip",
+              data: await fs.readFileSync('dist/apps/player/qspider-player.zip')
+            });
   build-desktop:
     needs: create-release
     strategy:
@@ -76,9 +97,9 @@ jobs:
       CYPRESS_INSTALL_BINARY: 0
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2.3.1 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        uses: actions/checkout@v3
         with:
-          persist-credentials: false
+          ref: release
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -100,4 +121,25 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          releaseId: ${{ needs.create-release.outputs.RELEASE_UPLOAD_ID }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+  publish-release:
+    permissions:
+      contents: write
+    runs-on: ubuntu-20.04
+    needs: [create-release, build-desktop, build-web]
+
+    steps:
+      - name: publish release
+        id: publish-release
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            github.rest.repos.updateRelease({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              draft: false,
+              prerelease: false
+            })
