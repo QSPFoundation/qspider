@@ -7,9 +7,12 @@ import { useAtom, useSetup } from '@xoid/react';
 
 export const noopScrollAtom$ = create(0);
 export const scrollContext = createContext(noopScrollAtom$);
+export type ScrollType = 'both' | 'horizontal' | 'vertical';
+export const isScrollType = (t: unknown): t is ScrollType =>
+  typeof t === 'string' && ['both', 'horizontal', 'vertical'].includes(t);
 
 export const QspScrollable: React.FC<{
-  scroll?: 'both' | 'horizontal' | 'vertical';
+  scroll?: ScrollType;
   attrs: Attributes;
   children: ReactNode;
 }> = ({ children, attrs, scroll = 'both' }) => {

@@ -23,7 +23,7 @@ import { QspRegion } from '../theme-core/qsp-region';
 import { QspShow } from '../theme-core/qsp-show';
 import { QspStyle } from '../theme-core/qsp-style';
 import { QspVariable } from '../theme-core/qsp-variable';
-import { QspScrollable } from '../theme-core/scrollable';
+import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
 import { QspStats } from '../theme-core/stats';
 import { QspStatsContent } from '../theme-core/stats-content';
 import { QspView, QspViewImage } from '../theme-core/view';
@@ -46,7 +46,12 @@ export function defaultTransform(node: HTMLElement, children: Node[]): React.Rea
 export const defaultTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'qsp-scrollable'(node, children) {
     const { scroll, ...attributes } = extractAttributes(node);
-    return <QspScrollable attrs={attributes}>{children}</QspScrollable>;
+    const preparedScroll: ScrollType | undefined = isScrollType(scroll) ? scroll : undefined;
+    return (
+      <QspScrollable scroll={preparedScroll} attrs={attributes}>
+        {children}
+      </QspScrollable>
+    );
   },
   'qsp-main'(node, children) {
     return <QspMain attrs={extractAttributes(node)}>{children}</QspMain>;
