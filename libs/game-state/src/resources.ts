@@ -1,4 +1,4 @@
-import { GameDescriptor, Resource } from '@qspider/contracts';
+import { GameDescriptor, PlayerConfig, Resource } from '@qspider/contracts';
 import { defer, fetchProxyFallback } from '@qspider/utils';
 import { create } from 'xoid';
 import { prepareCss } from './css';
@@ -222,8 +222,8 @@ export async function extractGameDescriptor(source: ArrayBuffer): Promise<GameDe
     if ('game.cfg' in files) {
       const blob = new Blob([files['game.cfg']]);
       const text = await blob.text();
-      const descriptor = parse(text) as unknown as GameDescriptor;
-      return descriptor;
+      const descriptor = parse(text) as unknown as PlayerConfig;
+      return descriptor.game[0];
     }
   }
   return null;
