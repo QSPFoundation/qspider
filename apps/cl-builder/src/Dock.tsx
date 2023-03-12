@@ -54,7 +54,7 @@ export const EditDock: React.FC<DockProps> = ({ type, index, data }) => {
   if (!data) {
     return (
       <div className="dock">
-        <button className="add-dock-button" onClick={() => addDock(index, type)}>
+        <button className="add-dock-button" onClick={(): void => addDock(index, type)}>
           +
         </button>
       </div>
@@ -63,8 +63,8 @@ export const EditDock: React.FC<DockProps> = ({ type, index, data }) => {
   return (
     <div id={`dock-${index}-${type}`} className={className.join(' ')} style={{ [dimension]: data.size }}>
       <div className="dock-buttons">
-        <button onClick={() => configureDock(index, type)}>Configure</button>
-        <button onClick={() => removeDock(index, type)}>Remove</button>
+        <button onClick={(): void => configureDock(index, type)}>Configure</button>
+        <button onClick={(): void => removeDock(index, type)}>Remove</button>
       </div>
       {data.panes.map((pane, paneIndex) => (
         <Fragment key={pane.type + paneIndex}>

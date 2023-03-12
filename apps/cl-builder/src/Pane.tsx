@@ -33,7 +33,7 @@ export const EditPane: React.FC<PaneProps> = ({ data, index, type, paneIndex, ca
     <div className="pane" style={style}>
       <div className="pane-buttons">
         {canRemove && (
-          <button type="button" onClick={() => removePane(index, type, paneIndex)}>
+          <button type="button" onClick={(): void => removePane(index, type, paneIndex)}>
             Remove
           </button>
         )}

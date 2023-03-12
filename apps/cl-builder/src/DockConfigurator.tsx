@@ -1,4 +1,4 @@
-import { useAtom, useSetup } from '@xoid/react';
+import { useAtom } from '@xoid/react';
 import { PaneConfigurator } from './PaneConfigurator';
 import { addPane, dockToConfigure$, dockToConfigureData$, updateDockSize } from './store';
 
@@ -30,7 +30,7 @@ export const DockConfigurator: React.FC = () => {
           type={dockToConfigure.type}
         />
       ))}
-      <button type="button" onClick={() => addPane(dockToConfigure.index, dockToConfigure.type)}>
+      <button type="button" onClick={(): void => addPane(dockToConfigure.index, dockToConfigure.type)}>
         Add pane
       </button>
     </div>

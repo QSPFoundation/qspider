@@ -16,7 +16,7 @@ export const Sidebar: React.FC = () => {
       <hr />
       <label>
         Is View panel floating:&nbsp;
-        <input type="checkbox" checked={isViewFloating} onChange={() => isViewFloating$.update((v) => !v)} />
+        <input type="checkbox" checked={isViewFloating} onChange={(): void => isViewFloating$.update((v) => !v)} />
       </label>
       <div>Max Layer Index: {maxLayerIndex}</div>
       <div>
