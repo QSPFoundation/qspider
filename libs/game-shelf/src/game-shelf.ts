@@ -8,10 +8,8 @@ interface GamesActions {
   remove(id: string): void;
 }
 
-export const basename$ = create('/');
-
 export function navigateTo(path: string): void {
-  window.location.href = basename$.value + path;
+  window.location.hash = path;
 }
 
 export const games$ = create<Record<string, GameDescriptor>, GamesActions>({}, (atom) => {

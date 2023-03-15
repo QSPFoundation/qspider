@@ -1,5 +1,5 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
-import { basename$, games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
+import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
   initDefered$,
@@ -18,7 +18,6 @@ import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
   onGameEnd$.set(() => navigateTo(''));
-  basename$.set(new URL(document.querySelector('base')?.href || '/').pathname);
   initTheme();
   storage$.set(new WebStorage());
   windowManager$.set(windowManager);
