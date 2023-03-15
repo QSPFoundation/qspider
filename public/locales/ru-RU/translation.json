@@ -75,5 +75,6 @@
   "Failed to load catalog": "Не получилось загрузить каталог",
   "Upsupported archive format": "Неподдерживаемый формат архива",
   "File not found": "Файл не найден",
-  "Open game": "Открыть игру"
+  "Open game": "Открыть игру",
+  "Quit": "Выйти"
 }

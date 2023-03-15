@@ -158,6 +158,7 @@ function applyWindowSettings(window: GameDescriptor['window']): void {
 export function stopCurrentGame(): void {
   currentGame$.set(null);
   qspGuiCfg$.set(null);
+  isPauseScreenVisible$.set(false);
   const windowManager = windowManager$.value;
   if (windowManager) {
     windowManager.setTitle('qSpider');

@@ -17,7 +17,7 @@ import { parse } from 'iarna-toml-esm';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
-  onGameEnd$.set(() => navigateTo(''));
+  onGameEnd$.set(() => navigateTo('/'));
   initTheme();
   storage$.set(new WebStorage());
   windowManager$.set(windowManager);

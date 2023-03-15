@@ -9,6 +9,7 @@ interface GamesActions {
 }
 
 export function navigateTo(path: string): void {
+  console.log('navigate to', path);
   window.location.hash = path;
 }
 
