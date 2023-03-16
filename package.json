@@ -119,6 +119,7 @@
     "vite": "^4.1.4",
     "vite-plugin-eslint": "^1.8.1",
     "vite-plugin-rewrite-all": "^1.0.1",
+    "vite-plugin-static-copy": "^0.13.1",
     "vite-tsconfig-paths": "^4.0.5"
   },
   "standard-version": {

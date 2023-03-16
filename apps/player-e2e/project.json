@@ -8,12 +8,12 @@
       "executor": "@nrwl/cypress:cypress",
       "options": {
         "cypressConfig": "apps/player-e2e/cypress.config.js",
-        "devServerTarget": "player:serve:development",
+        "devServerTarget": "player:serve-static",
         "testingType": "e2e"
       },
       "configurations": {
         "production": {
-          "devServerTarget": "player:serve:production"
+          "devServerTarget": "player:serve-static"
         }
       }
     },

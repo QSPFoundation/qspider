@@ -21,6 +21,23 @@
         }
       }
     },
+    "build-test": {
+      "executor": "@nrwl/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/player-test",
+        "configFile": "apps/player/vite-test.config.ts"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
     "serve": {
       "executor": "@nrwl/vite:dev-server",
       "defaultConfiguration": "development",
@@ -36,6 +53,12 @@
           "buildTarget": "player:build:development",
           "hmr": true
         }
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/web:file-server",
+      "options": {
+        "buildTarget": "player:build-test:production"
       }
     },
     "preview": {
