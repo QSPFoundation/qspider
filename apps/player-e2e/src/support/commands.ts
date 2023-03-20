@@ -1,24 +1,17 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace Cypress {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   interface Chainable<Subject> {
-    login(email: string, password: string): void;
+    setup_intercepts(): void;
   }
 }
-//
-// -- This is a parent command --
-Cypress.Commands.add('login', (email, password) => {
-  console.log('Custom command example: Login', email, password);
+
+Cypress.Commands.add('setup_intercepts', () => {
+  cy.intercept('test-assets/game.cfg', { fixture: 'test-assets/game.cfg' });
+  cy.intercept('test-assets/aero/game.qsps', { fixture: 'test-assets/aero/game.qsps' });
+  cy.intercept('test-assets/classic/game.qsps', { fixture: 'test-assets/classic/game.qsps' });
+  cy.intercept('test-assets/common/game.qsps', { fixture: 'test-assets/common/game.qsps' });
+  cy.intercept('test-assets/qspider/game.qsps', { fixture: 'test-assets/qspider/game.qsps' });
 });
 //
 // -- This is a child command --
@@ -27,7 +20,3 @@ Cypress.Commands.add('login', (email, password) => {
 //
 // -- This is a dual command --
 // Cypress.Commands.add("dismiss", { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
