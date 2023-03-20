@@ -11,8 +11,10 @@ module.exports = defineConfig({
   e2e: {
     testIsolation: true,
     experimentalSessionAndOrigin: true,
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    setupNodeEvents() {},
+    setupNodeEvents(on, config) {
+      require('@cypress/code-coverage/task')(on, config);
+      return config;
+    },
     specPattern: './src/integration/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: './src/support/index.ts',
   },

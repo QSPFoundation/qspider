@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 import pluginRewriteAll from 'vite-plugin-rewrite-all';
+import istanbulPlugin from 'vite-plugin-istanbul';
 
 export default defineConfig({
   cacheDir: '../../node_modules/.vite/player',
@@ -23,14 +24,11 @@ export default defineConfig({
       root: '../../',
     }),
     pluginRewriteAll(),
+    istanbulPlugin({
+      cypress: true,
+      requireEnv: false,
+      checkProd: false,
+      forceBuildInstrument: true,
+    }),
   ],
-
-  // Uncomment this if you are using workers.
-  // worker: {
-  //  plugins: [
-  //    viteTsConfigPaths({
-  //      root: '../../',
-  //    }),
-  //  ],
-  // },
 });
