@@ -172,27 +172,36 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIn
   );
 };
 
-export const QspMenuItemName: React.FC = () => {
+export const QspMenuItemName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { item } = useContext(menuContext);
-  return <ContentRenderer content={item.name} />;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-name');
+  return (
+    <Tag style={style} {...attributes}>
+      <ContentRenderer content={item.name} />
+    </Tag>
+  );
 };
 
 export const QspMenuItemImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { item } = useContext(menuContext);
-  const [, style, attributes] = useAttributes(attrs, 'img');
+  const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-menu-image');
   if (!item.image) return null;
   return <img alt="" {...attributes} style={style} src={getResource(item.image).url} />;
 };
 
-export const QspMenuItemIndex: React.FC = () => {
+export const QspMenuItemIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { displayIndex } = useContext(menuContext);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{displayIndex}</>;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-index');
+  return (
+    <Tag style={style} {...attributes}>
+      {displayIndex}
+    </Tag>
+  );
 };
 
 export const QspMenuSeparator: React.FC = () => {
   const { attrs, template } = useThemeTemplate('qsp_menu_separator');
-  const [Tag, style, attributes] = useAttributes(attrs, 'div');
+  const [Tag, style, attributes] = useAttributes(attrs, 'div', 'qsp-menu-separator');
   return (
     <DropdownMenu.Separator asChild>
       <Tag style={style} {...attributes}>

@@ -16,7 +16,7 @@ export const QspScrollable: React.FC<{
   attrs: Attributes;
   children: ReactNode;
 }> = ({ children, attrs, scroll = 'both' }) => {
-  const [, style, { className = '', ...attributes }] = useAttributes(attrs, 'div');
+  const [, style, { className = '', ...attributes }] = useAttributes(attrs, 'div', 'qsp-scrollable');
   const ref = useRef<HTMLDivElement>(null);
   const scrollTrigger = useAtom(useContext(scrollContext));
 

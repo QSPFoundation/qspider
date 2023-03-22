@@ -10,13 +10,13 @@ export const QspLayer: React.FC<{ children: ReactNode; name: string; index: numb
     return create((get) => get(layers$)[get(name$)]);
   }, props);
   const isVisible = useAtom(isVisible$);
-  const [, style, attributes] = useAttributes(props.attrs, 'qsp-layer');
+  const [Tag, style, attributes] = useAttributes(props.attrs, 'qsp-layer');
   useEffect(() => registerLayer(props.name), []); // eslint-disable-line react-hooks/exhaustive-deps
   if (!isVisible) return null;
   style.zIndex = props.index;
   return (
-    <qsp-layer {...attributes} style={style} data-layer-name={props.name}>
+    <Tag {...attributes} style={style} data-layer-name={props.name}>
       {props.children}
-    </qsp-layer>
+    </Tag>
   );
 };

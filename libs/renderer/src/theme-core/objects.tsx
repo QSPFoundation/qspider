@@ -101,21 +101,29 @@ export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = (
   );
 };
 
-export const QspObjectName: React.FC = () => {
+export const QspObjectName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-index');
   const { object } = useContext(objectContext);
-  return <ContentRenderer content={object.name} />;
+  return (
+    <Tag {...attributes} style={style}>
+      <ContentRenderer content={object.name} />
+    </Tag>
+  );
 };
 
 export const QspObjectImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { object } = useContext(objectContext);
-  const [, style, attributes] = useAttributes(attrs, 'img');
+  const [Tag, style, attributes] = useAttributes(attrs, 'img', 'qsp-object-image');
   if (!object.image) return null;
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...attributes} style={style} src={getResource(object.image).url} />;
+  return <Tag {...attributes} style={style} src={getResource(object.image).url} />;
 };
 
-export const QspObjectIndex: React.FC = () => {
+export const QspObjectIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { index } = useContext(objectContext);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{index + 1}</>;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-index');
+  return (
+    <Tag {...attributes} style={style}>
+      {index + 1}
+    </Tag>
+  );
 };

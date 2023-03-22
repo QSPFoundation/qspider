@@ -7,7 +7,7 @@ export const QspButton: React.FC<{ action: GameAction; attrs: Attributes; childr
   action,
   children,
 }) => {
-  const [, style, attributes] = useAttributes(attrs, 'button');
+  const [, style, attributes] = useAttributes(attrs, 'button', 'qsp-button');
   return (
     <button style={style} {...attributes} onClick={(): void => onGameAction(action)}>
       {children}

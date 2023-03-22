@@ -11,7 +11,7 @@ export const buttonContext = createContext({
 });
 
 export const QspCloseButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const [, style, attributes] = useAttributes(attrs, 'button');
+  const [, style, attributes] = useAttributes(attrs, 'button', 'qsp-close-button');
   return (
     <Dialog.Close asChild>
       <button style={style} {...attributes}>
@@ -22,7 +22,7 @@ export const QspCloseButton: React.FC<{ attrs: Attributes; children: ReactNode }
 };
 
 export const QspOkButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const [, style, attributes] = useAttributes(attrs, 'button');
+  const [, style, attributes] = useAttributes(attrs, 'button', 'qsp-ok-button');
   const { okAction } = useContext(buttonContext);
   return (
     <button style={style} {...attributes} onClick={okAction}>
@@ -32,7 +32,7 @@ export const QspOkButton: React.FC<{ attrs: Attributes; children: ReactNode }> =
 };
 
 export const QspCancelButton: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const [, style, attributes] = useAttributes(attrs, 'button');
+  const [, style, attributes] = useAttributes(attrs, 'button', 'qsp-cancel-button');
   const { cancelAction } = useContext(buttonContext);
   return (
     <button style={style} {...attributes} onClick={cancelAction}>

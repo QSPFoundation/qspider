@@ -73,14 +73,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-actions-list'(node) {
     return <QspActionsList attrs={extractAttributes(node)} />;
   },
-  'qsp-action-name'() {
-    return <QspActionName />;
+  'qsp-action-name'(node) {
+    return <QspActionName attrs={extractAttributes(node)} />;
   },
   'qsp-action-image'(node) {
     return <QspActionImage attrs={extractAttributes(node)} />;
   },
-  'qsp-action-index'() {
-    return <QspActionIndex />;
+  'qsp-action-index'(node) {
+    return <QspActionIndex attrs={extractAttributes(node)} />;
   },
   'qsp-objects'(node, children) {
     const attributes = extractAttributes(node);
@@ -89,14 +89,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-objects-list'(node) {
     return <QspObjectsList attrs={extractAttributes(node)} />;
   },
-  'qsp-object-name'() {
-    return <QspObjectName />;
+  'qsp-object-name'(node) {
+    return <QspObjectName attrs={extractAttributes(node)} />;
   },
   'qsp-object-image'(node) {
     return <QspObjectImage attrs={extractAttributes(node)} />;
   },
-  'qsp-object-index'() {
-    return <QspObjectIndex />;
+  'qsp-object-index'(node) {
+    return <QspObjectIndex attrs={extractAttributes(node)} />;
   },
   'qsp-cmd'(node, children) {
     const attributes = extractAttributes(node);
@@ -142,14 +142,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-menu-list'(node) {
     return <QspMenuList attrs={extractAttributes(node)} />;
   },
-  'qsp-menu-name'() {
-    return <QspMenuItemName />;
+  'qsp-menu-name'(node) {
+    return <QspMenuItemName attrs={extractAttributes(node)} />;
   },
   'qsp-menu-image'(node) {
     return <QspMenuItemImage attrs={extractAttributes(node)} />;
   },
-  'qsp-menu-index'() {
-    return <QspMenuItemIndex />;
+  'qsp-menu-index'(node) {
+    return <QspMenuItemIndex attrs={extractAttributes(node)} />;
   },
   'qsp-msg'(node, children) {
     const attributes = extractAttributes(node);
@@ -213,11 +213,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-slots-list'(node) {
     return <QspSlotsList attrs={extractAttributes(node)} />;
   },
-  'qsp-save-slot-index'() {
-    return <QspSlotIndex />;
+  'qsp-save-slot-index'(node) {
+    return <QspSlotIndex attrs={extractAttributes(node)} />;
   },
-  'qsp-save-slot-date'(_, children) {
-    return <QspSlotDate>{children}</QspSlotDate>;
+  'qsp-save-slot-date'(node, children) {
+    return <QspSlotDate attrs={extractAttributes(node)}>{children}</QspSlotDate>;
   },
   'qsp-variable'(node) {
     const { name, key, index } = extractAttributes(node);

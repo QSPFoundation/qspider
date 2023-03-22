@@ -20,14 +20,19 @@ declare global {
       'qsp-actions': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-actions-list': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-action-item': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-action-name': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-action-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-objects': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-objects-list': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-object-item': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-object-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cmd': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-view': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-menu': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-menu-list': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-menu-item': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-menu-name': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-menu-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-msg': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-msg-content': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-input': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
@@ -40,12 +45,15 @@ declare global {
       'qsp-pause-screen-preferences': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-slots-list': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-save-slot': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-slot-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-slot-date': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-region': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cl': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cl-layer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cl-dock': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cl-pane': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-layer': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-variable': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
     }
   }
 }

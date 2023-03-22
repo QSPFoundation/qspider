@@ -38,7 +38,7 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
 };
 
 export const QspViewImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const [, style, attributes] = useAttributes(attrs, 'img');
+  const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-view-image');
   const path = useAtom(viewPath$);
   if (!path) return null;
   return <img src={getResource(path).url} alt="" style={style} {...attributes} />;

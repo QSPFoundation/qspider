@@ -105,20 +105,30 @@ export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = (
   );
 };
 
-export const QspActionName: React.FC = () => {
+export const QspActionName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-name');
   const { action } = useContext(actionContext);
-  return <ContentRenderer content={action.name} />;
+  return (
+    <Tag {...attributes} style={style}>
+      <ContentRenderer content={action.name} />
+    </Tag>
+  );
 };
 
 export const QspActionImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { action } = useContext(actionContext);
-  const [, style, attributes] = useAttributes(attrs, 'img');
+  const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-action-image');
   if (!action.image) return null;
   return <img alt="" style={style} {...attributes} src={getResource(action.image).url} />;
 };
 
-export const QspActionIndex: React.FC = () => {
+export const QspActionIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-index');
   const { index } = useContext(actionContext);
   // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{index + 1}</>;
+  return (
+    <Tag {...attributes} style={style}>
+      {index + 1}
+    </Tag>
+  );
 };

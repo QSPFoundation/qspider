@@ -20,7 +20,7 @@ export const QspCmd: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ a
 
 export const QspCmdInput: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const value = useAtom(cmdText$);
-  const [, style, attributes] = useAttributes(attrs, 'input');
+  const [, style, attributes] = useAttributes(attrs, 'input', 'qsp-cmd-input');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
     cmdText$.set((e.target as HTMLInputElement).value);
   };

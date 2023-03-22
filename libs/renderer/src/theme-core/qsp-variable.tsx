@@ -7,6 +7,9 @@ export const QspVariable: React.FC<{ name: string; key?: string; index?: number 
 }) => {
   const defaultValue = name.startsWith('$') ? '' : 0;
   const value = useQspVariable(name, key, index, defaultValue);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{value}</>;
+  return (
+    <qsp-variable data-name={name} data-key={key ? key : index}>
+      {value}
+    </qsp-variable>
+  );
 };

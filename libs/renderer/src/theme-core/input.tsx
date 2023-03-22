@@ -58,9 +58,9 @@ export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 
 export const QspInputTag: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const value = useAtom(inputResult$);
-  const [, style, attributes] = useAttributes(attrs, 'input');
+  const [, style, attributes] = useAttributes(attrs, 'input', 'qsp-input-tag');
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
-    inputResult$.set((e.target as any).value);
+    inputResult$.set((e.target as HTMLInputElement).value);
   };
   return <input style={style} {...attributes} type="text" value={value} onInput={onInput} autoFocus />;
 };

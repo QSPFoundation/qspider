@@ -62,9 +62,13 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
 
 export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   attributes: Attributes,
-  tagName: Tag
+  tagName: Tag,
+  dataName: string = tagName
 ): [Tag, React.CSSProperties, Omit<Attributes, 'style'>] => {
   const converted: Attributes = {};
+  if (dataName.includes('-')) {
+    converted['data-qsp'] = dataName.replace('qsp-', '');
+  }
   const { tag = tagName, style = {}, ...attrs } = attributes;
   for (const [key, value] of Object.entries(attrs)) {
     let newValue = value;

@@ -31,7 +31,7 @@ export const QspSlotsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 
 export const QspSlot: React.FC<{ index: number; date?: number }> = ({ index, date }) => {
   const { attrs, template } = useThemeTemplate('qsp_save_slot');
-  const [Tag, style, attributes] = useAttributes(attrs, 'button');
+  const [Tag, style, attributes] = useAttributes(attrs, 'button', 'qsp-save-slot');
   const preparedStyle = {
     ...style,
     '--slot-index': `${index}`,
@@ -52,15 +52,28 @@ export const QspSlot: React.FC<{ index: number; date?: number }> = ({ index, dat
   );
 };
 
-export const QspSlotIndex: React.FC = () => {
+export const QspSlotIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { index } = useContext(slotContentContext);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  return <>{index}</>;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-slot-index');
+  return (
+    <Tag {...attributes} style={style}>
+      {index}
+    </Tag>
+  );
 };
 
-export const QspSlotDate: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const QspSlotDate: React.FC<{ children: ReactNode; attrs: Attributes }> = ({ children, attrs }) => {
   const { date } = useContext(slotContentContext);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
-  if (!date) return <>{children}</>;
-  return <>{formatDate(new Date(date))}</>;
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-slot-date');
+  if (!date)
+    return (
+      <Tag {...attributes} style={style}>
+        {children}
+      </Tag>
+    );
+  return (
+    <Tag {...attributes} style={style}>
+      {formatDate(new Date(date))}
+    </Tag>
+  );
 };
