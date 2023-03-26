@@ -22,7 +22,7 @@ export const OpenGameButton: React.FC = () => {
           file: file.name,
         };
       }
-      games$.actions.update(descriptor.id, descriptor);
+      games$.actions.add(descriptor.id, descriptor);
       storage$.value?.addGameSource(descriptor.id, content);
     };
     reader.readAsArrayBuffer(file);
