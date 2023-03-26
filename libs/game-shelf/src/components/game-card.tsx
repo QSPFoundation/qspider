@@ -15,7 +15,7 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
   }, [game.id]);
   return (
     <Dialog.Root>
-      <div className="game-shelf__card">
+      <div className="game-shelf__card" data-qa={`game-${game.id}`}>
         <div className="game-shelf__card-content">
           <button
             type="button"
@@ -52,7 +52,9 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
           ) : (
             <div></div>
           )}
-          <Link to={`/game/${game.id}`}>{t('Run')}</Link>
+          <Link to={`/game/${game.id}`} data-qa="run-link">
+            {t('Run')}
+          </Link>
         </div>
         {game.description && (
           <Dialog.Portal>

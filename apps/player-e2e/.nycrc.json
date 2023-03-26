@@ -1,6 +1,0 @@
-{
-  "extends": "@istanbuljs/nyc-config-typescript",
-  "all": true,
-  "report-dir": "../../dist/cypress/coverage",
-  "temp-dir": "../../dist/.nyc_output"
-}
