@@ -3,9 +3,8 @@ import { Cross1Icon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { games$ } from '../game-shelf';
+import { games$, goToGame } from '../game-shelf';
 import { ContentRenderer } from '@qspider/renderer';
 
 export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
@@ -52,9 +51,15 @@ export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
           ) : (
             <div></div>
           )}
-          <Link to={`/game/${game.id}`} data-qa="run-link">
+          <a
+            href="#"
+            onClick={(e): void => {
+              e.preventDefault();
+              goToGame(game.id);
+            }}
+          >
             {t('Run')}
-          </Link>
+          </a>
         </div>
         {game.description && (
           <Dialog.Portal>

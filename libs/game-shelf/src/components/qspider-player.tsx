@@ -1,12 +1,16 @@
 import { ProvidedComponents } from '@qspider/contracts';
 import { useComponent } from '@qspider/game-state';
 import { LocaleSelector, QspiderThemeSwitch } from '@qspider/renderer';
+import { useAtom } from '@xoid/react';
 import { useTranslation } from 'react-i18next';
-import { NavLink, Outlet } from 'react-router-dom';
+import { currentMode$, navigateTo } from '../game-shelf';
+import { GameShelf } from './game-shelf';
+import { QspCatalog } from './qsp-catalog';
 
 export const QspiderPlayer: React.FC = () => {
   const { t } = useTranslation();
   const OpenGameButton = useComponent(ProvidedComponents.OpenGameButton);
+  const mode = useAtom(currentMode$);
   return (
     <div className="qspider-player">
       <nav className="qspider-navbar">
@@ -14,14 +18,28 @@ export const QspiderPlayer: React.FC = () => {
         <div className="qspider-nav">
           <ul>
             <li>
-              <NavLink to="/" className={({ isActive }): string => (isActive ? 'qspider-active' : '')}>
+              <a
+                href="#"
+                onClick={(e): void => {
+                  e.preventDefault();
+                  navigateTo('');
+                }}
+                className={mode === 'shelf' ? 'qspider-active' : ''}
+              >
                 {t('Game Shelf')}
-              </NavLink>
+              </a>
             </li>
             <li>
-              <NavLink to="/catalog" className={({ isActive }): string => (isActive ? 'qspider-active' : '')}>
+              <a
+                href="#"
+                onClick={(e): void => {
+                  e.preventDefault();
+                  navigateTo('catalog');
+                }}
+                className={mode === 'catalog' ? 'qspider-active' : ''}
+              >
                 {t('Qsp Game Catalog')}
-              </NavLink>
+              </a>
             </li>
           </ul>
           <div className="qspider-block">
@@ -32,7 +50,8 @@ export const QspiderPlayer: React.FC = () => {
         </div>
       </nav>
       <main className="qspider-player-main">
-        <Outlet />
+        {mode === 'shelf' && <GameShelf />}
+        {mode === 'catalog' && <QspCatalog />}
       </main>
     </div>
   );

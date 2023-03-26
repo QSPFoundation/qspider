@@ -1,5 +1,5 @@
 import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
-import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
+import { games$, goToGame, loadGamesFromStorage, navigateTo, processLocationChange } from '@qspider/game-shelf';
 import {
   baseInit$,
   initDefered$,
@@ -17,7 +17,7 @@ import { parse } from 'iarna-toml-esm';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
-  onGameEnd$.set(() => navigateTo('/'));
+  onGameEnd$.set(() => navigateTo(''));
   initTheme();
   storage$.set(new WebStorage());
   windowManager$.set(windowManager);
@@ -68,10 +68,12 @@ export async function init(): Promise<void> {
       games$.actions.add(game.id, game);
     }
   }
-  baseInit$.set(true);
   initDefered$.value.resolve();
   await initQspApi();
   if (toRun) {
     goToGame(toRun);
+  } else {
+    processLocationChange(window.location.search);
   }
+  baseInit$.set(true);
 }

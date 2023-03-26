@@ -1,4 +1,11 @@
-import { RouterProvider } from 'react-router-dom';
-import { router } from './routes';
+import { useAtom } from '@xoid/react';
+import { GameRunner } from '@qspider/renderer';
 
-export const PlayerWithShelf: React.FC = () => <RouterProvider router={router} />;
+import { currentMode$ } from '../game-shelf';
+import { QspiderPlayer } from './qspider-player';
+
+export const PlayerWithShelf: React.FC = () => {
+  const mode = useAtom(currentMode$);
+  if (mode === 'game') return <GameRunner />;
+  return <QspiderPlayer />;
+};
