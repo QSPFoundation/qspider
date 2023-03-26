@@ -67,11 +67,6 @@ export async function init(): Promise<void> {
     for (const game of games) {
       games$.actions.add(game.id, game);
     }
-  } else if (!Object.keys(games$.value).length) {
-    const games = await loadGamesFromConfig(`game/game.cfg`);
-    for (const game of games) {
-      games$.actions.add(game.id, game);
-    }
   }
   baseInit$.set(true);
   initDefered$.value.resolve();

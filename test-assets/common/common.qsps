@@ -1,0 +1,66 @@
+#start
+usehtml=1
+debug=1
+gt 'test list'
+---
+
+# test list
+'Testing different functionality for qspider'
+''
+'<a href="exec: gt ''version''">QSP version</a>'
+'<a href="exec: gt ''main output''">Main output</a>'
+'<a href="exec: gt ''stats output''">Stats output</a>'
+'<a href="exec: gt ''panel visibility''">Panel visibility</a>'
+!'
+- audio (play file, is play, close file)
+- counter
+- addqst (from folder and on root level)
+- inclib/freelib (qsp and qsps formats) (from folder and on root level)
+- inclib qspider
+- input
+- menu (separator)
+- msg
+- actions
+- objects
+- user input
+- view
+- saving game
+- loading save
+- wait
+- errors
+- nosave=1
+- подключение к игре дополнительных ресурсов — шрифты, css и js
+- hotkeys
+!'
+---
+
+# version
+'<a href="exec: gt ''test list''">Back</a>'
+''
+'<h2>QSP version</h2>'
+'Version: ' + $qspver()
+'Player: ' + $qspver('player')
+'Platform: ' + $qspver('platform')
+---
+
+# main output
+'<a href="exec: gt ''test list''">Back</a>'
+''
+*p '<b>Stats output</b>'
+---
+
+# stats output
+'<a href="exec: gt ''test list''">Back</a>'
+''
+p '<b>Stats output</b>'
+---
+
+# panel visibility
+'<a href="exec: gt ''test list''">Back</a>'
+''
+'<a href="exec: SHOWACTS 1">Show acts</a> <a href="exec: SHOWACTS 0">Hide acts</a>'
+'<a href="exec: SHOWINPUT 1">Show cmd</a> <a href="exec: SHOWINPUT 0">Hide cmd</a>'
+'<a href="exec: SHOWOBJS 1">Show objects</a> <a href="exec: SHOWOBJS 0">Hide objects</a>'
+'<a href="exec: SHOWSTAT 1">Show stats</a> <a href="exec: SHOWSTAT 0">Hide stats</a>'
+
+---
