@@ -11,6 +11,7 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   srcset: 'srcSet',
   usemap: 'useMap',
   cellspacing: 'cellSpacing',
+  autoplay: 'autoPlay',
 });
 
 const attributeToStyle: Record<string, string> = {
