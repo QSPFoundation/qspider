@@ -1,7 +1,7 @@
+import parse from 'srcset-parse';
 import { Attributes, getResource } from '@qspider/game-state';
 import { fontSizeMap } from '../transformers/classic/font';
 
-const resourceAttributes = ['src', 'poster'];
 const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   class: 'className',
   colspan: 'colSpan',
@@ -29,7 +29,8 @@ const imgAlignMap: Record<string, string> = {
   abscenter: 'middle',
   bottom: 'bottom',
 };
-const attributeConverters: Record<string, (value: string) => string> = {
+
+const attributeToStyleConverters: Record<string, (value: string) => string> = {
   width: (value: string): string => (/^\d+$/.test(value) ? `${value}px` : value),
   height: (value: string): string => (/^\d+$/.test(value) ? `${value}px` : value),
   fontSize: (value: string): string => (/^[+-]?\d+$/.test(value) ? fontSizeMap[value] : value),
@@ -51,14 +52,37 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
     if (styleName) {
       const value = attributes[name];
       if (!value) continue;
-      if (attributeConverters[styleName]) {
-        style[styleName] = attributeConverters[styleName](value);
+      if (attributeToStyleConverters[styleName]) {
+        style[styleName] = attributeToStyleConverters[styleName](value);
       } else {
         style[styleName] = value;
       }
     }
   }
   return style;
+};
+
+function processUrl(url: string): string {
+  return getResource(url as string).url || 'not-found.png';
+}
+
+const attributeConverters: Record<string, (value: string) => string> = {
+  src: processUrl,
+  poster: processUrl,
+  srcset(value: string) {
+    return parse(value)
+      .map((row) => {
+        const suffix = [];
+        if (row.density) {
+          suffix.push(`${row.density}x`);
+        }
+        if (row.width) {
+          suffix.push(`${row.width}w`);
+        }
+        return `${processUrl(row.url)} ${suffix.join(' ')}`;
+      })
+      .join(', ');
+  },
 };
 
 export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
@@ -73,8 +97,11 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   const { tag = tagName, style = {}, ...attrs } = attributes;
   for (const [key, value] of Object.entries(attrs)) {
     let newValue = value;
-    if (resourceAttributes.includes(key)) {
-      newValue = getResource(value as string).url;
+    if (key in attributeConverters) {
+      newValue = attributeConverters[key](value as string);
+    }
+    if (tag === 'image' && (key === 'href' || key === 'xlink:href')) {
+      newValue = processUrl(value as string);
     }
     converted[ATTRIBUTES_TO_PROPS[key] || key] = newValue as string;
   }
@@ -82,6 +109,9 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   if (tag.includes('-') && converted['className']) {
     converted['class'] = converted['className'];
     delete converted['className'];
+  }
+  if (tag === 'iframe') {
+    converted['sandbox'] = 'allow-scripts allow-same-origin';
   }
   const attributeStyles = attributesToStyle(attributes, tag);
   return [

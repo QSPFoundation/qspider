@@ -66,13 +66,16 @@ export function processStyles(content: string): Record<string, string | number> 
       const name = prop.replace(/^-ms-/, 'ms-').replace(/-./g, (c) => c.substring(1).toUpperCase());
       let preparedValue: string | number = value;
       if (value.toLowerCase().includes('url(')) {
-        const parsed = valueParser(value);
-        parsed.walk((node) => {
-          if (node.type === 'function' && node.value === 'url' && node.nodes[0]) {
-            node.nodes[0].value = getResource(node.nodes[0].value).url;
-          }
-        });
-        preparedValue = parsed.toString();
+        if (!/^url\(.*?\)$/i.test(value.toLowerCase())) {
+          const parsed = valueParser(value);
+          parsed.walk((node) => {
+            console.log(node);
+            if (node.type === 'function' && node.value === 'url' && node.nodes[0]) {
+              node.nodes[0].value = getResource(node.nodes[0].value).url;
+            }
+          });
+          preparedValue = parsed.toString();
+        }
       } else if (name === 'backgroundImage') {
         preparedValue = `url(${getResource(value).url})`;
       } else if (/^[+-]?\d+(\.\d+)?$/.test(value)) {

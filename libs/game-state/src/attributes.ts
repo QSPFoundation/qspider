@@ -53,11 +53,17 @@ export type Attributes = {
     [attr: string]: AttributeValue;
   };
 
+const valueProcessors: Record<string, (value: string) => string> = {
+  href(value: string) {
+    // eslint-disable-next-line no-script-url
+    if (value.startsWith('javascript:')) return '#';
+    return value;
+  },
+};
+
 export function extractAttributes(node: HTMLElement): Attributes {
   const attributes: Attributes = {};
-  console.log(node);
   Array.from(node.attributes).forEach((attr) => {
-    console.log(attr);
     const { name, value } = attr;
     if (name === 'is') return;
     if (name === 'style') {
@@ -65,9 +71,8 @@ export function extractAttributes(node: HTMLElement): Attributes {
     } else if (BOOLEAN_ATTRIBUTES.has(name)) {
       attributes[name as keyof BooleanAttributes] = true;
     } else {
-      attributes[name] = value;
+      attributes[name] = name in valueProcessors ? valueProcessors[name](value) : value;
     }
   });
-  console.log(attributes);
   return attributes;
 }

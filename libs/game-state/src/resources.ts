@@ -45,6 +45,12 @@ export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<vo
 }
 
 export function getResource(file: string): Resource {
+  if (isExternalPath(file)) {
+    return {
+      url: file,
+      type: file.toLowerCase().split('.').pop() as string,
+    };
+  }
   let path = preparePath(file);
   const type = path.toLowerCase().split('.').pop() as string;
   if (isLocalFSUsed$.value) {
@@ -94,8 +100,11 @@ export async function getTextContent(file: string): Promise<string> {
   });
 }
 
+function isExternalPath(path: string): boolean {
+  return /^[a-z]+:/i.test(path);
+}
+
 function preparePath(path: string): string {
-  if (path.startsWith('http://') || path.startsWith('https://')) return path;
   return `${basePath$.value}${cleanPath(path)}`;
 }
 

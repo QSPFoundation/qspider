@@ -233,8 +233,8 @@ gs 'back_link'
 gs 'back_link'
 '<h3>Video tag</h3>'
 '<video width="320" height="240" controls>
-  <source src="forrest_gump.mp4" type="video/mp4" />
-  <source src="forrest_gump.ogg" type="video/ogg" />
+  <source src="movie.mp4" type="video/mp4" />
+  <source src="movie.ogg" type="video/ogg" />
 </video>'
 '<object data="video.mp4" width="400" height="300"></object>'
 ---
