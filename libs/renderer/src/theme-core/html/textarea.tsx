@@ -15,7 +15,7 @@ const QspBoundTextarea: React.FC<{
 };
 
 export const HtmlTextarea: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const [, style, { value, ...attributes }] = useAttributes(attrs, 'select');
+  const [, style, { value, ...attributes }] = useAttributes(attrs, 'textarea');
   if ('qsp-bind' in attributes) {
     const bind = attributes['qsp-bind'];
     const bindKey = attributes['qsp-bind-key'];
