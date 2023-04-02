@@ -1,4 +1,4 @@
-import { games$ } from '@qspider/game-shelf';
+import { games$, goToGame } from '@qspider/game-shelf';
 import { extractGameDescriptor, storage$ } from '@qspider/game-state';
 import { cyrb53 } from '@qspider/utils';
 import { ChangeEvent, useCallback } from 'react';
@@ -23,7 +23,8 @@ export const OpenGameButton: React.FC = () => {
         };
       }
       games$.actions.add(descriptor.id, descriptor);
-      storage$.value?.addGameSource(descriptor.id, content);
+      await storage$.value?.addGameSource(descriptor.id, content);
+      goToGame(descriptor.id);
     };
     reader.readAsArrayBuffer(file);
   }, []);
