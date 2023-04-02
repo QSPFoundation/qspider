@@ -17,9 +17,13 @@ const currentTransformers$ = create((get) => {
 });
 
 export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {
+  const preparedChildren = children.filter((child) => {
+    if (typeof child === 'string' && !child.trim()) return false;
+    return true;
+  });
   const transformer = currentTransformers$.value[node.tagName.toLowerCase()];
   if (transformer) {
-    return transformer(node, children);
+    return transformer(node, preparedChildren);
   }
-  return defaultTransform(node, children);
+  return defaultTransform(node, preparedChildren);
 };
