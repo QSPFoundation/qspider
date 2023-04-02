@@ -32,6 +32,9 @@ import { Element } from '../content/element';
 import { QspT } from '../qsp-t';
 import { QspMain } from '../theme-core/main';
 import { QspLayer } from '../theme-core/layer';
+import { HtmlSelect } from '../theme-core/html/select';
+import { HtmlTextarea } from '../theme-core/html/textarea';
+import { HtmlInput } from '../theme-core/html/input';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -271,5 +274,16 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
       }
     }
     return defaultTransform(node, children);
+  },
+  select(node, children) {
+    return <HtmlSelect attrs={extractAttributes(node)}>{children}</HtmlSelect>;
+  },
+  textarea(node) {
+    const attrs = extractAttributes(node);
+    attrs['value'] = node.innerText;
+    return <HtmlTextarea attrs={attrs}></HtmlTextarea>;
+  },
+  input(node) {
+    return <HtmlInput attrs={extractAttributes(node)} />;
   },
 };
