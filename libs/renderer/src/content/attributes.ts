@@ -12,6 +12,7 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   usemap: 'useMap',
   cellspacing: 'cellSpacing',
   autoplay: 'autoPlay',
+  'xlink:href': 'xlinkHref',
 });
 
 const attributeToStyle: Record<string, string> = {
@@ -103,7 +104,13 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
     if (tag === 'image' && (key === 'href' || key === 'xlink:href')) {
       newValue = processUrl(value as string);
     }
-    converted[ATTRIBUTES_TO_PROPS[key] || key] = newValue as string;
+    let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;
+    if (preparedKey.includes('-')) {
+      preparedKey = preparedKey.replace(/-([a-z])/g, function (m, w) {
+        return w.toUpperCase();
+      });
+    }
+    converted[preparedKey] = newValue as string;
   }
 
   if (tag.includes('-') && converted['className']) {
