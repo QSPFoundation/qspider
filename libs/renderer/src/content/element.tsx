@@ -65,6 +65,7 @@ export const TAGS_MAP: Record<string, string> = {
   glyphref: 'glyphRef',
   lineargradient: 'linearGradient',
   radialgradient: 'radialGradient',
+  textpath: 'textPath',
 };
 
 export const Element: React.FC<ElementProps> = ({ attrs = {}, children = null, tagName }) => {

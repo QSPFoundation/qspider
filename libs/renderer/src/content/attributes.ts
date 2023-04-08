@@ -104,7 +104,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
     if (key in attributeConverters) {
       newValue = attributeConverters[key](value as string);
     }
-    if (tag === 'image' && (key === 'href' || key === 'xlink:href')) {
+    if ((tag === 'image' && key === 'href') || key === 'xlink:href') {
       newValue = processUrl(value as string);
     }
     let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;

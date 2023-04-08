@@ -68,7 +68,6 @@ export function processStyles(content: string): Record<string, string | number> 
       if (value.toLowerCase().includes('url(')) {
         const parsed = valueParser(value);
         parsed.walk((node) => {
-          console.log(node);
           if (node.type === 'function' && node.value === 'url' && node.nodes[0]) {
             node.nodes[0].value = getResource(node.nodes[0].value).url || 'not-found.png';
           }

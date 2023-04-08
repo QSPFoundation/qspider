@@ -1,447 +1,4 @@
-# start
-usehtml=1
-showinput 0
-showacts 0
-showobjs 0
-showstat 0
-
-gt 'test list'
----
-
-# back_link
-'<a href="exec: gt ''test list''">Back</a>'
-''
----
-
-# test list
-'<a href="exec: gt ''links''">Links</a>'
-'<a href="exec: gt ''formatting''">Formatting</a>'
-'<a href="exec: gt ''layout''">Layout</a>'
-'<a href="exec: gt ''images''">Images</a>'
-'<a href="exec: gt ''audio''">Audio</a>'
-'<a href="exec: gt ''list''">Lists</a>'
-'<a href="exec: gt ''video''">Video</a>'
-'<a href="exec: gt ''table''">Table</a>'
-'<a href="exec: gt ''form''">Form</a>'
-'<a href="exec: gt ''dialog''">Dialog</a>'
-'<a href="exec: gt ''svg''">SVG</a>'
-'<a href="exec: gt ''iframe''">Iframe</a>'
-'<a href="exec: gt ''attributes''">Attributes</a>'
-
----
-
-# iframe
-gs 'back_link'
-'<h3>Iframe tag</h3>'
-'<iframe src="https://www.w3schools.com" title="W3Schools Free Online Web Tutorials"></iframe>'
----
-
-# links
-gs 'back_link'
-'<h3>Link tag</h3>'
-'<a href="https://qspfoundation.github.io/qspider/">Visit Qspider</a>'
-'<a href="mailto:someone@example.com">Send email</a>'
-'<a href="#section2">Go to Section 2</a>'
-'<a href="javascript:alert(''Hello World!'');">Execute JavaScript</a>'
----
-
-# formatting
-gs 'back_link'
-'<h3>Formatting tags</h3>'
-
-'<h1>This is heading 1</h1>
-<h2>This is heading 2</h2>
-<h3>This is heading 3</h3>
-<h4>This is heading 4</h4>
-<h5>This is heading 5</h5>
-<h6>This is heading 6</h6>'
-
-'<hr />'
-'<p>This is some text in a paragraph.</p>'
-'Abbreviation - <abbr title="World Health Organization">WHO</abbr>'
-'<p>This is normal text - <b>and this is bold text</b>.</p>'
-'<bdo dir="rtl"> This text will go right-to-left. </bdo>'
-'<blockquote cite="http://www.worldwildlife.org/who/index.html">
-  For 50 years, WWF has been protecting the future of nature. The world''s leading conservation organization, WWF works
-  in 100 countries and is supported by 1.2 million members in the United States and close to 5 million globally.
-</blockquote>'
-'<p><cite>The Scream</cite> by Edward Munch. Painted in 1893.</p>'
-'<p>The HTML <code>button</code> tag defines a clickable button.</p>'
-'<p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy text (Windows).</p>'
-'<p>Do not forget to buy <mark>milk</mark> today.</p>'
-'<pre>
-  Text in a pre element
-  is displayed in a fixed-width
-  font, and it preserves
-  both      spaces and
-  line breaks
-</pre>'
-'<p>
-  WWF''s goal is to:
-  <q>Build a future where people live in harmony with nature.</q>
-  We hope they succeed.
-</p>'
-'<ruby> 漢 <rp>(</rp><rt>ㄏㄢˋ</rt><rp>)</rp> </ruby>'
-'<p><s>Only 50 tickets left!</s></p>'
-'<p>Message from my computer:</p>
-<p>
-  <samp>File not found.<br />Press F1 to continue</samp>
-</p>'
-'<p><small>This is some smaller text.</small></p>
-<p>My mother has <span style="color: blue">blue</span> eyes.</p>
-<strong>This text is important!</strong>
-<p>This text contains <sub>subscript</sub> text.</p>
-<p>This text contains <sup>superscript</sup> text.</p>'
-'<p>Open from <time>10:00</time> to <time>21:00</time> every weekday.</p>'
-'<p>I have a date on <time datetime="2008-02-14 20:00">Valentines day</time>.</p>'
-'<p>This is some <u>mispeled</u> text.</p>'
-'<p>
-  The area of a triangle is: 1/2 x <var>b</var> x <var>h</var>, where <var>b</var> is the base, and <var>h</var> is the
-  vertical height.
-</p>'
-'<p>My favorite color is <del>blue</del> <ins>red</ins>!</p>'
-'<p><dfn>HTML</dfn> is the standard markup language for creating web pages.</p>'
-'<p>You <em>have</em> to hurry up!</p>'
-'<p><i>Lorem ipsum</i> is the most popular filler text in history.</p>'
----
-
-# layout
-gs 'back_link'
-'<h3>Layout tags</h3>'
-'<nav>
-  <a href="/html/">HTML</a> | <a href="/css/">CSS</a> | <a href="/js/">JavaScript</a> |
-  <a href="/python/">Python</a>
-</nav>'
-'<article>
-  <header>
-    <h1>A heading here</h1>
-    <p>Posted by John Doe</p>
-    <p>Some additional information here</p>
-  </header>
-  <aside>
-    <address>
-      Visit us at:<br />
-      Example.com<br />
-      Box 564, Disneyland<br />
-      USA
-    </address>
-  </aside>
-</article>'
-'<main>
-  <h1>Most Popular Browsers</h1>
-  <p>Chrome, Firefox, and Edge are the most used browsers today.</p>
-
-  <article>
-    <h2>Google Chrome</h2>
-    <p>
-      Google Chrome is a web browser developed by Google, released in 2008. Chrome is the world''s most popular web
-      browser today!
-    </p>
-  </article>
-
-  <article>
-    <h2>Mozilla Firefox</h2>
-    <p>
-      Mozilla Firefox is an open-source web browser developed by Mozilla. Firefox has been the second most popular web
-      browser since January, 2018.
-    </p>
-  </article>
-
-  <article>
-    <h2>Microsoft Edge</h2>
-    <p>
-      Microsoft Edge is a web browser developed by Microsoft, released in 2015. Microsoft Edge replaced Internet
-      Explorer.
-    </p>
-  </article>
-</main>'
-'<section>
-  <h2>WWF History</h2>
-  <p>
-    The World Wide Fund for Nature (WWF) is an international organization working on issues regarding the conservation,
-    research and restoration of the environment, formerly named the World Wildlife Fund. WWF was founded in 1961.
-  </p>
-</section>'
-'<details>
-  <summary>Epcot Center</summary>
-  <p>
-    Epcot is a theme park at Walt Disney World Resort featuring exciting attractions, international pavilions,
-    award-winning fireworks and seasonal special events.
-  </p>
-</details>'
-'<footer>
-  <p>Author: Hege Refsnes</p>
-  <p><a href="mailto:hege@example.com">hege@example.com</a></p>
-</footer>'
----
-
-# images
-gs 'back_link'
-'<h3>Image tags</h3>'
-
-'<img src="img_girl.jpg" alt="Girl in a jacket" width="500" height="600" />'
-'<img src="workplace.jpg" alt="Workplace" usemap="#workmap" width="400" height="379" />
-<map name="workmap">
-  <area shape="rect" coords="34,44,270,350" alt="Computer" href="exec: msg ''Computer''" />
-  <area shape="rect" coords="290,172,333,250" alt="Phone" href="exec: msg ''Phone''" />
-  <area shape="circle" coords="337,300,44" alt="Cup of coffee" href="exec: msg ''Coffee''" />
-</map>'
-'<object data="pic_trulli.jpg" width="300" height="200"></object>'
-'<picture>
-  <source media="(min-width:650px)" srcset="img_pink_flowers.jpg" />
-  <source media="(min-width:465px)" srcset="img_white_flower.jpg" />
-  <img src="img_orange_flowers.jpg" alt="Flowers" style="width: auto" />
-</picture>'
-'<figure>
-  <img src="pic_trulli.jpg" alt="Trulli" style="width: 100%" />
-  <figcaption>Fig.1 - Trulli, Puglia, Italy.</figcaption>
-</figure>'
----
-
-# audio
-gs 'back_link'
-'<h3>Audio tag</h3>'
-'<audio controls autoplay loop muted preload>
-  <source src="horse.ogg" type="audio/ogg" />
-  <source src="horse.mp3" type="audio/mpeg" />
-</audio>'
----
-
-# list
-gs 'back_link'
-'<h3>List tags</h3>'
-'<ol>
-  <li>Coffee</li>
-  <li>Tea</li>
-  <li>Milk</li>
-</ol>
-
-<ul>
-  <li>Coffee</li>
-  <li>Tea</li>
-  <li>Milk</li>
-</ul>'
-'<dl>
-  <dt>Coffee</dt>
-  <dd>Black hot drink</dd>
-  <dt>Milk</dt>
-  <dd>White cold drink</dd>
-</dl>'
----
-
-# video
-gs 'back_link'
-'<h3>Video tag</h3>'
-'<video width="320" height="240" controls>
-  <source src="movie.mp4" type="video/mp4" />
-  <source src="movie.ogg" type="video/ogg" />
-</video>'
-'<object data="video.mp4" width="400" height="300"></object>'
----
-
-# table
-gs 'back_link'
-'<h3>Table tag</h3>'
-
-'<table>
-  <thead>
-    <tr>
-      <th>Month</th>
-      <th>Savings</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>January</td>
-      <td>$100</td>
-    </tr>
-    <tr>
-      <td>February</td>
-      <td>$80</td>
-    </tr>
-  </tbody>
-  <tfoot>
-    <tr>
-      <td>Sum</td>
-      <td>$180</td>
-    </tr>
-  </tfoot>
-</table>'
-'<table>
-  <tr>
-    <th>Month</th>
-    <th>Savings</th>
-  </tr>
-  <tr>
-    <td>January</td>
-    <td>$100</td>
-  </tr>
-</table>'
-'<table>
-  <colgroup>
-    <col span="2" style="background-color: red" />
-    <col style="background-color: yellow" />
-  </colgroup>
-  <tr>
-    <th>ISBN</th>
-    <th>Title</th>
-    <th>Price</th>
-  </tr>
-  <tr>
-    <td>3476896</td>
-    <td>My first HTML</td>
-    <td>$53</td>
-  </tr>
-</table>'
-'<table>
-  <caption>
-    Table Caption
-  </caption>
-  <thead>
-    <tr>
-      <th>Table Heading 1</th>
-      <th>Table Heading 2</th>
-      <th>Table Heading 3</th>
-      <th>Table Heading 4</th>
-      <th>Table Heading 5</th>
-    </tr>
-  </thead>
-  <tfoot>
-    <tr>
-      <th>Table Footer 1</th>
-      <th>Table Footer 2</th>
-      <th>Table Footer 3</th>
-      <th>Table Footer 4</th>
-      <th>Table Footer 5</th>
-    </tr>
-  </tfoot>
-  <tbody>
-    <tr>
-      <td>Table Cell 1</td>
-      <td>Table Cell 2</td>
-      <td>Table Cell 3</td>
-      <td>Table Cell 4</td>
-      <td>Table Cell 5</td>
-    </tr>
-    <tr>
-      <td>Table Cell 1</td>
-      <td>Table Cell 2</td>
-      <td>Table Cell 3</td>
-      <td>Table Cell 4</td>
-      <td>Table Cell 5</td>
-    </tr>
-    <tr>
-      <td>Table Cell 1</td>
-      <td>Table Cell 2</td>
-      <td>Table Cell 3</td>
-      <td>Table Cell 4</td>
-      <td>Table Cell 5</td>
-    </tr>
-    <tr>
-      <td>Table Cell 1</td>
-      <td>Table Cell 2</td>
-      <td>Table Cell 3</td>
-      <td>Table Cell 4</td>
-      <td>Table Cell 5</td>
-    </tr>
-  </tbody>
-</table>'
----
-
-# form
-gs 'back_link'
-'<h3>Form tags</h3>'
-
-'<button type="button">Click Me!</button>'
-'<label for="browser">Choose your browser from the list:</label>
-<input list="browsers" name="browser" id="browser" />
-
-<datalist id="browsers">
-  <option value="Edge"></option>
-  <option value="Firefox"></option>
-  <option value="Chrome"></option>
-  <option value="Opera"></option>
-  <option value="Safari"></option>
-</datalist>'
-'<form action="/action_page.php">
-  <fieldset>
-    <legend>Personalia:</legend>
-    <label for="fname">First name:</label>
-    <input type="text" id="fname" name="fname" /><br /><br />
-    <label for="lname">Last name:</label>
-    <input type="text" id="lname" name="lname" /><br /><br />
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" /><br /><br />
-    <label for="birthday">Birthday:</label>
-    <input type="date" id="birthday" name="birthday" /><br /><br />
-    <input type="submit" value="Submit" />
-  </fieldset>
-</form>
-
-<input type="button" />
-<input type="checkbox" />
-<input type="color" />
-<input type="date" />
-<input type="datetime-local" />
-<input type="email" />
-<input type="file" />
-<input type="hidden" />
-<input type="image" />
-<input type="month" />
-<input type="number" />
-<input type="password" />
-<input type="radio" />
-<input type="range" />
-<input type="reset" />
-<input type="search" />
-<input type="submit" />
-<input type="tel" />
-<input type="text" /> (default value)
-<input type="time" />
-<input type="url" />
-<input type="week" />
-
-<label for="disk_c">Disk usage C:</label>
-<meter id="disk_c" value="2" min="0" max="10">2 out of 10</meter><br />
-
-<label for="disk_d">Disk usage D:</label>
-<meter id="disk_d" value="0.6">60%</meter>'
-'<select name="cars" id="cars">
-  <optgroup label="Swedish Cars">
-    <option value="volvo">Volvo</option>
-    <option value="saab">Saab</option>
-  </optgroup>
-  <optgroup label="German Cars">
-    <option value="mercedes">Mercedes</option>
-    <option value="audi">Audi</option>
-  </optgroup>
-</select>
-
-<form oninput="x.value=parseInt(a.value)+parseInt(b.value)">
-  <input type="range" id="a" value="50" />
-  +<input type="number" id="b" value="25" /> =<output name="x" for="a b"></output>
-</form>
-
-<label for="file">Downloading progress:</label>
-<progress id="file" value="32" max="100">32%</progress>
-
-
-<textarea id="w3review" name="w3review" rows="4" cols="50">
-  At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.
-</textarea>'
----
-
-# dialog
-gs 'back_link'
-'<h3>Dialog tag</h3>'
-
-'<dialog open>This is an open dialog window</dialog>'
----
-
-# svg
-gs 'back_link'
-'<h3>Svg tags</h3>'
-'<svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" stroke="red" fill="grey">
+<svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg" stroke="red" fill="grey">
   <circle cx="50" cy="50" r="40" />
   <circle cx="150" cy="50" r="4" />
 
@@ -539,7 +96,7 @@ gs 'back_link'
   </defs>
 
   <!-- using my graphical objects -->
-  <use x="5" y="5" href="#myCircle" fill="url(''#myGradient'')" />
+  <use x="5" y="5" href="#myCircle" fill="url('#myGradient')" />
 </svg>
 
 <hr />
@@ -896,7 +453,13 @@ gs 'back_link'
 
 <hr />
 
-<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg
+  width="200"
+  height="200"
+  viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
   <defs>
     <filter id="image">
       <feImage xlink:href="mdn_logo_only_color.png" />
@@ -1033,7 +596,7 @@ gs 'back_link'
 <hr />
 
 <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <title>Tiling an MDN logo with the Mozilla mascot''s head that is on the logo</title>
+  <title>Tiling an MDN logo with the Mozilla mascot's head that is on the logo</title>
   <defs>
     <!-- Define the region of the filter to be the bounding box of the
          MDN logo being filtered. These parameters will create an output
@@ -1041,13 +604,13 @@ gs 'back_link'
     <filter id="tile" x="0" y="0" width="100%" height="100%">
       <!-- Create a tile from the central portion of the image from
            (50,50) to (150,150). This area is essentially the Mozilla
-           mascot''s head. -->
+           mascot's head. -->
       <feTile in="SourceGraphic" x="50" y="50" width="100" height="100" />
 
       <!-- Without specifying a region, feTile defaults to the region
            of the filter. Without specifying an "in" parameter, the default
            is the result of the previous primitive. So this second feTile
-           will tile the entire filter region with the mascot''s head. -->
+           will tile the entire filter region with the mascot's head. -->
       <feTile />
     </filter>
   </defs>
@@ -1119,7 +682,13 @@ gs 'back_link'
 
 <hr />
 
-<svg width="100" height="100" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg
+  width="100"
+  height="100"
+  viewBox="0 0 10 10"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
   <defs>
     <linearGradient id="myGradient" gradientTransform="rotate(90)">
       <stop offset="5%" stop-color="gold" />
@@ -1128,7 +697,7 @@ gs 'back_link'
   </defs>
 
   <!-- using my linear gradient -->
-  <circle cx="5" cy="5" r="4" fill="url(''#myGradient'')" />
+  <circle cx="5" cy="5" r="4" fill="url('#myGradient')" />
 </svg>
 
 <hr />
@@ -1259,7 +828,13 @@ gs 'back_link'
 
 <hr />
 
-<svg width="100" height="100" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg
+  width="100"
+  height="100"
+  viewBox="0 0 10 10"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
   <defs>
     <radialGradient id="myGradient">
       <stop offset="10%" stop-color="gold" />
@@ -1268,7 +843,7 @@ gs 'back_link'
   </defs>
 
   <!-- using my radial gradient -->
-  <circle cx="5" cy="5" r="4" fill="url(''#myGradient'')" />
+  <circle cx="5" cy="5" r="4" fill="url('#myGradient')" />
 </svg>
 
 <hr />
@@ -2124,7 +1699,7 @@ gs 'back_link'
       <text
         dx="0"
         dy="0"
-        font-family=''"eQVNhIKm4qz1:::Orbitron"''
+        font-family='"eQVNhIKm4qz1:::Orbitron"'
         font-size="30.5"
         font-weight="400"
         transform="matrix(0-1 1 0 136.353074 431.758938)"
@@ -2134,7 +1709,7 @@ gs 'back_link'
         <tspan
           x="0"
           y="0"
-          font-family=''"eQVNhIKm4qz1:::Orbitron"''
+          font-family='"eQVNhIKm4qz1:::Orbitron"'
           font-size="22"
           font-weight="700"
           font-style="normal"
@@ -2148,7 +1723,7 @@ gs 'back_link'
       <text
         dx="0"
         dy="0"
-        font-family=''"eQVNhIKm4qz1:::Russo One"''
+        font-family='"eQVNhIKm4qz1:::Russo One"'
         font-size="30.5"
         font-weight="400"
         transform="matrix(0-.363742 0.363742 0 93.814966 511.567068)"
@@ -2158,7 +1733,7 @@ gs 'back_link'
         <tspan
           x="0"
           y="0"
-          font-family=''"eQVNhIKm4qz1:::Russo One"''
+          font-family='"eQVNhIKm4qz1:::Russo One"'
           font-size="60"
           font-weight="700"
           font-style="normal"
@@ -2184,7 +1759,7 @@ gs 'back_link'
     <text
       dx="0"
       dy="0"
-      font-family=''"eQVNhIKm4qz1:::Orbitron"''
+      font-family='"eQVNhIKm4qz1:::Orbitron"'
       font-size="30.5"
       font-weight="400"
       transform="translate(54.835937 82.90625)"
@@ -2194,7 +1769,7 @@ gs 'back_link'
       <tspan
         x="0"
         y="0"
-        font-family=''"eQVNhIKm4qz1:::Orbitron"''
+        font-family='"eQVNhIKm4qz1:::Orbitron"'
         font-size="50"
         font-weight="700"
         font-style="normal"
@@ -2271,25 +1846,25 @@ gs 'back_link'
   </g>
   <style>
     @font-face {
-      font-family: ''eQVNhIKm4qz1:::Orbitron'';
+      font-family: 'eQVNhIKm4qz1:::Orbitron';
       font-style: normal;
       font-weight: 400;
       src: url(data:font/ttf;charset=utf-8;base64,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)
-        format(''truetype'');
+        format('truetype');
     }
     @font-face {
-      font-family: ''eQVNhIKm4qz1:::Orbitron'';
+      font-family: 'eQVNhIKm4qz1:::Orbitron';
       font-style: normal;
       font-weight: 700;
       src: url(data:font/ttf;charset=utf-8;base64,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)
-        format(''truetype'');
+        format('truetype');
     }
     @font-face {
-      font-family: ''eQVNhIKm4qz1:::Russo One'';
+      font-family: 'eQVNhIKm4qz1:::Russo One';
       font-style: normal;
       font-weight: 400;
       src: url(data:font/ttf;charset=utf-8;base64,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)
-        format(''truetype'');
+        format('truetype');
     }
   </style>
 </svg>
@@ -2301,7 +1876,8 @@ gs 'back_link'
   xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   viewBox="0 0 700 400"
-  width="700" height="400"
+  width="700"
+  height="400"
   shape-rendering="geometricPrecision"
   text-rendering="geometricPrecision"
   style="background-color: #fff"
@@ -2537,7 +2113,7 @@ gs 'back_link'
     @keyframes eSfF1urTRx051__m {
       0% {
         d: path(
-          '' M22.895273,
+          ' M22.895273,
           424.465194C177.154143,
           424.465194,
           243.003126,
@@ -2563,12 +2139,12 @@ gs 'back_link'
           1059.875273,
           446.035194,
           1059.875273,
-          446.035194 ''
+          446.035194 '
         );
       }
       100% {
         d: path(
-          '' M16.144726,
+          ' M16.144726,
           419.578639C16.144726,
           419.578639,
           -122.220084,
@@ -2594,7 +2170,7 @@ gs 'back_link'
           985.346523,
           497.467435,
           1059.875273,
-          446.035194 ''
+          446.035194 '
         );
       }
     }
@@ -2935,7 +2511,7 @@ gs 'back_link'
     @keyframes eSfF1urTRx073__m {
       0% {
         d: path(
-          '' M26.795273,
+          ' M26.795273,
           638.255195C330.853581,
           683.458283,
           402.794017,
@@ -2951,12 +2527,12 @@ gs 'back_link'
           1078.295273,
           170.471156,
           1078.295273,
-          170.471156 ''
+          170.471156 '
         );
       }
       100% {
         d: path(
-          '' M20.044726,
+          ' M20.044726,
           633.434808C20.044726,
           633.434808,
           -265.047694,
@@ -2972,7 +2548,7 @@ gs 'back_link'
           1078.295273,
           392.392584,
           1078.295273,
-          170.475195 ''
+          170.475195 '
         );
       }
     }
@@ -3327,14 +2903,7 @@ gs 'back_link'
     </g>
     <g mask="url(#eSfF1urTRx040)">
       <g>
-        <rect
-          width="1080"
-          height="1080"
-          rx="0"
-          ry="0"
-          transform="matrix(1.779616 0 0 1-426.263708 0)"
-          fill="#ffe6e3"
-        />
+        <rect width="1080" height="1080" rx="0" ry="0" transform="matrix(1.779616 0 0 1-426.263708 0)" fill="#ffe6e3" />
         <g id="eSfF1urTRx010_tr" transform="translate(603.21,786.54) rotate(-1.294744)">
           <path
             d="M603.14,786.54c9.93-238.75,21-409.13,74.67-635.64c0,0,12.41,125.38,9.6,254.53L644.12,630.08Z"
@@ -3461,10 +3030,7 @@ gs 'back_link'
             fill="#e0ded9"
           />
           <path d="M445.8,669.29c-8.62,5.77-.33,13.16,8,13.46c13.49.49-1.06-18.1-8-13.46Z" fill="#e0ded9" />
-          <path
-            d="M484.57,705.16c7.93-6.7,6.41-10.93-1.89-10.3-13.47,1.03-4.48,15.69,1.89,10.3Z"
-            fill="#e0ded9"
-          />
+          <path d="M484.57,705.16c7.93-6.7,6.41-10.93-1.89-10.3-13.47,1.03-4.48,15.69,1.89,10.3Z" fill="#e0ded9" />
         </g>
       </g>
       <mask id="eSfF1urTRx040" mask-type="luminance" x="-150%" y="-150%" height="400%" width="400%">
@@ -3519,7 +3085,7 @@ gs 'back_link'
         id="eSfF1urTRx053_to"
         style="
           offset-path: path(
-            '' M-410.741924,
+            ' M-410.741924,
             578.279501C-83.451058,
             262.976027,
             388.990776,
@@ -3530,7 +3096,7 @@ gs 'back_link'
             1172.597452,
             810.984316,
             1479.254863,
-            476.791826 ''
+            476.791826 '
           );
           offset-rotate: auto;
         "
@@ -3659,14 +3225,8 @@ gs 'back_link'
       </g>
       <g>
         <g transform="translate(.000001 0)">
-          <path
-            d="M616.49,784.52c19.91-83.7,39-41.22,62.35,17.27c13.59,34.02-79.33,54.15-62.35-17.27Z"
-            fill="#fff"
-          />
-          <path
-            d="M672.52,786.21l-58.11,10.94c.783117-7.405271,2.259593-14.72069,4.41-21.85Z"
-            fill="#3f3f3f"
-          />
+          <path d="M616.49,784.52c19.91-83.7,39-41.22,62.35,17.27c13.59,34.02-79.33,54.15-62.35-17.27Z" fill="#fff" />
+          <path d="M672.52,786.21l-58.11,10.94c.783117-7.405271,2.259593-14.72069,4.41-21.85Z" fill="#3f3f3f" />
           <path
             d="M620.18,788.21c42,.5,115.9,1.88,70.64-52.66-50.31-60.64-100.33,0-109.55,20.65s-2.03,31.53,38.91,32.01Z"
             fill="#ff6e59"
@@ -3698,10 +3258,7 @@ gs 'back_link'
           <path d="M685.09,740.43c-.6-9.55-11.08-3.32-7.32,1.24c4.67,5.68,7.69,4.65,7.32-1.24Z" fill="#fff" />
         </g>
         <g>
-          <path
-            d="M605,818.59c-18.39-55-29.92-31.65-47.86,13.26C546.66,858,623,872.52,605,818.59Z"
-            fill="#fff"
-          />
+          <path d="M605,818.59c-18.39-55-29.92-31.65-47.86,13.26C546.66,858,623,872.52,605,818.59Z" fill="#fff" />
           <path d="M556.33,839l34.1-.25L560,825c0,0-5.25,8.59-3.67,14Z" fill="#3f3f3f" />
           <path
             d="M563.92,833.34c-35.75-17.43-26.87-65.92,18.57-69.36c75.51-5.72,62.65,108.96-18.57,69.36Z"
@@ -3725,12 +3282,4 @@ gs 'back_link'
       </g>
     </g>
   </g>
-</svg>'
----
-
-# attributes
-gs 'back_link'
-'<h3>Attributes</h3>'
-'<div id="test-id" class="css-cls" style="background:url(test.jpg);" data-test="something" aria-label="aria value" onkeydown="alert(1)">Text</div>'
-
----
+</svg>

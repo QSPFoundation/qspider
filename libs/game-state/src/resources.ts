@@ -13,6 +13,7 @@ import {
   readSupportedArchive,
 } from './utils';
 import { parse } from 'iarna-toml-esm';
+import mime from 'mime/lite';
 
 export const localFS$ = create<Record<string, Uint8Array>>({});
 export const isLocalFSUsed$ = create(false);
@@ -45,7 +46,7 @@ export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<vo
 }
 
 export function getResource(file: string): Resource {
-  if (isExternalPath(file)) {
+  if (isExternalPath(file) || isHashPath(file)) {
     return {
       url: file,
       type: file.toLowerCase().split('.').pop() as string,
@@ -61,7 +62,7 @@ export function getResource(file: string): Resource {
     }
     const content = localFS$.value[path];
     if (content) {
-      const blob = new Blob([content]);
+      const blob = new Blob([content], { type: mime.getType(type) || undefined });
       url = URL.createObjectURL(blob);
       localFsUrls.set(path, url);
       return { url, type };
@@ -102,6 +103,9 @@ export async function getTextContent(file: string): Promise<string> {
 
 function isExternalPath(path: string): boolean {
   return /^[a-z]+:/i.test(path);
+}
+function isHashPath(path: string): boolean {
+  return path.startsWith('#');
 }
 
 function preparePath(path: string): string {
