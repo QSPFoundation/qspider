@@ -13,6 +13,8 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   cellspacing: 'cellSpacing',
   autoplay: 'autoPlay',
   'xlink:href': 'xlinkHref',
+  'xmlns:xlink': 'xmlnsXlink',
+  for: 'htmlFor',
 });
 
 const attributeToStyle: Record<string, string> = {
@@ -106,7 +108,12 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       newValue = processUrl(value as string);
     }
     let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;
-    if (preparedKey.includes('-') && !preparedKey.startsWith('aria-') && !preparedKey.startsWith('data-')) {
+    if (
+      preparedKey.includes('-') &&
+      !preparedKey.startsWith('aria-') &&
+      !preparedKey.startsWith('data-') &&
+      preparedKey !== 'mask-type'
+    ) {
       preparedKey = preparedKey.replace(/-([a-z])/g, function (m, w) {
         return w.toUpperCase();
       });
