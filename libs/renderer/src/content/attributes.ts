@@ -64,7 +64,7 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
 };
 
 function processUrl(url: string): string {
-  return getResource(url as string).url || 'not-found.png';
+  return getResource(url).url || 'not-found.png';
 }
 
 const attributeConverters: Record<string, (value: string) => string> = {
@@ -97,6 +97,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   }
   const { tag = tagName, style = {}, ...attrs } = attributes;
   for (const [key, value] of Object.entries(attrs)) {
+    if (key.startsWith('on')) continue;
     let newValue = value;
     if (key in attributeConverters) {
       newValue = attributeConverters[key](value as string);
@@ -105,7 +106,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       newValue = processUrl(value as string);
     }
     let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;
-    if (preparedKey.includes('-')) {
+    if (preparedKey.includes('-') && !preparedKey.startsWith('aria-') && !preparedKey.startsWith('data-')) {
       preparedKey = preparedKey.replace(/-([a-z])/g, function (m, w) {
         return w.toUpperCase();
       });
