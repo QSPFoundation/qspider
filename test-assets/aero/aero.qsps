@@ -1,0 +1,513 @@
+# start
+gt 'restart'
+---
+
+# restart
+CLS & KILLALL
+SHOWACTS 0
+SHOWINPUT 0
+SHOWOBJS 0
+SHOWSTAT 0
+gt 'test list'
+---
+
+# backlink
+'<a href="exec: gt ''restart''">Back</a><br/>'
+---
+
+# test list
+'<a href="exec: gt ''general''">Test general settings</a>'
+'<a href="exec: gt ''main''">Test main panel settings</a>'
+'<a href="exec: gt ''stats''">Test stats panel settings</a>'
+'<a href="exec: gt ''acts''">Test acts panel settings</a>'
+'<a href="exec: gt ''objects''">Test objects panel settings</a>'
+'<a href="exec: gt ''userinput''">Test userinput panel settings</a>'
+'<a href="exec: gt ''msg''">Test msg settings</a>'
+'<a href="exec: gt ''view''">Test view settings</a>'
+'<a href="exec: gt ''input''">Test input settings</a>'
+'<a href="exec: gt ''menu''">Test menu settings</a>'
+'<a href="exec: gt ''test effects''">Test effects</a>'
+
+
+---
+
+# general
+gs 'backlink'
+
+$STYLESHEET = '.check-styles {color: red}'
+'<div class="check-styles">testing $STYLESHEET - should be red</div>'
+'<a href="exec: HIDE_SCROLL_ARROWS=1">hide scroll arrows</a> | <a href="exec: HIDE_SCROLL_ARROWS=0">show scroll arrows</a>'
+'<a href="exec: $UP_ARROW_IMAGE=''up.png'' & $DOWN_ARROW_IMAGE=''down.png''">Set scroll arrows</a> | <a href="exec: $UP_ARROW_IMAGE='''' & $DOWN_ARROW_IMAGE=''''">Unset scroll arrows</a>'
+'<a href="exec:LCOLOR=rgb(255,0,0)">Make links red</a> | <a href="exec:LCOLOR=0">Make links default</a>'
+'<a href="exec:FCOLOR=rgb(255,0,0)">Make text red</a> | <a href="exec:FCOLOR=0">Make text default</a>'
+'<a href="exec:BCOLOR=rgb(255,0,0)">Make background red</a> | <a href="exec:BCOLOR=0">Make background default</a>'
+'<a href="exec:$FNAME=''Courier New''">Change font to monospace</a> | <a href="exec:$FNAME=''''">Change font to default</a>'
+'<a href="exec:FSIZE=40">Change font size to 40</a> | <a href="exec:FSIZE=0">Change font size to default</a>'
+'<a href="exec:DISABLESHADE=1 & msg ''test''">Disable shade</a> | <a href="exec:DISABLESHADE=0 & msg ''test''">Enable shade</a>'
+
+---
+
+# main
+gs 'backlink'
+
+'<a href="exec: gs ''main custom''">Custom main format</a> | <a href="exec: gs ''reset main''">Reset main format</a>'
+'<a href="exec: $BACKIMAGE=''bg.jpg''">Set background</a> | <a href="exec:$BACKIMAGE=''''">Unset background</a>'
+'<a href="exec: $TOPIMAGE=''bg.jpg''">Set top image</a> | <a href="exec:$TOPIMAGE=''''">Unset top image</a>'
+'<a href="exec: $MAINDESC_BACKIMAGE=''bg.jpg''">Set main background</a> | <a href="exec:$MAINDESC_BACKIMAGE=''''">Unset main background</a>'
+---
+
+# main custom
+MAINDESC_X = 100
+MAINDESC_Y = 150
+MAINDESC_W = 200
+MAINDESC_H = 250
+$MAIN_FORMAT = "<div>before main</div>%TEXT%<div>after main</div>"
+---
+
+# reset main
+MAINDESC_X = 0
+MAINDESC_Y = 0
+MAINDESC_W = 0
+MAINDESC_H = 0
+$MAIN_FORMAT = ""
+---
+
+# stats
+gs 'backlink'
+SHOWSTAT 1
+pl '<a href="exec: gs ''custom stats''">Custom stats format</a> | <a href="exec: gs ''reset stats''">Reset stats format</a>'
+pl '<a href="exec: $STATDESC_BACKIMAGE=''bg.jpg''">Set stats background</a> | <a href="exec:$STATDESC_BACKIMAGE=''''">Unset stats background</a>'
+---
+
+# custom stats
+STATDESC_X = 300
+STATDESC_Y = 400
+STATDESC_W = 200
+STATDESC_H = 250
+$STAT_FORMAT = "<div>before stats</div>%TEXT%<div>after stats</div>"
+---
+# reset stats
+STATDESC_X = 0
+STATDESC_Y = 0
+STATDESC_W = 0
+STATDESC_H = 0
+$STAT_FORMAT = ""
+---
+
+# acts
+gs 'backlink'
+SHOWACTS 1
+act 'first': 'first'
+act 'second','card-discard.png': 'second'
+act 'third', 'card-play.png': 'third'
+
+'<a href="exec: gs ''custom acts''">Custom acts format</a> | <a href="exec: gs ''reset acts''">Reset acts format</a>'
+'<a href="exec: $ACTIONS_BACKIMAGE=''bg.jpg''">Set acts background</a> | <a href="exec:$ACTIONS_BACKIMAGE=''''">Unset acts background</a>'
+'<a href="exec: INTEGRATED_ACTIONS=1">Use integrated actions</a> | <a href="exec:INTEGRATED_ACTIONS=0">Used fixed actions</a>'
+
+---
+
+#custom acts
+ACTIONS_X	= 100
+ACTIONS_Y	= 500
+ACTIONS_W	= 200
+ACTIONS_H	= 250
+$ACTION_FORMAT = '<img src="%IMAGE%" /> %TEXT%'
+$SEL_ACTION_FORMAT = '<img src="%IMAGE%" /> selected %TEXT%'
+---
+
+# reset acts
+ACTIONS_X	= 0
+ACTIONS_Y	= 0
+ACTIONS_W	= 0
+ACTIONS_H	= 0
+$ACTION_FORMAT = ''
+$SEL_ACTION_FORMAT = ''
+---
+
+# objects
+gs 'backlink'
+SHOWOBJS 1
+addobj 'first'
+addobj 'second','card-discard.png'
+addobj 'third', 'card-play.png'
+
+'<a href="exec: gs ''custom objects''">Custom objects format</a> | <a href="exec: gs ''reset objects''">Reset objects format</a>'
+'<a href="exec: $OBJECTS_BACKIMAGE=''bg.jpg''">Set objects background</a> | <a href="exec:$OBJECTS_BACKIMAGE=''''">Unset objects background</a>'
+
+---
+
+# custom objects
+OBJECTS_X	= 400
+OBJECTS_Y	= 150
+OBJECTS_W	= 250
+OBJECTS_H	= 300
+$OBJECT_FORMAT = '<img src="%IMAGE%" /> %TEXT%'
+$SEL_OBJECT_FORMAT = '<img src="%IMAGE%" /> selected %TEXT%'
+---
+
+# reset objects
+OBJECTS_X	= 0
+OBJECTS_Y	= 0
+OBJECTS_W	= 0
+OBJECTS_H	= 0
+$OBJECT_FORMAT = ''
+$SEL_OBJECT_FORMAT = ''
+---
+
+# userinput
+gs 'backlink'
+SHOWINPUT 1
+
+'<a href="exec: gs ''custom userinput''">Custom user input format</a> | <a href="exec: gs ''reset userinput''">Reset userinput format</a>'
+---
+
+# custom userinput
+USERINPUT_X	= 100
+USERINPUT_Y	= 400
+USERINPUT_W	 = 200
+USERINPUT_H	= 250
+---
+
+# reset userinput
+USERINPUT_X	= 0
+USERINPUT_Y	= 0
+USERINPUT_W	= 0
+USERINPUT_H	= 0
+---
+
+# msg
+gs 'backlink'
+
+$msg_text = 'Lorem ipsum'
+'<a href="exec: msg $msg_text">Show</a>'
+'<a href="exec: gs ''custom msg''">Custom msg format</a> | <a href="exec: gs ''reset msg''">Reset msg format</a>'
+'<a href="exec: gs ''msg on_mouse''">Show at mose cursor</a>'
+---
+
+# custom msg
+MSG_X = 300
+MSG_Y	= 400
+MSG_TEXT_X = 15
+MSG_TEXT_Y = 25
+MSG_TEXT_W = 400
+MSG_TEXT_H = 100
+$MSG_OK_IMAGE = 'card-play.png'
+MSG_OK_X = 140
+MSG_OK_Y = 150
+$MSG_FORMAT = '<div>before</div>%TEXT%<div>after</div>'
+$MSG_BACKIMAGE = 'msg-back.png'
+---
+
+# reset msg
+MSG_X = 0
+MSG_Y	= 0
+MSG_TEXT_X = 0
+MSG_TEXT_Y = 0
+MSG_TEXT_W = 0
+MSG_TEXT_H = 0
+$MSG_OK_IMAGE = ''
+MSG_OK_X = 0
+MSG_OK_Y = 0
+$MSG_FORMAT = ''
+$MSG_BACKIMAGE = ''
+---
+
+# msg on_mouse
+MSG_X = -1
+MSG_Y = -1
+---
+
+# view
+gs 'backlink'
+
+'<a href="exec: view ''msg-back.png''">Show</a>'
+'<a href="exec: gs ''custom view''">Custom view settings</a> | <a href="exec: gs ''reset view''">Reset view settings</a>'
+'<a href="exec: ALWAYS_SHOW_VIEW=1">Always show view</a> | <a href="exec: ALWAYS_SHOW_VIEW=0">Hide on click</a>'
+---
+
+#custom view
+VIEW_X	= 300
+VIEW_Y	= 350
+VIEW_W	= 400
+VIEW_H	= 500
+---
+
+#reset view
+VIEW_X	= 0
+VIEW_Y	= 0
+VIEW_W	= 0
+VIEW_H	= 0
+---
+
+# input
+gs 'backlink'
+
+$input_text = 'Lorem ipsum'
+'<a href="exec: input $input_text">Show</a>'
+'<a href="exec: gs ''custom input''">Custom input format</a> | <a href="exec: gs ''reset input''">Reset input format</a>'
+'<a href="exec: gs ''input on_mouse''">Show at mose cursor</a>'
+---
+
+# custom input
+$INPUT_BACKIMAGE = 'msg-back.png'
+INPUT_X = 300
+INPUT_Y = 400
+$INPUT_FORMAT = "<div>beforeinput</div>%TEXT%<div>after input</div>"
+INPUT_TEXT_X = 10
+INPUT_TEXT_Y = 15
+INPUT_TEXT_W = 100
+INPUT_TEXT_H = 120
+INPUT_BAR_X	= 10
+INPUT_BAR_Y	= 125
+INPUT_BAR_W	= 200
+INPUT_BAR_H	= 40
+$INPUT_OK_IMAGE	= "msg-ok.png"
+INPUT_OK_X = 50
+INPUT_OK_Y = 200
+$INPUT_CANCEL_IMAGE = "back-link.png"
+INPUT_CANCEL_X = 80
+INPUT_CANCEL_Y = 200
+---
+
+# reset input
+$INPUT_BACKIMAGE = ''
+INPUT_X = 0
+INPUT_Y = 0
+$INPUT_FORMAT = ""
+INPUT_TEXT_X = 0
+INPUT_TEXT_Y = 0
+INPUT_TEXT_W = 0
+INPUT_TEXT_H = 0
+INPUT_BAR_X	= 0
+INPUT_BAR_Y	= 0
+INPUT_BAR_W	= 0
+INPUT_BAR_H	= 0
+$INPUT_OK_IMAGE	= ""
+INPUT_OK_X = 0
+INPUT_OK_Y = 0
+$INPUT_CANCEL_IMAGE = ""
+INPUT_CANCEL_X = 0
+INPUT_CANCEL_Y = 0
+---
+
+# input on_mouse
+INPUT_X = -1
+INPUT_Y	= -1
+---
+
+# menu
+gs 'backlink'
+
+$usr_menu[0]='Take item:take_item:card-play.png'
+$usr_menu[1]='Examine item:look_item:spyglass.png'
+$usr_menu[2]='-:-'
+$usr_menu[3]='Put item:put_item:card-discard.png'
+$usr_menu[4]='No icon:'
+
+'<a href="exec: menu ''$usr_menu''">Show</a>'
+'<a href="exec: gs ''custom menu''">Custom menu format</a> | <a href="exec: gs ''fixed size menu''">fixed size menu format</a> | <a href="exec: gs ''reset menu''">Reset menu format</a>'
+
+---
+
+
+# custom menu
+FIXED_SIZE_MENU	= 0
+MENU_PADDING = 8
+MENU_BORDER	= 2
+MENU_BORDER_COLOR	= RGB(255,0,0)
+$MENU_FORMAT = "<img src='%IMAGE%'/>%TEXT%"
+$SEL_MENU_FORMAT = "<img src='%IMAGE%'/> selected %TEXT%"
+MENU_LIST_W	= 200
+MENU_LIST_H	= 150
+---
+# fixed size menu
+FIXED_SIZE_MENU	 = 1
+MENU_PADDING = 10
+MENU_BORDER = 3
+MENU_BORDER_COLOR	= RGB(0,255,0)
+$MENU_BACKIMAGE	= "msg-back.png"
+MENU_X = 100
+MENU_Y = 200
+$MENU_FORMAT = "<img src='%IMAGE%'/>%TEXT%"
+$SEL_MENU_FORMAT = "<img src='%IMAGE%'/> selected %TEXT%"
+MENU_LIST_X	= 6
+MENU_LIST_Y	= 6
+MENU_LIST_W = 200
+MENU_LIST_H	= 250
+---
+
+# reset menu
+FIXED_SIZE_MENU	 = 0
+MENU_PADDING = 0
+MENU_BORDER = 0
+MENU_BORDER_COLOR	= 0
+$MENU_BACKIMAGE	= ""
+MENU_X = 0
+MENU_Y = 0
+$MENU_FORMAT = ""
+$SEL_MENU_FORMAT = ""
+MENU_LIST_X	= 0
+MENU_LIST_Y	= 0
+MENU_LIST_W = 0
+MENU_LIST_H	= 0
+---
+
+
+# test effects
+gs 'backlink'
+
+'<a href="exec: gt ''newloc effects''">Newloc effects</a>'
+'<a href="exec: gt ''msg effects''">Msg effects</a>'
+'<a href="exec: gt ''view effects''">view effects</a>'
+'<a href="exec: gt ''input effects''">input effects</a>'
+'<a href="exec: gt ''menu effects''">menu effects</a>'
+---
+
+# newloc effects
+'<a href="exec: gt ''test effects''">Back</a><br/>'
+
+'<a href="exec: NEWLOC_EFFECT_TIME=500">Fast effects</a> | <a href="exec: NEWLOC_EFFECT_TIME=5000">Slow effects</a>'
+'<a href="exec: NEWLOC_EFFECT_SEQ=1">Sequential effects</a> | <a href="exec: NEWLOC_EFFECT_SEQ=0">Regular effects</a>'
+
+'<a href="exec: $NEWLOC_EFFECT=''''">no effect</a>'
+'<a href="exec: $NEWLOC_EFFECT=''fade''">fade</a>'
+'<a href="exec: $NEWLOC_EFFECT=''quake''">quake</a>'
+'<a href="exec: $NEWLOC_EFFECT=''blur''">blur</a>'
+'<a href="exec: $NEWLOC_EFFECT=''l_slide''">l_slide</a>'
+'<a href="exec: $NEWLOC_EFFECT=''r_slide''">r_slide</a>'
+'<a href="exec: $NEWLOC_EFFECT=''u_slide''">u_slide</a>'
+'<a href="exec: $NEWLOC_EFFECT=''d_slide''">d_slide</a>'
+'<a href="exec: $NEWLOC_EFFECT=''iris''">iris</a>'
+'<a href="exec: $NEWLOC_EFFECT=''photo''">photo</a>'
+'<a href="exec: $NEWLOC_EFFECT=''rotate''">rotate</a>'
+'<a href="exec: $NEWLOC_EFFECT=''v_squeeze''">v_squeeze</a>'
+'<a href="exec: $NEWLOC_EFFECT=''h_squeeze''">h_squeeze</a>'
+'<a href="exec: $NEWLOC_EFFECT=''zoom''">zoom</a>'
+'<a href="exec: $NEWLOC_EFFECT=''wipe1''">wipe1</a>'
+'<a href="exec: $NEWLOC_EFFECT=''wipe2''">wipe2</a>'
+'<a href="exec: $NEWLOC_EFFECT=''wipe3''">wipe3</a>'
+'<a href="exec: $NEWLOC_EFFECT=''wipe4''">wipe4</a>'
+
+'<a href="exec: gt ''newloc effects other''">Try</a>'
+
+---
+
+# newloc effects other
+'<a href="exec: gt ''newloc effects''">Back</a><br/>'
+'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry''s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
+---
+
+# msg effects
+'<a href="exec: gt ''test effects''">Back</a><br/>'
+
+'<a href="exec: MSG_EFFECT_TIME=500">Fast effects</a> | <a href="exec: MSG_EFFECT_TIME=5000">Slow effects</a>'
+
+'<a href="exec: $MSG_EFFECT=''''">no effect</a>'
+'<a href="exec: $MSG_EFFECT=''fade''">fade</a>'
+'<a href="exec: $MSG_EFFECT=''quake''">quake</a>'
+'<a href="exec: $MSG_EFFECT=''blur''">blur</a>'
+'<a href="exec: $MSG_EFFECT=''l_slide''">l_slide</a>'
+'<a href="exec: $MSG_EFFECT=''r_slide''">r_slide</a>'
+'<a href="exec: $MSG_EFFECT=''u_slide''">u_slide</a>'
+'<a href="exec: $MSG_EFFECT=''d_slide''">d_slide</a>'
+'<a href="exec: $MSG_EFFECT=''iris''">iris</a>'
+'<a href="exec: $MSG_EFFECT=''photo''">photo</a>'
+'<a href="exec: $MSG_EFFECT=''rotate''">rotate</a>'
+'<a href="exec: $MSG_EFFECT=''v_squeeze''">v_squeeze</a>'
+'<a href="exec: $MSG_EFFECT=''h_squeeze''">h_squeeze</a>'
+'<a href="exec: $MSG_EFFECT=''zoom''">zoom</a>'
+'<a href="exec: $MSG_EFFECT=''wipe1''">wipe1</a>'
+'<a href="exec: $MSG_EFFECT=''wipe2''">wipe2</a>'
+'<a href="exec: $MSG_EFFECT=''wipe3''">wipe3</a>'
+'<a href="exec: $MSG_EFFECT=''wipe4''">wipe4</a>'
+
+'<a href="exec: msg ''test''">Try</a>'
+---
+
+# view effects
+'<a href="exec: gt ''test effects''">Back</a><br/>'
+
+'<a href="exec: VIEW_EFFECT_TIME=500">Fast effects</a> | <a href="exec: VIEW_EFFECT_TIME=5000">Slow effects</a>'
+
+'<a href="exec: $VIEW_EFFECT=''''">no effect</a>'
+'<a href="exec: $VIEW_EFFECT=''fade''">fade</a>'
+'<a href="exec: $VIEW_EFFECT=''quake''">quake</a>'
+'<a href="exec: $VIEW_EFFECT=''blur''">blur</a>'
+'<a href="exec: $VIEW_EFFECT=''l_slide''">l_slide</a>'
+'<a href="exec: $VIEW_EFFECT=''r_slide''">r_slide</a>'
+'<a href="exec: $VIEW_EFFECT=''u_slide''">u_slide</a>'
+'<a href="exec: $VIEW_EFFECT=''d_slide''">d_slide</a>'
+'<a href="exec: $VIEW_EFFECT=''iris''">iris</a>'
+'<a href="exec: $VIEW_EFFECT=''photo''">photo</a>'
+'<a href="exec: $VIEW_EFFECT=''rotate''">rotate</a>'
+'<a href="exec: $VIEW_EFFECT=''v_squeeze''">v_squeeze</a>'
+'<a href="exec: $VIEW_EFFECT=''h_squeeze''">h_squeeze</a>'
+'<a href="exec: $VIEW_EFFECT=''zoom''">zoom</a>'
+'<a href="exec: $VIEW_EFFECT=''wipe1''">wipe1</a>'
+'<a href="exec: $VIEW_EFFECT=''wipe2''">wipe2</a>'
+'<a href="exec: $VIEW_EFFECT=''wipe3''">wipe3</a>'
+'<a href="exec: $VIEW_EFFECT=''wipe4''">wipe4</a>'
+
+'<a href="exec: view ''msg-back.png''">Try</a>'
+---
+
+# input effects
+'<a href="exec: gt ''test effects''">Back</a><br/>'
+
+'<a href="exec: INPUT_EFFECT_TIME=500">Fast effects</a> | <a href="exec: INPUT_EFFECT_TIME=5000">Slow effects</a>'
+
+'<a href="exec: $INPUT_EFFECT=''''">no effect</a>'
+'<a href="exec: $INPUT_EFFECT=''fade''">fade</a>'
+'<a href="exec: $INPUT_EFFECT=''quake''">quake</a>'
+'<a href="exec: $INPUT_EFFECT=''blur''">blur</a>'
+'<a href="exec: $INPUT_EFFECT=''l_slide''">l_slide</a>'
+'<a href="exec: $INPUT_EFFECT=''r_slide''">r_slide</a>'
+'<a href="exec: $INPUT_EFFECT=''u_slide''">u_slide</a>'
+'<a href="exec: $INPUT_EFFECT=''d_slide''">d_slide</a>'
+'<a href="exec: $INPUT_EFFECT=''iris''">iris</a>'
+'<a href="exec: $INPUT_EFFECT=''photo''">photo</a>'
+'<a href="exec: $INPUT_EFFECT=''rotate''">rotate</a>'
+'<a href="exec: $INPUT_EFFECT=''v_squeeze''">v_squeeze</a>'
+'<a href="exec: $INPUT_EFFECT=''h_squeeze''">h_squeeze</a>'
+'<a href="exec: $INPUT_EFFECT=''zoom''">zoom</a>'
+'<a href="exec: $INPUT_EFFECT=''wipe1''">wipe1</a>'
+'<a href="exec: $INPUT_EFFECT=''wipe2''">wipe2</a>'
+'<a href="exec: $INPUT_EFFECT=''wipe3''">wipe3</a>'
+'<a href="exec: $INPUT_EFFECT=''wipe4''">wipe4</a>'
+
+'<a href="exec: input ''test''">Try</a>'
+---
+
+# menu effects
+'<a href="exec: gt ''test effects''">Back</a><br/>'
+
+$usr_menu[0]='Take item:take_item:card-play.png'
+$usr_menu[1]='Examine item:look_item:spyglass.png'
+$usr_menu[2]='-:-'
+$usr_menu[3]='Put item:put_item:card-discard.png'
+$usr_menu[4]='No icon:'
+
+'<a href="exec: MENU_EFFECT_TIME=500">Fast effects</a> | <a href="exec: MENU_EFFECT_TIME=5000">Slow effects</a>'
+
+'<a href="exec: $MENU_EFFECT=''''">no effect</a>'
+'<a href="exec: $MENU_EFFECT=''fade''">fade</a>'
+'<a href="exec: $MENU_EFFECT=''quake''">quake</a>'
+'<a href="exec: $MENU_EFFECT=''blur''">blur</a>'
+'<a href="exec: $MENU_EFFECT=''l_slide''">l_slide</a>'
+'<a href="exec: $MENU_EFFECT=''r_slide''">r_slide</a>'
+'<a href="exec: $MENU_EFFECT=''u_slide''">u_slide</a>'
+'<a href="exec: $MENU_EFFECT=''d_slide''">d_slide</a>'
+'<a href="exec: $MENU_EFFECT=''iris''">iris</a>'
+'<a href="exec: $MENU_EFFECT=''photo''">photo</a>'
+'<a href="exec: $MENU_EFFECT=''rotate''">rotate</a>'
+'<a href="exec: $MENU_EFFECT=''v_squeeze''">v_squeeze</a>'
+'<a href="exec: $MENU_EFFECT=''h_squeeze''">h_squeeze</a>'
+'<a href="exec: $MENU_EFFECT=''zoom''">zoom</a>'
+'<a href="exec: $MENU_EFFECT=''wipe1''">wipe1</a>'
+'<a href="exec: $MENU_EFFECT=''wipe2''">wipe2</a>'
+'<a href="exec: $MENU_EFFECT=''wipe3''">wipe3</a>'
+'<a href="exec: $MENU_EFFECT=''wipe4''">wipe4</a>'
+
+'<a href="exec: menu ''$usr_menu''">Try</a>'
+---

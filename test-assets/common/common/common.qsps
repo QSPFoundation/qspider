@@ -1,0 +1,192 @@
+#start
+usehtml=1
+debug=1
+gt 'test list'
+---
+
+# test list
+'Testing different functionality for qspider'
+''
+'<a href="exec: gt ''version''">QSP version</a>'
+'<a href="exec: gt ''main output''">Main output</a>'
+'<a href="exec: gt ''stats output''">Stats output</a>'
+'<a href="exec: gt ''panel visibility''">Panel visibility</a>'
+'<a href="exec: gt ''actions''">Actions</a>'
+'<a href="exec: gt ''objects''">Objects</a>'
+'<a href="exec: gt ''user cmd''">User Cmd</a>'
+'<a href="exec: gt ''view''">view</a>'
+'<a href="exec: gt ''menu''">Menu</a>'
+'<a href="exec: gt ''input''">Input</a>'
+'<a href="exec: gt ''msg''">Msg</a>'
+'<a href="exec: gt ''wait''">Wait</a>'
+'<a href="exec: gt ''counter''">Counter</a>'
+
+---
+
+# back-link
+if $args[0] <> "":
+  $dyn = $args[0]
+else:
+  $dyn = "*p ''"
+end
+'<a href="exec: dynamic($dyn) & gt ''test list''">Back</a>'
+''
+---
+# version
+gs 'back-link'
+
+'<h2>QSP version</h2>'
+'Version: ' + $qspver()
+'Player: ' + $qspver('player')
+'Platform: ' + $qspver('platform')
+---
+
+# main output
+gs 'back-link'
+
+*p '<b>Main output</b>'
+---
+
+# stats output
+gs 'back-link'
+
+p '<b>Stats output</b>'
+---
+
+# panel visibility
+gs 'back-link', 'clr & delobj "object"'
+
+'<a href="exec: SHOWACTS 1">Show acts</a> <a href="exec: SHOWACTS 0">Hide acts</a>'
+'<a href="exec: SHOWINPUT 1">Show cmd</a> <a href="exec: SHOWINPUT 0">Hide cmd</a>'
+'<a href="exec: SHOWOBJS 1">Show objects</a> <a href="exec: SHOWOBJS 0">Hide objects</a>'
+'<a href="exec: SHOWSTAT 1">Show stats</a> <a href="exec: SHOWSTAT 0">Hide stats</a>'
+
+p 'stats panel'
+act 'act': p 'act'
+addobj 'object'
+---
+
+# input
+gs 'back-link'
+'before input'
+$res = $input('<b>input text</b>')
+'after input'
+$res
+---
+
+# user cmd
+gs 'back-link', '$USERCOM=""'
+
+$USERCOM = 'onusercom'
+act 'show input': clr & p $USER_TEXT
+act 'clear cmd': CMDCLEAR
+---
+
+# onusercom
+msg 'onusercom: ' + $USER_TEXT
+---
+
+# wait
+gs 'back-link'
+
+'before wait 1000'
+wait 1000
+'after wait 1000'
+
+act 'wait 2000':
+  'before wait 2000'
+  wait 2000
+  'after wait 2000'
+end
+---
+
+# counter
+gs 'back-link', '$counter=""'
+
+act 'start counter': $counter="on_time"
+act 'stop counter': $counter=""
+act 'settimer 2000': SETTIMER 2000
+act 'settimer 500': SETTIMER 500
+act 'clear output': clr
+---
+
+# on_time
+pl 'tick'
+---
+
+# menu
+gs 'back-link', 'clr'
+
+$usr_menu[0]='Take item:take_item:card-play.png'
+$usr_menu[1]='Examine item:look_item:spyglass.png'
+$usr_menu[2]='-:-'
+$usr_menu[3]='Put item:put_item:card-discard.png'
+$usr_menu[4]='No icon:'
+
+'<a href="EXEC: menu ''$usr_menu''">link with menu</a>'
+
+act 'act with menu': menu '$usr_menu'
+---
+
+# take_item
+pl 'take_item'
+---
+# look_item
+pl 'look_item'
+---
+# put_item
+pl 'put_item'
+---
+
+# actions
+gs 'back-link','clr & $onactsel=""'
+
+$onactsel="on_mouse"
+act 'one line': pl 'one line'
+act 'multiline': pl 'multiline'
+act 'with icon', 'card-play.png': pl 'with icon'
+act 'deletes itself': delact $selact
+---
+
+# on_mouse
+pl 'on_mouse: ' + $selact
+---
+
+# objects
+gs 'back-link','clr & KILLOBJ & $onobjsel=""'
+
+$onobjsel="on_object_select"
+
+addobj 'one'
+addobj 'two'
+addobj 'spyglass','spyglass.png'
+
+act "Take a rock (once)":
+    if no obj("rock"):
+        addobj "rock"
+    end
+end
+act 'drop rock': delobj 'rock'
+act 'count': *pl COUNTOBJ()
+act 'first': *pl $GETOBJ(1)
+act 'last': $getobj(countobj)
+act 'unselect': UNSELECT
+---
+
+# on_object_select
+*pl 'on_object_select: ' + $selobj
+---
+
+# view
+gs 'back-link', 'view ""'
+
+act 'view image': view 'spyglass.png'
+act 'view empty': view ''
+---
+
+# msg
+gs 'back-link'
+'before msg'
+msg '<b>msg text</b>'
+'after msg'
+---
