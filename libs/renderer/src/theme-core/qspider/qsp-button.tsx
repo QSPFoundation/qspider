@@ -1,6 +1,6 @@
 import { Attributes, GameAction, onGameAction } from '@qspider/game-state';
 import { ReactNode } from 'react';
-import { useAttributes } from '../content/attributes';
+import { useAttributes } from '../../content/attributes';
 
 export const QspButton: React.FC<{ action: GameAction; attrs: Attributes; children: ReactNode }> = ({
   attrs,

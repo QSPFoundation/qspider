@@ -4,7 +4,6 @@ import { QspActions, QspActionsList, QspActionName, QspActionImage, QspActionInd
 import { QspCloseButton, QspOkButton, QspCancelButton } from '../theme-core/buttons';
 import { QspCmd, QspCmdInput } from '../theme-core/cmd';
 import { QspInput, QspInputContent, QspInputTag } from '../theme-core/input';
-import { QspMainContent } from '../theme-core/main-content';
 import { QspMenu, QspMenuList, QspMenuItemName, QspMenuItemImage, QspMenuItemIndex } from '../theme-core/menu';
 import { QspMsg, QspMsgContent } from '../theme-core/msg';
 import { QspObjects, QspObjectsList, QspObjectName, QspObjectImage, QspObjectIndex } from '../theme-core/objects';
@@ -18,24 +17,18 @@ import {
   QspSlotIndex,
   QspSlotDate,
 } from '../theme-core/pause-screen';
-import { QspButton } from '../theme-core/qsp-button';
-import { QspRegion } from '../theme-core/qsp-region';
-import { QspShow } from '../theme-core/qsp-show';
-import { QspStyle } from '../theme-core/qsp-style';
-import { QspVariable } from '../theme-core/qsp-variable';
 import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
-import { QspStats } from '../theme-core/stats';
-import { QspStatsContent } from '../theme-core/stats-content';
+import { QspStats, QspStatsContent } from '../theme-core/stats';
 import { QspView, QspViewImage } from '../theme-core/view';
 import { Link } from './base/link';
 import { Element } from '../content/element';
 import { QspT } from '../qsp-t';
-import { QspMain } from '../theme-core/main';
-import { QspLayer } from '../theme-core/layer';
+import { QspMain, QspMainContent } from '../theme-core/main';
 import { HtmlSelect } from '../theme-core/html/select';
 import { HtmlTextarea } from '../theme-core/html/textarea';
 import { HtmlInput } from '../theme-core/html/input';
 import { HtmlForm } from '../theme-core/html/form';
+import { QspButton, QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();

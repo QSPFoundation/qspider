@@ -2,7 +2,7 @@ import { Attributes, layers$, registerLayer } from '@qspider/game-state';
 import { useAtom, useSetup } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { create } from 'xoid';
-import { useAttributes } from '../content/attributes';
+import { useAttributes } from '../../content/attributes';
 
 export const QspLayer: React.FC<{ children: ReactNode; name: string; index: number; attrs: Attributes }> = (props) => {
   const isVisible$ = useSetup((props$) => {

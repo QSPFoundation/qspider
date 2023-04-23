@@ -1,9 +1,18 @@
-import { Attributes, isStatsVisible$, statsContent$, usePrevious, useQspVariable } from '@qspider/game-state';
+import {
+  Attributes,
+  TEXT_PLACEHOLDER,
+  isStatsVisible$,
+  statsContent$,
+  useFormatVariable,
+  usePrevious,
+  useQspVariable,
+} from '@qspider/game-state';
 import { useAtom, useSetup } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { create } from 'xoid';
 import { useAttributes } from '../content/attributes';
 import { scrollContext } from './scrollable';
+import { ContentRenderer } from '../content-renderer';
 
 export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-stats');
@@ -31,5 +40,17 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
         {children}
       </Tag>
     </scrollContext.Provider>
+  );
+};
+
+export const QspStatsContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-stats-content');
+  const content = useAtom(statsContent$);
+  const format = useFormatVariable(useFormat);
+  const toRender = format ? format.replace(TEXT_PLACEHOLDER, content) : content;
+  return (
+    <Tag style={style} {...attributes}>
+      <ContentRenderer content={toRender} />
+    </Tag>
   );
 };
