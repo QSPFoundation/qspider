@@ -1,11 +1,4 @@
-import {
-  Attributes,
-  TEXT_PLACEHOLDER,
-  isNewLoc$,
-  mainContent$,
-  useFormatVariable,
-  useQspVariable,
-} from '@qspider/game-state';
+import { Attributes, isNewLoc$, mainContent$, useQspVariable } from '@qspider/game-state';
 import { useAtom, useSetup } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { create } from 'xoid';
@@ -35,11 +28,9 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
 export const QspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const content = useAtom(mainContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-main-content');
-  const format = useFormatVariable(useFormat);
-  const toRender = format ? format.replace(TEXT_PLACEHOLDER, content) : content;
   return (
     <Tag style={style} {...attributes}>
-      <ContentRenderer content={toRender} />
+      <ContentRenderer content={content} />
     </Tag>
   );
 };

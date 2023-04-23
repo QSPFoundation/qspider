@@ -149,8 +149,7 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return <QspMenuItemIndex attrs={extractAttributes(node)} />;
   },
   'qsp-msg'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspMsg attrs={attributes}>{children}</QspMsg>;
+    return <QspMsg attrs={extractAttributes(node)}>{children}</QspMsg>;
   },
   'qsp-msg-content'(node) {
     return <QspMsgContent attrs={extractAttributes(node)} />;

@@ -4,12 +4,9 @@ import {
   Attributes,
   execSelectedAction,
   getResource,
-  IMAGE_PLACEHOLDER,
   isActsVisible$,
   selectAction,
   selectedAction$,
-  TEXT_PLACEHOLDER,
-  useFormatVariable,
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -18,7 +15,7 @@ import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
 
-const actionContext = createContext<{ action: QspListItem; index: number }>({
+export const actionContext = createContext<{ action: QspListItem; index: number }>({
   action: { name: 'unknown', image: '' },
   index: -1,
 });
@@ -65,13 +62,6 @@ export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = (
     '--action-image': action.image ? `url("${actionImageUrl}")` : '',
   };
 
-  const format = useFormatVariable(useFormat)
-    .replace(TEXT_PLACEHOLDER, action.name)
-    .replace(IMAGE_PLACEHOLDER, action.image ? actionImageUrl : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat)
-    .replace(TEXT_PLACEHOLDER, action.name)
-    .replace(IMAGE_PLACEHOLDER, action.image ? actionImageUrl : '');
-
   const onHover = (): void => {
     selectAction(index);
   };
@@ -94,15 +84,11 @@ export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = (
           onMouseLeave={onMouseLeave}
           onClick={onClick}
         >
-          {selectedFormat ? (
-            <ContentRenderer content={selectedFormat} />
-          ) : (
-            <TemplateRenderer template={selectedTemplate} />
-          )}
+          <TemplateRenderer template={selectedTemplate} />
         </SelectedTag>
       ) : (
         <Tag {...attributes} style={preparedStyle} onMouseOver={onHover} onClick={onClick}>
-          {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
+          <TemplateRenderer template={template} />
         </Tag>
       )}
     </actionContext.Provider>

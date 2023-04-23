@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Attributes, closeMsg, msg$, TEXT_PLACEHOLDER, useFormatVariable } from '@qspider/game-state';
+import { Attributes, closeMsg, msg$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { ContentRenderer } from '../content-renderer';
@@ -29,13 +29,11 @@ export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ a
 export const QspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const msg = useAtom(msg$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-msg-content');
-  const format = useFormatVariable(useFormat);
   if (!msg) return null;
-  const toRender = format ? format.replace(TEXT_PLACEHOLDER, msg.text) : msg.text;
   return (
-    <Dialog.Description>
+    <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
-        <ContentRenderer content={toRender} />
+        <ContentRenderer content={msg.text} />
       </Tag>
     </Dialog.Description>
   );

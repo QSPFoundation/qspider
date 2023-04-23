@@ -185,8 +185,6 @@
       with-size
       default-value="qspider:aero/msg_back.png"
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-msg-x" from="MSG_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
-    <qsp-css-variable name="--aero-msg-y" from="MSG_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-msg-text-x"
       from="MSG_TEXT_X"
@@ -245,8 +243,6 @@
       with-size
       default-value="qspider:aero/input_back.png"
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-input-x" from="INPUT_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
-    <qsp-css-variable name="--aero-input-y" from="INPUT_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-text-x"
       from="INPUT_TEXT_X"
@@ -884,33 +880,25 @@
             <qsp-cmd-input></qsp-cmd-input>
           </qsp-cmd>
         </aero-effect>
-        <aero-effect name="$VIEW_EFFECT" duration="VIEW_EFFECT_TIME">
-          <qsp-view></qsp-view>
-        </aero-effect>
+        <qsp-view></qsp-view>
         <div class="aero-player-foreground"></div>
-        <aero-effect name="$MSG_EFFECT" duration="MSG_EFFECT_TIME">
-          <qsp-msg>
-            <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
-            <qsp-ok-button focus></qsp-ok-button>
-          </qsp-msg>
-        </aero-effect>
-        <aero-effect name="$INPUT_EFFECT" duration="INPUT_EFFECT_TIME">
-          <qsp-input>
-            <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
-            <qsp-input-tag></qsp-input-tag>
-            <qsp-ok-button></qsp-ok-button>
-            <qsp-cancel-button></qsp-cancel-button>
-          </qsp-input>
-        </aero-effect>
-        <aero-effect name="$MENU_EFFECT" duration="MENU_EFFECT_TIME">
-          <qsp-menu>
-            <div class="list-wrapper">
-              <qsp-scrollable>
-                <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
-              </qsp-scrollable>
-            </div>
-          </qsp-menu>
-        </aero-effect>
+        <qsp-msg>
+          <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
+          <qsp-ok-button focus></qsp-ok-button>
+        </qsp-msg>
+        <qsp-input>
+          <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
+          <qsp-input-tag></qsp-input-tag>
+          <qsp-ok-button></qsp-ok-button>
+          <qsp-cancel-button></qsp-cancel-button>
+        </qsp-input>
+        <qsp-menu>
+          <div class="list-wrapper">
+            <qsp-scrollable>
+              <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
+            </qsp-scrollable>
+          </div>
+        </qsp-menu>
       </div>
     </div>
   </template>

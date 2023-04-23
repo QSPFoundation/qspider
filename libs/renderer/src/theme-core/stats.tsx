@@ -1,12 +1,4 @@
-import {
-  Attributes,
-  TEXT_PLACEHOLDER,
-  isStatsVisible$,
-  statsContent$,
-  useFormatVariable,
-  usePrevious,
-  useQspVariable,
-} from '@qspider/game-state';
+import { Attributes, isStatsVisible$, statsContent$, usePrevious, useQspVariable } from '@qspider/game-state';
 import { useAtom, useSetup } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { create } from 'xoid';
@@ -46,11 +38,9 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 export const QspStatsContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-stats-content');
   const content = useAtom(statsContent$);
-  const format = useFormatVariable(useFormat);
-  const toRender = format ? format.replace(TEXT_PLACEHOLDER, content) : content;
   return (
     <Tag style={style} {...attributes}>
-      <ContentRenderer content={toRender} />
+      <ContentRenderer content={content} />
     </Tag>
   );
 };

@@ -1,22 +1,12 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import {
-  Attributes,
-  getResource,
-  IMAGE_PLACEHOLDER,
-  isObjsVisible$,
-  objects$,
-  selectObject,
-  TEXT_PLACEHOLDER,
-  useFormatVariable,
-  useThemeTemplate,
-} from '@qspider/game-state';
+import { Attributes, getResource, isObjsVisible$, objects$, selectObject, useThemeTemplate } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
 
-const objectContext = createContext<{ object: QspListItem; index: number }>({
+export const objectContext = createContext<{ object: QspListItem; index: number }>({
   object: { name: 'unknown', image: '' },
   index: -1,
 });
@@ -64,13 +54,6 @@ export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = (
     '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
   };
 
-  const format = useFormatVariable(useFormat)
-    .replace(TEXT_PLACEHOLDER, object.name)
-    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat)
-    .replace(TEXT_PLACEHOLDER, object.name)
-    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-
   const onHover = (): void => {
     setIsSelected(true);
   };
@@ -89,15 +72,11 @@ export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = (
           onClick={onClick}
           onMouseLeave={onMouseLeave}
         >
-          {selectedFormat ? (
-            <ContentRenderer content={selectedFormat} />
-          ) : (
-            <TemplateRenderer template={selectedTemplate} />
-          )}
+          <TemplateRenderer template={selectedTemplate} />
         </SelectedTag>
       ) : (
         <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover}>
-          {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
+          <TemplateRenderer template={template} />
         </Tag>
       )}
     </objectContext.Provider>
