@@ -13,7 +13,7 @@ export const AeroQspView: React.FC<{ attrs: Attributes; modal?: boolean; childre
   if (!path) return null;
   const preparedStyle = {
     ...style,
-    '--view-image': `url(${getResource(path).url})`,
+    '--view-image': `url("${getResource(path).url}")`,
   };
   const onClick = (): void => {
     if (!alwaysShow) {

@@ -7,7 +7,7 @@ import {
   menu$,
   selectMenuItem,
   TEXT_PLACEHOLDER,
-  useFormat,
+  useFormatVariable,
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -112,27 +112,30 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIn
   const [isSelected, setIsSelected] = useState(false);
 
   const { attrs, template } = useThemeTemplate('qsp_menu_item');
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-item');
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-menu-item');
 
   const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate(
     'qsp_menu_item_selected',
     'qsp_menu_item'
   );
-  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-menu-item');
+  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
+    selectedAttrs,
+    'qsp-menu-item'
+  );
 
   const preapredStyle = {
     ...style,
-    '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : '',
+    '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
   } as React.CSSProperties;
   const preapredSelectedStyle = {
     ...selectedStyle,
-    '--menu-item-image': item.image ? `url(${getResource(item.image).url})` : '',
+    '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
   } as React.CSSProperties;
 
-  const format = useFormat(attributes['use-format'])
+  const format = useFormatVariable(useFormat)
     .replace(TEXT_PLACEHOLDER, item.name)
     .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
-  const selectedFormat = useFormat(selectedAttributes['use-format'])
+  const selectedFormat = useFormatVariable(useSelectedFormat)
     .replace(TEXT_PLACEHOLDER, item.name)
     .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
 

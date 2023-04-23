@@ -3,7 +3,7 @@
     <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="pt" default-value="12"></qsp-css-variable>
     <qsp-css-variable name="--font-name" from="$FNAME"></qsp-css-variable>
     <qsp-css-variable name="--color" from="FCOLOR" type="color" default-value="#000000"></qsp-css-variable>
-    <qsp-css-variable name="--link-color" from="LCOLOR" type="color" defaul-value="#0000ff"></qsp-css-variable>
+    <qsp-css-variable name="--link-color" from="LCOLOR" type="color" default-value="#0000ff"></qsp-css-variable>
     <qsp-css-variable
       name="--background-color"
       from="BCOLOR"
@@ -12,10 +12,27 @@
       with-contrast
       with-inverted
     ></qsp-css-variable>
-    <qsp-css-variable name="--up-arrow" from="$UP_ARROW_IMAGE" type="resource" with-size></qsp-css-variable>
-    <qsp-css-variable name="--down-arrow" from="$DOWN_ARROW_IMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable
+      name="--up-arrow"
+      from="$UP_ARROW_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/up_arrow.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--down-arrow"
+      from="$DOWN_ARROW_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/down_arrow.png"
+    ></qsp-css-variable>
 
-    <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable
+      name="--background-image"
+      from="$BACKIMAGE"
+      type="resource"
+      default-value="qspider:aero/back.png"
+    ></qsp-css-variable>
 
     <qsp-css-variable name="--aero-foreground-image" from="$TOPIMAGE" type="resource"></qsp-css-variable>
     <qsp-css-variable
@@ -161,7 +178,13 @@
     <qsp-css-variable name="--aero-view-w" from="VIEW_W" type="unit" unit="px" default-value="300"></qsp-css-variable>
     <qsp-css-variable name="--aero-view-h" from="VIEW_H" type="unit" unit="px" default-value="300"></qsp-css-variable>
 
-    <qsp-css-variable name="--aero-msg-backimage" from="$MSG_BACKIMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-backimage"
+      from="$MSG_BACKIMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/msg_back.png"
+    ></qsp-css-variable>
     <qsp-css-variable name="--aero-msg-x" from="MSG_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
     <qsp-css-variable name="--aero-msg-y" from="MSG_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
     <qsp-css-variable
@@ -207,13 +230,20 @@
       unit="px"
       default-value="239"
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-msg-ok-image" from="$MSG_OK_IMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-ok-image"
+      from="$MSG_OK_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/msg_ok.png"
+    ></qsp-css-variable>
 
     <qsp-css-variable
       name="--aero-input-backimage"
       from="$INPUT_BACKIMAGE"
       type="resource"
       with-size
+      default-value="qspider:aero/input_back.png"
     ></qsp-css-variable>
     <qsp-css-variable name="--aero-input-x" from="INPUT_X" type="unit" unit="px" default-value="200"></qsp-css-variable>
     <qsp-css-variable name="--aero-input-y" from="INPUT_Y" type="unit" unit="px" default-value="165"></qsp-css-variable>
@@ -287,12 +317,19 @@
       unit="px"
       default-value="239"
     ></qsp-css-variable>
-    <qsp-css-variable name="--aero-input-ok-image" from="$INPUT_OK_IMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-ok-image"
+      from="$INPUT_OK_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/input_ok.png"
+    ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-cancel-image"
       from="$INPUT_CANCEL_IMAGE"
       type="resource"
       with-size
+      default-value="qspider:aero/input_cancel.png"
     ></qsp-css-variable>
     <qsp-css-variable
       name="--aero-input-cancel-x"
@@ -472,6 +509,12 @@
       }
       .integrated-actions {
         padding-top: 20px;
+        width: var(--aero-actions-w);
+        height: var(--aero-actions-h);
+        background-image: var(--aero-actions-image);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center center;
       }
       .regular-actions {
         position: absolute;
@@ -522,7 +565,7 @@
         top: var(--aero-view-y);
         width: var(--aero-view-w);
         height: var(--aero-view-h);
-        background-image: var(--view-img);
+        background-image: var(--view-image);
         background-size: cover;
         background-position: center;
       }
@@ -608,14 +651,14 @@
       qsp-input button:focus {
         outline: none;
       }
-      qsp-input button.ok {
+      qsp-input [data-qsp='ok-button'] {
         left: var(--aero-input-ok-x);
         top: var(--aero-input-ok-y);
         width: var(--aero-input-ok-image-w);
         height: var(--aero-input-ok-image-h);
         background-image: var(--aero-input-ok-image);
       }
-      qsp-input button.cancel {
+      qsp-input [data-qsp='cancel-button'] {
         left: var(--aero-input-cancel-x);
         top: var(--aero-input-cancel-y);
         width: var(--aero-input-cancel-image-w);
@@ -735,19 +778,13 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        width: var(--aero-player-width);
+        height: var(--aero-player-height);
+        margin: auto;
       }
       .qsp-dialog-container > * {
         position: relative;
         pointer-events: auto;
-        border-radius: var(--border-radius);
-        min-width: 400px;
-        padding: var(--spacer--md);
-        background-color: var(--background-color, black);
-        animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
       }
       .qsp-dialog-container p {
         margin: 0;
@@ -848,21 +885,21 @@
           </qsp-cmd>
         </aero-effect>
         <aero-effect name="$VIEW_EFFECT" duration="VIEW_EFFECT_TIME">
-          <qsp-view modal></qsp-view>
+          <qsp-view></qsp-view>
         </aero-effect>
         <div class="aero-player-foreground"></div>
         <aero-effect name="$MSG_EFFECT" duration="MSG_EFFECT_TIME">
           <qsp-msg>
             <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
-            <qsp-ok-button focus><qsp-t>Ok</qsp-t></qsp-ok-button>
+            <qsp-ok-button focus></qsp-ok-button>
           </qsp-msg>
         </aero-effect>
         <aero-effect name="$INPUT_EFFECT" duration="INPUT_EFFECT_TIME">
           <qsp-input>
             <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
             <qsp-input-tag></qsp-input-tag>
-            <qsp-ok-button><qsp-t>Ok</qsp-t></qsp-ok-button>
-            <qsp-cancel-button><qsp-t>Cancel</qsp-t></qsp-cancel-button>
+            <qsp-ok-button></qsp-ok-button>
+            <qsp-cancel-button></qsp-cancel-button>
           </qsp-input>
         </aero-effect>
         <aero-effect name="$MENU_EFFECT" duration="MENU_EFFECT_TIME">

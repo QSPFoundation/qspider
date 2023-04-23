@@ -9,7 +9,7 @@ import {
   selectAction,
   selectedAction$,
   TEXT_PLACEHOLDER,
-  useFormat,
+  useFormatVariable,
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -49,24 +49,28 @@ export const QspActionsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 export const QspActionItem: React.FC<{ action: QspListItem; index: number }> = ({ action, index }) => {
   const selectedAction = useAtom(selectedAction$);
   const { attrs, template } = useThemeTemplate('qsp_action');
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-item');
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-action-item');
   const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_action_selected', 'qsp_action');
-  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-action-item');
+  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
+    selectedAttrs,
+    'qsp-action-item'
+  );
+  const actionImageUrl = action.image ? getResource(action.image).url : '';
   const preparedStyle = {
     ...style,
-    '--action-image': action.image ? `url(${getResource(action.image).url})` : '',
+    '--action-image': action.image ? `url("${actionImageUrl}")` : '',
   };
   const preparedSelectedStyle = {
     ...selectedStyle,
-    '--action-image': action.image ? `url(${getResource(action.image).url})` : '',
+    '--action-image': action.image ? `url("${actionImageUrl}")` : '',
   };
 
-  const format = useFormat(attributes['use-format'])
+  const format = useFormatVariable(useFormat)
     .replace(TEXT_PLACEHOLDER, action.name)
-    .replace(IMAGE_PLACEHOLDER, action.image ? action.image : '');
-  const selectedFormat = useFormat(selectedAttributes['use-format'])
+    .replace(IMAGE_PLACEHOLDER, action.image ? actionImageUrl : '');
+  const selectedFormat = useFormatVariable(useSelectedFormat)
     .replace(TEXT_PLACEHOLDER, action.name)
-    .replace(IMAGE_PLACEHOLDER, action.image ? action.image : '');
+    .replace(IMAGE_PLACEHOLDER, action.image ? actionImageUrl : '');
 
   const onHover = (): void => {
     selectAction(index);

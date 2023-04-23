@@ -43,8 +43,8 @@ $STYLESHEET = '.check-styles {color: red}'
 '<a href="exec:BCOLOR=rgb(255,0,0)">Make background red</a> | <a href="exec:BCOLOR=0">Make background default</a>'
 '<a href="exec:$FNAME=''Courier New''">Change font to monospace</a> | <a href="exec:$FNAME=''''">Change font to default</a>'
 '<a href="exec:FSIZE=40">Change font size to 40</a> | <a href="exec:FSIZE=0">Change font size to default</a>'
-'<a href="exec:DISABLESHADE=1 & msg ''test''">Disable shade</a> | <a href="exec:DISABLESHADE=0 & msg ''test''">Enable shade</a>'
-
+'<a href="exec:DISABLESHADE=1">Disable shade</a> | <a href="exec:DISABLESHADE=0">Enable shade</a>'
+'<a href="exec:msg ''test''">test msg shade</a>'
 ---
 
 # main

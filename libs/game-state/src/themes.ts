@@ -103,7 +103,7 @@ export function useThemeTemplate(
   );
 }
 
-export function useFormat(variableName?: string): string {
+export function useFormatVariable(variableName?: string): string {
   return useQspVariable(variableName, '', 0, '');
 }
 export async function registerThemes(themes: string[]): Promise<void> {

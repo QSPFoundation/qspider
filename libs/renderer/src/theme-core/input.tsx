@@ -1,5 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Attributes, input$, inputResult$, submitInput, TEXT_PLACEHOLDER, useFormat } from '@qspider/game-state';
+import {
+  Attributes,
+  input$,
+  inputResult$,
+  submitInput,
+  TEXT_PLACEHOLDER,
+  useFormatVariable,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -43,12 +50,12 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 
 export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const input = useAtom(input$);
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-input-contnet');
-  const format = useFormat(attributes['use-format']);
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-contnet');
+  const format = useFormatVariable(useFormat);
   if (!input) return null;
   const toRender = format ? format.replace(TEXT_PLACEHOLDER, input.text) : input.text;
   return (
-    <Dialog.Description>
+    <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
         <ContentRenderer content={toRender} />
       </Tag>

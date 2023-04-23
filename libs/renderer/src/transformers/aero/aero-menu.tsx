@@ -16,13 +16,6 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   const useMouseCordinates = menuX < 0 || menuY < 0;
   const left = useMouseCordinates ? coordinates.x : menuX;
   const top = useMouseCordinates ? coordinates.y : menuY;
-  console.log({
-    isFixed,
-    coordinates,
-    useMouseCordinates,
-    menuX,
-    menuY,
-  });
   let className = attributes['className'] || '';
   if (isFixed) className += ' aero-fixed-menu';
   return (

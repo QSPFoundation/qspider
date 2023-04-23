@@ -21,7 +21,7 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
 }) => {
   const size = useImageSize(url);
   const sizeDefinitions = withSize ? `${name}-w: ${size.width}px; ${name}-h: ${size.height}px` : '';
-  const content = `qsp-game-root, #portal-container {${name}: ${url ? `url(${url})` : 'none'};${sizeDefinitions}}`;
+  const content = `qsp-game-root, #portal-container {${name}: ${url ? `url("${url}")` : 'none'};${sizeDefinitions}}`;
   return <style>{content}</style>;
 };
 
@@ -47,10 +47,16 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
     const preparedValue = `${value || definition.defaultValue}${definition.unit || ''}`;
     rules.push(`${definition.name}: ${preparedValue}`);
   } else if (definition.type === 'resource') {
-    if (!value) return null;
+    if (!value && !definition.defaultValue) return null;
     return (
-      <QspCssVariableResource name={definition.name} url={getResource(value).url} withSize={definition.withSize} />
+      <QspCssVariableResource
+        name={definition.name}
+        url={getResource(value || definition.defaultValue).url}
+        withSize={definition.withSize}
+      />
     );
+  } else if (value) {
+    rules.push(`${definition.name}: ${value}`);
   }
   if (!rules.length) return null;
   const content = `qsp-game-root, #portal-container {${rules.join('; ')}}`;

@@ -14,7 +14,7 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
   if (!path) return null;
   const preparedStyle = {
     ...style,
-    '--view-image': `url(${getResource(path).url})`,
+    '--view-image': `url("${getResource(path).url}")`,
   };
   if (modal) {
     return (

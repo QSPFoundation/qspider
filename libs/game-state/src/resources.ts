@@ -48,7 +48,7 @@ export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<vo
 export function getResource(file: string): Resource {
   if (isExternalPath(file) || isHashPath(file)) {
     return {
-      url: file,
+      url: file.replace(/^qspider:/, ''),
       type: file.toLowerCase().split('.').pop() as string,
     };
   }

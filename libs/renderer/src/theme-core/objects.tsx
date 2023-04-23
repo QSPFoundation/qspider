@@ -7,7 +7,7 @@ import {
   objects$,
   selectObject,
   TEXT_PLACEHOLDER,
-  useFormat,
+  useFormatVariable,
   useThemeTemplate,
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -47,24 +47,27 @@ export const QspObjectsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
   const [isSelected, setIsSelected] = useState(false);
   const { attrs, template } = useThemeTemplate('qsp_object');
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-item');
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-object-item');
 
   const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_object_selected', 'qsp_object');
-  const [SelectedTag, selectedStyle, selectedAttributes] = useAttributes(selectedAttrs, 'qsp-object-item');
+  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
+    selectedAttrs,
+    'qsp-object-item'
+  );
 
   const preparedStyle = {
     ...style,
-    '--object-image': object.image ? `url(${getResource(object.image).url})` : '',
+    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
   };
   const preparedSelectedStyle = {
     ...selectedStyle,
-    '--object-image': object.image ? `url(${getResource(object.image).url})` : '',
+    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
   };
 
-  const format = useFormat(attributes['use-format'])
+  const format = useFormatVariable(useFormat)
     .replace(TEXT_PLACEHOLDER, object.name)
     .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-  const selectedFormat = useFormat(selectedAttributes['use-format'])
+  const selectedFormat = useFormatVariable(useSelectedFormat)
     .replace(TEXT_PLACEHOLDER, object.name)
     .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
 
