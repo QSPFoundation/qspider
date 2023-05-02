@@ -220,7 +220,7 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     return (
       <QspVariable
         name={name as string}
-        key={key as string}
+        vkey={key as string}
         index={index ? parseInt(index as string, 10) : undefined}
       />
     );
