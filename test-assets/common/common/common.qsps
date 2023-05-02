@@ -19,7 +19,11 @@ gt 'test list'
 '<a href="exec: gt ''input''">Input</a>'
 '<a href="exec: gt ''msg''">Msg</a>'
 '<a href="exec: gt ''wait''">Wait</a>'
+'<a href="exec: gt ''audio''">Audio</a>'
 '<a href="exec: gt ''counter''">Counter</a>'
+'<a href="exec: gt ''saves''">Saves</a>'
+'<a href="exec: gt ''libs''">Libs</a>'
+'<a href="exec: gt ''openqst''">OPENQST</a>'
 
 ---
 
@@ -189,4 +193,55 @@ gs 'back-link'
 'before msg'
 msg '<b>msg text</b>'
 'after msg'
+---
+
+# saves
+gs 'back-link'
+test = 10
+
+$ongload="on_game_load"
+$ongsave="on_game_save"
+
+'<a href="exec: nosave=1">Disable save</a> | <a href="exec: nosave=0">Enable save</a>'
+'<a href="exec: SAVEGAME">Open save dialog</a> | <a href="exec: OPENGAME">Open load dialog</a>'
+'<a href="exec: SAVEGAME ''1.sav''">Save to predefined file</a> | <a href="exec: OPENGAME ''1.sav''">Load from predefined file</a>'
+
+'<a href="exec: test+=1">Update state</a>'
+'<a href="exec: clr & pl test">Check state</a>'
+---
+
+# on_game_load
+clr
+p 'game loaded'
+p test
+---
+
+# on_game_save
+clr
+p 'game saved'
+p test
+---
+
+# libs
+gs 'back-link', 'gs 'back-link''
+'<a href="exec: inclib ''testlib.qsps''">Rool level lib qsps</a> | <a href="exec: freelib ''testlib.qsps''">Clear</a> | <a href="exec: clr & pl ''testlib - '' & loc(''testlib'')">Check</a>'
+'<a href="exec: inclib ''testlib.qsp''">Root level lib qsp</a> | <a href="exec: freelib ''testlib.qsp''"></a> | <a href="exec: clr & pl ''testlib - '' & loc(''testlib'')">Check</a>'
+'<a href="exec: inclib ''lib/nested-lib.qsps''"></a> | <a href="exec: freelib ''lib/nested-lib.qsps''"></a> | <a href="exec: clr & pl ''nested-lib - '' & loc(''nested-lib'')">Check</a>'
+'<a href="exec: inclib ''lib/nested-lib.qsp''"></a> | <a href="exec: freelib ''lib/nested-lib.qsp''"></a> | <a href="exec: clr & pl ''nested-lib - '' & loc(''nested-lib'')">Check</a>'
+'<a href="exec: freelib">Clear all</a>'
+---
+
+# openqst
+gs 'back-link'
+
+'<a href="exec: openqst ''separate/separate.qsp''">Open separate qsp file</a>'
+'<a href="exec: openqst ''separate/separate.qsps''">Open separate qsps file</a>'
+---
+
+# audio
+gs 'back-link'
+
+'<a href="exec: play ''audio.mp3''">Play mp3</a> | <a href="exec: clr & p ''mp3'' & isplay ''audio.mp3''">Check</a> | <a href="exec: close ''audio.mp3''">Stop mp3</a>'
+'<a href="exec: play ''audio.webm''">Play webm</a> | <a href="exec: clr & p ''webm'' & isplay ''audio.webm''">Check</a> | <a href="exec: close ''audio.webm''">Stop webm</a>'
+'<a href="exec: close all">Stop all</a>'
 ---

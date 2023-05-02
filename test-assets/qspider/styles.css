@@ -1,0 +1,6 @@
+.icon {
+  width: 120px;
+  height: 120px;
+  background: url(./icon.png);
+  background-size: cover;
+}

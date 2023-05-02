@@ -32,8 +32,9 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
   },
   'change_theme:'(name: string): void {
     const themes = themeRegistry$.value;
-    const esistingTheme = themes[name];
-    if (!esistingTheme) {
+    const existingTheme = themes[name];
+    console.log(themes);
+    if (!existingTheme) {
       errorMessage$.set(`Theme ${name} is not registered`);
       return;
     }

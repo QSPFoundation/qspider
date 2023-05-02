@@ -1,0 +1,121 @@
+<qspider-theme name="custom-theme">
+  <definitions>
+    <qsp-translation lang="en-US" tkey="test_key" value="english translation"></qsp-translation>
+    <qsp-translation lang="uk-UA" tkey="test_key" value="український переклад"></qsp-translation>
+  </definitions>
+  <template is="qsp-player">
+    <style>
+      a.plain {
+        text-decoration: none;
+      }
+      qsp-player {
+        width: 100vw;
+        height: 100vh;
+        background: var(--background-color);
+        display: block;
+      }
+      qsp-layer {
+        position: fixed;
+        inset: 0;
+      }
+    </style>
+
+    <qsp-main>
+      <qsp-scrollable>
+        <qsp-main-content></qsp-main-content>
+      </qsp-scrollable>
+    </qsp-main>
+    <qsp-objects>
+      <qsp-scrollable>
+        <qsp-objects-list tag="nav" role="menu"></qsp-objects-list>
+      </qsp-scrollable>
+    </qsp-objects>
+    <qsp-actions>
+      <qsp-scrollable>
+        <qsp-actions-list tag="nav" role="menu"></qsp-actions-list>
+      </qsp-scrollable>
+    </qsp-actions>
+    <qsp-stats>
+      <qsp-scrollable>
+        <qsp-stats-content class="panel-content"></qsp-stats-content>
+      </qsp-scrollable>
+    </qsp-stats>
+    <qsp-cmd>
+      <qsp-cmd-input></qsp-cmd-input>
+    </qsp-cmd>
+    <qsp-view modal>
+      <qsp-view-image></qsp-view-image>
+    </qsp-view>
+    <qsp-menu>
+      <qsp-scrollable>
+        <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
+      </qsp-scrollable>
+    </qsp-menu>
+    <qsp-msg>
+      <qsp-msg-content></qsp-msg-content>
+      <qsp-ok-button class="qsp-button" focus><qsp-t>Ok</qsp-t></qsp-ok-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-msg>
+    <qsp-input>
+      <qsp-input-content></qsp-input-content>
+      <qsp-input-tag class="qsp-input"></qsp-input-tag>
+      <qsp-ok-button class="qsp-button"><qsp-t>Ok</qsp-t></qsp-ok-button>
+      <qsp-cancel-button class="qsp-button"><qsp-t>Cancel</qsp-t></qsp-cancel-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-input>
+    <qsp-region name="region1"></qsp-region>
+    <qsp-layer name="layer2" index="20" style="background: green">Layer 2</qsp-layer>
+    <qsp-layer name="layer1" index="10" style="background: red">Layer 1</qsp-layer>
+  </template>
+  <template is="qsp-pause-screen">
+    <div class="qsp-pause-screen">
+      <div class="qsp-pause-screen-buttons">
+        <qsp-button type="resume" class="qsp-button"><qsp-t>Resume</qsp-t></qsp-button>
+        <qsp-button type="restart" class="qsp-button"><qsp-t>Restart</qsp-t></qsp-button>
+        <qsp-show when="NOSAVE=0">
+          <qsp-button type="save" class="qsp-button"><qsp-t>Save</qsp-t></qsp-button>
+          <qsp-button type="load" class="qsp-button"><qsp-t>Load</qsp-t></qsp-button>
+        </qsp-show>
+        <qsp-button type="preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></qsp-button>
+        <qsp-button type="quit" class="qsp-button"><qsp-t>Quit</qsp-t></qsp-button>
+      </div>
+      <qsp-pause-screen-content>
+        <qsp-pause-screen-credits></qsp-pause-screen-credits>
+        <qsp-show when="NOSAVE=0">
+          <qsp-pause-screen-save>
+            <h4><qsp-t>Save game</qsp-t>Save game</h4>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-save>
+          <qsp-pause-screen-load>
+            <h4><qsp-t>Load game</qsp-t></h4>
+            <qsp-slots-list></qsp-slots-list>
+          </qsp-pause-screen-load>
+        </qsp-show>
+        <qsp-pause-screen-preferences>
+          <h2><qsp-t>Preferences</qsp-t></h2>
+        </qsp-pause-screen-preferences>
+      </qsp-pause-screen-content>
+    </div>
+  </template>
+  <template is="qsp-action" tag="button" class="action-item">
+    <qsp-action-image class="action-img"></qsp-action-image>
+    <qsp-action-name></qsp-action-name>
+  </template>
+  <template is="qsp-object" tag="button" class="action-item">
+    <qsp-object-image class="action-img"></qsp-object-image>
+    <qsp-object-name></qsp-object-name>
+  </template>
+  <template is="qsp-menu-item" tag="button" class="action-item">
+    <qsp-menu-image class="action-img"></qsp-menu-image>
+    <qsp-menu-name> </qsp-menu-name>
+  </template>
+  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
+  <template is="qsp-save-slot" class="qsp-save-slot">
+    <h5 class="qsp-slot-index">
+      <qsp-save-slot-index></qsp-save-slot-index>
+    </h5>
+    <div class="qsp-slot-date">
+      <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
+    </div>
+  </template>
+</qspider-theme>
