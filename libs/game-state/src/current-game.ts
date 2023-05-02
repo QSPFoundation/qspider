@@ -31,6 +31,7 @@ import { parse } from 'iarna-toml-esm';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
+import { layers$, regions$ } from './panels';
 
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
@@ -169,6 +170,8 @@ export function stopCurrentGame(): void {
     if (wasResized) windowManager.resize(1024, 768);
   }
   sounds$.actions.clear();
+  regions$.set({});
+  layers$.set({});
   clearResources();
   clearAdditionalResources();
   clearHotkeys();
