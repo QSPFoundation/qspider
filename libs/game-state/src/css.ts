@@ -3,6 +3,7 @@ import valueParser from 'postcss-value-parser';
 import postcss, { AcceptedPlugin, Parser } from 'postcss';
 import { fetchProxyFallback, resolvePath } from '@qspider/utils';
 import { getResource } from './resources';
+import { isExternalPath } from './utils';
 
 export async function prepareCss(content: string, rootPath: string): Promise<string> {
   const additionalStyles: string[] = [];
@@ -16,9 +17,11 @@ export async function prepareCss(content: string, rootPath: string): Promise<str
         const urlPart = parsed.nodes[0];
         let url;
         if (urlPart.type === 'function' && urlPart.value === 'url') {
-          url = resolvePath(rootPath, urlPart.nodes[0].value);
+          url = isExternalPath(urlPart.nodes[0].value)
+            ? urlPart.nodes[0].value
+            : resolvePath(rootPath, urlPart.nodes[0].value);
         } else if (urlPart.type === 'string') {
-          url = resolvePath(rootPath, urlPart.value);
+          url = isExternalPath(urlPart.value) ? urlPart.value : resolvePath(rootPath, urlPart.value);
         }
         if (url) {
           const response = await fetchProxyFallback(getResource(url).url);
@@ -36,7 +39,12 @@ export async function prepareCss(content: string, rootPath: string): Promise<str
       if (declaration.value.toLowerCase().includes('url(')) {
         const parsed = valueParser(declaration.value);
         parsed.walk((node) => {
-          if (node.type === 'function' && node.value === 'url' && node.nodes[0]) {
+          if (
+            node.type === 'function' &&
+            node.value === 'url' &&
+            node.nodes[0] &&
+            !isExternalPath(node.nodes[0].value)
+          ) {
             node.nodes[0].value = getResource(resolvePath(rootPath, node.nodes[0].value)).url;
           }
         });

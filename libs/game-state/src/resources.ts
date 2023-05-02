@@ -11,6 +11,8 @@ import {
   File,
   isSupportedArchive,
   readSupportedArchive,
+  isExternalPath,
+  isHashPath,
 } from './utils';
 import { parse } from 'iarna-toml-esm';
 import mime from 'mime/lite';
@@ -99,13 +101,6 @@ export async function getTextContent(file: string): Promise<string> {
     if (!r.ok) throw new Error(`File not found`);
     return r.text();
   });
-}
-
-function isExternalPath(path: string): boolean {
-  return /^[a-z]+:/i.test(path);
-}
-function isHashPath(path: string): boolean {
-  return path.startsWith('#');
 }
 
 function preparePath(path: string): string {
