@@ -15,17 +15,15 @@ const QspBoundTextarea: React.FC<{
 };
 
 export const HtmlTextarea: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const [, style, { value, ...attributes }] = useAttributes(attrs, 'textarea');
-  if ('qsp-bind' in attributes) {
-    const bind = attributes['qsp-bind'];
-    const bindKey = attributes['qsp-bind-key'];
-    const bindIndex = parseInt(attributes['qsp-bind-index'] || '0', 10);
+  const [, style, { value, qspBind, qspBindKey, qspBindIndex, ...attributes }] = useAttributes(attrs, 'textarea');
+  if (qspBind) {
+    const bindIndex = parseInt(qspBindIndex || '0', 10);
     return (
       <QspBoundTextarea
         attributes={attributes}
         style={style}
-        bind={bind}
-        bindKey={bindKey}
+        bind={qspBind}
+        bindKey={qspBindKey}
         bindIndex={bindIndex}
       ></QspBoundTextarea>
     );

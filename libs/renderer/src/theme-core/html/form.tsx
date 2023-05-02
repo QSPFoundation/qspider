@@ -4,8 +4,8 @@ import { useAttributes } from '../../content/attributes';
 
 export const HtmlForm: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [, style, attributes] = useAttributes(attrs, 'form');
-  const qspSubmit = attributes['qsp-on:submit'];
-  delete attributes['qsp-on:submit'];
+  const qspSubmit = attributes['qspOn:submit'];
+  delete attributes['qspOn:submit'];
   function onSubmit(event: FormEvent): void {
     event.preventDefault();
     if (qspSubmit?.toLowerCase().startsWith('exec:')) {

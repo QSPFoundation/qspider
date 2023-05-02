@@ -41,17 +41,15 @@ const QspBoundInput: React.FC<{
 };
 
 export const HtmlInput: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const [, style, { value, ...attributes }] = useAttributes(attrs, 'input');
-  if ('qsp-bind' in attributes) {
-    const bind = attributes['qsp-bind'];
-    const bindKey = attributes['qsp-bind-key'];
-    const bindIndex = parseInt(attributes['qsp-bind-index'] || '0', 10);
+  const [, style, { value, qspBind, qspBindKey, qspBindIndex, ...attributes }] = useAttributes(attrs, 'input');
+  if (qspBind) {
+    const bindIndex = parseInt(qspBindIndex || '0', 10);
     return (
       <QspBoundInput
         attributes={attributes}
         style={style}
-        bind={bind}
-        bindKey={bindKey}
+        bind={qspBind}
+        bindKey={qspBindKey}
         bindIndex={bindIndex}
         value={value}
       />

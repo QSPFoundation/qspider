@@ -20,13 +20,11 @@ const QspBoundSelect: React.FC<{
 };
 
 export const HtmlSelect: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const [, style, { value, ...attributes }] = useAttributes(attrs, 'select');
-  if ('qsp-bind' in attributes) {
-    const bind = attributes['qsp-bind'];
-    const bindKey = attributes['qsp-bind-key'];
-    const bindIndex = parseInt(attributes['qsp-bind-index'] || '0', 10);
+  const [, style, { value, qspBind, qspBindKey, qspBindIndex, ...attributes }] = useAttributes(attrs, 'select');
+  if (qspBind) {
+    const bindIndex = parseInt(qspBindIndex || '0', 10);
     return (
-      <QspBoundSelect attributes={attributes} style={style} bind={bind} bindKey={bindKey} bindIndex={bindIndex}>
+      <QspBoundSelect attributes={attributes} style={style} bind={qspBind} bindKey={qspBindKey} bindIndex={bindIndex}>
         {children}
       </QspBoundSelect>
     );

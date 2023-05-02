@@ -15,6 +15,8 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   'xlink:href': 'xlinkHref',
   'xmlns:xlink': 'xmlnsXlink',
   for: 'htmlFor',
+  minlength: 'minLength',
+  maxlength: 'maxLength',
 });
 
 const attributeToStyle: Record<string, string> = {

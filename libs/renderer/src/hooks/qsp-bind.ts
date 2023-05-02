@@ -16,7 +16,9 @@ export function useQspBind(bind: string, bindKey: string, bindIndex: number): [s
       }
       name.push(']');
     }
-    qspApi$.value?.execCode(`${name.join('')} = "${newValue}"`);
+    const fullName = name.join('');
+    const toSet = fullName.startsWith('$') ? `"${newValue}"` : newValue || 0;
+    qspApi$.value?.execCode(`${fullName} = ${toSet}`);
   };
 
   return [value, handleChange];
