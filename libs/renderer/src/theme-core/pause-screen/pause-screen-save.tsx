@@ -1,4 +1,4 @@
-import { Attributes, saveToSlot } from '@qspider/game-state';
+import { Attributes, isPauseScreenVisible$, saveToSlot } from '@qspider/game-state';
 import * as Tabs from '@radix-ui/react-tabs';
 import { ReactNode } from 'react';
 import { useAttributes } from '../../content/attributes';
@@ -8,6 +8,7 @@ export const QspPauseScreenSave: React.FC<{ attrs: Attributes; children: ReactNo
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen-save');
   const action = async (index: number): Promise<void> => {
     await saveToSlot(index);
+    isPauseScreenVisible$.set(false);
   };
   return (
     <slotActionContext.Provider value={{ action, disableEmpty: false }}>
