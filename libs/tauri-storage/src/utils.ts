@@ -24,8 +24,8 @@ export async function readStorageData(): Promise<TauriStorageData | null> {
   try {
     const content = await readTextFile(storageFile, { dir: BaseDirectory.AppData });
     if (content) return JSON.parse(content);
-  } catch {
-    // no-op
+  } catch (err) {
+    console.error(err);
   }
   return null;
 }
@@ -41,8 +41,8 @@ export async function storeBinaryData(file: string, content: ArrayBuffer): Promi
 export async function readBinaryData(file: string): Promise<ArrayBuffer | undefined> {
   try {
     return await readBinaryFile(file, { dir: BaseDirectory.AppData });
-  } catch {
-    // no-op
+  } catch (err) {
+    console.error(err);
   }
   return undefined;
 }

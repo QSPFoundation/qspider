@@ -1,8 +1,7 @@
 import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
 import { defer } from '@qspider/utils';
-import { writeBinaryFile } from '@tauri-apps/api/fs';
 import { TauriStorageData } from './contracts';
-import { ensureAppDataDir, flushStorageData, readBinaryData, readStorageData } from './utils';
+import { ensureAppDataDir, flushStorageData, readBinaryData, readStorageData, storeBinaryData } from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { tauri } from '@tauri-apps/api';
 
@@ -39,7 +38,7 @@ export class TauriStorage implements Storage {
   }
   async addGameSource(id: string, content: ArrayBuffer): Promise<void> {
     await this.initialized.promise;
-    await writeBinaryFile(id, content);
+    await storeBinaryData(id, content);
   }
   async getGameSource(id: string): Promise<ArrayBuffer | undefined> {
     await this.initialized.promise;
@@ -67,7 +66,7 @@ export class TauriStorage implements Storage {
       key,
       slot: -1,
     };
-    await writeBinaryFile(storageKey, data);
+    await storeBinaryData(storageKey, data);
     await flushStorageData(this.storageData);
   }
   async saveBySlot(game_id: string, slot: number, data: ArrayBuffer): Promise<void> {
@@ -79,7 +78,7 @@ export class TauriStorage implements Storage {
       key: '',
       slot,
     };
-    await writeBinaryFile(storageKey, data);
+    await storeBinaryData(storageKey, data);
     await flushStorageData(this.storageData);
   }
   async getSaveDataByKey(game_id: string, key: string): Promise<ArrayBuffer | null> {
