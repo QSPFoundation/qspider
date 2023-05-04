@@ -1,12 +1,12 @@
 {
   "name": "web-storage",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "tags": [],
-  "root": "libs/web-storage",
   "sourceRoot": "libs/web-storage/src",
   "projectType": "library",
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/web-storage/**/*.{ts,tsx,js,jsx}"]

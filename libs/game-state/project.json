@@ -1,11 +1,12 @@
 {
-  "root": "libs/game-state",
+  "name": "game-state",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/game-state/src",
   "projectType": "library",
   "tags": [],
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/game-state/**/*.{ts,tsx,js,jsx}"]

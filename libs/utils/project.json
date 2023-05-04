@@ -1,13 +1,12 @@
 {
   "name": "utils",
-  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "libs/utils",
+  "tags": [],
   "sourceRoot": "libs/utils/src",
   "projectType": "library",
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/utils/**/*.{ts,tsx,js,jsx}"]

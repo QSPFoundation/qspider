@@ -1,13 +1,12 @@
 {
   "name": "contracts",
-  "tags": [],
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "libs/contracts",
+  "tags": [],
   "sourceRoot": "libs/contracts/src",
   "projectType": "library",
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/contracts/**/*.{ts,tsx,js,jsx}"]

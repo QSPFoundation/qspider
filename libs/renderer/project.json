@@ -1,12 +1,12 @@
 {
   "name": "renderer",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "tags": [],
-  "root": "libs/renderer",
   "sourceRoot": "libs/renderer/src",
   "projectType": "library",
   "targets": {
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["libs/renderer/**/*.{ts,tsx,js,jsx}"]
