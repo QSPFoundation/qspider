@@ -127,7 +127,7 @@ function getMaxLayer(panels: PanelData[]): number {
 }
 
 function getLayerPanels(layer: number, panels: PanelData[]): PanelData[] {
-  return panels.filter((panel) => panel.layer === layer);
+  return panels.filter((panel) => panel.layer === layer).sort((a, b) => a.pos - b.pos);
 }
 
 const paneToTagMap: Record<string, string> = {

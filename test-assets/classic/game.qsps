@@ -1,0 +1,6 @@
+# start
+'main'
+pl 'stats'
+addobj 'object'
+act 'action': pl ''
+---
