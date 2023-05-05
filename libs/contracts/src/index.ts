@@ -8,13 +8,6 @@ export interface Resource {
   type: string;
 }
 
-export interface SaveData {
-  game_id: string;
-  timestamp: number;
-  key: string;
-  slot: number;
-}
-
 export interface ThemeTranslation {
   lang: string;
   tkey: string;

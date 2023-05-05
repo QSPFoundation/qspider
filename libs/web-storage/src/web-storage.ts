@@ -65,6 +65,14 @@ export class WebStorage implements Storage {
     };
     await this.db.gameSaves.put(record);
   }
+  async hasSaveByKey(game_id: string, key: string): Promise<boolean | null> {
+    const count = await this.db.gameSaves.where({ game_id, key }).count();
+    return count > 0;
+  }
+  async hasSaveBySlot(game_id: string, slot: number): Promise<boolean | null> {
+    const count = await this.db.gameSaves.where({ game_id, slot }).count();
+    return count > 0;
+  }
   async getSaveDataByKey(game_id: string, key: string): Promise<ArrayBuffer | null> {
     const record = await this.db.gameSaves.where({ game_id, key }).first();
     return record?.data || null;

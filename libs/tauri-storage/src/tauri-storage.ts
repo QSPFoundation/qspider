@@ -81,6 +81,16 @@ export class TauriStorage implements Storage {
     await storeBinaryData(storageKey, data);
     await flushStorageData(this.storageData);
   }
+  async hasSaveByKey(game_id: string, key: string): Promise<boolean | null> {
+    await this.initialized.promise;
+    const storageKey = `${game_id}_${key}_-1`;
+    return storageKey in this.storageData.saves;
+  }
+  async hasSaveBySlot(game_id: string, slot: number): Promise<boolean | null> {
+    await this.initialized.promise;
+    const storageKey = `${game_id}__${slot}`;
+    return storageKey in this.storageData.saves;
+  }
   async getSaveDataByKey(game_id: string, key: string): Promise<ArrayBuffer | null> {
     await this.initialized.promise;
     const storageKey = `${game_id}_${key}_-1`;
