@@ -16,6 +16,7 @@ import {
   QspSlotsList,
   QspSlotIndex,
   QspSlotDate,
+  QspPauseScreen,
 } from '../theme-core/pause-screen';
 import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
@@ -176,6 +177,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-cancel-button'(node, children) {
     const attributes = extractAttributes(node);
     return <QspCancelButton attrs={attributes}>{children}</QspCancelButton>;
+  },
+  'qsp-pause-screen'(node, children) {
+    const attributes = extractAttributes(node);
+    console.log(attributes);
+    return <QspPauseScreen attrs={attributes}>{children}</QspPauseScreen>;
   },
   'qsp-pause-screen-content'(node, children) {
     const attributes = extractAttributes(node);

@@ -51,7 +51,6 @@ export type ThemeData = {
   qsp_menu_item?: TemplateTag;
   qsp_menu_item_selected?: TemplateTag;
   qsp_menu_separator?: TemplateTag;
-  qsp_pause_screen?: TemplateTag;
   qsp_save_slot?: TemplateTag;
 };
 interface ThemeActions {
@@ -149,7 +148,6 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
       qsp_menu_item_selected: extractTagData(theme, 'template[is="qsp-menu-item-selected"]'),
       qsp_menu_separator: extractTagData(theme, 'template[is="qsp-menu-separator"]'),
-      qsp_pause_screen: extractTagData(theme, 'template[is="qsp-pause-screen"]'),
       qsp_save_slot: extractTagData(theme, 'template[is="qsp-save-slot"]'),
     };
   }

@@ -7,7 +7,6 @@ import { QspiderLoader } from './loader';
 import { QspErrorAlert } from './qsp-error-alert';
 import { QspPlayer } from './theme-core';
 import { QspCSSVariables } from './theme-core/css-variables';
-import { QspPauseScreen } from './theme-core/pause-screen/pause-screen';
 import { WaitLock } from './wait-lock';
 
 const handler = throttle((e: KeyboardEvent): void => {
@@ -29,7 +28,6 @@ export const GameRunner: React.FC = () => {
       <QspCSSVariables />
       <QspPlayer />
       <WaitLock />
-      <QspPauseScreen />
       <QspErrorAlert />
     </qsp-game-root>
   );

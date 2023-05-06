@@ -2,15 +2,14 @@ import * as Dialog from '@radix-ui/react-dialog';
 import * as Tabs from '@radix-ui/react-tabs';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
-import { currentGame$, isPauseScreenVisible$, pauseScreenTab$, useThemeTemplate } from '@qspider/game-state';
+import { Attributes, currentGame$, isPauseScreenVisible$, pauseScreenTab$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { TemplateRenderer } from '../../template-renderer';
 import { useAttributes } from '../../content/attributes';
+import { ReactNode } from 'react';
 
-export const QspPauseScreen: React.FC = () => {
+export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const isVisible = useAtom(isPauseScreenVisible$);
   const currentGame = useAtom(currentGame$);
-  const { template, attrs } = useThemeTemplate('qsp_pause_screen');
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen');
   const currentTab = useAtom(pauseScreenTab$);
   return (
@@ -25,7 +24,7 @@ export const QspPauseScreen: React.FC = () => {
             </VisuallyHidden.Root>
             <Tabs.Root asChild value={currentTab} onValueChange={(value): void => pauseScreenTab$.set(value)}>
               <Tag style={style} {...attributes}>
-                <TemplateRenderer template={template} />
+                {children}
               </Tag>
             </Tabs.Root>
           </div>
