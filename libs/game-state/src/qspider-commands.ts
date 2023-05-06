@@ -1,4 +1,4 @@
-import { stopCurrentGame } from './current-game';
+import { GameAction, onGameAction, stopCurrentGame } from './current-game';
 import { layers$, readLayerState, regions$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
@@ -6,6 +6,9 @@ import { errorMessage$ } from './toasts';
 import { windowManager$ } from './window-manager';
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
+  'action:'(action: string): void {
+    onGameAction(action as GameAction);
+  },
   'event:'(event: string): void {
     const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
     if (match) {
@@ -33,7 +36,6 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
   'change_theme:'(name: string): void {
     const themes = themeRegistry$.value;
     const existingTheme = themes[name];
-    console.log(themes);
     if (!existingTheme) {
       errorMessage$.set(`Theme ${name} is not registered`);
       return;

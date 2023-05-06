@@ -19,7 +19,7 @@ import {
   statsContent$,
   viewPath$,
 } from './panels';
-import { currentGame$, onGameAction } from './current-game';
+import { currentGame$, GameAction, onGameAction } from './current-game';
 import { gameSavedCallback$, saveLoadedCallback$ } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { storage$ } from './storage';
@@ -214,7 +214,7 @@ qspApi$.subscribe((api) => {
       });
     } else {
       saveLoadedCallback$.set(loaded);
-      onGameAction('load');
+      onGameAction('pause:load' as GameAction);
     }
   });
   api.on('save_game', async (path, saved) => {
@@ -229,7 +229,7 @@ qspApi$.subscribe((api) => {
       });
     } else {
       gameSavedCallback$.set(saved);
-      onGameAction('save');
+      onGameAction('pause:save' as GameAction);
     }
   });
   api.on('wait', (ms, finish) => {

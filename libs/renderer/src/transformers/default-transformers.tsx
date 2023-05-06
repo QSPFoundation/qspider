@@ -177,7 +177,6 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-pause-screen'(node, children) {
     const attributes = extractAttributes(node);
-    console.log(attributes);
     return <QspPauseScreen attrs={attributes}>{children}</QspPauseScreen>;
   },
   'qsp-pause-screen-content'(node, children) {

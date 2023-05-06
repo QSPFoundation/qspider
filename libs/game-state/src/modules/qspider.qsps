@@ -46,3 +46,40 @@ killvar 'qspider_layers'
 qspider_layers[$args[0]] = 1
 exec('qspider.update_layers')
 ---
+
+# qspider_quicksave
+exec('qspider.action:quicksave')
+---
+
+# qspider_quickload
+exec('qspider.action:quickload')
+---
+
+# qspider_restart
+exec('qspider.action:restart')
+---
+
+# qspider_resume
+exec('qspider.action:resume')
+---
+
+# qspider_quit
+exec('qspider.action:quit')
+---
+
+# qspider_mute
+exec('qspider.action:mute')
+---
+
+# qspider_unmute
+exec('qspider.action:unmute')
+---
+
+# qspider_toggle_mute
+exec('qspider.action:toggle_mute')
+---
+
+# qspider_open_pause_screen
+! $args[0] - panel name
+exec('qspider.action:pause:<<$args[0]>>')
+---

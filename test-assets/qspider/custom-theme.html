@@ -72,10 +72,11 @@
           <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
           <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
           <qsp-show when="NOSAVE=0">
-            <button qsp-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-            <button qsp-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+            <button qsp-action="pause:save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+            <button qsp-action="pause:load" class="qsp-button"><qsp-t>Load</qsp-t></button>
           </qsp-show>
-          <button qsp-action="preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-action="pause:custom" class="qsp-button"><qsp-t>Custom section</qsp-t></button>
           <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
         </div>
         <qsp-pause-screen-content>
@@ -92,6 +93,10 @@
           </qsp-show>
           <qsp-pause-screen-panel name="preferences">
             <h2><qsp-t>Preferences</qsp-t></h2>
+          </qsp-pause-screen-panel>
+          <qsp-pause-screen-panel name="custom">
+            <h2><qsp-t>Custom section</qsp-t></h2>
+            <qsp-region name="pause-custom"></qsp-region>
           </qsp-pause-screen-panel>
         </qsp-pause-screen-content>
       </div>

@@ -182,21 +182,14 @@ export function stopCurrentGame(): void {
   wasResized = false;
   onGameEnd$.value?.();
 }
-export type GameAction =
-  | 'save'
-  | 'load'
-  | 'quicksave'
-  | 'quickload'
-  | 'restart'
-  | 'resume'
-  | 'quit'
-  | 'preferences'
-  | 'credits'
-  | 'mute'
-  | 'unmute'
-  | 'toggle-mute';
+export type GameAction = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
 export function onGameAction(action: GameAction): void {
+  if (action.startsWith('pause:')) {
+    const [, panel] = action.split(':');
+    if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
+    pauseScreenCurrentPanel$.set(panel);
+  }
   switch (action) {
     case 'quit':
       stopCurrentGame();
@@ -208,13 +201,6 @@ export function onGameAction(action: GameAction): void {
       break;
     case 'resume':
       isPauseScreenVisible$.set(false);
-      break;
-    case 'save':
-    case 'load':
-    case 'preferences':
-    case 'credits':
-      if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
-      pauseScreenCurrentPanel$.set(action);
       break;
     case 'mute':
       muted$.set(true);

@@ -22,6 +22,7 @@ clr
 '<a href="exec: gt ''resources''">CSS/Fonts/JS</a><br/>'
 '<a href="exec: gt ''regions''">Regions</a><br/>'
 '<a href="exec: gt ''layers''">Layers</a>'
+'<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a>'
 ---
 
 # back-link
@@ -201,4 +202,11 @@ $text_update = '<b>text update</b>'
 '<a href="exec: @qspider_prepend_region(''region1'', ''start'')">Prepend to region</a>'
 '<a href="exec: @qspider_append_region(''region1'', ''end'')">Append to region</a>'
 '<a href="exec: @qspider_clear_region(''region1'')">Clear region</a>'
+---
+
+# pause-panel
+gs 'back-link'
+'<br/>'
+@qspider_update_region('pause-custom', '<div qsp-action="resume">Close pause screen</div>')
+'<a href="exec: @qspider_open_pause_screen(''custom'')">Open pause screen custom panel</a>'
 ---
