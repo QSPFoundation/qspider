@@ -1,5 +1,5 @@
 import { Node } from 'interweave';
-import { extractAttributes, GameAction } from '@qspider/game-state';
+import { extractAttributes } from '@qspider/game-state';
 import { QspActions, QspActionsList, QspActionName, QspActionImage, QspActionIndex } from '../theme-core/actions';
 import { QspCloseButton, QspOkButton, QspCancelButton } from '../theme-core/buttons';
 import { QspCmd, QspCmdInput } from '../theme-core/cmd';
@@ -28,7 +28,7 @@ import { HtmlSelect } from '../theme-core/html/select';
 import { HtmlTextarea } from '../theme-core/html/textarea';
 import { HtmlInput } from '../theme-core/html/input';
 import { HtmlForm } from '../theme-core/html/form';
-import { QspButton, QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
+import { QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -176,15 +176,6 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   'qsp-cancel-button'(node, children) {
     const attributes = extractAttributes(node);
     return <QspCancelButton attrs={attributes}>{children}</QspCancelButton>;
-  },
-  'qsp-button'(node, children) {
-    const action = (node.getAttribute('type') || 'credits') as GameAction;
-    const attributes = extractAttributes(node);
-    return (
-      <QspButton action={action} attrs={attributes}>
-        {children}
-      </QspButton>
-    );
   },
   'qsp-pause-screen-content'(node, children) {
     const attributes = extractAttributes(node);

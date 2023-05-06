@@ -1,5 +1,5 @@
 import parse from 'srcset-parse';
-import { Attributes, getResource } from '@qspider/game-state';
+import { Attributes, GameAction, getResource, onGameAction } from '@qspider/game-state';
 import { fontSizeMap } from '../transformers/classic/font';
 
 const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
@@ -99,7 +99,8 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   if (dataName.includes('-')) {
     converted['data-qsp'] = dataName.replace('qsp-', '');
   }
-  const { tag = tagName, style = {}, ...attrs } = attributes;
+  const { tag = tagName, style = {}, 'qsp-action': qspAction, ...attrs } = attributes;
+
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
     let newValue = value;
@@ -129,6 +130,12 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   }
   if (tag === 'iframe') {
     converted['sandbox'] = 'allow-scripts allow-same-origin';
+  }
+  if (qspAction) {
+    converted['onClick'] = (e: MouseEvent): void => {
+      e.preventDefault();
+      onGameAction(qspAction as GameAction);
+    };
   }
   const attributeStyles = attributesToStyle(attributes, tag);
   return [

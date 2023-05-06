@@ -51,6 +51,8 @@ export type Attributes = {
   style?: React.CSSProperties;
 } & BooleanAttributes & {
     [attr: string]: AttributeValue;
+  } & {
+    onClick?: (e: MouseEvent) => void;
   };
 
 const valueProcessors: Record<string, (value: string) => string> = {

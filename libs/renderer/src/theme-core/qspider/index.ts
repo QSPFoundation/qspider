@@ -1,4 +1,3 @@
-export * from './qsp-button';
 export * from './qsp-layer';
 export * from './qsp-region';
 export * from './qsp-show';

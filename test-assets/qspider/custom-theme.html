@@ -70,14 +70,14 @@
   <template is="qsp-pause-screen">
     <div class="qsp-pause-screen">
       <div class="qsp-pause-screen-buttons">
-        <qsp-button type="resume" class="qsp-button"><qsp-t>Resume</qsp-t></qsp-button>
-        <qsp-button type="restart" class="qsp-button"><qsp-t>Restart</qsp-t></qsp-button>
+        <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
+        <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
         <qsp-show when="NOSAVE=0">
-          <qsp-button type="save" class="qsp-button"><qsp-t>Save</qsp-t></qsp-button>
-          <qsp-button type="load" class="qsp-button"><qsp-t>Load</qsp-t></qsp-button>
+          <button qsp-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+          <button qsp-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
         </qsp-show>
-        <qsp-button type="preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></qsp-button>
-        <qsp-button type="quit" class="qsp-button"><qsp-t>Quit</qsp-t></qsp-button>
+        <button qsp-action="preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+        <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
       </div>
       <qsp-pause-screen-content>
         <qsp-pause-screen-credits></qsp-pause-screen-credits>
