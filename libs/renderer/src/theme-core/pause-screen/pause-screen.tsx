@@ -1,8 +1,7 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import * as Tabs from '@radix-ui/react-tabs';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
-import { Attributes, currentGame$, isPauseScreenVisible$, pauseScreenTab$ } from '@qspider/game-state';
+import { Attributes, currentGame$, isPauseScreenVisible$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { useAttributes } from '../../content/attributes';
 import { ReactNode } from 'react';
@@ -11,7 +10,6 @@ export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }
   const isVisible = useAtom(isPauseScreenVisible$);
   const currentGame = useAtom(currentGame$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen');
-  const currentTab = useAtom(pauseScreenTab$);
   return (
     <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>
       <Dialog.Portal container={document.getElementById('portal-container')}>
@@ -22,11 +20,9 @@ export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }
             <VisuallyHidden.Root asChild>
               <Dialog.Description>Game pause screen</Dialog.Description>
             </VisuallyHidden.Root>
-            <Tabs.Root asChild value={currentTab} onValueChange={(value): void => pauseScreenTab$.set(value)}>
-              <Tag style={style} {...attributes}>
-                {children}
-              </Tag>
-            </Tabs.Root>
+            <Tag style={style} {...attributes}>
+              {children}
+            </Tag>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

@@ -23,7 +23,7 @@ import {
 } from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
-import { isPauseScreenVisible$, pauseScreenTab$ } from './pause-screen';
+import { isPauseScreenVisible$, pauseScreenCurrentPanel$ } from './pause-screen';
 import { loadSaveList } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
@@ -214,7 +214,7 @@ export function onGameAction(action: GameAction): void {
     case 'preferences':
     case 'credits':
       if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
-      pauseScreenTab$.set(action);
+      pauseScreenCurrentPanel$.set(action);
       break;
     case 'mute':
       muted$.set(true);

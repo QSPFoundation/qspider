@@ -914,20 +914,20 @@
           <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
         </div>
         <qsp-pause-screen-content>
-          <qsp-pause-screen-credits></qsp-pause-screen-credits>
+          <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
           <qsp-show when="NOSAVE=0">
-            <qsp-pause-screen-save>
+            <qsp-pause-screen-panel name="save">
               <h2><qsp-t>Save game</qsp-t></h2>
               <qsp-slots-list></qsp-slots-list>
-            </qsp-pause-screen-save>
-            <qsp-pause-screen-load>
+            </qsp-pause-screen-panel>
+            <qsp-pause-screen-panel name="load">
               <h2><qsp-t>Load game</qsp-t></h2>
               <qsp-slots-list></qsp-slots-list>
-            </qsp-pause-screen-load>
+            </qsp-pause-screen-panel>
           </qsp-show>
-          <qsp-pause-screen-preferences>
+          <qsp-pause-screen-panel name="preferences">
             <h2><qsp-t>Preferences</qsp-t></h2>
-          </qsp-pause-screen-preferences>
+          </qsp-pause-screen-panel>
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>

@@ -9,14 +9,11 @@ import { QspMsg, QspMsgContent } from '../theme-core/msg';
 import { QspObjects, QspObjectsList, QspObjectName, QspObjectImage, QspObjectIndex } from '../theme-core/objects';
 import {
   QspPauseScreenContent,
-  QspPauseScreenCredits,
-  QspPauseScreenPreferences,
-  QspPauseScreenSave,
-  QspPauseScreenLoad,
   QspSlotsList,
   QspSlotIndex,
   QspSlotDate,
   QspPauseScreen,
+  QspPauseScreenPanel,
 } from '../theme-core/pause-screen';
 import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
@@ -187,21 +184,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     const attributes = extractAttributes(node);
     return <QspPauseScreenContent attrs={attributes}>{children}</QspPauseScreenContent>;
   },
-  'qsp-pause-screen-credits'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspPauseScreenCredits attrs={attributes}>{children}</QspPauseScreenCredits>;
-  },
-  'qsp-pause-screen-preferences'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspPauseScreenPreferences attrs={attributes}>{children}</QspPauseScreenPreferences>;
-  },
-  'qsp-pause-screen-save'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspPauseScreenSave attrs={attributes}>{children}</QspPauseScreenSave>;
-  },
-  'qsp-pause-screen-load'(node, children) {
-    const attributes = extractAttributes(node);
-    return <QspPauseScreenLoad attrs={attributes}>{children}</QspPauseScreenLoad>;
+  'qsp-pause-screen-panel'(node, children) {
+    const { name, ...attributes } = extractAttributes(node);
+    if (!name) return null;
+    return (
+      <QspPauseScreenPanel name={name} attrs={attributes}>
+        {children}
+      </QspPauseScreenPanel>
+    );
   },
   'qsp-slots-list'(node) {
     return <QspSlotsList attrs={extractAttributes(node)} />;
