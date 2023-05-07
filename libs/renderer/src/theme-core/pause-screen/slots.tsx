@@ -1,7 +1,6 @@
-import { Attributes, saveSlots$, saveSlotsCount$, useThemeTemplate } from '@qspider/game-state';
-import { createContext, ReactNode, useContext } from 'react';
+import { Attributes, saveSlots$, saveSlotsCount$ } from '@qspider/game-state';
+import React, { createContext, ReactElement, ReactNode, useContext } from 'react';
 import { useAttributes } from '../../content/attributes';
-import { TemplateRenderer } from '../../template-renderer';
 import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
 import { formatDate } from '@qspider/i18n';
@@ -15,7 +14,7 @@ export const slotActionContext = createContext<{ disableEmpty: boolean; action: 
 
 const baseSlots$ = create((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
 
-export const QspSlotsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+export const QspSlotsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const baseSlots = useAtom(baseSlots$);
   const savedSlots = useAtom(saveSlots$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-slots-list');
@@ -23,32 +22,39 @@ export const QspSlotsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
     <Tag style={style} {...attributes}>
       {baseSlots.map((index) => {
         const savedEntry = savedSlots.find((s) => s.slot === index);
-        return <QspSlot key={index} index={index} date={savedEntry?.timestamp} />;
+        return React.Children.map(children, (child) => {
+          return (
+            <slotContentContext.Provider value={{ index, date: savedEntry?.timestamp }}>
+              {React.cloneElement(child as ReactElement)}
+            </slotContentContext.Provider>
+          );
+        });
       })}
     </Tag>
   );
 };
 
-export const QspSlot: React.FC<{ index: number; date?: number }> = ({ index, date }) => {
-  const { attrs, template } = useThemeTemplate('qsp_save_slot');
-  const [Tag, style, attributes] = useAttributes(attrs, 'button', 'qsp-save-slot');
+export const QspSlot: React.FC<{ index: number; date?: number; attrs: Attributes; children: ReactNode }> = ({
+  attrs,
+  children,
+}) => {
+  const { index, date } = useContext(slotContentContext);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
   const preparedStyle = {
     ...style,
     '--slot-index': `${index}`,
   };
   const { action, disableEmpty } = useContext(slotActionContext);
   return (
-    <slotContentContext.Provider value={{ index, date }}>
-      <Tag
-        {...attributes}
-        style={preparedStyle}
-        onClick={(): void => action(index)}
-        role="button"
-        disabled={disableEmpty && !date}
-      >
-        <TemplateRenderer template={template} {...attrs} />
-      </Tag>
-    </slotContentContext.Provider>
+    <Tag
+      {...attributes}
+      style={preparedStyle}
+      onClick={(): void => action(index)}
+      role="button"
+      disabled={disableEmpty && !date}
+    >
+      {children}
+    </Tag>
   );
 };
 

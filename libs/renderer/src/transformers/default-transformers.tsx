@@ -14,6 +14,7 @@ import {
   QspSlotDate,
   QspPauseScreen,
   QspPauseScreenPanel,
+  QspSlot,
 } from '../theme-core/pause-screen';
 import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
@@ -192,8 +193,15 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
       </QspPauseScreenPanel>
     );
   },
-  'qsp-slots-list'(node) {
-    return <QspSlotsList attrs={extractAttributes(node)} />;
+  'qsp-slots-list'(node, children) {
+    return <QspSlotsList attrs={extractAttributes(node)}>{children}</QspSlotsList>;
+  },
+  'qsp-save-slot'(node, children) {
+    return (
+      <QspSlot attrs={extractAttributes(node)} index={-1}>
+        {children}
+      </QspSlot>
+    );
   },
   'qsp-save-slot-index'(node) {
     return <QspSlotIndex attrs={extractAttributes(node)} />;

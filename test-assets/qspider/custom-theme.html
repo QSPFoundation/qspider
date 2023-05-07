@@ -84,11 +84,29 @@
           <qsp-show when="NOSAVE=0">
             <qsp-pause-screen-panel name="save">
               <h4><qsp-t>Save game</qsp-t>Save game</h4>
-              <qsp-slots-list></qsp-slots-list>
+              <qsp-slots-list>
+                <qsp-save-slot class="qsp-save-slot">
+                  <h5 class="qsp-slot-index">
+                    <qsp-save-slot-index></qsp-save-slot-index>
+                  </h5>
+                  <div class="qsp-slot-date">
+                    <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
+                  </div>
+                </qsp-save-slot>
+              </qsp-slots-list>
             </qsp-pause-screen-panel>
             <qsp-pause-screen-panel name="load">
               <h4><qsp-t>Load game</qsp-t></h4>
-              <qsp-slots-list></qsp-slots-list>
+              <qsp-slots-list>
+                <qsp-save-slot class="qsp-save-slot">
+                  <h5 class="qsp-slot-index">
+                    <qsp-save-slot-index></qsp-save-slot-index>
+                  </h5>
+                  <div class="qsp-slot-date">
+                    <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
+                  </div>
+                </qsp-save-slot>
+              </qsp-slots-list>
             </qsp-pause-screen-panel>
           </qsp-show>
           <qsp-pause-screen-panel name="preferences">
@@ -115,12 +133,4 @@
     <qsp-menu-name> </qsp-menu-name>
   </template>
   <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
-  <template is="qsp-save-slot" class="qsp-save-slot">
-    <h5 class="qsp-slot-index">
-      <qsp-save-slot-index></qsp-save-slot-index>
-    </h5>
-    <div class="qsp-slot-date">
-      <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
-    </div>
-  </template>
 </qspider-theme>
