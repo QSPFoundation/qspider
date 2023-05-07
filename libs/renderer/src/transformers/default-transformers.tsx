@@ -203,10 +203,10 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
       </QspSlot>
     );
   },
-  'qsp-save-slot-index'(node) {
+  'qsp-slot-index'(node) {
     return <QspSlotIndex attrs={extractAttributes(node)} />;
   },
-  'qsp-save-slot-date'(node, children) {
+  'qsp-slot-date'(node, children) {
     return <QspSlotDate attrs={extractAttributes(node)}>{children}</QspSlotDate>;
   },
   'qsp-variable'(node) {

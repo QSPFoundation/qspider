@@ -72,8 +72,7 @@
           <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
           <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
           <qsp-show when="NOSAVE=0">
-            <button qsp-action="pause:save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-            <button qsp-action="pause:load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+            <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
           </qsp-show>
           <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
           <button qsp-action="pause:custom" class="qsp-button"><qsp-t>Custom section</qsp-t></button>
@@ -82,28 +81,16 @@
         <qsp-pause-screen-content>
           <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
           <qsp-show when="NOSAVE=0">
-            <qsp-pause-screen-panel name="save">
-              <h4><qsp-t>Save game</qsp-t>Save game</h4>
+            <qsp-pause-screen-panel name="saves">
+              <h4><qsp-t>Saves</qsp-t></h4>
               <qsp-slots-list>
-                <qsp-save-slot class="qsp-save-slot">
-                  <h5 class="qsp-slot-index">
-                    <qsp-save-slot-index></qsp-save-slot-index>
-                  </h5>
-                  <div class="qsp-slot-date">
-                    <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
-                  </div>
-                </qsp-save-slot>
-              </qsp-slots-list>
-            </qsp-pause-screen-panel>
-            <qsp-pause-screen-panel name="load">
-              <h4><qsp-t>Load game</qsp-t></h4>
-              <qsp-slots-list>
-                <qsp-save-slot class="qsp-save-slot">
-                  <h5 class="qsp-slot-index">
-                    <qsp-save-slot-index></qsp-save-slot-index>
-                  </h5>
-                  <div class="qsp-slot-date">
-                    <qsp-save-slot-date><qsp-t>Empty</qsp-t></qsp-save-slot-date>
+                <qsp-save-slot>
+                  <qsp-slot-index></qsp-slot-index>
+                  <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                  <div class="save-actions">
+                    <button><qsp-t>Save</qsp-t></button>
+                    <button><qsp-t>Load</qsp-t></button>
+                    <button><qsp-t>Clear</qsp-t></button>
                   </div>
                 </qsp-save-slot>
               </qsp-slots-list>
