@@ -5,7 +5,7 @@ import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
 import { formatDate } from '@qspider/i18n';
 
-const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
+export const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 export const slotActionContext = createContext<{ disableEmpty: boolean; action: (index: number) => void }>({
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   action: () => {},
@@ -38,21 +38,15 @@ export const QspSlot: React.FC<{ index: number; date?: number; attrs: Attributes
   attrs,
   children,
 }) => {
-  const { index, date } = useContext(slotContentContext);
+  const { index } = useContext(slotContentContext);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
   const preparedStyle = {
     ...style,
     '--slot-index': `${index}`,
   };
-  const { action, disableEmpty } = useContext(slotActionContext);
+  const { action } = useContext(slotActionContext);
   return (
-    <Tag
-      {...attributes}
-      style={preparedStyle}
-      onClick={(): void => action(index)}
-      role="button"
-      disabled={disableEmpty && !date}
-    >
+    <Tag {...attributes} style={preparedStyle} onClick={(): void => action(index)}>
       {children}
     </Tag>
   );

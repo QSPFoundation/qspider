@@ -84,4 +84,7 @@ export class WebStorage implements Storage {
   async getSavedSlots(game_id: string): Promise<SaveData[]> {
     return await this.db.gameSaves.where('slot').above(0).toArray();
   }
+  async getNamedSaves(game_id: string): Promise<SaveData[]> {
+    return await this.db.gameSaves.where('key').notEqual('').toArray();
+  }
 }

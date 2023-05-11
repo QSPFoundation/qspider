@@ -8,6 +8,7 @@ import { storage$ } from './storage';
 export const saveLoadedCallback$ = create<null | (() => void)>();
 export const gameSavedCallback$ = create<null | (() => void)>();
 export const saveSlots$ = create<SaveData[]>([]);
+export const namedSlots$ = create<SaveData[]>([]);
 
 const QUICK_SAVE_KEY = '__quicksave_qpider__';
 
@@ -15,10 +16,13 @@ export async function loadSaveList(): Promise<void> {
   const currentGame = currentGame$.value;
   if (!currentGame) {
     saveSlots$.set([]);
+    namedSlots$.set([]);
     return;
   }
   const slots = await storage$.value?.getSavedSlots(currentGame.id);
   saveSlots$.set(slots || []);
+  const named = await storage$.value?.getNamedSaves(currentGame.id);
+  namedSlots$.set(named || []);
 }
 
 export async function saveToSlot(slot: number): Promise<void> {

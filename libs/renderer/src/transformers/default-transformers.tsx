@@ -28,6 +28,7 @@ import { HtmlTextarea } from '../theme-core/html/textarea';
 import { HtmlInput } from '../theme-core/html/input';
 import { HtmlForm } from '../theme-core/html/form';
 import { QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
+import { QspNamedSlot } from '../theme-core/pause-screen/named-slot';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -201,6 +202,14 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
       <QspSlot attrs={extractAttributes(node)} index={-1}>
         {children}
       </QspSlot>
+    );
+  },
+  'qsp-save-file'(node, children) {
+    const { path, ...attrs } = extractAttributes(node);
+    return (
+      <QspNamedSlot attrs={attrs} path={path}>
+        {children}
+      </QspNamedSlot>
     );
   },
   'qsp-slot-index'(node) {

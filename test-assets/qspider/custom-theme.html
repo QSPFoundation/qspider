@@ -83,6 +83,15 @@
           <qsp-show when="NOSAVE=0">
             <qsp-pause-screen-panel name="saves">
               <h4><qsp-t>Saves</qsp-t></h4>
+              <qsp-save-file path="autosave.sav">
+                <h3>Autosave</h3>
+                <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                <div class="save-actions">
+                  <button><qsp-t>Save</qsp-t></button>
+                  <button><qsp-t>Load</qsp-t></button>
+                  <button><qsp-t>Clear</qsp-t></button>
+                </div>
+              </qsp-save-file>
               <qsp-slots-list>
                 <qsp-save-slot>
                   <qsp-slot-index></qsp-slot-index>

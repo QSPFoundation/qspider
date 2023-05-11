@@ -111,4 +111,14 @@ export class TauriStorage implements Storage {
     }
     return found;
   }
+  async getNamedSaves(game_id: string): Promise<SaveData[]> {
+    await this.initialized.promise;
+    const found = [];
+    for (const row of Object.values(this.storageData.saves)) {
+      if (row.game_id === game_id && row.key !== '') {
+        found.push(row);
+      }
+    }
+    return found;
+  }
 }
