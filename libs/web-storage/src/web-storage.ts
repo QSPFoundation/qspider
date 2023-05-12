@@ -82,9 +82,35 @@ export class WebStorage implements Storage {
     return record?.data || null;
   }
   async getSavedSlots(game_id: string): Promise<SaveData[]> {
-    return await this.db.gameSaves.where('slot').above(0).toArray();
+    return await this.db.gameSaves
+      .where({ game_id })
+      .and((save) => save.slot > 0)
+      .toArray();
   }
   async getNamedSaves(game_id: string): Promise<SaveData[]> {
-    return await this.db.gameSaves.where('key').notEqual('').toArray();
+    return await this.db.gameSaves
+      .where({ game_id })
+      .and((save) => save.key !== '')
+      .toArray();
+  }
+
+  async clearSaveSlot(game_id: string, slot: number): Promise<void> {
+    await this.db.gameSaves
+      .where({
+        game_id,
+        key: '',
+        slot,
+      })
+      .delete();
+  }
+
+  async clearSaveKey(game_id: string, key: string): Promise<void> {
+    await this.db.gameSaves
+      .where({
+        game_id,
+        key,
+        slot: -1,
+      })
+      .delete();
   }
 }

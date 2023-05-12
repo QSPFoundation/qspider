@@ -6,6 +6,7 @@ import {
   BaseDirectory,
   writeBinaryFile,
   createDir,
+  removeFile,
 } from '@tauri-apps/api/fs';
 import { appDataDir } from '@tauri-apps/api/path';
 import { TauriStorageData } from './contracts';
@@ -45,4 +46,12 @@ export async function readBinaryData(file: string): Promise<ArrayBuffer | undefi
     console.error(err);
   }
   return undefined;
+}
+
+export async function clearBinaryData(file: string): Promise<void> {
+  try {
+    return await removeFile(file, { dir: BaseDirectory.AppData });
+  } catch (err) {
+    console.error(err);
+  }
 }

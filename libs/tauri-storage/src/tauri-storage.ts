@@ -1,7 +1,14 @@
 import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
 import { defer } from '@qspider/utils';
 import { TauriStorageData } from './contracts';
-import { ensureAppDataDir, flushStorageData, readBinaryData, readStorageData, storeBinaryData } from './utils';
+import {
+  clearBinaryData,
+  ensureAppDataDir,
+  flushStorageData,
+  readBinaryData,
+  readStorageData,
+  storeBinaryData,
+} from './utils';
 import { v4 as uuidv4 } from 'uuid';
 import { tauri } from '@tauri-apps/api';
 
@@ -12,6 +19,7 @@ export class TauriStorage implements Storage {
   constructor() {
     this.initialize();
   }
+
   async initialize(): Promise<void> {
     await ensureAppDataDir();
     this.storageData = (await readStorageData()) || {
@@ -55,6 +63,7 @@ export class TauriStorage implements Storage {
   async removeGame(id: string): Promise<void> {
     await this.initialized.promise;
     delete this.storageData.games[id];
+    await clearBinaryData(id);
     await flushStorageData(this.storageData);
   }
   async saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void> {
@@ -120,5 +129,20 @@ export class TauriStorage implements Storage {
       }
     }
     return found;
+  }
+
+  async clearSaveSlot(game_id: string, slot: number): Promise<void> {
+    await this.initialized.promise;
+    const storageKey = `${game_id}__${slot}`;
+    delete this.storageData.saves[storageKey];
+    await clearBinaryData(storageKey);
+    await flushStorageData(this.storageData);
+  }
+  async clearSaveKey(game_id: string, key: string): Promise<void> {
+    await this.initialized.promise;
+    const storageKey = `${game_id}_${key}_-1`;
+    delete this.storageData.saves[storageKey];
+    await clearBinaryData(storageKey);
+    await flushStorageData(this.storageData);
   }
 }

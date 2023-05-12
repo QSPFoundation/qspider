@@ -1349,3 +1349,11 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
   position: absolute;
   z-index: -1;
 }
+
+[data-requested-save-action='save'] [data-save-action='load'],
+[data-requested-save-action='load'] [data-save-action='save'],
+[data-requested-save-action='load'] [data-save-action='clear'],
+[data-save-empty] [data-save-action='load'],
+[data-save-empty] [data-save-action='clear'] {
+  display: none;
+}

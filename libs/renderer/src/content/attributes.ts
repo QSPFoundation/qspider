@@ -1,5 +1,13 @@
 import parse from 'srcset-parse';
-import { Attributes, GameAction, getResource, onGameAction } from '@qspider/game-state';
+import {
+  Attributes,
+  GameAction,
+  QspSaveAction,
+  SaveContext,
+  getResource,
+  onGameAction,
+  onSaveAction,
+} from '@qspider/game-state';
 import { fontSizeMap } from '../transformers/classic/font';
 
 const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
@@ -99,7 +107,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   if (dataName.includes('-')) {
     converted['data-qsp'] = dataName.replace('qsp-', '');
   }
-  const { tag = tagName, style = {}, 'qsp-action': qspAction, ...attrs } = attributes;
+  const { tag = tagName, style = {}, 'qsp-action': qspAction, 'qsp-save-action': qspSaveAction, ...attrs } = attributes;
 
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
@@ -136,6 +144,15 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       e.preventDefault();
       onGameAction(qspAction as GameAction);
     };
+  } else if (qspSaveAction) {
+    converted['data-save-action'] = qspSaveAction;
+    converted['onClick'] = (e: MouseEvent): void => {
+      e.preventDefault();
+      if (!e.target) return;
+      const context = getSaveContext(e.target as HTMLElement);
+      if (!context) return;
+      onSaveAction(qspSaveAction as QspSaveAction, context);
+    };
   }
   const attributeStyles = attributesToStyle(attributes, tag);
   return [
@@ -147,3 +164,17 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
     converted,
   ];
 };
+
+function getSaveContext(target: HTMLElement): SaveContext | null {
+  const saveRoot = target.closest<HTMLElement>('[data-qsp-save]');
+  if (!saveRoot) {
+    console.error('qsp-save-action used on element outside of save tag');
+    return null;
+  }
+  const slot_index = 'qspSaveIndex' in saveRoot.dataset ? parseInt(saveRoot.dataset['qspSaveIndex'] ?? '-1', 0) : -1;
+  const save_path = saveRoot.dataset['qspSavePath'] ?? '';
+  return {
+    slot_index,
+    save_path,
+  };
+}

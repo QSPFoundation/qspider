@@ -6,11 +6,6 @@ import { create } from 'xoid';
 import { formatDate } from '@qspider/i18n';
 
 export const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
-export const slotActionContext = createContext<{ disableEmpty: boolean; action: (index: number) => void }>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  action: () => {},
-  disableEmpty: false,
-});
 
 const baseSlots$ = create((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
 
@@ -38,15 +33,20 @@ export const QspSlot: React.FC<{ index: number; date?: number; attrs: Attributes
   attrs,
   children,
 }) => {
-  const { index } = useContext(slotContentContext);
+  const { index, date } = useContext(slotContentContext);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
   const preparedStyle = {
     ...style,
     '--slot-index': `${index}`,
   };
-  const { action } = useContext(slotActionContext);
   return (
-    <Tag {...attributes} style={preparedStyle} onClick={(): void => action(index)}>
+    <Tag
+      {...attributes}
+      style={preparedStyle}
+      data-qsp-save
+      data-qsp-save-index={index}
+      data-save-empty={date ? null : ''}
+    >
       {children}
     </Tag>
   );

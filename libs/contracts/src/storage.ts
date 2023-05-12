@@ -23,4 +23,6 @@ export interface Storage {
   getSaveDataBySlot(game_id: string, slot: number): Promise<ArrayBuffer | null>;
   getSavedSlots(game_id: string): Promise<SaveData[]>;
   getNamedSaves(game_id: string): Promise<SaveData[]>;
+  clearSaveSlot(game_id: string, slot: number): Promise<void>;
+  clearSaveKey(game_id: string, key: string): Promise<void>;
 }

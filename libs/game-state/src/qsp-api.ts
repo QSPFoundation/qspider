@@ -20,9 +20,8 @@ import {
   viewPath$,
 } from './panels';
 import { currentGame$, GameAction, onGameAction } from './current-game';
-import { gameSavedCallback$, saveLoadedCallback$ } from './save';
+import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
-import { storage$ } from './storage';
 import { wait$ } from './wait';
 import { convertQsps, prepareContent, prepareList } from './utils';
 import { hashString } from '@qspider/utils';
@@ -204,32 +203,23 @@ qspApi$.subscribe((api) => {
   api.on('load_save', async (path, loaded) => {
     const currentGame = currentGame$.value;
     if (!currentGame) return loaded();
+    saveLoadedCallback$.set(loaded);
     if (path) {
-      await withCounterPaused(async () => {
-        const saveData = await storage$.value?.getSaveDataByKey(currentGame.id, path);
-        loaded();
-        if (saveData) {
-          api.loadSave(saveData);
-        }
-      });
+      await restoreFromPath(path);
     } else {
-      saveLoadedCallback$.set(loaded);
-      onGameAction('pause:load' as GameAction);
+      requestedAction$.set('load');
+      onGameAction('pause:saves' as GameAction);
     }
   });
   api.on('save_game', async (path, saved) => {
     const currentGame = currentGame$.value;
     if (!currentGame) return saved();
+    gameSavedCallback$.set(saved);
     if (path) {
-      await withCounterPaused(async () => {
-        const saveData = api.saveGame();
-        if (!saveData) return saved();
-        await storage$.value?.saveByKey(currentGame.id, path, saveData);
-        saved();
-      });
+      await saveToPath(path);
     } else {
-      gameSavedCallback$.set(saved);
-      onGameAction('pause:save' as GameAction);
+      requestedAction$.set('save');
+      onGameAction('pause:saves' as GameAction);
     }
   });
   api.on('wait', (ms, finish) => {

@@ -8,7 +8,7 @@ import { slotContentContext } from './slots';
 const namedSlotContentContext = createContext<{ path: string }>({ path: '' });
 
 export const QspNamedSlot: React.FC<{ path: string; attrs: Attributes; children: ReactNode }> = (props) => {
-  const { attrs, children } = props;
+  const { attrs, children, path } = props;
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
   const saveData$ = useSetup((props$) => {
     const path$ = props$.focus((p) => p.path);
@@ -22,7 +22,13 @@ export const QspNamedSlot: React.FC<{ path: string; attrs: Attributes; children:
   return (
     <slotContentContext.Provider value={{ index: -1, date: saveData?.timestamp }}>
       <namedSlotContentContext.Provider value={{ path: props.path }}>
-        <Tag {...attributes} style={style}>
+        <Tag
+          {...attributes}
+          style={style}
+          data-qsp-save
+          data-qsp-save-path={path}
+          data-save-empty={saveData ? null : ''}
+        >
           {children}
         </Tag>
       </namedSlotContentContext.Provider>
