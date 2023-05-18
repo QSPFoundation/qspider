@@ -861,7 +861,15 @@
           <qsp-show when="INTEGRATED_ACTIONS=0">
             <qsp-actions class="regular-actions">
               <qsp-scrollable>
-                <qsp-actions-list></qsp-actions-list>
+                <qsp-actions-list>
+                  <qsp-action
+                    tag="button"
+                    class="action-item"
+                    use-format="$ACTION_FORMAT"
+                    use-selected-format="$SEL_ACTION_FORMAT"
+                  >
+                  </qsp-action>
+                </qsp-actions-list>
               </qsp-scrollable>
             </qsp-actions>
           </qsp-show>
@@ -925,22 +933,6 @@
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>
-  </template>
-  <template is="qsp-action" tag="button" class="action-item" use-format="$ACTION_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-action-image></qsp-action-image></td>
-        <td style="width: 100%"><qsp-action-name></qsp-action-name></td>
-      </tr>
-    </table>
-  </template>
-  <template is="qsp-action-selected" tag="button" class="action-item" use-format="$SEL_ACTION_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-action-image></qsp-action-image></td>
-        <td style="width: 100%; color: #0000ff"><qsp-action-name></qsp-action-name></td>
-      </tr>
-    </table>
   </template>
   <template is="qsp-object" tag="button" class="action-item" use-format="$OBJECT_FORMAT">
     <table>

@@ -1,6 +1,13 @@
 import { Node } from 'interweave';
 import { extractAttributes } from '@qspider/game-state';
-import { QspActions, QspActionsList, QspActionName, QspActionImage, QspActionIndex } from '../theme-core/actions';
+import {
+  QspActions,
+  QspActionsList,
+  QspActionName,
+  QspActionImage,
+  QspActionIndex,
+  QspActionItem,
+} from '../theme-core/actions';
 import { QspCloseButton, QspOkButton, QspCancelButton } from '../theme-core/buttons';
 import { QspCmd, QspCmdInput } from '../theme-core/cmd';
 import { QspInput, QspInputContent, QspInputTag } from '../theme-core/input';
@@ -67,8 +74,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     const attributes = extractAttributes(node);
     return <QspActions attrs={attributes}>{children}</QspActions>;
   },
-  'qsp-actions-list'(node) {
-    return <QspActionsList attrs={extractAttributes(node)} />;
+  'qsp-actions-list'(node, children) {
+    return <QspActionsList attrs={extractAttributes(node)}>{children}</QspActionsList>;
+  },
+  'qsp-action'(node, children) {
+    return <QspActionItem attrs={extractAttributes(node)}>{children}</QspActionItem>;
   },
   'qsp-action-name'(node) {
     return <QspActionName attrs={extractAttributes(node)} />;

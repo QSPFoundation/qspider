@@ -4,7 +4,7 @@ import { AeroEffect } from './aero/aero-effect';
 import { AeroQspMenu } from './aero/aero-menu';
 import { AeroStyles } from './aero/aero-styles';
 import { AeroQspView } from './aero/aero-view';
-import { AeroQspActionsList } from './aero/aero-actions';
+import { AeroQspActionItem, AeroQspActionsList } from './aero/aero-actions';
 import { AeroQspStatsContent } from './aero/aero-stats';
 import { AeroQspMainContent } from './aero/aero-main';
 import { AeroQspMsg, AeroQspMsgContent } from './aero/aero-msg';
@@ -28,8 +28,11 @@ export const aeroTransformers: Record<string, (node: HTMLElement, children: Node
   'qsp-stats-content'(node) {
     return <AeroQspStatsContent attrs={extractAttributes(node)} />;
   },
-  'qsp-actions-list'(node) {
-    return <AeroQspActionsList attrs={extractAttributes(node)} />;
+  'qsp-actions-list'(node, children) {
+    return <AeroQspActionsList attrs={extractAttributes(node)}>{children}</AeroQspActionsList>;
+  },
+  'qsp-action'(node) {
+    return <AeroQspActionItem attrs={extractAttributes(node)}></AeroQspActionItem>;
   },
   'qsp-objects-list'(node) {
     return <AeroQspObjectsList attrs={extractAttributes(node)} />;

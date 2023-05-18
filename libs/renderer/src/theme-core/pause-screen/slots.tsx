@@ -17,13 +17,13 @@ export const QspSlotsList: React.FC<{ attrs: Attributes; children: ReactNode }> 
     <Tag style={style} {...attributes}>
       {baseSlots.map((index) => {
         const savedEntry = savedSlots.find((s) => s.slot === index);
-        return React.Children.map(children, (child) => {
-          return (
-            <slotContentContext.Provider value={{ index, date: savedEntry?.timestamp }}>
-              {React.cloneElement(child as ReactElement)}
-            </slotContentContext.Provider>
-          );
-        });
+        return (
+          <slotContentContext.Provider value={{ index, date: savedEntry?.timestamp }}>
+            {React.Children.map(children, (child) => {
+              return React.cloneElement(child as ReactElement);
+            })}
+          </slotContentContext.Provider>
+        );
       })}
     </Tag>
   );

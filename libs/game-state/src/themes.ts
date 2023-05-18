@@ -10,6 +10,9 @@ import { ThemeTranslation } from '@qspider/contracts';
 export const CLASSIC_THEME = 'qspider:classic';
 export const AERO_THEME = 'qspider:aero';
 
+// TODO
+export const DEFAULT_LIST_FORMAT = '';
+export const DEFAULT_SELECTED_LIST_FORMAT = '';
 export const TEXT_PLACEHOLDER = '%TEXT%';
 export const IMAGE_PLACEHOLDER = '%IMAGE%';
 
@@ -44,8 +47,6 @@ export type ThemeData = {
   css_variables: CssVarDefinition[];
   translations: ThemeTranslation[];
   qsp_player?: TemplateTag;
-  qsp_action?: TemplateTag;
-  qsp_action_selected?: TemplateTag;
   qsp_object?: TemplateTag;
   qsp_object_selected?: TemplateTag;
   qsp_menu_item?: TemplateTag;
@@ -101,8 +102,8 @@ export function useThemeTemplate(
   );
 }
 
-export function useFormatVariable(variableName?: string): string {
-  return useQspVariable(variableName, '', 0, '');
+export function useFormatVariable(variableName?: string, defaultValue?: string): string {
+  return useQspVariable(variableName, '', 0, defaultValue ?? '');
 }
 export async function registerThemes(themes: string[]): Promise<void> {
   for (const themeUrl of themes) {
@@ -140,8 +141,6 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       css_variables: extractCssVariables(theme),
       translations: extractTranslations(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
-      qsp_action: extractTagData(theme, 'template[is="qsp-action"]'),
-      qsp_action_selected: extractTagData(theme, 'template[is="qsp-action-selected"]'),
       qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
       qsp_object_selected: extractTagData(theme, 'template[is="qsp-object-selected"]'),
       qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
