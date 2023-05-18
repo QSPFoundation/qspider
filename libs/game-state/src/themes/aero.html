@@ -855,7 +855,14 @@
           </qsp-main>
           <qsp-objects>
             <qsp-scrollable>
-              <qsp-objects-list></qsp-objects-list>
+              <qsp-objects-list>
+                <qsp-object
+                  tag="button"
+                  class="action-item"
+                  use-format="$OBJECT_FORMAT"
+                  use-selected-format="$SEL_OBJECT_FORMAT"
+                ></qsp-object>
+              </qsp-objects-list>
             </qsp-scrollable>
           </qsp-objects>
           <qsp-show when="INTEGRATED_ACTIONS=0">
@@ -933,22 +940,6 @@
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>
-  </template>
-  <template is="qsp-object" tag="button" class="action-item" use-format="$OBJECT_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-object-image></qsp-object-image></td>
-        <td style="width: 100%"><qsp-object-name></qsp-object-name></td>
-      </tr>
-    </table>
-  </template>
-  <template is="qsp-object-selected" tag="button" class="action-item" use-format="$SEL_OBJECT_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-object-image></qsp-object-image></td>
-        <td style="width: 100%; color: #0000ff"><qsp-object-name></qsp-object-name></td>
-      </tr>
-    </table>
   </template>
   <template is="qsp-menu-item" tag="button" class="action-item" use-format="$MENU_FORMAT">
     <table>

@@ -13,7 +13,14 @@ import { QspCmd, QspCmdInput } from '../theme-core/cmd';
 import { QspInput, QspInputContent, QspInputTag } from '../theme-core/input';
 import { QspMenu, QspMenuList, QspMenuItemName, QspMenuItemImage, QspMenuItemIndex } from '../theme-core/menu';
 import { QspMsg, QspMsgContent } from '../theme-core/msg';
-import { QspObjects, QspObjectsList, QspObjectName, QspObjectImage, QspObjectIndex } from '../theme-core/objects';
+import {
+  QspObjects,
+  QspObjectsList,
+  QspObjectName,
+  QspObjectImage,
+  QspObjectIndex,
+  QspObjectItem,
+} from '../theme-core/objects';
 import {
   QspPauseScreenContent,
   QspSlotsList,
@@ -93,8 +100,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     const attributes = extractAttributes(node);
     return <QspObjects attrs={attributes}>{children}</QspObjects>;
   },
-  'qsp-objects-list'(node) {
-    return <QspObjectsList attrs={extractAttributes(node)} />;
+  'qsp-objects-list'(node, children) {
+    return <QspObjectsList attrs={extractAttributes(node)}>{children}</QspObjectsList>;
+  },
+  'qsp-object'(node, children) {
+    return <QspObjectItem attrs={extractAttributes(node)}>{children}</QspObjectItem>;
   },
   'qsp-object-name'(node) {
     return <QspObjectName attrs={extractAttributes(node)} />;

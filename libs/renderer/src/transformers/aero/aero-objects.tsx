@@ -1,57 +1,32 @@
-import { QspListItem } from '@qsp/wasm-engine';
 import {
   Attributes,
+  DEFAULT_LIST_FORMAT,
+  DEFAULT_SELECTED_LIST_FORMAT,
   getResource,
   IMAGE_PLACEHOLDER,
-  objects$,
   selectObject,
   TEXT_PLACEHOLDER,
   useFormatVariable,
-  useThemeTemplate,
 } from '@qspider/game-state';
-import { useAtom } from '@xoid/react';
-import { useState } from 'react';
+import { ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../../content-renderer';
 import { useAttributes } from '../../content/attributes';
-import { TemplateRenderer } from '../../template-renderer';
 import { objectContext } from '../../theme-core/objects';
 
-export const AeroQspObjectsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const objects = useAtom(objects$);
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-objects-list');
-  return (
-    <Tag style={style} {...attributes}>
-      {objects.map((object, index) => {
-        return <AeroQspObjectItem object={object} index={index} key={index} />;
-      })}
-    </Tag>
-  );
-};
-
-export const AeroQspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
+export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [isSelected, setIsSelected] = useState(false);
-  const { attrs, template } = useThemeTemplate('qsp_object');
-  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-object-item');
-
-  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_object_selected', 'qsp_object');
-  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
-    selectedAttrs,
-    'qsp-object-item'
-  );
+  const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-object');
+  const { object, index } = useContext(objectContext);
 
   const preparedStyle = {
     ...style,
     '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
   };
-  const preparedSelectedStyle = {
-    ...selectedStyle,
-    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
-  };
 
-  const format = useFormatVariable(useFormat)
+  const format = useFormatVariable(useFormat, DEFAULT_LIST_FORMAT)
     .replace(TEXT_PLACEHOLDER, object.name)
     .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat)
+  const selectedFormat = useFormatVariable(useSelectedFormat, DEFAULT_SELECTED_LIST_FORMAT)
     .replace(TEXT_PLACEHOLDER, object.name)
     .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
 
@@ -65,25 +40,8 @@ export const AeroQspObjectItem: React.FC<{ object: QspListItem; index: number }>
     selectObject(index);
   };
   return (
-    <objectContext.Provider value={{ object, index }}>
-      {isSelected ? (
-        <SelectedTag
-          {...selectedAttributes}
-          style={preparedSelectedStyle}
-          onClick={onClick}
-          onMouseLeave={onMouseLeave}
-        >
-          {selectedFormat ? (
-            <ContentRenderer content={selectedFormat} />
-          ) : (
-            <TemplateRenderer template={selectedTemplate} />
-          )}
-        </SelectedTag>
-      ) : (
-        <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover}>
-          {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
-        </Tag>
-      )}
-    </objectContext.Provider>
+    <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover} onMouseLeave={onMouseLeave}>
+      <ContentRenderer content={isSelected ? selectedFormat : format} />
+    </Tag>
   );
 };

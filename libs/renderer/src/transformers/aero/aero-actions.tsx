@@ -1,5 +1,4 @@
 import {
-  actions$,
   Attributes,
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
@@ -15,26 +14,8 @@ import { useAtom } from '@xoid/react';
 import { ContentRenderer } from '../../content-renderer';
 import { useAttributes } from '../../content/attributes';
 import { actionContext } from '../../theme-core/actions';
-import { ReactElement, ReactNode, useContext } from 'react';
+import { useContext } from 'react';
 import React from 'react';
-
-export const AeroQspActionsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const actions = useAtom(actions$);
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-actions-list');
-  return (
-    <Tag style={style} {...attributes}>
-      {actions.map((action, index) => {
-        return (
-          <actionContext.Provider value={{ action, index }} key={index}>
-            {React.Children.map(children, (child) => {
-              return React.cloneElement(child as ReactElement);
-            })}
-          </actionContext.Provider>
-        );
-      })}
-    </Tag>
-  );
-};
 
 export const AeroQspActionItem: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const selectedAction = useAtom(selectedAction$);

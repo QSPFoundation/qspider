@@ -47,8 +47,6 @@ export type ThemeData = {
   css_variables: CssVarDefinition[];
   translations: ThemeTranslation[];
   qsp_player?: TemplateTag;
-  qsp_object?: TemplateTag;
-  qsp_object_selected?: TemplateTag;
   qsp_menu_item?: TemplateTag;
   qsp_menu_item_selected?: TemplateTag;
   qsp_menu_separator?: TemplateTag;
@@ -141,8 +139,6 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       css_variables: extractCssVariables(theme),
       translations: extractTranslations(theme),
       qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
-      qsp_object: extractTagData(theme, 'template[is="qsp-object"]'),
-      qsp_object_selected: extractTagData(theme, 'template[is="qsp-object-selected"]'),
       qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
       qsp_menu_item_selected: extractTagData(theme, 'template[is="qsp-menu-item-selected"]'),
       qsp_menu_separator: extractTagData(theme, 'template[is="qsp-menu-separator"]'),

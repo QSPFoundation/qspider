@@ -4,12 +4,12 @@ import { AeroEffect } from './aero/aero-effect';
 import { AeroQspMenu } from './aero/aero-menu';
 import { AeroStyles } from './aero/aero-styles';
 import { AeroQspView } from './aero/aero-view';
-import { AeroQspActionItem, AeroQspActionsList } from './aero/aero-actions';
+import { AeroQspActionItem } from './aero/aero-actions';
 import { AeroQspStatsContent } from './aero/aero-stats';
 import { AeroQspMainContent } from './aero/aero-main';
 import { AeroQspMsg, AeroQspMsgContent } from './aero/aero-msg';
 import { AeroQspInput, AeroQspInputContent } from './aero/aero-input';
-import { AeroQspObjectsList } from './aero/aero-objects';
+import { AeroQspObjectItem } from './aero/aero-objects';
 export const aeroTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'aero-effect'(node, children) {
     const { name, duration, sequence, key } = extractAttributes(node);
@@ -28,16 +28,12 @@ export const aeroTransformers: Record<string, (node: HTMLElement, children: Node
   'qsp-stats-content'(node) {
     return <AeroQspStatsContent attrs={extractAttributes(node)} />;
   },
-  'qsp-actions-list'(node, children) {
-    return <AeroQspActionsList attrs={extractAttributes(node)}>{children}</AeroQspActionsList>;
-  },
   'qsp-action'(node) {
     return <AeroQspActionItem attrs={extractAttributes(node)}></AeroQspActionItem>;
   },
-  'qsp-objects-list'(node) {
-    return <AeroQspObjectsList attrs={extractAttributes(node)} />;
+  'qsp-object'(node, children) {
+    return <AeroQspObjectItem attrs={extractAttributes(node)}>{children}</AeroQspObjectItem>;
   },
-
   'qsp-menu'(node, children) {
     const attrs = extractAttributes(node);
     return <AeroQspMenu attrs={attrs}>{children}</AeroQspMenu>;

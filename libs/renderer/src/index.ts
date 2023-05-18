@@ -24,7 +24,8 @@ declare global {
       'qsp-action-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-objects': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-objects-list': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      'qsp-object-item': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-object': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-object-name': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-object-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-cmd': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-view': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;

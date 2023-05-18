@@ -300,7 +300,12 @@
                 <qsp-objects>
                   <div class="panel">
                     <qsp-scrollable>
-                      <qsp-objects-list tag="nav" role="menu"></qsp-objects-list>
+                      <qsp-objects-list tag="nav" role="menu">
+                        <qsp-object tag="button" class="action-item">
+                          <qsp-object-image class="action-img"></qsp-object-image>
+                          <qsp-object-name></qsp-object-name>
+                        </qsp-object>
+                      </qsp-objects-list>
                     </qsp-scrollable>
                   </div>
                 </qsp-objects>
@@ -409,10 +414,6 @@
     </qsp-pause-screen>
   </template>
 
-  <template is="qsp-object" tag="button" class="action-item">
-    <qsp-object-image class="action-img"></qsp-object-image>
-    <qsp-object-name></qsp-object-name>
-  </template>
   <template is="qsp-menu-item" tag="button" class="action-item">
     <qsp-menu-image class="action-img"></qsp-menu-image>
     <qsp-menu-name> </qsp-menu-name>

@@ -1,10 +1,11 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, getResource, isObjsVisible$, objects$, selectObject, useThemeTemplate } from '@qspider/game-state';
+import { Attributes, getResource, isObjsVisible$, objects$, selectObject } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
-import { TemplateRenderer } from '../template-renderer';
+
+import React from 'react';
 
 export const objectContext = createContext<{ object: QspListItem; index: number }>({
   object: { name: 'unknown', image: '' },
@@ -22,38 +23,33 @@ export const QspObjects: React.FC<{ attrs: Attributes; children: ReactNode }> = 
   );
 };
 
-export const QspObjectsList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+export const QspObjectsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const objects = useAtom(objects$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-objects-list');
   return (
     <Tag style={style} {...attributes}>
       {objects.map((object, index) => {
-        return <QspObjectItem object={object} index={index} key={index} />;
+        return (
+          <objectContext.Provider value={{ object, index }} key={index}>
+            {React.Children.map(children, (child) => {
+              return React.cloneElement(child as ReactElement);
+            })}
+          </objectContext.Provider>
+        );
       })}
     </Tag>
   );
 };
 
-export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = ({ object, index }) => {
+export const QspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [isSelected, setIsSelected] = useState(false);
-  const { attrs, template } = useThemeTemplate('qsp_object');
-  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-object-item');
-
-  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate('qsp_object_selected', 'qsp_object');
-  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
-    selectedAttrs,
-    'qsp-object-item'
-  );
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-object');
+  const { object, index } = useContext(objectContext);
 
   const preparedStyle = {
     ...style,
     '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
   };
-  const preparedSelectedStyle = {
-    ...selectedStyle,
-    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
-  };
-
   const onHover = (): void => {
     setIsSelected(true);
   };
@@ -64,27 +60,21 @@ export const QspObjectItem: React.FC<{ object: QspListItem; index: number }> = (
     selectObject(index);
   };
   return (
-    <objectContext.Provider value={{ object, index }}>
-      {isSelected ? (
-        <SelectedTag
-          {...selectedAttributes}
-          style={preparedSelectedStyle}
-          onClick={onClick}
-          onMouseLeave={onMouseLeave}
-        >
-          <TemplateRenderer template={selectedTemplate} />
-        </SelectedTag>
-      ) : (
-        <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover}>
-          <TemplateRenderer template={template} />
-        </Tag>
-      )}
-    </objectContext.Provider>
+    <Tag
+      {...attributes}
+      style={preparedStyle}
+      data-qsp-selected={isSelected ? '' : null}
+      onClick={onClick}
+      onMouseOver={onHover}
+      onMouseLeave={onMouseLeave}
+    >
+      {children}
+    </Tag>
   );
 };
 
 export const QspObjectName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-index');
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-object-name');
   const { object } = useContext(objectContext);
   return (
     <Tag {...attributes} style={style}>
