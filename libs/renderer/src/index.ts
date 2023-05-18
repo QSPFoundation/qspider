@@ -34,6 +34,7 @@ declare global {
       'qsp-menu-item': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-menu-name': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-menu-index': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-menu-separator': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-msg': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-msg-content': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-input': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;

@@ -11,7 +11,14 @@ import {
 import { QspCloseButton, QspOkButton, QspCancelButton } from '../theme-core/buttons';
 import { QspCmd, QspCmdInput } from '../theme-core/cmd';
 import { QspInput, QspInputContent, QspInputTag } from '../theme-core/input';
-import { QspMenu, QspMenuList, QspMenuItemName, QspMenuItemImage, QspMenuItemIndex } from '../theme-core/menu';
+import {
+  QspMenu,
+  QspMenuList,
+  QspMenuItemName,
+  QspMenuItemImage,
+  QspMenuItemIndex,
+  QspMenuItem,
+} from '../theme-core/menu';
 import { QspMsg, QspMsgContent } from '../theme-core/msg';
 import {
   QspObjects,
@@ -156,8 +163,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
       </QspMenu>
     );
   },
-  'qsp-menu-list'(node) {
-    return <QspMenuList attrs={extractAttributes(node)} />;
+  'qsp-menu-list'(node, children) {
+    return <QspMenuList attrs={extractAttributes(node)}>{children}</QspMenuList>;
+  },
+  'qsp-menu-item'(node, children) {
+    return <QspMenuItem attrs={extractAttributes(node)}>{children}</QspMenuItem>;
   },
   'qsp-menu-name'(node) {
     return <QspMenuItemName attrs={extractAttributes(node)} />;

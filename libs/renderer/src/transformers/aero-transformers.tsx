@@ -1,7 +1,7 @@
 import { extractAttributes } from '@qspider/game-state';
 import { Node } from 'interweave';
 import { AeroEffect } from './aero/aero-effect';
-import { AeroQspMenu } from './aero/aero-menu';
+import { AeroQspMenu, AeroQspMenuItem } from './aero/aero-menu';
 import { AeroStyles } from './aero/aero-styles';
 import { AeroQspView } from './aero/aero-view';
 import { AeroQspActionItem } from './aero/aero-actions';
@@ -37,6 +37,10 @@ export const aeroTransformers: Record<string, (node: HTMLElement, children: Node
   'qsp-menu'(node, children) {
     const attrs = extractAttributes(node);
     return <AeroQspMenu attrs={attrs}>{children}</AeroQspMenu>;
+  },
+  'qsp-menu-item'(node, children) {
+    const attrs = extractAttributes(node);
+    return <AeroQspMenuItem attrs={attrs}>{children}</AeroQspMenuItem>;
   },
   'qsp-msg'(node, children) {
     return <AeroQspMsg attrs={extractAttributes(node)}>{children}</AeroQspMsg>;

@@ -1,23 +1,15 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { QspListItem } from '@qsp/wasm-engine';
-import {
-  Attributes,
-  getResource,
-  IMAGE_PLACEHOLDER,
-  menu$,
-  selectMenuItem,
-  TEXT_PLACEHOLDER,
-  useFormatVariable,
-  useThemeTemplate,
-} from '@qspider/game-state';
+import { Attributes, getResource, menu$, selectMenuItem, useThemeTemplate } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, CSSProperties, ReactNode, useContext, useState } from 'react';
+import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { TemplateRenderer } from '../template-renderer';
 import { useClickCoordinates } from '../hooks/click-coordinates';
+import React from 'react';
 
-const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
+export const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
   item: { name: 'unknown', image: '' },
   index: -1,
   displayIndex: -1,
@@ -86,7 +78,7 @@ export const QspMenu: React.FC<{
   );
 };
 
-export const QspMenuList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
+export const QspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const menu = useAtom(menu$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
   if (!menu) return null;
@@ -95,49 +87,28 @@ export const QspMenuList: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
     <Tag style={style} {...attributes}>
       {menu.items.map((item, index) => {
         return item.name === '-' ? (
-          <QspMenuSeparator key={index} />
+          <qsp-menu-separator key={index} />
         ) : (
-          <QspMenuItem item={item} index={index} key={index} displayIndex={displayIndex++} />
+          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={index}>
+            {React.Children.map(children, (child) => {
+              return React.cloneElement(child as ReactElement);
+            })}
+          </menuContext.Provider>
         );
       })}
     </Tag>
   );
 };
 
-export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIndex: number }> = ({
-  item,
-  index,
-  displayIndex,
-}) => {
+export const QspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [isSelected, setIsSelected] = useState(false);
-
-  const { attrs, template } = useThemeTemplate('qsp_menu_item');
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-menu-item');
-
-  const { attrs: selectedAttrs, template: selectedTemplate } = useThemeTemplate(
-    'qsp_menu_item_selected',
-    'qsp_menu_item'
-  );
-  const [SelectedTag, selectedStyle, { useFormat: useSelectedFormat, ...selectedAttributes }] = useAttributes(
-    selectedAttrs,
-    'qsp-menu-item'
-  );
+  const { item, index } = useContext(menuContext);
 
   const preapredStyle = {
     ...style,
     '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
   } as React.CSSProperties;
-  const preapredSelectedStyle = {
-    ...selectedStyle,
-    '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
-  } as React.CSSProperties;
-
-  const format = useFormatVariable(useFormat)
-    .replace(TEXT_PLACEHOLDER, item.name)
-    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat)
-    .replace(TEXT_PLACEHOLDER, item.name)
-    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
 
   const onHover = (): void => {
     setIsSelected(true);
@@ -150,28 +121,18 @@ export const QspMenuItem: React.FC<{ item: QspListItem; index: number; displayIn
     selectMenuItem(index);
   };
   return (
-    <menuContext.Provider value={{ item, index, displayIndex }}>
-      <DropdownMenu.Item asChild>
-        {isSelected ? (
-          <SelectedTag
-            {...selectedAttributes}
-            style={preapredSelectedStyle}
-            onClick={onClick}
-            onMouseLeave={onMouseLeave}
-          >
-            {selectedFormat ? (
-              <ContentRenderer content={selectedFormat} />
-            ) : (
-              <TemplateRenderer template={selectedTemplate} />
-            )}
-          </SelectedTag>
-        ) : (
-          <Tag {...attributes} style={preapredStyle} onClick={onClick} onMouseOver={onHover}>
-            {format ? <ContentRenderer content={format} /> : <TemplateRenderer template={template} />}
-          </Tag>
-        )}
-      </DropdownMenu.Item>
-    </menuContext.Provider>
+    <DropdownMenu.Item asChild>
+      <Tag
+        {...attributes}
+        style={preapredStyle}
+        data-qsp-selected={isSelected ? '' : null}
+        onClick={onClick}
+        onMouseOver={onHover}
+        onMouseLeave={onMouseLeave}
+      >
+        {children}
+      </Tag>
+    </DropdownMenu.Item>
   );
 };
 

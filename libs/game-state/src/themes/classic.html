@@ -358,7 +358,12 @@
     </qsp-cl>
     <qsp-menu>
       <qsp-scrollable>
-        <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
+        <qsp-menu-list tag="nav" role="menu">
+          <qsp-menu-item tag="button" class="action-item">
+            <qsp-menu-image class="action-img"></qsp-menu-image>
+            <qsp-menu-name> </qsp-menu-name>
+          </qsp-menu-item>
+        </qsp-menu-list>
       </qsp-scrollable>
     </qsp-menu>
     <qsp-msg>
@@ -413,10 +418,4 @@
       </div>
     </qsp-pause-screen>
   </template>
-
-  <template is="qsp-menu-item" tag="button" class="action-item">
-    <qsp-menu-image class="action-img"></qsp-menu-image>
-    <qsp-menu-name> </qsp-menu-name>
-  </template>
-  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
 </qspider-theme>

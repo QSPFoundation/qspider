@@ -847,7 +847,15 @@
               <qsp-show when="INTEGRATED_ACTIONS=1">
                 <div class="integrated-actions">
                   <qsp-actions>
-                    <qsp-actions-list></qsp-actions-list>
+                    <qsp-actions-list>
+                      <qsp-action
+                        tag="button"
+                        class="action-item"
+                        use-format="$ACTION_FORMAT"
+                        use-selected-format="$SEL_ACTION_FORMAT"
+                      >
+                      </qsp-action>
+                    </qsp-actions-list>
                   </qsp-actions>
                 </div>
               </qsp-show>
@@ -899,7 +907,14 @@
         <qsp-menu>
           <div class="list-wrapper">
             <qsp-scrollable>
-              <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
+              <qsp-menu-list tag="nav" role="menu">
+                <qsp-menu-item
+                  tag="button"
+                  class="action-item"
+                  use-format="$MENU_FORMAT"
+                  use-selected-format="$SEL_MENU_FORMAT"
+                ></qsp-menu-item>
+              </qsp-menu-list>
             </qsp-scrollable>
           </div>
         </qsp-menu>
@@ -941,21 +956,4 @@
       </div>
     </qsp-pause-screen>
   </template>
-  <template is="qsp-menu-item" tag="button" class="action-item" use-format="$MENU_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-menu-image></qsp-menu-image></td>
-        <td style="width: 100%"><qsp-menu-name></qsp-menu-name></td>
-      </tr>
-    </table>
-  </template>
-  <template is="qsp-menu-item-selected" tag="button" class="action-item" use-format="$SEL_MENU_FORMAT">
-    <table>
-      <tr>
-        <td><qsp-menu-image></qsp-menu-image></td>
-        <td style="width: 100%; color: #0000ff"><qsp-menu-name></qsp-menu-name></td>
-      </tr>
-    </table>
-  </template>
-  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
 </qspider-theme>
