@@ -216,5 +216,8 @@ gs 'back-link'
 # on-click
 gs 'back-link'
 '<br/>'
-'<div qsp-on:click="exec: msg ''works''">Click me</div>'
+'<div qsp-on:click="exec: msg ''click''" qsp-on:dblclick="exec: msg ''dblclick''">Click me</div>'
+'<div qsp-on:dblclick="exec: msg ''dblclick''">Double Click me</div>'
+'<div qsp-on:contextmenu="exec: msg ''context menu''">Right Click me</div>'
+'<div qsp-on:mouseenter="exec: pl ''enter''" qsp-on:mouseleave="exec: pl ''leave''">Hover me <span>child</span></div>'
 ---

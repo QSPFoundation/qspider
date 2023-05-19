@@ -47,13 +47,18 @@ type BooleanAttributes = {
   selected?: boolean;
 };
 
+export type EventAttributes = {
+  onClick?: (e: MouseEvent) => void;
+  onMouseEnter?: (e: MouseEvent) => void;
+  onMouseLeave?: (e: MouseEvent) => void;
+  onContextMenu?: (e: MouseEvent) => void;
+  onDoubleClick?: (e: MouseEvent) => void;
+};
 export type Attributes = {
   style?: React.CSSProperties;
 } & BooleanAttributes & {
     [attr: string]: AttributeValue;
-  } & {
-    onClick?: (e: MouseEvent) => void;
-  };
+  } & EventAttributes;
 
 const valueProcessors: Record<string, (value: string) => string> = {
   href(value: string) {

@@ -1,6 +1,7 @@
 import parse from 'srcset-parse';
 import {
   Attributes,
+  EventAttributes,
   GameAction,
   QspSaveAction,
   SaveContext,
@@ -99,6 +100,14 @@ const attributeConverters: Record<string, (value: string) => string> = {
   },
 };
 
+const supportedEvents = ['click', 'mouseenter', 'mouseleave', 'contextmenu', 'dblclick', 'wheel'];
+const eventsMap: Record<string, keyof EventAttributes> = {
+  click: 'onClick',
+  mouseenter: 'onMouseEnter',
+  mouseleave: 'onMouseLeave',
+  contextmenu: 'onContextMenu',
+  dblclick: 'onDoubleClick',
+};
 export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   attributes: Attributes,
   tagName: Tag,
@@ -109,14 +118,20 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
     converted['data-qsp'] = dataName.replace('qsp-', '');
   }
   const { tag = tagName, style = {}, 'qsp-action': qspAction, 'qsp-save-action': qspSaveAction, ...attrs } = attributes;
-  let qspClick = '';
-  if (attrs['qsp-on:click']) {
-    qspClick = attrs['qsp-on:click'].slice(5);
-    delete attrs['qsp-on:click'];
-  }
 
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
+    if (key.startsWith('qsp-on')) {
+      const code = (value as string).slice(5);
+      const [, event] = key.split(':');
+      if (supportedEvents.includes(event)) {
+        converted[eventsMap[event as keyof typeof eventsMap]] = (e: MouseEvent): void => {
+          e.preventDefault();
+          execCode(code);
+        };
+      }
+      continue;
+    }
     let newValue = value;
     if (key in attributeConverters) {
       newValue = attributeConverters[key](value as string);
@@ -158,11 +173,6 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       const context = getSaveContext(e.target as HTMLElement);
       if (!context) return;
       onSaveAction(qspSaveAction as QspSaveAction, context);
-    };
-  } else if (qspClick) {
-    converted['onClick'] = (e: MouseEvent): void => {
-      e.preventDefault();
-      execCode(qspClick);
     };
   }
   const attributeStyles = attributesToStyle(attributes, tag);
