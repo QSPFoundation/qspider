@@ -23,6 +23,7 @@ clr
 '<a href="exec: gt ''regions''">Regions</a><br/>'
 '<a href="exec: gt ''layers''">Layers</a>'
 '<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a>'
+'<a href="exec: gt ''on-click''">Custom on click</a>'
 ---
 
 # back-link
@@ -209,4 +210,11 @@ gs 'back-link'
 '<br/>'
 @qspider_update_region('pause-custom', '<div qsp-action="resume">Close pause screen</div>')
 '<a href="exec: @qspider_open_pause_screen(''custom'')">Open pause screen custom panel</a>'
+---
+
+
+# on-click
+gs 'back-link'
+'<br/>'
+'<div qsp-on:click="exec: msg ''works''">Click me</div>'
 ---

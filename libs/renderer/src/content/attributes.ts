@@ -4,6 +4,7 @@ import {
   GameAction,
   QspSaveAction,
   SaveContext,
+  execCode,
   getResource,
   onGameAction,
   onSaveAction,
@@ -108,6 +109,11 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
     converted['data-qsp'] = dataName.replace('qsp-', '');
   }
   const { tag = tagName, style = {}, 'qsp-action': qspAction, 'qsp-save-action': qspSaveAction, ...attrs } = attributes;
+  let qspClick = '';
+  if (attrs['qsp-on:click']) {
+    qspClick = attrs['qsp-on:click'].slice(5);
+    delete attrs['qsp-on:click'];
+  }
 
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
@@ -152,6 +158,11 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       const context = getSaveContext(e.target as HTMLElement);
       if (!context) return;
       onSaveAction(qspSaveAction as QspSaveAction, context);
+    };
+  } else if (qspClick) {
+    converted['onClick'] = (e: MouseEvent): void => {
+      e.preventDefault();
+      execCode(qspClick);
     };
   }
   const attributeStyles = attributesToStyle(attributes, tag);
