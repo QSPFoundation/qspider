@@ -22,6 +22,7 @@
     "baseUrl": ".",
     "paths": {
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
+      "@qspider/game-container": ["libs/game-container/src/index.ts"],
       "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
       "@qspider/game-state": ["libs/game-state/src/index.ts"],
       "@qspider/i18n": ["libs/i18n/src/index.ts"],
