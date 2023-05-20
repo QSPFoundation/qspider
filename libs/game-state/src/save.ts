@@ -4,6 +4,7 @@ import { withCounterPaused } from './counter';
 import { currentGame$ } from './current-game';
 import { qspApi$ } from './qsp-api';
 import { storage$ } from './storage';
+import { isPauseScreenVisible$ } from './pause-screen';
 
 export const saveLoadedCallback$ = create<null | (() => void)>();
 export const gameSavedCallback$ = create<null | (() => void)>();
@@ -138,6 +139,7 @@ export async function onSaveAction(action: QspSaveAction, context: SaveContext):
       } else if (save_path) {
         await restoreFromPath(save_path);
       }
+      isPauseScreenVisible$.set(false);
       break;
     case 'save':
       if (slot_index > 0) {
@@ -145,6 +147,7 @@ export async function onSaveAction(action: QspSaveAction, context: SaveContext):
       } else if (save_path) {
         await saveToPath(save_path);
       }
+      isPauseScreenVisible$.set(false);
       break;
     case 'clear':
       if (slot_index > 0) {

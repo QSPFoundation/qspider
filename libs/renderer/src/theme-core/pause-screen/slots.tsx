@@ -18,7 +18,7 @@ export const QspSlotsList: React.FC<{ attrs: Attributes; children: ReactNode }> 
       {baseSlots.map((index) => {
         const savedEntry = savedSlots.find((s) => s.slot === index);
         return (
-          <slotContentContext.Provider value={{ index, date: savedEntry?.timestamp }}>
+          <slotContentContext.Provider value={{ index, date: savedEntry?.timestamp }} key={index}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}
