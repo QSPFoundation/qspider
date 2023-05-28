@@ -10,10 +10,11 @@ export interface SaveData {
 export interface Storage {
   getGames(): Promise<Record<string, GameDescriptor>>;
   addGame(id: string, data: GameDescriptor): Promise<void>;
-  addGameSource(id: string, content: ArrayBuffer): Promise<void>;
-  getGameSource(id: string): Promise<ArrayBuffer | undefined>;
   updateGame(id: string, data: Partial<GameDescriptor>): Promise<void>;
   removeGame(id: string): Promise<void>;
+
+  addGameResource(game_id: string, path: string, data: ArrayBuffer): Promise<void>;
+  getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null>;
 
   saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void>;
   saveBySlot(game_id: string, slot: number, data: ArrayBuffer): Promise<void>;

@@ -4,9 +4,11 @@ import { TauriStorageData } from './contracts';
 import {
   clearBinaryData,
   ensureAppDataDir,
+  ensureGameDirectories,
   flushStorageData,
   readBinaryData,
   readStorageData,
+  removeGameDirectories,
   storeBinaryData,
 } from './utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -42,15 +44,8 @@ export class TauriStorage implements Storage {
   async addGame(id: string, data: GameDescriptor): Promise<void> {
     await this.initialized.promise;
     this.storageData.games[id] = data;
+    await ensureGameDirectories(id);
     await flushStorageData(this.storageData);
-  }
-  async addGameSource(id: string, content: ArrayBuffer): Promise<void> {
-    await this.initialized.promise;
-    await storeBinaryData(id, content);
-  }
-  async getGameSource(id: string): Promise<ArrayBuffer | undefined> {
-    await this.initialized.promise;
-    return await readBinaryData(id);
   }
   async updateGame(id: string, data: Partial<GameDescriptor>): Promise<void> {
     await this.initialized.promise;
@@ -63,58 +58,73 @@ export class TauriStorage implements Storage {
   async removeGame(id: string): Promise<void> {
     await this.initialized.promise;
     delete this.storageData.games[id];
-    await clearBinaryData(id);
+    delete this.storageData.saves[id];
     await flushStorageData(this.storageData);
+    await removeGameDirectories(id);
   }
+
+  async addGameResource(game_id: string, path: string, data: ArrayBuffer): Promise<void> {
+    await this.initialized.promise;
+    await storeBinaryData(`${game_id}/game/${path}`, data);
+  }
+  async getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null> {
+    await this.initialized.promise;
+    return (await readBinaryData(`${game_id}/game/${path}`)) ?? null;
+  }
+
   async saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void> {
     await this.initialized.promise;
-    const storageKey = `${game_id}_${key}_-1`;
-    this.storageData.saves[storageKey] = {
+    const gameSaves = this.storageData.saves[game_id] ?? {};
+    const storageKey = `${key}_-1`;
+    gameSaves[storageKey] = {
       timestamp: Date.now(),
       game_id,
       key,
       slot: -1,
     };
-    await storeBinaryData(storageKey, data);
+    this.storageData.saves[game_id] = gameSaves;
+    await storeBinaryData(`${game_id}/saves/${storageKey}`, data);
     await flushStorageData(this.storageData);
   }
   async saveBySlot(game_id: string, slot: number, data: ArrayBuffer): Promise<void> {
     await this.initialized.promise;
-    const storageKey = `${game_id}__${slot}`;
-    this.storageData.saves[storageKey] = {
+    const gameSaves = this.storageData.saves[game_id] ?? {};
+    const storageKey = `__${slot}`;
+    gameSaves[storageKey] = {
       timestamp: Date.now(),
       game_id,
       key: '',
       slot,
     };
-    await storeBinaryData(storageKey, data);
+    this.storageData.saves[game_id] = gameSaves;
+    await storeBinaryData(`${game_id}/saves/${storageKey}`, data);
     await flushStorageData(this.storageData);
   }
   async hasSaveByKey(game_id: string, key: string): Promise<boolean | null> {
     await this.initialized.promise;
-    const storageKey = `${game_id}_${key}_-1`;
-    return storageKey in this.storageData.saves;
+    const storageKey = `${key}_-1`;
+    return storageKey in this.storageData.saves[game_id] ?? {};
   }
   async hasSaveBySlot(game_id: string, slot: number): Promise<boolean | null> {
     await this.initialized.promise;
-    const storageKey = `${game_id}__${slot}`;
-    return storageKey in this.storageData.saves;
+    const storageKey = `__${slot}`;
+    return storageKey in this.storageData.saves[game_id] ?? {};
   }
   async getSaveDataByKey(game_id: string, key: string): Promise<ArrayBuffer | null> {
     await this.initialized.promise;
-    const storageKey = `${game_id}_${key}_-1`;
+    const storageKey = `${key}_-1`;
     return (await readBinaryData(storageKey)) || null;
   }
   async getSaveDataBySlot(game_id: string, slot: number): Promise<ArrayBuffer | null> {
     await this.initialized.promise;
     const storageKey = `${game_id}__${slot}`;
-    return (await readBinaryData(storageKey)) || null;
+    return (await readBinaryData(`${game_id}/saves/${storageKey}`)) || null;
   }
   async getSavedSlots(game_id: string): Promise<SaveData[]> {
     await this.initialized.promise;
     const found = [];
-    for (const row of Object.values(this.storageData.saves)) {
-      if (row.game_id === game_id && row.slot > 0) {
+    for (const row of Object.values(this.storageData.saves[game_id] ?? {})) {
+      if (row.slot > 0) {
         found.push(row);
       }
     }
@@ -123,8 +133,8 @@ export class TauriStorage implements Storage {
   async getNamedSaves(game_id: string): Promise<SaveData[]> {
     await this.initialized.promise;
     const found = [];
-    for (const row of Object.values(this.storageData.saves)) {
-      if (row.game_id === game_id && row.key !== '') {
+    for (const row of Object.values(this.storageData.saves[game_id] ?? {})) {
+      if (row.key !== '') {
         found.push(row);
       }
     }
@@ -133,16 +143,16 @@ export class TauriStorage implements Storage {
 
   async clearSaveSlot(game_id: string, slot: number): Promise<void> {
     await this.initialized.promise;
-    const storageKey = `${game_id}__${slot}`;
-    delete this.storageData.saves[storageKey];
-    await clearBinaryData(storageKey);
+    const storageKey = `__${slot}`;
+    delete this.storageData.saves[game_id][storageKey];
+    await clearBinaryData(`${game_id}/saves/${storageKey}`);
     await flushStorageData(this.storageData);
   }
   async clearSaveKey(game_id: string, key: string): Promise<void> {
     await this.initialized.promise;
-    const storageKey = `${game_id}_${key}_-1`;
-    delete this.storageData.saves[storageKey];
-    await clearBinaryData(storageKey);
+    const storageKey = `${key}_-1`;
+    delete this.storageData.saves[game_id][storageKey];
+    await clearBinaryData(`${game_id}/saves/${storageKey}`);
     await flushStorageData(this.storageData);
   }
 }

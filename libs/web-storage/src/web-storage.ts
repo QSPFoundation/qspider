@@ -15,20 +15,32 @@ export class WebStorage implements Storage {
   async addGame(id: string, data: GameDescriptor): Promise<void> {
     await this.db.games.put(data, id);
   }
-  async addGameSource(id: string, content: ArrayBuffer): Promise<void> {
-    await this.db.gameSources.put({ id, content });
-  }
-  async getGameSource(id: string): Promise<ArrayBuffer | undefined> {
-    return (await this.db.gameSources.get(id))?.content;
-  }
   async updateGame(id: string, data: GameDescriptor): Promise<void> {
     await this.db.games.update(id, data);
   }
   async removeGame(id: string): Promise<void> {
-    await this.db.transaction('rw', this.db.games, this.db.gameSources, async () => {
+    await this.db.transaction('rw', this.db.games, this.db.gameResources, async () => {
       await this.db.games.delete(id);
-      await this.db.gameSources.delete(id);
+      await this.db.gameResources.where('game_id').equals(id).delete();
     });
+  }
+
+  async addGameResource(game_id: string, path: string, content: ArrayBuffer): Promise<void> {
+    await this.db.gameResources
+      .where({
+        game_id,
+        path,
+      })
+      .delete();
+    await this.db.gameResources.put({
+      game_id,
+      path,
+      content,
+    });
+  }
+  async getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null> {
+    const record = await this.db.gameResources.where({ game_id, path }).first();
+    return record?.content || null;
   }
 
   async saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void> {
