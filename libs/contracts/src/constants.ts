@@ -9,3 +9,5 @@ export enum QspGUIPanel {
 export enum ProvidedComponents {
   OpenGameButton = 'OpenGameButton',
 }
+
+export const GAME_DESCRIPTOR_NAME = 'game.cfg';

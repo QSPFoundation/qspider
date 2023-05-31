@@ -76,6 +76,7 @@ export type FileDir = {
 export type File = {
   type: 'file';
   name: string;
+  filename: string;
   data: Uint8Array;
 };
 
@@ -107,6 +108,7 @@ export function extractFileTree(content: ArchiveContent): FileDir {
       dir.content.push({
         type: 'file',
         name: file,
+        filename,
         data,
       });
     }
