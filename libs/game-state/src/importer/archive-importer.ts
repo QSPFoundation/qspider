@@ -5,7 +5,11 @@ import { extractFileTree, isSupportedArchive, readSupportedArchive } from '../ut
 import type { FileDir } from '../utils';
 import { storage$ } from '../storage';
 
-export async function importArchive(archiveName: string, source: ArrayBuffer): Promise<GameDescriptor[]> {
+export async function importArchive(
+  archiveName: string,
+  source: ArrayBuffer,
+  rootDescriptor?: GameDescriptor
+): Promise<GameDescriptor[]> {
   if (!isSupportedArchive(source.slice(0, 4))) throw new Error('unsupporter archive format');
   const resources = await readSupportedArchive(source);
   const root = extractFileTree(resources);
