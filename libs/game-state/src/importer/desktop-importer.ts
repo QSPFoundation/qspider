@@ -1,11 +1,15 @@
-import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
+import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'iarna-toml-esm';
 import { importArchive } from './archive-importer';
 import { isSupportedArchive } from '../utils';
 import { cyrb53 } from '@qspider/utils';
 
-export async function importDesktop(filePath: string): Promise<GameDescriptor[]> {
+function buildGameUrl(uuid: string): string {
+  return navigator.userAgent.includes('Windows') ? `https://qsp.${uuid}/` : `qsp://${uuid}/`;
+}
+
+export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
   const { path, tauri } = await import('@tauri-apps/api');
   if (!(await path.isAbsolute(filePath))) filePath = await path.resolve(filePath);
 
@@ -14,36 +18,64 @@ export async function importDesktop(filePath: string): Promise<GameDescriptor[]>
 
   const name = await path.basename(filePath);
 
-  let urlPrefix = `qsp://${uuid}/`;
-  if (navigator.userAgent.includes('Windows')) {
-    urlPrefix = `https://qsp.${uuid}/`;
-  }
+  const urlPrefix = buildGameUrl(uuid);
 
   const content = await fetch(`${urlPrefix}${name}`).then((r) => r.arrayBuffer());
-  if (isSupportedArchive(content)) return importArchive(name, content);
+  if (isSupportedArchive(content)) {
+    const appDataDirPath = await path.appDataDir();
+    const entries = await importArchive(name, content);
+    const uuid = uuidv4();
+    return Promise.all(
+      entries.map(async (entry) => {
+        return {
+          ...entry,
+          loadConfig: {
+            url: buildGameUrl(uuid),
+            entrypoint: entry.loadConfig.entrypoint,
+            local_id: uuid,
+            local_path: await path.resolve(appDataDirPath, `${entry.id}/game/`),
+          },
+        };
+      })
+    );
+  }
 
   const gameConfigUrl = `${urlPrefix}game.cfg`;
 
   try {
     const rawConfig = await fetch(gameConfigUrl).then((r) => r.text());
     const config = parse(rawConfig) as unknown as PlayerConfig;
-    if (config.game.length === 1) {
-      return config.game;
-    } else {
-      const found = config.game.find((game) => game.file === name);
-      if (!found) throw new Error('Config not found');
-      return [found];
-    }
-    // descriptor.local_path = filePath;
-    // descriptor.local_id = uuid;
-    // descriptor.file = `${urlPrefix}${name}`;
+    const found = config.game.find((game) => game.file === name);
+    if (!found) throw new Error('Config not found');
+    return [
+      {
+        id: found.id,
+        mode: found.mode,
+        title: found.title,
+        author: found.author,
+        ported_by: found.ported_by,
+        version: found.version,
+        description: found.description,
+        loadConfig: {
+          url: urlPrefix,
+          entrypoint: found.file,
+          local_path: filePath,
+          local_id: uuid,
+        },
+      },
+    ];
   } catch (err) {
     return [
       {
         id: cyrb53(filePath),
         title: name,
-        mode: name.endsWith('aqsp') ? 'aero' : 'classic',
-        file: `${urlPrefix}${name}`,
+        mode: 'classic',
+        loadConfig: {
+          url: urlPrefix,
+          entrypoint: name,
+          local_path: filePath,
+          local_id: uuid,
+        },
       },
     ];
   }

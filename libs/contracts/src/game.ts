@@ -8,8 +8,6 @@ export interface GameDescriptor {
   description?: string;
   save_slots?: number;
   file: string;
-  local_path?: string;
-  local_id?: string;
   hotkeys?: Record<string, string>;
   resources?: {
     styles?: string[];
@@ -33,9 +31,6 @@ export interface GameDescriptor {
   };
   themes?: string[];
   defaultTheme?: string;
-  meta?: {
-    source: string;
-  };
 }
 
 export interface PlayerConfig {

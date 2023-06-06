@@ -1,21 +1,21 @@
-import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
+import { GameShelfEntry, SaveData, Storage } from '@qspider/contracts';
 import { WebSaveData } from './contracts';
 import { QspiderDatabase } from './db';
 
 export class WebStorage implements Storage {
   private db = new QspiderDatabase();
 
-  async getGames(): Promise<Record<string, GameDescriptor>> {
+  async getGames(): Promise<Record<string, GameShelfEntry>> {
     const games = await this.db.games.toArray();
-    return games.reduce<Record<string, GameDescriptor>>((acc, game) => {
+    return games.reduce<Record<string, GameShelfEntry>>((acc, game) => {
       acc[game.id] = game;
       return acc;
     }, {});
   }
-  async addGame(id: string, data: GameDescriptor): Promise<void> {
+  async addGame(id: string, data: GameShelfEntry): Promise<void> {
     await this.db.games.put(data, id);
   }
-  async updateGame(id: string, data: GameDescriptor): Promise<void> {
+  async updateGame(id: string, data: GameShelfEntry): Promise<void> {
     await this.db.games.update(id, data);
   }
   async removeGame(id: string): Promise<void> {

@@ -1,6 +1,6 @@
-import { GameDescriptor, SaveData } from '@qspider/contracts';
+import { GameShelfEntry, SaveData } from '@qspider/contracts';
 
 export interface TauriStorageData {
-  games: Record<string, GameDescriptor>;
+  games: Record<string, GameShelfEntry>;
   saves: Record<string, Record<string, SaveData>>;
 }

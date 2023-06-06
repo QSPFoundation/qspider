@@ -1,5 +1,5 @@
 import { stringify, parse, JsonMap } from 'iarna-toml-esm';
-import { GAME_DESCRIPTOR_NAME, GameDescriptor, PlayerConfig } from '@qspider/contracts';
+import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import { extractFileTree, isSupportedArchive, readSupportedArchive } from '../utils';
 import type { FileDir } from '../utils';
@@ -9,7 +9,7 @@ export async function importArchive(
   archiveName: string,
   source: ArrayBuffer,
   rootDescriptor?: GameDescriptor
-): Promise<GameDescriptor[]> {
+): Promise<GameShelfEntry[]> {
   if (!isSupportedArchive(source.slice(0, 4))) throw new Error('unsupporter archive format');
   const resources = await readSupportedArchive(source);
   const root = extractFileTree(resources);
@@ -32,21 +32,39 @@ export async function importArchive(
         console.error(err);
       }
     }
+    return games.map((game) => {
+      const file = game.file.slice(game.file.lastIndexOf('/') + 1);
+      return {
+        id: game.id,
+        mode: game.mode,
+        title: game.title,
+        author: game.author,
+        ported_by: game.ported_by,
+        version: game.version,
+        description: game.description,
+        loadConfig: {
+          url: `/qspider-files/${game.id}`,
+          entrypoint: file,
+        },
+      };
+    });
   }
   const rootGameFile = findRootGameFileFolder(root);
   if (rootGameFile) {
     const [gameFolder, filename] = rootGameFile;
     const game_id = cyrb53(archiveName);
     await storeFolderContent(game_id, gameFolder);
-    const descriptor: GameDescriptor = {
-      id: game_id,
-      title: archiveName.slice(archiveName.lastIndexOf('/') + 1),
-      mode: archiveName.endsWith('aqsp') ? 'aero' : 'classic',
-      file: filename,
-    };
-    const descriptorContent = stringify(descriptor as unknown as JsonMap);
-    await storage$.value?.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
-    return [descriptor];
+    return [
+      {
+        id: game_id,
+        title: archiveName.slice(archiveName.lastIndexOf('/') + 1),
+        mode: archiveName.endsWith('aqsp') ? 'aero' : 'classic',
+        loadConfig: {
+          url: `/qspider-files/${game_id}`,
+          entrypoint: filename,
+        },
+      },
+    ];
   }
 
   throw new Error('game files not foound inside archive');

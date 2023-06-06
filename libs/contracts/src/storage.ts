@@ -1,4 +1,4 @@
-import { GameDescriptor } from './game';
+import { GameShelfEntry } from './game-shelf';
 
 export interface SaveData {
   game_id: string;
@@ -8,9 +8,9 @@ export interface SaveData {
 }
 
 export interface Storage {
-  getGames(): Promise<Record<string, GameDescriptor>>;
-  addGame(id: string, data: GameDescriptor): Promise<void>;
-  updateGame(id: string, data: Partial<GameDescriptor>): Promise<void>;
+  getGames(): Promise<Record<string, GameShelfEntry>>;
+  addGame(id: string, data: GameShelfEntry): Promise<void>;
+  updateGame(id: string, data: Partial<GameShelfEntry>): Promise<void>;
   removeGame(id: string): Promise<void>;
 
   addGameResource(game_id: string, path: string, data: ArrayBuffer): Promise<void>;

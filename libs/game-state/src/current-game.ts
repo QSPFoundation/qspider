@@ -1,4 +1,4 @@
-import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
+import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { create } from 'xoid';
 import { storage$ } from './storage';
 import {
@@ -33,6 +33,7 @@ import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import { layers$, regions$ } from './panels';
 
+export const currentGameEntry = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
 export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width ?? 800);
@@ -40,7 +41,7 @@ export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.heigh
 export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
 export const onGameEnd$ = create<null | (() => void)>(null);
 
-export async function runGame(descriptor: GameDescriptor): Promise<void> {
+export async function runGame(descriptor: GameShelfEntry): Promise<void> {
   if (!descriptor) throw new Error('Game not found');
   const { file } = descriptor;
   const source = await storage$.value?.getGameSource(descriptor.id);

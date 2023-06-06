@@ -1,4 +1,4 @@
-import { GameDescriptor } from '@qspider/contracts';
+import { GameShelfEntry } from '@qspider/contracts';
 import { Cross1Icon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { games$, goToGame } from '../game-shelf';
 import { ContentRenderer } from '@qspider/renderer';
 
-export const GameCard: React.FC<{ game: GameDescriptor }> = ({ game }) => {
+export const GameCard: React.FC<{ game: GameShelfEntry }> = ({ game }) => {
   const { t } = useTranslation();
   const removeGame = useCallback(() => {
     games$.actions.remove(game.id);

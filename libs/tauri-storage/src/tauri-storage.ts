@@ -1,4 +1,4 @@
-import { GameDescriptor, SaveData, Storage } from '@qspider/contracts';
+import { GameShelfEntry, SaveData, Storage } from '@qspider/contracts';
 import { defer } from '@qspider/utils';
 import { TauriStorageData } from './contracts';
 import {
@@ -29,25 +29,25 @@ export class TauriStorage implements Storage {
       saves: {},
     };
     for (const game of Object.values(this.storageData.games)) {
-      if (game.local_path) {
-        if (!game.local_id) game.local_id = uuidv4();
-        await tauri.invoke('prepare_game_start', { path: game.local_path, id: game.local_id });
+      if (game.loadConfig.local_path) {
+        if (!game.loadConfig.local_id) game.loadConfig.local_id = uuidv4();
+        await tauri.invoke('prepare_game_start', { path: game.loadConfig.local_path, id: game.loadConfig.local_id });
       }
     }
     this.initialized.resolve();
   }
 
-  async getGames(): Promise<Record<string, GameDescriptor>> {
+  async getGames(): Promise<Record<string, GameShelfEntry>> {
     await this.initialized.promise;
     return this.storageData.games;
   }
-  async addGame(id: string, data: GameDescriptor): Promise<void> {
+  async addGame(id: string, data: GameShelfEntry): Promise<void> {
     await this.initialized.promise;
     this.storageData.games[id] = data;
     await ensureGameDirectories(id);
     await flushStorageData(this.storageData);
   }
-  async updateGame(id: string, data: Partial<GameDescriptor>): Promise<void> {
+  async updateGame(id: string, data: Partial<GameShelfEntry>): Promise<void> {
     await this.initialized.promise;
     this.storageData.games[id] = {
       ...(this.storageData.games[id] || {}),

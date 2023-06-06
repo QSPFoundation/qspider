@@ -1,9 +1,9 @@
-import { GameDescriptor } from '@qspider/contracts';
+import { GameShelfEntry } from '@qspider/contracts';
 import Dexie from 'dexie';
 import { WebSaveData } from './contracts';
 
 export class QspiderDatabase extends Dexie {
-  games!: Dexie.Table<GameDescriptor, string>;
+  games!: Dexie.Table<GameShelfEntry, string>;
   gameResources!: Dexie.Table<{ game_id: string; path: string; content: ArrayBuffer }, string>;
   gameSaves!: Dexie.Table<WebSaveData, string>;
 

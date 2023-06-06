@@ -1,10 +1,10 @@
-import { GameDescriptor, PlayerConfig } from '@qspider/contracts';
+import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53, fetchProxyFallback } from '@qspider/utils';
 import { parse } from 'iarna-toml-esm';
 import { isSupportedArchive } from '../utils';
 import { importArchive } from './archive-importer';
 
-export async function importUrl(url: string, rootDescriptor?: GameDescriptor): Promise<GameDescriptor[]> {
+export async function importUrl(url: string, rootDescriptor?: GameDescriptor): Promise<GameShelfEntry[]> {
   const urlObject = new URL(url);
   urlObject.hash = '';
   urlObject.search = '';
@@ -32,14 +32,36 @@ export async function importUrl(url: string, rootDescriptor?: GameDescriptor): P
       const config = parse(rawConfig) as unknown as PlayerConfig;
       const found = config.game.find((game) => game.file === fileName);
       if (!found) throw new Error('Config not found');
-      return [found];
+      return [
+        {
+          id: found.id,
+          mode: found.mode,
+          title: found.title,
+          author: found.author,
+          ported_by: found.ported_by,
+          version: found.version,
+          description: found.description,
+          loadConfig: {
+            url: base,
+            entrypoint: found.file,
+          },
+        },
+      ];
     } catch {
       return [
-        rootDescriptor || {
-          id: cyrb53(cleanUrl),
-          title: fileName,
-          mode: 'classic',
-          file: cleanUrl,
+        {
+          id: rootDescriptor?.id || cyrb53(cleanUrl),
+          title: rootDescriptor?.title || fileName,
+          mode: rootDescriptor?.mode || 'classic',
+          author: rootDescriptor?.author,
+          ported_by: rootDescriptor?.ported_by,
+          version: rootDescriptor?.version,
+          description: rootDescriptor?.description,
+          loadConfig: {
+            url: base,
+            entrypoint: fileName,
+            descriptor: rootDescriptor,
+          },
         },
       ];
     }

@@ -1,11 +1,11 @@
-import { GameDescriptor } from '@qspider/contracts';
+import { GameShelfEntry } from '@qspider/contracts';
 import { currentGame$, initDefered$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
 import { create } from 'xoid';
 import history from 'history/browser';
 
 interface GamesActions {
-  add(id: string, data: GameDescriptor): void;
-  update(id: string, data: Partial<GameDescriptor>): void;
+  add(id: string, data: GameShelfEntry): void;
+  update(id: string, data: Partial<GameShelfEntry>): void;
   remove(id: string): void;
 }
 
@@ -18,16 +18,16 @@ export function goToGame(id: string): void {
 
 export const currentMode$ = create('shelf');
 
-export const games$ = create<Record<string, GameDescriptor>, GamesActions>({}, (atom) => {
+export const games$ = create<Record<string, GameShelfEntry>, GamesActions>({}, (atom) => {
   return {
-    add(id: string, data: GameDescriptor): void {
+    add(id: string, data: GameShelfEntry): void {
       storage$.value?.addGame(id, data).catch(console.error);
       atom.update((s) => ({
         ...s,
         [id]: data,
       }));
     },
-    update(id: string, data: Partial<GameDescriptor>): void {
+    update(id: string, data: Partial<GameShelfEntry>): void {
       storage$.value?.updateGame(id, data).catch(console.error);
       atom.update((s) => ({
         ...s,

@@ -1,5 +1,6 @@
 export * from './constants';
 export * from './game';
+export * from './game-shelf';
 export * from './window-manager';
 export * from './storage';
 
