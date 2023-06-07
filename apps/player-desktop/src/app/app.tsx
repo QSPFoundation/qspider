@@ -3,15 +3,15 @@ import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
 import { event, path } from '@tauri-apps/api';
 
-import { isSupportedFileType, prepareGameFromDisk } from './utils';
+import { isSupportedFileType } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
-import { baseInit$, componentsRegistry$ } from '@qspider/game-state';
+import { baseInit$, componentsRegistry$, importDesktop } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { goToGame, PlayerWithShelf } from '@qspider/game-shelf';
+import { games$, goToGame, PlayerWithShelf } from '@qspider/game-shelf';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
 init();
@@ -28,8 +28,14 @@ export const App: React.FC = () => {
       fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', async (e) => {
         const [filePath] = e.payload;
         if (isSupportedFileType(filePath)) {
-          const id = await prepareGameFromDisk(filePath);
-          goToGame(id);
+          const imported = await importDesktop(filePath);
+          for (const entry of imported) {
+            if (!games$.value[entry.id]) {
+              games$.actions.add(entry.id, entry);
+            }
+          }
+          const toRun = imported[0].id;
+          toRun && goToGame(toRun);
         }
         setIsFileDropHovered(false);
       });

@@ -1,10 +1,10 @@
 import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
+  importDesktop,
   initDefered$,
   initQspApi,
   initTheme,
-  loadGamesFromConfig,
   onGameEnd$,
   platform$,
   showError,
@@ -12,8 +12,7 @@ import {
   windowManager$,
 } from '@qspider/game-state';
 import { TauriStorage } from '@qspider/tauri-storage';
-import { cli, os, path } from '@tauri-apps/api';
-import { prepareGameFromDisk } from './utils';
+import { cli, os } from '@tauri-apps/api';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
@@ -29,19 +28,16 @@ export async function init(): Promise<void> {
   let toRun: string | null = null;
   if (filePath) {
     try {
-      if (await path.isAbsolute(filePath)) {
-        toRun = await prepareGameFromDisk(filePath);
-      } else {
-        const resolvedPath = await path.resolve(filePath);
-        toRun = await prepareGameFromDisk(resolvedPath);
+      const imported = await importDesktop(filePath);
+      for (const entry of imported) {
+        if (!games$.value[entry.id]) {
+          games$.actions.add(entry.id, entry);
+        }
       }
+      toRun = imported[0].id;
+      toRun && goToGame(toRun);
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
-    }
-  } else if (!Object.keys(games$.value).length) {
-    const games = await loadGamesFromConfig(`https://qspfoundation.github.io/qspider/game/game.cfg`);
-    for (const game of games) {
-      games$.actions.add(game.id, game);
     }
   }
 

@@ -1,6 +1,5 @@
 import { games$, goToGame } from '@qspider/game-shelf';
-import { extractGameDescriptor, storage$ } from '@qspider/game-state';
-import { cyrb53 } from '@qspider/utils';
+import { importArchive } from '@qspider/game-state';
 import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,18 +12,14 @@ export const OpenGameButton: React.FC = () => {
     const reader = new FileReader();
     reader.onload = async function (evt): Promise<void> {
       const content = evt.target?.result as ArrayBuffer;
-      let descriptor = await extractGameDescriptor(content);
-      if (!descriptor) {
-        descriptor = {
-          id: cyrb53(file.name),
-          title: file.name.slice(file.name.lastIndexOf('/') + 1),
-          mode: file.name.endsWith('aqsp') ? 'aero' : 'classic',
-          file: file.name,
-        };
+      const imported = await importArchive(file.name, content);
+      for (const entry of imported) {
+        if (!games$.value[entry.id]) {
+          games$.actions.add(entry.id, entry);
+        }
       }
-      games$.actions.add(descriptor.id, descriptor);
-      await storage$.value?.addGameSource(descriptor.id, content);
-      goToGame(descriptor.id);
+      const toRun = imported[0].id;
+      toRun && goToGame(toRun);
     };
     reader.readAsArrayBuffer(file);
   }, []);

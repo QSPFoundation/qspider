@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
 import { dialog } from '@tauri-apps/api';
-import { prepareGameFromDisk } from './utils';
 import { useTranslation } from 'react-i18next';
-import { goToGame } from '@qspider/game-shelf';
+import { games$, goToGame } from '@qspider/game-shelf';
+import { importDesktop } from '@qspider/game-state';
 
 export const OpenGameButton: React.FC = () => {
   const { t } = useTranslation();
   const selectGame = useCallback(async () => {
-    const file_path = await dialog.open({
+    const filePath = await dialog.open({
+      multiple: false,
       filters: [
         {
           name: 'Qsp files',
@@ -15,9 +16,14 @@ export const OpenGameButton: React.FC = () => {
         },
       ],
     });
-    if (file_path) {
-      const id = await prepareGameFromDisk(file_path as string);
-      goToGame(id);
+    if (filePath) {
+      const imported = await importDesktop(filePath as string);
+      for (const entry of imported) {
+        if (!games$.value[entry.id]) {
+          games$.actions.add(entry.id, entry);
+        }
+      }
+      goToGame(imported[0].id);
     }
   }, []);
   return (
