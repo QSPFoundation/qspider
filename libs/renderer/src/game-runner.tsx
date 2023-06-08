@@ -1,4 +1,4 @@
-import { currentGame$, input$, isPauseScreenVisible$, menu$, msg$, wait$ } from '@qspider/game-state';
+import { currentGameEntry$, input$, isPauseScreenVisible$, menu$, msg$, wait$ } from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
@@ -19,7 +19,7 @@ const handler = throttle((e: KeyboardEvent): void => {
 }, 10);
 
 export const GameRunner: React.FC = () => {
-  const currentGame = useAtom(currentGame$);
+  const currentGame = useAtom(currentGameEntry$);
   useEventListener('keydown', handler, document, { capture: true });
   if (!currentGame) return <QspiderLoader />;
   return (

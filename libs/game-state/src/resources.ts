@@ -19,8 +19,7 @@ import mime from 'mime/lite';
 
 export const localFS$ = create<Record<string, Uint8Array>>({});
 export const isLocalFSUsed$ = create(false);
-export const mainFileSource$ = create<Uint8Array | null>();
-export const basePath$ = create('');
+export const baseUrl$ = create('');
 const localFsUrls = new Map<string, string>();
 
 export async function fillLocalFS(source: ArrayBuffer, name: string): Promise<void> {
@@ -104,7 +103,7 @@ export async function getTextContent(file: string): Promise<string> {
 }
 
 function preparePath(path: string): string {
-  return `${basePath$.value}${cleanPath(path)}`;
+  return `${baseUrl$.value}${cleanPath(path)}`;
 }
 
 export async function loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
@@ -182,7 +181,7 @@ export function clearResources(): void {
   localFS$.set({});
   isLocalFSUsed$.set(false);
   mainFileSource$.set(null);
-  basePath$.set('');
+  baseUrl$.set('');
   for (const value of localFsUrls.values()) {
     URL.revokeObjectURL(value);
   }

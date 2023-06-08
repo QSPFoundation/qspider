@@ -1,5 +1,5 @@
 import { GameShelfEntry } from '@qspider/contracts';
-import { currentGame$, initDefered$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
+import { currentGameEntry$, initDefered$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
 import { create } from 'xoid';
 import history from 'history/browser';
 
@@ -62,10 +62,10 @@ export async function processLocationChange(location: string): Promise<void> {
     await runGame(descriptor);
     currentMode$.set('game');
   } else if (search.has('catalog')) {
-    if (currentGame$.value) stopCurrentGame();
+    if (currentGameEntry$.value) stopCurrentGame();
     currentMode$.set('catalog');
   } else {
-    if (currentGame$.value) stopCurrentGame();
+    if (currentGameEntry$.value) stopCurrentGame();
     currentMode$.set('shelf');
   }
 }

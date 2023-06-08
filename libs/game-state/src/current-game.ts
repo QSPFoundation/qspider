@@ -1,17 +1,6 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { create } from 'xoid';
-import { storage$ } from './storage';
-import {
-  basePath$,
-  clearAdditionalResources,
-  clearResources,
-  fillLocalFS,
-  getResource,
-  getTextContent,
-  loadAdditionalResources,
-  mainFileSource$,
-} from './resources';
-import { convertQsps, isZip } from './utils';
+import { clearAdditionalResources, clearResources, getResource, loadAdditionalResources } from './resources';
 import { qspApi$ } from './qsp-api';
 import {
   AERO_THEME,
@@ -33,7 +22,7 @@ import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import { layers$, regions$ } from './panels';
 
-export const currentGameEntry = create<GameShelfEntry | null>(null);
+export const currentGameEntry$ = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
 export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
 export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width ?? 800);
@@ -41,36 +30,19 @@ export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.heigh
 export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
 export const onGameEnd$ = create<null | (() => void)>(null);
 
-export async function runGame(descriptor: GameShelfEntry): Promise<void> {
-  if (!descriptor) throw new Error('Game not found');
-  const { file } = descriptor;
-  const source = await storage$.value?.getGameSource(descriptor.id);
-  if (source) {
-    await fillLocalFS(source, file);
-  } else {
-    const source = await fetchProxyFallback(file).then((r) => {
-      if (!r.ok) throw new Error('Game file not found');
-      return r.arrayBuffer();
-    });
-    if (isZip(source.slice(0, 4))) {
-      await fillLocalFS(source, file);
-    } else {
-      const isQsps = file.toLowerCase().endsWith('.qsps');
-      if (isQsps) {
-        const gameSource = convertQsps(source);
-        mainFileSource$.set(new Uint8Array(gameSource));
-      } else mainFileSource$.set(new Uint8Array(source));
-      basePath$.set(file.slice(0, file.lastIndexOf('/') + 1));
-    }
-  }
+export async function runGame(entry: GameShelfEntry): Promise<void> {
+  if (!entry) throw new Error('Game not found');
+  const baseTag = document.querySelector<HTMLBaseElement>('#page-base') as HTMLBaseElement;
+  baseTag.href = entry.loadConfig.url;
 
+  let descriptor = entry.loadConfig.descriptor;
   try {
-    const configContent = await getTextContent('game.cfg');
+    const configContent = await fetchProxyFallback('game.cfg').then((r) => r.text());
     const config = parse(configContent) as unknown as PlayerConfig;
     if (config.game?.length === 1) {
       [descriptor] = config.game;
     } else {
-      const found = config.game?.find((game) => game.id === descriptor.id);
+      const found = config.game?.find((game) => game.id === entry.id);
       if (!found) throw new Error('Config not found');
       descriptor = found;
     }
@@ -78,9 +50,9 @@ export async function runGame(descriptor: GameShelfEntry): Promise<void> {
     // no-op
   }
 
-  if (descriptor.mode === 'classic' || !descriptor.mode) {
+  if (descriptor?.mode === 'classic' || !descriptor?.mode) {
     try {
-      const cfgContent = await getTextContent('qspgui.cfg');
+      const cfgContent = await fetchProxyFallback('qspgui.cfg').then((r) => r.text());
       const cfgData = parseCfg(cfgContent);
       qspGuiCfg$.set(cfgData);
     } catch {
@@ -88,9 +60,9 @@ export async function runGame(descriptor: GameShelfEntry): Promise<void> {
     }
   }
 
-  if (descriptor.mode === 'aero' && !descriptor.aero) {
+  if (descriptor && descriptor.mode === 'aero' && !descriptor.aero) {
     try {
-      const content = await getTextContent('config.xml');
+      const content = await fetchProxyFallback('config.xml').then((r) => r.text());
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'application/xml');
       const gameElement = doc.querySelector('game');
@@ -107,23 +79,23 @@ export async function runGame(descriptor: GameShelfEntry): Promise<void> {
     }
   }
 
-  const gameSource = mainFileSource$.value;
+  const gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
   if (!gameSource) throw new Error('Failed to load game');
-  windowManager$.value?.setTitle(descriptor.title);
+  windowManager$.value?.setTitle(entry.title);
   setupGlobalHotKeys();
-  if (descriptor.hotkeys) {
+  if (descriptor?.hotkeys) {
     setupCustomHotKeys(descriptor.hotkeys);
   }
-  if (descriptor.resources?.icon) {
+  if (descriptor?.resources?.icon) {
     windowManager$.value?.setIcon(getResource(descriptor.resources?.icon).url);
   }
-  loadAdditionalResources(descriptor.resources);
-  if (descriptor.themes) {
+  loadAdditionalResources(descriptor?.resources);
+  if (descriptor?.themes) {
     await registerThemes(descriptor.themes);
   }
-  if (descriptor.defaultTheme) {
+  if (descriptor?.defaultTheme) {
     currentTheme$.set(descriptor.defaultTheme);
-  } else if (descriptor.mode === 'aero') {
+  } else if (descriptor?.mode === 'aero') {
     currentTheme$.set(AERO_THEME);
   } else {
     currentTheme$.set(CLASSIC_THEME);
@@ -131,9 +103,10 @@ export async function runGame(descriptor: GameShelfEntry): Promise<void> {
   loadThemeTranslations(currentTranslations$.value);
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
-  currentGame$.set(descriptor);
+  currentGameEntry$.set(entry);
+  descriptor && currentGame$.set(descriptor);
   loadSaveList();
-  applyWindowSettings(descriptor.window);
+  descriptor && applyWindowSettings(descriptor.window);
 }
 
 let wasResized = false;
@@ -158,6 +131,7 @@ function applyWindowSettings(window: GameDescriptor['window']): void {
 }
 
 export function stopCurrentGame(): void {
+  currentGameEntry$.set(null);
   currentGame$.set(null);
   qspGuiCfg$.set(null);
   isPauseScreenVisible$.set(false);

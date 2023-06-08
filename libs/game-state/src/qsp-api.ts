@@ -19,7 +19,7 @@ import {
   statsContent$,
   viewPath$,
 } from './panels';
-import { currentGame$, GameAction, onGameAction } from './current-game';
+import { currentGameEntry$, GameAction, onGameAction } from './current-game';
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
@@ -27,7 +27,7 @@ import { convertQsps, prepareContent, prepareList } from './utils';
 import { hashString } from '@qspider/utils';
 import { menu$ } from './menu';
 import { input$ } from './input';
-import { basePath$, getBinaryContent, getResource } from './resources';
+import { baseUrl$, getBinaryContent, getResource } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
@@ -142,7 +142,7 @@ qspApi$.subscribe((api) => {
         gameSource = convertQsps(source);
       }
       if (isNewGame) {
-        basePath$.set(file.slice(0, file.lastIndexOf('/') + 1));
+        baseUrl$.set(file.slice(0, file.lastIndexOf('/') + 1));
       }
       api.openGame(gameSource, isNewGame);
       onOpened();
@@ -201,7 +201,7 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('load_save', async (path, loaded) => {
-    const currentGame = currentGame$.value;
+    const currentGame = currentGameEntry$.value;
     if (!currentGame) return loaded();
     saveLoadedCallback$.set(loaded);
     if (path) {
@@ -212,7 +212,7 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('save_game', async (path, saved) => {
-    const currentGame = currentGame$.value;
+    const currentGame = currentGameEntry$.value;
     if (!currentGame) return saved();
     gameSavedCallback$.set(saved);
     if (path) {

@@ -1,14 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
-import { Attributes, currentGame$, isPauseScreenVisible$ } from '@qspider/game-state';
+import { Attributes, currentGameEntry$, isPauseScreenVisible$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { useAttributes } from '../../content/attributes';
 import { ReactNode } from 'react';
 
 export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const isVisible = useAtom(isPauseScreenVisible$);
-  const currentGame = useAtom(currentGame$);
+  const currentGame = useAtom(currentGameEntry$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen');
   return (
     <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>
