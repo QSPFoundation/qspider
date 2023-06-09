@@ -1,6 +1,6 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { create } from 'xoid';
-import { clearAdditionalResources, clearResources, getResource, loadAdditionalResources } from './resources';
+import { clearAdditionalResources, loadAdditionalResources } from './resources';
 import { qspApi$ } from './qsp-api';
 import {
   AERO_THEME,
@@ -29,11 +29,11 @@ export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width 
 export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.height ?? 600);
 export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
 export const onGameEnd$ = create<null | (() => void)>(null);
+export const baseUrl$ = create('');
 
 export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');
-  const baseTag = document.querySelector<HTMLBaseElement>('#page-base') as HTMLBaseElement;
-  baseTag.href = entry.loadConfig.url;
+  baseUrl$.set(entry.loadConfig.url);
 
   let descriptor = entry.loadConfig.descriptor;
   try {
@@ -87,7 +87,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     setupCustomHotKeys(descriptor.hotkeys);
   }
   if (descriptor?.resources?.icon) {
-    windowManager$.value?.setIcon(getResource(descriptor.resources?.icon).url);
+    windowManager$.value?.setIcon(descriptor.resources.icon);
   }
   loadAdditionalResources(descriptor?.resources);
   if (descriptor?.themes) {
@@ -130,6 +130,11 @@ function applyWindowSettings(window: GameDescriptor['window']): void {
   }
 }
 
+baseUrl$.subscribe((url) => {
+  const baseTag = document.querySelector<HTMLBaseElement>('#page-base') as HTMLBaseElement;
+  baseTag.href = url || '/';
+});
+
 export function stopCurrentGame(): void {
   currentGameEntry$.set(null);
   currentGame$.set(null);
@@ -147,7 +152,6 @@ export function stopCurrentGame(): void {
   sounds$.actions.clear();
   regions$.set({});
   layers$.set({});
-  clearResources();
   clearAdditionalResources();
   clearHotkeys();
   unloadThemeTranslations();

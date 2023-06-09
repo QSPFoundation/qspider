@@ -1,5 +1,4 @@
 import React from 'react';
-import { processStyles } from './css';
 
 export type AttributeValue = string;
 
@@ -73,9 +72,7 @@ export function extractAttributes(node: HTMLElement): Attributes {
   Array.from(node.attributes).forEach((attr) => {
     const { name, value } = attr;
     if (name === 'is') return;
-    if (name === 'style') {
-      attributes[name] = processStyles(value);
-    } else if (BOOLEAN_ATTRIBUTES.has(name)) {
+    if (BOOLEAN_ATTRIBUTES.has(name)) {
       attributes[name as keyof BooleanAttributes] = true;
     } else {
       attributes[name] = name in valueProcessors ? valueProcessors[name](value) : value;

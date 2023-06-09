@@ -19,7 +19,7 @@ import {
   statsContent$,
   viewPath$,
 } from './panels';
-import { currentGameEntry$, GameAction, onGameAction } from './current-game';
+import { baseUrl$, currentGameEntry$, GameAction, onGameAction } from './current-game';
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
@@ -27,7 +27,7 @@ import { convertQsps, prepareContent, prepareList } from './utils';
 import { hashString } from '@qspider/utils';
 import { menu$ } from './menu';
 import { input$ } from './input';
-import { baseUrl$, getBinaryContent, getResource } from './resources';
+import { getBinaryContent } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
@@ -110,15 +110,15 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('is_play', (path, result) => {
-    result(sounds$.actions.isPlaying(getResource(path).url));
+    result(sounds$.actions.isPlaying(path));
   });
   api.on('play_file', (path, volume, ready) => {
-    sounds$.actions.play(getResource(path), volume);
+    sounds$.actions.play(path, volume);
     ready();
   });
   api.on('close_file', (path, ready) => {
     if (path) {
-      sounds$.actions.close(getResource(path).url);
+      sounds$.actions.close(path);
     } else {
       sounds$.actions.closeAll();
     }
@@ -133,7 +133,6 @@ qspApi$.subscribe((api) => {
       onOpened();
       return;
     }
-    console.log(file);
     withCounterPaused(async () => {
       const source = await getBinaryContent(file);
       let gameSource = source;

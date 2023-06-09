@@ -1,5 +1,5 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, getResource, isObjsVisible$, objects$, selectObject } from '@qspider/game-state';
+import { Attributes, isObjsVisible$, objects$, selectObject } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
@@ -48,7 +48,7 @@ export const QspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }>
 
   const preparedStyle = {
     ...style,
-    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
+    '--object-image': object.image ? `url("${object.image}")` : '',
   };
   const onHover = (): void => {
     setIsSelected(true);
@@ -87,7 +87,7 @@ export const QspObjectImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { object } = useContext(objectContext);
   const [Tag, style, attributes] = useAttributes(attrs, 'img', 'qsp-object-image');
   if (!object.image) return null;
-  return <Tag {...attributes} style={style} src={getResource(object.image).url} />;
+  return <Tag {...attributes} style={style} src={object.image} />;
 };
 
 export const QspObjectIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {

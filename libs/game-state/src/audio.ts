@@ -1,5 +1,4 @@
 import { Howler } from 'howler';
-import { Resource } from '@qspider/contracts';
 import { normalizeVolume, Sound } from './sound';
 import { create } from 'xoid';
 import { clamp } from './utils';
@@ -13,8 +12,8 @@ export const sounds$ = create(new Map<string, Sound>(), (atom) => {
       const sound = atom.value.get(key);
       return Boolean(sound?.isPlaying);
     },
-    play(input: Resource, volume: number): void {
-      const key = getFileKey(input.url);
+    play(input: string, volume: number): void {
+      const key = getFileKey(input);
       let sound = atom.value.get(key);
       if (!sound) {
         sound = Sound.create(input, volume);

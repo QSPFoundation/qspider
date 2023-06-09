@@ -4,7 +4,6 @@ import {
   DEFAULT_SELECTED_LIST_FORMAT,
   IMAGE_PLACEHOLDER,
   TEXT_PLACEHOLDER,
-  getResource,
   menu$,
   selectMenuItem,
   useFormatVariable,
@@ -60,7 +59,7 @@ export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode 
 
   const preapredStyle = {
     ...style,
-    '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
+    '--menu-item-image': item.image ? `url("${item.image}")` : '',
   } as React.CSSProperties;
 
   const format = useFormatVariable(useFormat, DEFAULT_LIST_FORMAT)

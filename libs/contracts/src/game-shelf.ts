@@ -10,6 +10,7 @@ export type GameShelfEntry = {
   description?: string;
   meta?: {
     source: string;
+    source_id: string;
   };
   loadConfig: {
     url: string;

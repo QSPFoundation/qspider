@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, getResource, menu$, selectMenuItem, useThemeTemplate } from '@qspider/game-state';
+import { Attributes, menu$, selectMenuItem, useThemeTemplate } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
@@ -107,7 +107,7 @@ export const QspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> =
 
   const preapredStyle = {
     ...style,
-    '--menu-item-image': item.image ? `url("${getResource(item.image).url}")` : '',
+    '--menu-item-image': item.image ? `url("${item.image}")` : '',
   } as React.CSSProperties;
 
   const onHover = (): void => {
@@ -150,7 +150,7 @@ export const QspMenuItemImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => 
   const { item } = useContext(menuContext);
   const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-menu-image');
   if (!item.image) return null;
-  return <img alt="" {...attributes} style={style} src={getResource(item.image).url} />;
+  return <img alt="" {...attributes} style={style} src={item.image} />;
 };
 
 export const QspMenuItemIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {

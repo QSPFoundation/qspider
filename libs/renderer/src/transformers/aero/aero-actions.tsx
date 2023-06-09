@@ -3,7 +3,6 @@ import {
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
   execSelectedAction,
-  getResource,
   IMAGE_PLACEHOLDER,
   selectAction,
   selectedAction$,
@@ -21,7 +20,7 @@ export const AeroQspActionItem: React.FC<{ attrs: Attributes }> = ({ attrs }) =>
   const selectedAction = useAtom(selectedAction$);
   const { action, index } = useContext(actionContext);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-action');
-  const actionImageUrl = action.image ? getResource(action.image).url : '';
+  const actionImageUrl = action.image ? action.image : '';
   const preparedStyle = {
     ...style,
     '--action-image': action.image ? `url("${actionImageUrl}")` : '',

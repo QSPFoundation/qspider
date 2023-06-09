@@ -1,5 +1,4 @@
 import { Howl } from 'howler';
-import { Resource } from '@qspider/contracts';
 
 enum SoundState {
   Loading,
@@ -14,7 +13,7 @@ enum SoundState {
 export const normalizeVolume = (volume: number): number => (volume > 1 ? volume * 0.01 : volume);
 
 export class Sound {
-  public static create(input: Resource, volume: number): Sound {
+  public static create(input: string, volume: number): Sound {
     return new Sound(input, volume);
   }
 
@@ -36,12 +35,11 @@ export class Sound {
     return this._state === SoundState.Playing || this._state === SoundState.Loading;
   }
 
-  constructor(input: Resource, volume: number) {
+  constructor(input: string, volume: number) {
     this.howl = new Howl({
-      src: [input.url],
-      format: [input.type],
+      src: [input],
       // streaming blobs does not work in tauri at the moment
-      html5: !input.url.includes('blob:'),
+      html5: !input.includes('blob:'),
       volume: normalizeVolume(volume),
       loop: false,
       preload: true,

@@ -3,7 +3,6 @@ import {
   actions$,
   Attributes,
   execSelectedAction,
-  getResource,
   isActsVisible$,
   selectAction,
   selectedAction$,
@@ -52,10 +51,9 @@ export const QspActionItem: React.FC<{ attrs: Attributes; children: ReactNode }>
   const selectedAction = useAtom(selectedAction$);
   const { action, index } = useContext(actionContext);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-action');
-  const actionImageUrl = action.image ? getResource(action.image).url : '';
   const preparedStyle = {
     ...style,
-    '--action-image': action.image ? `url("${actionImageUrl}")` : '',
+    '--action-image': action.image ? `url("${action.image}")` : '',
   };
 
   const onHover = (): void => {
@@ -99,7 +97,7 @@ export const QspActionImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { action } = useContext(actionContext);
   const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-action-image');
   if (!action.image) return null;
-  return <img alt="" style={style} {...attributes} src={getResource(action.image).url} />;
+  return <img alt="" style={style} {...attributes} src={action.image} />;
 };
 
 export const QspActionIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {

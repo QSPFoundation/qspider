@@ -1,4 +1,4 @@
-import { CssVarDefinition, currentCssVariables$, getResource, useQspVariable } from '@qspider/game-state';
+import { CssVarDefinition, currentCssVariables$, useQspVariable } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { useImageSize } from '../hooks/image-size';
@@ -51,7 +51,7 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
     return (
       <QspCssVariableResource
         name={definition.name}
-        url={getResource(value || definition.defaultValue).url}
+        url={value || definition.defaultValue}
         withSize={definition.withSize}
       />
     );

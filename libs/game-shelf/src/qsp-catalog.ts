@@ -1,5 +1,4 @@
-import { GameDescriptor } from '@qspider/contracts';
-import { extractGameDescriptor, showError, showNotice, storage$ } from '@qspider/game-state';
+import { importUrl, showError, showNotice } from '@qspider/game-state';
 import { create } from 'xoid';
 import { games$ } from './game-shelf';
 
@@ -70,44 +69,27 @@ export async function loadQspCatalog(): Promise<void> {
 }
 
 export async function moveToShelf(game: CatalogGame): Promise<void> {
-  const request = await fetch(`${CATALOG_URL}game-source?id=${game.id}`);
-  if (!request.ok) {
+  try {
+    const imported = await importUrl(`${CATALOG_URL}game-source?id=${game.id}`);
+    for (const entry of imported) {
+      entry.title = entry.title || game.title;
+      entry.author = entry.author || game.author;
+      entry.ported_by = entry.ported_by || game.ported_by;
+      entry.version = entry.version || game.version;
+      entry.meta = {
+        source: 'org.qsp.games',
+        source_id: String(game.id),
+      };
+      games$.actions.add(entry.id, entry);
+      showNotice(`${game.title} added to shelf`);
+    }
+  } catch {
     showError(`Failed to load source for game ${game.title}`);
-    return;
   }
-  const source = await request.arrayBuffer();
-  let descriptor = await extractGameDescriptor(source);
-  if (descriptor) {
-    descriptor.id = idPrefix + game.id;
-    descriptor.meta = {
-      source: 'org.qsp.games',
-    };
-  } else {
-    descriptor = convertGameToDescriptor(game);
-  }
-  games$.actions.add(descriptor.id, descriptor);
-  storage$.value?.addGameSource(descriptor.id, source);
-  showNotice(`${game.title} added to shelf`);
 }
 
 export function toggleSortDirection(): void {
   qspSortDirection$.update((current) => (current === 'asc' ? 'desc' : 'asc'));
-}
-
-function convertGameToDescriptor(game: CatalogGame): GameDescriptor {
-  return {
-    id: idPrefix + game.id,
-    mode: game.file_ext === 'aqsp' ? 'aero' : 'classic',
-    title: game.title,
-    author: game.author,
-    ported_by: game.ported_by,
-    version: game.version,
-    file: '',
-    description: game.description,
-    meta: {
-      source: 'org.qsp.games',
-    },
-  };
 }
 
 function sortByField<T, K extends keyof T>(fieldName: K) {

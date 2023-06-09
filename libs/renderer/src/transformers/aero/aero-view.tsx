@@ -1,4 +1,4 @@
-import { Attributes, getResource, useQspVariable, viewPath$ } from '@qspider/game-state';
+import { Attributes, useQspVariable, viewPath$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../../content/attributes';
@@ -13,7 +13,7 @@ export const AeroQspView: React.FC<{ attrs: Attributes; modal?: boolean; childre
   if (!path) return null;
   const preparedStyle = {
     ...style,
-    '--view-image': `url("${getResource(path).url}")`,
+    '--view-image': `url("${path}")`,
   };
   const onClick = (): void => {
     if (!alwaysShow) {

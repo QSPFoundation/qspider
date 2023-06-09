@@ -1,4 +1,3 @@
-import parse from 'srcset-parse';
 import {
   Attributes,
   EventAttributes,
@@ -6,7 +5,6 @@ import {
   QspSaveAction,
   SaveContext,
   execCode,
-  getResource,
   onGameAction,
   onSaveAction,
 } from '@qspider/game-state';
@@ -77,29 +75,6 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
   return style;
 };
 
-function processUrl(url: string): string {
-  return getResource(url).url || 'not-found.png';
-}
-
-const attributeConverters: Record<string, (value: string) => string> = {
-  src: processUrl,
-  poster: processUrl,
-  srcset(value: string) {
-    return parse(value)
-      .map((row) => {
-        const suffix = [];
-        if (row.density) {
-          suffix.push(`${row.density}x`);
-        }
-        if (row.width) {
-          suffix.push(`${row.width}w`);
-        }
-        return `${processUrl(row.url)} ${suffix.join(' ')}`;
-      })
-      .join(', ');
-  },
-};
-
 const supportedEvents = ['click', 'mouseenter', 'mouseleave', 'contextmenu', 'dblclick', 'wheel'];
 const eventsMap: Record<string, keyof EventAttributes> = {
   click: 'onClick',
@@ -132,13 +107,6 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       }
       continue;
     }
-    let newValue = value;
-    if (key in attributeConverters) {
-      newValue = attributeConverters[key](value as string);
-    }
-    if ((tag === 'image' && key === 'href') || key === 'xlink:href') {
-      newValue = processUrl(value as string);
-    }
     let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;
     if (
       preparedKey.includes('-') &&
@@ -150,7 +118,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
         return w.toUpperCase();
       });
     }
-    converted[preparedKey] = newValue as string;
+    converted[preparedKey] = value as string;
   }
 
   if (tag.includes('-') && converted['className']) {

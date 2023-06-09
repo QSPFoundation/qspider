@@ -1,4 +1,4 @@
-import { Attributes, getResource, viewPath$ } from '@qspider/game-state';
+import { Attributes, viewPath$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -14,7 +14,7 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
   if (!path) return null;
   const preparedStyle = {
     ...style,
-    '--view-image': `url("${getResource(path).url}")`,
+    '--view-image': `url("${path}")`,
   };
   if (modal) {
     return (
@@ -41,5 +41,5 @@ export const QspViewImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-view-image');
   const path = useAtom(viewPath$);
   if (!path) return null;
-  return <img src={getResource(path).url} alt="" style={style} {...attributes} />;
+  return <img src={path} alt="" style={style} {...attributes} />;
 };

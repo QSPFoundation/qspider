@@ -2,7 +2,6 @@ import {
   Attributes,
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
-  getResource,
   IMAGE_PLACEHOLDER,
   selectObject,
   TEXT_PLACEHOLDER,
@@ -20,7 +19,7 @@ export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNod
 
   const preparedStyle = {
     ...style,
-    '--object-image': object.image ? `url("${getResource(object.image).url}")` : '',
+    '--object-image': object.image ? `url("${object.image}")` : '',
   };
 
   const format = useFormatVariable(useFormat, DEFAULT_LIST_FORMAT)
