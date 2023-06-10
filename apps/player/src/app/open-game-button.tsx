@@ -1,5 +1,5 @@
 import { games$, goToGame } from '@qspider/game-shelf';
-import { importArchive } from '@qspider/game-state';
+import { importFile } from '@qspider/game-state';
 import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,7 @@ export const OpenGameButton: React.FC = () => {
     const reader = new FileReader();
     reader.onload = async function (evt): Promise<void> {
       const content = evt.target?.result as ArrayBuffer;
-      const imported = await importArchive(file.name, content);
+      const imported = await importFile(file.name, content);
       for (const entry of imported) {
         if (!games$.value[entry.id]) {
           games$.actions.add(entry.id, entry);
