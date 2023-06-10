@@ -3,7 +3,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import viteTsConfigPaths from 'vite-tsconfig-paths';
 import pluginRewriteAll from 'vite-plugin-rewrite-all';
-import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   cacheDir: '../../node_modules/.vite/player',
@@ -24,13 +23,6 @@ export default defineConfig({
       root: '../../',
     }),
     pluginRewriteAll(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      devOptions: {
-        enabled: true,
-      },
-    }),
   ],
 
   worker: {

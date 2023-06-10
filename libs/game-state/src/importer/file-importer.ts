@@ -14,7 +14,7 @@ export async function importFile(fileName: string, content: ArrayBuffer): Promis
       title: fileName,
       mode: 'classic',
       loadConfig: {
-        url: `/qspider-files/${game_id}`,
+        url: `/qspider-files/${game_id}/`,
         entrypoint: fileName,
       },
     },

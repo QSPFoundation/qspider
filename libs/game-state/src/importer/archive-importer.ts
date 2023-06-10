@@ -43,7 +43,7 @@ export async function importArchive(
         version: game.version,
         description: game.description,
         loadConfig: {
-          url: `/qspider-files/${game.id}`,
+          url: `/qspider-files/${game.id}/`,
           entrypoint: file,
         },
       };
@@ -60,7 +60,7 @@ export async function importArchive(
         title: archiveName.slice(archiveName.lastIndexOf('/') + 1),
         mode: archiveName.endsWith('aqsp') ? 'aero' : 'classic',
         loadConfig: {
-          url: `/qspider-files/${game_id}`,
+          url: `/qspider-files/${game_id}/`,
           entrypoint: filename,
         },
       },

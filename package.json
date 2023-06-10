@@ -66,6 +66,9 @@
     "react-transition-group": "^4.4.5",
     "uuid": "^9.0.0",
     "workbox-core": "^6.6.1",
+    "workbox-routing": "^7.0.0",
+    "workbox-strategies": "^7.0.0",
+    "workbox-window": "^7.0.0",
     "xoid": "^1.0.0-beta.8"
   },
   "devDependencies": {

@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
+import { Workbox } from 'workbox-window';
 
 import { App } from './app/app';
 
@@ -11,7 +12,9 @@ root.render(
 );
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw', {
+  const wb = new Workbox(import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw', {
     type: import.meta.env.MODE === 'production' ? 'classic' : 'module',
   });
+
+  wb.register();
 }
