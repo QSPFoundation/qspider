@@ -1,12 +1,9 @@
 {
-  "npmScope": "qspider",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx-cloud",
+      "runner": "nx/tasks-runners/default",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
-        "parallel": 1,
-        "accessToken": "ODk5MDFiZmUtMjEwZi00OTA0LTlkYjYtOGRkMDM5Zjc5NDIzfHJlYWQtd3JpdGU="
+        "cacheableOperations": ["build", "lint", "test", "e2e"]
       }
     }
   },
