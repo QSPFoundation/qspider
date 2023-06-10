@@ -21,13 +21,17 @@ export async function importArchive(
       try {
         const gameFolder = getGameFolder(folder, game.file);
         await storeFolderContent(game.id, gameFolder);
-        // TODO add merging nested config
-        const descriptorContent = stringify(game as unknown as JsonMap);
-        await storage$.value?.addGameResource(
-          game.id,
-          GAME_DESCRIPTOR_NAME,
-          new TextEncoder().encode(descriptorContent)
+        const hasDescriptor = gameFolder.content.find(
+          (entry) => entry.type === 'file' && entry.filename === GAME_DESCRIPTOR_NAME
         );
+        if (!hasDescriptor) {
+          const descriptorContent = stringify([game] as unknown as JsonMap);
+          await storage$.value?.addGameResource(
+            game.id,
+            GAME_DESCRIPTOR_NAME,
+            new TextEncoder().encode(descriptorContent)
+          );
+        }
       } catch (err) {
         console.error(err);
       }
@@ -54,6 +58,10 @@ export async function importArchive(
     const [gameFolder, filename] = rootGameFile;
     const game_id = cyrb53(archiveName);
     await storeFolderContent(game_id, gameFolder);
+    if (rootDescriptor) {
+      const descriptorContent = stringify([rootDescriptor] as unknown as JsonMap);
+      await storage$.value?.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
+    }
     return [
       {
         id: game_id,
