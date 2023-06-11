@@ -52,7 +52,9 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 
   if (descriptor?.mode === 'classic' || !descriptor?.mode) {
     try {
-      const cfgContent = await fetchProxyFallback('qspgui.cfg').then((r) => r.text());
+      const request = await fetchProxyFallback('qspgui.cfg');
+      if (!request.ok) throw new Error('No config file');
+      const cfgContent = await request.text();
       const cfgData = parseCfg(cfgContent);
       qspGuiCfg$.set(cfgData);
     } catch {
@@ -62,7 +64,9 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 
   if (descriptor && descriptor.mode === 'aero' && !descriptor.aero) {
     try {
-      const content = await fetchProxyFallback('config.xml').then((r) => r.text());
+      const request = await fetchProxyFallback('config.xml');
+      if (!request.ok) throw new Error('No config file');
+      const content = await request.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'application/xml');
       const gameElement = doc.querySelector('game');
@@ -160,6 +164,7 @@ export function stopCurrentGame(): void {
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
   onGameEnd$.value?.();
+  baseUrl$.set('');
 }
 export type GameAction = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
