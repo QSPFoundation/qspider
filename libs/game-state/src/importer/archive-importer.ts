@@ -145,6 +145,7 @@ async function storeFolderContent(game_id: string, folder: FileDir, prefix = '')
     if (entry.type === 'dir') {
       await storeFolderContent(game_id, entry, `${prefix}${entry.name}/`);
     } else {
+      if (entry.name === '.DS_Store') continue;
       await storage$.value?.addGameResource(game_id, `${prefix}${entry.name}`, entry.data);
     }
   }

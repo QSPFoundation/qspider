@@ -12,28 +12,31 @@ function buildGameUrl(uuid: string): string {
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
   const { path, tauri } = await import('@tauri-apps/api');
   if (!(await path.isAbsolute(filePath))) filePath = await path.resolve(filePath);
-
   const uuid = uuidv4();
-  await tauri.invoke('prepare_game_start', { path: filePath, id: uuid });
-
   const name = await path.basename(filePath);
+  const fileDir = await path.dirname(filePath);
+  await tauri.invoke('prepare_game_start', { path: fileDir, id: uuid });
 
   const urlPrefix = buildGameUrl(uuid);
 
   const content = await fetch(`${urlPrefix}${name}`).then((r) => r.arrayBuffer());
+  console.log('content', content);
   if (isSupportedArchive(content)) {
     const appDataDirPath = await path.appDataDir();
     const entries = await importArchive(name, content);
-    const uuid = uuidv4();
     return Promise.all(
       entries.map(async (entry) => {
+        console.log(entry);
+        const uuid = uuidv4();
+        const localPath = await path.resolve(appDataDirPath, `${entry.id}/game/`);
+        await tauri.invoke('prepare_game_start', { path: localPath, id: uuid });
         return {
           ...entry,
           loadConfig: {
             url: buildGameUrl(uuid),
             entrypoint: entry.loadConfig.entrypoint,
             local_id: uuid,
-            local_path: await path.resolve(appDataDirPath, `${entry.id}/game/`),
+            local_path: localPath,
           },
         };
       })
@@ -59,7 +62,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
         loadConfig: {
           url: urlPrefix,
           entrypoint: found.file,
-          local_path: filePath,
+          local_path: fileDir,
           local_id: uuid,
         },
       },
@@ -73,7 +76,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
         loadConfig: {
           url: urlPrefix,
           entrypoint: name,
-          local_path: filePath,
+          local_path: fileDir,
           local_id: uuid,
         },
       },

@@ -31,10 +31,11 @@ fn prepare_game_start(
       if !file_path.exists() {
         return Err("path does not exists".to_string());
       }
-      state.0.lock().unwrap().insert(
-        uuid,
-        file_path.parent().unwrap().to_string_lossy().to_string(),
-      );
+      state
+        .0
+        .lock()
+        .unwrap()
+        .insert(uuid, file_path.to_string_lossy().to_string());
       return Ok(true);
     }
     _ => return Err("".to_string()),
@@ -59,27 +60,35 @@ fn main() {
       let uuid_str = &path[0..slash_index];
       let uuid = Uuid::parse_str(uuid_str)?;
       let game_path = state.0.lock().unwrap().get(&uuid).cloned();
-      let mut file_path = PathBuf::from(game_path.unwrap().clone());
-      file_path.push(&path[slash_index + 1..]);
-      let file_result = std::fs::File::open(&file_path);
-      match file_result {
-        Ok(mut file) => {
-          let mut buf = Vec::new();
-          file.read_to_end(&mut buf)?;
-          let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
-          let guess = mime_guess::from_path(path.to_string());
+      match game_path {
+        Some(game_path) => {
+          let mut file_path = PathBuf::from(game_path.clone());
+          file_path.push(&path[slash_index + 1..]);
+          let file_result = std::fs::File::open(&file_path);
+          match file_result {
+            Ok(mut file) => {
+              let mut buf = Vec::new();
+              file.read_to_end(&mut buf)?;
+              let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
+              let guess = mime_guess::from_path(path.to_string());
 
-          return response
-            .header("ETag", etag4.to_string())
-            .mimetype(
-              guess
-                .first_or("application/octet-stream".parse::<Mime>()?)
-                .essence_str(),
-            )
-            .status(200)
-            .body(buf);
+              return response
+                .header("ETag", etag4.to_string())
+                .mimetype(
+                  guess
+                    .first_or("application/octet-stream".parse::<Mime>()?)
+                    .essence_str(),
+                )
+                .status(200)
+                .body(buf);
+            }
+            Err(_) => {
+              return response.mimetype("text/plain").status(404).body(Vec::new());
+            }
+          }
         }
-        Err(_) => {
+        None => {
+          print!("Game {} not found", uuid);
           return response.mimetype("text/plain").status(404).body(Vec::new());
         }
       }
