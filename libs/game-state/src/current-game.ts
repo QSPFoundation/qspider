@@ -145,6 +145,7 @@ baseUrl$.subscribe((url) => {
 });
 
 export function stopCurrentGame(): void {
+  baseUrl$.set('');
   currentGameEntry$.set(null);
   currentGame$.set(null);
   qspGuiCfg$.set(null);
@@ -169,7 +170,6 @@ export function stopCurrentGame(): void {
   window.dispatchEvent(new Event('game-unload'));
   wasResized = false;
   onGameEnd$.value?.();
-  baseUrl$.set('');
 }
 export type GameAction = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
