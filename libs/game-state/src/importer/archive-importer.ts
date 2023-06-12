@@ -25,7 +25,7 @@ export async function importArchive(
           (entry) => entry.type === 'file' && entry.filename === GAME_DESCRIPTOR_NAME
         );
         if (!hasDescriptor) {
-          const descriptorContent = stringify([game] as unknown as JsonMap);
+          const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
           await storage$.value?.addGameResource(
             game.id,
             GAME_DESCRIPTOR_NAME,
@@ -56,17 +56,21 @@ export async function importArchive(
   const rootGameFile = findRootGameFileFolder(root);
   if (rootGameFile) {
     const [gameFolder, filename] = rootGameFile;
-    const game_id = cyrb53(archiveName);
+    const game_id = rootDescriptor?.id || cyrb53(archiveName);
     await storeFolderContent(game_id, gameFolder);
     if (rootDescriptor) {
-      const descriptorContent = stringify([rootDescriptor] as unknown as JsonMap);
+      const descriptorContent = stringify({ game: [rootDescriptor] } as unknown as JsonMap);
       await storage$.value?.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
     }
     return [
       {
         id: game_id,
-        title: archiveName.slice(archiveName.lastIndexOf('/') + 1),
-        mode: archiveName.endsWith('aqsp') ? 'aero' : 'classic',
+        title: rootDescriptor?.title || archiveName.slice(archiveName.lastIndexOf('/') + 1),
+        mode: rootDescriptor?.mode || (archiveName.endsWith('aqsp') ? 'aero' : 'classic'),
+        author: rootDescriptor?.author,
+        ported_by: rootDescriptor?.ported_by,
+        version: rootDescriptor?.version,
+        description: rootDescriptor?.description,
         loadConfig: {
           url: `/qspider-files/${game_id}/`,
           entrypoint: filename,

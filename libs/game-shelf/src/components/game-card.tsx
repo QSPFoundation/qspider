@@ -24,7 +24,10 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = ({ game }) => {
           >
             <Cross1Icon />
           </button>
-          <h3 className="game-shelf__card-title">{game.title}</h3>
+          <h3 className="game-shelf__card-title">
+            {game.icon && <img alt="" src={game.icon} loading="lazy" />}
+            {game.title}
+          </h3>
         </div>
         <div className="game-shelf__card-details">
           {game.author && (

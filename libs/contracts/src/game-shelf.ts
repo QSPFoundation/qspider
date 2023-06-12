@@ -3,6 +3,7 @@ import { GameDescriptor } from './game';
 export type GameShelfEntry = {
   id: string;
   mode: 'classic' | 'aero' | 'qspider';
+  icon?: string;
   title: string;
   author?: string;
   ported_by?: string;
@@ -11,6 +12,7 @@ export type GameShelfEntry = {
   meta?: {
     source: string;
     source_id: string;
+    source_date: number;
   };
   loadConfig: {
     url: string;

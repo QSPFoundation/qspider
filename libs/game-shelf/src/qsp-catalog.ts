@@ -70,15 +70,18 @@ export async function loadQspCatalog(): Promise<void> {
 
 export async function moveToShelf(game: CatalogGame): Promise<void> {
   try {
-    const imported = await importUrl(`${CATALOG_URL}game-source?id=${game.id}`);
+    const imported = await importUrl(`${CATALOG_URL}game-source?id=${game.id}`, `qsp-game-${game.id}.${game.file_ext}`);
     for (const entry of imported) {
-      entry.title = entry.title || game.title;
-      entry.author = entry.author || game.author;
-      entry.ported_by = entry.ported_by || game.ported_by;
-      entry.version = entry.version || game.version;
+      entry.title = game.title;
+      entry.description = game.description;
+      entry.icon = `https://qsp.su/gamestock/image.php?name=${game.icon}`;
+      entry.author = game.author;
+      entry.ported_by = game.ported_by;
+      entry.version = game.version;
       entry.meta = {
         source: 'org.qsp.games',
         source_id: String(game.id),
+        source_date: game.mod_date,
       };
       games$.actions.add(entry.id, entry);
       showNotice(`${game.title} added to shelf`);

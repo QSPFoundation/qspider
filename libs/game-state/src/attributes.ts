@@ -72,11 +72,30 @@ export function extractAttributes(node: HTMLElement): Attributes {
   Array.from(node.attributes).forEach((attr) => {
     const { name, value } = attr;
     if (name === 'is') return;
-    if (BOOLEAN_ATTRIBUTES.has(name)) {
+    if (name === 'style') {
+      attributes['style'] = processStyles(value);
+    } else if (BOOLEAN_ATTRIBUTES.has(name)) {
       attributes[name as keyof BooleanAttributes] = true;
     } else {
       attributes[name] = name in valueProcessors ? valueProcessors[name](value) : value;
     }
   });
   return attributes;
+}
+
+function processStyles(value: string): Record<string, string | number> {
+  const rules = value.split(';');
+  const style: Record<string, string | number> = {};
+  for (const rule of rules) {
+    const [prop, value] = rule.trim().split(':');
+    const name = prop.replace(/^-ms-/, 'ms-').replace(/-./g, (c) => c.substring(1).toUpperCase());
+    let preparedValue: string | number = value;
+    if (name === 'backgroundImage' && !value.includes('url(')) {
+      preparedValue = `url("${value}")`;
+    } else if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
+      preparedValue = parseFloat(value);
+    }
+    style[name] = preparedValue;
+  }
+  return style;
 }

@@ -21,6 +21,7 @@ import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import { layers$, regions$ } from './panels';
+import { convertQsps } from './utils';
 
 export const currentGameEntry$ = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
@@ -83,8 +84,12 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
   }
 
-  const gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
+  let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
   if (!gameSource) throw new Error('Failed to load game');
+  const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
+  if (isQsps) {
+    gameSource = convertQsps(gameSource);
+  }
   windowManager$.value?.setTitle(entry.title);
   setupGlobalHotKeys();
   if (descriptor?.hotkeys) {

@@ -4,7 +4,11 @@ import { parse } from 'iarna-toml-esm';
 import { isSupportedArchive } from '../utils';
 import { importArchive } from './archive-importer';
 
-export async function importUrl(url: string, rootDescriptor?: GameDescriptor): Promise<GameShelfEntry[]> {
+export async function importUrl(
+  url: string,
+  name?: string,
+  rootDescriptor?: GameDescriptor
+): Promise<GameShelfEntry[]> {
   const urlObject = new URL(url);
   urlObject.hash = '';
   urlObject.search = '';
@@ -13,7 +17,7 @@ export async function importUrl(url: string, rootDescriptor?: GameDescriptor): P
     if (!r.ok) throw new Error(`Failed to load url ${url}`);
     return r.arrayBuffer();
   });
-  if (isSupportedArchive(content)) return importArchive(cleanUrl, content, rootDescriptor);
+  if (isSupportedArchive(content)) return importArchive(name || cleanUrl, content, rootDescriptor);
   const base = cleanUrl.slice(0, cleanUrl.lastIndexOf('/') + 1);
   const fileName = cleanUrl.replace(base, '');
   if (fileName.endsWith('.cfg')) {
@@ -22,7 +26,7 @@ export async function importUrl(url: string, rootDescriptor?: GameDescriptor): P
     const games = [];
     for (const descriptor of config.game) {
       const fullUrl = `${base}${descriptor.file}`;
-      games.push(...(await importUrl(fullUrl, descriptor)));
+      games.push(...(await importUrl(fullUrl, descriptor.file, descriptor)));
     }
     return games;
   } else {
