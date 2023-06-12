@@ -2,7 +2,7 @@ import { stringify, parse, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import { extractFileTree, isSupportedArchive, readSupportedArchive } from '../utils';
-import type { FileDir } from '../utils';
+import type { FileDir, File } from '../utils';
 import { storage$ } from '../storage';
 
 export async function importArchive(
@@ -21,16 +21,19 @@ export async function importArchive(
       try {
         const gameFolder = getGameFolder(folder, game.file);
         await storeFolderContent(game.id, gameFolder);
-        const hasDescriptor = gameFolder.content.find(
-          (entry) => entry.type === 'file' && entry.filename === GAME_DESCRIPTOR_NAME
+        const descriptorFile = gameFolder.content.find<File>(
+          (entry): entry is File => entry.type === 'file' && entry.name === GAME_DESCRIPTOR_NAME
         );
-        if (!hasDescriptor) {
+        if (!descriptorFile) {
           const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
           await storage$.value?.addGameResource(
             game.id,
             GAME_DESCRIPTOR_NAME,
             new TextEncoder().encode(descriptorContent)
           );
+        } else {
+          const [descriptor] = await readGameDescriptor(descriptorFile.data);
+          Object.assign(game, descriptor);
         }
       } catch (err) {
         console.error(err);
