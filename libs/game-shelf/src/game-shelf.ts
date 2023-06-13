@@ -48,6 +48,18 @@ export const games$ = create<Record<string, GameShelfEntry>, GamesActions>({}, (
 });
 
 export const gamesList$ = create((get) => Object.values(get(games$)).sort((a, b) => a.title.localeCompare(b.title)));
+export const gameSourceMap$ = create((get) => {
+  const map = new Map<string, Set<string>>();
+  for (const game of Object.values(get(games$))) {
+    if (game.meta?.source) {
+      console.log(game.meta.source);
+      const set = map.get(game.meta.source) ?? new Set();
+      set.add(game.meta.source_id);
+      map.set(game.meta.source, set);
+    }
+  }
+  return map;
+});
 
 history.listen(({ location }) => {
   processLocationChange(location.search);

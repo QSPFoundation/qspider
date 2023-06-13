@@ -52,7 +52,7 @@ export const qspAuthors$ = create((get) => {
 type CatalogLoadingState = 'pending' | 'loading' | 'loaded' | 'failed';
 
 export const catalogLoading$ = create<CatalogLoadingState>('pending');
-export const idPrefix = 'org.qsp.game-';
+export const sourceName = 'org.qsp.games';
 const CATALOG_URL = 'https://catalog-proxy.qspider.workers.dev/';
 export async function loadQspCatalog(): Promise<void> {
   if (catalogLoading$.value === 'loading') return;

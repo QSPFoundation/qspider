@@ -5,8 +5,8 @@ import { useAtom, useSetup } from '@xoid/react';
 import { useCallback, useState } from 'react';
 import { create } from 'xoid';
 import { useTranslation } from 'react-i18next';
-import { games$ } from '../game-shelf';
-import { CatalogGame, idPrefix, moveToShelf } from '../qsp-catalog';
+import { gameSourceMap$ } from '../game-shelf';
+import { CatalogGame, moveToShelf, sourceName } from '../qsp-catalog';
 import { ContentRenderer } from '@qspider/renderer';
 import { formatBytes } from '../formatters';
 import { formatDate } from '@qspider/i18n';
@@ -16,9 +16,9 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const isOnShelf$ = useSetup((props$) => {
     const gameId$ = props$.focus((p) => p.game.id);
     return create((get) => {
-      const games = get(games$);
-      const gameId = idPrefix + get(gameId$);
-      return gameId in games;
+      const existingCatalogGames = get(gameSourceMap$).get(sourceName);
+      const gameId = String(get(gameId$));
+      return existingCatalogGames?.has(gameId);
     });
   }, props);
   const isOnShelf = useAtom(isOnShelf$);
