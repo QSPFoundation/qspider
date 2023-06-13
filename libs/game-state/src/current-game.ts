@@ -13,7 +13,7 @@ import {
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
 import { isPauseScreenVisible$, pauseScreenCurrentPanel$ } from './pause-screen';
-import { loadSaveList } from './save';
+import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
 import { parse } from 'iarna-toml-esm';
@@ -200,6 +200,12 @@ export function onGameAction(action: GameAction): void {
       break;
     case 'toggle-mute':
       muted$.update((muted) => !muted);
+      break;
+    case 'quicksave':
+      quickSave();
+      break;
+    case 'quickload':
+      quickLoad();
       break;
   }
 }

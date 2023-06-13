@@ -1,9 +1,10 @@
 import Mousetrap from 'mousetrap';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
-import { onGameAction } from './current-game';
+import { GameAction, onGameAction } from './current-game';
 import { actions$, execSelectedAction, selectAction } from './panels';
 import { qspApi$ } from './qsp-api';
+import { requestedAction$ } from './save';
 
 export function setupGlobalHotKeys(): void {
   Mousetrap.bind(['1', '2', '3', '4', '5', '6', '7', '8', '9'], (_, code) => {
@@ -23,12 +24,14 @@ export function setupGlobalHotKeys(): void {
   });
   Mousetrap.bind(['mod+s'], () => {
     if (isPaused$.value) return;
-    onGameAction('save');
+    requestedAction$.set('save');
+    onGameAction('pause:saves' as GameAction);
     return false;
   });
   Mousetrap.bind(['mod+o'], () => {
     if (isPaused$.value) return;
-    onGameAction('load');
+    requestedAction$.set('load');
+    onGameAction('pause:saves' as GameAction);
     return false;
   });
   Mousetrap.bind(['mod+r'], () => {
