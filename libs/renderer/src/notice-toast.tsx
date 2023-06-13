@@ -1,5 +1,7 @@
 import React from 'react';
-import * as AlertDialog from '@radix-ui/react-alert-dialog';
+// import * as AlertDialog from '@radix-ui/react-alert-dialog';
+import * as Toast from '@radix-ui/react-toast';
+
 import { useAtom } from '@xoid/react';
 import { isNoticeShown$, noticeMessage$ } from '@qspider/game-state';
 import { useTranslation } from 'react-i18next';
@@ -10,15 +12,11 @@ export const NoticeToast: React.FC = () => {
   const { t } = useTranslation();
   if (!isOpen) return null;
   return (
-    <AlertDialog.Root open={isOpen} onOpenChange={isNoticeShown$.set}>
-      <AlertDialog.Portal>
-        <AlertDialog.Overlay />
-        <AlertDialog.Content>
-          <AlertDialog.Title>{t('Notice')}</AlertDialog.Title>
-          <AlertDialog.Description>{t(message)}</AlertDialog.Description>
-          <AlertDialog.Cancel />
-        </AlertDialog.Content>
-      </AlertDialog.Portal>
-    </AlertDialog.Root>
+    <Toast.Provider>
+      <Toast.Root className="qsp-toast-root" open={isOpen}>
+        <Toast.Description className="qsp-toast-description">{t(message)}</Toast.Description>
+      </Toast.Root>
+      <Toast.Viewport className="qsp-toast-viewport" />
+    </Toast.Provider>
   );
 };

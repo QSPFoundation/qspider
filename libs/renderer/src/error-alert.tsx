@@ -11,7 +11,7 @@ export const ErrorAlert: React.FC = () => {
   if (!isOpen) return null;
   return (
     <AlertDialog.Root open={isOpen} onOpenChange={isErrorShown$.set}>
-      <AlertDialog.Portal>
+      <AlertDialog.Portal container={document.getElementById('portal-container')}>
         <AlertDialog.Overlay />
         <AlertDialog.Content>
           <AlertDialog.Title>{t('Error')}</AlertDialog.Title>
