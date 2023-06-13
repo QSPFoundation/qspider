@@ -5,6 +5,7 @@ import {
   initDefered$,
   initQspApi,
   initTheme,
+  initialBaseUrl$,
   onGameEnd$,
   platform$,
   showError,
@@ -16,6 +17,8 @@ import { cli, os } from '@tauri-apps/api';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
+  // eslint-disable-next-line no-restricted-globals
+  initialBaseUrl$.set(location.origin + '/');
   fillPlatform();
   initTheme();
   onGameEnd$.set(() => navigateTo(''));

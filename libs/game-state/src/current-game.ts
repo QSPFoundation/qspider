@@ -22,6 +22,7 @@ import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import { layers$, regions$ } from './panels';
 import { convertQsps } from './utils';
+import { initialBaseUrl$ } from './init';
 
 export const currentGameEntry$ = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
@@ -145,7 +146,7 @@ baseUrl$.subscribe((url) => {
 });
 
 export function stopCurrentGame(): void {
-  baseUrl$.set('');
+  baseUrl$.set(initialBaseUrl$.value);
   currentGameEntry$.set(null);
   currentGame$.set(null);
   qspGuiCfg$.set(null);

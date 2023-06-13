@@ -1,4 +1,4 @@
-import { CssVarDefinition, currentCssVariables$, useQspVariable } from '@qspider/game-state';
+import { CssVarDefinition, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { useImageSize } from '../hooks/image-size';
@@ -19,6 +19,9 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
   url,
   withSize,
 }) => {
+  if (url.startsWith('qspider:')) {
+    url = url.replace('qspider:', initialBaseUrl$.value);
+  }
   const size = useImageSize(url);
   const sizeDefinitions = withSize ? `${name}-w: ${size.width}px; ${name}-h: ${size.height}px` : '';
   const content = `qsp-game-root, #portal-container {${name}: ${url ? `url("${url}")` : 'none'};${sizeDefinitions}}`;

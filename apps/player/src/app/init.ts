@@ -5,6 +5,7 @@ import {
   initDefered$,
   initQspApi,
   initTheme,
+  initialBaseUrl$,
   onGameEnd$,
   storage$,
   windowManager$,
@@ -13,6 +14,8 @@ import { WebStorage } from '@qspider/web-storage';
 import { windowManager } from './window-manager';
 
 export async function init(): Promise<void> {
+  const baseTag = document.querySelector<HTMLBaseElement>('#page-base') as HTMLBaseElement;
+  initialBaseUrl$.set(baseTag.href || '/');
   onGameEnd$.set(() => navigateTo(''));
   initTheme();
   storage$.set(new WebStorage());
