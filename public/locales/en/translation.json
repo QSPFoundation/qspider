@@ -73,6 +73,7 @@
   "Config not found": "Config not found",
   "Game not found": "Game not found",
   "Game file not found": "Game file not found",
+  "Game files not found inside archive": "Game files not found inside archive",
   "Failed to load game": "Failed to load game",
   "Failed to load catalog": "Failed to load catalog",
   "Upsupported archive format": "Upsupported archive format",

@@ -73,6 +73,7 @@
   "Config not found": "Конфігурацію не знайдено",
   "Game not found": "Гру не знайдено",
   "Game file not found": "Файл гри не знайдено",
+  "Game files not found inside archive": "Файл гри не знайдено в архіві",
   "Failed to load game": "Не вдалося завантажити гру",
   "Failed to load catalog": "Не вдалось завантажити каталог",
   "Upsupported archive format": "Формат архіву не підтримується",

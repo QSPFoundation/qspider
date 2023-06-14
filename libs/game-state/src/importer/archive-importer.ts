@@ -82,7 +82,7 @@ export async function importArchive(
     ];
   }
 
-  throw new Error('game files not foound inside archive');
+  throw new Error('Game files not found inside archive');
 }
 
 function findRootDescriptorFolder(root: FileDir): [FileDir, Uint8Array] | null {

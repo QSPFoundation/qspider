@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { Workbox } from 'workbox-window';
 
 import { App } from './app/app';
+import { showError } from '@qspider/game-state';
+
+showError('test');
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(

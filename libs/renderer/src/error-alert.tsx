@@ -1,8 +1,9 @@
 import React from 'react';
-import * as AlertDialog from '@radix-ui/react-alert-dialog';
+import * as Toast from '@radix-ui/react-toast';
 import { useAtom } from '@xoid/react';
 import { errorMessage$, isErrorShown$ } from '@qspider/game-state';
 import { useTranslation } from 'react-i18next';
+import { Cross1Icon } from '@radix-ui/react-icons';
 
 export const ErrorAlert: React.FC = () => {
   const { t } = useTranslation();
@@ -10,15 +11,14 @@ export const ErrorAlert: React.FC = () => {
   const message = useAtom(errorMessage$);
   if (!isOpen) return null;
   return (
-    <AlertDialog.Root open={isOpen} onOpenChange={isErrorShown$.set}>
-      <AlertDialog.Portal container={document.getElementById('portal-container')}>
-        <AlertDialog.Overlay />
-        <AlertDialog.Content>
-          <AlertDialog.Title>{t('Error')}</AlertDialog.Title>
-          <AlertDialog.Description>{t(message)}</AlertDialog.Description>
-          <AlertDialog.Cancel />
-        </AlertDialog.Content>
-      </AlertDialog.Portal>
-    </AlertDialog.Root>
+    <Toast.Provider>
+      <Toast.Root className="qsp-toast-root error" open={isOpen} onOpenChange={(): void => isErrorShown$.set(false)}>
+        <Toast.Description className="qsp-toast-description">{t(message)}</Toast.Description>
+        <Toast.Close className="q-ghost-button">
+          <Cross1Icon />
+        </Toast.Close>
+      </Toast.Root>
+      <Toast.Viewport className="qsp-toast-viewport" />
+    </Toast.Provider>
   );
 };
