@@ -29,6 +29,7 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
     '--aero-input-x': `${useMouseCordinates ? coordinates.x : inputX}px`,
     '--aero-input-y': `${useMouseCordinates ? coordinates.y : inputY}px`,
   } as CSSProperties;
+  const contentClass = `qsp-dialog-container${useMouseCordinates ? ' at-mouse' : ''}`;
   return (
     <buttonContext.Provider
       value={{
@@ -43,7 +44,7 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
         <Dialog.Portal container={document.getElementById('portal-container')}>
           {!isShadeDisabled && <Dialog.Overlay className="qsp-overlay" />}
           <AeroEffect effectVar="$INPUT_EFFECT" durationVar="INPUT_EFFECT_TIME">
-            <Dialog.Content className="qsp-dialog-container" style={positionStyle}>
+            <Dialog.Content className={contentClass} style={positionStyle}>
               <form
                 onSubmit={(e): void => {
                   e.preventDefault();

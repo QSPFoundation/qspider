@@ -21,13 +21,14 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
     '--aero-msg-x': `${useMouseCordinates ? coordinates.x : msgX}px`,
     '--aero-msg-y': `${useMouseCordinates ? coordinates.y : msgY}px`,
   } as CSSProperties;
+  const contentClass = `qsp-dialog-container${useMouseCordinates ? ' at-mouse' : ''}`;
   return (
     <buttonContext.Provider value={{ okAction: closeMsg, cancelAction: closeMsg }}>
       <Dialog.Root open={true} onOpenChange={(): void => closeMsg()}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           {!isShadeDisabled && <Dialog.Overlay className="qsp-overlay" />}
           <AeroEffect effectVar="$MSG_EFFECT" durationVar="MSG_EFFECT_TIME">
-            <Dialog.Content className="qsp-dialog-container" style={positionStyle}>
+            <Dialog.Content className={contentClass} style={positionStyle}>
               <Tag style={style} {...attributes}>
                 {children}
               </Tag>
