@@ -20,27 +20,8 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
   const urlPrefix = buildGameUrl(uuid);
 
   const content = await fetch(`${urlPrefix}${name}`).then((r) => r.arrayBuffer());
-  console.log('content', content);
   if (isSupportedArchive(content)) {
-    const appDataDirPath = await path.appDataDir();
-    const entries = await importArchive(name, content);
-    return Promise.all(
-      entries.map(async (entry) => {
-        console.log(entry);
-        const uuid = uuidv4();
-        const localPath = await path.resolve(appDataDirPath, `${entry.id}/game/`);
-        await tauri.invoke('prepare_game_start', { path: localPath, id: uuid });
-        return {
-          ...entry,
-          loadConfig: {
-            url: buildGameUrl(uuid),
-            entrypoint: entry.loadConfig.entrypoint,
-            local_id: uuid,
-            local_path: localPath,
-          },
-        };
-      })
-    );
+    return await importArchive(name, content);
   }
 
   const gameConfigUrl = `${urlPrefix}game.cfg`;

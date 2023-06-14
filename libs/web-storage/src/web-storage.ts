@@ -5,6 +5,13 @@ import { QspiderDatabase } from './db';
 export class WebStorage implements Storage {
   private db = new QspiderDatabase();
 
+  async prepareLoadConfig(game_id: string, entrypoint: string): Promise<GameShelfEntry['loadConfig']> {
+    return {
+      url: `/qspider-files/${game_id}/`,
+      entrypoint,
+    };
+  }
+
   async getGames(): Promise<Record<string, GameShelfEntry>> {
     const games = await this.db.games.toArray();
     return games.reduce<Record<string, GameShelfEntry>>((acc, game) => {

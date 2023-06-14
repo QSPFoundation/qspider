@@ -10,6 +10,8 @@ export async function importArchive(
   source: ArrayBuffer,
   rootDescriptor?: GameDescriptor
 ): Promise<GameShelfEntry[]> {
+  const storage = storage$.value;
+  if (!storage) throw new Error('missing storage');
   if (!isSupportedArchive(source.slice(0, 4))) throw new Error('unsupporter archive format');
   const resources = await readSupportedArchive(source);
   const root = extractFileTree(resources);
@@ -39,22 +41,21 @@ export async function importArchive(
         console.error(err);
       }
     }
-    return games.map((game) => {
-      const file = game.file.slice(game.file.lastIndexOf('/') + 1);
-      return {
-        id: game.id,
-        mode: game.mode,
-        title: game.title,
-        author: game.author,
-        ported_by: game.ported_by,
-        version: game.version,
-        description: game.description,
-        loadConfig: {
-          url: `/qspider-files/${game.id}/`,
-          entrypoint: file,
-        },
-      };
-    });
+    return Promise.all(
+      games.map(async (game) => {
+        const file = game.file.slice(game.file.lastIndexOf('/') + 1);
+        return {
+          id: game.id,
+          mode: game.mode,
+          title: game.title,
+          author: game.author,
+          ported_by: game.ported_by,
+          version: game.version,
+          description: game.description,
+          loadConfig: await storage.prepareLoadConfig(game.id, file),
+        };
+      })
+    );
   }
   const rootGameFile = findRootGameFileFolder(root);
   if (rootGameFile) {
@@ -74,10 +75,7 @@ export async function importArchive(
         ported_by: rootDescriptor?.ported_by,
         version: rootDescriptor?.version,
         description: rootDescriptor?.description,
-        loadConfig: {
-          url: `/qspider-files/${game_id}/`,
-          entrypoint: filename,
-        },
+        loadConfig: await storage.prepareLoadConfig(game_id, filename),
       },
     ];
   }

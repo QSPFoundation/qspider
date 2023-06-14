@@ -12,7 +12,11 @@ import {
   storeBinaryData,
 } from './utils';
 import { v4 as uuidv4 } from 'uuid';
-import { tauri } from '@tauri-apps/api';
+import { path, tauri } from '@tauri-apps/api';
+
+function buildGameUrl(uuid: string): string {
+  return navigator.userAgent.includes('Windows') ? `https://qsp.${uuid}/` : `qsp://${uuid}/`;
+}
 
 export class TauriStorage implements Storage {
   private storageData!: TauriStorageData;
@@ -35,6 +39,19 @@ export class TauriStorage implements Storage {
       }
     }
     this.initialized.resolve();
+  }
+
+  async prepareLoadConfig(game_id: string, entrypoint: string): Promise<GameShelfEntry['loadConfig']> {
+    const appDataDirPath = await path.appDataDir();
+    const uuid = uuidv4();
+    const localPath = await path.resolve(appDataDirPath, `${game_id}/game/`);
+    await tauri.invoke('prepare_game_start', { path: localPath, id: uuid });
+    return {
+      url: buildGameUrl(uuid),
+      entrypoint,
+      local_id: uuid,
+      local_path: localPath,
+    };
   }
 
   async getGames(): Promise<Record<string, GameShelfEntry>> {

@@ -13,6 +13,8 @@ export interface Storage {
   updateGame(id: string, data: Partial<GameShelfEntry>): Promise<void>;
   removeGame(id: string): Promise<void>;
 
+  prepareLoadConfig(game_id: string, entrypoint: string): Promise<GameShelfEntry['loadConfig']>;
+
   addGameResource(game_id: string, path: string, data: ArrayBuffer): Promise<void>;
   getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null>;
 
