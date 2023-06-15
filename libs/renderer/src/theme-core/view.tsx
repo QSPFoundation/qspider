@@ -21,7 +21,7 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
       <Dialog.Root open={true} onOpenChange={(): void => viewPath$.set('')}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           <Dialog.Overlay className="qsp-overlay" />
-          <Dialog.Content>
+          <Dialog.Content className="qsp-dialog-container">
             <Tag {...attributes} style={preparedStyle}>
               {children}
             </Tag>
