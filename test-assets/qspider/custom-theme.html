@@ -27,12 +27,22 @@
     </qsp-main>
     <qsp-objects>
       <qsp-scrollable>
-        <qsp-objects-list tag="nav" role="menu"></qsp-objects-list>
+        <qsp-objects-list tag="nav" role="menu">
+          <qsp-object tag="button" class="action-item">
+            <qsp-object-image class="action-img"></qsp-object-image>
+            <qsp-object-name></qsp-object-name>
+          </qsp-object>
+        </qsp-objects-list>
       </qsp-scrollable>
     </qsp-objects>
     <qsp-actions>
       <qsp-scrollable>
-        <qsp-actions-list tag="nav" role="menu"></qsp-actions-list>
+        <qsp-actions-list tag="nav" role="menu">
+          <qsp-action tag="button" class="action-item">
+            <qsp-action-image class="action-img"></qsp-action-image>
+            <qsp-action-name></qsp-action-name>
+          </qsp-action>
+        </qsp-actions-list>
       </qsp-scrollable>
     </qsp-actions>
     <qsp-stats>
@@ -48,7 +58,12 @@
     </qsp-view>
     <qsp-menu>
       <qsp-scrollable>
-        <qsp-menu-list tag="nav" role="menu"></qsp-menu-list>
+        <qsp-menu-list tag="nav" role="menu">
+          <qsp-menu-item tag="button" class="action-item">
+            <qsp-menu-image class="action-img"></qsp-menu-image>
+            <qsp-menu-name> </qsp-menu-name>
+          </qsp-menu-item>
+        </qsp-menu-list>
       </qsp-scrollable>
     </qsp-menu>
     <qsp-msg>
@@ -116,17 +131,4 @@
       </div>
     </qsp-pause-screen>
   </template>
-  <template is="qsp-action" tag="button" class="action-item">
-    <qsp-action-image class="action-img"></qsp-action-image>
-    <qsp-action-name></qsp-action-name>
-  </template>
-  <template is="qsp-object" tag="button" class="action-item">
-    <qsp-object-image class="action-img"></qsp-object-image>
-    <qsp-object-name></qsp-object-name>
-  </template>
-  <template is="qsp-menu-item" tag="button" class="action-item">
-    <qsp-menu-image class="action-img"></qsp-menu-image>
-    <qsp-menu-name> </qsp-menu-name>
-  </template>
-  <template is="qsp-menu-separator" tag="div" class="menu-separator"> </template>
 </qspider-theme>
