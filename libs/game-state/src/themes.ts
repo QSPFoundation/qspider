@@ -47,9 +47,6 @@ export type ThemeData = {
   css_variables: CssVarDefinition[];
   translations: ThemeTranslation[];
   qsp_player?: TemplateTag;
-  qsp_menu_item?: TemplateTag;
-  qsp_menu_item_selected?: TemplateTag;
-  qsp_menu_separator?: TemplateTag;
 };
 interface ThemeActions {
   add(alias: string, data: ThemeData): void;
@@ -138,10 +135,7 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       is_user_defined,
       css_variables: extractCssVariables(theme),
       translations: extractTranslations(theme),
-      qsp_player: extractTagData(theme, 'template[is="qsp-player"]'),
-      qsp_menu_item: extractTagData(theme, 'template[is="qsp-menu-item"]'),
-      qsp_menu_item_selected: extractTagData(theme, 'template[is="qsp-menu-item-selected"]'),
-      qsp_menu_separator: extractTagData(theme, 'template[is="qsp-menu-separator"]'),
+      qsp_player: extractTagData(theme, 'qsp-player'),
     };
   }
   return themeData;
