@@ -10,28 +10,30 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
     onGameAction(action as GameAction);
   },
   'event:'(event: string): void {
-    const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
-    if (match) {
-      const name = match[1];
-      const args = match[3].split(',').map((arg) => {
-        const prepared = arg.trim();
-        if (prepared.startsWith('"') || prepared.startsWith("'")) {
-          return prepared.replace(/['"](.*?)['"]/gim, (_, path) => path);
-        }
-        return parseInt(prepared);
-      });
-      window.dispatchEvent(
-        new CustomEvent('qspider-event', {
-          detail: { name, args },
-        })
-      );
-    } else {
-      window.dispatchEvent(
-        new CustomEvent('qspider-event', {
-          detail: { name: event.trim() },
-        })
-      );
-    }
+    setTimeout(() => {
+      const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
+      if (match) {
+        const name = match[1];
+        const args = match[3].split(',').map((arg) => {
+          const prepared = arg.trim();
+          if (prepared.startsWith('"') || prepared.startsWith("'")) {
+            return prepared.replace(/['"](.*?)['"]/gim, (_, path) => path);
+          }
+          return parseInt(prepared);
+        });
+        window.dispatchEvent(
+          new CustomEvent('qspider-event', {
+            detail: { name, args },
+          })
+        );
+      } else {
+        window.dispatchEvent(
+          new CustomEvent('qspider-event', {
+            detail: { name: event.trim() },
+          })
+        );
+      }
+    }, 0);
   },
   'change_theme:'(name: string): void {
     const themes = themeRegistry$.value;
