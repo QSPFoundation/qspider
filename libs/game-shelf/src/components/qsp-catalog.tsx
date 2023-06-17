@@ -1,4 +1,4 @@
-import { QspiderLoader, Select, Tooltip } from '@qspider/renderer';
+import { QspiderLoader } from '@qspider/renderer';
 import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
 
 import { useAtom } from '@xoid/react';
@@ -16,6 +16,7 @@ import {
   toggleSortDirection,
 } from '../qsp-catalog';
 import { CatalogGameCard } from './qsp-catalog-game-card';
+import { Select, Tooltip } from './primitives';
 
 const sortOptions = [
   {
@@ -115,7 +116,7 @@ export const QspCatalog: React.FC = () => {
               type="text"
               className="q-input"
               value={search}
-              onInput={(e): void => qspTitleSearch$.set((e.target as any).value)}
+              onInput={(e): void => qspTitleSearch$.set((e.target as HTMLInputElement).value)}
             />
           </div>
         </div>

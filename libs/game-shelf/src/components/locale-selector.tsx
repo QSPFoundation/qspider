@@ -1,5 +1,5 @@
-import { Select, SelectOption } from './primitives/select';
 import { useTranslation } from 'react-i18next';
+import { Select, SelectOption } from './primitives';
 
 const locales: SelectOption[] = [
   {

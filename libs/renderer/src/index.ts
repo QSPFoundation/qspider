@@ -2,10 +2,7 @@ export * from './root';
 export * from './theme-core';
 export * from './loader';
 export * from './content-renderer';
-export * from './primitives';
 export * from './game-runner';
-export * from './locale-selector';
-export * from './qspider-theme-switch';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace

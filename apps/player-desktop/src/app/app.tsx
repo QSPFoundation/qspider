@@ -11,7 +11,7 @@ import { baseInit$, componentsRegistry$, importDesktop, showError } from '@qspid
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { games$, goToGame, PlayerWithShelf } from '@qspider/game-shelf';
+import { ErrorAlert, games$, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
@@ -71,6 +71,8 @@ export const App: React.FC = () => {
     <Suspense fallback={<QspiderLoader />}>
       <QspiderRoot>
         <PlayerWithShelf />
+        <ErrorAlert />
+        <NoticeToast />
       </QspiderRoot>
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>
