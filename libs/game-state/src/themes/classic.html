@@ -171,7 +171,6 @@
         position: relative;
         pointer-events: auto;
         border-radius: var(--border-radius);
-        min-width: 400px;
         padding: var(--spacer--md);
         background-color: var(--background-color, black);
         animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -179,6 +178,9 @@
       }
       .qsp-dialog-container p {
         margin: 0;
+      }
+      .qsp-dialog-container .panel {
+        border: 0;
       }
 
       @keyframes contentShow {
