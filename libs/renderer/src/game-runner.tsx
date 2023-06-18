@@ -1,4 +1,13 @@
-import { currentGameEntry$, input$, isPauseScreenVisible$, menu$, msg$, wait$ } from '@qspider/game-state';
+import {
+  currentGameEntry$,
+  input$,
+  isPauseScreenVisible$,
+  isViewModal$,
+  isViewVisible$,
+  menu$,
+  msg$,
+  wait$,
+} from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
@@ -11,7 +20,15 @@ import { WaitLock } from './wait-lock';
 
 const handler = throttle((e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
-    if (wait$.value || msg$.value || input$.value || menu$.value || isPauseScreenVisible$.value) return;
+    if (
+      wait$.value ||
+      msg$.value ||
+      input$.value ||
+      menu$.value ||
+      isPauseScreenVisible$.value ||
+      (isViewModal$.value && isViewVisible$.value)
+    )
+      return;
     e.preventDefault();
     e.stopPropagation();
     isPauseScreenVisible$.set(true);

@@ -35,6 +35,7 @@ export function submitUserInput(): void {
 
 export const viewPath$ = create('');
 export const isViewVisible$ = create(false);
+export const isViewModal$ = create(false);
 
 export const regions$ = create<Record<string, string>>({});
 

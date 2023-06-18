@@ -1,5 +1,5 @@
 import { Node } from 'interweave';
-import { extractAttributes } from '@qspider/game-state';
+import { extractAttributes, isViewModal$ } from '@qspider/game-state';
 import {
   QspActions,
   QspActionsList,
@@ -132,8 +132,10 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-view'(node, children) {
     const attributes = extractAttributes(node);
+    const modal = 'modal' in attributes;
+    isViewModal$.set(modal);
     return (
-      <QspView attrs={attributes} modal={'modal' in attributes}>
+      <QspView attrs={attributes} modal={modal}>
         {children}
       </QspView>
     );
