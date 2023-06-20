@@ -79,5 +79,7 @@
   "Upsupported archive format": "Неподдерживаемый формат архива",
   "File not found": "Файл не найден",
   "Open game": "Открыть игру",
-  "Quit": "Выйти"
+  "Quit": "Выйти",
+  "Game has been updated in catalog": "Игра была обновлена в каталоге",
+  "Update on shelf": "Обновить на полке"
 }

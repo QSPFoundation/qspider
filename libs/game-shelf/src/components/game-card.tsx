@@ -6,12 +6,32 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { games$, goToGame } from '../game-shelf';
 import { ContentRenderer } from '@qspider/renderer';
+import { useAtom, useSetup } from '@xoid/react';
+import { moveToShelf, qspCatalogList$ } from '../qsp-catalog';
+import create from 'xoid';
 
-export const GameCard: React.FC<{ game: GameShelfEntry }> = ({ game }) => {
+export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
+  const { game } = props;
   const { t } = useTranslation();
   const removeGame = useCallback(() => {
     games$.actions.remove(game.id);
   }, [game.id]);
+
+  const catalogEntry$ = useSetup((props$) => {
+    const game$ = props$.focus((p) => p.game);
+    return create((get) => {
+      const sourceId = get(game$).meta?.source_id;
+      if (!sourceId) return null;
+      const id = parseInt(sourceId);
+      return get(qspCatalogList$).find((entry) => entry.id === id);
+    });
+  }, props);
+  const catalogEntry = useAtom(catalogEntry$);
+  const hasUpdates = game.meta && catalogEntry ? game.meta.source_date < catalogEntry.mod_date : false;
+  const updateToLatest = (): void => {
+    if (!hasUpdates || !catalogEntry) return;
+    moveToShelf(catalogEntry);
+  };
   return (
     <Dialog.Root>
       <div className="game-shelf__card" data-qa={`game-${game.id}`}>
@@ -46,6 +66,14 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = ({ game }) => {
             </div>
           )}
         </div>
+        {hasUpdates && (
+          <div className="game-shelf__card-actions">
+            {t('Game has been updated in catalog')}
+            <button className="q-button" onClick={updateToLatest}>
+              {t('Update on shelf')}
+            </button>
+          </div>
+        )}
         <div className="game-shelf__card-actions">
           {game.description ? (
             <Dialog.Trigger asChild>

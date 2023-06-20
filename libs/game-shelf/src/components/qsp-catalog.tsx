@@ -2,7 +2,6 @@ import { QspiderLoader } from '@qspider/renderer';
 import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
 
 import { useAtom } from '@xoid/react';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   catalogLoading$,
@@ -33,10 +32,9 @@ const sortOptions = [
   },
 ];
 
+loadQspCatalog();
+
 export const QspCatalog: React.FC = () => {
-  useEffect(() => {
-    loadQspCatalog();
-  }, []);
   const { t } = useTranslation();
   const loadingState = useAtom(catalogLoading$);
   const games = useAtom(qspCatalogPreparedList$);
