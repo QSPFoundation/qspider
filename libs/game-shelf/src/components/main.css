@@ -647,12 +647,14 @@ h6 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90vw;
-  max-width: 450px;
+  max-width: 85vw;
   max-height: 85vh;
-  height: 50vh;
+  min-height: 10%;
   padding: 25px;
   animation: qsp-contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
 }
 .q-dialog-close {
   position: absolute;
