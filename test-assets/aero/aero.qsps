@@ -27,6 +27,7 @@ gt 'test list'
 '<a href="exec: gt ''input''">Test input settings</a>'
 '<a href="exec: gt ''menu''">Test menu settings</a>'
 '<a href="exec: gt ''test effects''">Test effects</a>'
+'<a href="exec: gt ''errors''">Error dialog</a>'
 
 
 ---
@@ -510,4 +511,10 @@ $usr_menu[4]='No icon:'
 '<a href="exec: $MENU_EFFECT=''wipe4''">wipe4</a>'
 
 '<a href="exec: menu ''$usr_menu''">Try</a>'
+---
+
+# errors
+gs 'backlink'
+
+'<a href="exec: gt">Show error dialog</a>'
 ---

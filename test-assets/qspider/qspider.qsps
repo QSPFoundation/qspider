@@ -24,6 +24,7 @@ clr
 '<a href="exec: gt ''layers''">Layers</a>'
 '<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a>'
 '<a href="exec: gt ''on-click''">Custom on click</a>'
+'<a href="exec: gt ''custom-save-file''">Custom save file</a>'
 ---
 
 # back-link
@@ -220,4 +221,12 @@ gs 'back-link'
 '<div qsp-on:dblclick="exec: msg ''dblclick''">Double Click me</div>'
 '<div qsp-on:contextmenu="exec: msg ''context menu''">Right Click me</div>'
 '<div qsp-on:mouseenter="exec: pl ''enter''" qsp-on:mouseleave="exec: pl ''leave''">Hover me <span>child</span></div>'
+---
+
+# custom-save-file
+gs 'back-link'
+'<br/>'
+
+'<a href="exec: savegame ''autosave.sav''">Save to autosave file</a>'
+'<a href="exec: savegame">Open save screen</a>'
 ---
