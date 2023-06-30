@@ -44,6 +44,7 @@ async function loadAdditionalStyles(styles: string[]): Promise<void> {
   for (const style of styles) {
     const gameStyle = document.createElement('link');
     gameStyle.href = style;
+    gameStyle.rel = 'stylesheet';
     gameStyle.dataset['qspiderResource'] = 'style';
     document.head.appendChild(gameStyle);
   }
