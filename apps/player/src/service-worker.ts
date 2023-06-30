@@ -20,7 +20,7 @@ class QspiderStrategy extends Strategy {
     const matches = request.url.match(regexp);
     if (matches) {
       const [, gameId, path] = matches;
-      const data = await storage.getGameResource(gameId, decodeURI(path));
+      const data = await storage.getGameResource(decodeURI(gameId), decodeURI(path));
       if (data) {
         return new Response(data);
       } else {
