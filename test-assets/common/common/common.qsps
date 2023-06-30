@@ -25,6 +25,7 @@ gt 'test list'
 '<a href="exec: gt ''libs''">Libs</a>'
 '<a href="exec: gt ''openqst''">OPENQST</a>'
 '<a href="exec: gt ''errors''">Error dialog</a>'
+'<a href="exec: gt ''refint''">refint</a>'
 
 ---
 
@@ -259,4 +260,9 @@ gs 'back-link'
 gs 'back-link'
 
 '<a href="exec: gt">Show error dialog</a>'
+---
+
+# refint
+gs 'back-link'
+'<a href="exec: refint">Refint</a>'
 ---
