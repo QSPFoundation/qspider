@@ -20,9 +20,12 @@ import { parse } from 'iarna-toml-esm';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
-import { layers$, regions$ } from './panels';
+import { actions$, cmdText$, layers$, mainContent$, objects$, regions$, statsContent$ } from './panels';
 import { convertQsps } from './utils';
 import { initialBaseUrl$ } from './init';
+import { input$ } from './input';
+import { menu$ } from './menu';
+import { msg$ } from './msg';
 
 export const currentGameEntry$ = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
@@ -151,6 +154,18 @@ export function stopCurrentGame(): void {
   currentGame$.set(null);
   qspGuiCfg$.set(null);
   isPauseScreenVisible$.set(false);
+  isPaused$.set(true);
+
+  // clear state
+  input$.set(null);
+  menu$.set(null);
+  msg$.set(null);
+  mainContent$.set('');
+  statsContent$.set('');
+  actions$.set([]);
+  objects$.set([]);
+  cmdText$.set('');
+
   const windowManager = windowManager$.value;
   if (windowManager) {
     windowManager.setTitle('qSpider');
