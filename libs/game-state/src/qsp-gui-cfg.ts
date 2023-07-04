@@ -76,6 +76,7 @@ function buildLayoutTree(panels: PanelData[]): LayoutTree {
       center: currentLayer || [],
     };
     for (const panel of layerPanels) {
+      if (panel.dir === 'center' && panel.name !== 'desc') continue;
       (currentLayer[panel.dir] as PanelData[]).push(panel);
     }
   }
