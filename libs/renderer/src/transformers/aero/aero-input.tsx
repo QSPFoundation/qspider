@@ -15,6 +15,7 @@ import { ContentRenderer } from '../../content-renderer';
 import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { AeroEffect } from './aero-effect';
+import { QspScrollable } from '../../theme-core/scrollable';
 
 export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
@@ -65,14 +66,16 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
 
 export const AeroQspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const input = useAtom(input$);
-  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-contnet');
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   const format = useFormatVariable(useFormat);
   if (!input) return null;
   const toRender = format ? format.replace(TEXT_PLACEHOLDER, input.text) : input.text;
   return (
     <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
-        <ContentRenderer content={toRender} />
+        <QspScrollable attrs={{}}>
+          <ContentRenderer content={toRender} />
+        </QspScrollable>
       </Tag>
     </Dialog.Description>
   );

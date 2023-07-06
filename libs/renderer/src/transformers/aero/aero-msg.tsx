@@ -7,6 +7,7 @@ import { useAttributes } from '../../content/attributes';
 import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { AeroEffect } from './aero-effect';
+import { QspScrollable } from '../../theme-core/scrollable';
 
 export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
@@ -49,7 +50,9 @@ export const AeroQspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) =>
   return (
     <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
-        <ContentRenderer content={toRender} />
+        <QspScrollable attrs={{}}>
+          <ContentRenderer content={toRender} />
+        </QspScrollable>
       </Tag>
     </Dialog.Description>
   );

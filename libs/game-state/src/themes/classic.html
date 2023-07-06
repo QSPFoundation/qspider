@@ -168,6 +168,8 @@
         align-items: center;
       }
       .qsp-dialog-container > * {
+        max-width: 80vw;
+        max-height: 90vh;
         position: relative;
         pointer-events: auto;
         border-radius: var(--border-radius);
@@ -181,6 +183,26 @@
       }
       .qsp-dialog-container .panel {
         border: 0;
+      }
+      qsp-msg,
+      qsp-input {
+        display: flex;
+        flex-direction: column;
+      }
+      qsp-input > form {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      qsp-input > form > .qsp-scroll-root {
+        flex: 1;
+        display: grid;
+      }
+      qsp-msg-content {
+        display: grid;
+        flex: 1;
+        overflow: hidden;
       }
 
       @keyframes contentShow {

@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
 import { ContentRenderer } from '../content-renderer';
 import { buttonContext } from './buttons';
+import { QspScrollable } from './scrollable';
 
 export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
@@ -24,16 +25,16 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
         <Dialog.Portal container={document.getElementById('portal-container')}>
           <Dialog.Overlay />
           <Dialog.Content className="qsp-dialog-container">
-            <form
-              onSubmit={(e): void => {
-                e.preventDefault();
-                submitInput();
-              }}
-            >
-              <Tag style={style} {...attributes}>
+            <Tag style={style} {...attributes}>
+              <form
+                onSubmit={(e): void => {
+                  e.preventDefault();
+                  submitInput();
+                }}
+              >
                 {children}
-              </Tag>
-            </form>
+              </form>
+            </Tag>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
@@ -43,13 +44,15 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 
 export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const input = useAtom(input$);
-  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-contnet');
+  const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   if (!input) return null;
   return (
     <Dialog.Description asChild>
-      <Tag style={style} {...attributes}>
-        <ContentRenderer content={input.text} />
-      </Tag>
+      <QspScrollable attrs={{}}>
+        <Tag style={style} {...attributes}>
+          <ContentRenderer content={input.text} />
+        </Tag>
+      </QspScrollable>
     </Dialog.Description>
   );
 };

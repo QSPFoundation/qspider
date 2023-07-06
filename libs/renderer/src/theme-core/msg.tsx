@@ -5,6 +5,7 @@ import { ReactNode } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { buttonContext } from './buttons';
+import { QspScrollable } from './scrollable';
 
 export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
@@ -33,7 +34,9 @@ export const QspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   return (
     <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
-        <ContentRenderer content={msg.text} />
+        <QspScrollable attrs={{}}>
+          <ContentRenderer content={msg.text} />
+        </QspScrollable>
       </Tag>
     </Dialog.Description>
   );
