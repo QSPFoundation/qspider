@@ -11,8 +11,8 @@ export const QspErrorAlert: React.FC = () => {
     <AlertDialog.Root open={true} onOpenChange={(): void => qspError$.set(null)}>
       <AlertDialog.Portal container={document.getElementById('portal-container')}>
         <AlertDialog.Overlay className="qsp-overlay" />
-        <AlertDialog.Content className="qsp-dialog-container">
-          <div>
+        <AlertDialog.Content className="qsp-dialog-container qsp-error-container">
+          <div className="qsp-error">
             <AlertDialog.Title>{t('Error')}</AlertDialog.Title>
             <AlertDialog.Description>
               {t('Error')}: {t(errorData.description)}
