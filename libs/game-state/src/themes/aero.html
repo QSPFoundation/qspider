@@ -810,7 +810,12 @@
         display: flex;
       }
       .qsp-pause-dialog {
-        width: 90vw;
+        width: 90%;
+        margin: 10% auto;
+        padding: 12px;
+        background-color: var(--background-color);
+        border: 1px solid var(--background-color-inverted);
+        border-radius: 4px;
       }
       qsp-pause-screen-content {
         flex: 1;
@@ -962,9 +967,9 @@
                   <qsp-slot-index></qsp-slot-index>
                   <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                   <div class="save-actions">
-                    <button><qsp-t>Save</qsp-t></button>
-                    <button><qsp-t>Load</qsp-t></button>
-                    <button><qsp-t>Clear</qsp-t></button>
+                    <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                    <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                    <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
                   </div>
                 </qsp-save-slot>
               </qsp-slots-list>
