@@ -28,16 +28,24 @@ export class TauriStorage implements Storage {
 
   async initialize(): Promise<void> {
     await ensureAppDataDir();
-    this.storageData = (await readStorageData()) || {
+    const { games, saves } = (await readStorageData()) || {
       games: {},
       saves: {},
     };
-    for (const game of Object.values(this.storageData.games)) {
+    for (const [id, game] of Object.entries(games)) {
       if (game.loadConfig.local_path) {
         if (!game.loadConfig.local_id) game.loadConfig.local_id = uuidv4();
-        await tauri.invoke('prepare_game_start', { path: game.loadConfig.local_path, id: game.loadConfig.local_id });
+        try {
+          await tauri.invoke('prepare_game_start', { path: game.loadConfig.local_path, id: game.loadConfig.local_id });
+        } catch {
+          delete games[id];
+        }
       }
     }
+    this.storageData = {
+      games,
+      saves,
+    };
     this.initialized.resolve();
   }
 
