@@ -1,62 +1,76 @@
 # start
 'main'
 '<a href="exec: gt ''html''">Check HTML</a>'
+'<a href="exec: gt ''test scroll''">Test scroll</a>'
 pl 'stats'
 addobj 'object'
 act 'action': pl ''
 ---
 
+# test scroll
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum'
+---
+
 # html
 
-'<a class="plain" href="exec: msg ''1''">Link without underline</a>'
-'<address>Address tag</address>'
-'<b>bold text</b>'
-'<big>bigger text</big>'
-'<blockquote>blockquote</blockquote>'
-'<center>centered</center>'
-'<cite>cite</cite>'
-'<code>code</code>'
-'<dl><dt>Beast of Bodmin</dt><dd>A large feline inhabiting Bodmin Moor.</dd></dl>'
-'<div align="right">right aligned div</div>'
-'<em>accent</em>'
-'<font size="+2">font +2</font>'
-'<font size="7">font 7</font>'
-'<font color="red">red font</font>'
-'<hr size=3 width="50%" align="center" noshade />'
-'<h1>Header 1</h1>'
-'<h2>Header 2</h2>'
-'<h3>Header 3</h3>'
-'<h4>Header 4</h4>'
-'<h5>Header 5</h5>'
-'<h6>Header 6</h6>'
-'<i>italic</i>'
-'<img src="img_pink_flowers.jpg" width=200 height=100 ALIGN=BOTTOM />'
-'<img src="workplace.jpg" alt="Workplace" usemap="#workmap" width="400" height="379" />
+*p '<a class="plain" href="exec: msg ''1''">Link without underline</a>'
+*p '<address>Address tag</address>'
+*p '<b>bold text</b>'
+*p '<big>bigger text</big>'
+*p '<blockquote>blockquote</blockquote>'
+*p '<center>centered</center>'
+*p '<cite>cite</cite>'
+*p '<code>code</code>'
+*p '<dl><dt>Beast of Bodmin</dt><dd>A large feline inhabiting Bodmin Moor.</dd></dl>'
+*p '<div align="right">right aligned div</div>'
+*p '<em>accent</em>'
+*p '<font size="+2">font +2</font>'
+*p '<font size="7">font 7</font>'
+*p '<font color="red">red font</font>'
+*p '<hr size=3 width="50%" align="center" noshade />'
+*p '<h1>Header 1</h1>'
+*p '<h2>Header 2</h2>'
+*p '<h3>Header 3</h3>'
+*p '<h4>Header 4</h4>'
+*p '<h5>Header 5</h5>'
+*p '<h6>Header 6</h6>'
+*p '<i>italic</i>'
+*p '<img src="img_pink_flowers.jpg" width=200 height=100 ALIGN=BOTTOM />'
+*p '<img src="workplace.jpg" alt="Workplace" usemap="#workmap" width="400" height="379" />
 <map name="workmap">
   <area shape="rect" coords="34,44,270,350" alt="Computer" href="exec: msg ''Computer''" />
   <area shape="rect" coords="290,172,333,250" alt="Phone" href="exec: msg ''Phone''" />
   <area shape="circle" coords="337,300,44" alt="Cup of coffee" href="exec: msg ''Coffee''" />
 </map>'
-'<p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy text (Windows).</p>'
-'<ul><li>One</li></ul>'
-'<ol><li>One</li></ol>'
-'<pre>
+*p '<p>Press <kbd>Ctrl</kbd> + <kbd>C</kbd> to copy text (Windows).</p>'
+*p '<ul><li>One</li></ul>'
+*p '<ol><li>One</li></ol>'
+*p '<pre>
   Text in a pre element
   is displayed in a fixed-width
   font, and it preserves
   both      spaces and
   line breaks
 </pre>'
-'<samp>File not found.<br />Press F1 to continue</samp>'
-'<small>This is some smaller text.</small>'
-'<strike>striked</strike>'
-'<strong>strong</strong>'
-'<p>This text contains <sub>subscript</sub> text.</p>'
-'<p>This text contains <sup>superscript</sup> text.</p>'
-'<u>underline</u>'
-'<tt>monospaced</tt>'
+*p '<samp>File not found.<br />Press F1 to continue</samp>'
+*p '<small>This is some smaller text.</small>'
+*p '<strike>striked</strike>'
+*p '<strong>strong</strong>'
+*p '<p>This text contains <sub>subscript</sub> text.</p>'
+*p '<p>This text contains <sup>superscript</sup> text.</p>'
+*p '<u>underline</u>'
+*p '<tt>monospaced</tt>'
 
-'<table width="50%" border=2 bgcolor="red" CELLSPACING=3 CELLPADDING=2>
+*p '<table width="50%" border=2 bgcolor="red" CELLSPACING=3 CELLPADDING=2>
   <tr>
     <th width="10%" align=left>left</th>
     <th BGCOLOR="green" align=center>center</th>

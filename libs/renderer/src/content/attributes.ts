@@ -19,6 +19,7 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   srcset: 'srcSet',
   usemap: 'useMap',
   cellspacing: 'cellSpacing',
+  cellpadding: 'cellPadding',
   autoplay: 'autoPlay',
   'xlink:href': 'xlinkHref',
   'xmlns:xlink': 'xmlnsXlink',

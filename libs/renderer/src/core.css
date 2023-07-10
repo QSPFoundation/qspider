@@ -98,6 +98,7 @@ qsp-cl {
   max-height: 100vh;
 }
 qsp-cl-layer {
+  overflow: hidden;
   width: 100%;
   max-width: 100%;
   height: 100%;
