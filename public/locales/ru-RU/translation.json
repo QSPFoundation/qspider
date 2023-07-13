@@ -81,5 +81,6 @@
   "Open game": "Открыть игру",
   "Quit": "Выйти",
   "Game has been updated in catalog": "Игра была обновлена в каталоге",
-  "Update on shelf": "Обновить на полке"
+  "Update on shelf": "Обновить на полке",
+  "Game shelf is empty": "На полке игр пусто"
 }

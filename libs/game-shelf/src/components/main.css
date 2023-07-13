@@ -296,7 +296,13 @@ h6 {
   border-radius: var(--border-radius);
   background: var(--ui-element-active-background);
 }
-
+.game-shelf__empty {
+  height: 80vh;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .game-shelf__list {
   display: grid;
   grid-template-columns: repeat(var(--game-columns, 3), 1fr);
