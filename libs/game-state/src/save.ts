@@ -12,7 +12,7 @@ export const saveSlots$ = create<SaveData[]>([]);
 export const namedSlots$ = create<SaveData[]>([]);
 export const requestedAction$ = create<string | null>(null);
 
-const QUICK_SAVE_KEY = '__quicksave_qspider__';
+export const QUICK_SAVE_KEY = '__quicksave_qspider__';
 
 export async function loadSaveList(): Promise<void> {
   const currentGame = currentGameEntry$.value;

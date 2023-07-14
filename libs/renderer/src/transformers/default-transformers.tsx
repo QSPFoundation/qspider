@@ -1,5 +1,5 @@
 import { Node } from 'interweave';
-import { extractAttributes, isViewModal$ } from '@qspider/game-state';
+import { QUICK_SAVE_KEY, extractAttributes, isViewModal$ } from '@qspider/game-state';
 import {
   QspActions,
   QspActionsList,
@@ -240,6 +240,13 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
     const { path, ...attrs } = extractAttributes(node);
     return (
       <QspNamedSlot attrs={attrs} path={path}>
+        {children}
+      </QspNamedSlot>
+    );
+  },
+  'qsp-quick-save'(node, children) {
+    return (
+      <QspNamedSlot attrs={extractAttributes(node)} path={QUICK_SAVE_KEY}>
         {children}
       </QspNamedSlot>
     );
