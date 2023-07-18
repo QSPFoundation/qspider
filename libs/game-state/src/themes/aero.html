@@ -826,12 +826,17 @@
         width: 120px;
         margin-right: 24px;
       }
-      .qsp-pause-screen-buttons .qsp-button {
+      .qsp-pause-screen-buttons .qsp-button,
+      qsp-region[data-region-name='qspider-pause-screen-buttons'] .qsp-button {
         width: 100%;
       }
-      .qsp-pause-screen-buttons .qsp-button + .qsp-button {
+      .qsp-pause-screen-buttons .qsp-button + .qsp-button,
+      qsp-region[data-region-name='qspider-pause-screen-buttons'] .qsp-button + .qsp-button {
         margin-top: 8px;
         margin-left: 0;
+      }
+      qsp-region[data-region-name='qspider-pause-screen-buttons'] {
+        margin-top: 8px;
       }
       qsp-slots-list {
         display: grid;
