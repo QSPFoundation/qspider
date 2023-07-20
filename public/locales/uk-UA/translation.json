@@ -82,5 +82,8 @@
   "Quit": "Вийти",
   "Game has been updated in catalog": "гру було оновлено в каталозі",
   "Update on shelf": "Оновити на полиці",
-  "Game shelf is empty": "На полиці ігор пусто"
+  "Game shelf is empty": "На полиці ігор пусто",
+  "Volume": "Гучність",
+  "Mute": "Вимкнути звук",
+  "Unmute": "Ввшькнути звук"
 }

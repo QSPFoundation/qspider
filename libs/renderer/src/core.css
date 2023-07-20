@@ -617,3 +617,41 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
 [data-save-empty] [data-save-action='clear'] {
   display: none;
 }
+
+.qsp-volume-root {
+  position: relative;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  touch-action: none;
+  width: 200px;
+  height: 20px;
+}
+
+.qsp-volume-slider-track {
+  position: relative;
+  flex-grow: 1;
+  border-radius: 9999px;
+  height: 3px;
+}
+
+.qsp-volume-slider-range {
+  position: absolute;
+  border-radius: 9999px;
+  height: 100%;
+}
+
+.qsp-volume-slider-thumb {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  cursor: grab;
+}
+.qsp-volume-slider-thumb:hover {
+  opacity: 0.8;
+}
+.qsp-volume-slider-thumb:focus {
+  outline: none;
+  box-shadow: 0 0 0 5px var(--black-a8);
+}

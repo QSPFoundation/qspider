@@ -856,6 +856,18 @@
       qsp-save-slot:last-of-type {
         border-bottom: 1px solid var(--border-color);
       }
+      .qsp-volume-slider-track {
+        background-color: var(--background-color-inverted);
+      }
+      .qsp-volume-slider-range {
+        background-color: var(--background-color-inverted-contrast);
+      }
+      .qsp-volume-slider-thumb {
+        background-color: var(--background-color-inverted-contrast);
+      }
+      .qsp-volume-slider-thumb:focus {
+        box-shadow: 0 0 0 5px var(--background-color-inverted);
+      }
     </style>
     <aero-styles></aero-styles>
     <qsp-style from="$STYLESHEET"></qsp-style>
@@ -992,6 +1004,11 @@
           </qsp-show>
           <qsp-pause-screen-panel name="preferences">
             <h2><qsp-t>Preferences</qsp-t></h2>
+            <div>
+              <label><qsp-t>Volume</qsp-t></label>
+              <qsp-volume-slider></qsp-volume-slider>
+              <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+            </div>
           </qsp-pause-screen-panel>
           <qsp-region name="qspider-pause-screen-panels"></qsp-region>
         </qsp-pause-screen-content>

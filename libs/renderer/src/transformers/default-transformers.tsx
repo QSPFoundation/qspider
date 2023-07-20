@@ -50,6 +50,8 @@ import { HtmlInput } from '../theme-core/html/input';
 import { HtmlForm } from '../theme-core/html/form';
 import { QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
 import { QspNamedSlot } from '../theme-core/pause-screen/named-slot';
+import { QspVolumeSlider } from './general/volume-slider';
+import { QspMuteToggle } from './general/mute-toggle';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -323,5 +325,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   form(node, children) {
     return <HtmlForm attrs={extractAttributes(node)}>{children}</HtmlForm>;
+  },
+  'qsp-volume-slider'(node) {
+    return <QspVolumeSlider attrs={extractAttributes(node)} />;
+  },
+  'qsp-mute-toggle'(node) {
+    return <QspMuteToggle attrs={extractAttributes(node)} />;
   },
 };
