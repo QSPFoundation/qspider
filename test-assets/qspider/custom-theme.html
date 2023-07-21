@@ -86,6 +86,7 @@
         <div class="qsp-pause-screen-buttons">
           <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
           <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
+          <qsp-region name="qspider-pause-screen-buttons"></qsp-region>
           <qsp-show when="NOSAVE=0">
             <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
           </qsp-show>
@@ -127,6 +128,7 @@
             <h2><qsp-t>Custom section</qsp-t></h2>
             <qsp-region name="pause-custom"></qsp-region>
           </qsp-pause-screen-panel>
+          <qsp-region name="qspider-pause-screen-panels"></qsp-region>
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>

@@ -2,6 +2,10 @@
 usehtml=1
 debug=1
 inclib 'qspider'
+
+@qspider_update_region('qspider-pause-screen-buttons', '<button qsp-action="pause:additional" class="qsp-button">Additional panel</button>')
+@qspider_update_region('qspider-pause-screen-panels', '<qsp-pause-screen-panel name="additional"><h2>Additional section</h2></qsp-pause-screen-panel>')
+
 gt 'test list'
 
 ---
