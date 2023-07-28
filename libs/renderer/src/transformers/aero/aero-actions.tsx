@@ -46,6 +46,7 @@ export const AeroQspActionItem: React.FC<{ attrs: Attributes }> = ({ attrs }) =>
   };
 
   const isSelected = selectedAction === index;
+  console.log({ useFormat, format, selectedFormat });
   return (
     <Tag {...attributes} style={preparedStyle} onMouseOver={onHover} onMouseLeave={onMouseLeave} onClick={onClick}>
       <ContentRenderer content={isSelected ? selectedFormat : format} />

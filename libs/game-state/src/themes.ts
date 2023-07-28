@@ -10,9 +10,10 @@ import { ThemeTranslation } from '@qspider/contracts';
 export const CLASSIC_THEME = 'qspider:classic';
 export const AERO_THEME = 'qspider:aero';
 
-// TODO
-export const DEFAULT_LIST_FORMAT = '';
-export const DEFAULT_SELECTED_LIST_FORMAT = '';
+export const DEFAULT_LIST_FORMAT =
+  '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;">%TEXT%</td></tr></table>';
+export const DEFAULT_SELECTED_LIST_FORMAT =
+  '<table><tr><td><img src="%IMAGE%"/></td><td style="width:100%;color:#0000FF;">%TEXT%</td></tr></table>';
 export const TEXT_PLACEHOLDER = '%TEXT%';
 export const IMAGE_PLACEHOLDER = '%IMAGE%';
 
