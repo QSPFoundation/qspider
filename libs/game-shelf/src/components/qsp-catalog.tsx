@@ -63,7 +63,7 @@ export const QspCatalog: React.FC = () => {
       <div className="q-catalog__filterbar">
         <div className="q-catalog__filterbar-block">
           <label>{t('Filter by Author')}:</label>
-          <div>
+          <div className="q-catalog__filterbar-group">
             <Select
               name="author-filter"
               options={authors.map((author) => ({ label: author, value: author }))}
@@ -72,22 +72,22 @@ export const QspCatalog: React.FC = () => {
               value={authorsFilter}
               onValueChange={(value): void => qspAuthorFilter$.set(value)}
             />
+            {authorsFilter ? (
+              <Tooltip content={t('Clear Author filter')}>
+                <button
+                  className="q-ghost-button"
+                  aria-label={t('Clear Author filter') ?? ''}
+                  onClick={(): void => qspAuthorFilter$.set('')}
+                >
+                  <Cross1Icon />
+                </button>
+              </Tooltip>
+            ) : null}
           </div>
-          {authorsFilter ? (
-            <Tooltip content={t('Clear Author filter')}>
-              <button
-                className="q-ghost-button"
-                aria-label={t('Clear Author filter') ?? ''}
-                onClick={(): void => qspAuthorFilter$.set('')}
-              >
-                <Cross1Icon />
-              </button>
-            </Tooltip>
-          ) : null}
         </div>
         <div className="q-catalog__filterbar-block">
           <label>{t('Sort by')}:</label>
-          <div>
+          <div className="q-catalog__filterbar-group">
             <Select
               options={sortOptions.map((o) => ({ ...o, label: t(o.label) }))}
               placehoder={t('Sort by')}
@@ -95,16 +95,17 @@ export const QspCatalog: React.FC = () => {
               value={sortField}
               onValueChange={(value): void => qspSortByField$.set(value)}
             />
+
+            <Tooltip content={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}>
+              <button
+                className="q-ghost-button"
+                onClick={toggleSortDirection}
+                aria-label={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}
+              >
+                {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
+              </button>
+            </Tooltip>
           </div>
-          <Tooltip content={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}>
-            <button
-              className="q-ghost-button"
-              onClick={toggleSortDirection}
-              aria-label={sortDirection === 'asc' ? t('Sort Ascending') || '' : t('Sort Descending') || ''}
-            >
-              {sortDirection === 'asc' ? <DoubleArrowDownIcon /> : <DoubleArrowUpIcon />}
-            </button>
-          </Tooltip>
         </div>
         <div className="q-catalog__filterbar-block">
           <label htmlFor="search-input">{t('Search')}:</label>

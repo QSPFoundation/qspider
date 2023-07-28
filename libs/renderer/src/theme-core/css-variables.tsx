@@ -22,6 +22,7 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
   if (url.startsWith('qspider:')) {
     url = url.replace('qspider:', initialBaseUrl$.value);
   }
+  url = url.replace('\\', '/');
   const size = useImageSize(url);
   const sizeDefinitions = withSize ? `${name}-w: ${size.width}px; ${name}-h: ${size.height}px` : '';
   const content = `qsp-game-root, #portal-container {${name}: ${url ? `url("${url}")` : 'none'};${sizeDefinitions}}`;

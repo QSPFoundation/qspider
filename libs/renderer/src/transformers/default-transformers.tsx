@@ -48,6 +48,7 @@ import { HtmlSelect } from '../theme-core/html/select';
 import { HtmlTextarea } from '../theme-core/html/textarea';
 import { HtmlInput } from '../theme-core/html/input';
 import { HtmlForm } from '../theme-core/html/form';
+import { HtmlImg } from '../theme-core/html/img';
 import { QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-core/qspider';
 import { QspNamedSlot } from '../theme-core/pause-screen/named-slot';
 import { QspVolumeSlider } from './general/volume-slider';
@@ -322,6 +323,10 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   input(node) {
     return <HtmlInput attrs={extractAttributes(node)} />;
+  },
+  img(node) {
+    const { src, ...attributes } = extractAttributes(node);
+    return <HtmlImg src={src} attrs={attributes} />;
   },
   form(node, children) {
     return <HtmlForm attrs={extractAttributes(node)}>{children}</HtmlForm>;

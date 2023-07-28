@@ -424,6 +424,9 @@ h6 {
 .q-catalog__filterbar-block > button:last-child {
   margin-left: var(--spacer--xs);
 }
+.q-catalog__filterbar-group {
+  display: flex;
+}
 
 .q-ghost-button {
   appearance: none;
@@ -862,4 +865,29 @@ h6 {
 
 .qsp-toast-root .q-ghost-button:hover {
   background-color: var(--danger-subtle-border);
+}
+
+@media only screen and (max-width: 770px) {
+  .qspider-navbar {
+    height: auto;
+  }
+  .qspider-nav,
+  .q-catalog__filterbar {
+    flex-direction: column;
+  }
+  .q-catalog__filterbar-block {
+    margin: var(--spacer--sm) 0;
+    justify-content: space-between;
+  }
+  .qspider-nav > * {
+    margin: var(--spacer--sm) 0;
+  }
+}
+@media only screen and (max-width: 450px) {
+  .qspider-logo {
+    overflow: hidden;
+    width: 42px;
+    height: 42px;
+    line-height: 42px;
+  }
 }
