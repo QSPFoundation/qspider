@@ -1,6 +1,9 @@
 import { importUrl, showError, showNotice } from '@qspider/game-state';
 import { create } from 'xoid';
 import { games$ } from './game-shelf';
+import i18n from '@qspider/i18n';
+
+console.log(i18n);
 
 export interface CatalogGame {
   id: number;
@@ -84,7 +87,11 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
         source_date: game.mod_date,
       };
       games$.actions.add(entry.id, entry);
-      showNotice(`${game.title} added to shelf`);
+      showNotice(
+        i18n.t(`{{ name }} added to shelf`, {
+          name: game.title,
+        })
+      );
     }
   } catch {
     showError(`Failed to load source for game ${game.title}`);

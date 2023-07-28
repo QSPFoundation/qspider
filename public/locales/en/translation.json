@@ -85,5 +85,6 @@
   "Game shelf is empty": "Game shelf is empty",
   "Volume": "Volume",
   "Mute": "Mute",
-  "Unmute": "Unmute"
+  "Unmute": "Unmute",
+  "{{ name }} added to shelf": "{{ name }} added to shelf"
 }
