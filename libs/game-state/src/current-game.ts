@@ -40,7 +40,12 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');
   baseUrl$.set(entry.loadConfig.url);
 
-  let descriptor = entry.loadConfig.descriptor;
+  let descriptor: GameDescriptor = entry.loadConfig.descriptor || {
+    id: entry.id,
+    mode: entry.mode,
+    title: entry.title,
+    file: '',
+  };
   try {
     const configContent = await fetchProxyFallback('game.cfg').then((r) => r.text());
     const config = parse(configContent) as unknown as PlayerConfig;

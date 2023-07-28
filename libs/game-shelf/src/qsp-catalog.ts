@@ -3,8 +3,6 @@ import { create } from 'xoid';
 import { games$ } from './game-shelf';
 import i18n from '@qspider/i18n';
 
-console.log(i18n);
-
 export interface CatalogGame {
   id: number;
   author: string;

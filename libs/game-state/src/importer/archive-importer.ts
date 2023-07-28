@@ -52,7 +52,10 @@ export async function importArchive(
           ported_by: game.ported_by,
           version: game.version,
           description: game.description,
-          loadConfig: await storage.prepareLoadConfig(game.id, file),
+          loadConfig: {
+            ...(await storage.prepareLoadConfig(game.id, file)),
+            descriptor: game,
+          },
         };
       })
     );
