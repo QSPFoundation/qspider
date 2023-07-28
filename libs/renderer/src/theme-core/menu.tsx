@@ -1,11 +1,10 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, menu$, selectMenuItem, useThemeTemplate } from '@qspider/game-state';
+import { Attributes, menu$, selectMenuItem } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
-import { TemplateRenderer } from '../template-renderer';
 import { useClickCoordinates } from '../hooks/click-coordinates';
 import React from 'react';
 
@@ -160,17 +159,5 @@ export const QspMenuItemIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => 
     <Tag style={style} {...attributes}>
       {displayIndex}
     </Tag>
-  );
-};
-
-export const QspMenuSeparator: React.FC = () => {
-  const { attrs, template } = useThemeTemplate('qsp_menu_separator');
-  const [Tag, style, attributes] = useAttributes(attrs, 'div', 'qsp-menu-separator');
-  return (
-    <DropdownMenu.Separator asChild>
-      <Tag style={style} {...attributes}>
-        <TemplateRenderer template={template} />
-      </Tag>
-    </DropdownMenu.Separator>
   );
 };
