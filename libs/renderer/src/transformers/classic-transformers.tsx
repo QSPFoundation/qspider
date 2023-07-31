@@ -33,12 +33,15 @@ export const classicTransformers: Record<string, (node: HTMLElement, children: N
     return <tbody>{children.filter((child) => typeof child !== 'string')}</tbody>;
   },
   table: (node, children) => {
+    const { border = '0', cellspacing = '0', cellpadding = '1', align, valign, ...attrs } = extractAttributes(node);
     return (
       <Table
-        border={node.hasAttribute('border') ? Number(node.getAttribute('border')) : 0}
-        cellspacing={node.hasAttribute('cellspacing') ? Number(node.getAttribute('cellspacing')) : 0}
-        cellpadding={node.hasAttribute('cellpadding') ? Number(node.getAttribute('cellpadding')) : 1}
-        attrs={extractAttributes(node)}
+        align={align as React.CSSProperties['textAlign']}
+        valign={valign as React.CSSProperties['verticalAlign']}
+        border={Number(border)}
+        cellspacing={Number(cellspacing)}
+        cellpadding={Number(cellpadding)}
+        attrs={attrs}
       >
         {children.filter((child) => typeof child !== 'string')}
       </Table>
