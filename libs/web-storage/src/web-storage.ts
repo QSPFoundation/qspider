@@ -33,20 +33,22 @@ export class WebStorage implements Storage {
   }
 
   async addGameResource(game_id: string, path: string, content: ArrayBuffer): Promise<void> {
+    const key = path.toLowerCase();
     await this.db.gameResources
       .where({
         game_id,
-        path,
+        path: key,
       })
       .delete();
     await this.db.gameResources.put({
       game_id,
-      path,
+      path: key,
       content,
     });
   }
   async getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null> {
-    const record = await this.db.gameResources.where({ game_id, path }).first();
+    const key = path.toLowerCase();
+    const record = await this.db.gameResources.where({ game_id, path: key }).first();
     return record?.content || null;
   }
 

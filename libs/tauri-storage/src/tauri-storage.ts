@@ -90,11 +90,13 @@ export class TauriStorage implements Storage {
 
   async addGameResource(game_id: string, path: string, data: ArrayBuffer): Promise<void> {
     await this.initialized.promise;
-    await storeBinaryData(`${game_id}/game/${path}`, data);
+    const key = path.toLowerCase();
+    await storeBinaryData(`${game_id}/game/${key}`, data);
   }
   async getGameResource(game_id: string, path: string): Promise<ArrayBuffer | null> {
     await this.initialized.promise;
-    return (await readBinaryData(`${game_id}/game/${path}`)) ?? null;
+    const key = path.toLowerCase();
+    return (await readBinaryData(`${game_id}/game/${key}`)) ?? null;
   }
 
   async saveByKey(game_id: string, key: string, data: ArrayBuffer): Promise<void> {
