@@ -5,66 +5,97 @@ import { GameAction, onGameAction } from './current-game';
 import { actions$, execSelectedAction, selectAction } from './panels';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
+import create from 'xoid';
+
+interface GlobalHotKey {
+  keys: string;
+  when_paused: boolean;
+  on_press:
+    | { type: 'game_action'; action: GameAction }
+    | { type: 'action'; index: number }
+    | ((e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void | boolean);
+}
+
+const globalHotKeys$ = create<GlobalHotKey[]>([
+  { when_paused: false, keys: '1', on_press: { type: 'action', index: 0 } },
+  { when_paused: false, keys: '2', on_press: { type: 'action', index: 1 } },
+  { when_paused: false, keys: '3', on_press: { type: 'action', index: 2 } },
+  { when_paused: false, keys: '4', on_press: { type: 'action', index: 3 } },
+  { when_paused: false, keys: '5', on_press: { type: 'action', index: 4 } },
+  { when_paused: false, keys: '6', on_press: { type: 'action', index: 5 } },
+  { when_paused: false, keys: '7', on_press: { type: 'action', index: 6 } },
+  { when_paused: false, keys: '8', on_press: { type: 'action', index: 7 } },
+  { when_paused: false, keys: '9', on_press: { type: 'action', index: 8 } },
+  {
+    when_paused: false,
+    keys: 'space',
+    on_press: (): void | boolean => {
+      if (isPaused$.value) return;
+      const actions = actions$.value;
+      if (actions.length === 1) {
+        selectAction(0);
+        execSelectedAction();
+      }
+      return false;
+    },
+  },
+  { when_paused: true, keys: 'mod+r', on_press: { type: 'game_action', action: 'restart' } },
+  { when_paused: false, keys: 'f5', on_press: { type: 'game_action', action: 'quicksave' } },
+  { when_paused: false, keys: 'f9', on_press: { type: 'game_action', action: 'quickload' } },
+  {
+    when_paused: false,
+    keys: 'mod+s',
+    on_press: (): boolean | undefined => {
+      requestedAction$.set('save');
+      onGameAction('pause:saves' as GameAction);
+      return false;
+    },
+  },
+  {
+    when_paused: false,
+    keys: 'mod+o',
+    on_press: (): boolean | undefined => {
+      requestedAction$.set('load');
+      onGameAction('pause:saves' as GameAction);
+      return false;
+    },
+  },
+  {
+    when_paused: true,
+    keys: 'pageup',
+    on_press: (): boolean => {
+      volume$.actions.increase();
+      return false;
+    },
+  },
+  {
+    when_paused: true,
+    keys: 'pagedown',
+    on_press: (): boolean => {
+      volume$.actions.decrease();
+      return false;
+    },
+  },
+  { when_paused: true, keys: 'home', on_press: { type: 'game_action', action: 'mute' } },
+  { when_paused: true, keys: 'end', on_press: { type: 'game_action', action: 'unmute' } },
+]);
 
 export function setupGlobalHotKeys(): void {
-  Mousetrap.bind(['1', '2', '3', '4', '5', '6', '7', '8', '9'], (_, code) => {
-    if (isPaused$.value) return;
-    const index = parseInt(code, 10) - 1;
-    selectAction(index);
-    execSelectedAction();
-    return false;
-  });
-  Mousetrap.bind(['space'], () => {
-    if (isPaused$.value) return;
-    const actions = actions$.value;
-    if (actions.length === 1) {
-      selectAction(0);
-      execSelectedAction();
-    }
-  });
-  Mousetrap.bind(['mod+s'], () => {
-    if (isPaused$.value) return;
-    requestedAction$.set('save');
-    onGameAction('pause:saves' as GameAction);
-    return false;
-  });
-  Mousetrap.bind(['mod+o'], () => {
-    if (isPaused$.value) return;
-    requestedAction$.set('load');
-    onGameAction('pause:saves' as GameAction);
-    return false;
-  });
-  Mousetrap.bind(['mod+r'], () => {
-    if (isPaused$.value) return;
-    onGameAction('restart');
-    return false;
-  });
-  Mousetrap.bind(['f5'], () => {
-    if (isPaused$.value) return;
-    onGameAction('quicksave');
-    return false;
-  });
-  Mousetrap.bind(['f9'], () => {
-    if (isPaused$.value) return;
-    onGameAction('quickload');
-    return false;
-  });
-  Mousetrap.bind(['pageup'], () => {
-    volume$.actions.increase();
-    return false;
-  });
-  Mousetrap.bind(['pagedown'], () => {
-    volume$.actions.decrease();
-    return false;
-  });
-  Mousetrap.bind(['home'], () => {
-    onGameAction('mute');
-    return false;
-  });
-  Mousetrap.bind(['end'], () => {
-    onGameAction('unmute');
-    return false;
-  });
+  for (const hotkey of globalHotKeys$.value) {
+    Mousetrap.bind([hotkey.keys], (e, code) => {
+      if (!hotkey.when_paused && isPaused$.value) return;
+      if (typeof hotkey.on_press === 'function') {
+        return hotkey.on_press(e, code);
+      } else if (hotkey.on_press.type === 'action') {
+        selectAction(hotkey.on_press.index);
+        execSelectedAction();
+        return false;
+      } else if (hotkey.on_press.type === 'game_action') {
+        onGameAction(hotkey.on_press.action);
+        return false;
+      }
+    });
+  }
 }
 
 export function setupCustomHotKeys(map: Record<string, string>): void {
