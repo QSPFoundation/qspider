@@ -23,7 +23,7 @@ import { baseUrl$, currentGameEntry$, GameAction, onGameAction } from './current
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
-import { convertQsps, prepareContent, prepareList } from './utils';
+import { cleanPath, convertQsps, prepareContent, prepareList } from './utils';
 import { hashString } from '@qspider/utils';
 import { menu$ } from './menu';
 import { input$ } from './input';
@@ -141,7 +141,8 @@ qspApi$.subscribe((api) => {
         gameSource = convertQsps(source);
       }
       if (isNewGame) {
-        baseUrl$.set(file.slice(0, file.lastIndexOf('/') + 1));
+        const path = cleanPath(file);
+        baseUrl$.update((url) => url + path.slice(0, path.lastIndexOf('/') + 1));
       }
       api.openGame(gameSource, isNewGame);
       onOpened();
