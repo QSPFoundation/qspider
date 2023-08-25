@@ -21,3 +21,4 @@ export * from './qsp-gui-cfg';
 export * from './components';
 export * from './init';
 export * from './importer';
+export * from './hotkeys';

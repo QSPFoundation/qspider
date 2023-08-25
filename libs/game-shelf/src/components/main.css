@@ -5,22 +5,22 @@
 @import '@radix-ui/colors/tomato-dark.css';
 
 :root {
-  --app-background: var(--indigo1);
-  --subtle-background: var(--indigo2);
-  --ui-element-background: var(--indigo3);
-  --ui-element-hover-background: var(--indigo4);
-  --ui-element-active-background: var(--indigo5);
-  --subtle-border: var(--indigo6);
-  --border: var(--slate9);
-  --hover-border: var(--indigo8);
-  --solid-background: var(--indigo9);
-  --solid-hover-background: var(--indigo10);
-  --text-lc: var(--indigo11);
-  --text-hc: var(--indigo12);
+  --app-background: var(--indigo-1);
+  --subtle-background: var(--indigo-2);
+  --ui-element-background: var(--indigo-3);
+  --ui-element-hover-background: var(--indigo-4);
+  --ui-element-active-background: var(--indigo-5);
+  --subtle-border: var(--indigo-6);
+  --border: var(--slate-9);
+  --hover-border: var(--indigo-8);
+  --solid-background: var(--indigo-9);
+  --solid-hover-background: var(--indigo-10);
+  --text-lc: var(--indigo-11);
+  --text-hc: var(--indigo-12);
   --text-solid: #fff;
 
-  --danger: var(--tomato9);
-  --danger-subtle-border: var(--tomato6);
+  --danger: var(--tomato-9);
+  --danger-subtle-border: var(--tomato-6);
 
   --border-radius: 4px;
 
@@ -33,20 +33,20 @@
 }
 
 .dark-theme {
-  --app-background: var(--indigo1);
-  --subtle-background: var(--indigo2);
-  --ui-element-background: var(--indigo3);
-  --ui-element-hover-background: var(--indigo4);
-  --ui-element-active-background: var(--indigo5);
-  --subtle-border: var(--indigo6);
-  --border: var(--indigo7);
-  --hover-border: var(--indigo8);
-  --solid-background: var(--indigo9);
-  --solid-hover-background: var(--indigo10);
-  --text-lc: var(--indigo11);
-  --text-hc: var(--indigo12);
+  --app-background: var(--indigo-1);
+  --subtle-background: var(--indigo-2);
+  --ui-element-background: var(--indigo-3);
+  --ui-element-hover-background: var(--indigo-4);
+  --ui-element-active-background: var(--indigo-5);
+  --subtle-border: var(--indigo-6);
+  --border: var(--indigo-7);
+  --hover-border: var(--indigo-8);
+  --solid-background: var(--indigo-9);
+  --solid-hover-background: var(--indigo-10);
+  --text-lc: var(--indigo-11);
+  --text-hc: var(--indigo-12);
 
-  --danger: var(--tomato9);
+  --danger: var(--tomato-9);
 }
 
 body {

@@ -1,5 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import * as VisuallyHidden from '@radix-ui/react-visually-hidden';
 
 import { Attributes, currentGameEntry$, isPauseScreenVisible$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
@@ -17,9 +16,6 @@ export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }
         <Dialog.Content className="qsp-dialog-container">
           <div className="qsp-pause-dialog">
             <Dialog.Title>{currentGame?.title || 'Pause'}</Dialog.Title>
-            <VisuallyHidden.Root asChild>
-              <Dialog.Description>Game pause screen</Dialog.Description>
-            </VisuallyHidden.Root>
             <Tag style={style} {...attributes}>
               {children}
             </Tag>

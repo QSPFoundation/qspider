@@ -53,6 +53,8 @@ import { QspLayer, QspRegion, QspShow, QspStyle, QspVariable } from '../theme-co
 import { QspNamedSlot } from '../theme-core/pause-screen/named-slot';
 import { QspVolumeSlider } from './general/volume-slider';
 import { QspMuteToggle } from './general/mute-toggle';
+import { QspGlobalHotkeys } from '../theme-core/pause-screen/GlobalHotkeys';
+import { QspGameHotkeys } from '../theme-core/pause-screen/GameHotkeys';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -336,5 +338,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-mute-toggle'(node) {
     return <QspMuteToggle attrs={extractAttributes(node)} />;
+  },
+  'qsp-global-hotkeys'(node) {
+    return <QspGlobalHotkeys attrs={extractAttributes(node)} />;
+  },
+  'qsp-game-hotkeys'(node) {
+    return <QspGameHotkeys attrs={extractAttributes(node)} />;
   },
 };

@@ -806,19 +806,23 @@
         display: flex;
         justify-content: flex-end;
       }
+
       .qsp-pause-screen {
-        display: flex;
+        max-height: 100%;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: minmax(0, 1fr);
+        column-gap: 12px;
+      }
+      qsp-pause-screen {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
       }
       .qsp-pause-dialog {
-        width: 90%;
-        margin: 10% auto;
-        padding: 12px;
-        background-color: var(--background-color);
-        border: 1px solid var(--background-color-inverted);
-        border-radius: 4px;
-      }
-      qsp-pause-screen-content {
-        flex: 1;
+        width: 90vw;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
       }
       .qsp-pause-screen-buttons {
         display: flex;
@@ -870,6 +874,23 @@
       }
       .qsp-volume-slider-thumb:focus {
         box-shadow: 0 0 0 5px var(--background-color-inverted);
+      }
+      qsp-global-hotkeys,
+      qsp-game-hotkeys {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+        row-gap: 6px;
+        margin-bottom: 6px;
+      }
+      qsp-hotkey {
+        display: flex;
+        justify-content: space-between;
+      }
+      qsp-hotkey-keys {
+        font-family: monospace;
+        border: 1px solid var(--border-color);
+        padding: 2px 4px;
       }
     </style>
     <aero-styles></aero-styles>
@@ -1011,6 +1032,12 @@
               <label><qsp-t>Volume</qsp-t></label>
               <qsp-volume-slider></qsp-volume-slider>
               <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+            </div>
+            <br />
+            <div>
+              <h4><qsp-t>Hotkeys</qsp-t></h4>
+              <qsp-global-hotkeys></qsp-global-hotkeys>
+              <qsp-game-hotkeys></qsp-game-hotkeys>
             </div>
           </qsp-pause-screen-panel>
           <qsp-region name="qspider-pause-screen-panels"></qsp-region>

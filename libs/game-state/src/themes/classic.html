@@ -264,13 +264,21 @@
         box-shadow: 0 0 3px 1px var(--background-color-contrast);
       }
       .qsp-pause-screen {
-        display: flex;
+        max-height: 100%;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        grid-template-rows: minmax(0, 1fr);
+        column-gap: 12px;
+      }
+      qsp-pause-screen {
+        display: grid;
+        grid-template-rows: minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr);
       }
       .qsp-pause-dialog {
         width: 90vw;
-      }
-      qsp-pause-screen-content {
-        flex: 1;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
       }
       .qsp-pause-screen-buttons {
         display: flex;
@@ -324,6 +332,23 @@
       }
       .qsp-volume-slider-thumb:focus {
         box-shadow: 0 0 0 5px var(--background-color-inverted);
+      }
+      qsp-global-hotkeys,
+      qsp-game-hotkeys {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+        row-gap: 6px;
+        margin-bottom: 6px;
+      }
+      qsp-hotkey {
+        display: flex;
+        justify-content: space-between;
+      }
+      qsp-hotkey-keys {
+        font-family: monospace;
+        border: 1px solid var(--border-color);
+        padding: 2px 4px;
       }
     </style>
     <qsp-cl>
@@ -441,41 +466,49 @@
           <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
         </div>
         <qsp-pause-screen-content>
-          <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
-          <qsp-show when="NOSAVE=0">
-            <qsp-pause-screen-panel name="saves">
-              <h4><qsp-t>Saves</qsp-t></h4>
-              <qsp-slots-list>
-                <qsp-save-slot>
-                  <qsp-slot-index></qsp-slot-index>
+          <qsp-scrollable>
+            <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
+            <qsp-show when="NOSAVE=0">
+              <qsp-pause-screen-panel name="saves">
+                <h4><qsp-t>Saves</qsp-t></h4>
+                <qsp-slots-list>
+                  <qsp-save-slot>
+                    <qsp-slot-index></qsp-slot-index>
+                    <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                    <div class="save-actions">
+                      <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                      <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                      <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                    </div>
+                  </qsp-save-slot>
+                </qsp-slots-list>
+                <qsp-quick-save>
+                  <span>Quicksave</span>
                   <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                   <div class="save-actions">
                     <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
                     <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
                     <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
                   </div>
-                </qsp-save-slot>
-              </qsp-slots-list>
-              <qsp-quick-save>
-                <span>Quicksave</span>
-                <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
-                <div class="save-actions">
-                  <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-                  <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
-                  <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
-                </div>
-              </qsp-quick-save>
+                </qsp-quick-save>
+              </qsp-pause-screen-panel>
+            </qsp-show>
+            <qsp-pause-screen-panel name="preferences">
+              <h2><qsp-t>Preferences</qsp-t></h2>
+              <div>
+                <label><qsp-t>Volume</qsp-t></label>
+                <qsp-volume-slider></qsp-volume-slider>
+                <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+              </div>
+              <br />
+              <div>
+                <h4><qsp-t>Hotkeys</qsp-t></h4>
+                <qsp-global-hotkeys></qsp-global-hotkeys>
+                <qsp-game-hotkeys></qsp-game-hotkeys>
+              </div>
             </qsp-pause-screen-panel>
-          </qsp-show>
-          <qsp-pause-screen-panel name="preferences">
-            <h2><qsp-t>Preferences</qsp-t></h2>
-            <div>
-              <label><qsp-t>Volume</qsp-t></label>
-              <qsp-volume-slider></qsp-volume-slider>
-              <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
-            </div>
-          </qsp-pause-screen-panel>
-          <qsp-region name="qspider-pause-screen-panels"></qsp-region>
+            <qsp-region name="qspider-pause-screen-panels"></qsp-region>
+          </qsp-scrollable>
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>
