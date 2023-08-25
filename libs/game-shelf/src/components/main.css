@@ -1,8 +1,8 @@
 @import '@radix-ui/colors/indigo.css';
-@import '@radix-ui/colors/indigoDark.css';
+@import '@radix-ui/colors/indigo-dark.css';
 @import '@radix-ui/colors/slate.css';
 @import '@radix-ui/colors/tomato.css';
-@import '@radix-ui/colors/tomatoDark.css';
+@import '@radix-ui/colors/tomato-dark.css';
 
 :root {
   --app-background: var(--indigo1);
