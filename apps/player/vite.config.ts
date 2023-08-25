@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import viteTsConfigPaths from 'vite-tsconfig-paths';
+import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import pluginRewriteAll from 'vite-plugin-rewrite-all';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -20,9 +20,7 @@ export default defineConfig({
 
   plugins: [
     react(),
-    viteTsConfigPaths({
-      root: '../../',
-    }),
+    nxViteTsPaths(),
     pluginRewriteAll(),
     VitePWA({
       srcDir: 'src',
@@ -40,10 +38,6 @@ export default defineConfig({
   ],
 
   worker: {
-    plugins: [
-      viteTsConfigPaths({
-        root: '../../',
-      }),
-    ],
+    plugins: [nxViteTsPaths()],
   },
 });
