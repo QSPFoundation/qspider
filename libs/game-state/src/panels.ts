@@ -5,9 +5,11 @@ import { qspApi$ } from './qsp-api';
 export const mainContent$ = create('');
 export const isNewLoc$ = create(false);
 export const newLocHash$ = create('');
+export const mainScroll$ = create(0);
 
 export const isStatsVisible$ = create(false);
 export const statsContent$ = create('');
+export const statsScroll$ = create(0);
 
 export const isActsVisible$ = create(false);
 export const actions$ = create<QspListItem[]>([]);

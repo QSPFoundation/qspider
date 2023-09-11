@@ -76,10 +76,15 @@ exec('qspider.action:unmute')
 ---
 
 # qspider_toggle_mute
-exec('qspider.action:toggle_mute')
+exec('qspider.action:toggle-mute')
 ---
 
 # qspider_open_pause_screen
 ! $args[0] - panel name
 exec('qspider.action:pause:<<$args[0]>>')
 ---
+
+# qspider_scroll
+! $args[0] - panel (main or stats)
+! $args[1] - direction (top or bottom)
+exec('qspider.action:scroll:<<$args[0]>>:<<$args[1]>>')

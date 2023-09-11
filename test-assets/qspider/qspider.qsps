@@ -29,6 +29,7 @@ clr
 '<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a>'
 '<a href="exec: gt ''on-click''">Custom on click</a>'
 '<a href="exec: gt ''custom-save-file''">Custom save file</a>'
+'<a href="exec: gt ''scroll-action''">Scroll action</a>'
 ---
 
 # back-link
@@ -233,4 +234,57 @@ gs 'back-link'
 
 '<a href="exec: savegame ''autosave.sav''">Save to autosave file</a>'
 '<a href="exec: savegame">Open save screen</a>'
+---
+
+# scroll-action
+gs 'back-link'
+'<br/>'
+
+'<a qsp-action="scroll:stats:bottom">Scroll stats to bottom</a>'
+'<a qsp-action="scroll:stats:top">Scroll stats to top</a>'
+
+'<a qsp-action="scroll:main:bottom">Scroll main to bottom</a>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<a qsp-action="scroll:main:top">Scroll main to top</a>'
+
+
+p 'stats'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p 'stats end'
 ---

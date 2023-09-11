@@ -20,7 +20,17 @@ import { parse } from 'iarna-toml-esm';
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
-import { actions$, cmdText$, layers$, mainContent$, objects$, regions$, statsContent$ } from './panels';
+import {
+  actions$,
+  cmdText$,
+  layers$,
+  mainContent$,
+  mainScroll$,
+  objects$,
+  regions$,
+  statsContent$,
+  statsScroll$,
+} from './panels';
 import { convertQsps } from './utils';
 import { initialBaseUrl$ } from './init';
 import { input$ } from './input';
@@ -199,6 +209,16 @@ export function onGameAction(action: GameAction): void {
     const [, panel] = action.split(':');
     if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
     pauseScreenCurrentPanel$.set(panel);
+  } else if (action.startsWith('scroll:')) {
+    const [, panel, direction] = action.split(':');
+    switch (panel) {
+      case 'main':
+        mainScroll$.update((x) => (direction === 'top' ? -1 : Math.max(x, 0) + 1));
+        break;
+      case 'stats':
+        statsScroll$.update((x) => (direction === 'top' ? -1 : Math.max(x, 0) + 1));
+        break;
+    }
   }
   switch (action) {
     case 'quit':
