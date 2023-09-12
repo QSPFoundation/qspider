@@ -86,5 +86,21 @@
   "Volume": "Volume",
   "Mute": "Mute",
   "Unmute": "Unmute",
-  "{{ name }} added to shelf": "{{ name }} added to shelf"
+  "{{ name }} added to shelf": "{{ name }} added to shelf",
+  "Locale": "Locale",
+  "Hotkeys": "Hotkeys",
+  "Action #1": "Action #1",
+  "Action #2": "Action #2",
+  "Action #3": "Action #3",
+  "Action #4": "Action #4",
+  "Action #5": "Action #5",
+  "Action #6": "Action #6",
+  "Action #7": "Action #7",
+  "Action #8": "Action #8",
+  "Action #9": "Action #9",
+  "Single action": "Single action",
+  "Quicksave": "Quicksave",
+  "Qucikload": "Qucikload",
+  "Increase volume": "Increase volume",
+  "Decrease volume": "Decrease volume"
 }

@@ -86,5 +86,21 @@
   "Volume": "Гучність",
   "Mute": "Вимкнути звук",
   "Unmute": "Ввшькнути звук",
-  "{{ name }} added to shelf": "Гру {{ name }} додано на полицю"
+  "{{ name }} added to shelf": "Гру {{ name }} додано на полицю",
+  "Locale": "Мова",
+  "Hotkeys": "Гарячі клавіші",
+  "Action #1": "Дія №1",
+  "Action #2": "Дія №2",
+  "Action #3": "Дія №3",
+  "Action #4": "Дія №4",
+  "Action #5": "Дія №5",
+  "Action #6": "Дія №6",
+  "Action #7": "Дія №7",
+  "Action #8": "Дія №8",
+  "Action #9": "Дія №9",
+  "Single action": "Єдина Дія",
+  "Quicksave": "Швидке збереження",
+  "Qucikload": "Швидке завантаження",
+  "Increase volume": "Збільшити гучність",
+  "Decrease volume": "Зменьшити гучність"
 }

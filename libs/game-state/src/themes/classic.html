@@ -350,6 +350,13 @@
         border: 1px solid var(--border-color);
         padding: 2px 4px;
       }
+      [data-qsp='locale-select'] {
+        background-color: var(--background-color);
+        color: var(--background-color-contrast);
+        border-radius: 4px;
+        padding: 4px 16px;
+        border: 1px solid var(--border-color);
+      }
     </style>
     <qsp-cl>
       <qsp-cl-layer>
@@ -499,6 +506,11 @@
                 <label><qsp-t>Volume</qsp-t></label>
                 <qsp-volume-slider></qsp-volume-slider>
                 <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+              </div>
+              <div>
+                <label><qsp-t>Locale</qsp-t></label>
+                <br />
+                <qsp-locale-select></qsp-locale-select>
               </div>
               <br />
               <div>
