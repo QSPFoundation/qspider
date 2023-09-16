@@ -2,8 +2,6 @@ import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
-import classicTheme from './themes/classic.html?raw';
-import aeroTheme from './themes/aero.html?raw';
 import { useQspVariable } from './qsp-api';
 import { ThemeTranslation } from '@qspider/contracts';
 
@@ -111,17 +109,18 @@ export async function registerThemes(themes: string[]): Promise<void> {
   }
 }
 
-const parser = new DOMParser();
-
-function loadTheme(content: string): void {
-  const parsedThemes = parseTheme(content, false);
-  for (const [alias, data] of Object.entries(parsedThemes)) {
-    themeRegistry$.actions.add(alias, data);
+const defaultThemes = ['themes/classic.html', 'themes/aero.html'];
+export async function registerDefaultThemes(baseUrl: string): Promise<void> {
+  for (const themeUrl of defaultThemes) {
+    const content = await getTextContent(baseUrl + themeUrl);
+    const parsedThemes = parseTheme(content, false);
+    for (const [alias, data] of Object.entries(parsedThemes)) {
+      themeRegistry$.actions.add(alias, data);
+    }
   }
 }
-loadTheme(classicTheme);
-loadTheme(aeroTheme);
 
+const parser = new DOMParser();
 function parseTheme(content: string, is_user_defined = true): Record<string, ThemeData> {
   const themeData: Record<string, ThemeData> = {};
   const document = parser.parseFromString(content, 'text/html');

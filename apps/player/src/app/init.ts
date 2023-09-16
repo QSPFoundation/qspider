@@ -7,6 +7,7 @@ import {
   initTheme,
   initialBaseUrl$,
   onGameEnd$,
+  registerDefaultThemes,
   storage$,
   windowManager$,
 } from '@qspider/game-state';
@@ -38,6 +39,7 @@ export async function init(): Promise<void> {
   }
   initDefered$.value.resolve();
   await initQspApi();
+  await registerDefaultThemes(initialBaseUrl$.value);
   if (toRun) {
     goToGame(toRun);
   } else {

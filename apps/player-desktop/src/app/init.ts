@@ -8,6 +8,7 @@ import {
   initialBaseUrl$,
   onGameEnd$,
   platform$,
+  registerDefaultThemes,
   showError,
   storage$,
   windowManager$,
@@ -47,6 +48,7 @@ export async function init(): Promise<void> {
   baseInit$.set(true);
   initDefered$.value.resolve();
   await initQspApi();
+  await registerDefaultThemes(initialBaseUrl$.value);
   if (toRun) {
     goToGame(toRun);
   }
