@@ -17,6 +17,8 @@ import { QspErrorAlert } from './qsp-error-alert';
 import { QspPlayer } from './theme-core';
 import { QspCSSVariables } from './theme-core/css-variables';
 import { WaitLock } from './wait-lock';
+import { QspCSSLinks } from './theme-core/css-links';
+import { QspScriptLinks } from './theme-core/script-links';
 
 const handler = throttle((e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
@@ -43,9 +45,11 @@ export const GameRunner: React.FC = () => {
     <qsp-game-root>
       <ClickCoordinates />
       <QspCSSVariables />
+      <QspCSSLinks />
       <QspPlayer />
       <WaitLock />
       <QspErrorAlert />
+      <QspScriptLinks />
     </qsp-game-root>
   );
 };

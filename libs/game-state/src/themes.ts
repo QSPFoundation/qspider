@@ -1,4 +1,3 @@
-import { useAtom } from '@xoid/react';
 import { create } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
@@ -45,6 +44,8 @@ export type ThemeData = {
   is_user_defined: boolean;
   css_variables: CssVarDefinition[];
   translations: ThemeTranslation[];
+  css_links: string[];
+  script_links: string[];
   qsp_player?: TemplateTag;
 };
 interface ThemeActions {
@@ -80,21 +81,9 @@ export const defaultClassicTheme$ = create((get) => {
   return get(themeRegistry$)['qspider:classic'];
 });
 export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables);
+export const currentCssLinks$ = create((get) => get(currentThemeData$).css_links);
+export const currentScriptLinks$ = create((get) => get(currentThemeData$).script_links);
 export const currentTranslations$ = create((get) => get(currentThemeData$).translations);
-
-export function useThemeTemplate(
-  tag: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>,
-  fallback?: keyof Omit<ThemeData, 'is_user_defined' | 'css_variables' | 'translations'>
-): TemplateTag {
-  const theme = useAtom(currentThemeData$);
-  return (
-    theme?.[tag] ||
-    (fallback && theme?.[fallback]) || {
-      attrs: {},
-      template: `failed to find ${tag} template`,
-    }
-  );
-}
 
 export function useFormatVariable(variableName?: string, defaultValue?: string): string {
   return useQspVariable(variableName, '', 0, defaultValue ?? '');
@@ -135,6 +124,8 @@ function parseTheme(content: string, is_user_defined = true): Record<string, The
       is_user_defined,
       css_variables: extractCssVariables(theme),
       translations: extractTranslations(theme),
+      css_links: extractLinks(theme, 'css-link'),
+      script_links: extractLinks(theme, 'script-link'),
       qsp_player: extractTagData(theme, 'qsp-player'),
     };
   }
@@ -183,4 +174,13 @@ function extractTranslations(root: HTMLElement): ThemeTranslation[] {
     });
   }
   return translations;
+}
+
+function extractLinks(root: HTMLElement, tag: string): string[] {
+  const list: string[] = [];
+  for (const node of root.querySelectorAll(tag)) {
+    const src = node.getAttribute('src');
+    if (src) list.push(src);
+  }
+  return list;
 }
