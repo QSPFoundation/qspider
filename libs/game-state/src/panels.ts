@@ -40,6 +40,7 @@ export const isViewVisible$ = create(false);
 export const isViewModal$ = create(false);
 
 export const regions$ = create<Record<string, string>>({});
+export const regionsScroll$ = create<Record<string, number>>({});
 
 export const layers$ = create<Record<string, boolean>>({});
 export function readLayerState(name: string): boolean {

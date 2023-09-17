@@ -275,7 +275,8 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-region'(node) {
     const { name, ...attributes } = extractAttributes(node);
-    return <QspRegion name={name as string} attrs={attributes} />;
+    const scrollable = 'scrollable' in attributes;
+    return <QspRegion name={name as string} scrollable={scrollable} attrs={attributes} />;
   },
   'qsp-layer'(node, children) {
     const { name, index, ...attributes } = extractAttributes(node);

@@ -206,8 +206,10 @@ gs 'back-link'
 '<br/>'
 $text_update = '<b>text update</b>'
 '<a href="exec: @qspider_update_region(''region1'', $text_update)">Update region</a>'
-'<a href="exec: @qspider_prepend_region(''region1'', ''start'')">Prepend to region</a>'
-'<a href="exec: @qspider_append_region(''region1'', ''end'')">Append to region</a>'
+'<a href="exec: @qspider_prepend_region(''region1'', ''start<br/>'')">Prepend to region</a>'
+'<a href="exec: @qspider_append_region(''region1'', ''<br/>end'')">Append to region</a>'
+'<a href="exec: @qspider_scroll_region(''region1'', ''top'')">Scroll region to top</a>'
+'<a href="exec: @qspider_scroll_region(''region1'', ''bottom'')">Scroll region to bottom</a>'
 '<a href="exec: @qspider_clear_region(''region1'')">Clear region</a>'
 ---
 

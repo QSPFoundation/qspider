@@ -21,6 +21,11 @@ exec('qspider.update_region:<<$args[0]>>')
 $qspider_region[$args[0]] = $args[1] + $qspider_region[$args[0]]
 exec('qspider.update_region:<<$args[0]>>')
 ---
+# qspider_scroll_region
+! $args[0] - region name
+! $args[1] - direction (top or bottom)
+exec('qspider.scroll_region:<<$args[0]>>:<<$args[1]>>')
+---
 # qspider_clear_region
 ! $args[0] - region name
 ! $args[1] - content

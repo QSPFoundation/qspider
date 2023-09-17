@@ -1,5 +1,5 @@
 import { GameAction, onGameAction, stopCurrentGame } from './current-game';
-import { layers$, readLayerState, regions$ } from './panels';
+import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
 import { errorMessage$ } from './toasts';
@@ -47,6 +47,15 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
   'update_region:'(name: string): void {
     const region$ = regions$.focus((s) => s[name]);
     region$.set(qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '');
+  },
+  'scroll_region:'(data: string): void {
+    const [name, direction] = data.split(':');
+    const scroll$ = regionsScroll$.focus((s) => s[name]);
+    if (direction === 'top') {
+      scroll$.set(-1);
+    } else {
+      scroll$.update((x) => Math.max(x, 0) + 1);
+    }
   },
   'update_layer:'(name: string): void {
     const layer$ = layers$.focus((s) => s[name]);
