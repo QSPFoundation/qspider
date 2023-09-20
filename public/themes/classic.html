@@ -134,7 +134,11 @@
         </div>
         <qsp-pause-screen-content>
           <qsp-scrollable>
-            <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
+            <qsp-pause-screen-panel name="credits">
+              <div><qsp-t>Author</qsp-t>: <qsp-game-author></qsp-game-author></div>
+              <div><qsp-t>Version</qsp-t>: <qsp-game-version></qsp-game-version></div>
+              <qsp-game-description></qsp-game-description>
+            </qsp-pause-screen-panel>
             <qsp-show when="NOSAVE=0">
               <qsp-pause-screen-panel name="saves">
                 <h4><qsp-t>Saves</qsp-t></h4>

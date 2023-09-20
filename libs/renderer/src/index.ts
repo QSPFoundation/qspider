@@ -57,6 +57,10 @@ declare global {
       'qsp-hotkey-description': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-hotkey-keys': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
       'qsp-locale-select': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-game-title': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-game-author': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-game-version': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
+      'qsp-game-description': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
     }
   }
 }

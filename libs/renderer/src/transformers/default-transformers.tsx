@@ -56,6 +56,7 @@ import { QspMuteToggle } from './general/mute-toggle';
 import { QspGlobalHotkeys } from '../theme-core/pause-screen/GlobalHotkeys';
 import { QspGameHotkeys } from '../theme-core/pause-screen/GameHotkeys';
 import { QspLocaleSelect } from './general/locale-selector';
+import { QspGameAuthor, QspGameDescription, QspGameTitle, QspGameVersion } from './general/game-data';
 
 export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
   const tagName = node.tagName.toLowerCase();
@@ -349,5 +350,17 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
   },
   'qsp-locale-select'(node) {
     return <QspLocaleSelect attrs={extractAttributes(node)} />;
+  },
+  'qsp-game-title'(node) {
+    return <QspGameTitle attrs={extractAttributes(node)} />;
+  },
+  'qsp-game-author'(node) {
+    return <QspGameAuthor attrs={extractAttributes(node)} />;
+  },
+  'qsp-game-version'(node) {
+    return <QspGameVersion attrs={extractAttributes(node)} />;
+  },
+  'qsp-game-description'(node) {
+    return <QspGameDescription attrs={extractAttributes(node)} />;
   },
 };

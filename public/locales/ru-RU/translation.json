@@ -102,5 +102,6 @@
   "Quicksave": "Быстрое сохранение",
   "Qucikload": "Быстрая загрузка",
   "Increase volume": "Увеличить громкость",
-  "Decrease volume": "Уменьшить громкость"
+  "Decrease volume": "Уменьшить громкость",
+  "n/a": "-"
 }
