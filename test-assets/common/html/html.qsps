@@ -27,6 +27,7 @@ gt 'test list'
 '<a href="exec: gt ''svg''">SVG</a>'
 '<a href="exec: gt ''iframe''">Iframe</a>'
 '<a href="exec: gt ''attributes''">Attributes</a>'
+'<a href="exec: gt ''block-list''">Block list</a>'
 
 ---
 
@@ -186,7 +187,7 @@ gs 'back_link'
   <area shape="rect" coords="290,172,333,250" alt="Phone" href="exec: msg ''Phone''" />
   <area shape="circle" coords="337,300,44" alt="Cup of coffee" href="exec: msg ''Coffee''" />
 </map>'
-'<object data="pic_trulli.jpg" width="300" height="200"></object>'
+
 '<picture>
   <source media="(min-width:650px)" srcset="img_pink_flowers.jpg" />
   <source media="(min-width:465px)" srcset="img_white_flower.jpg" />
@@ -236,7 +237,7 @@ gs 'back_link'
   <source src="movie.mp4" type="video/mp4" />
   <source src="movie.ogg" type="video/ogg" />
 </video>'
-'<object data="video.mp4" width="400" height="300"></object>'
+
 ---
 
 # table
@@ -3733,4 +3734,11 @@ gs 'back_link'
 '<h3>Attributes</h3>'
 '<div id="test-id" class="css-cls" style="background:url(pic_trulli.jpg);" data-test="something" aria-label="aria value" onclick="alert(1)">Text</div>'
 
+---
+
+# block-list
+gs 'back_link'
+'<script>alert(1)</script>'
+'<object data="pic_trulli.jpg" width="300" height="200"></object>'
+'<object data="video.mp4" width="400" height="300"></object>'
 ---
