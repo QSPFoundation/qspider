@@ -378,7 +378,7 @@ gs 'back_link'
   </fieldset>
 </form>
 
-<input type="button" />
+<input type="button" value="Button" />
 <input type="checkbox" />
 <input type="color" />
 <input type="date" />
@@ -3731,6 +3731,6 @@ gs 'back_link'
 # attributes
 gs 'back_link'
 '<h3>Attributes</h3>'
-'<div id="test-id" class="css-cls" style="background:url(test.jpg);" data-test="something" aria-label="aria value" onkeydown="alert(1)">Text</div>'
+'<div id="test-id" class="css-cls" style="background:url(pic_trulli.jpg);" data-test="something" aria-label="aria value" onclick="alert(1)">Text</div>'
 
 ---
