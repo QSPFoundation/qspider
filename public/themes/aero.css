@@ -320,25 +320,6 @@ qsp-menu.aero-fixed-menu .list-wrapper {
 .qsp-scrollbar-thumb {
   display: none;
 }
-.qsp-button {
-  cursor: pointer;
-  background-color: var(--background-color);
-  color: var(--background-color-contrast);
-  border-radius: 4px;
-  padding: 4px 16px;
-  border: 1px solid var(--border-color);
-}
-.qsp-button:hover {
-  background-color: var(--background-color-inverted);
-  color: var(--background-color-inverted-contrast);
-  border-color: var(--background-color-inverted);
-}
-.qsp-button:focus,
-.qsp-button:focus-within,
-.qsp-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
-}
 .qsp-dialog-container {
   position: fixed;
   inset: 0;

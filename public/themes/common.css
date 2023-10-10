@@ -125,3 +125,44 @@ qsp-hotkey-keys {
   padding: 4px 16px;
   border: 1px solid var(--border-color);
 }
+
+qsp-player .qsp-button,
+#portal-container .qsp-button {
+  cursor: pointer;
+  background-color: var(--background-color);
+  color: var(--background-color-contrast);
+  border-radius: 4px;
+  padding: 4px 16px;
+  border: 1px solid var(--border-color);
+}
+qsp-player .qsp-button:hover,
+#portal-container .qsp-button:hover {
+  background-color: var(--background-color-inverted);
+  color: var(--background-color-inverted-contrast);
+  border-color: var(--background-color-inverted);
+}
+qsp-player .qsp-button:focus,
+#portal-container .qsp-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
+}
+.qsp-button + .qsp-button {
+  margin-left: var(--spacer--sm);
+}
+.qsp-dialog-buttons {
+  margin-top: var(--spacer--md);
+  display: flex;
+  justify-content: flex-end;
+}
+.qsp-input {
+  margin-top: var(--spacer--sm);
+  width: 100%;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  line-height: 1.8;
+}
+.qsp-input:focus {
+  outline: none;
+  box-shadow: 0 0 3px 1px var(--background-color-contrast);
+}

@@ -89,7 +89,8 @@ qsp-menu {
 .action-item > center {
   width: 100%;
 }
-.action-item {
+qsp-player .action-item,
+#portal-container .action-item {
   display: flex;
   justify-content: stretch;
   align-items: center;
@@ -102,7 +103,8 @@ qsp-menu {
   background-color: var(--background-color);
   user-select: none;
 }
-.action-item:hover {
+qsp-player .action-item:hover,
+#portal-container .action-item:hover {
   background-color: var(--background-color-inverted);
   color: var(--background-color-inverted-contrast);
 }
@@ -178,41 +180,4 @@ qsp-msg-content {
 }
 .close-button:focus {
   outline: none;
-}
-.qsp-button {
-  cursor: pointer;
-  background-color: var(--background-color);
-  color: var(--background-color-contrast);
-  border-radius: 4px;
-  padding: 4px 16px;
-  border: 1px solid var(--border-color);
-}
-.qsp-button:hover {
-  background-color: var(--background-color-inverted);
-  color: var(--background-color-inverted-contrast);
-  border-color: var(--background-color-inverted);
-}
-.qsp-button:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
-}
-.qsp-button + .qsp-button {
-  margin-left: var(--spacer--sm);
-}
-.qsp-dialog-buttons {
-  margin-top: var(--spacer--md);
-  display: flex;
-  justify-content: flex-end;
-}
-.qsp-input {
-  margin-top: var(--spacer--sm);
-  width: 100%;
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  line-height: 1.8;
-}
-.qsp-input:focus {
-  outline: none;
-  box-shadow: 0 0 3px 1px var(--background-color-contrast);
 }
