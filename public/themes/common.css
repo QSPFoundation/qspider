@@ -164,5 +164,5 @@ qsp-player .qsp-button:focus,
 }
 .qsp-input:focus {
   outline: none;
-  box-shadow: 0 0 3px 1px var(--background-color-contrast);
+  box-shadow: inset 0 0 3px 1px var(--background-color-contrast);
 }
