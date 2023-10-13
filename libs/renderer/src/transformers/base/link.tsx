@@ -1,5 +1,5 @@
 import { Attributes, execCode, execSelectedAction, selectAction } from '@qspider/game-state';
-import React, { useCallback } from 'react';
+import React, { MouseEventHandler, useCallback } from 'react';
 import { useAttributes } from '../../content/attributes';
 
 export const Link: React.FC<{
@@ -25,6 +25,26 @@ export const Link: React.FC<{
   return (
     // eslint-disable-next-line jsx-a11y/anchor-is-valid
     <a {...attributes} style={style} href="#" onClick={onClick}>
+      {children}
+    </a>
+  );
+};
+
+export const HtmlLink: React.FC<{
+  attrs: Attributes;
+  children: React.ReactNode;
+}> = ({ children, attrs }) => {
+  const [, style, { href, ...attributes }] = useAttributes(attrs, 'a');
+  const onClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      if (href !== '#') {
+        window.location.hash = href;
+      }
+    }
+  };
+  return (
+    <a {...attributes} style={style} href={href} onClick={onClick}>
       {children}
     </a>
   );

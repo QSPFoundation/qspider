@@ -1,5 +1,5 @@
 import { Node } from 'interweave';
-import { QUICK_SAVE_KEY, extractAttributes, isViewModal$ } from '@qspider/game-state';
+import { Attributes, QUICK_SAVE_KEY, extractAttributes, isViewModal$ } from '@qspider/game-state';
 import {
   QspActions,
   QspActionsList,
@@ -40,7 +40,7 @@ import {
 import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
 import { QspView, QspViewImage } from '../theme-core/view';
-import { Link } from './base/link';
+import { HtmlLink, Link } from './base/link';
 import { Element } from '../content/element';
 import { QspT } from '../qsp-t';
 import { QspMain, QspMainContent } from '../theme-core/main';
@@ -316,7 +316,11 @@ export const defaultTransformers: Record<string, (node: HTMLElement, children: N
         );
       }
     }
-    return defaultTransform(node, children);
+    const attrs = {
+      href,
+      ...attributes,
+    } as unknown as Attributes;
+    return <HtmlLink attrs={attrs}>{children}</HtmlLink>;
   },
   select(node, children) {
     return <HtmlSelect attrs={extractAttributes(node)}>{children}</HtmlSelect>;
