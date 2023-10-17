@@ -1,4 +1,4 @@
-import { CssVarDefinition, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
+import { CssVarDefinition, baseUrl$, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { useImageSize } from '../hooks/image-size';
@@ -21,6 +21,8 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
 }) => {
   if (url.startsWith('qspider:')) {
     url = url.replace('qspider:', initialBaseUrl$.value);
+  } else {
+    url = baseUrl$.value + url;
   }
   url = url.replace('\\', '/');
   const size = useImageSize(url);
