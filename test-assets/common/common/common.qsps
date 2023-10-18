@@ -234,10 +234,10 @@ p test
 
 # libs
 gs 'back-link', "gs 'back-link'"
-'<a href="exec: inclib ''testlib.qsps''">Rool level lib qsps</a> | <a href="exec: freelib ''testlib.qsps''">Clear</a> | <a href="exec: clr & pl ''testlib - '' + loc(''testlib'')">Check</a>'
-'<a href="exec: inclib ''testlib.qsp''">Root level lib qsp</a> | <a href="exec: freelib ''testlib.qsp''">Clear</a> | <a href="exec: clr & pl ''testlib - '' + loc(''testlib'')">Check</a>'
-'<a href="exec: inclib ''lib/nested-lib.qsps''">Nested lib qsps</a> | <a href="exec: freelib ''lib/nested-lib.qsps''">Clear</a> | <a href="exec: clr & pl ''nested-lib - '' + loc(''nested-lib'')">Check</a>'
-'<a href="exec: inclib ''lib/nested-lib.qsp''">Nested lib qsp</a> | <a href="exec: freelib ''lib/nested-lib.qsp''">Clear</a> | <a href="exec: clr & pl ''nested-lib - '' + loc(''nested-lib'')">Check</a>'
+'<a href="exec: inclib ''testlib.qsps''">Rool level lib qsps</a> | <a href="exec: clr & pl ''testlib - '' + loc(''testlib'')">Check</a>'
+'<a href="exec: inclib ''testlib.qsp''">Root level lib qsp</a> | <a href="exec: clr & pl ''testlib - '' + loc(''testlib'')">Check</a>'
+'<a href="exec: inclib ''libs/nested-lib.qsps''">Nested lib qsps</a> | <a href="exec: clr & pl ''nested-lib - '' + loc(''nested-lib'')">Check</a>'
+'<a href="exec: inclib ''libs/nested-lib.qsp''">Nested lib qsp</a> | <a href="exec: clr & pl ''nested-lib - '' + loc(''nested-lib'')">Check</a>'
 '<a href="exec: freelib">Clear all</a>'
 ---
 
