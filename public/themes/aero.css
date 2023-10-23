@@ -25,7 +25,11 @@ qsp-game-root,
 .main-block {
   position: relative;
   width: var(--aero-player-width);
+  min-width: var(--aero-player-width);
+  max-width: var(--aero-player-width);
   height: var(--aero-player-height);
+  min-height: var(--aero-player-height);
+  max-height: var(--aero-player-height);
   background-image: var(--background-image);
   background-repeat: no-repeat;
   background-size: contain;
