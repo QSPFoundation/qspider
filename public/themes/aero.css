@@ -360,3 +360,20 @@ qsp-menu.aero-fixed-menu .list-wrapper {
   display: flex;
   justify-content: flex-end;
 }
+
+.qsp-pause-dialog {
+  max-width: 80%;
+  max-height: 90%;
+  position: relative;
+  pointer-events: auto;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--md);
+  background-color: var(--background-color, black);
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+.qsp-dialog-container:has(.qsp-pause-dialog) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
