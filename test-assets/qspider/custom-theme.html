@@ -79,8 +79,14 @@
       <qsp-close-button class="close-button">x</qsp-close-button>
     </qsp-input>
     <qsp-region name="region1" scrollable style="height: 200px"></qsp-region>
-    <qsp-layer name="layer2" index="20" style="background: green">Layer 2</qsp-layer>
-    <qsp-layer name="layer1" index="10" style="background: red">Layer 1</qsp-layer>
+    <qsp-layer name="layer2" index="20" style="background: green">
+      Layer 2 <br />
+      <a href="exec: @qspider_hide_layer('layer2')">Hide</a>
+    </qsp-layer>
+    <qsp-layer name="layer1" index="10" style="background: red">
+      Layer 1 <br />
+      <a href="exec: @qspider_hide_layer('layer1')">Hide</a>
+    </qsp-layer>
     <qsp-pause-screen>
       <div class="qsp-pause-screen">
         <div class="qsp-pause-screen-buttons">
