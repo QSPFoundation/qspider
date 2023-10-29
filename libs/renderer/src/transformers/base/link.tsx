@@ -36,6 +36,10 @@ export const HtmlLink: React.FC<{
 }> = ({ children, attrs }) => {
   const [, style, { href, ...attributes }] = useAttributes(attrs, 'a');
   const onClick: MouseEventHandler<HTMLAnchorElement> = (e) => {
+    if (attributes['onClick']) {
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      return (attributes['onClick'] as unknown as Function)(e);
+    }
     if (href.startsWith('#')) {
       e.preventDefault();
       if (href !== '#') {
