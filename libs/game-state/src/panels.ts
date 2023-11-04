@@ -41,6 +41,13 @@ export const isViewModal$ = create(false);
 
 export const regions$ = create<Record<string, string>>({});
 export const regionsScroll$ = create<Record<string, number>>({});
+export function reloadRegions(): void {
+  const newState: Record<string, string> = {};
+  for (const name of Object.keys(regions$.value)) {
+    newState[name] = qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '';
+  }
+  regions$.set(newState);
+}
 
 export const layers$ = create<Record<string, boolean>>({});
 export function readLayerState(name: string): boolean {
@@ -51,4 +58,11 @@ export function registerLayer(name: string): void {
     ...current,
     [name]: readLayerState(name),
   }));
+}
+export function reloadLayers(): void {
+  const newState: Record<string, boolean> = {};
+  for (const key of Object.keys(layers$.value)) {
+    newState[key] = readLayerState(key);
+  }
+  layers$.set(newState);
 }

@@ -28,6 +28,8 @@ import {
   mainScroll$,
   objects$,
   regions$,
+  reloadLayers,
+  reloadRegions,
   statsContent$,
   statsScroll$,
 } from './panels';
@@ -204,6 +206,15 @@ export function stopCurrentGame(): void {
 }
 export type GameAction = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
+function onRestart(): void {
+  reloadRegions();
+  reloadLayers();
+}
+export function onRestore(): void {
+  reloadRegions();
+  reloadLayers();
+}
+
 export function onGameAction(action: GameAction): void {
   if (action.startsWith('pause:')) {
     const [, panel] = action.split(':');
@@ -227,6 +238,7 @@ export function onGameAction(action: GameAction): void {
     case 'restart':
       isPaused$.set(true);
       qspApi$.value?.restartGame();
+      onRestart();
       isPauseScreenVisible$.set(false);
       break;
     case 'resume':
