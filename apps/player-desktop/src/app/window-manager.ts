@@ -1,5 +1,6 @@
 import { IWindowManager } from '@qspider/contracts';
 import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
+import { platform } from '@tauri-apps/api/os';
 
 export const windowManager: IWindowManager = {
   async resize(width: number, height: number): Promise<void> {
@@ -13,16 +14,16 @@ export const windowManager: IWindowManager = {
         height = monitorSize.height - 1;
       }
     }
-    appWindow.setSize(new LogicalSize(width, height));
+    appWindow.setSize(new LogicalSize(width, await adjustHeight(height)));
   },
-  setMinSize(width: number, height: number): void {
-    appWindow.setMinSize(new LogicalSize(width, height));
+  async setMinSize(width: number, height: number): Promise<void> {
+    appWindow.setMinSize(new LogicalSize(width, await adjustHeight(height)));
   },
   unsetMinSize(): void {
     appWindow.setMinSize(undefined);
   },
-  setMaxSize(width: number, height: number): void {
-    appWindow.setMaxSize(new LogicalSize(width, height));
+  async setMaxSize(width: number, height: number): Promise<void> {
+    appWindow.setMaxSize(new LogicalSize(width, await adjustHeight(height)));
   },
   unsetMaxSize(): void {
     appWindow.setMaxSize(undefined);
@@ -44,3 +45,9 @@ export const windowManager: IWindowManager = {
     await appWindow.setFullscreen(false);
   },
 };
+
+// solwing a bug https://github.com/tauri-apps/tauri/issues/6333
+async function adjustHeight(height: number): Promise<number> {
+  const isMacOS = (await platform()) === 'darwin';
+  return isMacOS ? height + 28 : height;
+}

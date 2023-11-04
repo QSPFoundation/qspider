@@ -166,18 +166,18 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 }
 
 let wasResized = false;
-function applyWindowSettings(window: GameDescriptor['window']): void {
+async function applyWindowSettings(window: GameDescriptor['window']): Promise<void> {
   if (window) {
     if (window.minWidth && window.minHeight) {
-      windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
+      await windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
     }
     if (window.maxWidth && window.maxHeight) {
-      windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
+      await windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
     }
     const resizable = window.resizable ?? true;
     windowManager$.value?.setResizable(resizable);
     if (window.width && window.height) {
-      windowManager$.value?.resize(window.width, window.height);
+      await windowManager$.value?.resize(window.width, window.height);
       wasResized = true;
     }
     if (window.fullscreen) {
