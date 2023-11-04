@@ -44,7 +44,6 @@ export async function init(): Promise<void> {
       showError(err instanceof Error ? err.message : String(err));
     }
   }
-  console.log(toRun);
   baseInit$.set(true);
   initDefered$.value.resolve();
   await initQspApi();

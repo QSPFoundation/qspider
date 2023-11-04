@@ -87,6 +87,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (descriptor && descriptor.mode === 'aero' && !descriptor.aero) {
     try {
       const request = await fetchProxyFallback('config.xml');
+      console.log(request);
       if (!request.ok) throw new Error('No config file');
       const content = await request.text();
       const parser = new DOMParser();
@@ -99,11 +100,35 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
           width,
           height,
         };
+        descriptor.window = {
+          ...descriptor.window,
+          width,
+          maxWidth: width,
+          minWidth: width,
+          height,
+          minHeight: height,
+          maxHeight: height,
+          resizable: false,
+        };
       }
     } catch {
-      // no-op
+      descriptor.aero = {
+        width: 800,
+        height: 600,
+      };
+      descriptor.window = {
+        ...descriptor.window,
+        width: 800,
+        maxWidth: 800,
+        minWidth: 800,
+        height: 600,
+        minHeight: 600,
+        maxHeight: 600,
+        resizable: false,
+      };
     }
   }
+  console.log(descriptor);
 
   let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
   if (!gameSource) throw new Error('Failed to load game');
@@ -136,6 +161,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   currentGameEntry$.set(entry);
   descriptor && currentGame$.set(descriptor);
   loadSaveList();
+  console.log(descriptor);
   descriptor && applyWindowSettings(descriptor.window);
 }
 
