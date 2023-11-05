@@ -28,13 +28,15 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
       <Dialog.Root open={true} onOpenChange={(): void => closeMsg()}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           {!isShadeDisabled && <Dialog.Overlay className="qsp-overlay" />}
-          <AeroEffect effectVar="$MSG_EFFECT" durationVar="MSG_EFFECT_TIME">
-            <Dialog.Content className={contentClass} style={positionStyle}>
-              <Tag style={style} {...attributes}>
-                {children}
-              </Tag>
+          <div style={positionStyle} className={contentClass}>
+            <Dialog.Content forceMount asChild>
+              <AeroEffect effectVar="$MSG_EFFECT" durationVar="MSG_EFFECT_TIME">
+                <Tag style={style} {...attributes}>
+                  {children}
+                </Tag>
+              </AeroEffect>
             </Dialog.Content>
-          </AeroEffect>
+          </div>
         </Dialog.Portal>
       </Dialog.Root>
     </buttonContext.Provider>

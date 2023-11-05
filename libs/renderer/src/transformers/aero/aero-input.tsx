@@ -44,20 +44,22 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
       <Dialog.Root open={true} onOpenChange={(): void => submitInput()}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           {!isShadeDisabled && <Dialog.Overlay className="qsp-overlay" />}
-          <AeroEffect effectVar="$INPUT_EFFECT" durationVar="INPUT_EFFECT_TIME">
-            <Dialog.Content className={contentClass} style={positionStyle}>
-              <form
-                onSubmit={(e): void => {
-                  e.preventDefault();
-                  submitInput();
-                }}
-              >
-                <Tag style={style} {...attributes}>
-                  {children}
-                </Tag>
-              </form>
+          <div className={contentClass} style={positionStyle}>
+            <Dialog.Content forceMount asChild>
+              <AeroEffect effectVar="$INPUT_EFFECT" durationVar="INPUT_EFFECT_TIME">
+                <form
+                  onSubmit={(e): void => {
+                    e.preventDefault();
+                    submitInput();
+                  }}
+                >
+                  <Tag style={style} {...attributes}>
+                    {children}
+                  </Tag>
+                </form>
+              </AeroEffect>
             </Dialog.Content>
-          </AeroEffect>
+          </div>
         </Dialog.Portal>
       </Dialog.Root>
     </buttonContext.Provider>

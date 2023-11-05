@@ -16,6 +16,7 @@ import { useAttributes } from '../../content/attributes';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { menuContext } from '../../theme-core/menu';
 import { ContentRenderer } from '../../content-renderer';
+import { AeroEffect } from './aero-effect';
 
 export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
@@ -42,10 +43,12 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
         ></div>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal container={document.getElementById('portal-container')}>
-        <DropdownMenu.Content align="start">
-          <Tag style={style} {...attributes} className={className.trim()}>
-            {children}
-          </Tag>
+        <DropdownMenu.Content align="start" forceMount asChild>
+          <AeroEffect effectVar="$MENU_EFFECT" durationVar="MENU_EFFECT_TIME">
+            <Tag style={style} {...attributes} className={className.trim()}>
+              {children}
+            </Tag>
+          </AeroEffect>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

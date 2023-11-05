@@ -1,6 +1,6 @@
 import { newLocHash$, useQspVariable } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import React, { useRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 import { CSSTransition, SwitchTransition } from 'react-transition-group';
 
 import './effect.css';
@@ -11,7 +11,7 @@ export const AeroEffect: React.FC<{
   sequenceVar?: string;
   animationKey?: string;
   children: React.ReactNode;
-}> = ({ durationVar, effectVar, sequenceVar, animationKey, children }) => {
+}> = forwardRef(({ durationVar, effectVar, sequenceVar, animationKey, children }, ref) => {
   const effect = useQspVariable(effectVar, '', 0, '');
   const duration = useQspVariable(durationVar, '', 0, 500);
   const sequence = useQspVariable(sequenceVar, '', 0, 0);
@@ -24,7 +24,6 @@ export const AeroEffect: React.FC<{
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <>{children}</>;
   }
-  console.log('effect', effectVar, children);
   if (sequence) {
     return (
       <SwitchTransition>
@@ -63,4 +62,4 @@ export const AeroEffect: React.FC<{
       </div>
     </CSSTransition>
   );
-};
+});
