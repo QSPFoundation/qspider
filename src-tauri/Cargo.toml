@@ -10,7 +10,7 @@ edition = "2018"
 build = "src/build.rs"
 
 [build-dependencies.tauri-build]
-version = "1.4.0"
+version = "1.5.0"
 features = ["config-toml"]
 
 [dependencies]
@@ -25,11 +25,11 @@ version = "1.0"
 features = ["derive"]
 
 [dependencies.tauri]
-version = "1.4.0"
+version = "1.5.2"
 features = ["api-all", "cli", "devtools", "icon-png", "updater", "config-toml"]
 
 [dependencies.uuid]
-version = "0.8"
+version = "1.5.0"
 features = ["serde", "v4"]
 
 [features]
