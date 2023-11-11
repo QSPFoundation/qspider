@@ -18,7 +18,7 @@ serde_json = "1.0"
 entity-tag = "0.1.5"
 mime_guess = "2.0.3"
 urlencoding = "2.1.0"
-tauri-plugin-window-state = "0.1"
+tauri-plugin-window-state = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 
 [dependencies.serde]
 version = "1.0"

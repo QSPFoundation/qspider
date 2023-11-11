@@ -103,11 +103,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
         descriptor.window = {
           ...descriptor.window,
           width,
-          maxWidth: width,
-          minWidth: width,
           height,
-          minHeight: height,
-          maxHeight: height,
           resizable: false,
         };
       }
@@ -119,11 +115,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
       descriptor.window = {
         ...descriptor.window,
         width: 800,
-        maxWidth: 800,
-        minWidth: 800,
         height: 600,
-        minHeight: 600,
-        maxHeight: 600,
         resizable: false,
       };
     }
@@ -168,17 +160,19 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 let wasResized = false;
 async function applyWindowSettings(window: GameDescriptor['window']): Promise<void> {
   if (window) {
-    if (window.minWidth && window.minHeight) {
-      await windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
-    }
-    if (window.maxWidth && window.maxHeight) {
-      await windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
-    }
-    const resizable = window.resizable ?? true;
-    windowManager$.value?.setResizable(resizable);
     if (window.width && window.height) {
       await windowManager$.value?.resize(window.width, window.height);
       wasResized = true;
+    }
+    const resizable = window.resizable ?? true;
+    windowManager$.value?.setResizable(resizable);
+    if (resizable) {
+      if (window.minWidth && window.minHeight) {
+        await windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
+      }
+      if (window.maxWidth && window.maxHeight) {
+        await windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
+      }
     }
     if (window.fullscreen) {
       setTimeout(() => windowManager$.value?.goFullscreen(), 0);
