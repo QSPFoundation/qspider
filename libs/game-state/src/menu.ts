@@ -19,30 +19,34 @@ export const menu$ = create<MenuAtom, MenuAtomAction>(
     items: [],
     onselect: null,
   },
-  (atom) => ({
-    open(items: QspListItem[], onselect: (index: number) => void): void {
-      atom.set({
-        isOpen: true,
-        items,
-        onselect,
-      });
-    },
-    select(index: number): void {
-      atom.value.onselect?.(index);
-      atom.value.isOpen = false;
-      atom.value.onselect = null;
-    },
-    close(): void {
-      atom.value.onselect?.(-1);
-      atom.value.isOpen = false;
-      atom.value.onselect = null;
-    },
-    clear(): void {
-      atom.set({
-        isOpen: false,
-        items: [],
-        onselect: null,
-      });
-    },
-  })
+  (atom) => {
+    const isOpen$ = atom.focus((s) => s.isOpen);
+    return {
+      open(items: QspListItem[], onselect: (index: number) => void): void {
+        atom.set({
+          isOpen: true,
+          items,
+          onselect,
+        });
+      },
+      select(index: number): void {
+        isOpen$.set(false);
+        atom.value.onselect?.(index);
+        atom.value.onselect = null;
+      },
+      close(): void {
+        isOpen$.set(false);
+        atom.value.onselect?.(-1);
+        atom.value.onselect = null;
+      },
+      clear(): void {
+        atom.value.onselect?.(-1);
+        atom.set({
+          isOpen: false,
+          items: [],
+          onselect: null,
+        });
+      },
+    };
+  }
 );

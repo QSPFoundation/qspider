@@ -24,7 +24,7 @@ const handler = throttle((e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
     if (
       wait$.value ||
-      msg$.value ||
+      msg$.value.isOpen ||
       input$.value ||
       menu$.value.isOpen ||
       isPauseScreenVisible$.value ||

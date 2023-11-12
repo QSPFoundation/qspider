@@ -155,7 +155,7 @@ qspApi$.subscribe((api) => {
     menu$.actions.open(prepareList(items), select);
   });
   api.on('msg', (text, closed) => {
-    msg$.set({ text, closed });
+    msg$.actions.open(text, closed);
   });
   api.on('main_changed', (text) => {
     const prevMain = mainContent$.value;

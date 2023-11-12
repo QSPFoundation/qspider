@@ -196,7 +196,7 @@ export function stopCurrentGame(): void {
   // clear state
   input$.set(null);
   menu$.actions.clear();
-  msg$.set(null);
+  msg$.actions.clear();
   mainContent$.set('');
   statsContent$.set('');
   actions$.set([]);
