@@ -1,6 +1,5 @@
 import { extractAttributes } from '@qspider/game-state';
 import { Node } from 'interweave';
-import { AeroEffect } from './aero/aero-effect';
 import { AeroQspMenu, AeroQspMenuItem } from './aero/aero-menu';
 import { AeroStyles } from './aero/aero-styles';
 import { AeroQspView } from './aero/aero-view';
@@ -15,14 +14,6 @@ import { AeroNewlocEffect } from './aero/aero-newloc-effect';
 export const aeroTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
   'aero-newloc-effect'(node, children) {
     return <AeroNewlocEffect>{children}</AeroNewlocEffect>;
-  },
-  'aero-effect'(node, children) {
-    const { name, duration, sequence, key } = extractAttributes(node);
-    return (
-      <AeroEffect effectVar={name} durationVar={duration} sequenceVar={sequence} animationKey={key}>
-        {children}
-      </AeroEffect>
-    );
   },
   'aero-styles'() {
     return <AeroStyles />;

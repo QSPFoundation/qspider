@@ -64,7 +64,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-i18next": "^13.4.0",
-    "react-transition-group": "^4.4.5",
     "uuid": "^9.0.1",
     "workbox-core": "^7.0.0",
     "workbox-routing": "^7.0.0",
