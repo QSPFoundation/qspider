@@ -4,9 +4,9 @@ import {
   isCmdVisible$,
   isObjsVisible$,
   isStatsVisible$,
-  isViewVisible$,
   qspGuiCfg$,
   qspGuiLayout$,
+  view$,
 } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
@@ -96,7 +96,7 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
 
 const penelAtoms: Record<string, Atom<boolean>> = {
   input: isCmdVisible$,
-  imgview: isViewVisible$,
+  imgview: view$.focus((s) => s.isOpen),
   objs: isObjsVisible$,
   acts: isActsVisible$,
   vars: isStatsVisible$,

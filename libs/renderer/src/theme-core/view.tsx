@@ -1,4 +1,4 @@
-import { Attributes, isViewVisible$, viewPath$ } from '@qspider/game-state';
+import { Attributes, view$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -10,17 +10,14 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
   children,
 }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-view');
-  const path = useAtom(viewPath$);
-  const isVisible = useAtom(isViewVisible$);
-
-  if (!isVisible) return null;
+  const view = useAtom(view$);
   const preparedStyle = {
     ...style,
-    '--view-image': `url("${path}")`,
+    '--view-image': `url("${view.path}")`,
   };
   if (modal) {
     return (
-      <Dialog.Root open={true} onOpenChange={(): void => isViewVisible$.set(false)}>
+      <Dialog.Root open={view.isOpen} onOpenChange={(): void => view$.actions.close()}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           <Dialog.Overlay className="qsp-overlay" />
           <Dialog.Content className="qsp-dialog-container">
@@ -41,7 +38,7 @@ export const QspView: React.FC<{ attrs: Attributes; modal?: boolean; children: R
 
 export const QspViewImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [, style, attributes] = useAttributes(attrs, 'img', 'qsp-view-image');
-  const path = useAtom(viewPath$);
-  if (!path) return null;
-  return <img src={path} alt="" style={style} {...attributes} />;
+  const view = useAtom(view$);
+  if (!view.path) return null;
+  return <img src={view.path} alt="" style={style} {...attributes} />;
 };

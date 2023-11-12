@@ -35,9 +35,50 @@ export function submitUserInput(): void {
   qspApi$.value?.updateUserInput(cmdText$.value);
 }
 
-export const viewPath$ = create('');
-export const isViewVisible$ = create(false);
-export const isViewModal$ = create(false);
+interface ViewAtom {
+  isOpen: boolean;
+  path: string;
+  isModal: boolean;
+}
+interface ViewAtomActions {
+  open(path: string): void;
+  setIsModal(isModal: boolean): void;
+  close(): void;
+  clear(): void;
+}
+
+export const view$ = create<ViewAtom, ViewAtomActions>(
+  {
+    isOpen: false,
+    path: '',
+    isModal: false,
+  },
+  (atom) => {
+    const isOpen$ = atom.focus((s) => s.isOpen);
+    return {
+      open(path: string): void {
+        atom.set({
+          isOpen: true,
+          path,
+          isModal: false,
+        });
+      },
+      setIsModal(isModal: boolean): void {
+        atom.value.isModal = isModal;
+      },
+      close(): void {
+        isOpen$.set(false);
+      },
+      clear(): void {
+        atom.set({
+          isOpen: false,
+          path: '',
+          isModal: false,
+        });
+      },
+    };
+  }
+);
 
 export const regions$ = create<Record<string, string>>({});
 export const regionsScroll$ = create<Record<string, number>>({});

@@ -12,12 +12,11 @@ import {
   isNewLoc$,
   isObjsVisible$,
   isStatsVisible$,
-  isViewVisible$,
   mainContent$,
   newLocHash$,
   objects$,
   statsContent$,
-  viewPath$,
+  view$,
 } from './panels';
 import { baseUrl$, currentGameEntry$, GameAction, onGameAction } from './current-game';
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
@@ -178,8 +177,11 @@ qspApi$.subscribe((api) => {
     cmdText$.set(text);
   });
   api.on('view', (path) => {
-    viewPath$.set(path);
-    isViewVisible$.set(Boolean(path));
+    if (path) {
+      view$.actions.open(path);
+    } else {
+      view$.actions.close();
+    }
   });
   api.on('panel_visibility', (type, isShown) => {
     switch (type) {

@@ -1,4 +1,4 @@
-import { Attributes, useQspVariable, viewPath$ } from '@qspider/game-state';
+import { Attributes, useQspVariable, view$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { animated } from '@react-spring/web';
@@ -10,16 +10,16 @@ export const AeroQspView: React.FC<{ attrs: Attributes; modal?: boolean; childre
   children,
 }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-view');
-  const path = useAtom(viewPath$);
+  const view = useAtom(view$);
   const alwaysShow = useQspVariable('ALWAYS_SHOW_VIEW', '', 0, 0);
-  const transitions = useAeroEffect(Boolean(path), '$VIEW_EFFECT', 'VIEW_EFFECT_TIME');
+  const transitions = useAeroEffect(view.isOpen, '$VIEW_EFFECT', 'VIEW_EFFECT_TIME');
   const preparedStyle = {
     ...style,
-    '--view-image': `url("${path}")`,
+    '--view-image': `url("${view.path}")`,
   };
   const onClick = (): void => {
     if (!alwaysShow) {
-      viewPath$.set('');
+      view$.actions.close();
     }
   };
   return transitions((styles, open) =>

@@ -1,13 +1,4 @@
-import {
-  currentGameEntry$,
-  input$,
-  isPauseScreenVisible$,
-  isViewModal$,
-  isViewVisible$,
-  menu$,
-  msg$,
-  wait$,
-} from '@qspider/game-state';
+import { currentGameEntry$, input$, isPauseScreenVisible$, menu$, msg$, view$, wait$ } from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
@@ -28,7 +19,7 @@ const handler = throttle((e: KeyboardEvent): void => {
       input$.value.isOpen ||
       menu$.value.isOpen ||
       isPauseScreenVisible$.value ||
-      (isViewModal$.value && isViewVisible$.value)
+      (view$.value.isOpen && view$.value.isModal)
     )
       return;
     e.preventDefault();
