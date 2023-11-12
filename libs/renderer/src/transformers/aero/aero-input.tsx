@@ -10,12 +10,13 @@ import {
 } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { CSSProperties, ReactNode } from 'react';
+import { animated } from '@react-spring/web';
 import { useAttributes } from '../../content/attributes';
 import { ContentRenderer } from '../../content-renderer';
 import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
-import { AeroEffect } from './aero-effect';
 import { QspScrollable } from '../../theme-core/scrollable';
+import { useAeroEffect } from './use-aero-effect';
 
 export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
@@ -24,7 +25,8 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
   const isShadeDisabled = useQspVariable('DISABLESHADE', '', 0, 0);
   const inputX = useQspVariable('INPUT_X', '', 0, 200);
   const inputY = useQspVariable('INPUT_Y', '', 0, 165);
-  if (!input) return null;
+  const isOpen = Boolean(input);
+  const transitions = useAeroEffect(isOpen, '$INPUT_EFFECT', 'INPUT_EFFECT_TIME');
   const useMouseCordinates = inputX < 0 || inputY < 0;
   const positionStyle = {
     '--aero-input-x': `${useMouseCordinates ? coordinates.x : inputX}px`,
@@ -41,26 +43,32 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
         },
       }}
     >
-      <Dialog.Root open={true} onOpenChange={(): void => submitInput()}>
-        <Dialog.Portal container={document.getElementById('portal-container')}>
-          {!isShadeDisabled && <Dialog.Overlay className="qsp-overlay" />}
-          <div className={contentClass} style={positionStyle}>
-            <Dialog.Content forceMount asChild>
-              <AeroEffect effectVar="$INPUT_EFFECT" durationVar="INPUT_EFFECT_TIME">
-                <form
-                  onSubmit={(e): void => {
-                    e.preventDefault();
-                    submitInput();
-                  }}
-                >
-                  <Tag style={style} {...attributes}>
-                    {children}
-                  </Tag>
-                </form>
-              </AeroEffect>
-            </Dialog.Content>
-          </div>
-        </Dialog.Portal>
+      <Dialog.Root open={isOpen} onOpenChange={(): void => submitInput()}>
+        {transitions((styles, open) =>
+          open ? (
+            <Dialog.Portal forceMount container={document.getElementById('portal-container')}>
+              {!isShadeDisabled && (
+                <Dialog.Overlay forceMount asChild>
+                  <animated.div className="qsp-overlay" />
+                </Dialog.Overlay>
+              )}
+              <Dialog.Content forceMount asChild style={positionStyle}>
+                <animated.div style={styles} className={contentClass}>
+                  <form
+                    onSubmit={(e): void => {
+                      e.preventDefault();
+                      submitInput();
+                    }}
+                  >
+                    <Tag style={style} {...attributes}>
+                      {children}
+                    </Tag>
+                  </form>
+                </animated.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          ) : null
+        )}
       </Dialog.Root>
     </buttonContext.Provider>
   );
