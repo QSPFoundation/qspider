@@ -1,13 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import {
-  Attributes,
-  input$,
-  inputResult$,
-  submitInput,
-  TEXT_PLACEHOLDER,
-  useFormatVariable,
-  useQspVariable,
-} from '@qspider/game-state';
+import { Attributes, input$, TEXT_PLACEHOLDER, useFormatVariable, useQspVariable } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { CSSProperties, ReactNode } from 'react';
 import { animated } from '@react-spring/web';
@@ -25,8 +17,7 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
   const isShadeDisabled = useQspVariable('DISABLESHADE', '', 0, 0);
   const inputX = useQspVariable('INPUT_X', '', 0, 200);
   const inputY = useQspVariable('INPUT_Y', '', 0, 165);
-  const isOpen = Boolean(input);
-  const transitions = useAeroEffect(isOpen, '$INPUT_EFFECT', 'INPUT_EFFECT_TIME');
+  const transitions = useAeroEffect(input.isOpen, '$INPUT_EFFECT', 'INPUT_EFFECT_TIME');
   const useMouseCordinates = inputX < 0 || inputY < 0;
   const positionStyle = {
     '--aero-input-x': `${useMouseCordinates ? coordinates.x : inputX}px`,
@@ -36,14 +27,13 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
   return (
     <buttonContext.Provider
       value={{
-        okAction: submitInput,
+        okAction: () => input$.actions.finish(),
         cancelAction: (): void => {
-          inputResult$.set('');
-          submitInput();
+          input$.actions.close();
         },
       }}
     >
-      <Dialog.Root open={isOpen} onOpenChange={(): void => submitInput()}>
+      <Dialog.Root open={input.isOpen} onOpenChange={(): void => input$.actions.close()}>
         {transitions((styles, open) =>
           open ? (
             <Dialog.Portal forceMount container={document.getElementById('portal-container')}>
@@ -57,7 +47,7 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
                   <form
                     onSubmit={(e): void => {
                       e.preventDefault();
-                      submitInput();
+                      input$.actions.finish();
                     }}
                   >
                     <Tag style={style} {...attributes}>
@@ -78,8 +68,7 @@ export const AeroQspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) 
   const input = useAtom(input$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   const format = useFormatVariable(useFormat);
-  if (!input) return null;
-  const toRender = format ? format.replace(TEXT_PLACEHOLDER, input.text) : input.text;
+  const toRender = format ? format.replace(TEXT_PLACEHOLDER, input.content) : input.content;
   return (
     <Dialog.Description asChild>
       <Tag style={style} {...attributes}>

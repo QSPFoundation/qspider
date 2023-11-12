@@ -1,5 +1,5 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Attributes, input$, inputResult$, submitInput } from '@qspider/game-state';
+import { Attributes, input$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -10,18 +10,16 @@ import { QspScrollable } from './scrollable';
 export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-input');
-  if (!input) return null;
   return (
     <buttonContext.Provider
       value={{
-        okAction: submitInput,
+        okAction: () => input$.actions.finish(),
         cancelAction: (): void => {
-          inputResult$.set('');
-          submitInput();
+          input$.actions.close();
         },
       }}
     >
-      <Dialog.Root open={true} onOpenChange={(): void => submitInput()}>
+      <Dialog.Root open={input.isOpen} onOpenChange={(): void => input$.actions.close()}>
         <Dialog.Portal container={document.getElementById('portal-container')}>
           <Dialog.Overlay />
           <Dialog.Content className="qsp-dialog-container">
@@ -29,7 +27,7 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
               <form
                 onSubmit={(e): void => {
                   e.preventDefault();
-                  submitInput();
+                  input$.actions.finish();
                 }}
               >
                 {children}
@@ -45,12 +43,11 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const input = useAtom(input$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
-  if (!input) return null;
   return (
     <Dialog.Description asChild>
       <QspScrollable attrs={{}}>
         <Tag style={style} {...attributes}>
-          <ContentRenderer content={input.text} />
+          <ContentRenderer content={input.content} />
         </Tag>
       </QspScrollable>
     </Dialog.Description>
@@ -58,10 +55,10 @@ export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 };
 
 export const QspInputTag: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const value = useAtom(inputResult$);
   const [, style, attributes] = useAttributes(attrs, 'input', 'qsp-input-tag');
+  const input = useAtom(input$);
   const onInput: React.FormEventHandler<HTMLInputElement> = (e) => {
-    inputResult$.set((e.target as HTMLInputElement).value);
+    input$.actions.enter((e.target as HTMLInputElement).value);
   };
-  return <input style={style} {...attributes} type="text" value={value} onInput={onInput} autoFocus />;
+  return <input style={style} {...attributes} type="text" value={input.entered} onInput={onInput} autoFocus />;
 };

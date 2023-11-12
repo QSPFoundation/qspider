@@ -149,7 +149,7 @@ qspApi$.subscribe((api) => {
     });
   });
   api.on('input', (text, finished) => {
-    input$.set({ text, finished });
+    input$.actions.open(text, finished);
   });
   api.on('menu', (items, select) => {
     menu$.actions.open(prepareList(items), select);

@@ -194,7 +194,7 @@ export function stopCurrentGame(): void {
   isPaused$.set(true);
 
   // clear state
-  input$.set(null);
+  input$.actions.clear();
   menu$.actions.clear();
   msg$.actions.clear();
   mainContent$.set('');
