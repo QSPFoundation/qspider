@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { QspListItem } from '@qsp/wasm-engine';
-import { Attributes, menu$, selectMenuItem } from '@qspider/game-state';
+import { Attributes, menu$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
 import { ContentRenderer } from '../content-renderer';
@@ -23,7 +23,7 @@ export const QspMenu: React.FC<{
   children: ReactNode;
 }> = ({ attrs, showAs, showAt, offsetX, offsetY, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
-  const isVisible = useAtom(menu$);
+  const menu = useAtom(menu$);
   const coordinates = useClickCoordinates();
   const triggerStyle: CSSProperties = { position: 'fixed' };
   let align: 'center' | 'start' | 'end' = 'start';
@@ -60,9 +60,8 @@ export const QspMenu: React.FC<{
     triggerStyle.left = coordinates.x ?? 0;
     triggerStyle.top = coordinates.y ?? 0;
   }
-  if (!isVisible) return null;
   return (
-    <DropdownMenu.Root open={true} onOpenChange={(): void => selectMenuItem(-1)}>
+    <DropdownMenu.Root open={menu.isOpen} onOpenChange={(): void => menu$.actions.close()}>
       <DropdownMenu.Trigger asChild>
         <div style={triggerStyle}></div>
       </DropdownMenu.Trigger>
@@ -80,7 +79,6 @@ export const QspMenu: React.FC<{
 export const QspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const menu = useAtom(menu$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
-  if (!menu) return null;
   let displayIndex = 1;
   return (
     <Tag style={style} {...attributes}>
@@ -117,7 +115,7 @@ export const QspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> =
   };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
-    selectMenuItem(index);
+    menu$.actions.select(index);
   };
   return (
     <DropdownMenu.Item asChild>

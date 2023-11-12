@@ -5,7 +5,6 @@ import {
   IMAGE_PLACEHOLDER,
   TEXT_PLACEHOLDER,
   menu$,
-  selectMenuItem,
   useFormatVariable,
   useQspVariable,
 } from '@qspider/game-state';
@@ -21,19 +20,19 @@ import { useAeroEffect } from './use-aero-effect';
 
 export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
-  const isVisible = Boolean(useAtom(menu$));
+  const menu = useAtom(menu$);
   const coordinates = useClickCoordinates();
   const isFixed = useQspVariable('FIXED_SIZE_MENU', '', 0, 0);
   const menuX = useQspVariable('MENU_X', '', 0, -1);
   const menuY = useQspVariable('MENU_Y', '', 0, -1);
-  const transitions = useAeroEffect(isVisible, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
+  const transitions = useAeroEffect(menu.isOpen, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
   const useMouseCordinates = menuX < 0 || menuY < 0;
   const left = useMouseCordinates ? coordinates.x : menuX;
   const top = useMouseCordinates ? coordinates.y : menuY;
   let className = attributes['className'] || '';
   if (isFixed) className += ' aero-fixed-menu';
   return (
-    <DropdownMenu.Root open={isVisible} onOpenChange={(): void => selectMenuItem(-1)}>
+    <DropdownMenu.Root open={menu.isOpen} onOpenChange={(): void => menu$.actions.close()}>
       <DropdownMenu.Trigger asChild>
         <div
           style={{
@@ -85,7 +84,7 @@ export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode 
   };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
-    selectMenuItem(index);
+    menu$.actions.select(index);
   };
   return (
     <DropdownMenu.Item asChild>

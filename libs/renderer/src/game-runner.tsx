@@ -26,7 +26,7 @@ const handler = throttle((e: KeyboardEvent): void => {
       wait$.value ||
       msg$.value ||
       input$.value ||
-      menu$.value ||
+      menu$.value.isOpen ||
       isPauseScreenVisible$.value ||
       (isViewModal$.value && isViewVisible$.value)
     )
