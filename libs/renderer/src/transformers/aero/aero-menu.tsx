@@ -12,27 +12,28 @@ import {
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useAtom } from '@xoid/react';
 import { ReactNode, useContext, useState } from 'react';
+import { animated } from '@react-spring/web';
 import { useAttributes } from '../../content/attributes';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { menuContext } from '../../theme-core/menu';
 import { ContentRenderer } from '../../content-renderer';
-import { AeroEffect } from './aero-effect';
+import { useAeroEffect } from './use-aero-effect';
 
 export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
-  const isVisible = useAtom(menu$);
+  const isVisible = Boolean(useAtom(menu$));
   const coordinates = useClickCoordinates();
   const isFixed = useQspVariable('FIXED_SIZE_MENU', '', 0, 0);
   const menuX = useQspVariable('MENU_X', '', 0, -1);
   const menuY = useQspVariable('MENU_Y', '', 0, -1);
-  if (!isVisible) return null;
+  const transitions = useAeroEffect(isVisible, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
   const useMouseCordinates = menuX < 0 || menuY < 0;
   const left = useMouseCordinates ? coordinates.x : menuX;
   const top = useMouseCordinates ? coordinates.y : menuY;
   let className = attributes['className'] || '';
   if (isFixed) className += ' aero-fixed-menu';
   return (
-    <DropdownMenu.Root open={true} onOpenChange={(): void => selectMenuItem(-1)}>
+    <DropdownMenu.Root open={isVisible} onOpenChange={(): void => selectMenuItem(-1)}>
       <DropdownMenu.Trigger asChild>
         <div
           style={{
@@ -42,15 +43,19 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
           }}
         ></div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Portal container={document.getElementById('portal-container')}>
-        <DropdownMenu.Content align="start" forceMount asChild>
-          <AeroEffect effectVar="$MENU_EFFECT" durationVar="MENU_EFFECT_TIME">
-            <Tag style={style} {...attributes} className={className.trim()}>
-              {children}
-            </Tag>
-          </AeroEffect>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
+      {transitions((styles, open) =>
+        open ? (
+          <DropdownMenu.Portal forceMount container={document.getElementById('portal-container')}>
+            <DropdownMenu.Content align="start" forceMount asChild>
+              <animated.div style={styles}>
+                <Tag style={style} {...attributes} className={className.trim()}>
+                  {children}
+                </Tag>
+              </animated.div>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        ) : null
+      )}
     </DropdownMenu.Root>
   );
 };
