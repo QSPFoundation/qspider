@@ -4,7 +4,11 @@ import { AERO_EFFECTS } from './aero-effects';
 
 export function useAeroEffect(state: boolean, effectVar: string, durationVar: string): TransitionFn {
   const effect = useQspVariable(effectVar, '', 0, '');
-  const duration = useQspVariable(durationVar, '', 0, 500);
+  let duration = useQspVariable(durationVar, '', 0, 500);
+  const effectConfig = AERO_EFFECTS[effect] ?? {};
+  if (effectConfig.enter && Array.isArray(effectConfig.enter)) {
+    duration /= effectConfig.enter.length;
+  }
   return useTransition(state, {
     ...(AERO_EFFECTS[effect] ?? {}),
     config: {
