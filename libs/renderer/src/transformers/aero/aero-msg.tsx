@@ -9,12 +9,12 @@ import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { QspScrollable } from '../../theme-core/scrollable';
 import { useAeroEffect } from './use-aero-effect';
+import { AeroOverlay } from './aero-overlay';
 
 export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
   const msg = useAtom(msg$);
   const coordinates = useClickCoordinates();
-  const isShadeDisabled = useQspVariable('DISABLESHADE', '', 0, 0);
   const msgX = useQspVariable('MSG_X', '', 0, 200);
   const msgY = useQspVariable('MSG_Y', '', 0, 165);
   const transitions = useAeroEffect(msg.isOpen, '$MSG_EFFECT', 'MSG_EFFECT_TIME');
@@ -33,11 +33,7 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
         {transitions((styles, item) => {
           return item ? (
             <Dialog.Portal forceMount container={document.getElementById('portal-container')}>
-              {!isShadeDisabled && (
-                <Dialog.Overlay forceMount asChild>
-                  <animated.div className="qsp-overlay"></animated.div>
-                </Dialog.Overlay>
-              )}
+              <AeroOverlay />
               <Dialog.Content forceMount asChild style={positionStyle}>
                 <animated.div style={styles} className={contentClass}>
                   <Tag style={style} {...attributes}>
