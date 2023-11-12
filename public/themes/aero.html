@@ -409,12 +409,7 @@
     <qsp-style from="$STYLESHEET"></qsp-style>
     <div class="aero-theme">
       <div class="main-block">
-        <aero-effect
-          name="$NEWLOC_EFFECT"
-          duration="NEWLOC_EFFECT_TIME"
-          sequence="NEWLOC_EFFECT_SEQ"
-          key="@@location@@"
-        >
+        <aero-newloc-effect>
           <qsp-stats>
             <qsp-scrollable>
               <qsp-stats-content use-format="$STAT_FORMAT"></qsp-stats-content>
@@ -470,7 +465,7 @@
           <qsp-cmd>
             <qsp-cmd-input></qsp-cmd-input>
           </qsp-cmd>
-        </aero-effect>
+        </aero-newloc-effect>
         <qsp-view>
           <qsp-view-image></qsp-view-image>
         </qsp-view>

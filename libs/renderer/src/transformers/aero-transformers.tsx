@@ -10,7 +10,12 @@ import { AeroQspMainContent } from './aero/aero-main';
 import { AeroQspMsg, AeroQspMsgContent } from './aero/aero-msg';
 import { AeroQspInput, AeroQspInputContent } from './aero/aero-input';
 import { AeroQspObjectItem } from './aero/aero-objects';
+import { AeroNewlocEffect } from './aero/aero-newloc-effect';
+
 export const aeroTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
+  'aero-newloc-effect'(node, children) {
+    return <AeroNewlocEffect>{children}</AeroNewlocEffect>;
+  },
   'aero-effect'(node, children) {
     const { name, duration, sequence, key } = extractAttributes(node);
     return (

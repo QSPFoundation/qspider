@@ -10,7 +10,7 @@ export function useAeroEffect(state: boolean, effectVar: string, durationVar: st
     duration /= effectConfig.enter.length;
   }
   return useTransition(state, {
-    ...(AERO_EFFECTS[effect] ?? {}),
+    ...effectConfig,
     config: {
       duration,
     },
