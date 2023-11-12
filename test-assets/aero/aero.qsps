@@ -454,6 +454,7 @@ gs 'backlink'
 '<a href="exec: $VIEW_EFFECT=''wipe4''">wipe4</a>'
 
 '<a href="exec: view ''msg-back.png''">Try</a>'
+'<a href="exec: view ''bg.jpg''">Try other</a>'
 ---
 
 # input effects
