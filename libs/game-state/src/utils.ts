@@ -134,7 +134,7 @@ export function prepareContent(text: string): string {
   // also in cluedo there is \" inside href parsed wrong
   // todo find a way to handle this in parser
 
-  return text.replace(/&gt /g, '& gt ').replace(/\\"/g, '&quot;');
+  return text.replace(/&gt /gi, '& gt ').replace(/\\"/g, '&quot;');
 }
 
 export function prepareList(list: QspListItem[]): QspListItem[] {
