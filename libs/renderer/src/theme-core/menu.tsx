@@ -7,6 +7,8 @@ import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { useClickCoordinates } from '../hooks/click-coordinates';
 import React from 'react';
+import { useFadeTransition } from '../hooks/fade-transition';
+import { animated } from '@react-spring/web';
 
 export const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
   item: { name: 'unknown', image: '' },
@@ -26,6 +28,7 @@ export const QspMenu: React.FC<{
   const menu = useAtom(menu$);
   const coordinates = useClickCoordinates();
   const triggerStyle: CSSProperties = { position: 'fixed' };
+  const transitions = useFadeTransition(menu.isOpen);
   let align: 'center' | 'start' | 'end' = 'start';
   let side: 'bottom' | 'left' | 'right' | 'top' = 'bottom';
   if (showAs === 'fixed') {
@@ -65,13 +68,19 @@ export const QspMenu: React.FC<{
       <DropdownMenu.Trigger asChild>
         <div style={triggerStyle}></div>
       </DropdownMenu.Trigger>
-      <DropdownMenu.Portal container={document.getElementById('portal-container')}>
-        <DropdownMenu.Content align={align} side={side} loop>
-          <Tag style={style} {...attributes}>
-            {children}
-          </Tag>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
+      {transitions((styles, item) => {
+        return item ? (
+          <DropdownMenu.Portal container={document.getElementById('portal-container')}>
+            <DropdownMenu.Content forceMount asChild align={align} side={side} loop>
+              <animated.div style={styles}>
+                <Tag style={style} {...attributes}>
+                  {children}
+                </Tag>
+              </animated.div>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        ) : null;
+      })}
     </DropdownMenu.Root>
   );
 };

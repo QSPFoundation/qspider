@@ -4,26 +4,35 @@ import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
+import { useFadeTransition } from '../hooks/fade-transition';
 import { buttonContext } from './buttons';
 import { QspScrollable } from './scrollable';
+import { animated } from '@react-spring/web';
 
 export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
   const msg = useAtom(msg$);
+  const transitions = useFadeTransition(msg.isOpen);
   function onClose(): void {
     msg$.actions.close();
   }
   return (
     <buttonContext.Provider value={{ okAction: onClose, cancelAction: onClose }}>
       <Dialog.Root open={msg.isOpen} onOpenChange={onClose}>
-        <Dialog.Portal container={document.getElementById('portal-container')}>
-          <Dialog.Overlay className="qsp-overlay" />
-          <Dialog.Content className="qsp-dialog-container">
-            <Tag style={style} {...attributes}>
-              {children}
-            </Tag>
-          </Dialog.Content>
-        </Dialog.Portal>
+        {transitions((styles, item) => {
+          return item ? (
+            <Dialog.Portal container={document.getElementById('portal-container')}>
+              <Dialog.Overlay className="qsp-overlay" />
+              <Dialog.Content forceMount asChild>
+                <animated.div style={styles} className="qsp-dialog-container">
+                  <Tag style={style} {...attributes}>
+                    {children}
+                  </Tag>
+                </animated.div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          ) : null;
+        })}
       </Dialog.Root>
     </buttonContext.Provider>
   );

@@ -8,6 +8,7 @@ SHOWACTS 0
 SHOWINPUT 0
 SHOWOBJS 0
 SHOWSTAT 0
+usehtml = 1
 gt 'test list'
 ---
 
