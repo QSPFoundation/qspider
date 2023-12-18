@@ -2,10 +2,17 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
-import pluginRewriteAll from 'vite-plugin-rewrite-all';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  root: __dirname,
+  build: {
+    outDir: '../../dist/apps/player',
+    reportCompressedSize: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
+  },
   cacheDir: '../../node_modules/.vite/player',
   publicDir: '../../public',
   server: {
@@ -21,7 +28,6 @@ export default defineConfig({
   plugins: [
     react(),
     nxViteTsPaths(),
-    pluginRewriteAll(),
     VitePWA({
       srcDir: 'src',
       filename: 'service-worker.ts',
@@ -38,6 +44,6 @@ export default defineConfig({
   ],
 
   worker: {
-    plugins: [nxViteTsPaths()],
+    plugins: () => [nxViteTsPaths()],
   },
 });
