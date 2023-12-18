@@ -20,7 +20,7 @@ wait$.subscribe((wait) => {
     waitTimeout$.set(
       setTimeout(() => {
         finishWait();
-      }, wait.ms)
+      }, wait.ms),
     );
   }
 });

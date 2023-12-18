@@ -53,7 +53,7 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
                 </animated.div>
               </Dialog.Content>
             </Dialog.Portal>
-          ) : null
+          ) : null,
         )}
       </Dialog.Root>
     </buttonContext.Provider>

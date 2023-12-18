@@ -29,6 +29,6 @@ export const AeroQspView: React.FC<{ attrs: Attributes; modal?: boolean; childre
           {children}
         </Tag>
       </animated.div>
-    ) : null
+    ) : null,
   );
 };

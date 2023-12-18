@@ -4,7 +4,7 @@ export function useEventListener<E extends Event>(
   eventName: string,
   handler: (e: E) => void,
   element: HTMLElement | Window | Document = window,
-  options?: AddEventListenerOptions
+  options?: AddEventListenerOptions,
 ): void {
   const savedHandler = useRef<(e: E) => void>();
   const { capture, passive, once } = options || {};
@@ -33,6 +33,6 @@ export function useEventListener<E extends Event>(
         element.removeEventListener(eventName, eventListener);
       };
     },
-    [eventName, element, capture, passive, once] // Re-run if eventName or element changes
+    [eventName, element, capture, passive, once], // Re-run if eventName or element changes
   );
 }

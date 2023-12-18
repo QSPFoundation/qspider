@@ -20,7 +20,9 @@
 
   font-size: 48px;
 
-  transition: outline-offset 0.15s ease-in-out, background-color 0.15s linear;
+  transition:
+    outline-offset 0.15s ease-in-out,
+    background-color 0.15s linear;
 }
 .file-drop-area.disabled {
   background-color: brown;

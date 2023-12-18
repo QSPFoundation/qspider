@@ -88,7 +88,7 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
       showNotice(
         i18n.t(`{{ name }} added to shelf`, {
           name: game.title,
-        })
+        }),
       );
     }
   } catch {

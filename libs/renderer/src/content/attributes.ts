@@ -87,7 +87,7 @@ const eventsMap: Record<string, keyof EventAttributes> = {
 export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   attributes: Attributes,
   tagName: Tag,
-  dataName: string = tagName
+  dataName: string = tagName,
 ): [Tag, React.CSSProperties, Omit<Attributes, 'style'>] => {
   const converted: Attributes = {};
   if (dataName.includes('-')) {

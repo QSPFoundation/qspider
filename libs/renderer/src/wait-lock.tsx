@@ -14,7 +14,7 @@ export const WaitLock: React.FC = () => {
         finishWait();
       }
     },
-    document
+    document,
   );
   if (!wait) return null;
 

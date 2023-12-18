@@ -43,7 +43,7 @@ export const PaneResizeHandle: React.FC<DockResizeHandleProps> = (props) => {
       changePaneProportion(props.index, props.type, props.paneIndex + 1, nextNewProportion);
       console.log(newProportion, nextNewProportion);
     },
-    [props.type, props.index, props.paneIndex, props.data.proportion, props.nextData.proportion]
+    [props.type, props.index, props.paneIndex, props.data.proportion, props.nextData.proportion],
   );
   return (
     <DndContext

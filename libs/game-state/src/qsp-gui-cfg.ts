@@ -92,7 +92,7 @@ function convertLayer(layer: LayoutLayer, docks: Record<string, number>, default
     'left',
     layer.left,
     docks,
-    defaultTheme
+    defaultTheme,
   )}${
     Array.isArray(layer.center)
       ? convertDock('center', layer.center, docks, defaultTheme)
@@ -101,7 +101,7 @@ function convertLayer(layer: LayoutLayer, docks: Record<string, number>, default
     'bottom',
     layer.bottom,
     docks,
-    defaultTheme
+    defaultTheme,
   )}</qsp-cl-layer>`;
 }
 
@@ -196,14 +196,17 @@ function parsePanels(key: string, text: string): Record<string, unknown> {
       const panelData: Record<string, unknown> = line
         .split(';')
         .map(extractLineData)
-        .reduce((acc, [key, value]) => {
-          if (key === 'state') {
-            acc['floating'] = (Number(value) & IS_FLOATABLE_MASK) !== 0;
-          } else if (key && value && key in converters) {
-            return { ...acc, ...processData(key, value) };
-          }
-          return acc;
-        }, {} as Record<string, unknown>);
+        .reduce(
+          (acc, [key, value]) => {
+            if (key === 'state') {
+              acc['floating'] = (Number(value) & IS_FLOATABLE_MASK) !== 0;
+            } else if (key && value && key in converters) {
+              return { ...acc, ...processData(key, value) };
+            }
+            return acc;
+          },
+          {} as Record<string, unknown>,
+        );
       pannels.push(panelData);
     }
   }

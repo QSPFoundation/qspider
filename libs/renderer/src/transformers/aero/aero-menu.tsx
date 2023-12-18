@@ -53,7 +53,7 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
               </animated.div>
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
-        ) : null
+        ) : null,
       )}
     </DropdownMenu.Root>
   );

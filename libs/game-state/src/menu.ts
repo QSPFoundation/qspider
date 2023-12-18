@@ -48,5 +48,5 @@ export const menu$ = create<MenuAtom, MenuAtomAction>(
         });
       },
     };
-  }
+  },
 );

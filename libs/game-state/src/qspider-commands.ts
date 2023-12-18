@@ -24,13 +24,13 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
         window.dispatchEvent(
           new CustomEvent('qspider-event', {
             detail: { name, args },
-          })
+          }),
         );
       } else {
         window.dispatchEvent(
           new CustomEvent('qspider-event', {
             detail: { name: event.trim() },
-          })
+          }),
         );
       }
     }, 0);

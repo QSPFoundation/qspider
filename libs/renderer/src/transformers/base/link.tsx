@@ -19,7 +19,7 @@ export const Link: React.FC<{
         execSelectedAction();
       }
     },
-    [exec, act]
+    [exec, act],
   );
   const [, style, attributes] = useAttributes(attrs, 'a');
   return (

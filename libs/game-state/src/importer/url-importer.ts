@@ -7,7 +7,7 @@ import { importArchive } from './archive-importer';
 export async function importUrl(
   url: string,
   name?: string,
-  rootDescriptor?: GameDescriptor
+  rootDescriptor?: GameDescriptor,
 ): Promise<GameShelfEntry[]> {
   const urlObject = new URL(url);
   urlObject.hash = '';

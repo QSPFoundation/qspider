@@ -249,7 +249,10 @@ h6 {
   height: 48px;
   display: flex;
   align-items: center;
-  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
 }
 .qspider-logo {
   height: 48px;
@@ -462,7 +465,10 @@ h6 {
   margin: 0;
   overflow: hidden;
   user-select: none;
-  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
   font-weight: bold;
   font-size: 1rem;
   white-space: nowrap;
@@ -482,7 +488,10 @@ h6 {
 .q-button:focus-within,
 .q-button:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--subtle-border), 0 1px 2px 0 black;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--subtle-border),
+    0 1px 2px 0 black;
 }
 .q-button:disabled {
   cursor: default;
@@ -494,7 +503,10 @@ h6 {
 }
 .q-button.q-danger:focus,
 .q-button.q-danger:focus-within {
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--danger-subtle-border), 0 1px 2px 0 black;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--danger-subtle-border),
+    0 1px 2px 0 black;
 }
 
 .q-button + .q-button {
@@ -529,7 +541,10 @@ h6 {
 .q-select:focus-within,
 .q-select:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--subtle-border), 0 1px 2px 0 black;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--subtle-border),
+    0 1px 2px 0 black;
 }
 
 .q-select-icon {
@@ -544,7 +559,10 @@ h6 {
   border: 1px solid var(--border);
   color: var(--text-hc);
   font-size: 1rem;
-  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
   overflow: hidden;
   z-index: 10;
 }
@@ -615,7 +633,10 @@ h6 {
   line-height: 1;
   color: var(--violet11);
   background-color: var(--app-background);
-  box-shadow: 0 3px 1px -2px rgb(0 0 0 / 20%), 0 2px 2px 0 rgb(0 0 0 / 14%), 0 1px 5px 0 rgb(0 0 0 / 12%);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
   user-select: none;
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -651,7 +672,9 @@ h6 {
 .qspider-dialog-content {
   background-color: var(--app-background);
   border-radius: 6px;
-  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px, hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
   position: fixed;
   top: 50%;
   left: 50%;

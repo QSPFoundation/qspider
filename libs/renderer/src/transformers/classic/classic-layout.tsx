@@ -125,7 +125,7 @@ export const QspCLDock: React.FC<
 };
 
 export const QspCLPane: React.FC<{ proportion: number; children: React.ReactNode; visibility: string | null }> = (
-  props
+  props,
 ) => {
   const visibility$ = useSetup((props$) => {
     return create((get) => {

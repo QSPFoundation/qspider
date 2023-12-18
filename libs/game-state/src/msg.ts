@@ -41,5 +41,5 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
         });
       },
     };
-  }
+  },
 );

@@ -77,7 +77,7 @@ export const view$ = create<ViewAtom, ViewAtomActions>(
         });
       },
     };
-  }
+  },
 );
 
 export const regions$ = create<Record<string, string>>({});

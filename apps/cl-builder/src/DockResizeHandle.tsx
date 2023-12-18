@@ -17,7 +17,7 @@ export const DockResizeHandle: React.FC<DockResizeHandleProps> = (props) => {
       const delta = Math.round(isHorizontal ? event.delta.y : event.delta.x);
       changeDockSize(props.index, props.type, delta);
     },
-    [props.type, props.index]
+    [props.type, props.index],
   );
   return (
     <DndContext

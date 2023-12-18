@@ -56,5 +56,5 @@ export const input$ = create<InputAtom, InputAtomActions>(
         });
       },
     };
-  }
+  },
 );

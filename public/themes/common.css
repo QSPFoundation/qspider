@@ -144,7 +144,10 @@ qsp-player .qsp-button:hover,
 qsp-player .qsp-button:focus,
 #portal-container .qsp-button:focus {
   outline: none;
-  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px var(--background-color-inverted), 0 1px 2px 0 black;
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px var(--background-color-inverted),
+    0 1px 2px 0 black;
 }
 .qsp-button + .qsp-button {
   margin-left: var(--spacer--sm);

@@ -20,7 +20,7 @@ function scheduleCounter(): void {
     setTimeout(() => {
       qspApi$.value?.execCounter();
       scheduleCounter();
-    }, counterDelay$.value)
+    }, counterDelay$.value),
   );
 }
 

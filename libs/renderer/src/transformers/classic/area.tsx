@@ -12,7 +12,7 @@ export const Area: React.FC<{
       e.stopPropagation();
       onLinkClicked(href);
     },
-    [href]
+    [href],
   );
   const [, style, attributes] = useAttributes(attrs, 'area');
   return <area {...attributes} style={style} href="#" onClick={onClick} alt=""></area>;

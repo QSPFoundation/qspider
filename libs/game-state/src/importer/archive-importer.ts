@@ -8,7 +8,7 @@ import { storage$ } from '../storage';
 export async function importArchive(
   archiveName: string,
   source: ArrayBuffer,
-  rootDescriptor?: GameDescriptor
+  rootDescriptor?: GameDescriptor,
 ): Promise<GameShelfEntry[]> {
   const storage = storage$.value;
   if (!storage) throw new Error('missing storage');
@@ -24,14 +24,14 @@ export async function importArchive(
         const gameFolder = getGameFolder(folder, game.file);
         await storeFolderContent(game.id, gameFolder);
         const descriptorFile = gameFolder.content.find<File>(
-          (entry): entry is File => entry.type === 'file' && entry.name === GAME_DESCRIPTOR_NAME
+          (entry): entry is File => entry.type === 'file' && entry.name === GAME_DESCRIPTOR_NAME,
         );
         if (!descriptorFile) {
           const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
           await storage$.value?.addGameResource(
             game.id,
             GAME_DESCRIPTOR_NAME,
-            new TextEncoder().encode(descriptorContent)
+            new TextEncoder().encode(descriptorContent),
           );
         } else {
           const [descriptor] = await readGameDescriptor(descriptorFile.data);
@@ -57,7 +57,7 @@ export async function importArchive(
             descriptor: game,
           },
         };
-      })
+      }),
     );
   }
   const rootGameFile = findRootGameFileFolder(root);

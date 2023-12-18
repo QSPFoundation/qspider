@@ -11,7 +11,7 @@ export function useClickCoordinates(): Coordinates {
       // Update coordinates
       setCoords({ x: clientX, y: clientY });
     },
-    [setCoords]
+    [setCoords],
   );
 
   // Add event listener using our hook

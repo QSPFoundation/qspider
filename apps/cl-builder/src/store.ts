@@ -84,7 +84,7 @@ export function addDock(index: number, type: DockType): void {
         size: 200,
         panes: [{ type: 'unknown', proportion: 100, id: nanoid() }],
       };
-    })
+    }),
   );
 }
 
@@ -99,7 +99,7 @@ export function updateDockSize(index: number, type: DockType, size: number): voi
       if (dock) {
         dock.size = size;
       }
-    })
+    }),
   );
 }
 
@@ -110,7 +110,7 @@ export function changeDockSize(index: number, type: DockType, delta: number): vo
       if (dock) {
         dock.size += delta;
       }
-    })
+    }),
   );
 }
 
@@ -121,7 +121,7 @@ export function addPane(index: number, type: DockType): void {
       if (dock) {
         dock.panes.push({ type: 'unknown', proportion: 100, id: nanoid() });
       }
-    })
+    }),
   );
 }
 export function removePane(index: number, type: DockType, paneIndex: number): void {
@@ -131,7 +131,7 @@ export function removePane(index: number, type: DockType, paneIndex: number): vo
       if (dock) {
         dock.panes.splice(paneIndex, 1);
       }
-    })
+    }),
   );
 }
 
@@ -142,7 +142,7 @@ export function changePaneType(index: number, type: DockType, paneIndex: number,
       if (dock) {
         dock.panes[paneIndex].type = value;
       }
-    })
+    }),
   );
 }
 
@@ -153,7 +153,7 @@ export function changePaneProportion(index: number, type: DockType, paneIndex: n
       if (dock) {
         dock.panes[paneIndex].proportion = value;
       }
-    })
+    }),
   );
 }
 
@@ -161,7 +161,7 @@ export function removeDock(index: number, type: DockType): void {
   layers$.update((l) =>
     produce(l, (draft) => {
       delete draft[index][type];
-    })
+    }),
   );
 }
 

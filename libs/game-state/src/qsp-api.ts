@@ -63,7 +63,7 @@ export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
   name: Name | undefined,
   key: string,
   index: number,
-  defaultValue: T
+  defaultValue: T,
 ): T {
   const [value, setValue] = useState(defaultValue);
   useEffect(() => {
