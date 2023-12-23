@@ -31,7 +31,7 @@
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^7.0.0",
     "@qsp/converters": "^1.0.1",
-    "@qsp/wasm-engine": "^1.0.8",
+    "@qsp/wasm-engine": "^1.0.9",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",
