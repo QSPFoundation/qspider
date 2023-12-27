@@ -14,6 +14,7 @@ import {
   isStatsVisible$,
   mainContent$,
   newLocHash$,
+  nextMainContent$,
   objects$,
   statsContent$,
   view$,
@@ -158,10 +159,14 @@ qspApi$.subscribe((api) => {
   });
   api.on('main_changed', (text) => {
     const prevMain = mainContent$.value;
-    mainContent$.set(prepareContent(text));
-    isNewLoc$.set(!prevMain || (mainContent$.value !== prevMain && !mainContent$.value.startsWith(prevMain)));
-    if (isNewLoc$.value) {
+    const nextMain = prepareContent(text);
+    const isNewLoc = !prevMain || (nextMain !== prevMain && !nextMain.startsWith(prevMain));
+    isNewLoc$.set(isNewLoc);
+    nextMainContent$.set(nextMain);
+    if (isNewLoc) {
       newLocHash$.set(String(hashString(mainContent$.value)));
+    } else {
+      mainContent$.set(nextMain);
     }
   });
   api.on('stats_changed', (text) => {

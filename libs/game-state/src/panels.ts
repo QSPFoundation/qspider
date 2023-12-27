@@ -3,6 +3,7 @@ import { create } from 'xoid';
 import { qspApi$ } from './qsp-api';
 
 export const mainContent$ = create('');
+export const nextMainContent$ = create('');
 export const isNewLoc$ = create(false);
 export const newLocHash$ = create('');
 export const mainScroll$ = create(0);

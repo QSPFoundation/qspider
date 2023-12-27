@@ -1,4 +1,12 @@
-import { Attributes, isNewLoc$, mainContent$, mainScroll$, useQspVariable } from '@qspider/game-state';
+import {
+  Attributes,
+  isNewLoc$,
+  mainContent$,
+  mainScroll$,
+  newLocHash$,
+  nextMainContent$,
+  useQspVariable,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -25,7 +33,11 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
 
 export const QspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const content = useAtom(mainContent$);
+  const newLocHash = useAtom(newLocHash$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-main-content');
+  useEffect(() => {
+    mainContent$.set(nextMainContent$.value);
+  }, [newLocHash]);
   return (
     <Tag style={style} {...attributes}>
       <ContentRenderer content={content} />
