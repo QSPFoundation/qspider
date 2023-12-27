@@ -914,3 +914,35 @@ h6 {
     line-height: 42px;
   }
 }
+
+.q-switch {
+  all: unset;
+  width: 42px;
+  height: 25px;
+  background-color: var(--ui-element-background);
+  border-radius: 9999px;
+  position: relative;
+  box-shadow: 0 2px 5px var(--border);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+.q-switch:focus {
+  box-shadow: 0 0 0 2px var(--hover-border);
+}
+.q-switch[data-state='checked'] {
+  background-color: var(--hover-border);
+}
+
+.q-switch-thumb {
+  display: block;
+  width: 21px;
+  height: 21px;
+  background-color: white;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--ui-element-active-background);
+  transition: transform 100ms;
+  transform: translateX(2px);
+  will-change: transform;
+}
+.q-switch-thumb[data-state='checked'] {
+  transform: translateX(19px);
+}

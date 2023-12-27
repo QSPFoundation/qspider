@@ -12,10 +12,12 @@ import {
   qspSortByField$,
   qspSortDirection$,
   qspTitleSearch$,
+  onlyAero$,
   toggleSortDirection,
 } from '../qsp-catalog';
 import { CatalogGameCard } from './qsp-catalog-game-card';
 import { Select, Tooltip } from './primitives';
+import { Switch } from './primitives/switch';
 
 const sortOptions = [
   {
@@ -43,6 +45,7 @@ export const QspCatalog: React.FC = () => {
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
+  const onlyAero = useAtom(onlyAero$);
 
   if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <QspiderLoader />;
   if (loadingState === 'failed')
@@ -106,6 +109,10 @@ export const QspCatalog: React.FC = () => {
               </button>
             </Tooltip>
           </div>
+        </div>
+        <div className="q-catalog__filterbar-block">
+          <label htmlFor="only-aero">{t('Aero games')}</label>
+          <Switch checked={onlyAero} onChange={(checked): void => onlyAero$.set(checked)} />
         </div>
         <div className="q-catalog__filterbar-block">
           <label htmlFor="search-input">{t('Search')}:</label>

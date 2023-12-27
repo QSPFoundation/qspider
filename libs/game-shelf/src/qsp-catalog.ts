@@ -24,13 +24,18 @@ export const qspAuthorFilter$ = create('');
 export const qspSortByField$ = create('title');
 export const qspSortDirection$ = create<'asc' | 'desc'>('asc');
 export const qspTitleSearch$ = create('');
+export const onlyAero$ = create(false);
 export const qspCatalogPreparedList$ = create<CatalogGame[]>((get) => {
   const games = get(qspCatalogList$);
   const authorFilter = get(qspAuthorFilter$);
   const sortField = get(qspSortByField$);
   const sortDirection = get(qspSortDirection$);
   const search = get(qspTitleSearch$).toLocaleLowerCase();
+  const onlyAero = get(onlyAero$);
   let filtered = authorFilter ? games.filter((game) => game.author.includes(authorFilter)) : games.slice();
+  if (onlyAero) {
+    filtered = filtered.filter((game) => game.file_ext === 'aqsp');
+  }
   if (search) {
     filtered = filtered.filter((game) => game.title.toLocaleLowerCase().includes(search));
   }
