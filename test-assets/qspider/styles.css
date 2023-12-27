@@ -4,3 +4,52 @@
   background: url(./icon.png);
   background-size: cover;
 }
+qsp-player {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.layout {
+  width: 80vw;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 120px 1fr 120px;
+}
+
+a.plain {
+  text-decoration: none;
+}
+qsp-layer {
+  position: fixed;
+  inset: 0;
+}
+
+.qsp-dialog-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.qsp-dialog-container > * {
+  max-width: 80vw;
+  max-height: 90vh;
+  position: relative;
+  pointer-events: auto;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--md);
+  background-color: var(--background-color, white);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+.qsp-dialog-container p {
+  margin: 0;
+}
+.qsp-dialog-container .panel {
+  border: 0;
+}

@@ -18,6 +18,7 @@ clr
 '<a href="exec: @qspider_change_theme(''qspider:classic'')">Use classic theme</a>'
 '<a href="exec: @qspider_change_theme(''custom-theme'')">Use custom theme</a>'
 '<br/>'
+'<a href="exec: gt ''common''">Common</a><br/>'
 '<a href="exec: gt ''qsp-variable''">&lt;qsp-variable&gt;</a><br/>'
 '<a href="exec: gt ''qsp-show''">&lt;qsp-show&gt;</a><br/>'
 '<a href="exec: gt ''qsp-style''">&lt;qsp-style&gt;</a><br/>'
@@ -25,11 +26,11 @@ clr
 '<a href="exec: gt ''custom hotkeys''">Custom hotkeys</a><br/>'
 '<a href="exec: gt ''resources''">CSS/Fonts/JS</a><br/>'
 '<a href="exec: gt ''regions''">Regions</a><br/>'
-'<a href="exec: gt ''layers''">Layers</a>'
-'<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a>'
-'<a href="exec: gt ''on-click''">Custom on click</a>'
-'<a href="exec: gt ''custom-save-file''">Custom save file</a>'
-'<a href="exec: gt ''scroll-action''">Scroll action</a>'
+'<a href="exec: gt ''layers''">Layers</a><br/>'
+'<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a><br/>'
+'<a href="exec: gt ''on-click''">Custom on click</a><br/>'
+'<a href="exec: gt ''custom-save-file''">Custom save file</a><br/>'
+'<a href="exec: gt ''scroll-action''">Scroll action</a><br/>'
 ---
 
 # back-link
@@ -40,6 +41,17 @@ else:
 end
 '<a href="exec: dynamic($dyn) & gt ''test list''">Back</a>'
 ''
+---
+
+# common
+gs 'back-link'
+
+'Main panel text'
+
+act 'Some action': msg 'works'
+addobj 'test obj'
+pl 'some stats text'
+view 'icon.png'
 ---
 
 # form bindings

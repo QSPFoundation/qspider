@@ -4,55 +4,44 @@
     <qsp-translation lang="uk-UA" tkey="test_key" value="український переклад"></qsp-translation>
   </definitions>
   <qsp-player>
-    <style>
-      a.plain {
-        text-decoration: none;
-      }
-      qsp-player {
-        width: 100vw;
-        height: 100vh;
-        background: var(--background-color);
-        display: block;
-      }
-      qsp-layer {
-        position: fixed;
-        inset: 0;
-      }
-    </style>
+    <div class="layout">
+      <qsp-stats>
+        <qsp-scrollable>
+          <qsp-stats-content class="panel-content"></qsp-stats-content>
+        </qsp-scrollable>
+      </qsp-stats>
+      <qsp-main>
+        <qsp-scrollable>
+          <qsp-main-content></qsp-main-content>
+          <qsp-cmd>
+            <qsp-cmd-input></qsp-cmd-input>
+          </qsp-cmd>
+        </qsp-scrollable>
+      </qsp-main>
+      <div>
+        <qsp-objects>
+          <qsp-scrollable>
+            <qsp-objects-list tag="nav" role="menu">
+              <qsp-object tag="button" class="action-item">
+                <qsp-object-image class="action-img"></qsp-object-image>
+                <qsp-object-name></qsp-object-name>
+              </qsp-object>
+            </qsp-objects-list>
+          </qsp-scrollable>
+        </qsp-objects>
+        <qsp-actions>
+          <qsp-scrollable>
+            <qsp-actions-list tag="nav" role="menu">
+              <qsp-action tag="button" class="action-item">
+                <qsp-action-image class="action-img"></qsp-action-image>
+                <qsp-action-name></qsp-action-name>
+              </qsp-action>
+            </qsp-actions-list>
+          </qsp-scrollable>
+        </qsp-actions>
+      </div>
+    </div>
 
-    <qsp-main>
-      <qsp-scrollable>
-        <qsp-main-content></qsp-main-content>
-      </qsp-scrollable>
-    </qsp-main>
-    <qsp-objects>
-      <qsp-scrollable>
-        <qsp-objects-list tag="nav" role="menu">
-          <qsp-object tag="button" class="action-item">
-            <qsp-object-image class="action-img"></qsp-object-image>
-            <qsp-object-name></qsp-object-name>
-          </qsp-object>
-        </qsp-objects-list>
-      </qsp-scrollable>
-    </qsp-objects>
-    <qsp-actions>
-      <qsp-scrollable>
-        <qsp-actions-list tag="nav" role="menu">
-          <qsp-action tag="button" class="action-item">
-            <qsp-action-image class="action-img"></qsp-action-image>
-            <qsp-action-name></qsp-action-name>
-          </qsp-action>
-        </qsp-actions-list>
-      </qsp-scrollable>
-    </qsp-actions>
-    <qsp-stats>
-      <qsp-scrollable>
-        <qsp-stats-content class="panel-content"></qsp-stats-content>
-      </qsp-scrollable>
-    </qsp-stats>
-    <qsp-cmd>
-      <qsp-cmd-input></qsp-cmd-input>
-    </qsp-cmd>
     <qsp-view modal>
       <qsp-view-image></qsp-view-image>
     </qsp-view>
