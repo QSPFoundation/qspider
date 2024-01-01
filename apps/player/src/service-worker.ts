@@ -22,6 +22,13 @@ class QspiderStrategy extends Strategy {
       const [, gameId, path] = matches;
       const data = await storage.getGameResource(decodeURI(gameId), decodeURI(path));
       if (data) {
+        const header = new Uint8Array(data.slice(0, 2));
+        if (path.endsWith('.xml') && header[0] === 255 && header[1] === 254) {
+          // utf16 encoded config
+          const decoder = new TextDecoder('utf-16le');
+          const text = decoder.decode(data);
+          return new Response(text);
+        }
         return new Response(data);
       } else {
         return new Response(null, { status: 404 });
