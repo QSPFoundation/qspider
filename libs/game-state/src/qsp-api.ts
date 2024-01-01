@@ -164,7 +164,7 @@ qspApi$.subscribe((api) => {
     isNewLoc$.set(isNewLoc);
     nextMainContent$.set(nextMain);
     if (isNewLoc) {
-      newLocHash$.set(String(hashString(mainContent$.value)));
+      newLocHash$.set(String(hashString(nextMainContent$.value)));
     } else {
       mainContent$.set(nextMain);
     }
