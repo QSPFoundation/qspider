@@ -108,6 +108,12 @@ qsp-game-hotkeys {
   row-gap: 6px;
   margin-bottom: 6px;
 }
+@container (max-width: 700px) {
+  qsp-global-hotkeys,
+  qsp-game-hotkeys {
+    grid-template-columns: 1fr;
+  }
+}
 qsp-hotkey {
   display: flex;
   justify-content: space-between;

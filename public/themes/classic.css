@@ -121,6 +121,7 @@ qsp-player .action-item:hover,
   display: flex;
   justify-content: center;
   align-items: center;
+  container-type: size;
 }
 .qsp-dialog-container > * {
   max-width: 80vw;
