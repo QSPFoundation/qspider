@@ -1,7 +1,7 @@
 <div align="center">
   <h1>qSpider</h1>
-  <img src="./qspider-logo-512.png" width="256" /><br/>
-  Web player for QSP
+  <img src="./public/qspider-logo.png" width="256" /><br/>
+  Web and desktop player for QSP
 </div>
 
 <hr />
@@ -21,8 +21,15 @@ Run `npm start` for a dev server. Navigate to http://localhost:4200/. The app wi
 
 Run `nx build player` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
-## Running end-to-end tests
+## Running on desktop
 
-Run `ng e2e player` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+To run desktop version of qSpider you need [Rust](https://rustup.rs/) installed on your machine.
+Once you have it
 
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+```sh
+cd ./src-tauri
+cargo install
+cd ..
+```
+
+To run desktop player in development mode run `npm run start:desktop`.
