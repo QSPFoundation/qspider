@@ -52,7 +52,7 @@ qsp-pause-screen {
 .qsp-pause-screen-buttons {
   display: flex;
   flex-direction: column;
-  width: 120px;
+  width: 7em;
   margin-right: 24px;
 }
 .qsp-pause-screen-buttons .qsp-button,

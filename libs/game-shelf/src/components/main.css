@@ -277,7 +277,8 @@ h6 {
   display: flex;
   align-items: center;
 }
-.qspider-nav .qspider-block .q-button + button {
+.qspider-nav .qspider-block .q-button + button,
+.qspider-nav .qspider-block button + button {
   margin-left: var(--spacer--sm);
 }
 .qspider-nav ul {
@@ -287,6 +288,9 @@ h6 {
 .qspider-nav ul li {
   display: inline-block;
   border-radius: var(--border-radius);
+}
+.qspider-nav ul li + li {
+  margin-left: var(--spacer--sm);
 }
 .qspider-nav ul li a {
   display: inline-block;
