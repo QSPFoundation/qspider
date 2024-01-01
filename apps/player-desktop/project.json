@@ -1,0 +1,61 @@
+{
+  "name": "player-desktop",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/player-desktop/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/player-desktop"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "player-desktop:build"
+      },
+      "configurations": {
+        "production": {
+          "buildTarget": "player-desktop:build:production",
+          "hmr": true
+        },
+        "development": {
+          "buildTarget": "player-desktop:build:development",
+          "hmr": true
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "player-desktop:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "player-desktop:build:development"
+        },
+        "production": {
+          "buildTarget": "player-desktop:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

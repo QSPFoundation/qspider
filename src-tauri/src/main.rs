@@ -17,28 +17,28 @@ use uuid::Uuid;
 struct GamesPath(Arc<Mutex<HashMap<Uuid, String>>>);
 
 #[command]
-fn prepare_game_start(path: Option<String>, state: State<'_, GamesPath>) -> Result<Uuid, String> {
-  let uuid = Uuid::new_v4();
-  match path {
-    Some(p) => {
-      let d = decode(&p);
-      match d {
-        Ok(decoded) => {
-          let uri = decoded.into_owned();
-          let file_path = Path::new(&uri);
-          if !file_path.exists() {
-            return Err("path does not exists".to_string());
-          }
-          state.0.lock().unwrap().insert(
-            uuid,
-            file_path.parent().unwrap().to_string_lossy().to_string(),
-          );
-          return Ok(uuid);
-        }
-        _ => return Err("".to_string()),
+fn prepare_game_start(
+  path: String,
+  id: String,
+  state: State<'_, GamesPath>,
+) -> Result<bool, String> {
+  let uuid = Uuid::parse_str(&id).unwrap();
+  let d = decode(&path);
+  match d {
+    Ok(decoded) => {
+      let uri = decoded.into_owned();
+      let file_path = Path::new(&uri);
+      if !file_path.exists() {
+        return Err("path does not exists".to_string());
       }
+      state
+        .0
+        .lock()
+        .unwrap()
+        .insert(uuid, file_path.to_string_lossy().to_string());
+      return Ok(true);
     }
-    None => return Err("path is required".to_string()),
+    _ => return Err("".to_string()),
   }
 }
 
@@ -60,32 +60,41 @@ fn main() {
       let uuid_str = &path[0..slash_index];
       let uuid = Uuid::parse_str(uuid_str)?;
       let game_path = state.0.lock().unwrap().get(&uuid).cloned();
-      let mut file_path = PathBuf::from(game_path.unwrap().clone());
-      file_path.push(&path[slash_index + 1..]);
-      let file_result = std::fs::File::open(&file_path);
-      match file_result {
-        Ok(mut file) => {
-          let mut buf = Vec::new();
-          file.read_to_end(&mut buf)?;
-          let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
-          let guess = mime_guess::from_path(path.to_string());
+      match game_path {
+        Some(game_path) => {
+          let mut file_path = PathBuf::from(game_path.clone());
+          file_path.push(&path[slash_index + 1..]);
+          let file_result = std::fs::File::open(&file_path);
+          match file_result {
+            Ok(mut file) => {
+              let mut buf = Vec::new();
+              file.read_to_end(&mut buf)?;
+              let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
+              let guess = mime_guess::from_path(path.to_string());
 
-          return response
-            .header("ETag", etag4.to_string())
-            .mimetype(
-              guess
-                .first_or("application/octet-stream".parse::<Mime>()?)
-                .essence_str(),
-            )
-            .status(200)
-            .body(buf);
+              return response
+                .header("ETag", etag4.to_string())
+                .mimetype(
+                  guess
+                    .first_or("application/octet-stream".parse::<Mime>()?)
+                    .essence_str(),
+                )
+                .status(200)
+                .body(buf);
+            }
+            Err(_) => {
+              return response.mimetype("text/plain").status(404).body(Vec::new());
+            }
+          }
         }
-        Err(_) => {
+        None => {
+          print!("Game {} not found", uuid);
           return response.mimetype("text/plain").status(404).body(Vec::new());
         }
       }
     })
     .invoke_handler(tauri::generate_handler![prepare_game_start])
+    .plugin(tauri_plugin_window_state::Builder::default().build())
     .run(context)
     .expect("error while running tauri application");
 }

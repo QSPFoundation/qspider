@@ -11,7 +11,7 @@
     "target": "es2015",
     "module": "esnext",
     "typeRoots": ["node_modules/@types"],
-    "lib": ["es2017", "es2020", "dom"],
+    "lib": ["es2017", "es2020", "dom", "DOM.Iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,
@@ -21,17 +21,14 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@qspider/aero": ["libs/aero/src/index.ts"],
-      "@qspider/audio": ["libs/audio/src/index.ts"],
-      "@qspider/classic": ["libs/classic/src/index.ts"],
-      "@qspider/components": ["libs/components/src/index.ts"],
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
-      "@qspider/core": ["libs/core/src/index.ts"],
-      "@qspider/icons": ["libs/icons/src/index.ts"],
-      "@qspider/player-ui": ["libs/player-ui/src/index.ts"],
-      "@qspider/providers": ["libs/providers/src/index.ts"],
-      "@qspider/resources": ["libs/resources/src/index.ts"],
-      "@qspider/utils": ["libs/utils/src/index.ts"]
+      "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
+      "@qspider/game-state": ["libs/game-state/src/index.ts"],
+      "@qspider/i18n": ["libs/i18n/src/index.ts"],
+      "@qspider/renderer": ["libs/renderer/src/index.ts"],
+      "@qspider/tauri-storage": ["libs/tauri-storage/src/index.ts"],
+      "@qspider/utils": ["libs/utils/src/index.ts"],
+      "@qspider/web-storage": ["libs/web-storage/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,0 +1,305 @@
+# start
+usehtml=1
+debug=1
+inclib 'qspider'
+
+@qspider_update_region('qspider-pause-screen-buttons', '<button qsp-action="pause:additional" class="qsp-button">Additional panel</button>')
+@qspider_update_region('qspider-pause-screen-panels', '<qsp-pause-screen-panel name="additional"><h2>Additional section</h2></qsp-pause-screen-panel>')
+
+gt 'test list'
+
+---
+
+# test list
+clr
+'Testing different functionality for qspider'
+'<br/>'
+'<qsp-t>test_key</qsp-t>'
+'<a href="exec: @qspider_change_theme(''qspider:classic'')">Use classic theme</a>'
+'<a href="exec: @qspider_change_theme(''custom-theme'')">Use custom theme</a>'
+'<br/>'
+'<a href="exec: gt ''common''">Common</a><br/>'
+'<a href="exec: gt ''qsp-variable''">&lt;qsp-variable&gt;</a><br/>'
+'<a href="exec: gt ''qsp-show''">&lt;qsp-show&gt;</a><br/>'
+'<a href="exec: gt ''qsp-style''">&lt;qsp-style&gt;</a><br/>'
+'<a href="exec: gt ''form bindings''">QSP form tag bindings</a><br/>'
+'<a href="exec: gt ''custom hotkeys''">Custom hotkeys</a><br/>'
+'<a href="exec: gt ''resources''">CSS/Fonts/JS</a><br/>'
+'<a href="exec: gt ''regions''">Regions</a><br/>'
+'<a href="exec: gt ''layers''">Layers</a><br/>'
+'<a href="exec: gt ''pause-panel''">Custom panel in pause screen</a><br/>'
+'<a href="exec: gt ''on-click''">Custom on click</a><br/>'
+'<a href="exec: gt ''custom-save-file''">Custom save file</a><br/>'
+'<a href="exec: gt ''scroll-action''">Scroll action</a><br/>'
+---
+
+# back-link
+if $args[0] <> "":
+  $dyn = $args[0]
+else:
+  $dyn = "*pl ''"
+end
+'<a href="exec: dynamic($dyn) & gt ''test list''">Back</a>'
+''
+---
+
+# common
+gs 'back-link'
+
+'Main panel text'
+
+act 'Some action': msg 'works'
+addobj 'test obj'
+pl 'some stats text'
+view 'icon.png'
+---
+
+# form bindings
+gs 'back-link'
+'<a href="exec: gs ''print form state''">Check state</a>'
+'<form qsp-on:submit="exec: gs ''print form state''">'
+  '<legend>Choose your monster''s features:</legend>'
+  '<div>'
+    '<input type="checkbox" name="scales" value="1" qsp-bind="form_scales">'
+    '<label for="scales">Scales</label>'
+  '</div>'
+  '<div>'
+    '<input type="checkbox" name="horns" value="1" qsp-bind="form_horns">'
+    '<label for="horns">Horns</label>'
+  '</div>'
+
+  '<p>Choose your monster''s colors:</p>
+  <div>
+      <input type="color" name="head" value="#e66465" qsp-bind="$form_color_head">
+      <label for="head">Head</label>
+  </div>
+
+  <div>
+      <input type="color" name="body" value="#f6b73c" qsp-bind="$form_color_body">
+      <label for="body">Body</label>
+  </div>
+
+  <div>
+    <label for="start">Start date:</label>
+    <input type="date" name="trip-start" value="2018-07-22" min="2018-01-01" max="2018-12-31" qsp-bind="$form_date">
+  </div>
+  <div>
+    <label for="tentacles">Number of tentacles (10-100):</label>
+    <input type="number" name="tentacles" min="10" max="100" qsp-bind="form_number">
+  </div>
+  <div>
+    <label for="pass">Password (8 characters minimum):</label>
+    <input type="password" id="pass" name="password" minlength="8" required qsp-bind="$form_password">
+  </div>
+
+  <legend>Select a maintenance drone:</legend>
+  <div>
+    <input type="radio" id="huey" name="drone" value="huey" qsp-bind="$form_radio">
+    <label for="huey">Huey</label>
+  </div>
+  <div>
+    <input type="radio" id="dewey" name="drone" value="dewey" qsp-bind="$form_radio">
+    <label for="dewey">Dewey</label>
+  </div>
+  <div>
+    <input type="radio" id="louie" name="drone" value="louie" qsp-bind="$form_radio">
+    <label for="louie">Louie</label>
+  </div>
+
+  <p>Audio settings:</p>
+  <div>
+    <input type="range" id="volume" name="volume" min="0" max="11" qsp-bind="form_rande">
+    <label for="volume">Volume</label>
+  </div>
+  <div>
+    <label for="name">Name (4 to 8 characters):</label>
+    <input type="text" name="name" required minlength="4" maxlength="8" size="10" qsp-bind="$form_text">
+  </div>
+  <select name="cars" qsp-bind="$form_select">
+    <optgroup label="Swedish Cars">
+      <option value="volvo">Volvo</option>
+      <option value="saab">Saab</option>
+    </optgroup>
+    <optgroup label="German Cars">
+      <option value="mercedes">Mercedes</option>
+      <option value="audi">Audi</option>
+    </optgroup>
+  </select>
+  <div>
+    <button type="submit">Submit</button>
+    <button type="reset">Reset</button>
+  </div>
+</form>'
+---
+
+# print form state
+clr
+pl 'Scales: <<form_scales>>'
+pl 'Horns: <<form_horns>>'
+pl 'Head color: <<$form_color_head>>'
+pl 'Body color: <<$form_color_body>>'
+pl 'Start date: <<$form_date>>'
+pl 'Number of tentacles: <<form_number>>'
+pl 'Password: <<$form_password>>'
+pl 'Drone: <<$form_radio>>'
+pl 'Volume: <<form_rande>>'
+pl 'Name: <<$form_text>>'
+pl 'Car: <<$form_select>>'
+---
+
+# qsp-variable
+gs 'back-link'
+'Numeric variable: <qsp-variable name="numeric"></qsp-variable> | <a href="exec: numeric+=1">Update</a>'
+'Numeric variable by index: <qsp-variable name="numeric" index="5"></qsp-variable> | <a href="exec: numeric[5]+=1">Update</a>'
+'Numeric variable by key: <qsp-variable name="numeric" key="test"></qsp-variable> | <a href="exec: numeric[''test'']+=1">Update</a>'
+'String variable: <qsp-variable name="$string"></qsp-variable> | <a href="exec: $string+=''a''">Update</a>'
+'String variable by index: <qsp-variable name="$string" index="5"></qsp-variable> | <a href="exec: $string[5]+=''a''">Update</a>'
+'String variable by key: <qsp-variable name="$string" key="test"></qsp-variable> | <a href="exec: $string[''test'']+=''a''">Update</a>'
+---
+
+# qsp-show
+gs 'back-link'
+
+'<a href="exec: should_show=1">Show</a> | <a href="exec: should_show=0">Hide</a>'
+'Following block is managed by &lt;qsp-show&gt;'
+'<qsp-show when="should_show=1">Some block that can be hodden</qsp-show>'
+---
+
+# qsp-style
+gs 'back-link'
+
+$red_text = '.changed {color: red}'
+$green_text = '.changed {color: green}'
+
+'<qsp-style from="$styles"></qsp-style>'
+'<div class="changed">Some text</div>'
+'<a href="exec: $styles=$red_text">Make text red</a> | <a href="exec: $styles=$green_text">Make text green</a> | <a href="exec: $styles=''''">Clear styles</a>'
+---
+
+# custom hotkeys
+gs 'back-link'
+
+'Custom keys defined:
+i
+g o enter
+'
+---
+
+# hk-inventory
+'Inventory called'
+---
+
+# hk-complex
+'Complex sequence called'
+---
+
+# resources
+gs 'back-link'
+
+'<div class="icon"></div>'
+'<div style="font-family: Sigmar">Some text in sigmar font</div>'
+'<div style="font-family: flowers">Some text in flowers sunday font</div>'
+
+'<a href="exec: exec(''qspider.event: test_event'')">Dispatch event without args</a>'
+'<a href="exec: exec(''qspider.event: event_with_args[1, ''''test'''']'')">Dispatch event with args</a>'
+
+---
+
+# layers
+gs 'back-link'
+
+'<a href="exec: @qspider_show_layer(''layer1'')">Show layer 1</a> | <a href="exec: @qspider_show_only_layer(''layer1'')">Show only layer 1</a> | <a href="exec: @qspider_hide_layer(''layer1'')">Hide layer 1</a>'
+'<a href="exec: @qspider_show_layer(''layer2'')">Show layer 2</a> | <a href="exec: @qspider_show_only_layer(''layer2'')">Show only layer 2</a> | <a href="exec: @qspider_hide_layer(''layer2'')">Hide layer 2</a>'
+
+---
+
+# regions
+gs 'back-link'
+'<br/>'
+$text_update = '<b>text update</b>'
+'<qsp-region name="region1"></qsp-region>'
+'<a href="exec: @qspider_update_region(''region1'', $text_update)">Update region</a>'
+'<a href="exec: @qspider_prepend_region(''region1'', ''start<br/>'')">Prepend to region</a>'
+'<a href="exec: @qspider_append_region(''region1'', ''<br/>end'')">Append to region</a>'
+'<a href="exec: @qspider_scroll_region(''region1'', ''top'')">Scroll region to top</a>'
+'<a href="exec: @qspider_scroll_region(''region1'', ''bottom'')">Scroll region to bottom</a>'
+'<a href="exec: @qspider_clear_region(''region1'')">Clear region</a>'
+---
+
+# pause-panel
+gs 'back-link'
+'<br/>'
+@qspider_update_region('pause-custom', '<div qsp-action="resume">Close pause screen</div>')
+'<a href="exec: @qspider_open_pause_screen(''custom'')">Open pause screen custom panel</a>'
+---
+
+
+# on-click
+gs 'back-link'
+'<br/>'
+'<div qsp-on:click="exec: msg ''click''" qsp-on:dblclick="exec: msg ''dblclick''">Click me</div>'
+'<div qsp-on:dblclick="exec: msg ''dblclick''">Double Click me</div>'
+'<div qsp-on:contextmenu="exec: msg ''context menu''">Right Click me</div>'
+'<div qsp-on:mouseenter="exec: pl ''enter''" qsp-on:mouseleave="exec: pl ''leave''">Hover me <span>child</span></div>'
+---
+
+# custom-save-file
+gs 'back-link'
+'<br/>'
+
+'<a href="exec: savegame ''autosave.sav''">Save to autosave file</a>'
+'<a href="exec: savegame">Open save screen</a>'
+---
+
+# scroll-action
+gs 'back-link'
+'<br/>'
+
+'<a qsp-action="scroll:stats:bottom">Scroll stats to bottom</a>'
+'<a qsp-action="scroll:stats:top">Scroll stats to top</a>'
+
+'<a qsp-action="scroll:main:bottom">Scroll main to bottom</a>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<br/>'
+'<a qsp-action="scroll:main:top">Scroll main to top</a>'
+
+
+p 'stats'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p '<br/>'
+p 'stats end'
+---

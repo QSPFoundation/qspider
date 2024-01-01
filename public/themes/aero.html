@@ -1,0 +1,568 @@
+<qspider-theme name="qspider:aero">
+  <css-link src="qspider:themes/common.css"></css-link>
+  <css-link src="qspider:themes/aero.css"></css-link>
+  <definitions>
+    <qsp-css-variable name="--font-size" from="FSIZE" type="unit" unit="px" default-value="12"></qsp-css-variable>
+    <qsp-css-variable name="--font-name" from="$FNAME"></qsp-css-variable>
+    <qsp-css-variable name="--color" from="FCOLOR" type="color" default-value="#000000"></qsp-css-variable>
+    <qsp-css-variable name="--link-color" from="LCOLOR" type="color" default-value="#0000ff"></qsp-css-variable>
+    <qsp-css-variable
+      name="--background-color"
+      from="BCOLOR"
+      type="color"
+      default-value="#e0e0e0"
+      with-contrast
+      with-inverted
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--up-arrow"
+      from="$UP_ARROW_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/up_arrow.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--down-arrow"
+      from="$DOWN_ARROW_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/down_arrow.png"
+    ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--background-image"
+      from="$BACKIMAGE"
+      type="resource"
+      default-value="qspider:aero/back.png"
+    ></qsp-css-variable>
+
+    <qsp-css-variable name="--aero-foreground-image" from="$TOPIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-statdesc-x"
+      from="STATDESC_X"
+      type="unit"
+      unit="px"
+      default-value="596"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-statdesc-y"
+      from="STATDESC_Y"
+      type="unit"
+      unit="px"
+      default-value="396"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-statdesc-w"
+      from="STATDESC_W"
+      type="unit"
+      unit="px"
+      default-value="200"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-statdesc-h"
+      from="STATDESC_H"
+      type="unit"
+      unit="px"
+      default-value="200"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-statdesc-image" from="$STATDESC_BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-maindesc-x"
+      from="MAINDESC_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-maindesc-y"
+      from="MAINDESC_Y"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-maindesc-w"
+      from="MAINDESC_W"
+      type="unit"
+      unit="px"
+      default-value="589"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-maindesc-h"
+      from="MAINDESC_H"
+      type="unit"
+      unit="px"
+      default-value="389"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-maindesc-image" from="$MAINDESC_BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-actions-x"
+      from="ACTIONS_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-actions-y"
+      from="ACTIONS_Y"
+      type="unit"
+      unit="px"
+      default-value="396"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-actions-w"
+      from="ACTIONS_W"
+      type="unit"
+      unit="px"
+      default-value="589"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-actions-h"
+      from="ACTIONS_H"
+      type="unit"
+      unit="px"
+      default-value="169"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-actions-image" from="$ACTIONS_BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-objects-x"
+      from="OBJECTS_X"
+      type="unit"
+      unit="px"
+      default-value="596"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-objects-y"
+      from="OBJECTS_Y"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-objects-w"
+      from="OBJECTS_W"
+      type="unit"
+      unit="px"
+      default-value="200"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-objects-h"
+      from="OBJECTS_H"
+      type="unit"
+      unit="px"
+      default-value="389"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-objects-image" from="$OBJECTS_BACKIMAGE" type="resource"></qsp-css-variable>
+    <qsp-css-variable name="--aero-cmd-x" from="USERINPUT_X" type="unit" unit="px" default-value="4"></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-cmd-y"
+      from="USERINPUT_Y"
+      type="unit"
+      unit="px"
+      default-value="568"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-cmd-w"
+      from="USERINPUT_W"
+      type="unit"
+      unit="px"
+      default-value="589"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-cmd-h"
+      from="USERINPUT_H"
+      type="unit"
+      unit="px"
+      default-value="28"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-x" from="VIEW_X" type="unit" unit="px" default-value="250"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-y" from="VIEW_Y" type="unit" unit="px" default-value="150"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-w" from="VIEW_W" type="unit" unit="px" default-value="300"></qsp-css-variable>
+    <qsp-css-variable name="--aero-view-h" from="VIEW_H" type="unit" unit="px" default-value="300"></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-msg-backimage"
+      from="$MSG_BACKIMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/msg_back.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-text-x"
+      from="MSG_TEXT_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-text-y"
+      from="MSG_TEXT_Y"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-text-w"
+      from="MSG_TEXT_W"
+      type="unit"
+      unit="px"
+      default-value="392"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-text-h"
+      from="MSG_TEXT_H"
+      type="unit"
+      unit="px"
+      default-value="231"
+    ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-msg-ok-x"
+      from="MSG_OK_X"
+      type="unit"
+      unit="px"
+      default-value="186"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-ok-y"
+      from="MSG_OK_Y"
+      type="unit"
+      unit="px"
+      default-value="239"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-msg-ok-image"
+      from="$MSG_OK_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/msg_ok.png"
+    ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-input-backimage"
+      from="$INPUT_BACKIMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/input_back.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-text-x"
+      from="INPUT_TEXT_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-text-y"
+      from="INPUT_TEXT_Y"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-text-w"
+      from="INPUT_TEXT_W"
+      type="unit"
+      unit="px"
+      default-value="392"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-text-h"
+      from="INPUT_TEXT_H"
+      type="unit"
+      unit="px"
+      default-value="231"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-bar-x"
+      from="INPUT_BAR_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-bar-y"
+      from="INPUT_BAR_y"
+      type="unit"
+      unit="px"
+      default-value="238"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-bar-w"
+      from="INPUT_BAR_W"
+      type="unit"
+      unit="px"
+      default-value="312"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-bar-h"
+      from="INPUT_BAR_H"
+      type="unit"
+      unit="px"
+      default-value="28"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-ok-x"
+      from="INPUT_OK_X"
+      type="unit"
+      unit="px"
+      default-value="324"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-ok-y"
+      from="INPUT_OK_X"
+      type="unit"
+      unit="px"
+      default-value="239"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-ok-image"
+      from="$INPUT_OK_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/input_ok.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-cancel-image"
+      from="$INPUT_CANCEL_IMAGE"
+      type="resource"
+      with-size
+      default-value="qspider:aero/input_cancel.png"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-cancel-x"
+      from="INPUT_CANCEL_X"
+      type="unit"
+      unit="px"
+      default-value="362"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-input-cancel-y"
+      from="INPUT_CANCEL_Y"
+      type="unit"
+      unit="px"
+      default-value="239"
+    ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-menu-padding"
+      from="MENU_PADDING"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-menu-border"
+      from="MENU_PADDING"
+      type="unit"
+      unit="px"
+      default-value="1"
+    ></qsp-css-variable>
+    <qsp-css-variable name="--aero-menu-border-color" from="MENU_BORDER_COLOR" type="color"></qsp-css-variable>
+    <qsp-css-variable name="--aero-menu-backimage" from="$MENU_BACKIMAGE" type="resource" with-size></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-menu-list-x"
+      from="MENU_LIST_X"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-menu-list-y"
+      from="MENU_LIST_Y"
+      type="unit"
+      unit="px"
+      default-value="4"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-menu-list-w"
+      from="MENU_LIST_W"
+      type="unit"
+      unit="px"
+      default-value="153"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-menu-list-h"
+      from="MENU_LIST_H"
+      type="unit"
+      unit="px"
+      default-value="123"
+    ></qsp-css-variable>
+
+    <qsp-css-variable
+      name="--aero-disable-shade"
+      from="DISABLESHADE"
+      type="unit"
+      unit=""
+      default-value="0"
+    ></qsp-css-variable>
+    <qsp-css-variable
+      name="--aero-hide-scroll-arrows"
+      from="HIDE_SCROLL_ARROWS"
+      type="unit"
+      unit=""
+      default-value="0"
+    ></qsp-css-variable>
+  </definitions>
+  <qsp-player>
+    <aero-styles></aero-styles>
+    <qsp-style from="$STYLESHEET"></qsp-style>
+    <div class="aero-theme">
+      <div class="main-block">
+        <aero-newloc-effect>
+          <qsp-stats>
+            <qsp-scrollable>
+              <qsp-stats-content use-format="$STAT_FORMAT"></qsp-stats-content>
+            </qsp-scrollable>
+          </qsp-stats>
+          <qsp-main>
+            <qsp-scrollable>
+              <qsp-main-content use-format="$MAIN_FORMAT"></qsp-main-content>
+              <qsp-show when="INTEGRATED_ACTIONS=1">
+                <div class="integrated-actions">
+                  <qsp-actions>
+                    <qsp-actions-list>
+                      <qsp-action
+                        tag="button"
+                        class="action-item"
+                        use-format="$ACTION_FORMAT"
+                        use-selected-format="$SEL_ACTION_FORMAT"
+                      >
+                      </qsp-action>
+                    </qsp-actions-list>
+                  </qsp-actions>
+                </div>
+              </qsp-show>
+            </qsp-scrollable>
+          </qsp-main>
+          <qsp-objects>
+            <qsp-scrollable>
+              <qsp-objects-list>
+                <qsp-object
+                  tag="button"
+                  class="action-item"
+                  use-format="$OBJECT_FORMAT"
+                  use-selected-format="$SEL_OBJECT_FORMAT"
+                ></qsp-object>
+              </qsp-objects-list>
+            </qsp-scrollable>
+          </qsp-objects>
+          <qsp-show when="INTEGRATED_ACTIONS=0">
+            <qsp-actions class="regular-actions">
+              <qsp-scrollable>
+                <qsp-actions-list>
+                  <qsp-action
+                    tag="button"
+                    class="action-item"
+                    use-format="$ACTION_FORMAT"
+                    use-selected-format="$SEL_ACTION_FORMAT"
+                  >
+                  </qsp-action>
+                </qsp-actions-list>
+              </qsp-scrollable>
+            </qsp-actions>
+          </qsp-show>
+          <qsp-cmd>
+            <qsp-cmd-input></qsp-cmd-input>
+          </qsp-cmd>
+        </aero-newloc-effect>
+        <qsp-view>
+          <qsp-view-image></qsp-view-image>
+        </qsp-view>
+        <div class="aero-player-foreground"></div>
+        <qsp-msg>
+          <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
+          <qsp-ok-button focus></qsp-ok-button>
+        </qsp-msg>
+        <qsp-input>
+          <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
+          <qsp-input-tag></qsp-input-tag>
+          <qsp-ok-button></qsp-ok-button>
+          <qsp-cancel-button></qsp-cancel-button>
+        </qsp-input>
+        <qsp-menu>
+          <div class="list-wrapper">
+            <qsp-scrollable>
+              <qsp-menu-list tag="nav" role="menu">
+                <qsp-menu-item
+                  tag="button"
+                  class="action-item"
+                  use-format="$MENU_FORMAT"
+                  use-selected-format="$SEL_MENU_FORMAT"
+                ></qsp-menu-item>
+              </qsp-menu-list>
+            </qsp-scrollable>
+          </div>
+        </qsp-menu>
+      </div>
+    </div>
+    <qsp-pause-screen>
+      <div class="qsp-pause-screen">
+        <div class="qsp-pause-screen-buttons">
+          <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
+          <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
+          <qsp-region name="qspider-pause-screen-buttons"></qsp-region>
+          <qsp-show when="NOSAVE=0">
+            <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
+          </qsp-show>
+          <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
+        </div>
+        <qsp-pause-screen-content>
+          <qsp-scrollable>
+            <qsp-pause-screen-panel name="credits">
+              <div><qsp-t>Author</qsp-t>: <qsp-game-author></qsp-game-author></div>
+              <div><qsp-t>Version</qsp-t>: <qsp-game-version></qsp-game-version></div>
+              <qsp-game-description></qsp-game-description>
+            </qsp-pause-screen-panel>
+            <qsp-show when="NOSAVE=0">
+              <qsp-pause-screen-panel name="saves">
+                <h4><qsp-t>Saves</qsp-t></h4>
+                <qsp-slots-list>
+                  <qsp-save-slot>
+                    <qsp-slot-index></qsp-slot-index>
+                    <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                    <div class="save-actions">
+                      <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                      <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                      <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                    </div>
+                  </qsp-save-slot>
+                </qsp-slots-list>
+                <qsp-quick-save>
+                  <span>Quicksave</span>
+                  <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                  <div class="save-actions">
+                    <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                    <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                    <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                  </div>
+                </qsp-quick-save>
+              </qsp-pause-screen-panel>
+            </qsp-show>
+            <qsp-pause-screen-panel name="preferences">
+              <h2><qsp-t>Preferences</qsp-t></h2>
+              <div>
+                <label><qsp-t>Volume</qsp-t></label>
+                <qsp-volume-slider></qsp-volume-slider>
+                <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+              </div>
+              <div>
+                <label><qsp-t>Locale</qsp-t></label>
+                <br />
+                <qsp-locale-select></qsp-locale-select>
+              </div>
+              <br />
+              <div>
+                <h4><qsp-t>Hotkeys</qsp-t></h4>
+                <qsp-global-hotkeys></qsp-global-hotkeys>
+                <qsp-game-hotkeys></qsp-game-hotkeys>
+              </div>
+            </qsp-pause-screen-panel>
+            <qsp-region name="qspider-pause-screen-panels"></qsp-region>
+          </qsp-scrollable>
+        </qsp-pause-screen-content>
+      </div>
+    </qsp-pause-screen>
+  </qsp-player>
+</qspider-theme>

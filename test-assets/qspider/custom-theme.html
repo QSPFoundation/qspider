@@ -1,0 +1,131 @@
+<qspider-theme name="custom-theme">
+  <definitions>
+    <qsp-translation lang="en-US" tkey="test_key" value="english translation"></qsp-translation>
+    <qsp-translation lang="uk-UA" tkey="test_key" value="український переклад"></qsp-translation>
+  </definitions>
+  <qsp-player>
+    <div class="layout">
+      <qsp-stats>
+        <qsp-scrollable>
+          <qsp-stats-content class="panel-content"></qsp-stats-content>
+        </qsp-scrollable>
+      </qsp-stats>
+      <qsp-main>
+        <qsp-scrollable>
+          <qsp-main-content></qsp-main-content>
+          <qsp-cmd>
+            <qsp-cmd-input></qsp-cmd-input>
+          </qsp-cmd>
+        </qsp-scrollable>
+      </qsp-main>
+      <div>
+        <qsp-objects>
+          <qsp-scrollable>
+            <qsp-objects-list tag="nav" role="menu">
+              <qsp-object tag="button" class="action-item">
+                <qsp-object-image class="action-img"></qsp-object-image>
+                <qsp-object-name></qsp-object-name>
+              </qsp-object>
+            </qsp-objects-list>
+          </qsp-scrollable>
+        </qsp-objects>
+        <qsp-actions>
+          <qsp-scrollable>
+            <qsp-actions-list tag="nav" role="menu">
+              <qsp-action tag="button" class="action-item">
+                <qsp-action-image class="action-img"></qsp-action-image>
+                <qsp-action-name></qsp-action-name>
+              </qsp-action>
+            </qsp-actions-list>
+          </qsp-scrollable>
+        </qsp-actions>
+      </div>
+    </div>
+
+    <qsp-view modal>
+      <qsp-view-image></qsp-view-image>
+    </qsp-view>
+    <qsp-menu>
+      <qsp-scrollable>
+        <qsp-menu-list tag="nav" role="menu">
+          <qsp-menu-item tag="button" class="action-item">
+            <qsp-menu-image class="action-img"></qsp-menu-image>
+            <qsp-menu-name> </qsp-menu-name>
+          </qsp-menu-item>
+        </qsp-menu-list>
+      </qsp-scrollable>
+    </qsp-menu>
+    <qsp-msg>
+      <qsp-msg-content></qsp-msg-content>
+      <qsp-ok-button class="qsp-button" focus><qsp-t>Ok</qsp-t></qsp-ok-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-msg>
+    <qsp-input>
+      <qsp-input-content></qsp-input-content>
+      <qsp-input-tag class="qsp-input"></qsp-input-tag>
+      <qsp-ok-button class="qsp-button"><qsp-t>Ok</qsp-t></qsp-ok-button>
+      <qsp-cancel-button class="qsp-button"><qsp-t>Cancel</qsp-t></qsp-cancel-button>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-input>
+    <qsp-region name="region1" scrollable style="height: 200px"></qsp-region>
+    <qsp-layer name="layer2" index="20" style="background: green">
+      Layer 2 <br />
+      <a href="exec: @qspider_hide_layer('layer2')">Hide</a>
+    </qsp-layer>
+    <qsp-layer name="layer1" index="10" style="background: red">
+      Layer 1 <br />
+      <a href="exec: @qspider_hide_layer('layer1')">Hide</a>
+    </qsp-layer>
+    <qsp-pause-screen>
+      <div class="qsp-pause-screen">
+        <div class="qsp-pause-screen-buttons">
+          <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
+          <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
+          <qsp-region name="qspider-pause-screen-buttons"></qsp-region>
+          <qsp-show when="NOSAVE=0">
+            <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
+          </qsp-show>
+          <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-action="pause:custom" class="qsp-button"><qsp-t>Custom section</qsp-t></button>
+          <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
+        </div>
+        <qsp-pause-screen-content>
+          <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
+          <qsp-show when="NOSAVE=0">
+            <qsp-pause-screen-panel name="saves">
+              <h4><qsp-t>Saves</qsp-t></h4>
+              <qsp-save-file path="autosave.sav">
+                <h3>Autosave</h3>
+                <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                <div class="save-actions">
+                  <button qsp-save-action="save"><qsp-t>Save</qsp-t></button>
+                  <button qsp-save-action="load"><qsp-t>Load</qsp-t></button>
+                  <button qsp-save-action="clear"><qsp-t>Clear</qsp-t></button>
+                </div>
+              </qsp-save-file>
+              <qsp-slots-list>
+                <qsp-save-slot>
+                  <qsp-slot-index></qsp-slot-index>
+                  <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                  <div class="save-actions">
+                    <button qsp-save-action="save"><qsp-t>Save</qsp-t></button>
+                    <button qsp-save-action="load"><qsp-t>Load</qsp-t></button>
+                    <button qsp-save-action="clear"><qsp-t>Clear</qsp-t></button>
+                  </div>
+                </qsp-save-slot>
+              </qsp-slots-list>
+            </qsp-pause-screen-panel>
+          </qsp-show>
+          <qsp-pause-screen-panel name="preferences">
+            <h2><qsp-t>Preferences</qsp-t></h2>
+          </qsp-pause-screen-panel>
+          <qsp-pause-screen-panel name="custom">
+            <h2><qsp-t>Custom section</qsp-t></h2>
+            <qsp-region name="pause-custom"></qsp-region>
+          </qsp-pause-screen-panel>
+          <qsp-region name="qspider-pause-screen-panels"></qsp-region>
+        </qsp-pause-screen-content>
+      </div>
+    </qsp-pause-screen>
+  </qsp-player>
+</qspider-theme>

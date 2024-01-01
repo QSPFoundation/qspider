@@ -1,0 +1,387 @@
+qsp-player h1,
+qsp-player h2,
+qsp-player h3,
+qsp-player h4,
+qsp-player h5,
+qsp-player h6 {
+  margin: 0;
+}
+
+qsp-game-root,
+#portal-container {
+  --border-color: var(--background-color-contrast, gray);
+  font-size: var(--font-size);
+  font-family: var(--font-name);
+  color: var(--color);
+}
+
+.aero-theme {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.main-block {
+  position: relative;
+  width: var(--aero-player-width);
+  min-width: var(--aero-player-width);
+  max-width: var(--aero-player-width);
+  height: var(--aero-player-height);
+  min-height: var(--aero-player-height);
+  max-height: var(--aero-player-height);
+  background-image: var(--background-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  text-align: left;
+  overflow: hidden;
+  tab-size: 4;
+}
+.aero-player-foreground {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: var(--aero-foreground-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  pointer-events: none;
+}
+qsp-stats {
+  position: absolute;
+  left: var(--aero-statdesc-x);
+  top: var(--aero-statdesc-y);
+  width: var(--aero-statdesc-w);
+  height: var(--aero-statdesc-h);
+  background-image: var(--aero-statdesc-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+qsp-stats-content {
+  white-space: pre-wrap;
+}
+qsp-main {
+  position: absolute;
+  left: var(--aero-maindesc-x);
+  top: var(--aero-maindesc-y);
+  width: var(--aero-maindesc-w);
+  height: var(--aero-maindesc-h);
+  background-image: var(--aero-maindesc-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+qsp-main-content {
+  white-space: pre-wrap;
+}
+.integrated-actions {
+  padding-top: 20px;
+  width: var(--aero-actions-w);
+  height: var(--aero-actions-h);
+  background-image: var(--aero-actions-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+.regular-actions {
+  position: absolute;
+  left: var(--aero-actions-x);
+  top: var(--aero-actions-y);
+  width: var(--aero-actions-w);
+  height: var(--aero-actions-h);
+  background-image: var(--aero-actions-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+qsp-objects {
+  position: absolute;
+  left: var(--aero-objects-x);
+  top: var(--aero-objects-y);
+  width: var(--aero-objects-w);
+  height: var(--aero-objects-h);
+  background-image: var(--aero-objects-image);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+}
+qsp-cmd {
+  position: absolute;
+  left: var(--aero-cmd-x);
+  top: var(--aero-cmd-y);
+  width: var(--aero-cmd-w);
+  height: var(--aero-cmd-h);
+}
+qsp-cmd form {
+  height: 100%;
+  width: 100%;
+}
+qsp-cmd input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  display: block;
+  border: none;
+}
+qsp-cmd input:focus {
+  outline: none;
+}
+qsp-view {
+  position: absolute;
+  left: var(--aero-view-x);
+  top: var(--aero-view-y);
+  width: var(--aero-view-w);
+  height: var(--aero-view-h);
+  background-image: var(--view-image);
+  background-size: cover;
+  background-position: center;
+}
+qsp-view img {
+  max-width: 100%;
+  max-height: 100%;
+}
+qsp-msg {
+  background-image: var(--aero-msg-backimage);
+  background-color: var(--background-color);
+  width: var(--aero-msg-backimage-w, 320px);
+  height: var(--aero-msg-backimage-h, 320px);
+  left: var(--aero-msg-x);
+  top: var(--aero-msg-y);
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+}
+qsp-msg-content {
+  position: absolute;
+  width: var(--aero-msg-text-w);
+  height: var(--aero-msg-text-h);
+  top: var(--aero-msg-text-y);
+  left: var(--aero-msg-text-x);
+  white-space: pre-wrap;
+}
+qsp-msg button {
+  -webkit-font-smoothing: antialiased;
+  appearance: none;
+  cursor: pointer;
+  position: absolute;
+  border: none;
+  left: var(--aero-msg-ok-x);
+  top: var(--aero-msg-ok-y);
+  width: var(--aero-msg-ok-image-w, auto);
+  height: var(--aero-msg-ok-image-h, auto);
+  box-sizing: border-box;
+  background-color: transparent;
+  background-image: var(--aero-msg-ok-image);
+  padding: 0;
+}
+qsp-msg button:focus {
+  outline: none;
+}
+qsp-input {
+  background-image: var(--aero-input-backimage);
+  background-color: var(--background-color);
+  width: var(--aero-input-backimage-w, 320px);
+  height: var(--aero-input-backimage-h, 320px);
+  left: var(--aero-input-x);
+  top: var(--aero-input-y);
+  pointer-events: auto;
+  position: relative;
+  display: flex;
+}
+qsp-input-content {
+  position: absolute;
+  width: var(--aero-input-text-w);
+  height: var(--aero-input-text-h);
+  top: var(--aero-input-text-y);
+  left: var(--aero-input-text-x);
+  white-space: pre-wrap;
+}
+qsp-input input {
+  position: absolute;
+  left: var(--aero-input-bar-x);
+  top: var(--aero-input-bar-y);
+  width: var(--aero-input-bar-w);
+  height: var(--aero-input-bar-h);
+  padding: 2px 5px;
+  background: transparent;
+  border: none;
+}
+qsp-input input:focus {
+  outline: none;
+}
+qsp-input button {
+  -webkit-font-smoothing: antialiased;
+  appearance: none;
+  cursor: pointer;
+  position: absolute;
+  border: none;
+  box-sizing: border-box;
+
+  background-color: transparent;
+}
+qsp-input button:focus {
+  outline: none;
+}
+qsp-input [data-qsp='ok-button'] {
+  left: var(--aero-input-ok-x);
+  top: var(--aero-input-ok-y);
+  width: var(--aero-input-ok-image-w);
+  height: var(--aero-input-ok-image-h);
+  background-image: var(--aero-input-ok-image);
+}
+qsp-input [data-qsp='cancel-button'] {
+  left: var(--aero-input-cancel-x);
+  top: var(--aero-input-cancel-y);
+  width: var(--aero-input-cancel-image-w);
+  height: var(--aero-input-cancel-image-h);
+  background-image: var(--aero-input-cancel-image);
+}
+qsp-menu {
+  display: block;
+  position: relative;
+  border-style: solid;
+  border-width: var(--aero-menu-border);
+  border-color: var(--aero-menu-border-color, rgba(64, 64, 64, 150));
+  background-color: var(--background-color);
+  background-image: var(--aero-menu-backimage);
+  padding: var(--aero-menu-padding);
+}
+qsp-menu.aero-fixed-menu {
+  width: var(--aero-menu-backimage-w, calc(var(--aero-menu-list-w) + var(--aero-menu-list-x)));
+  height: var(--aero-menu-backimage-h, calc(var(--aero-menu-list-h) + var(--aero-menu-list-y)));
+}
+qsp-menu .list-wrapper {
+  width: var(--aero-menu-list-w);
+}
+qsp-menu.aero-fixed-menu .list-wrapper {
+  position: absolute;
+  left: var(--aero-menu-list-x);
+  top: var(--aero-menu-list-y);
+  height: var(--aero-menu-list-h);
+}
+
+.qsp-overlay {
+  opacity: calc(0.8 * (1 - var(--aero-disable-shade, 0)));
+}
+
+.action-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  background-color: transparent;
+  user-select: none;
+  border-radius: 0;
+  border: 0;
+  padding: 0;
+  color: var(--color);
+  font-size: var(--font-size);
+  font-family: var(--font-name);
+  white-space: pre-wrap;
+}
+.action-item:focus {
+  outline: none;
+}
+.action-item table td {
+  padding: 0;
+  vertical-align: middle;
+}
+.action-item table img {
+  display: inherit;
+}
+.qsp-scrollbar[data-orientation='vertical']::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: var(--up-arrow-w);
+  height: var(--up-arrow-h);
+  background-image: var(--up-arrow);
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+[data-upscroll] > .qsp-scrollbar[data-orientation='vertical']::before {
+  opacity: calc(1 * (1 - var(--aero-hide-scroll-arrows)));
+}
+
+.qsp-scrollbar[data-orientation='vertical']::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: var(--down-arrow-w);
+  height: var(--down-arrow-h);
+  background-image: var(--down-arrow);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+[data-downscroll] > .qsp-scrollbar[data-orientation='vertical']::after {
+  opacity: calc(1 * (1 - var(--aero-hide-scroll-arrows)));
+}
+.qsp-scrollbar-thumb {
+  display: none;
+}
+.qsp-dialog-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  width: var(--aero-player-width);
+  height: var(--aero-player-height);
+  margin: auto;
+  container-type: size;
+}
+.qsp-dialog-container.at-mouse {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+}
+.qsp-dialog-container > * {
+  position: relative;
+  pointer-events: auto;
+}
+.qsp-dialog-container p {
+  margin: 0;
+}
+.qsp-error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.qsp-error {
+  padding: 12px;
+  background-color: var(--background-color);
+  color: var(--background-color-contrast);
+  border: 1px solid var(--background-color-inverted);
+}
+.qsp-error .qsp-dialog-buttons {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.qsp-pause-dialog {
+  max-width: 80%;
+  max-height: 90%;
+  position: relative;
+  pointer-events: auto;
+  border-radius: var(--border-radius);
+  padding: var(--spacer--md);
+  background-color: var(--background-color, black);
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
+  color: var(--background-color-contrast);
+}
+.qsp-dialog-container:has(.qsp-pause-dialog) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

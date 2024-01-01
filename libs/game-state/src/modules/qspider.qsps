@@ -1,0 +1,95 @@
+# qspider_change_theme
+! $args[0] - theme name
+exec('qspider.change_theme:<<$args[0]>>')
+---
+
+# qspider_update_region
+! $args[0] - region name
+! $args[1] - content
+$qspider_region[$args[0]] = $args[1]
+exec('qspider.update_region:<<$args[0]>>')
+---
+# qspider_append_region
+! $args[0] - region name
+! $args[1] - content
+$qspider_region[$args[0]] += $args[1]
+exec('qspider.update_region:<<$args[0]>>')
+---
+# qspider_prepend_region
+! $args[0] - region name
+! $args[1] - content
+$qspider_region[$args[0]] = $args[1] + $qspider_region[$args[0]]
+exec('qspider.update_region:<<$args[0]>>')
+---
+# qspider_scroll_region
+! $args[0] - region name
+! $args[1] - direction (top or bottom)
+exec('qspider.scroll_region:<<$args[0]>>:<<$args[1]>>')
+---
+# qspider_clear_region
+! $args[0] - region name
+! $args[1] - content
+$qspider_region[$args[0]] = ''
+exec('qspider.update_region:<<$args[0]>>')
+---
+
+# qspider_show_layer
+! $args[0] - layer name
+qspider_layers[$args[0]] = 1
+exec('qspider.update_layer:<<$args[0]>>')
+---
+
+# qspider_hide_layer
+! $args[0] - layer name
+qspider_layers[$args[0]] = 0
+exec('qspider.update_layer:<<$args[0]>>')
+---
+
+# qspider_show_only_layer
+! $args[0] - layer name
+killvar 'qspider_layers'
+qspider_layers[$args[0]] = 1
+exec('qspider.update_layers')
+---
+
+# qspider_quicksave
+exec('qspider.action:quicksave')
+---
+
+# qspider_quickload
+exec('qspider.action:quickload')
+---
+
+# qspider_restart
+exec('qspider.action:restart')
+---
+
+# qspider_resume
+exec('qspider.action:resume')
+---
+
+# qspider_quit
+exec('qspider.action:quit')
+---
+
+# qspider_mute
+exec('qspider.action:mute')
+---
+
+# qspider_unmute
+exec('qspider.action:unmute')
+---
+
+# qspider_toggle_mute
+exec('qspider.action:toggle-mute')
+---
+
+# qspider_open_pause_screen
+! $args[0] - panel name
+exec('qspider.action:pause:<<$args[0]>>')
+---
+
+# qspider_scroll
+! $args[0] - panel (main or stats)
+! $args[1] - direction (top or bottom)
+exec('qspider.action:scroll:<<$args[0]>>:<<$args[1]>>')

@@ -1,7 +1,10 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
-/game
-!/game/.gitkeep
+/apps/player/dev-dist
+/apps/player-desktop/dev-dist
+
+/public/game
+!/public/game/.gitkeep
 
 # compiled output
 /dist
@@ -36,7 +39,10 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+.eslintcache
 
 # System Files
 .DS_Store
 Thumbs.db
+
+.nx/cache

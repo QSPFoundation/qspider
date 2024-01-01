@@ -1,0 +1,4 @@
+# start
+'this is separate game file in nested folder - image is relatinve to folder and should still work'
+'<img src="pic_trulli.jpg" />'
+---

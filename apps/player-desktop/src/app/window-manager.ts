@@ -1,13 +1,12 @@
 import { IWindowManager } from '@qspider/contracts';
-import { window } from '@tauri-apps/api';
+import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
+import { platform } from '@tauri-apps/api/os';
 
 export const windowManager: IWindowManager = {
   async resize(width: number, height: number): Promise<void> {
-    const monitor = await window.currentMonitor();
+    const monitor = await currentMonitor();
     if (monitor) {
-      const monitorSize = new window.PhysicalSize(monitor.size.width, monitor.size.height).toLogical(
-        monitor.scaleFactor
-      );
+      const monitorSize = new PhysicalSize(monitor.size.width, monitor.size.height).toLogical(monitor.scaleFactor);
       if (width > monitorSize.width - 1) {
         width = monitorSize.width - 1;
       }
@@ -15,22 +14,40 @@ export const windowManager: IWindowManager = {
         height = monitorSize.height - 1;
       }
     }
-    window.appWindow.setSize(new window.LogicalSize(width, height)).then(() => window.appWindow.center());
+    appWindow.setSize(new LogicalSize(width, await adjustHeight(height)));
   },
-  setMinSize(width: number, height: number): void {
-    window.appWindow.setMinSize(new window.LogicalSize(width, height));
+  async setMinSize(width: number, height: number): Promise<void> {
+    appWindow.setMinSize(new LogicalSize(width, await adjustHeight(height)));
   },
   unsetMinSize(): void {
-    window.appWindow.setMinSize(undefined);
+    appWindow.setMinSize(undefined);
+  },
+  async setMaxSize(width: number, height: number): Promise<void> {
+    appWindow.setMaxSize(new LogicalSize(width, await adjustHeight(height)));
+  },
+  unsetMaxSize(): void {
+    appWindow.setMaxSize(undefined);
   },
   setResizable(isResizable: boolean): void {
-    window.appWindow.setResizable(isResizable);
+    appWindow.setResizable(isResizable);
   },
   setTitle(title: string): void {
-    window.appWindow.setTitle(title);
+    appWindow.setTitle(title);
   },
   async setIcon(icon: string): Promise<void> {
     const source = await fetch(icon).then((r) => r.arrayBuffer());
-    window.appWindow.setIcon(new Uint8Array(source));
+    appWindow.setIcon(new Uint8Array(source));
+  },
+  async goFullscreen(): Promise<void> {
+    await appWindow.setFullscreen(true);
+  },
+  async goWindowed(): Promise<void> {
+    await appWindow.setFullscreen(false);
   },
 };
+
+// solwing a bug https://github.com/tauri-apps/tauri/issues/6333
+async function adjustHeight(height: number): Promise<number> {
+  const isMacOS = (await platform()) === 'darwin';
+  return isMacOS ? height + 28 : height;
+}

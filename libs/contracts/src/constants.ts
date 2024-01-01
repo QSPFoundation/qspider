@@ -6,3 +6,8 @@ export enum QspGUIPanel {
   Input = 'input',
   ImageView = 'imgview',
 }
+export enum ProvidedComponents {
+  OpenGameButton = 'OpenGameButton',
+}
+
+export const GAME_DESCRIPTOR_NAME = 'game.cfg';

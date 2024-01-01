@@ -1,12 +1,11 @@
-const TOMLparse = require('@iarna/toml/parse-string');
-const TOMLstringify = require('@iarna/toml/stringify');
+import { stringify, parse } from 'iarna-toml-esm';
 
 module.exports.readVersion = function (contents) {
-  return TOMLparse(contents).package.version;
+  return parse(contents).package.version;
 };
 
 module.exports.writeVersion = function (contents, version) {
-  const json = TOMLparse(contents);
+  const json = parse(contents);
   json.package.version = version;
-  return TOMLstringify(json);
+  return stringify(json);
 };
