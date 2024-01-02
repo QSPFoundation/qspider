@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { VitePWA } from 'vite-plugin-pwa';
+import { resolve } from 'node:path';
 
 export default defineConfig({
   root: __dirname,
@@ -45,6 +46,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '@qspider/web-storage': resolve(__dirname, '../../libs/web-storage/src/index.ts'),
+    },
+  },
 
   worker: {
     plugins: () => [nxViteTsPaths()],

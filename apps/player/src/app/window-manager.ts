@@ -24,32 +24,32 @@ export const windowManager: IWindowManager = {
         document.addEventListener('click', doTry);
       });
   },
-  goWindowed: function (): void {
+  goWindowed(): void {
     if (!document.fullscreenEnabled) return;
     document.exitFullscreen();
   },
-  setMinSize: function (width: number, height: number): void {
+  async setMinSize(width: number, height: number): Promise<void> {
     const style = document.createElement('style');
     style.innerText = `qsp-game-root {min-width: ${width}px;min-height:${height}px;}`;
     style.id = MIN_SIZE_ID;
     document.body.appendChild(style);
   },
-  unsetMinSize: function (): void {
+  unsetMinSize(): void {
     document.getElementById(MIN_SIZE_ID)?.remove();
   },
-  setMaxSize: function (width: number, height: number): void {
+  async setMaxSize(width: number, height: number): Promise<void> {
     const style = document.createElement('style');
     style.innerText = `qsp-game-root {max-width: ${width}px;max-height:${height}px;}`;
     style.id = MAX_SIZE_ID;
     document.body.appendChild(style);
   },
-  unsetMaxSize: function (): void {
+  unsetMaxSize(): void {
     document.getElementById(MAX_SIZE_ID)?.remove();
   },
-  setResizable: function (isResizable: boolean): void {
+  setResizable(isResizable: boolean): void {
     // noop in browser
   },
-  resize: function (width: number, height: number): void {
+  async resize(width: number, height: number): Promise<void> {
     // noop in browser
   },
 };
