@@ -73,7 +73,7 @@ jobs:
           script: |
             const fs = require('fs');
             // Upload the release asset
-            await github.repos.uploadReleaseAsset({
+            await github.rest.repos.uploadReleaseAsset({
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id,
