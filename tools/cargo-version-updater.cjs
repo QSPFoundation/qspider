@@ -1,4 +1,4 @@
-import { stringify, parse } from 'iarna-toml-esm';
+const { stringify, parse } = require('@iarna/toml');
 
 module.exports.readVersion = function (contents) {
   return parse(contents).package.version;
