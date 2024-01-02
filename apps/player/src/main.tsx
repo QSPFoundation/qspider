@@ -14,7 +14,7 @@ root.render(
 if ('serviceWorker' in navigator) {
   const wb = new Workbox(
     import.meta.env.MODE === 'production'
-      ? new URL('./service-worker.js', import.meta.url).toString()
+      ? new URL('./service-worker.js', window.location.href).toString()
       : '/dev-sw.js?dev-sw',
     {
       type: import.meta.env.MODE === 'production' ? 'classic' : 'module',
