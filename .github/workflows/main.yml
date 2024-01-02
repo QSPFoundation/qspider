@@ -154,11 +154,11 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm run build -- --base=/qspider/
+      - run: npm run build:demo
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@3.6.2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to.
-          FOLDER: dist/apps/player # The folder the action should deploy.
+          FOLDER: dist/apps/player-demo # The folder the action should deploy.
           CLEAN: true # Automatically remove deleted files from the deploy

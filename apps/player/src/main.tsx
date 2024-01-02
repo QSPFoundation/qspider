@@ -12,7 +12,7 @@ root.render(
 );
 
 if ('serviceWorker' in navigator) {
-  const wb = new Workbox(import.meta.env.MODE === 'production' ? '/service-worker.js' : '/dev-sw.js?dev-sw', {
+  const wb = new Workbox(import.meta.env.MODE === 'production' ? './service-worker.js' : '/dev-sw.js?dev-sw', {
     type: import.meta.env.MODE === 'production' ? 'classic' : 'module',
   });
 
