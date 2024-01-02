@@ -27,7 +27,11 @@ i18n
       backends: [Fetch],
 
       // array of options in order of backends above
-      backendOptions: [{}],
+      backendOptions: [
+        {
+          loadPath: new URL('locales/', document.baseURI).href + '{{lng}}/{{ns}}.json',
+        },
+      ],
     },
   });
 
