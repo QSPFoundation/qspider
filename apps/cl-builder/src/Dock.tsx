@@ -49,8 +49,8 @@ export const EditDock: React.FC<DockProps> = ({ type, index, data }) => {
   const className = ['dock', type];
   const dockToConfigure = useAtom(dockToConfigure$);
 
-  const isCurrenlyConfigured = dockToConfigure?.index === index && dockToConfigure?.type === type;
-  if (isCurrenlyConfigured) className.push('dock-configured');
+  const isCurrentlyConfigured = dockToConfigure?.index === index && dockToConfigure?.type === type;
+  if (isCurrentlyConfigured) className.push('dock-configured');
   if (!data) {
     return (
       <div className="dock">

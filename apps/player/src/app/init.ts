@@ -2,7 +2,7 @@ import { games$, goToGame, loadGamesFromStorage, navigateTo, processLocationChan
 import {
   baseInit$,
   importUrl,
-  initDefered$,
+  initDeferred$,
   initQspApi,
   initTheme,
   initialBaseUrl$,
@@ -37,7 +37,7 @@ export async function init(): Promise<void> {
     }
     toRun = imported[0].id;
   }
-  initDefered$.value.resolve();
+  initDeferred$.value.resolve();
   await initQspApi();
   await registerDefaultThemes(initialBaseUrl$.value);
   if (toRun) {

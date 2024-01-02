@@ -18,12 +18,12 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
   const msgX = useQspVariable('MSG_X', '', 0, 200);
   const msgY = useQspVariable('MSG_Y', '', 0, 165);
   const transitions = useAeroEffect(msg.isOpen, '$MSG_EFFECT', 'MSG_EFFECT_TIME');
-  const useMouseCordinates = msgX < 0 || msgY < 0;
+  const useMouseCoordinates = msgX < 0 || msgY < 0;
   const positionStyle = {
-    '--aero-msg-x': `${useMouseCordinates ? coordinates.x : msgX}px`,
-    '--aero-msg-y': `${useMouseCordinates ? coordinates.y : msgY}px`,
+    '--aero-msg-x': `${useMouseCoordinates ? coordinates.x : msgX}px`,
+    '--aero-msg-y': `${useMouseCoordinates ? coordinates.y : msgY}px`,
   } as CSSProperties;
-  const contentClass = `qsp-dialog-container${useMouseCordinates ? ' at-mouse' : ''}`;
+  const contentClass = `qsp-dialog-container${useMouseCoordinates ? ' at-mouse' : ''}`;
   function onClose(): void {
     msg$.actions.close();
   }

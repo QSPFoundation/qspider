@@ -70,7 +70,7 @@ export const QspCatalog: React.FC = () => {
             <Select
               name="author-filter"
               options={authors.map((author) => ({ label: author, value: author }))}
-              placehoder=""
+              placeholder=""
               label="Author"
               value={authorsFilter}
               onValueChange={(value): void => qspAuthorFilter$.set(value)}
@@ -93,7 +93,7 @@ export const QspCatalog: React.FC = () => {
           <div className="q-catalog__filterbar-group">
             <Select
               options={sortOptions.map((o) => ({ ...o, label: t(o.label) }))}
-              placehoder={t('Sort by')}
+              placeholder={t('Sort by')}
               label={t('Sort field')}
               value={sortField}
               onValueChange={(value): void => qspSortByField$.set(value)}

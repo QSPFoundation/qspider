@@ -19,16 +19,16 @@ const SelectItem: React.FC<{ children: React.ReactNode; value: string }> = ({ ch
 
 export const Select: React.FC<{
   options: SelectOption[];
-  placehoder: string;
+  placeholder: string;
   label: string;
   value: string | undefined;
   name?: string;
   onValueChange: (value: string) => void;
-}> = ({ options, placehoder, label, value, name, onValueChange }) => {
+}> = ({ options, placeholder, label, value, name, onValueChange }) => {
   return (
     <RadixSelect.Root value={value} onValueChange={onValueChange} name={name}>
       <RadixSelect.Trigger className="q-select" aria-label={label}>
-        <RadixSelect.Value placeholder={placehoder} />
+        <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className="q-select-icon">
           <ChevronDownIcon />
         </RadixSelect.Icon>

@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file. See [standa
 - fix init sequence (caused sync issues) ([967ddb5](https://github.com/QSPFoundation/qspider/commit/967ddb58f0ef568c1233d9bc865b60be5978653b))
 - fix loading qsps files ([cdd73f4](https://github.com/QSPFoundation/qspider/commit/cdd73f4503b3c0e7fcad915342665e91bbac6e93))
 - fix opening zip files on desktop ([bd4d2f8](https://github.com/QSPFoundation/qspider/commit/bd4d2f8125b3b1439b4b7c2904ceef07f1913399))
-- fix resourse loading from zip ([564f53c](https://github.com/QSPFoundation/qspider/commit/564f53c923ac01e612b0a10fc4187d4cef363239))
+- fix resource loading from zip ([564f53c](https://github.com/QSPFoundation/qspider/commit/564f53c923ac01e612b0a10fc4187d4cef363239))
 - fix selected state in aero menu ([d43ece4](https://github.com/QSPFoundation/qspider/commit/d43ece496824618bbdc87d1c7e37c0a37c616c54))
 - imrove html processing, keep attributes ([d497e18](https://github.com/QSPFoundation/qspider/commit/d497e18f7371b647c2cd6d14d2f40e8dbd570cf8))
 - long game title breaking toolbar layout ([d3521a7](https://github.com/QSPFoundation/qspider/commit/d3521a7b3dd0cb59c4aa29ab53a7b11f169598d6))

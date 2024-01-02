@@ -76,7 +76,7 @@
   "Game files not found inside archive": "Файл гри не знайдено в архіві",
   "Failed to load game": "Не вдалося завантажити гру",
   "Failed to load catalog": "Не вдалось завантажити каталог",
-  "Upsupported archive format": "Формат архіву не підтримується",
+  "Unsupported archive format": "Формат архіву не підтримується",
   "File not found": "Файл не знайдено",
   "Open game": "Відкрити гру",
   "Quit": "Вийти",

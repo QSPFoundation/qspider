@@ -1,10 +1,10 @@
-export interface Defered<T> {
+export interface Deferred<T> {
   resolve(value: T): void;
   reject(reason: Error): void;
   promise: Promise<T>;
 }
 
-export function defer<T>(): Defered<T> {
+export function defer<T>(): Deferred<T> {
   let resolve!: (value: T | PromiseLike<T>) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reject!: (reason?: any) => void;

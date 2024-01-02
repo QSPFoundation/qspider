@@ -7,7 +7,7 @@ export const LocaleSelector: React.FC = () => {
   return (
     <Select
       options={locales}
-      placehoder=""
+      placeholder=""
       label=""
       value={i18n.language}
       onValueChange={(lang): void => {

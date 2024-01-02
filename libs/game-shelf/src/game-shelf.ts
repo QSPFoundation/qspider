@@ -1,5 +1,5 @@
 import { GameShelfEntry } from '@qspider/contracts';
-import { currentGameEntry$, initDefered$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
+import { currentGameEntry$, initDeferred$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
 import { create } from 'xoid';
 import history from 'history/browser';
 
@@ -68,7 +68,7 @@ export async function processLocationChange(location: string): Promise<void> {
   const search = new URLSearchParams(location);
   const game_id = search.get('run');
   if (game_id) {
-    await initDefered$.value.promise;
+    await initDeferred$.value.promise;
     const descriptor = games$.value[game_id];
     await runGame(descriptor);
     currentMode$.set('game');

@@ -26,9 +26,9 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   const menuX = useQspVariable('MENU_X', '', 0, -1);
   const menuY = useQspVariable('MENU_Y', '', 0, -1);
   const transitions = useAeroEffect(menu.isOpen, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
-  const useMouseCordinates = menuX < 0 || menuY < 0;
-  const left = useMouseCordinates ? coordinates.x : menuX;
-  const top = useMouseCordinates ? coordinates.y : menuY;
+  const useMouseCoordinates = menuX < 0 || menuY < 0;
+  const left = useMouseCoordinates ? coordinates.x : menuX;
+  const top = useMouseCoordinates ? coordinates.y : menuY;
   let className = attributes['className'] || '';
   if (isFixed) className += ' aero-fixed-menu';
   return (

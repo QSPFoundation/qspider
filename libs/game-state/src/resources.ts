@@ -26,17 +26,17 @@ function preparePath(path: string): string {
 export async function loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
   if (!resources) return;
   const { styles, scripts, fonts } = resources;
-  const promisses = [];
+  const promises = [];
   if (styles) {
-    promisses.push(loadAdditionalStyles(styles));
+    promises.push(loadAdditionalStyles(styles));
   }
   if (scripts) {
-    promisses.push(loadAdditionalScripts(scripts));
+    promises.push(loadAdditionalScripts(scripts));
   }
   if (fonts) {
     loadAdditionalFonts(fonts);
   }
-  await Promise.allSettled([...promisses, document.fonts.ready]);
+  await Promise.allSettled([...promises, document.fonts.ready]);
 }
 
 async function loadAdditionalStyles(styles: string[]): Promise<void> {
@@ -58,10 +58,10 @@ async function loadAdditionalScripts(scripts: string[]): Promise<void> {
     gameScript.type = 'text/javascript';
     gameScript.src = script;
     gameScript.dataset['qspiderResource'] = 'script';
-    const defered = defer<void>();
-    gameScript.onload = (): void => defered.resolve();
-    gameScript.onerror = (): void => defered.reject(new Error(`File not found: ${script}`));
-    promises.push(defered.promise);
+    const deferred = defer<void>();
+    gameScript.onload = (): void => deferred.resolve();
+    gameScript.onerror = (): void => deferred.reject(new Error(`File not found: ${script}`));
+    promises.push(deferred.promise);
     document.head.appendChild(gameScript);
   }
   await Promise.allSettled(promises);

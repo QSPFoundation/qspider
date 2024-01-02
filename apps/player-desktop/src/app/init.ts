@@ -2,7 +2,7 @@ import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/gam
 import {
   baseInit$,
   importDesktop,
-  initDefered$,
+  initDeferred$,
   initQspApi,
   initTheme,
   initialBaseUrl$,
@@ -45,7 +45,7 @@ export async function init(): Promise<void> {
     }
   }
   baseInit$.set(true);
-  initDefered$.value.resolve();
+  initDeferred$.value.resolve();
   await initQspApi();
   await registerDefaultThemes(initialBaseUrl$.value);
   if (toRun) {

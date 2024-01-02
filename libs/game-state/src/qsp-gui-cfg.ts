@@ -61,8 +61,8 @@ export const qspGuiLayout$ = create<string | null>((get) => {
 function buildLayoutTree(panels: PanelData[]): LayoutTree {
   const maxLayer = getMaxLayer(panels);
 
-  const floating: PanelData[] = panels.filter((pannel) => pannel.floating && pannel.name === 'imgview');
-  const docked: PanelData[] = panels.filter((pannel) => !pannel.floating);
+  const floating: PanelData[] = panels.filter((panel) => panel.floating && panel.name === 'imgview');
+  const docked: PanelData[] = panels.filter((panel) => !panel.floating);
 
   let currentLayer: LayoutLayer | null = null;
   for (let i = 0; i <= maxLayer; i++) {
@@ -180,7 +180,7 @@ function processData(key: string, value: string): Record<string, unknown> {
 }
 
 function parsePanels(key: string, text: string): Record<string, unknown> {
-  const pannels: Record<string, unknown>[] = [];
+  const panels: Record<string, unknown>[] = [];
   const docks: Record<string, number> = {};
   for (const line of text.split('|').filter(Boolean)) {
     if (line === 'layout2') continue;
@@ -207,10 +207,10 @@ function parsePanels(key: string, text: string): Record<string, unknown> {
           },
           {} as Record<string, unknown>,
         );
-      pannels.push(panelData);
+      panels.push(panelData);
     }
   }
-  return { Panels: pannels, Docks: docks };
+  return { Panels: panels, Docks: docks };
 }
 
 function extractLineData(line: string): [string, string] | [] {

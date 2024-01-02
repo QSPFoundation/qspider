@@ -30,7 +30,7 @@ export const isRar = (buffer: ArrayBuffer): boolean => {
 export const readSupportedArchive = (buffer: ArrayBuffer): Promise<ArchiveContent> => {
   if (isZip(buffer)) return readZip(buffer);
   if (isRar(buffer)) return readRar(buffer);
-  throw new Error('Upsupported archive format');
+  throw new Error('Unsupported archive format');
 };
 
 export const readZip = (buffer: ArrayBuffer): Promise<ArchiveContent> => {

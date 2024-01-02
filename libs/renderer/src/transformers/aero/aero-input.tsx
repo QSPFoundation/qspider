@@ -18,12 +18,12 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
   const inputX = useQspVariable('INPUT_X', '', 0, 200);
   const inputY = useQspVariable('INPUT_Y', '', 0, 165);
   const transitions = useAeroEffect(input.isOpen, '$INPUT_EFFECT', 'INPUT_EFFECT_TIME');
-  const useMouseCordinates = inputX < 0 || inputY < 0;
+  const useMouseCoordinates = inputX < 0 || inputY < 0;
   const positionStyle = {
-    '--aero-input-x': `${useMouseCordinates ? coordinates.x : inputX}px`,
-    '--aero-input-y': `${useMouseCordinates ? coordinates.y : inputY}px`,
+    '--aero-input-x': `${useMouseCoordinates ? coordinates.x : inputX}px`,
+    '--aero-input-y': `${useMouseCoordinates ? coordinates.y : inputY}px`,
   } as CSSProperties;
-  const contentClass = `qsp-dialog-container${useMouseCordinates ? ' at-mouse' : ''}`;
+  const contentClass = `qsp-dialog-container${useMouseCoordinates ? ' at-mouse' : ''}`;
   return (
     <buttonContext.Provider
       value={{
