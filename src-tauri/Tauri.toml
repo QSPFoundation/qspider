@@ -46,6 +46,9 @@ longDescription = ""
 [tauri.bundle.deb]
 depends = []
 
+[tauri.bundle.windows.webviewInstallMode]
+type = "embedBootstrapper"
+
 [tauri.updater]
 active = true
 endpoints = ["https://qspfoundation.github.io/qspider/updater.json"]
