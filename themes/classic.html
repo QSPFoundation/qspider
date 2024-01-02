@@ -1,0 +1,192 @@
+<qspider-theme name="qspider:classic">
+  <css-link src="qspider:themes/common.css"></css-link>
+  <css-link src="qspider:themes/classic.css"></css-link>
+  <definitions>
+    <qsp-css-variable name="--code-font-size" from="FSIZE" type="unit" unit="pt" default-value="12"></qsp-css-variable>
+    <qsp-css-variable name="--code-font-name" from="$FNAME"></qsp-css-variable>
+    <qsp-css-variable name="--code-color" from="FCOLOR" type="color" default-value="#000000"></qsp-css-variable>
+    <qsp-css-variable name="--code-link-color" from="LCOLOR" type="color" default-value="#0000ff"></qsp-css-variable>
+    <qsp-css-variable
+      name="--code-background-color"
+      from="BCOLOR"
+      type="color"
+      default-value="#e0e0e0"
+      with-contrast
+      with-inverted
+    ></qsp-css-variable>
+    <qsp-css-variable name="--background-image" from="$BACKIMAGE" type="resource"></qsp-css-variable>
+  </definitions>
+  <qsp-player>
+    <qsp-cl-defaults></qsp-cl-defaults>
+    <qsp-cl>
+      <qsp-cl-layer>
+        <qsp-cl-dock place="center">
+          <qsp-cl-layer>
+            <qsp-cl-dock place="center">
+              <qsp-cl-pane>
+                <qsp-main>
+                  <div class="panel panel-background">
+                    <qsp-scrollable>
+                      <qsp-main-content class="panel-content"></qsp-main-content>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-main>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+            <qsp-cl-dock place="right" visibility="objs" size="215">
+              <qsp-cl-pane visibility="objs">
+                <qsp-objects>
+                  <div class="panel">
+                    <qsp-scrollable>
+                      <qsp-objects-list tag="nav" role="menu">
+                        <qsp-object tag="button" class="action-item">
+                          <qsp-object-image class="action-img"></qsp-object-image>
+                          <qsp-object-name></qsp-object-name>
+                        </qsp-object>
+                      </qsp-objects-list>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-objects>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+            <qsp-cl-dock place="bottom" visibility="acts|vars" size="204">
+              <qsp-cl-pane proportion="117349" visibility="acts">
+                <qsp-actions>
+                  <div class="panel">
+                    <qsp-scrollable>
+                      <qsp-actions-list tag="nav" role="menu">
+                        <qsp-action tag="button" class="action-item">
+                          <qsp-action-image class="action-img"></qsp-action-image>
+                          <qsp-action-name></qsp-action-name>
+                        </qsp-action>
+                      </qsp-actions-list>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-actions>
+              </qsp-cl-pane>
+              <qsp-cl-pane proportion="82651" visibility="vars">
+                <qsp-stats>
+                  <div class="panel">
+                    <qsp-scrollable>
+                      <qsp-stats-content class="panel-content"></qsp-stats-content>
+                    </qsp-scrollable>
+                  </div>
+                </qsp-stats>
+              </qsp-cl-pane>
+            </qsp-cl-dock>
+          </qsp-cl-layer>
+        </qsp-cl-dock>
+        <qsp-cl-dock place="bottom" visibility="input" size="41">
+          <qsp-cl-pane visibility="input">
+            <qsp-cmd>
+              <div class="panel">
+                <qsp-cmd-input></qsp-cmd-input>
+              </div>
+            </qsp-cmd>
+          </qsp-cl-pane>
+        </qsp-cl-dock>
+      </qsp-cl-layer>
+      <qsp-view modal>
+        <div class="panel">
+          <div class="view-container">
+            <qsp-view-image></qsp-view-image>
+          </div>
+        </div>
+      </qsp-view>
+    </qsp-cl>
+    <qsp-menu>
+      <qsp-scrollable>
+        <qsp-menu-list tag="nav" role="menu">
+          <qsp-menu-item tag="button" class="action-item">
+            <qsp-menu-image class="action-img"></qsp-menu-image>
+            <qsp-menu-name> </qsp-menu-name>
+          </qsp-menu-item>
+        </qsp-menu-list>
+      </qsp-scrollable>
+    </qsp-menu>
+    <qsp-msg>
+      <qsp-msg-content></qsp-msg-content>
+      <div class="qsp-dialog-buttons">
+        <qsp-ok-button class="qsp-button" focus><qsp-t>Ok</qsp-t></qsp-ok-button>
+      </div>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-msg>
+    <qsp-input>
+      <qsp-input-content></qsp-input-content>
+      <qsp-input-tag class="qsp-input"></qsp-input-tag>
+      <div class="qsp-dialog-buttons">
+        <qsp-ok-button class="qsp-button"><qsp-t>Ok</qsp-t></qsp-ok-button>
+        <qsp-cancel-button class="qsp-button"><qsp-t>Cancel</qsp-t></qsp-cancel-button>
+      </div>
+      <qsp-close-button class="close-button">x</qsp-close-button>
+    </qsp-input>
+    <qsp-pause-screen>
+      <div class="qsp-pause-screen">
+        <div class="qsp-pause-screen-buttons">
+          <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
+          <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
+          <qsp-region name="qspider-pause-screen-buttons"></qsp-region>
+          <qsp-show when="NOSAVE=0">
+            <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
+          </qsp-show>
+          <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
+        </div>
+        <qsp-pause-screen-content>
+          <qsp-scrollable>
+            <qsp-pause-screen-panel name="credits">
+              <div><qsp-t>Author</qsp-t>: <qsp-game-author></qsp-game-author></div>
+              <div><qsp-t>Version</qsp-t>: <qsp-game-version></qsp-game-version></div>
+              <qsp-game-description></qsp-game-description>
+            </qsp-pause-screen-panel>
+            <qsp-show when="NOSAVE=0">
+              <qsp-pause-screen-panel name="saves">
+                <h4><qsp-t>Saves</qsp-t></h4>
+                <qsp-slots-list>
+                  <qsp-save-slot>
+                    <qsp-slot-index></qsp-slot-index>
+                    <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                    <div class="save-actions">
+                      <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                      <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                      <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                    </div>
+                  </qsp-save-slot>
+                </qsp-slots-list>
+                <qsp-quick-save>
+                  <span>Quicksave</span>
+                  <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                  <div class="save-actions">
+                    <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                    <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                    <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                  </div>
+                </qsp-quick-save>
+              </qsp-pause-screen-panel>
+            </qsp-show>
+            <qsp-pause-screen-panel name="preferences">
+              <h2><qsp-t>Preferences</qsp-t></h2>
+              <div>
+                <label><qsp-t>Volume</qsp-t></label>
+                <qsp-volume-slider></qsp-volume-slider>
+                <qsp-mute-toggle class="qsp-button" tag="button"></qsp-mute-toggle>
+              </div>
+              <div>
+                <label><qsp-t>Locale</qsp-t></label>
+                <br />
+                <qsp-locale-select></qsp-locale-select>
+              </div>
+              <br />
+              <div>
+                <h4><qsp-t>Hotkeys</qsp-t></h4>
+                <qsp-global-hotkeys></qsp-global-hotkeys>
+                <qsp-game-hotkeys></qsp-game-hotkeys>
+              </div>
+            </qsp-pause-screen-panel>
+            <qsp-region name="qspider-pause-screen-panels"></qsp-region>
+          </qsp-scrollable>
+        </qsp-pause-screen-content>
+      </div>
+    </qsp-pause-screen>
+  </qsp-player>
+</qspider-theme>
