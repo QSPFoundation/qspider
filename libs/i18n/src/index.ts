@@ -29,7 +29,7 @@ i18n
       // array of options in order of backends above
       backendOptions: [
         {
-          loadPath: new URL('locales/', document.baseURI).href + '{{lng}}/{{ns}}.json',
+          loadPath: new URL('locales/', window.location.href).href + '{{lng}}/{{ns}}.json',
         },
       ],
     },
