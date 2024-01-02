@@ -2803,7 +2803,7 @@ dependencies = [
 
 [[package]]
 name = "qspider"
-version = "0.13.0"
+version = "1.0.0"
 dependencies = [
  "entity-tag",
  "mime_guess",

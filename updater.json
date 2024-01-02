@@ -1,16 +1,16 @@
 {
-  "name": "0.13.0",
+  "name": "1.0.0",
   "notes": "New desktop release",
-  "pub_date": "2022-10-04T10:34:32.702Z",
+  "pub_date": "2024-01-02T12:40:20.913Z",
   "platforms": {
     "darwin": {
-      "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/qSpider.app.tar.gz"
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/v1.0.0/qSpider.app.tar.gz"
     },
     "linux": {
-      "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/q-spider_0.13.0_amd64.AppImage.tar.gz"
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/v1.0.0/q-spider_1.0.0_amd64.AppImage.tar.gz"
     },
     "win64": {
-      "url": "https://github.com/QSPFoundation/qspider/releases/download/v0.13.0/qSpider_0.13.0_x64_en-US.msi.zip"
+      "url": "https://github.com/QSPFoundation/qspider/releases/download/v1.0.0/qSpider_1.0.0_x64_en-US.msi.zip"
     }
   }
 }
