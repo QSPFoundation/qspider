@@ -39,7 +39,6 @@ export async function init(): Promise<void> {
         }
       }
       toRun = imported[0].id;
-      toRun && goToGame(toRun);
     } catch (err) {
       showError(err instanceof Error ? err.message : String(err));
     }
