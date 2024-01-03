@@ -3,5 +3,6 @@
   "cmake.configureOnOpen": false,
   "editor.tabSize": 2,
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "rust-analyzer.diagnostics.disabled": ["unresolved-macro-call"]
+  "rust-analyzer.diagnostics.disabled": ["unresolved-macro-call"],
+  "eslint.validate": ["json"]
 }

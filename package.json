@@ -35,6 +35,7 @@
     "@docusaurus/preset-classic": "^3.0.1",
     "@iarna/toml": "^2.2.5",
     "@mdx-js/react": "^3.0.0",
+    "@nx/devkit": "17.2.8",
     "@qsp/converters": "^1.0.1",
     "@qsp/wasm-engine": "^1.0.9",
     "@radix-ui/colors": "^3.0.0",
@@ -87,6 +88,7 @@
     "@nx/eslint": "17.2.8",
     "@nx/eslint-plugin": "17.2.8",
     "@nx/js": "17.2.8",
+    "@nx/plugin": "^17.2.8",
     "@nx/react": "17.2.8",
     "@nx/vite": "17.2.8",
     "@nx/web": "17.2.8",
@@ -148,4 +150,3 @@
     "*.ts": "eslint --cache --fix"
   }
 }
-
