@@ -13,6 +13,7 @@
     "build": "nx build --prod",
     "build:demo": "nx build-demo player --prod",
     "build:desktop": "nx build player-desktop --prod",
+    "build:docs": "nx build docs --prod",
     "test": "nx run-many --all --target=test",
     "lint": "nx run-many --all --target=lint",
     "affected": "nx affected",
