@@ -10,6 +10,7 @@
 /dist
 /tmp
 /out-tsc
+.docusaurus
 
 # dependencies
 /node_modules
