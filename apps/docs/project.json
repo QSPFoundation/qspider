@@ -1,0 +1,22 @@
+{
+  "name": "docs",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/docs/src",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:babel",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "main": "apps/docs/src/main.ts",
+        "outputPath": "dist/apps/docs",
+        "tsConfig": "apps/docs/tsconfig.app.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  }
+}
