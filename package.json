@@ -84,13 +84,13 @@
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@docusaurus/tsconfig": "^3.0.1",
     "@docusaurus/types": "^3.0.1",
-    "@nx/eslint": "17.2.7",
-    "@nx/eslint-plugin": "17.2.7",
-    "@nx/js": "17.2.7",
-    "@nx/react": "17.2.7",
-    "@nx/vite": "17.2.7",
-    "@nx/web": "17.2.7",
-    "@nx/workspace": "17.2.7",
+    "@nx/eslint": "17.2.8",
+    "@nx/eslint-plugin": "17.2.8",
+    "@nx/js": "17.2.8",
+    "@nx/react": "17.2.8",
+    "@nx/vite": "17.2.8",
+    "@nx/web": "17.2.8",
+    "@nx/workspace": "17.2.8",
     "@tauri-apps/cli": "^1.5.9",
     "@types/color": "^3.0.6",
     "@types/howler": "^2.2.11",
@@ -114,7 +114,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
-    "nx": "17.2.7",
+    "nx": "17.2.8",
     "postcss-cli": "^11.0.0",
     "prettier": "^3.1.1",
     "rimraf": "^5.0.5",
@@ -148,3 +148,4 @@
     "*.ts": "eslint --cache --fix"
   }
 }
+
