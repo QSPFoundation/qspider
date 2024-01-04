@@ -7,3 +7,12 @@
   --ifm-color-primary-lighter: #6280e3;
   --ifm-color-primary-lightest: #869dea;
 }
+[data-theme='dark'] {
+  --ifm-color-primary: #7a99ff;
+  --ifm-color-primary-dark: #547cff;
+  --ifm-color-primary-darker: #416eff;
+  --ifm-color-primary-darkest: #0942ff;
+  --ifm-color-primary-light: #a0b6ff;
+  --ifm-color-primary-lighter: #b3c4ff;
+  --ifm-color-primary-lightest: #ebf0ff;
+}

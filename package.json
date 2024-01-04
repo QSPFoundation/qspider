@@ -27,7 +27,8 @@
     "release": "standard-version",
     "workspace-generator": "nx workspace-generator",
     "prepare": "husky install",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk"
   },
   "private": true,
   "dependencies": {

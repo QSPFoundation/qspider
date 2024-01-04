@@ -16,6 +16,10 @@
       "executor": "@qspider/docusaurus:serve",
       "options": {}
     },
+    "write-translations": {
+      "executor": "@qspider/docusaurus:write-translations",
+      "options": {}
+    },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"]
