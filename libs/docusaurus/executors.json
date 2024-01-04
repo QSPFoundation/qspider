@@ -9,6 +9,11 @@
       "implementation": "./src/executors/build/executor",
       "schema": "./src/executors/build/schema.json",
       "description": "build executor"
+    },
+    "write-translations": {
+      "implementation": "./src/executors/write-translations/executor",
+      "schema": "./src/executors/write-translations/schema.json",
+      "description": "write-translations executor"
     }
   }
 }

@@ -4,15 +4,18 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 
+import Translate, { translate } from '@docusaurus/Translate';
+
 function HomepageHeader(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
   return (
     <header className={clsx('hero hero--primary')}>
       <div className="container">
         <Heading as="h1" className="hero__title">
-          {siteConfig.title}
+          qSpider
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle">
+          <Translate>Web and desktop player for QSP</Translate>
+        </p>
       </div>
     </header>
   );
@@ -21,7 +24,7 @@ function HomepageHeader(): JSX.Element {
 export default function Home(): JSX.Element {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <Layout title={`${siteConfig.title}`} description="Description will go into a meta tag in <head />">
+    <Layout title={`${siteConfig.title}`} description={translate({ message: 'qSpider Documentation' })}>
       <HomepageHeader />
     </Layout>
   );
