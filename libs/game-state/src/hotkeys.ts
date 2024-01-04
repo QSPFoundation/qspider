@@ -43,7 +43,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
   },
   { when_paused: true, description: 'Restart', keys: 'mod+r', on_press: { type: 'game_action', action: 'restart' } },
   { when_paused: false, description: 'Quicksave', keys: 'f5', on_press: { type: 'game_action', action: 'quicksave' } },
-  { when_paused: false, description: 'Qucikload', keys: 'f9', on_press: { type: 'game_action', action: 'quickload' } },
+  { when_paused: false, description: 'Quickload', keys: 'f9', on_press: { type: 'game_action', action: 'quickload' } },
   {
     when_paused: false,
     keys: 'mod+s',
