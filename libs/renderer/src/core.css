@@ -610,11 +610,11 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
   }
 }
 
-[data-requested-save-action='save'] [data-save-action='load'],
-[data-requested-save-action='load'] [data-save-action='save'],
-[data-requested-save-action='load'] [data-save-action='clear'],
-[data-save-empty] [data-save-action='load'],
-[data-save-empty] [data-save-action='clear'] {
+[data-requested-save-command='save'] [data-save-command='load'],
+[data-requested-save-command='load'] [data-save-command='save'],
+[data-requested-save-command='load'] [data-save-command='clear'],
+[data-save-empty] [data-save-command='load'],
+[data-save-empty] [data-save-command='clear'] {
   display: none;
 }
 

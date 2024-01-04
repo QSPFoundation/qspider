@@ -129,9 +129,9 @@ export async function quickLoad(): Promise<void> {
   });
 }
 
-export type QspSaveAction = 'load' | 'save' | 'clear';
+export type QspSaveCommand = 'load' | 'save' | 'clear';
 export type SaveContext = { slot_index: number; save_path: string };
-export async function onSaveAction(action: QspSaveAction, context: SaveContext): Promise<void> {
+export async function onSaveCommand(action: QspSaveCommand, context: SaveContext): Promise<void> {
   const { slot_index, save_path } = context;
   switch (action) {
     case 'load':

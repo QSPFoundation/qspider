@@ -222,7 +222,7 @@ export function stopCurrentGame(): void {
   wasResized = false;
   onGameEnd$.value?.();
 }
-export type GameAction = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
+export type GameCommand = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
 function onRestart(): void {
   reloadRegions();
@@ -233,7 +233,7 @@ export function onRestore(): void {
   reloadLayers();
 }
 
-export function onGameAction(action: GameAction): void {
+export function onGameCommand(action: GameCommand): void {
   if (action.startsWith('pause:')) {
     const [, panel] = action.split(':');
     if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);

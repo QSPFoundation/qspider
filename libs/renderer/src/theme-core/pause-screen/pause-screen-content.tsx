@@ -7,7 +7,7 @@ export const QspPauseScreenContent: React.FC<{ attrs: Attributes; children: Reac
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen-content');
   const requestedSaveAction = useAtom(requestedAction$);
   return (
-    <Tag style={style} {...attributes} data-requested-save-action={requestedSaveAction}>
+    <Tag style={style} {...attributes} data-requested-save-command={requestedSaveAction}>
       {children}
     </Tag>
   );
