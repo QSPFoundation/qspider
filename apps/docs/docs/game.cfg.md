@@ -43,8 +43,8 @@ Section starting with `[game.hotkeys]` line can be used to define custom hotkeys
 Section starting with `[game.resources]` can be used to describe additional resouces to be loaded together with game.
 
 - `styles` - list of css files (can be both external urls and files next to config)
-- `scripts` - list of javascript files
-- `fonts` - list of additional font
+- `scripts` - list of [javascript files](game.javascript)
+- `fonts` - list of [additional fonts](game.fonts)
 - `icon` - path to game icon (used as favicon in brwoser or as application icon on desktop)
 
 ## Destop settings sections
