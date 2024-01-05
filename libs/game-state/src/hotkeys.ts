@@ -1,7 +1,7 @@
 import Mousetrap from 'mousetrap';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
-import { GameAction, onGameAction } from './current-game';
+import { GameCommand, onGameCommand } from './current-game';
 import { actions$, execSelectedAction, selectAction } from './panels';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
@@ -12,7 +12,7 @@ interface GlobalHotKey {
   description: string;
   when_paused: boolean;
   on_press:
-    | { type: 'game_action'; action: GameAction }
+    | { type: 'game_action'; action: GameCommand }
     | { type: 'action'; index: number }
     | ((e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void | boolean);
 }
@@ -50,7 +50,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     description: 'Save',
     on_press: (): boolean | undefined => {
       requestedAction$.set('save');
-      onGameAction('pause:saves' as GameAction);
+      onGameCommand('pause:saves' as GameCommand);
       return false;
     },
   },
@@ -60,7 +60,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     description: 'Load',
     on_press: (): boolean | undefined => {
       requestedAction$.set('load');
-      onGameAction('pause:saves' as GameAction);
+      onGameCommand('pause:saves' as GameCommand);
       return false;
     },
   },
@@ -97,7 +97,7 @@ export function setupGlobalHotKeys(): void {
         execSelectedAction();
         return false;
       } else if (hotkey.on_press.type === 'game_action') {
-        onGameAction(hotkey.on_press.action);
+        onGameCommand(hotkey.on_press.action);
         return false;
       }
     });

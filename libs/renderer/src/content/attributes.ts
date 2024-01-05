@@ -1,12 +1,12 @@
 import {
   Attributes,
   EventAttributes,
-  GameAction,
-  QspSaveAction,
+  GameCommand,
+  QspSaveCommand,
   SaveContext,
   execCode,
-  onGameAction,
-  onSaveAction,
+  onGameCommand,
+  onSaveCommand,
 } from '@qspider/game-state';
 import { fontSizeMap } from '../transformers/classic/font';
 
@@ -93,7 +93,13 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   if (dataName.includes('-')) {
     converted['data-qsp'] = dataName.replace('qsp-', '');
   }
-  const { tag = tagName, style = {}, 'qsp-action': qspAction, 'qsp-save-action': qspSaveAction, ...attrs } = attributes;
+  const {
+    tag = tagName,
+    style = {},
+    'qsp-command': qspCommand,
+    'qsp-save-command': qspSaveCommand,
+    ...attrs
+  } = attributes;
 
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
@@ -129,19 +135,19 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
   if (tag === 'iframe') {
     converted['sandbox'] = 'allow-scripts allow-same-origin';
   }
-  if (qspAction) {
+  if (qspCommand) {
     converted['onClick'] = (e: MouseEvent): void => {
       e.preventDefault();
-      onGameAction(qspAction as GameAction);
+      onGameCommand(qspCommand as GameCommand);
     };
-  } else if (qspSaveAction) {
-    converted['data-save-action'] = qspSaveAction;
+  } else if (qspSaveCommand) {
+    converted['data-save-command'] = qspSaveCommand;
     converted['onClick'] = (e: MouseEvent): void => {
       e.preventDefault();
       if (!e.target) return;
       const context = getSaveContext(e.target as HTMLElement);
       if (!context) return;
-      onSaveAction(qspSaveAction as QspSaveAction, context);
+      onSaveCommand(qspSaveCommand as QspSaveCommand, context);
     };
   }
   const attributeStyles = attributesToStyle(attributes, tag);
@@ -158,7 +164,7 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
 function getSaveContext(target: HTMLElement): SaveContext | null {
   const saveRoot = target.closest<HTMLElement>('[data-qsp-save]');
   if (!saveRoot) {
-    console.error('qsp-save-action used on element outside of save tag');
+    console.error('qsp-save-command used on element outside of save tag');
     return null;
   }
   const slot_index = 'qspSaveIndex' in saveRoot.dataset ? parseInt(saveRoot.dataset['qspSaveIndex'] ?? '-1', 0) : -1;

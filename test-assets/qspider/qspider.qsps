@@ -3,7 +3,7 @@ usehtml=1
 debug=1
 inclib 'qspider'
 
-@qspider_update_region('qspider-pause-screen-buttons', '<button qsp-action="pause:additional" class="qsp-button">Additional panel</button>')
+@qspider_update_region('qspider-pause-screen-buttons', '<button qsp-command="pause:additional" class="qsp-button">Additional panel</button>')
 @qspider_update_region('qspider-pause-screen-panels', '<qsp-pause-screen-panel name="additional"><h2>Additional section</h2></qsp-pause-screen-panel>')
 
 gt 'test list'
@@ -229,7 +229,7 @@ $text_update = '<b>text update</b>'
 # pause-panel
 gs 'back-link'
 '<br/>'
-@qspider_update_region('pause-custom', '<div qsp-action="resume">Close pause screen</div>')
+@qspider_update_region('pause-custom', '<div qsp-command="resume">Close pause screen</div>')
 '<a href="exec: @qspider_open_pause_screen(''custom'')">Open pause screen custom panel</a>'
 ---
 
@@ -255,10 +255,10 @@ gs 'back-link'
 gs 'back-link'
 '<br/>'
 
-'<a qsp-action="scroll:stats:bottom">Scroll stats to bottom</a>'
-'<a qsp-action="scroll:stats:top">Scroll stats to top</a>'
+'<a qsp-command="scroll:stats:bottom">Scroll stats to bottom</a>'
+'<a qsp-command="scroll:stats:top">Scroll stats to top</a>'
 
-'<a qsp-action="scroll:main:bottom">Scroll main to bottom</a>'
+'<a qsp-command="scroll:main:bottom">Scroll main to bottom</a>'
 '<br/>'
 '<br/>'
 '<br/>'
@@ -283,7 +283,7 @@ gs 'back-link'
 '<br/>'
 '<br/>'
 '<br/>'
-'<a qsp-action="scroll:main:top">Scroll main to top</a>'
+'<a qsp-command="scroll:main:top">Scroll main to top</a>'
 
 
 p 'stats'

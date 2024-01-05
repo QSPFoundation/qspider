@@ -499,14 +499,14 @@
     <qsp-pause-screen>
       <div class="qsp-pause-screen">
         <div class="qsp-pause-screen-buttons">
-          <button qsp-action="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
-          <button qsp-action="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
+          <button qsp-command="resume" class="qsp-button"><qsp-t>Resume</qsp-t></button>
+          <button qsp-command="restart" class="qsp-button"><qsp-t>Restart</qsp-t></button>
           <qsp-region name="qspider-pause-screen-buttons"></qsp-region>
           <qsp-show when="NOSAVE=0">
-            <button qsp-action="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
+            <button qsp-command="pause:saves" class="qsp-button"><qsp-t>Saves</qsp-t></button>
           </qsp-show>
-          <button qsp-action="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
-          <button qsp-action="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
+          <button qsp-command="pause:preferences" class="qsp-button"><qsp-t>Preferences</qsp-t></button>
+          <button qsp-command="quit" class="qsp-button"><qsp-t>Quit</qsp-t></button>
         </div>
         <qsp-pause-screen-content>
           <qsp-scrollable>
@@ -523,9 +523,9 @@
                     <qsp-slot-index></qsp-slot-index>
                     <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                     <div class="save-actions">
-                      <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-                      <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
-                      <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                      <button qsp-save-command="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                      <button qsp-save-command="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                      <button qsp-save-command="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
                     </div>
                   </qsp-save-slot>
                 </qsp-slots-list>
@@ -533,9 +533,9 @@
                   <span>Quicksave</span>
                   <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                   <div class="save-actions">
-                    <button qsp-save-action="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-                    <button qsp-save-action="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
-                    <button qsp-save-action="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                    <button qsp-save-command="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                    <button qsp-save-command="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                    <button qsp-save-command="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
                   </div>
                 </qsp-quick-save>
               </qsp-pause-screen-panel>

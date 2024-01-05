@@ -1,4 +1,4 @@
-import { GameAction, onGameAction, stopCurrentGame } from './current-game';
+import { GameCommand, onGameCommand, stopCurrentGame } from './current-game';
 import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
@@ -7,7 +7,7 @@ import { windowManager$ } from './window-manager';
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
   'action:'(action: string): void {
-    onGameAction(action as GameAction);
+    onGameCommand(action as GameCommand);
   },
   'event:'(event: string): void {
     setTimeout(() => {
