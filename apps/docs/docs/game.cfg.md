@@ -36,7 +36,7 @@ Use `file` attribute to define main game file - path should be relative to confi
 
 ## Hotkeys section
 
-Section starting with `[game.hotkeys]` line can be used to define custom hotkeys in game.
+Section starting with `[game.hotkeys]` line can be used to define [custom hotkeys](game.hotkeys) in game.
 
 ## Game resourses section
 
