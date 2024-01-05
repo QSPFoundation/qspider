@@ -189,6 +189,7 @@ export function stopCurrentGame(): void {
   currentGame$.set(null);
   qspGuiCfg$.set(null);
   isPauseScreenVisible$.set(false);
+  pauseScreenCurrentPanel$.set('credits');
   isPaused$.set(true);
 
   // clear state
@@ -258,6 +259,7 @@ export function onGameCommand(action: GameCommand): void {
       qspApi$.value?.restartGame();
       onRestart();
       isPauseScreenVisible$.set(false);
+      pauseScreenCurrentPanel$.set('credits');
       break;
     case 'resume':
       isPauseScreenVisible$.set(false);
