@@ -96,7 +96,8 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
         }),
       );
     }
-  } catch {
+  } catch (err) {
+    console.error(err);
     showError(`Failed to load source for game ${game.title}`);
   }
 }

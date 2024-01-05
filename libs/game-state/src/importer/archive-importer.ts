@@ -106,7 +106,7 @@ function findRootGameFileFolder(root: FileDir): [FileDir, string] | null {
   let qspsFile: string | null = null;
   for (const entry of root.content) {
     if (entry.type === 'file') {
-      if (entry.name.endsWith('.qsp')) {
+      if (entry.name.endsWith('.qsp') || entry.name.endsWith('.gam')) {
         qspFile = entry.name;
       }
       if (entry.name.endsWith('.qsps')) {
