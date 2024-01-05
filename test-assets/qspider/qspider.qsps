@@ -200,8 +200,8 @@ gs 'back-link'
 '<div style="font-family: Sigmar">Some text in sigmar font</div>'
 '<div style="font-family: flowers">Some text in flowers sunday font</div>'
 
-'<a href="exec: exec(''qspider.event: test_event'')">Dispatch event without args</a>'
-'<a href="exec: exec(''qspider.event: event_with_args[1, ''''test'''']'')">Dispatch event with args</a>'
+'<a href="exec: @qspider_event(''test_event'')">Dispatch event without args</a>'
+'<a href="exec: @qspider_event(''event_with_args'', 1, ''test'')">Dispatch event with args</a>'
 
 ---
 

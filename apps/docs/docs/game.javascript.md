@@ -39,9 +39,10 @@ window.addEventListener('game-unload', window.custom_game_script.unload);
 window.addEventListener('qspider-event', window.custom_game_script.on_event);
 ```
 
-Game events can be triggeres from QSP code using `exec`.
+Game events can be triggeres from QSP code using `qspider_event` location from `qspider` library.
 
 ```python
-exec('qspider.event: test_event');
-exec('qspider.event: event_with_args[1, "test"]');
+inclib 'qspider'
+@qspider_event('test_event')
+@qspider_event('event_with_args', 1, 'test')
 ```
