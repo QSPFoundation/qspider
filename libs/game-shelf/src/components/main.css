@@ -575,6 +575,7 @@ h6 {
   position: relative;
   cursor: pointer;
   padding: var(--spacer--sm) var(--spacer--md) var(--spacer--sm) var(--spacer--lg);
+  user-select: none;
 }
 .q-select-item:hover {
   background: var(--ui-element-hover-background);
