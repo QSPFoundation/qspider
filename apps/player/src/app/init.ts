@@ -12,7 +12,7 @@ import {
   windowManager$,
 } from '@qspider/game-state';
 import { WebStorage } from '@qspider/web-storage';
-import { windowManager } from './window-manager';
+import { windowManager } from '@qspider/browser-window-manager';
 
 export async function init(): Promise<void> {
   const url = new URL(window.location.href);

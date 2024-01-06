@@ -15,7 +15,7 @@ import {
 } from '@qspider/game-state';
 import { TauriStorage } from '@qspider/tauri-storage';
 import { cli, os } from '@tauri-apps/api';
-import { windowManager } from './window-manager';
+import { windowManager } from '@qspider/tauri-window-manager';
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-restricted-globals
