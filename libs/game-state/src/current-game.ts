@@ -205,7 +205,7 @@ export function stopCurrentGame(): void {
   const windowManager = windowManager$.value;
   if (windowManager) {
     windowManager.setTitle('qSpider');
-    windowManager.setIcon('assets/favicon.png');
+    windowManager.setIcon('favicon.ico');
     windowManager.setResizable(true);
     windowManager.unsetMaxSize();
     windowManager.unsetMinSize();
