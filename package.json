@@ -9,6 +9,7 @@
     "start:desktop": "tauri dev",
     "start:cl-builder": "nx serve cl-builder",
     "start:docs": "nx serve docs",
+    "serve:standalone": "nx serve player-standalone",
     "serve:desktop": "nx serve player-desktop",
     "prebuild": "rimraf ./dist",
     "build": "nx build --prod",
