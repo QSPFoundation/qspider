@@ -15,6 +15,9 @@
         "development": {
           "mode": "development"
         },
+        "desktop": {
+          "mode": "desktop"
+        },
         "production": {
           "mode": "production"
         }
@@ -29,6 +32,10 @@
       "configurations": {
         "development": {
           "buildTarget": "player-standalone:build:development",
+          "hmr": true
+        },
+        "desktop": {
+          "buildTarget": "player-standalone:build:desktop",
           "hmr": true
         },
         "production": {
