@@ -1,1 +1,105 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --spacer--xs: 4px;
+}
+
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.qspider-scroll-bar {
+  display: flex;
+  /* ensures no selection */
+  user-select: none;
+  /* disable browser handling of all panning and zooming gestures on touch devices */
+  touch-action: none;
+  padding: 2px;
+  background: var(--blackA6);
+  transition: background 160ms ease-out;
+}
+.qspider-scroll-bar:hover {
+  background: var(--blackA8);
+}
+.qspider-scroll-bar[data-orientation='vertical'] {
+  width: var(--scrollbar-size);
+}
+.qspider-scroll-thumb {
+  flex: 1;
+  background: var(--solid-background);
+  border-radius: var(--scrollbar-size);
+  position: relative;
+}
+/* increase target size for touch devices https://www.w3.org/WAI/WCAG21/Understanding/target-size.html */
+.qspider-scroll-thumb::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.qspider-scroll-root,
+.qsp-scroll-root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  --scrollbar-size: 10px;
+}
+.qsp-scroll-area,
+.qspider-scroll-area {
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  border-radius: inherit;
+}
+
+.qsp-scrollbar {
+  display: flex;
+  /* ensures no selection */
+  user-select: none;
+  /* disable browser handling of all panning and zooming gestures on touch devices */
+  touch-action: none;
+  padding: 2px;
+  --scrollbar-size: 10px;
+}
+.qsp-scrollbar[data-orientation='vertical'] {
+  width: var(--scrollbar-size);
+}
+.qsp-scrollbar[data-orientation='horizontal'] {
+  flex-direction: column;
+  height: var(--scrollbar-size);
+}
+
+.qsp-scrollbar-thumb {
+  flex: 1;
+  background: var(--background-color-contrast);
+  opacity: 0.4;
+  border-radius: var(--scrollbar-size);
+  position: relative;
+}
+/* increase target size for touch devices https://www.w3.org/WAI/WCAG21/Understanding/target-size.html */
+.qsp-scrollbar-thumb::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.qsp-scrollbar-corner {
+  background: var(--code-background-color-contrast);
+}

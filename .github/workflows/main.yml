@@ -42,7 +42,7 @@ jobs:
 
             return data.id
   build-web:
-    needs: [create-release, build-desktop]
+    needs: [create-release]
     runs-on: ubuntu-latest
     env:
       CYPRESS_INSTALL_BINARY: 0
@@ -79,6 +79,45 @@ jobs:
               release_id: process.env.release_id,
               name: "qspider-player.zip",
               data: await fs.readFileSync('dist/apps/player/qspider-player.zip')
+            });
+  build-web-standalone:
+    needs: [create-release]
+    runs-on: ubuntu-latest
+    env:
+      CYPRESS_INSTALL_BINARY: 0
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+        with:
+          ref: release
+      - name: Use Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build:standalone
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'qspider-player-standalone.zip'
+          path: .
+          directory: dist/apps/player-standalone
+          exclusions: updater.json
+      - name: Upload Release Asset
+        uses: actions/github-script@v6
+        env:
+          release_id: ${{ needs.create-release.outputs.release_id }}
+        with:
+          script: |
+            const fs = require('fs');
+            // Upload the release asset
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: process.env.release_id,
+              name: "qspider-player.zip",
+              data: await fs.readFileSync('dist/apps/player/qspider-player-standalone.zip')
             });
   build-desktop:
     needs: create-release
@@ -120,7 +159,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-20.04
-    needs: [create-release, build-desktop, build-web]
+    needs: [create-release, build-desktop, build-web, build-web-standalone]
 
     steps:
       - name: publish release
@@ -139,7 +178,7 @@ jobs:
             })
 
   publish-demo:
-    needs: [build-web]
+    needs: [publish-release]
     runs-on: ubuntu-latest
     env:
       CYPRESS_INSTALL_BINARY: 0
