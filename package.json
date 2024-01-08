@@ -40,7 +40,7 @@
     "@mdx-js/react": "^3.0.0",
     "@nx/devkit": "17.2.8",
     "@qsp/converters": "^1.0.1",
-    "@qsp/wasm-engine": "^1.0.10",
+    "@qsp/wasm-engine": "^1.2.0",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-dialog": "^1.0.5",

@@ -1,4 +1,4 @@
-import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVaribleType } from '@qsp/wasm-engine';
+import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVariableType } from '@qsp/wasm-engine';
 import { create } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -60,7 +60,7 @@ export function onLinkClicked(href: string): void {
   }
 }
 
-export function useQspVariable<Name extends string, T = QspVaribleType<Name>>(
+export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
   name: Name | undefined,
   key: string,
   index: number,
