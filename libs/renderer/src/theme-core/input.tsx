@@ -17,8 +17,12 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
   return (
     <buttonContext.Provider
       value={{
-        okAction: () => input$.actions.finish(),
-        cancelAction: (): void => {
+        okAction: (e) => {
+          e.preventDefault();
+          input$.actions.finish();
+        },
+        cancelAction: (e): void => {
+          e.preventDefault();
           input$.actions.close();
         },
       }}

@@ -37,14 +37,16 @@ export const input$ = create<InputAtom, InputAtomActions>(
         entered$.set(value);
       },
       finish(): void {
-        isOpen$.set(false);
-        atom.value.onfinished?.(entered$.value);
-        atom.value.onfinished = null;
+        if (isOpen$.value) {
+          isOpen$.set(false);
+          atom.value.onfinished?.(entered$.value);
+        }
       },
       close(): void {
-        isOpen$.set(false);
-        atom.value.onfinished?.('');
-        atom.value.onfinished = null;
+        if (isOpen$.value) {
+          isOpen$.set(false);
+          atom.value.onfinished?.('');
+        }
       },
       clear(): void {
         atom.value.onfinished?.('');

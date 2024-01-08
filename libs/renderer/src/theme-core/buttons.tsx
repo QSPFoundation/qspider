@@ -1,10 +1,10 @@
 import { Attributes } from '@qspider/game-state';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode, useContext, MouseEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useAttributes } from '../content/attributes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = (): void => {};
+const noop = (e: MouseEvent<HTMLButtonElement>): void => {};
 export const buttonContext = createContext({
   okAction: noop,
   cancelAction: noop,
