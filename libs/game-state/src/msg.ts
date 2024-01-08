@@ -28,9 +28,10 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
         });
       },
       close(): void {
-        isOpen$.set(false);
-        atom.value.onclosed?.();
-        atom.value.onclosed = null;
+        if (isOpen$.value) {
+          isOpen$.set(false);
+          atom.value.onclosed?.();
+        }
       },
       clear(): void {
         atom.value.onclosed?.();
