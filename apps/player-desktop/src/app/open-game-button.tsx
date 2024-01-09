@@ -20,9 +20,7 @@ export const OpenGameButton: React.FC = () => {
       try {
         const imported = await importDesktop(filePath as string);
         for (const entry of imported) {
-          if (!games$.value[entry.id]) {
-            games$.actions.add(entry.id, entry);
-          }
+          games$.actions.add(entry.id, entry);
         }
         goToGame(imported[0].id);
       } catch (err) {

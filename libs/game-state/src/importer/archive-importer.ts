@@ -44,6 +44,11 @@ export async function importArchive(
     return Promise.all(
       games.map(async (game) => {
         const file = game.file.slice(game.file.lastIndexOf('/') + 1);
+        const loadConfig = await storage.prepareLoadConfig(game.id, file);
+        let icon = game.resources?.icon;
+        if (icon) {
+          icon = `${loadConfig.url}${icon}`;
+        }
         return {
           id: game.id,
           mode: game.mode,
@@ -52,8 +57,9 @@ export async function importArchive(
           ported_by: game.ported_by,
           version: game.version,
           description: game.description,
+          icon,
           loadConfig: {
-            ...(await storage.prepareLoadConfig(game.id, file)),
+            ...loadConfig,
             descriptor: game,
           },
         };
@@ -69,6 +75,11 @@ export async function importArchive(
       const descriptorContent = stringify({ game: [rootDescriptor] } as unknown as JsonMap);
       await storage$.value?.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
     }
+    const loadConfig = await storage.prepareLoadConfig(game_id, filename);
+    let icon = rootDescriptor?.resources?.icon;
+    if (icon) {
+      icon = `${loadConfig.url}${icon}`;
+    }
     return [
       {
         id: game_id,
@@ -78,7 +89,8 @@ export async function importArchive(
         ported_by: rootDescriptor?.ported_by,
         version: rootDescriptor?.version,
         description: rootDescriptor?.description,
-        loadConfig: await storage.prepareLoadConfig(game_id, filename),
+        icon,
+        loadConfig,
       },
     ];
   }
