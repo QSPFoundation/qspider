@@ -40,6 +40,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
         ported_by: found.ported_by,
         version: found.version,
         description: found.description,
+        icon: found.resources?.icon ? `${urlPrefix}${found.resources.icon}` : undefined,
         loadConfig: {
           url: urlPrefix,
           entrypoint: found.file,
