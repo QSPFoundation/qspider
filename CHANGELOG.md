@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.personal.com/QSPFoundation/qspider/compare/v1.0.0...v1.0.1) (2024-01-10)
+
+
+### Features
+
+* rename qsp-action to qsp-command to avoid confusion ([31c7124](https://github.personal.com/QSPFoundation/qspider/commit/31c71241d3d66cb4f4f198aa87f06a259b4d25ac))
+
+
+### Bug Fixes
+
+* add qspider_event to qspider lib ([b3596bf](https://github.personal.com/QSPFoundation/qspider/commit/b3596bf7d1ae624df6a4d62ff562bbdf6087f64c))
+* fix css variables in aero theme reading from wrong vars ([a7cdd53](https://github.personal.com/QSPFoundation/qspider/commit/a7cdd532fbfd2720465bcbb8bb04e9a0ea986412))
+* fix cutting translated text in pause screen ([6929e00](https://github.personal.com/QSPFoundation/qspider/commit/6929e00698278c2d7dc5b982d8962488b3b2372d))
+* fix favicon ([d5822a4](https://github.personal.com/QSPFoundation/qspider/commit/d5822a4945a796d7debfa0a43f8f0a77bbba7a9d))
+* fix icon detection on desktop ([3317584](https://github.personal.com/QSPFoundation/qspider/commit/33175849118620d575b089781f1842d97ba57a78))
+* fix launching game from cli ([d61772e](https://github.personal.com/QSPFoundation/qspider/commit/d61772ef475f2afff6a7786eb6086d0244602c4f))
+* fix processing several msg calls in a row ([0f8bfe3](https://github.personal.com/QSPFoundation/qspider/commit/0f8bfe35f82868e08bbe9d47bc3ef9edec58ad3c))
+* fix searching old gam files in archive ([aa69321](https://github.personal.com/QSPFoundation/qspider/commit/aa69321f1ef051727ee7dd89e09add2f086a9a61))
+* fix select issue in firefox ([92e6866](https://github.personal.com/QSPFoundation/qspider/commit/92e68662daec6dbc5f8498804abc23da8652e18b))
+* fix several input calls in a row ([6b4ceb3](https://github.personal.com/QSPFoundation/qspider/commit/6b4ceb3d9a7714cc641e933d05f8cab215556fe5))
+* fix typo in translation ([8347635](https://github.personal.com/QSPFoundation/qspider/commit/8347635d5a1b00c997d39fc8c264a1bac0054a11))
+* fix typo in translation ([3ce33d5](https://github.personal.com/QSPFoundation/qspider/commit/3ce33d5ff1a8c33561f46dbfc341216c252d3358))
+* fix typo in translationr ([96fb20f](https://github.personal.com/QSPFoundation/qspider/commit/96fb20f7646d4113f006b5aae5d70dd522eb9823))
+* fix typo in translations ([ad09cce](https://github.personal.com/QSPFoundation/qspider/commit/ad09cce36cc7346969ed0828d5d6565342005e61))
+* fix variable name in aero theme ([eab66f5](https://github.personal.com/QSPFoundation/qspider/commit/eab66f57acd0d6d21b4deecd1d08495b546d5cc0))
+* fix wrong image size in aero mode ([1155794](https://github.personal.com/QSPFoundation/qspider/commit/115579400df6357a677c0fb8ff16512631c3376e))
+* reset pause menu panel on game restart ([7ad63d2](https://github.personal.com/QSPFoundation/qspider/commit/7ad63d26dcb7eb99eb4756db909cdf31997052b5))
+* show icon from config on shelf ([0bcefcd](https://github.personal.com/QSPFoundation/qspider/commit/0bcefcdbe0be34f9d72a03be1464df63243824ae))
+* update catalog URLs ([12888b9](https://github.personal.com/QSPFoundation/qspider/commit/12888b980de686492c82e996a4e3cc8ba0364b42))
+* update qsplib with latest fixes ([7e55966](https://github.personal.com/QSPFoundation/qspider/commit/7e5596672649314cc5bceffefe31cf9d4976e0b3))
+
 ## [1.0.0](https://github.com/QSPFoundation/qspider/compare/v0.12.0...v1.0.0) (2024-01-02)
 
 ### Features

@@ -1,6 +1,6 @@
 [package]
 name = "qspider"
-version = "1.0.0"
+version = "1.0.1"
 description = "qSpider - player for QSP games"
 authors = [ "srg.kostyrko@gmail.com" ]
 license = "MIT"
