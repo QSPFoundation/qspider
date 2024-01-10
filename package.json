@@ -140,7 +140,7 @@
         "updater": "tools/cargo-version-updater.cjs"
       },
       {
-        "filename": "updater.json",
+        "filename": "public/updater.json",
         "updater": "tools/autoupdater-version-updater.cjs"
       },
       {
