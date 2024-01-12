@@ -1,7 +1,9 @@
 import { importUrl, showError, showNotice } from '@qspider/game-state';
+import { defer } from '@qspider/utils';
 import { create } from 'xoid';
 import { games$ } from './game-shelf';
 import i18n from '@qspider/i18n';
+import { GameShelfEntry } from '@qspider/contracts';
 
 export interface CatalogGame {
   id: number;
@@ -60,8 +62,10 @@ type CatalogLoadingState = 'pending' | 'loading' | 'loaded' | 'failed';
 export const catalogLoading$ = create<CatalogLoadingState>('pending');
 export const sourceName = 'org.qsp.games';
 const CATALOG_URL = 'https://catalog.qspider.xyz/';
+
+const catalogLoadingDeferred = defer<void>();
 export async function loadQspCatalog(): Promise<void> {
-  if (catalogLoading$.value === 'loading') return;
+  if (catalogLoading$.value === 'loading') return catalogLoadingDeferred.promise;
   catalogLoading$.value = 'loading';
   try {
     const request = await fetch(CATALOG_URL);
@@ -72,9 +76,11 @@ export async function loadQspCatalog(): Promise<void> {
   } catch {
     catalogLoading$.value = 'failed';
   }
+  catalogLoadingDeferred.resolve();
+  return catalogLoadingDeferred.promise;
 }
 
-export async function moveToShelf(game: CatalogGame): Promise<void> {
+export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> {
   try {
     const imported = await importUrl(`${CATALOG_URL}game-source?id=${game.id}`, `qsp-game-${game.id}.${game.file_ext}`);
     for (const entry of imported) {
@@ -96,10 +102,12 @@ export async function moveToShelf(game: CatalogGame): Promise<void> {
         }),
       );
     }
+    return imported;
   } catch (err) {
     console.error(err);
     showError(`Failed to load source for game ${game.title}`);
   }
+  return [];
 }
 
 export function toggleSortDirection(): void {

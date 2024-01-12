@@ -176,6 +176,10 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+}
+.q-loader__message {
+  margin-top: 10px;
 }
 
 .q-book {

@@ -104,5 +104,7 @@
   "Increase volume": "Increase volume",
   "Decrease volume": "Decrease volume",
   "n/a": "n/a",
-  "Aero games": "Aero games"
+  "Aero games": "Aero games",
+  "Game with id {{catalogId}} not found in catalog": "Game with id {{catalogId}} not found in catalog",
+  "Loading game from catalog...": "Loading game from catalog..."
 }

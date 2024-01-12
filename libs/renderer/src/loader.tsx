@@ -1,4 +1,10 @@
+import { useAtom } from '@xoid/react';
+import { create } from 'xoid';
+
+export const loadingMessage$ = create('');
+
 export const QspiderLoader: React.FC = () => {
+  const loadingMessage = useAtom(loadingMessage$);
   return (
     <div className="q-loader">
       <div className="q-book">
@@ -10,6 +16,7 @@ export const QspiderLoader: React.FC = () => {
           <li></li> <li></li> <li></li> <li></li> <li></li> <li></li> <li></li>
         </ul>
       </div>
+      {loadingMessage && <div className="q-loader__message">{loadingMessage}</div>}
     </div>
   );
 };

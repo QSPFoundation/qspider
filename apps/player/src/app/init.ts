@@ -1,4 +1,12 @@
-import { games$, goToGame, loadGamesFromStorage, navigateTo, processLocationChange } from '@qspider/game-shelf';
+import {
+  games$,
+  goToGame,
+  loadGamesFromStorage,
+  moveToShelf,
+  navigateTo,
+  processLocationChange,
+  qspCatalogList$,
+} from '@qspider/game-shelf';
 import {
   baseInit$,
   importUrl,
@@ -8,11 +16,15 @@ import {
   initialBaseUrl$,
   onGameEnd$,
   registerDefaultThemes,
+  showError,
   storage$,
   windowManager$,
 } from '@qspider/game-state';
 import { WebStorage } from '@qspider/web-storage';
 import { windowManager } from './window-manager';
+import { loadQspCatalog } from '@qspider/game-shelf';
+import { loadingMessage$ } from '@qspider/renderer';
+import i18n from '@qspider/i18n';
 
 export async function init(): Promise<void> {
   const url = new URL(window.location.href);
@@ -38,6 +50,32 @@ export async function init(): Promise<void> {
       }
     }
     toRun = imported[0].id;
+  }
+  const catalogId = urlParams.get('catalogId');
+  if (catalogId) {
+    let existing;
+    for (const [id, game] of Object.entries(games$.value)) {
+      if (game.meta?.source_id === catalogId) {
+        existing = id;
+        break;
+      }
+    }
+    if (!existing) {
+      await loadQspCatalog();
+      const catalogGame = qspCatalogList$.value.find((game) => game.id === Number(catalogId));
+      if (catalogGame) {
+        loadingMessage$.set(i18n.t('Loading game from catalog...'));
+        const [imported] = await moveToShelf(catalogGame);
+        if (imported) {
+          toRun = imported.id;
+        }
+        loadingMessage$.set('');
+      } else {
+        showError(i18n.t(`Game with id {{catalogId}} not found in catalog`, { catalogId }));
+      }
+    } else {
+      toRun = existing;
+    }
   }
   initDeferred$.value.resolve();
   await initQspApi();

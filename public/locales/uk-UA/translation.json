@@ -104,5 +104,7 @@
   "Increase volume": "Збільшити гучність",
   "Decrease volume": "Зменьшити гучність",
   "n/a": "-",
-  "Aero games": "Aero ігри"
+  "Aero games": "Aero ігри",
+  "Game with id {{catalogId}} not found in catalog": "Гру з id {{catalogId}} не знайдено в каталозі",
+  "Loading game from catalog...": "Завантажуємо гру з каталогу..."
 }
