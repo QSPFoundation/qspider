@@ -49,7 +49,7 @@ export const input$ = create<InputAtom, InputAtomActions>(
         }
       },
       clear(): void {
-        atom.value.onfinished?.('');
+        if (isOpen$.value) atom.value.onfinished?.('');
         atom.set({
           isOpen: false,
           content: '',

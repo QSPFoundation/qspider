@@ -40,7 +40,7 @@ export const menu$ = create<MenuAtom, MenuAtomAction>(
         atom.value.onselect = null;
       },
       clear(): void {
-        atom.value.onselect?.(-1);
+        if (isOpen$.value) atom.value.onselect?.(-1);
         atom.set({
           isOpen: false,
           items: [],

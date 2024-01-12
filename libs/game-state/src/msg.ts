@@ -34,7 +34,7 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
         }
       },
       clear(): void {
-        atom.value.onclosed?.();
+        if (isOpen$.value) atom.value.onclosed?.();
         atom.set({
           isOpen: false,
           content: '',
