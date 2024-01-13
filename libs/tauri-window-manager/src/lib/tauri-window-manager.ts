@@ -1,8 +1,10 @@
 import { IWindowManager } from '@qspider/contracts';
 import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
-import { platform } from '@tauri-apps/api/os';
+import { type, platform } from '@tauri-apps/api/os';
 
 export const windowManager: IWindowManager = {
+  isBrowser: false,
+  platform: '',
   async resize(width: number, height: number): Promise<void> {
     const monitor = await currentMonitor();
     if (monitor) {
@@ -51,3 +53,15 @@ async function adjustHeight(height: number): Promise<number> {
   const isMacOS = (await platform()) === 'darwin';
   return isMacOS ? height + 28 : height;
 }
+
+const platformsMap = {
+  Darwin: 'Macintosh',
+  Linux: 'Linux',
+  Windows_NT: 'Windows',
+};
+type().then((type) => {
+  const resolved = platformsMap[type];
+  if (resolved) {
+    windowManager.platform = resolved;
+  }
+});

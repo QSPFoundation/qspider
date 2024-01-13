@@ -6,6 +6,7 @@ import { actions$, execSelectedAction, selectAction } from './panels';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
 import create from 'xoid';
+import { windowManager$ } from './window-manager';
 
 interface GlobalHotKey {
   keys: string;
@@ -16,6 +17,16 @@ interface GlobalHotKey {
     | { type: 'action'; index: number }
     | ((e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void | boolean);
 }
+
+export type PrettyHotkeys =
+  | {
+      type: 'key';
+      symbol: string;
+    }
+  | {
+      type: 'separator';
+      symbol: string;
+    };
 
 export const globalHotKeys$ = create<GlobalHotKey[]>([
   { when_paused: false, description: 'Action #1', keys: '1', on_press: { type: 'action', index: 0 } },
@@ -111,6 +122,64 @@ export function setupCustomHotKeys(map: Record<string, string>): void {
       return false;
     });
   }
+}
+
+const prettySymbolsCommon: Record<string, string> = {
+  backspace: 'BackSpace',
+  tab: 'Tab',
+  enter: '↵ Enter',
+  capslock: 'CapsLock',
+  space: 'Space',
+  pageup: 'PageUp',
+  pagedown: 'PageDown',
+  end: 'End',
+  home: 'Home',
+  left: '←',
+  up: '↑',
+  right: '→',
+  down: '↓',
+  ins: 'Insert',
+  del: 'Delete',
+  plus: '+',
+  shift: 'Shift',
+  ctrl: 'Ctrl',
+  alt: 'Alt',
+  mod: 'Ctrl',
+};
+
+const prettySymbolsMacOs: Record<string, string> = {
+  shift: '⇧',
+  ctrl: '⌃',
+  alt: '⌥',
+  mod: '⌘',
+};
+
+export function prettifyHotkeys(keys: string): PrettyHotkeys[] {
+  const prettified: PrettyHotkeys[] = [];
+  const spaced = keys.split(' ');
+  for (let i = 0; i < spaced.length; i++) {
+    const plused = spaced[i].split('+');
+    for (let j = 0; j < plused.length; j++) {
+      let symbol = plused[j];
+      if (symbol in prettySymbolsCommon) {
+        symbol = prettySymbolsCommon[symbol];
+      }
+      if (windowManager$.value?.platform === 'Macintosh' && plused[j] in prettySymbolsMacOs) {
+        symbol = prettySymbolsMacOs[plused[j]];
+      }
+      prettified.push({
+        type: 'key',
+        symbol,
+      });
+      if (j < plused.length - 1) {
+        prettified.push({ type: 'separator', symbol: '+' });
+      }
+    }
+    if (i < spaced.length - 1) {
+      prettified.push({ type: 'separator', symbol: ' ' });
+    }
+  }
+  return prettified;
 }
 
 export function clearHotkeys(): void {

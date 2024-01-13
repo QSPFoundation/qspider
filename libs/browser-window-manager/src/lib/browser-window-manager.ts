@@ -4,6 +4,8 @@ const MIN_SIZE_ID = 'min-size-style';
 const MAX_SIZE_ID = 'max-size-style';
 
 export const windowManager: IWindowManager = {
+  isBrowser: true,
+  platform: detectPlatform(),
   setTitle(title: string): void {
     document.title = title;
   },
@@ -53,3 +55,11 @@ export const windowManager: IWindowManager = {
     // noop in browser
   },
 };
+
+function detectPlatform(): string {
+  const ua = navigator.userAgent;
+  if (ua.includes('Windows')) return 'Windows';
+  if (ua.includes('Macintosh')) return 'Macintosh';
+  if (ua.includes('Linux')) return 'Linux';
+  return 'Unknown';
+}

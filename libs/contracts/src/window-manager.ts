@@ -1,4 +1,6 @@
 export interface IWindowManager {
+  isBrowser: boolean;
+  platform: string;
   setTitle(title: string): void;
   setIcon(icon: string): void;
   setMinSize(width: number, height: number): Promise<void>;

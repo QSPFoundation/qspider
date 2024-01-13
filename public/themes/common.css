@@ -105,7 +105,7 @@ qsp-game-hotkeys {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 12px;
-  row-gap: 6px;
+  row-gap: 12px;
   margin-bottom: 6px;
 }
 @container (max-width: 700px) {
@@ -120,8 +120,11 @@ qsp-hotkey {
 }
 qsp-hotkey-keys {
   font-family: monospace;
+}
+qsp-hotkey-key {
   border: 1px solid var(--border-color);
   padding: 2px 4px;
+  margin: 4px 2px;
 }
 
 [data-qsp='locale-select'] {

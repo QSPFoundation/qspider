@@ -7,20 +7,18 @@ import {
   initTheme,
   initialBaseUrl$,
   onGameEnd$,
-  platform$,
   registerDefaultThemes,
   showError,
   storage$,
   windowManager$,
 } from '@qspider/game-state';
 import { TauriStorage } from '@qspider/tauri-storage';
-import { cli, os } from '@tauri-apps/api';
+import { cli } from '@tauri-apps/api';
 import { windowManager } from '@qspider/tauri-window-manager';
 
 export async function init(): Promise<void> {
   // eslint-disable-next-line no-restricted-globals
   initialBaseUrl$.set(location.origin + '/');
-  fillPlatform();
   initTheme();
   onGameEnd$.set(() => navigateTo(''));
   storage$.set(new TauriStorage());
@@ -50,16 +48,4 @@ export async function init(): Promise<void> {
   if (toRun) {
     goToGame(toRun);
   }
-}
-
-const platformsMap = {
-  Darwin: 'Macintosh',
-  Linux: 'Linux',
-  Windows_NT: 'Windows',
-};
-function fillPlatform(): void {
-  os.type().then((type) => {
-    const resolved = platformsMap[type];
-    if (resolved) platform$.set(resolved);
-  });
 }
