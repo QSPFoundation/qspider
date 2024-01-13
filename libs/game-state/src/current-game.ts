@@ -85,39 +85,47 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
   }
 
-  if (descriptor && descriptor.mode === 'aero' && !descriptor.aero) {
-    try {
-      const request = await fetchProxyFallback('config.xml');
-      if (!request.ok) throw new Error('No config file');
-      const content = await request.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(content, 'application/xml');
-      const gameElement = doc.querySelector('game');
-      if (gameElement) {
-        const width = parseInt(gameElement.getAttribute('width') || '800');
-        const height = parseInt(gameElement.getAttribute('height') || '600');
+  if (descriptor.mode === 'aero') {
+    if (descriptor.aero) {
+      descriptor.window = {
+        ...(descriptor.window ?? {}),
+        ...descriptor.aero,
+        resizable: false,
+      };
+    } else {
+      try {
+        const request = await fetchProxyFallback('config.xml');
+        if (!request.ok) throw new Error('No config file');
+        const content = await request.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'application/xml');
+        const gameElement = doc.querySelector('game');
+        if (gameElement) {
+          const width = parseInt(gameElement.getAttribute('width') || '800');
+          const height = parseInt(gameElement.getAttribute('height') || '600');
+          descriptor.aero = {
+            width,
+            height,
+          };
+          descriptor.window = {
+            ...(descriptor.window ?? {}),
+            width,
+            height,
+            resizable: false,
+          };
+        }
+      } catch {
         descriptor.aero = {
-          width,
-          height,
+          width: 800,
+          height: 600,
         };
         descriptor.window = {
-          ...descriptor.window,
-          width,
-          height,
+          ...(descriptor.window ?? {}),
+          width: 800,
+          height: 600,
           resizable: false,
         };
       }
-    } catch {
-      descriptor.aero = {
-        width: 800,
-        height: 600,
-      };
-      descriptor.window = {
-        ...descriptor.window,
-        width: 800,
-        height: 600,
-        resizable: false,
-      };
     }
   }
 

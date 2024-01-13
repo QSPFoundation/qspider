@@ -17,7 +17,6 @@ export async function init(): Promise<void> {
   initialBaseUrl$.set(url.toString());
 
   windowManager$.set(windowManager);
-  console.log(windowManager$.value?.setIcon.toString());
 
   const configUrl = new URL('game/game.cfg', url.toString());
   const imported = await importUrl(configUrl.toString());
