@@ -46,10 +46,10 @@ export const windowManager: IWindowManager = {
   unsetMaxSize(): void {
     document.getElementById(MAX_SIZE_ID)?.remove();
   },
-  setResizable(isResizable: boolean): void {
+  setResizable(_isResizable: boolean): void {
     // noop in browser
   },
-  async resize(width: number, height: number): Promise<void> {
+  async resize(_width: number, _height: number): Promise<void> {
     // noop in browser
   },
 };

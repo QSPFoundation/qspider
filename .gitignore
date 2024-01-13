@@ -3,7 +3,7 @@
 /apps/player/dev-dist
 /apps/player-desktop/dev-dist
 
-/public/game
+/public/game/*
 !/public/game/.gitkeep
 
 # compiled output

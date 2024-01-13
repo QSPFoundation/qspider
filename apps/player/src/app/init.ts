@@ -21,10 +21,10 @@ import {
   windowManager$,
 } from '@qspider/game-state';
 import { WebStorage } from '@qspider/web-storage';
-import { windowManager } from './window-manager';
 import { loadQspCatalog } from '@qspider/game-shelf';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
+import { windowManager } from '@qspider/browser-window-manager';
 
 export async function init(): Promise<void> {
   const url = new URL(window.location.href);

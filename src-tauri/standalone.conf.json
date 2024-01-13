@@ -1,0 +1,9 @@
+{
+  "build": {
+    "distDir": "../dist/apps/player-standalone",
+    "devPath": "http://localhost:4200",
+    "beforeDevCommand": "npm run serve:standalone-desktop",
+    "beforeBuildCommand": "npm run build:standalone-desktop",
+    "withGlobalTauri": false
+  }
+}

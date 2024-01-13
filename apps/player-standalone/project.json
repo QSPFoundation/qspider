@@ -1,0 +1,68 @@
+{
+  "name": "player-standalone",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/player-standalone/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/player-standalone"
+      },
+      "configurations": {
+        "development": {
+          "mode": "development"
+        },
+        "desktop": {
+          "mode": "desktop"
+        },
+        "production": {
+          "mode": "production"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/vite:dev-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "player-standalone:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "player-standalone:build:development",
+          "hmr": true
+        },
+        "desktop": {
+          "buildTarget": "player-standalone:build:desktop",
+          "hmr": true
+        },
+        "production": {
+          "buildTarget": "player-standalone:build:production",
+          "hmr": false
+        }
+      }
+    },
+    "preview": {
+      "executor": "@nx/vite:preview-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "player-standalone:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "player-standalone:build:development"
+        },
+        "production": {
+          "buildTarget": "player-standalone:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}
