@@ -178,6 +178,8 @@ jobs:
             })
 
   publish-demo:
+    permissions:
+      contents: write
     needs: [publish-release]
     runs-on: ubuntu-latest
     env:
