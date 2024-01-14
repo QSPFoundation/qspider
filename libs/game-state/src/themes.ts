@@ -101,7 +101,7 @@ export async function registerThemes(themes: string[]): Promise<void> {
 const defaultThemes = ['themes/classic.html', 'themes/aero.html'];
 export async function registerDefaultThemes(baseUrl: string): Promise<void> {
   for (const themeUrl of defaultThemes) {
-    const content = await getTextContent(baseUrl + themeUrl);
+    const content = await getTextContent(new URL(themeUrl, baseUrl).toString());
     const parsedThemes = parseTheme(content, false);
     for (const [alias, data] of Object.entries(parsedThemes)) {
       themeRegistry$.actions.add(alias, data);
