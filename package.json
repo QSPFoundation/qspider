@@ -17,7 +17,6 @@
     "build": "nx build --prod",
     "build:standalone": "nx build player-standalone --prod",
     "build:standalone-desktop": "nx run player-standalone:build:desktop --prod",
-    "build:demo": "nx build-demo player --prod",
     "build:desktop": "nx build player-desktop --prod",
     "build:docs": "nx build docs --prod",
     "test": "nx run-many --all --target=test",
