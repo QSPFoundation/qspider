@@ -6,6 +6,7 @@ import { resolve } from 'node:path';
 
 export default defineConfig(({ mode }) => {
   return {
+    base: '',
     root: __dirname,
     cacheDir: '../../node_modules/.vite/apps/player-standalone',
     publicDir: '../../public',

@@ -6,6 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 
 export default defineConfig({
+  base: '',
   root: __dirname,
   build: {
     outDir: '../../dist/apps/player',
