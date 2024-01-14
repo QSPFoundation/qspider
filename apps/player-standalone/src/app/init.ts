@@ -14,11 +14,14 @@ export async function init(): Promise<void> {
   const url = new URL(window.location.href);
   url.search = '';
   url.hash = '';
-  initialBaseUrl$.set(url.toString());
-
+  let baseUrl = url.toString();
+  if (!baseUrl.endsWith('/')) {
+    baseUrl = `${baseUrl}/`;
+  }
+  initialBaseUrl$.set(baseUrl);
   windowManager$.set(windowManager);
 
-  const configUrl = new URL('game/game.cfg', url.toString());
+  const configUrl = new URL('game/game.cfg', baseUrl);
   const imported = await importUrl(configUrl.toString());
   initDeferred$.value.resolve();
   await initQspApi();
