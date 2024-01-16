@@ -118,6 +118,7 @@ export function setupGlobalHotKeys(): void {
 export function setupCustomHotKeys(map: Record<string, string>): void {
   for (const [key, value] of Object.entries(map)) {
     Mousetrap.bind(key, () => {
+      if (isPaused$.value) return;
       qspApi$.value?.execLoc(value);
       return false;
     });

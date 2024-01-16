@@ -1,4 +1,5 @@
 import { create } from 'xoid';
+import { isPaused$ } from './counter';
 
 interface MsgAtom {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
     const isOpen$ = atom.focus((s) => s.isOpen);
     return {
       open(content: string, onclosed: () => void): void {
+        isPaused$.set(true);
         atom.set({
           isOpen: true,
           content,
@@ -29,12 +31,16 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
       },
       close(): void {
         if (isOpen$.value) {
+          isPaused$.set(false);
           isOpen$.set(false);
           atom.value.onclosed?.();
         }
       },
       clear(): void {
-        if (isOpen$.value) atom.value.onclosed?.();
+        if (isOpen$.value) {
+          isPaused$.set(false);
+          atom.value.onclosed?.();
+        }
         atom.set({
           isOpen: false,
           content: '',
