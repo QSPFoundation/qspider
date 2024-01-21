@@ -56,16 +56,17 @@ export const view$ = create<ViewAtom, ViewAtomActions>(
   },
   (atom) => {
     const isOpen$ = atom.focus((s) => s.isOpen);
+    const isModal$ = atom.focus((s) => s.isModal);
     return {
       open(path: string): void {
         atom.set({
           isOpen: true,
           path,
-          isModal: false,
+          isModal: isModal$.value,
         });
       },
       setIsModal(isModal: boolean): void {
-        atom.value.isModal = isModal;
+        isModal$.set(isModal);
       },
       close(): void {
         isOpen$.set(false);
