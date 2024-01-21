@@ -1,6 +1,6 @@
 import { readQsps, writeQsp } from '@qsp/converters';
 import { QspListItem } from '@qsp/wasm-engine';
-import { unzip } from 'fflate';
+import { strToU8, unzip } from 'fflate';
 import { createExtractorFromData } from 'node-unrar-js';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -40,6 +40,15 @@ export const readZip = (buffer: ArrayBuffer): Promise<ArchiveContent> => {
         reject(err);
         return;
       }
+      // workaround for https://github.com/101arrowz/fflate/issues/112
+      for (const name of Object.keys(data)) {
+        const buf = strToU8(name, true);
+        const cpEncoded = new TextDecoder('cp866').decode(buf);
+        if (name !== cpEncoded) {
+          data[cpEncoded] = data[name];
+        }
+      }
+
       resolve(data);
     });
   });
