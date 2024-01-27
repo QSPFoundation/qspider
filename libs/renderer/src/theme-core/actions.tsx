@@ -103,7 +103,6 @@ export const QspActionImage: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 export const QspActionIndex: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-action-index');
   const { index } = useContext(actionContext);
-  // eslint-disable-next-line react/jsx-no-useless-fragment
   return (
     <Tag {...attributes} style={style}>
       {index + 1}

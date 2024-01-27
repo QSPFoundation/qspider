@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useAttributes } from '../content/attributes';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
-const noop = (e: MouseEvent<HTMLButtonElement>): void => {};
+const noop = (_e: MouseEvent<HTMLButtonElement>): void => {};
 export const buttonContext = createContext({
   okAction: noop,
   cancelAction: noop,

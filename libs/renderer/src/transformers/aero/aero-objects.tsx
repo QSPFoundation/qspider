@@ -12,7 +12,7 @@ import { ContentRenderer } from '../../content-renderer';
 import { useAttributes } from '../../content/attributes';
 import { objectContext } from '../../theme-core/objects';
 
-export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs }) => {
   const [isSelected, setIsSelected] = useState(false);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-object');
   const { object, index } = useContext(objectContext);

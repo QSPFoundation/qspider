@@ -53,6 +53,7 @@ export const QspScrollable: React.FC<{
       node.removeEventListener('scroll', onScroll);
       clearInterval(interval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

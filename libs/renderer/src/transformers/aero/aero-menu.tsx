@@ -59,7 +59,7 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   );
 };
 
-export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs }) => {
   const [isSelected, setIsSelected] = useState(false);
   const { item, index } = useContext(menuContext);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-menu-item');

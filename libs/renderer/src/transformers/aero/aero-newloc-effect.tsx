@@ -43,7 +43,6 @@ export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effect, newLocHash]);
 
-  // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!effect) return <>{children}</>;
 
   return transformation((style, item) => (
