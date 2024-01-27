@@ -140,8 +140,9 @@ export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
       e.preventDefault();
       onGameCommand(qspCommand as GameCommand);
     };
+    converted['data-qsp-command'] = qspCommand;
   } else if (qspSaveCommand) {
-    converted['data-save-command'] = qspSaveCommand;
+    converted['data-qsp-save-command'] = qspSaveCommand;
     converted['onClick'] = (e: MouseEvent): void => {
       e.preventDefault();
       if (!e.target) return;

@@ -1,7 +1,3 @@
-:root {
-  --spacer--xs: 4px;
-}
-
 body {
   margin: 0;
   width: 100vw;
@@ -102,4 +98,8 @@ body {
 
 .qsp-scrollbar-corner {
   background: var(--code-background-color-contrast);
+}
+
+.mode-web [data-qsp-command='quit'] {
+  display: none;
 }

@@ -54,6 +54,9 @@ export const windowManager: IWindowManager = {
   async resize(_width: number, _height: number): Promise<void> {
     // noop in browser
   },
+  closeWindow(): void {
+    window.close();
+  },
 };
 
 function detectPlatform(): string {

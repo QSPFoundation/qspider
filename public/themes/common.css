@@ -1,3 +1,47 @@
+:root {
+  --border-radius: 4px;
+
+  --spacer--xs: 4px;
+  --spacer--sm: 8px;
+  --spacer--md: 16px;
+  --spacer--lg: 24px;
+  --spacer--xl: 32px;
+  --spacer--2xl: 48px;
+}
+
+h1:first-child,
+h2:first-child,
+h3:first-child,
+h4:first-child,
+h5:first-child,
+h6:first-child {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
+h5 {
+  font-size: 1.25rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
 qsp-player {
   width: 100vw;
   height: 100vh;

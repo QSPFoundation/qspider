@@ -11,6 +11,10 @@ export default defineConfig(({ mode }) => {
     cacheDir: '../../node_modules/.vite/apps/player-standalone',
     publicDir: '../../public',
 
+    define: {
+      APP_MODE: JSON.stringify(mode === 'desktop' ? 'desktop' : 'web'),
+    },
+
     server: {
       port: 4200,
       host: 'localhost',

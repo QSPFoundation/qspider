@@ -1,6 +1,7 @@
 import { IWindowManager } from '@qspider/contracts';
 import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
 import { type, platform } from '@tauri-apps/api/os';
+import { exit } from '@tauri-apps/api/process';
 
 export const windowManager: IWindowManager = {
   isBrowser: false,
@@ -45,6 +46,9 @@ export const windowManager: IWindowManager = {
   },
   async goWindowed(): Promise<void> {
     await appWindow.setFullscreen(false);
+  },
+  closeWindow(): void {
+    exit(0);
   },
 };
 

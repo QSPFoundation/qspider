@@ -11,4 +11,5 @@ export interface IWindowManager {
   resize(width: number, height: number): Promise<void>;
   goFullscreen(): void;
   goWindowed(): void;
+  closeWindow(): void;
 }
