@@ -46,9 +46,9 @@ export const readZip = (buffer: ArrayBuffer): Promise<ArchiveContent> => {
         const cpEncoded = new TextDecoder('cp866').decode(buf);
         if (name !== cpEncoded) {
           data[cpEncoded] = data[name];
+          delete data[name];
         }
       }
-
       resolve(data);
     });
   });
