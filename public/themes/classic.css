@@ -114,6 +114,11 @@ qsp-player .action-item:hover,
 .action-img {
   margin-right: 8px;
 }
+.action-item [data-qsp='action-name'],
+.action-item [data-qsp='menu-name'],
+.action-item [data-qsp='object-name'] {
+  flex-grow: 1;
+}
 .qsp-dialog-container {
   position: fixed;
   inset: 0;
