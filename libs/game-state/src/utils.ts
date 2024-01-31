@@ -142,8 +142,11 @@ export function prepareContent(text: string): string {
   // this solves a problem in 1812 where link contain &gt without space and this is parsed wrong
   // also in cluedo there is \" inside href parsed wrong
   // todo find a way to handle this in parser
-
-  return text.replace(/&gt /gi, '& gt ').replace(/\\"/g, '&quot;');
+  return text
+    .replace(/&gt([^;])/gi, (_, symbol) => {
+      return '& gt ' + symbol;
+    })
+    .replace(/\\"/g, '&quot;');
 }
 
 export function prepareList(list: QspListItem[]): QspListItem[] {
