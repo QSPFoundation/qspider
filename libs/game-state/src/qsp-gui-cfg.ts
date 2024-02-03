@@ -19,6 +19,8 @@ export interface PanelData {
   pos: number;
   row: number;
   prop: number;
+  bestw: number;
+  besth: number;
 }
 
 export interface CfgData {
@@ -44,9 +46,12 @@ interface LayoutTree {
   floating: PanelData[];
 }
 
+const CAPTION_SIZE = 20;
+
 export const qspGuiCfg$ = create<CfgData | null>(null);
 export const qspGuiLayout$ = create<string | null>((get) => {
   const config = get(qspGuiCfg$);
+  console.log('===', config);
   if (!config) return null;
   const defaultTheme = get(defaultClassicTheme$).qsp_player?.template ?? '';
   const layout = buildLayoutTree(config.Panels);
@@ -55,6 +60,7 @@ export const qspGuiLayout$ = create<string | null>((get) => {
   for (const floating of layout.floating) {
     template += convertPane(floating, defaultTheme, true);
   }
+  console.log(template);
   return template;
 });
 
@@ -82,9 +88,20 @@ function buildLayoutTree(panels: PanelData[]): LayoutTree {
   }
 
   return {
-    layer: currentLayer,
+    layer: currentLayer ? cleanEmptyLayers(currentLayer) : null,
     floating,
   };
+}
+
+function cleanEmptyLayers(layer: LayoutLayer): LayoutLayer {
+  if (Array.isArray(layer.center)) {
+    return layer;
+  }
+  if (!layer.top.length && !layer.right.length && !layer.bottom.length && !layer.left.length) {
+    return cleanEmptyLayers(layer.center);
+  }
+  layer.center = cleanEmptyLayers(layer.center);
+  return layer;
 }
 
 function convertLayer(layer: LayoutLayer, docks: Record<string, number>, defaultTheme: string): string {
@@ -111,7 +128,17 @@ function convertDock(place: string, panels: PanelData[], docks: Record<string, n
   const visibility = visibilityPanes.length > 0 ? ` visibility="${visibilityPanes.join('|')}"` : '';
   const [panel] = panels;
   const dockKey = `${WxWidgetsDirection[panel.dir]},${panel.layer},${panel.row}`;
-  const size = place !== 'center' && docks[dockKey] ? ` size="${docks[dockKey]}"` : '';
+  let size = '';
+  if (place !== 'center') {
+    if (docks[dockKey]) {
+      const dockSize = place === 'bottom' || place === 'top' ? docks[dockKey] - CAPTION_SIZE : docks[dockKey];
+      size = ` size="${dockSize}"`;
+    } else {
+      const props = place === 'left' || place === 'right' ? 'bestw' : 'besth';
+      const max = Math.max(...panels.map((panel) => panel[props]));
+      size = ` size="${max}"`;
+    }
+  }
   return `<qsp-cl-dock place="${place}"${visibility}${size}>${panels
     .map((panel) => convertPane(panel, defaultTheme, false))
     .join('')}</qsp-cl-dock>`;
@@ -172,6 +199,8 @@ const converters: Record<string, (key: string, value: string) => Record<string, 
   pos: asNumber,
   row: asNumber,
   prop: asNumber,
+  bestw: asNumber,
+  besth: asNumber,
 };
 
 function processData(key: string, value: string): Record<string, unknown> {

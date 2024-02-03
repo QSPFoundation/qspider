@@ -78,7 +78,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
       if (!request.ok) throw new Error('No config file');
       const cfgContent = await request.text();
       const cfgData = parseCfg(cfgContent);
-      if (cfgData || !Object.keys(cfgData).length) throw new Error('Invalid config file');
+      if (!cfgData || !Object.keys(cfgData).length) throw new Error('Invalid config file');
       qspGuiCfg$.set(cfgData);
     } catch {
       // no-op
