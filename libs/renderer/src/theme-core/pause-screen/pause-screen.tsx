@@ -1,6 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog';
 
-import { Attributes, currentGameEntry$, isPauseScreenVisible$ } from '@qspider/game-state';
+import {
+  Attributes,
+  closePauseScreen,
+  currentGameEntry$,
+  isPauseScreenVisible$,
+  openPauseScreen,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { useAttributes } from '../../content/attributes';
 import { ReactNode } from 'react';
@@ -13,7 +19,11 @@ export const QspPauseScreen: React.FC<{ attrs: Attributes; children: ReactNode }
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-pause-screen');
   const transitions = useFadeTransition(isVisible);
   return (
-    <Dialog.Root modal open={isVisible} onOpenChange={(isOpen): void => isPauseScreenVisible$.set(isOpen)}>
+    <Dialog.Root
+      modal
+      open={isVisible}
+      onOpenChange={(isOpen): void => (isOpen ? openPauseScreen() : closePauseScreen())}
+    >
       {transitions((styles, item) => {
         return item ? (
           <Dialog.Portal container={document.getElementById('portal-container')}>

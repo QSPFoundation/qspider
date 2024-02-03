@@ -213,8 +213,8 @@ $ongload="on_game_load"
 $ongsave="on_game_save"
 
 '<a href="exec: nosave=1">Disable save</a> | <a href="exec: nosave=0">Enable save</a>'
-'<a href="exec: SAVEGAME">Open save dialog</a> | <a href="exec: OPENGAME">Open load dialog</a>'
-'<a href="exec: SAVEGAME ''1.sav''">Save to predefined file</a> | <a href="exec: OPENGAME ''1.sav''">Load from predefined file</a>'
+'<a href="exec: SAVEGAME & p ''done''">Open save dialog</a> | <a href="exec: OPENGAME & p ''done''">Open load dialog</a>'
+'<a href="exec: SAVEGAME ''1.sav'' & p ''done''">Save to predefined file</a> | <a href="exec: OPENGAME ''1.sav'' & p ''done''">Load from predefined file</a>'
 
 '<a href="exec: test+=1">Update state</a>'
 '<a href="exec: clr & pl test">Check state</a>'

@@ -4,7 +4,7 @@ import { withCounterPaused } from './counter';
 import { currentGameEntry$, onRestore } from './current-game';
 import { qspApi$ } from './qsp-api';
 import { storage$ } from './storage';
-import { isPauseScreenVisible$ } from './pause-screen';
+import { closePauseScreen } from './pause-screen';
 
 export const saveLoadedCallback$ = create<null | (() => void)>();
 export const gameSavedCallback$ = create<null | (() => void)>();
@@ -28,8 +28,6 @@ export async function loadSaveList(): Promise<void> {
 }
 
 export async function saveToSlot(slot: number): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
-  if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
@@ -44,8 +42,6 @@ export async function saveToSlot(slot: number): Promise<void> {
 }
 
 export async function saveToPath(path: string): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
-  if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
@@ -60,8 +56,6 @@ export async function saveToPath(path: string): Promise<void> {
 }
 
 export async function restoreFromSlot(slot: number): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
-  if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = await storage$.value?.getSaveDataBySlot(currentGame.id, slot);
@@ -75,8 +69,6 @@ export async function restoreFromSlot(slot: number): Promise<void> {
 }
 
 export async function restoreFromPath(path: string): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
-  if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = await storage$.value?.getSaveDataByKey(currentGame.id, path);
@@ -141,7 +133,7 @@ export async function onSaveCommand(action: QspSaveCommand, context: SaveContext
         await restoreFromPath(save_path);
       }
       onRestore();
-      isPauseScreenVisible$.set(false);
+      closePauseScreen();
       break;
     case 'save':
       if (slot_index > 0) {
@@ -149,7 +141,7 @@ export async function onSaveCommand(action: QspSaveCommand, context: SaveContext
       } else if (save_path) {
         await saveToPath(save_path);
       }
-      isPauseScreenVisible$.set(false);
+      closePauseScreen();
       break;
     case 'clear':
       if (slot_index > 0) {

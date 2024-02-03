@@ -1,4 +1,13 @@
-import { currentGameEntry$, input$, isPauseScreenVisible$, menu$, msg$, view$, wait$ } from '@qspider/game-state';
+import {
+  currentGameEntry$,
+  input$,
+  isPauseScreenVisible$,
+  menu$,
+  msg$,
+  openPauseScreen,
+  view$,
+  wait$,
+} from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
 import { ClickCoordinates } from './click-coordinates';
@@ -24,7 +33,7 @@ const handler = throttle((e: KeyboardEvent): void => {
       return;
     e.preventDefault();
     e.stopPropagation();
-    isPauseScreenVisible$.set(true);
+    openPauseScreen();
   }
 }, 10);
 

@@ -91,31 +91,31 @@
         </div>
         <qsp-pause-screen-content>
           <qsp-pause-screen-panel name="credits"></qsp-pause-screen-panel>
-          <qsp-show when="NOSAVE=0">
-            <qsp-pause-screen-panel name="saves">
-              <h4><qsp-t>Saves</qsp-t></h4>
-              <qsp-save-file path="autosave.sav">
-                <h3>Autosave</h3>
+
+          <qsp-pause-screen-panel name="saves">
+            <h4><qsp-t>Saves</qsp-t></h4>
+            <qsp-save-file path="autosave.sav">
+              <h3>Autosave</h3>
+              <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+              <div class="save-actions">
+                <button qsp-save-command="save"><qsp-t>Save</qsp-t></button>
+                <button qsp-save-command="load"><qsp-t>Load</qsp-t></button>
+                <button qsp-save-command="clear"><qsp-t>Clear</qsp-t></button>
+              </div>
+            </qsp-save-file>
+            <qsp-slots-list>
+              <qsp-save-slot>
+                <qsp-slot-index></qsp-slot-index>
                 <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                 <div class="save-actions">
                   <button qsp-save-command="save"><qsp-t>Save</qsp-t></button>
                   <button qsp-save-command="load"><qsp-t>Load</qsp-t></button>
                   <button qsp-save-command="clear"><qsp-t>Clear</qsp-t></button>
                 </div>
-              </qsp-save-file>
-              <qsp-slots-list>
-                <qsp-save-slot>
-                  <qsp-slot-index></qsp-slot-index>
-                  <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
-                  <div class="save-actions">
-                    <button qsp-save-command="save"><qsp-t>Save</qsp-t></button>
-                    <button qsp-save-command="load"><qsp-t>Load</qsp-t></button>
-                    <button qsp-save-command="clear"><qsp-t>Clear</qsp-t></button>
-                  </div>
-                </qsp-save-slot>
-              </qsp-slots-list>
-            </qsp-pause-screen-panel>
-          </qsp-show>
+              </qsp-save-slot>
+            </qsp-slots-list>
+          </qsp-pause-screen-panel>
+
           <qsp-pause-screen-panel name="preferences">
             <h2><qsp-t>Preferences</qsp-t></h2>
           </qsp-pause-screen-panel>

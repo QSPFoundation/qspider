@@ -12,7 +12,7 @@ import {
 } from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
-import { isPauseScreenVisible$, pauseScreenCurrentPanel$ } from './pause-screen';
+import { closePauseScreen, isPauseScreenVisible$, openPauseScreen, pauseScreenCurrentPanel$ } from './pause-screen';
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
@@ -197,7 +197,7 @@ export function stopCurrentGame(): void {
   currentGameEntry$.set(null);
   currentGame$.set(null);
   qspGuiCfg$.set(null);
-  isPauseScreenVisible$.set(false);
+  closePauseScreen();
   pauseScreenCurrentPanel$.set('credits');
   isPaused$.set(true);
 
@@ -246,7 +246,7 @@ export function onRestore(): void {
 export function onGameCommand(action: GameCommand): void {
   if (action.startsWith('pause:')) {
     const [, panel] = action.split(':');
-    if (!isPauseScreenVisible$.value) isPauseScreenVisible$.set(true);
+    if (!isPauseScreenVisible$.value) openPauseScreen();
     pauseScreenCurrentPanel$.set(panel);
   } else if (action.startsWith('scroll:')) {
     const [, panel, direction] = action.split(':');
@@ -267,11 +267,11 @@ export function onGameCommand(action: GameCommand): void {
       isPaused$.set(true);
       qspApi$.value?.restartGame();
       onRestart();
-      isPauseScreenVisible$.set(false);
+      closePauseScreen();
       pauseScreenCurrentPanel$.set('credits');
       break;
     case 'resume':
-      isPauseScreenVisible$.set(false);
+      closePauseScreen();
       break;
     case 'mute':
       muted$.set(true);
