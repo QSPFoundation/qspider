@@ -515,31 +515,31 @@
               <div><qsp-t>Version</qsp-t>: <qsp-game-version></qsp-game-version></div>
               <qsp-game-description></qsp-game-description>
             </qsp-pause-screen-panel>
-            <qsp-show when="NOSAVE=0">
-              <qsp-pause-screen-panel name="saves">
-                <h4><qsp-t>Saves</qsp-t></h4>
-                <qsp-slots-list>
-                  <qsp-save-slot>
-                    <qsp-slot-index></qsp-slot-index>
-                    <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
-                    <div class="save-actions">
-                      <button qsp-save-command="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
-                      <button qsp-save-command="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
-                      <button qsp-save-command="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
-                    </div>
-                  </qsp-save-slot>
-                </qsp-slots-list>
-                <qsp-quick-save>
-                  <span>Quicksave</span>
+
+            <qsp-pause-screen-panel name="saves">
+              <h4><qsp-t>Saves</qsp-t></h4>
+              <qsp-slots-list>
+                <qsp-save-slot>
+                  <qsp-slot-index></qsp-slot-index>
                   <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
                   <div class="save-actions">
                     <button qsp-save-command="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
                     <button qsp-save-command="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
                     <button qsp-save-command="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
                   </div>
-                </qsp-quick-save>
-              </qsp-pause-screen-panel>
-            </qsp-show>
+                </qsp-save-slot>
+              </qsp-slots-list>
+              <qsp-quick-save>
+                <span>Quicksave</span>
+                <qsp-slot-date><qsp-t>Empty</qsp-t></qsp-slot-date>
+                <div class="save-actions">
+                  <button qsp-save-command="save" class="qsp-button"><qsp-t>Save</qsp-t></button>
+                  <button qsp-save-command="load" class="qsp-button"><qsp-t>Load</qsp-t></button>
+                  <button qsp-save-command="clear" class="qsp-button"><qsp-t>Clear</qsp-t></button>
+                </div>
+              </qsp-quick-save>
+            </qsp-pause-screen-panel>
+
             <qsp-pause-screen-panel name="preferences">
               <h2><qsp-t>Preferences</qsp-t></h2>
               <div>
