@@ -8,7 +8,6 @@ export const QspGameHotkeys: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   if (!currentGame) return null;
   const { hotkeys } = currentGame;
   if (!hotkeys) return null;
-  console.log(hotkeys);
   return (
     <Tag style={style} {...attributes}>
       {Object.entries(hotkeys).map(([keys, description], index) => (

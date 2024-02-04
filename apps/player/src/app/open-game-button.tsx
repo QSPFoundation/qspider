@@ -14,7 +14,6 @@ export const OpenGameButton: React.FC = () => {
       const content = evt.target?.result as ArrayBuffer;
       try {
         const imported = await importFile(file.name, content);
-        console.log(imported);
         for (const entry of imported) {
           games$.actions.add(entry.id, entry);
         }

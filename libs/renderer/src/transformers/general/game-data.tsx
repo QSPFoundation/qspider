@@ -20,7 +20,6 @@ export const QspGameAuthor: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [t] = useTranslation();
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-game-author');
   const currentGame = useAtom(currentGameEntry$);
-  console.log(currentGame);
   return (
     <Tag {...attributes} style={style}>
       {currentGame?.author || t('n/a')}

@@ -14,7 +14,6 @@ export const windowManager: IWindowManager = {
   },
   goFullscreen(): void {
     if (!document.fullscreenEnabled) return;
-    console.log(document.querySelector('qsp-game-root'));
     document
       .querySelector('qsp-game-root')
       ?.requestFullscreen()

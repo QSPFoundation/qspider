@@ -51,7 +51,6 @@ const CAPTION_SIZE = 20;
 export const qspGuiCfg$ = create<CfgData | null>(null);
 export const qspGuiLayout$ = create<string | null>((get) => {
   const config = get(qspGuiCfg$);
-  console.log('===', config);
   if (!config) return null;
   const defaultTheme = get(defaultClassicTheme$).qsp_player?.template ?? '';
   const layout = buildLayoutTree(config.Panels);
@@ -60,7 +59,6 @@ export const qspGuiLayout$ = create<string | null>((get) => {
   for (const floating of layout.floating) {
     template += convertPane(floating, defaultTheme, true);
   }
-  console.log(template);
   return template;
 });
 

@@ -160,7 +160,6 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   currentGameEntry$.set(entry);
   descriptor && currentGame$.set(descriptor);
   loadSaveList();
-  console.log(descriptor);
   descriptor && applyWindowSettings(descriptor.window);
 }
 
