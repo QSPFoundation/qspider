@@ -108,8 +108,6 @@ export async function quickSave(): Promise<void> {
 }
 
 export async function quickLoad(): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
-  if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   await withCounterPaused(async () => {

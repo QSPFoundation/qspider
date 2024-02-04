@@ -34,7 +34,6 @@ import { qspiderCommands } from './qspider-commands';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { windowManager$ } from './window-manager';
-import { pauseScreenCurrentPanel$ } from './pause-screen';
 
 export const qspApi$ = create<QspAPI>();
 export const qspApiInitialized$ = create(false);
@@ -208,13 +207,8 @@ qspApi$.subscribe((api) => {
   api.on('load_save', async (path, loaded) => {
     const currentGame = currentGameEntry$.value;
     if (!currentGame) return loaded();
-    const nosave = qspApi$.value?.readVariable('NOSAVE');
-    const prevPausePanel = pauseScreenCurrentPanel$.value;
     saveLoadedCallback$.set(() => {
       loaded();
-      if (nosave) {
-        pauseScreenCurrentPanel$.set(prevPausePanel);
-      }
     });
     if (path) {
       await restoreFromPath(path);
@@ -226,13 +220,8 @@ qspApi$.subscribe((api) => {
   api.on('save_game', async (path, saved) => {
     const currentGame = currentGameEntry$.value;
     if (!currentGame) return saved();
-    const nosave = qspApi$.value?.readVariable('NOSAVE');
-    const prevPausePanel = pauseScreenCurrentPanel$.value;
     gameSavedCallback$.set(() => {
       saved();
-      if (nosave) {
-        pauseScreenCurrentPanel$.set(prevPausePanel);
-      }
     });
     if (path) {
       await saveToPath(path);

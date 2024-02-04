@@ -5,6 +5,8 @@ import {
   menu$,
   msg$,
   openPauseScreen,
+  qspApi$,
+  requestedAction$,
   view$,
   wait$,
 } from '@qspider/game-state';
@@ -33,6 +35,10 @@ const handler = throttle((e: KeyboardEvent): void => {
       return;
     e.preventDefault();
     e.stopPropagation();
+    const nosave = qspApi$.value?.readVariable('NOSAVE');
+    if (nosave) {
+      requestedAction$.set('load');
+    }
     openPauseScreen();
   }
 }, 10);
