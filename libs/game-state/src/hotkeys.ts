@@ -60,6 +60,8 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     keys: 'mod+s',
     description: 'Save',
     on_press: (): boolean | undefined => {
+      const nosave = qspApi$.value?.readVariable('NOSAVE');
+      if (nosave) return;
       requestedAction$.set('save');
       onGameCommand('pause:saves' as GameCommand);
       return false;
