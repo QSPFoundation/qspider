@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/QSPFoundation/qspider/compare/v1.0.1...v1.1.0) (2024-02-10)
+
+### Features
+
+- add link to open game from catalog ([fc4a6be](https://github.com/QSPFoundation/qspider/commit/fc4a6be1200b33707806793c4737246c9bce9238))
+- add stanalone player app ([70ccfd7](https://github.com/QSPFoundation/qspider/commit/70ccfd734511106a2a8ece3d5a05b8851f5a6f6b))
+- add window management to standalone app ([a491638](https://github.com/QSPFoundation/qspider/commit/a491638ec30d6dd769dac771678164f18c63e808))
+- change quit command in standalone player ([f201691](https://github.com/QSPFoundation/qspider/commit/f2016910a6786723151bb301afb5e806b96df46a))
+- prettify output of hotkeys ([8c78e2a](https://github.com/QSPFoundation/qspider/commit/8c78e2af88b98ca5f97e0e35bbd9efe445cb4a6a))
+
+### Bug Fixes
+
+- correct savegame/opengame work with nosave ([0086496](https://github.com/QSPFoundation/qspider/commit/0086496e4561c5f80f86ad71941dd930a5474210))
+- disable save hotkey when onsave=1 ([ed7b447](https://github.com/QSPFoundation/qspider/commit/ed7b44768ff35adc477e5b7252aae1690e930651))
+- fix aero startup on desktop ([ee8ed77](https://github.com/QSPFoundation/qspider/commit/ee8ed77e367507f8d9dab82a7bc8efd9ace49faa))
+- fix base url creation for desktop standalone ([db525b7](https://github.com/QSPFoundation/qspider/commit/db525b75d1254d339ab215bf0d5a05e60f14395e))
+- fix center in action, object and menu ([5760031](https://github.com/QSPFoundation/qspider/commit/57600316efbd9e4c15b74d23e42ca357c6b126bd))
+- fix classic layout file processing ([6a6584b](https://github.com/QSPFoundation/qspider/commit/6a6584b84a019cf0c7bb3df1008ffef8f3b01f71))
+- fix closing modal view ([f211775](https://github.com/QSPFoundation/qspider/commit/f21177512e8a1caedd7feefa50927249b1ad7490))
+- fix cyrylic file names support in zip archives ([30e0089](https://github.com/QSPFoundation/qspider/commit/30e008920c492f33a995baf7ae2f7e516766247e))
+- fix game exit ([c38d489](https://github.com/QSPFoundation/qspider/commit/c38d48928b08055ad10459bcc120c9e7f47ba4c6))
+- fix hotkey press while msg/input leading to crash ([740816b](https://github.com/QSPFoundation/qspider/commit/740816b16b3f6f80f116464fbe40331498903ade))
+- fix processing zip with cyrtylic file names ([a76fd4b](https://github.com/QSPFoundation/qspider/commit/a76fd4b69a3663c6c9b94d25caeb8f977384260e))
+- fix save by name on desktop ([c5b6816](https://github.com/QSPFoundation/qspider/commit/c5b6816e9231e29ae6665e71e45ba46f62840d8f))
+- fix support of &gt'loc' variant in links ([493385f](https://github.com/QSPFoundation/qspider/commit/493385fcd887b0d09964943bc8cd96321a8d6787))
+- fix theme loading for standalone build ([1dc7036](https://github.com/QSPFoundation/qspider/commit/1dc7036cf73a8b067760ad7c6a5ef3b4947ac6d6))
+- nosave should not block loading saves ([baab669](https://github.com/QSPFoundation/qspider/commit/baab66973e843d39679330be16f34139c6f2b82f))
+- update wasm engine to fix save/opengame ([d8f0742](https://github.com/QSPFoundation/qspider/commit/d8f0742ee7f7bd6e37a41581474236d76b73c737))
+
 ### [1.0.1](https://github.com/QSPFoundation/qspider/compare/v1.0.0...v1.0.1) (2024-01-10)
 
 ### Features
