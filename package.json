@@ -29,6 +29,7 @@
     "dep-graph": "nx dep-graph",
     "help": "nx help",
     "release": "standard-version",
+    "release:dry-run": "standard-version --dry-run",
     "workspace-generator": "nx workspace-generator",
     "prepare": "husky install",
     "tauri": "tauri",
@@ -147,7 +148,11 @@
         "filename": "package.json",
         "type": "json"
       }
-    ]
+    ],
+    "skip": {
+      "commit": true,
+      "tag": true
+    }
   },
   "lint-staged": {
     "*.ts": "eslint --cache --fix"
