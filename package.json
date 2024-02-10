@@ -144,10 +144,6 @@
         "updater": "tools/cargo-version-updater.cjs"
       },
       {
-        "filename": "public/updater.json",
-        "updater": "tools/autoupdater-version-updater.cjs"
-      },
-      {
         "filename": "package.json",
         "type": "json"
       }
