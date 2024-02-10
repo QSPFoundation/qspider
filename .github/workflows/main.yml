@@ -114,7 +114,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: process.env.release_id,
-              name: "qspider-player.zip",
+              name: "qspider-player-standalone.zip",
               data: await fs.readFileSync('dist/apps/player-standalone/qspider-player-standalone.zip')
             });
   build-desktop:
