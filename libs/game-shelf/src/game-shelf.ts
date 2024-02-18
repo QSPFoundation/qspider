@@ -1,5 +1,12 @@
 import { GameShelfEntry } from '@qspider/contracts';
-import { currentGameEntry$, initDeferred$, runGame, stopCurrentGame, storage$ } from '@qspider/game-state';
+import {
+  currentGameEntry$,
+  initDeferred$,
+  initialBaseUrl$,
+  runGame,
+  stopCurrentGame,
+  storage$,
+} from '@qspider/game-state';
 import { create } from 'xoid';
 import history from 'history/browser';
 
@@ -13,7 +20,7 @@ export function navigateTo(path: string): void {
   history.push(`?${path}`);
 }
 export function goToGame(id: string): void {
-  navigateTo(`run=${id}`);
+  history.push(`${initialBaseUrl$.value}?run=${id}`);
 }
 
 export const currentMode$ = create('shelf');

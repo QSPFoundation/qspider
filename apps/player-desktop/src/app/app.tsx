@@ -7,7 +7,14 @@ import { isSupportedFileType } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
-import { baseInit$, componentsRegistry$, importDesktop, showError } from '@qspider/game-state';
+import {
+  baseInit$,
+  componentsRegistry$,
+  currentGame$,
+  importDesktop,
+  showError,
+  stopCurrentGame,
+} from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
@@ -36,6 +43,9 @@ export const App: React.FC = () => {
               if (!games$.value[entry.id]) {
                 games$.actions.add(entry.id, entry);
               }
+            }
+            if (currentGame$.value) {
+              stopCurrentGame();
             }
             const toRun = imported[0].id;
             toRun && goToGame(toRun);

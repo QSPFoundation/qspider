@@ -2,7 +2,7 @@
 name = "qspider"
 version = "1.1.0"
 description = "qSpider - player for QSP games"
-authors = [ "srg.kostyrko@gmail.com" ]
+authors = ["srg.kostyrko@gmail.com"]
 license = "MIT"
 repository = ""
 default-run = "qspider"
@@ -11,7 +11,7 @@ build = "src/build.rs"
 
 [build-dependencies.tauri-build]
 version = "1.5.1"
-features = [ "config-toml" ]
+features = ["config-toml"]
 
 [dependencies]
 serde_json = "1.0"
@@ -19,29 +19,30 @@ entity-tag = "0.1.5"
 mime_guess = "2.0.3"
 urlencoding = "2.1.0"
 
-  [dependencies.tauri-plugin-window-state]
-  git = "https://github.com/tauri-apps/plugins-workspace"
-  branch = "v1"
+[dependencies.tauri-plugin-window-state]
+git = "https://github.com/tauri-apps/plugins-workspace"
+branch = "v1"
 
-  [dependencies.serde]
-  version = "1.0"
-  features = [ "derive" ]
+[dependencies.serde]
+version = "1.0"
+features = ["derive"]
 
-  [dependencies.tauri]
-  version = "1.5.4"
-  features = [
+[dependencies.tauri]
+version = "1.5.4"
+features = [
   "api-all",
   "cli",
   "devtools",
   "icon-png",
+  "icon-ico",
   "updater",
-  "config-toml"
+  "config-toml",
 ]
 
-  [dependencies.uuid]
-  version = "1.5.0"
-  features = [ "serde", "v4" ]
+[dependencies.uuid]
+version = "1.5.0"
+features = ["serde", "v4"]
 
 [features]
-default = [ "custom-protocol" ]
-custom-protocol = [ "tauri/custom-protocol" ]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
