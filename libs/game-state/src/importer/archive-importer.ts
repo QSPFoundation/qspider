@@ -1,7 +1,7 @@
 import { stringify, parse, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
-import { extractFileTree, isSupportedArchive, readSupportedArchive } from '../utils';
+import { isSupportedArchive, readSupportedArchive } from '../utils';
 import type { FileDir, File } from '../utils';
 import { storage$ } from '../storage';
 
@@ -12,9 +12,8 @@ export async function importArchive(
 ): Promise<GameShelfEntry[]> {
   const storage = storage$.value;
   if (!storage) throw new Error('missing storage');
-  if (!isSupportedArchive(source.slice(0, 4))) throw new Error('unsupporter archive format');
-  const resources = await readSupportedArchive(source);
-  const root = extractFileTree(resources);
+  if (!isSupportedArchive(source)) throw new Error('unsupporter archive format');
+  const root = await readSupportedArchive(source);
   const rootDescriptorFolder = findRootDescriptorFolder(root);
   if (rootDescriptorFolder) {
     const [folder, data] = rootDescriptorFolder;
