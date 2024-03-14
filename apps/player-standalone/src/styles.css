@@ -5,6 +5,10 @@ body {
   overflow: hidden;
 }
 
+:root {
+  --solid-background: #3e63dd;
+}
+
 .qspider-scroll-bar {
   display: flex;
   /* ensures no selection */

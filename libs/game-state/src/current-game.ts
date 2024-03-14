@@ -129,12 +129,6 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
   }
 
-  let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
-  if (!gameSource) throw new Error('Failed to load game');
-  const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
-  if (isQsps) {
-    gameSource = convertQsps(gameSource);
-  }
   windowManager$.value?.setTitle(entry.title);
   setupGlobalHotKeys();
   if (descriptor?.hotkeys) {
@@ -155,12 +149,18 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     currentTheme$.set(CLASSIC_THEME);
   }
   loadThemeTranslations(currentTranslations$.value);
+  descriptor && applyWindowSettings(descriptor.window);
+  let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
+  if (!gameSource) throw new Error('Failed to load game');
+  const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
+  if (isQsps) {
+    gameSource = convertQsps(gameSource);
+  }
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
   currentGameEntry$.set(entry);
   descriptor && currentGame$.set(descriptor);
   loadSaveList();
-  descriptor && applyWindowSettings(descriptor.window);
 }
 
 let wasResized = false;

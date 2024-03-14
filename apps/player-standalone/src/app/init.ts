@@ -1,6 +1,5 @@
 import {
   baseInit$,
-  importUrl,
   initDeferred$,
   initQspApi,
   initialBaseUrl$,
@@ -10,6 +9,7 @@ import {
   windowManager$,
 } from '@qspider/game-state';
 import { windowManager } from '@qspider/window-manager';
+import { runConfig } from './config-runner';
 
 declare const APP_MODE: string;
 
@@ -29,10 +29,10 @@ export async function init(): Promise<void> {
   });
 
   const configUrl = new URL('game/game.cfg', baseUrl);
-  const imported = await importUrl(configUrl.toString());
+  const game = await runConfig(configUrl.toString());
   initDeferred$.value.resolve();
   await initQspApi();
   await registerDefaultThemes(initialBaseUrl$.value);
-  await runGame(imported[0]);
+  await runGame(game);
   baseInit$.set(true);
 }

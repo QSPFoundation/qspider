@@ -1,7 +1,7 @@
 import { readQsps, writeQsp } from '@qsp/converters';
 import { QspListItem } from '@qsp/wasm-engine';
 
-import SevenZip, { SevenZipModule, FileSystem } from '7z-wasm';
+import type { SevenZipModule, FileSystem } from '7z-wasm';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import SevenZipWasmUrl from '7z-wasm/7zz.wasm?url';
@@ -33,6 +33,7 @@ export const is7zip = (data: Uint8Array): boolean => {
 let sevenZip: SevenZipModule | null = null;
 async function initSevenZip(): Promise<SevenZipModule> {
   if (sevenZip) return sevenZip;
+  const SevenZip = (await import('7z-wasm')).default;
   sevenZip = await SevenZip({
     wasmBinary: await fetch(SevenZipWasmUrl).then((r) => r.arrayBuffer()),
   });
