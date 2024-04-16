@@ -50,3 +50,5 @@ jobs:
         with:
           folder: dist/apps/player
           clean: true
+          clean-exclude: |
+            .nojekyll
