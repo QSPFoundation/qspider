@@ -2,7 +2,7 @@ import Mousetrap from 'mousetrap';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
 import { GameCommand, onGameCommand } from './current-game';
-import { actions$, execSelectedAction, selectAction } from './panels';
+import { actions$, canSelectAction, execSelectedAction, selectAction } from './panels';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
 import create from 'xoid';
@@ -106,9 +106,11 @@ export function setupGlobalHotKeys(): void {
       if (typeof hotkey.on_press === 'function') {
         return hotkey.on_press(e, code);
       } else if (hotkey.on_press.type === 'action') {
-        selectAction(hotkey.on_press.index);
-        execSelectedAction();
-        return false;
+        if (canSelectAction(hotkey.on_press.index)) {
+          selectAction(hotkey.on_press.index);
+          execSelectedAction();
+          return false;
+        }
       } else if (hotkey.on_press.type === 'game_action') {
         onGameCommand(hotkey.on_press.action);
         return false;

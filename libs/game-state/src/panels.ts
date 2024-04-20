@@ -15,6 +15,11 @@ export const statsScroll$ = create(0);
 export const isActsVisible$ = create(false);
 export const actions$ = create<QspListItem[]>([]);
 export const selectedAction$ = create(-1);
+
+export function canSelectAction(index: number): boolean {
+  return index >= 0 && index < actions$.value.length;
+}
+
 export function selectAction(index: number): void {
   selectedAction$.set(index);
   qspApi$.value?.selectAction(index);
