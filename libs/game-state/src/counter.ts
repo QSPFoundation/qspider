@@ -5,12 +5,15 @@ export const counterDelay$ = create(500);
 export const isPaused$ = create(false);
 const counterTimeout$ = create<ReturnType<typeof setTimeout>>();
 
+const pauseStack: boolean[] = [];
+
 export async function withCounterPaused(callback: () => Promise<void>): Promise<void> {
-  const prevValue = isPaused$.value;
+  pauseStack.push(isPaused$.value);
   try {
     isPaused$.set(true);
     await callback();
   } finally {
+    const prevValue = pauseStack.pop() || false;
     isPaused$.set(prevValue);
   }
 }
