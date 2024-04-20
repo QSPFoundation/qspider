@@ -106,5 +106,6 @@
   "n/a": "-",
   "Aero games": "Aero ігри",
   "Game with id {{catalogId}} not found in catalog": "Гру з id {{catalogId}} не знайдено в каталозі",
-  "Loading game from catalog...": "Завантажуємо гру з каталогу..."
+  "Loading game from catalog...": "Завантажуємо гру з каталогу...",
+  "Theme {{name}} not found": "Тему {{name}} не знайдено"
 }

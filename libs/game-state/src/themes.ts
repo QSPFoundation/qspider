@@ -75,15 +75,15 @@ export const themeRegistry$ = create<Record<string, ThemeData>, ThemeActions>({}
 });
 export const currentTheme$ = create(CLASSIC_THEME);
 export const currentThemeData$ = create((get) => {
-  return get(themeRegistry$)[get(currentTheme$)];
+  return get(themeRegistry$)[get(currentTheme$)] ?? {};
 });
 export const defaultClassicTheme$ = create((get) => {
   return get(themeRegistry$)['qspider:classic'];
 });
-export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables);
-export const currentCssLinks$ = create((get) => get(currentThemeData$).css_links);
-export const currentScriptLinks$ = create((get) => get(currentThemeData$).script_links);
-export const currentTranslations$ = create((get) => get(currentThemeData$).translations);
+export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables ?? []);
+export const currentCssLinks$ = create((get) => get(currentThemeData$).css_links ?? []);
+export const currentScriptLinks$ = create((get) => get(currentThemeData$).script_links ?? []);
+export const currentTranslations$ = create((get) => get(currentThemeData$).translations ?? []);
 
 export function useFormatVariable(variableName?: string, defaultValue?: string): string {
   return useQspVariable(variableName, '', 0, defaultValue ?? '');

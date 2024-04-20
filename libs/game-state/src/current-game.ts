@@ -38,6 +38,7 @@ import { initialBaseUrl$ } from './init';
 import { input$ } from './input';
 import { menu$ } from './menu';
 import { msg$ } from './msg';
+import { showNotice } from './toasts';
 
 export const currentGameEntry$ = create<GameShelfEntry | null>(null);
 export const currentGame$ = create<GameDescriptor | null>();
@@ -142,7 +143,12 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     await registerThemes(descriptor.themes);
   }
   if (descriptor?.defaultTheme) {
-    currentTheme$.set(descriptor.defaultTheme);
+    const theme = themeRegistry$.value[descriptor.defaultTheme];
+    if (theme) {
+      currentTheme$.set(descriptor.defaultTheme);
+    } else {
+      showNotice(`Theme ${descriptor.defaultTheme} not found`);
+    }
   } else if (descriptor?.mode === 'aero') {
     currentTheme$.set(AERO_THEME);
   } else {
