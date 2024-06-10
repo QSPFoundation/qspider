@@ -5,3 +5,5 @@
 
 /.nx/cache
 /src-tauri/target
+
+/.nx/workspace-data
