@@ -19,6 +19,7 @@ export async function init(): Promise<void> {
   url.search = '';
   url.hash = '';
   let baseUrl = url.toString();
+  baseUrl = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1);
   if (!baseUrl.endsWith('/')) {
     baseUrl = `${baseUrl}/`;
   }
