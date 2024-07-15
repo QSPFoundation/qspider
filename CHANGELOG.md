@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/QSPFoundation/qspider/compare/v1.1.0...v1.2.0) (2024-07-15)
+
+### Features
+
+- add chinese translation ([398c73e](https://github.com/QSPFoundation/qspider/commit/398c73e6994260c2e58b8c5b1c59c848ce87a8e0))
+- improve standalone game start ([334a58f](https://github.com/QSPFoundation/qspider/commit/334a58ff656e83ddeeea32075018c246f32dfbad))
+- use 7z lib for archives ([988fe73](https://github.com/QSPFoundation/qspider/commit/988fe73a7d9dc50aff0446f6ecb1b47365370b70))
+
+### Bug Fixes
+
+- block pause menu hotkey on shelf ([c9675a7](https://github.com/QSPFoundation/qspider/commit/c9675a7b571bb2066a8095c9b7dff8e04c2a29f2))
+- fix action hotkey for non existing action ([1dfbab0](https://github.com/QSPFoundation/qspider/commit/1dfbab09258359e4b4f6d1be6e9598fc2a53ea3e))
+- fix base url processing ([024d1e9](https://github.com/QSPFoundation/qspider/commit/024d1e99d0a29f895e07ff9e328ad0187c1e6c5a))
+- fix drop file in desktop version crushing player ([ee69a25](https://github.com/QSPFoundation/qspider/commit/ee69a25309c4684db6c516a30c2b1437265aaaf5))
+- fix game crash when theme does not exist ([08ca6a9](https://github.com/QSPFoundation/qspider/commit/08ca6a9f66b707d664bf3407d8f3af820392c873))
+- fix launching stadalone with index.html in path ([f7ab0f1](https://github.com/QSPFoundation/qspider/commit/f7ab0f104ce705e7b743364a41160d9a03c135c6))
+- fix paused state on nexted inclib ([cc93de7](https://github.com/QSPFoundation/qspider/commit/cc93de7398aee55bbe70dbeab97cb9502793cc74))
+- update wasm engine with save fixes ([8cc1f75](https://github.com/QSPFoundation/qspider/commit/8cc1f75244acf80571da71a1c13faac23beb936f))
+
 ## [1.1.0](https://github.com/QSPFoundation/qspider/compare/v1.0.1...v1.1.0) (2024-02-10)
 
 ### Features
