@@ -13,6 +13,14 @@
 
 # Qspider
 
+Current release - [1.2.0](https://github.com/QSPFoundation/qspider/releases/tag/v1.2.0)
+
+Windows: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/qSpider_1.2.0_x64-setup.exe)
+
+Macos: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/qSpider_1.2.0_aarch64.dmg)
+
+Linux: [deb](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/q-spider_1.2.0_amd64.deb) | [rpm](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/q-spider-1.2.0-1.x86_64.rpm) | [AppImage](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/q-spider_1.2.0_amd64.AppImage)
+
 ## Development server
 
 Run `npm start` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
