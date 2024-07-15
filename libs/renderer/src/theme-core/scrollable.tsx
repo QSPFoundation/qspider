@@ -49,7 +49,7 @@ export const QspScrollable: React.FC<{
     onScroll();
     const interval = setInterval(onScroll, 300);
     node.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
+    return (): void => {
       node.removeEventListener('scroll', onScroll);
       clearInterval(interval);
     };

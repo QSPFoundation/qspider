@@ -72,7 +72,9 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
     const unsubscribe = key
       ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue((value as unknown as T) || defaultValue))
       : qspApi$.value?.watchVariable(name, index, (value) => setValue((value as unknown as T) || defaultValue));
-    return () => unsubscribe?.();
+    return (): void => {
+      unsubscribe?.();
+    };
   }, [name, key, index, defaultValue]);
 
   return value;
@@ -83,7 +85,9 @@ export function useQspExpression(expr: string): boolean {
   useEffect(() => {
     if (!expr) return;
     const unsubscribe = qspApi$.value?.watchExpression(expr, (v) => setValue(Boolean(v)));
-    return () => unsubscribe?.();
+    return (): void => {
+      unsubscribe?.();
+    };
   }, [expr]);
   return value;
 }
