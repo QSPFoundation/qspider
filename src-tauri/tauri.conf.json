@@ -30,7 +30,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
+      "targets": ["deb", "rpm", "appimage", "nsis", "app", "dmg", "updater"],
       "identifier": "org.qsp.qspider",
       "publisher": "QSPFoundation",
       "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
@@ -44,9 +44,16 @@
       "deb": {
         "depends": []
       },
+      "appimage": {
+        "bundleMediaFramework": true
+      },
       "windows": {
         "webviewInstallMode": {
           "type": "embedBootstrapper"
+        },
+        "nsis": {
+          "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinesea"],
+          "displayLanguageSelector": true
         }
       }
     },

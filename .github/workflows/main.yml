@@ -9,7 +9,7 @@ jobs:
   create-release:
     permissions:
       contents: write
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       release_id: ${{ steps.create-release.outputs.result }}
 
@@ -122,7 +122,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-latest, windows-latest]
+        # to support older version of ubuntu we should build on 18.04
+        platform: [macos-latest, ubuntu-18.04, windows-latest]
     runs-on: ${{ matrix.platform }}
     env:
       CYPRESS_INSTALL_BINARY: 0
