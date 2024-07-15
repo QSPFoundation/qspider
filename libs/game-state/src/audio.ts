@@ -1,11 +1,11 @@
 import { Howler } from 'howler';
 import { normalizeVolume, Sound } from './sound';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { clamp } from './utils';
 
 const VOLUME_STEP = 10;
 
-export const sounds$ = create(new Map<string, Sound>(), (atom) => {
+export const sounds$ = atom(new Map<string, Sound>(), (atom) => {
   return {
     isPlaying(path: string): boolean {
       const key = getFileKey(path);
@@ -42,8 +42,8 @@ export const sounds$ = create(new Map<string, Sound>(), (atom) => {
     },
   };
 });
-export const muted$ = create(false);
-export const volume$ = create(100, (atom) => {
+export const muted$ = atom(false);
+export const volume$ = atom(100, (atom) => {
   return {
     increase(): void {
       atom.update((s) => clamp(s + VOLUME_STEP, 0, 100));

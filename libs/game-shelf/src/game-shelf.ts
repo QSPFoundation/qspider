@@ -7,7 +7,7 @@ import {
   stopCurrentGame,
   storage$,
 } from '@qspider/game-state';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import history from 'history/browser';
 
 interface GamesActions {
@@ -23,9 +23,9 @@ export function goToGame(id: string): void {
   history.push(`${initialBaseUrl$.value}?run=${id}`);
 }
 
-export const currentMode$ = create('shelf');
+export const currentMode$ = atom('shelf');
 
-export const games$ = create<Record<string, GameShelfEntry>, GamesActions>({}, (atom) => {
+export const games$ = atom<Record<string, GameShelfEntry>, GamesActions>({}, (atom) => {
   return {
     add(id: string, data: GameShelfEntry): void {
       storage$.value?.addGame(id, data).catch(console.error);
@@ -54,8 +54,8 @@ export const games$ = create<Record<string, GameShelfEntry>, GamesActions>({}, (
   };
 });
 
-export const gamesList$ = create((get) => Object.values(get(games$)).sort((a, b) => a.title.localeCompare(b.title)));
-export const gameSourceMap$ = create((get) => {
+export const gamesList$ = atom((get) => Object.values(get(games$)).sort((a, b) => a.title.localeCompare(b.title)));
+export const gameSourceMap$ = atom((get) => {
   const map = new Map<string, Set<string>>();
   for (const game of Object.values(get(games$))) {
     if (game.meta?.source) {

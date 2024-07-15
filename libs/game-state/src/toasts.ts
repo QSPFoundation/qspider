@@ -1,15 +1,15 @@
-import { create } from 'xoid';
+import { atom } from 'xoid';
 
-export const errorMessage$ = create('');
-export const isErrorShown$ = create(false);
+export const errorMessage$ = atom('');
+export const isErrorShown$ = atom(false);
 
 export function showError(message: string): void {
   errorMessage$.set(message);
   isErrorShown$.set(true);
 }
 
-export const noticeMessage$ = create('');
-export const isNoticeShown$ = create(false);
+export const noticeMessage$ = atom('');
+export const isNoticeShown$ = atom(false);
 let noticeTimeout: ReturnType<typeof setTimeout> | null = null;
 
 export function showNotice(message: string): void {

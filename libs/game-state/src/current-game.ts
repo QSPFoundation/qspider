@@ -1,5 +1,5 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { clearAdditionalResources, loadAdditionalResources } from './resources';
 import { qspApi$ } from './qsp-api';
 import {
@@ -40,14 +40,14 @@ import { menu$ } from './menu';
 import { msg$ } from './msg';
 import { showNotice } from './toasts';
 
-export const currentGameEntry$ = create<GameShelfEntry | null>(null);
-export const currentGame$ = create<GameDescriptor | null>();
-export const currentGameMode$ = create((get) => get(currentGame$)?.mode || 'classic');
-export const currentAeroWidth$ = create((get) => get(currentGame$)?.aero?.width ?? 800);
-export const currentAeroHeight$ = create((get) => get(currentGame$)?.aero?.height ?? 600);
-export const saveSlotsCount$ = create((get) => get(currentGame$)?.save_slots ?? 9);
-export const onGameEnd$ = create<null | (() => void)>(null);
-export const baseUrl$ = create('');
+export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
+export const currentGame$ = atom<GameDescriptor | null>();
+export const currentGameMode$ = atom((get) => get(currentGame$)?.mode || 'classic');
+export const currentAeroWidth$ = atom((get) => get(currentGame$)?.aero?.width ?? 800);
+export const currentAeroHeight$ = atom((get) => get(currentGame$)?.aero?.height ?? 600);
+export const saveSlotsCount$ = atom((get) => get(currentGame$)?.save_slots ?? 9);
+export const onGameEnd$ = atom<null | (() => void)>(null);
+export const baseUrl$ = atom('');
 
 export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');

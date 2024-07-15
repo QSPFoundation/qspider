@@ -1,4 +1,4 @@
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import produce from 'immer';
 import { nanoid } from 'nanoid';
 import { UniqueIdentifier } from '@dnd-kit/core';
@@ -27,12 +27,12 @@ export interface DockPane {
 export type PaneType = 'objs' | 'vars' | 'acts' | 'input' | 'imgview';
 const allPaneTypes: PaneType[] = ['objs', 'vars', 'acts', 'input', 'imgview'];
 
-export const layers$ = create<LayoutLayer[]>([{}]);
-export const maxLayerIndex$ = create((get) => get(layers$).length - 1);
-export const isViewFloating$ = create(true);
-export const mode$ = create<'edit' | 'preview'>('edit');
+export const layers$ = atom<LayoutLayer[]>([{}]);
+export const maxLayerIndex$ = atom((get) => get(layers$).length - 1);
+export const isViewFloating$ = atom(true);
+export const mode$ = atom<'edit' | 'preview'>('edit');
 
-export const usedPanes$ = create((get) => {
+export const usedPanes$ = atom((get) => {
   const used = new Set<PaneType>();
   for (const layer of get(layers$)) {
     for (const pane of layer.top?.panes ?? []) {
@@ -51,16 +51,16 @@ export const usedPanes$ = create((get) => {
   return [...used];
 });
 
-export const availablePanes$ = create((get) => {
+export const availablePanes$ = atom((get) => {
   const used = get(usedPanes$);
   return allPaneTypes.filter((p) => !used.includes(p));
 });
 
-export const dockToConfigure$ = create<null | {
+export const dockToConfigure$ = atom<null | {
   index: number;
   type: DockType;
 }>(null);
-export const dockToConfigureData$ = create((get) => {
+export const dockToConfigureData$ = atom((get) => {
   const dockToConfigure = get(dockToConfigure$);
   if (!dockToConfigure) return null;
   const layers = get(layers$);

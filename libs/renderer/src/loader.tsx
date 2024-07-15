@@ -1,7 +1,7 @@
 import { useAtom } from '@xoid/react';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 
-export const loadingMessage$ = create('');
+export const loadingMessage$ = atom('');
 
 export const QspiderLoader: React.FC = () => {
   const loadingMessage = useAtom(loadingMessage$);

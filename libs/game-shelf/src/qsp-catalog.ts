@@ -1,6 +1,6 @@
 import { importUrl, showError, showNotice } from '@qspider/game-state';
 import { defer } from '@qspider/utils';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { games$ } from './game-shelf';
 import i18n from '@qspider/i18n';
 import { GameShelfEntry } from '@qspider/contracts';
@@ -21,13 +21,13 @@ export interface CatalogGame {
   description: string;
 }
 
-export const qspCatalogList$ = create<CatalogGame[]>([]);
-export const qspAuthorFilter$ = create('');
-export const qspSortByField$ = create('title');
-export const qspSortDirection$ = create<'asc' | 'desc'>('asc');
-export const qspTitleSearch$ = create('');
-export const onlyAero$ = create(false);
-export const qspCatalogPreparedList$ = create<CatalogGame[]>((get) => {
+export const qspCatalogList$ = atom<CatalogGame[]>([]);
+export const qspAuthorFilter$ = atom('');
+export const qspSortByField$ = atom('title');
+export const qspSortDirection$ = atom<'asc' | 'desc'>('asc');
+export const qspTitleSearch$ = atom('');
+export const onlyAero$ = atom(false);
+export const qspCatalogPreparedList$ = atom<CatalogGame[]>((get) => {
   const games = get(qspCatalogList$);
   const authorFilter = get(qspAuthorFilter$);
   const sortField = get(qspSortByField$);
@@ -45,7 +45,7 @@ export const qspCatalogPreparedList$ = create<CatalogGame[]>((get) => {
   if (sortDirection === 'desc') filtered.reverse();
   return filtered;
 });
-export const qspAuthors$ = create((get) => {
+export const qspAuthors$ = atom((get) => {
   const games = get(qspCatalogList$);
   const authorsSet = new Set<string>();
   for (const game of games) {
@@ -59,7 +59,7 @@ export const qspAuthors$ = create((get) => {
 
 type CatalogLoadingState = 'pending' | 'loading' | 'loaded' | 'failed';
 
-export const catalogLoading$ = create<CatalogLoadingState>('pending');
+export const catalogLoading$ = atom<CatalogLoadingState>('pending');
 export const sourceName = 'org.qsp.games';
 const CATALOG_URL = 'https://catalog.qspider.xyz/';
 

@@ -1,5 +1,5 @@
 import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVariableType } from '@qsp/wasm-engine';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm?url';
@@ -35,10 +35,10 @@ import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { windowManager$ } from './window-manager';
 
-export const qspApi$ = create<QspAPI>();
-export const qspApiInitialized$ = create(false);
-export const qspError$ = create<QspErrorData | null>(null);
-export const qspiderModule$ = create(writeQsp(readQsps(qspiderModuleContent)));
+export const qspApi$ = atom<QspAPI>();
+export const qspApiInitialized$ = atom(false);
+export const qspError$ = atom<QspErrorData | null>(null);
+export const qspiderModule$ = atom(writeQsp(readQsps(qspiderModuleContent)));
 
 export async function initQspApi(): Promise<void> {
   const wasm = await fetch(wasmUrl).then((r) => r.arrayBuffer());

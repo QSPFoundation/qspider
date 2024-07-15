@@ -2,10 +2,10 @@ import { createContext, ReactNode, useContext, useEffect, useLayoutEffect, useRe
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../content/attributes';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { useAtom, useSetup } from '@xoid/react';
 
-export const noopScrollAtom$ = create(0);
+export const noopScrollAtom$ = atom(0);
 export const scrollContext = createContext(noopScrollAtom$);
 export type ScrollType = 'both' | 'horizontal' | 'vertical';
 export const isScrollType = (t: unknown): t is ScrollType =>
@@ -20,9 +20,9 @@ export const QspScrollable: React.FC<{
   const ref = useRef<HTMLDivElement>(null);
   const scrollTrigger = useAtom(useContext(scrollContext));
 
-  const upScroll$ = useSetup(() => create(false));
+  const upScroll$ = useSetup(() => atom(false));
   const upScroll = useAtom(upScroll$);
-  const downScroll$ = useSetup(() => create(false));
+  const downScroll$ = useSetup(() => atom(false));
   const downScroll = useAtom(downScroll$);
 
   useEffect(() => {

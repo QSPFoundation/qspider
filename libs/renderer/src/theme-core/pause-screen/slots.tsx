@@ -2,12 +2,12 @@ import { Attributes, saveSlots$, saveSlotsCount$ } from '@qspider/game-state';
 import React, { createContext, ReactElement, ReactNode, useContext } from 'react';
 import { useAttributes } from '../../content/attributes';
 import { useAtom } from '@xoid/react';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { formatDate } from '@qspider/i18n';
 
 export const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 
-const baseSlots$ = create((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
+const baseSlots$ = atom((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
 
 export const QspSlotsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const baseSlots = useAtom(baseSlots$);

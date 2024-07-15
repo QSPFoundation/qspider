@@ -1,4 +1,4 @@
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
 import { getTextContent } from './resources';
 import { useQspVariable } from './qsp-api';
@@ -53,7 +53,7 @@ interface ThemeActions {
   reset(): void;
 }
 
-export const themeRegistry$ = create<Record<string, ThemeData>, ThemeActions>({}, (atom) => {
+export const themeRegistry$ = atom<Record<string, ThemeData>, ThemeActions>({}, (atom) => {
   return {
     add(alias: string, data: ThemeData): void {
       atom.update((s) => ({
@@ -73,17 +73,17 @@ export const themeRegistry$ = create<Record<string, ThemeData>, ThemeActions>({}
     },
   };
 });
-export const currentTheme$ = create(CLASSIC_THEME);
-export const currentThemeData$ = create((get) => {
+export const currentTheme$ = atom(CLASSIC_THEME);
+export const currentThemeData$ = atom((get) => {
   return get(themeRegistry$)[get(currentTheme$)] ?? {};
 });
-export const defaultClassicTheme$ = create((get) => {
+export const defaultClassicTheme$ = atom((get) => {
   return get(themeRegistry$)['qspider:classic'];
 });
-export const currentCssVariables$ = create((get) => get(currentThemeData$).css_variables ?? []);
-export const currentCssLinks$ = create((get) => get(currentThemeData$).css_links ?? []);
-export const currentScriptLinks$ = create((get) => get(currentThemeData$).script_links ?? []);
-export const currentTranslations$ = create((get) => get(currentThemeData$).translations ?? []);
+export const currentCssVariables$ = atom((get) => get(currentThemeData$).css_variables ?? []);
+export const currentCssLinks$ = atom((get) => get(currentThemeData$).css_links ?? []);
+export const currentScriptLinks$ = atom((get) => get(currentThemeData$).script_links ?? []);
+export const currentTranslations$ = atom((get) => get(currentThemeData$).translations ?? []);
 
 export function useFormatVariable(variableName?: string, defaultValue?: string): string {
   return useQspVariable(variableName, '', 0, defaultValue ?? '');

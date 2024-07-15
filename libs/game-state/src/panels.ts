@@ -1,20 +1,20 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
 
-export const mainContent$ = create('');
-export const nextMainContent$ = create('');
-export const isNewLoc$ = create(false);
-export const newLocHash$ = create('');
-export const mainScroll$ = create(0);
+export const mainContent$ = atom('');
+export const nextMainContent$ = atom('');
+export const isNewLoc$ = atom(false);
+export const newLocHash$ = atom('');
+export const mainScroll$ = atom(0);
 
-export const isStatsVisible$ = create(false);
-export const statsContent$ = create('');
-export const statsScroll$ = create(0);
+export const isStatsVisible$ = atom(false);
+export const statsContent$ = atom('');
+export const statsScroll$ = atom(0);
 
-export const isActsVisible$ = create(false);
-export const actions$ = create<QspListItem[]>([]);
-export const selectedAction$ = create(-1);
+export const isActsVisible$ = atom(false);
+export const actions$ = atom<QspListItem[]>([]);
+export const selectedAction$ = atom(-1);
 
 export function canSelectAction(index: number): boolean {
   return index >= 0 && index < actions$.value.length;
@@ -29,14 +29,14 @@ export function execSelectedAction(): void {
   qspApi$.value?.execSelectedAction();
 }
 
-export const isObjsVisible$ = create(false);
-export const objects$ = create<QspListItem[]>([]);
+export const isObjsVisible$ = atom(false);
+export const objects$ = atom<QspListItem[]>([]);
 export function selectObject(index: number): void {
   qspApi$.value?.selectObject(index);
 }
 
-export const isCmdVisible$ = create(false);
-export const cmdText$ = create('');
+export const isCmdVisible$ = atom(false);
+export const cmdText$ = atom('');
 export function submitUserInput(): void {
   qspApi$.value?.updateUserInput(cmdText$.value);
 }
@@ -53,7 +53,7 @@ interface ViewAtomActions {
   clear(): void;
 }
 
-export const view$ = create<ViewAtom, ViewAtomActions>(
+export const view$ = atom<ViewAtom, ViewAtomActions>(
   {
     isOpen: false,
     path: '',
@@ -87,8 +87,8 @@ export const view$ = create<ViewAtom, ViewAtomActions>(
   },
 );
 
-export const regions$ = create<Record<string, string>>({});
-export const regionsScroll$ = create<Record<string, number>>({});
+export const regions$ = atom<Record<string, string>>({});
+export const regionsScroll$ = atom<Record<string, number>>({});
 export function reloadRegions(): void {
   const newState: Record<string, string> = {};
   for (const name of Object.keys(regions$.value)) {
@@ -97,7 +97,7 @@ export function reloadRegions(): void {
   regions$.set(newState);
 }
 
-export const layers$ = create<Record<string, boolean>>({});
+export const layers$ = atom<Record<string, boolean>>({});
 export function readLayerState(name: string): boolean {
   return Boolean(qspApi$.value?.readVariableByKey('qspider_layers', name) ?? 0);
 }

@@ -11,7 +11,7 @@ import {
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
 import React, { isValidElement } from 'react';
-import { Atom, create } from 'xoid';
+import { Atom, atom } from 'xoid';
 import { TemplateRenderer } from '../../template-renderer';
 
 interface DockData {
@@ -34,7 +34,7 @@ export const QspCL: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
   const style$ = useSetup(($props) => {
     const children$ = $props?.focus((p) => p.children);
-    const docks$ = create((get) => {
+    const docks$ = atom((get) => {
       const docks: Record<string, DockData> = {};
       React.Children.forEach(get(children$), (child) => {
         if (isValidElement(child) && child.type === QspCLDock) {
@@ -46,7 +46,7 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
       });
       return docks;
     });
-    const visibleDocks$ = create((get) => {
+    const visibleDocks$ = atom((get) => {
       const docks = get(docks$);
       const visibleDocks: Record<string, DockData> = {};
       for (const [place, data] of Object.entries(docks)) {
@@ -59,7 +59,7 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
       }
       return visibleDocks;
     });
-    return create<React.CSSProperties>((get) => {
+    return atom<React.CSSProperties>((get) => {
       const docks = get(visibleDocks$);
       const areas = ['center'];
       let columns = '1fr';
@@ -109,7 +109,7 @@ export const QspCLDock: React.FC<
   }
 > = (props) => {
   const visibility$ = useSetup((props$) => {
-    return create((get) => {
+    return atom((get) => {
       const visibility$ = props$.focus((s) => s.visibility);
       const visibility: string | null = get(visibility$);
       if (!visibility) return true;
@@ -128,7 +128,7 @@ export const QspCLPane: React.FC<{ proportion: number; children: React.ReactNode
   props,
 ) => {
   const visibility$ = useSetup((props$) => {
-    return create((get) => {
+    return atom((get) => {
       const visibility$ = props$.focus((s) => s.visibility);
       const visibility: string | null = get(visibility$);
       if (!visibility) return true;

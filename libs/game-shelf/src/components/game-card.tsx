@@ -8,7 +8,7 @@ import { games$, goToGame } from '../game-shelf';
 import { ContentRenderer } from '@qspider/renderer';
 import { useAtom, useSetup } from '@xoid/react';
 import { moveToShelf, qspCatalogList$ } from '../qsp-catalog';
-import create from 'xoid';
+import { atom } from 'xoid';
 
 export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
   const { game } = props;
@@ -19,7 +19,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
 
   const catalogEntry$ = useSetup((props$) => {
     const game$ = props$.focus((p) => p.game);
-    return create((get) => {
+    return atom((get) => {
       const sourceId = get(game$).meta?.source_id;
       if (!sourceId) return null;
       const id = parseInt(sourceId);

@@ -1,7 +1,7 @@
 import { CssVarDefinition, baseUrl$, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
-import create from 'xoid';
+import { atom } from 'xoid';
 
 export const QspCSSVariables: React.FC = () => {
   const variables = useAtom(currentCssVariables$);
@@ -18,7 +18,7 @@ interface ImageSize {
   height: number;
 }
 
-const imageSizes$ = create<{ [key: string]: ImageSize }>({});
+const imageSizes$ = atom<{ [key: string]: ImageSize }>({});
 
 const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: boolean }> = (props) => {
   const size$ = useSetup((props$) => {
@@ -38,7 +38,7 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
         img.src = url;
       }
     });
-    return create((get) => {
+    return atom((get) => {
       const url = prepareUrl(get(url$));
       return get(imageSizes$)[url] ?? { width: 0, height: 0 };
     });

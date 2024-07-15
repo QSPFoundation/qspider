@@ -1,9 +1,9 @@
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { isPaused$ } from './counter';
 import { gameSavedCallback$, saveLoadedCallback$ } from './save';
 
-export const isPauseScreenVisible$ = create(false);
-export const pauseScreenCurrentPanel$ = create('credits');
+export const isPauseScreenVisible$ = atom(false);
+export const pauseScreenCurrentPanel$ = atom('credits');
 
 export function openPauseScreen(): void {
   isPauseScreenVisible$.set(true);

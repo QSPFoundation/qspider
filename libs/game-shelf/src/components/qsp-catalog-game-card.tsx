@@ -3,7 +3,7 @@ import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useAtom, useSetup } from '@xoid/react';
 import { useCallback, useState } from 'react';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { useTranslation } from 'react-i18next';
 import { gameSourceMap$ } from '../game-shelf';
 import { CatalogGame, moveToShelf, sourceName } from '../qsp-catalog';
@@ -15,7 +15,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();
   const isOnShelf$ = useSetup((props$) => {
     const gameId$ = props$.focus((p) => p.game.id);
-    return create((get) => {
+    return atom((get) => {
       const existingCatalogGames = get(gameSourceMap$).get(sourceName);
       const gameId = String(get(gameId$));
       return existingCatalogGames?.has(gameId);

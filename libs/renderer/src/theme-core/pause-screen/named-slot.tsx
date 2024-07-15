@@ -2,7 +2,7 @@ import { useAtom, useSetup } from '@xoid/react';
 import { useAttributes } from '../../content/attributes';
 import { ReactNode, createContext } from 'react';
 import { Attributes, namedSlots$ } from '@qspider/game-state';
-import create from 'xoid';
+import { atom } from 'xoid';
 import { slotContentContext } from './slots';
 
 const namedSlotContentContext = createContext<{ path: string }>({ path: '' });
@@ -12,7 +12,7 @@ export const QspNamedSlot: React.FC<{ path: string; attrs: Attributes; children:
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-save-slot');
   const saveData$ = useSetup((props$) => {
     const path$ = props$.focus((p) => p.path);
-    return create((get) => {
+    return atom((get) => {
       const path = get(path$);
       const savedList = get(namedSlots$);
       return savedList.find((save) => save.key === path);

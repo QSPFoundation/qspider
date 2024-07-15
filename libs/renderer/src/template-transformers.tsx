@@ -1,9 +1,9 @@
 import { Node } from 'interweave';
 import { currentGameMode$ } from '@qspider/game-state';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { aeroTransformers, classicTransformers, defaultTransform, defaultTransformers } from './transformers';
 
-const currentTransformers$ = create((get) => {
+const currentTransformers$ = atom((get) => {
   const mode = get(currentGameMode$);
   switch (mode) {
     case 'classic':

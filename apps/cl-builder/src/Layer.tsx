@@ -1,5 +1,5 @@
 import { useAtom, useSetup } from '@xoid/react';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 import { Dock } from './Dock';
 import { DockResizeHandle } from './DockResizeHandle';
 import { layers$, LayoutLayer, mode$ } from './store';
@@ -12,7 +12,7 @@ const useLayer = (props: LayerProps): LayoutLayer => {
   const layer$ = useSetup((props$) => {
     const index$ = props$.focus((s) => s.index);
 
-    return create((get) => {
+    return atom((get) => {
       const index = get(index$);
       const layers = get(layers$);
       return layers[index];

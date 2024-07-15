@@ -1,6 +1,6 @@
 import { defer } from '@qspider/utils';
-import create from 'xoid';
+import { atom } from 'xoid';
 
-export const baseInit$ = create(false);
-export const initDeferred$ = create(defer<void>());
-export const initialBaseUrl$ = create('/');
+export const baseInit$ = atom(false);
+export const initDeferred$ = atom(defer<void>());
+export const initialBaseUrl$ = atom('/');
