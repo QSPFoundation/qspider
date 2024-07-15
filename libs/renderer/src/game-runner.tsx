@@ -24,6 +24,7 @@ import { QspScriptLinks } from './theme-core/script-links';
 
 const handler = throttle((e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
+    if (!currentGameEntry$.value) return;
     if (
       wait$.value ||
       msg$.value.isOpen ||
