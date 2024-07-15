@@ -11,4 +11,8 @@ export const locales = [
     label: 'Українська',
     value: 'uk-UA',
   },
+  {
+    label: '简体中文',
+    value: 'zh',
+  },
 ];

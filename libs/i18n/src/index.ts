@@ -5,7 +5,7 @@ import Fetch from 'i18next-fetch-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { ThemeTranslation } from '@qspider/contracts';
 
-const locales = ['en-US', 'en', 'ru-RU', 'uk-UA'];
+const locales = ['en-US', 'en', 'ru-RU', 'uk-UA', 'zh'];
 
 i18n
   .use(Backend)
