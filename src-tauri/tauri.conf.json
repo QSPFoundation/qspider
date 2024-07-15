@@ -52,7 +52,7 @@
           "type": "embedBootstrapper"
         },
         "nsis": {
-          "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinesea"],
+          "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinese"],
           "displayLanguageSelector": true
         }
       }
