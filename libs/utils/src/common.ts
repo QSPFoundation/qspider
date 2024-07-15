@@ -69,3 +69,12 @@ export const hashString = (s: string): number =>
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const noop = (): void => {};
+
+export function prepareBaseUrl(rawBaseUrl: string): string {
+  const url = new URL(rawBaseUrl);
+  url.search = '';
+  url.hash = '';
+  let baseUrl = url.toString();
+  baseUrl = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1);
+  return baseUrl;
+}

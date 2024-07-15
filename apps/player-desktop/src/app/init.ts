@@ -15,10 +15,10 @@ import {
 import { TauriStorage } from '@qspider/tauri-storage';
 import { cli } from '@tauri-apps/api';
 import { windowManager } from '@qspider/tauri-window-manager';
+import { prepareBaseUrl } from '@qspider/utils';
 
 export async function init(): Promise<void> {
-  // eslint-disable-next-line no-restricted-globals
-  initialBaseUrl$.set(location.origin + '/');
+  initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   initTheme();
   onGameEnd$.set(() => navigateTo(''));
   storage$.set(new TauriStorage());

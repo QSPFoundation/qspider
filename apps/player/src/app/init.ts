@@ -25,12 +25,10 @@ import { loadQspCatalog } from '@qspider/game-shelf';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { windowManager } from '@qspider/browser-window-manager';
+import { prepareBaseUrl } from '@qspider/utils';
 
 export async function init(): Promise<void> {
-  const url = new URL(window.location.href);
-  url.search = '';
-  url.hash = '';
-  initialBaseUrl$.set(url.toString());
+  initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   onGameEnd$.set(() => navigateTo(''));
   initTheme();
   storage$.set(new WebStorage());
