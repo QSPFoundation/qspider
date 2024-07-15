@@ -13,6 +13,8 @@
 
 # Qspider
 
+Online player: [https://qspfoundation.github.io/qspider/](https://qspfoundation.github.io/qspider/)
+
 Current release - [1.2.0](https://github.com/QSPFoundation/qspider/releases/tag/v1.2.0)
 
 Windows: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.2.0/qSpider_1.2.0_x64-setup.exe)
