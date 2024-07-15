@@ -31,7 +31,7 @@
     "release": "standard-version",
     "release:dry-run": "standard-version --dry-run",
     "workspace-generator": "nx workspace-generator",
-    "prepare": "husky install",
+    "prepare": "husky || true",
     "tauri": "tauri",
     "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk"
   },

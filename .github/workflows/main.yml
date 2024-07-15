@@ -1,5 +1,8 @@
 name: Release
 
+env:
+  HUSKY: 0
+
 on:
   push:
     branches:

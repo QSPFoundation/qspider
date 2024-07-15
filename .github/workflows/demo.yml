@@ -1,5 +1,8 @@
 name: Demo player update
 
+env:
+  HUSKY: 0
+
 on: workflow_dispatch
 
 jobs:
