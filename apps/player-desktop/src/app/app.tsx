@@ -7,14 +7,8 @@ import { isSupportedFileType } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
-import {
-  baseInit$,
-  componentsRegistry$,
-  currentGame$,
-  importDesktop,
-  showError,
-  stopCurrentGame,
-} from '@qspider/game-state';
+import { baseInit$, componentsRegistry$, currentGame$, showError, stopCurrentGame } from '@qspider/game-state';
+import { importDesktop } from '@qspider/importers';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';

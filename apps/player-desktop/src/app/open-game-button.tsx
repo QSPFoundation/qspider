@@ -2,7 +2,8 @@ import React, { useCallback } from 'react';
 import { dialog } from '@tauri-apps/api';
 import { useTranslation } from 'react-i18next';
 import { games$, goToGame } from '@qspider/game-shelf';
-import { importDesktop, showError } from '@qspider/game-state';
+import { showError } from '@qspider/game-state';
+import { importDesktop } from '@qspider/importers';
 
 export const OpenGameButton: React.FC = () => {
   const { t } = useTranslation();

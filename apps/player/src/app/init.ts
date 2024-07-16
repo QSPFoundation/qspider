@@ -9,7 +9,6 @@ import {
 } from '@qspider/game-shelf';
 import {
   baseInit$,
-  importUrl,
   initDeferred$,
   initQspApi,
   initTheme,
@@ -20,6 +19,7 @@ import {
   storage$,
   windowManager$,
 } from '@qspider/game-state';
+import { importUrl } from '@qspider/importers';
 import { WebStorage } from '@qspider/web-storage';
 import { loadQspCatalog } from '@qspider/game-shelf';
 import { loadingMessage$ } from '@qspider/renderer';

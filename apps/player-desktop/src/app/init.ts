@@ -1,7 +1,6 @@
 import { games$, goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
-  importDesktop,
   initDeferred$,
   initQspApi,
   initTheme,
@@ -12,6 +11,7 @@ import {
   storage$,
   windowManager$,
 } from '@qspider/game-state';
+import { importDesktop } from '@qspider/importers';
 import { TauriStorage } from '@qspider/tauri-storage';
 import { cli } from '@tauri-apps/api';
 import { windowManager } from '@qspider/tauri-window-manager';

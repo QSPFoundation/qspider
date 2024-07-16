@@ -1,7 +1,7 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53, fetchProxyFallback } from '@qspider/utils';
 import { parse } from 'iarna-toml-esm';
-import { isSupportedArchive } from '../utils';
+import { isSupportedArchive } from './utils';
 import { importArchive } from './archive-importer';
 
 export async function importUrl(

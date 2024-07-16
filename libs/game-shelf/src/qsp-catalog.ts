@@ -1,4 +1,5 @@
-import { importUrl, showError, showNotice } from '@qspider/game-state';
+import { showError, showNotice } from '@qspider/game-state';
+import { importUrl } from '@qspider/importers';
 import { defer } from '@qspider/utils';
 import { atom } from 'xoid';
 import { games$ } from './game-shelf';

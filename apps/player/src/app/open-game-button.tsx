@@ -1,5 +1,6 @@
 import { games$, goToGame } from '@qspider/game-shelf';
-import { importFile, showError } from '@qspider/game-state';
+import { showError } from '@qspider/game-state';
+import { importFile } from '@qspider/importers';
 import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 

@@ -1,9 +1,9 @@
 import { stringify, parse, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
-import { isSupportedArchive, readSupportedArchive } from '../utils';
-import type { FileDir, File } from '../utils';
-import { storage$ } from '../storage';
+import { storage$ } from '@qspider/game-state';
+import { isSupportedArchive, readSupportedArchive } from './utils';
+import type { FileDir, File } from './utils';
 
 export async function importArchive(
   archiveName: string,

@@ -2,7 +2,7 @@ import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'iarna-toml-esm';
 import { importArchive } from './archive-importer';
-import { isSupportedArchive } from '../utils';
+import { isSupportedArchive } from './utils';
 import { cyrb53 } from '@qspider/utils';
 
 function buildGameUrl(uuid: string): string {
