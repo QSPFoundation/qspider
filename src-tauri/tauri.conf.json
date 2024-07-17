@@ -55,8 +55,8 @@
           "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinese"],
           "displayLanguageSelector": true,
           "customLanguageFiles": {
-            "Russian": "langs/Russian.nsh",
-            "Ukrainian": "langs/Ukrainian.nsh"
+            "Russian": "lang/Russian.nsh",
+            "Ukrainian": "lang/Ukrainian.nsh"
           }
         }
       }
