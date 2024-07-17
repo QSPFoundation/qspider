@@ -38,15 +38,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          include:
-            - platform: 'macos-latest' # for Arm based macs (M1 and above).
-              args: '--target aarch64-apple-darwin'
-            - platform: 'macos-latest' # for Intel based macs.
-              args: '--target x86_64-apple-darwin'
-            - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
-              args: ''
-            - platform: 'windows-latest'
-              args: ''
+        include:
+          - platform: 'macos-latest' # for Arm based macs (M1 and above).
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest' # for Intel based macs.
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
     runs-on: ${{ matrix.platform }}
     env:
       CYPRESS_INSTALL_BINARY: 0
@@ -80,24 +80,3 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
-
-    permissions:
-      contents: write
-    runs-on: ubuntu-20.04
-    needs: [create-release, build-desktop, build-web, build-web-standalone]
-
-    steps:
-      - name: publish release
-        id: publish-release
-        uses: actions/github-script@v7
-        env:
-          release_id: ${{ needs.create-release.outputs.release_id }}
-        with:
-          script: |
-            github.rest.repos.updateRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: process.env.release_id,
-              draft: false,
-              prerelease: false
-            })
