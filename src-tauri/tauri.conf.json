@@ -53,7 +53,11 @@
         },
         "nsis": {
           "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinese"],
-          "displayLanguageSelector": true
+          "displayLanguageSelector": true,
+          "customLanguageFiles": {
+            "Russian": "langs/Russian.nsh",
+            "Ukrainian": "langs/Ukrainian.nsh"
+          }
         }
       }
     },
