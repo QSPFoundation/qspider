@@ -1,15 +1,16 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Attributes, msg$, TEXT_PLACEHOLDER, useFormatVariable, useQspVariable } from '@qspider/game-state';
+import { Attributes, msg$, useQspVariable } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { CSSProperties, ReactNode } from 'react';
 import { animated } from '@react-spring/web';
-import { ContentRenderer } from '../../content-renderer';
 import { useAttributes } from '../../content/attributes';
 import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { QspScrollable } from '../../theme-core/scrollable';
 import { useAeroEffect } from './use-aero-effect';
 import { AeroOverlay } from './aero-overlay';
+import { aeroParsedMsgContent$ } from '../../render-state';
+import { Markup } from '@qspider/html-renderer';
 
 export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
@@ -50,14 +51,12 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
 };
 
 export const AeroQspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const msg = useAtom(msg$);
+  const msgContent = useAtom(aeroParsedMsgContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-msg-content');
-  const format = useFormatVariable(useFormat);
-  const toRender = format ? format.replace(TEXT_PLACEHOLDER, msg.content) : msg.content;
   return (
     <Tag style={style} {...attributes}>
       <QspScrollable attrs={{}}>
-        <ContentRenderer content={toRender} />
+        <Markup content={msgContent} />
       </QspScrollable>
     </Tag>
   );

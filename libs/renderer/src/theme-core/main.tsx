@@ -11,7 +11,8 @@ import { useAtom } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { useAttributes } from '../content/attributes';
 import { scrollContext } from './scrollable';
-import { ContentRenderer } from '../content-renderer';
+import { Markup } from '@qspider/html-renderer';
+import { parsedMainContent$ } from '../render-state';
 
 export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-main');
@@ -32,7 +33,7 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
 };
 
 export const QspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const content = useAtom(mainContent$);
+  const content = useAtom(parsedMainContent$);
   const newLocHash = useAtom(newLocHash$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-main-content');
   useEffect(() => {
@@ -40,7 +41,7 @@ export const QspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   }, [newLocHash]);
   return (
     <Tag style={style} {...attributes}>
-      <ContentRenderer content={content} />
+      <Markup content={content} />
     </Tag>
   );
 };

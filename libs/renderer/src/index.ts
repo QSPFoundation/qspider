@@ -1,7 +1,7 @@
 export * from './root';
 export * from './theme-core';
 export * from './loader';
-export * from './content-renderer';
+export * from './render-state';
 export * from './game-runner';
 
 declare global {

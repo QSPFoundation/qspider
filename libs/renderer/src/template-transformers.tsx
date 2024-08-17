@@ -1,4 +1,4 @@
-import { Node } from 'interweave';
+import { TransformCallback } from '@qspider/html-renderer';
 import { currentGameMode$ } from '@qspider/game-state';
 import { atom } from 'xoid';
 import { aeroTransformers, classicTransformers, defaultTransform, defaultTransformers } from './transformers';
@@ -16,10 +16,10 @@ const currentTransformers$ = atom((get) => {
   }
 });
 
-export const transform = (node: HTMLElement, children: Node[]): React.ReactNode | null => {
+export const transform: TransformCallback = (node, children, config) => {
   const transformer = currentTransformers$.value[node.tagName.toLowerCase()];
   if (transformer) {
-    return transformer(node, children);
+    return transformer(node, children, config);
   }
-  return defaultTransform(node, children);
+  return defaultTransform(node, children, config);
 };

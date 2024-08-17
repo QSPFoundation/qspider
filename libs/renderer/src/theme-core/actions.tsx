@@ -1,20 +1,13 @@
-import { QspListItem } from '@qsp/wasm-engine';
-import {
-  actions$,
-  Attributes,
-  execSelectedAction,
-  isActsVisible$,
-  selectAction,
-  selectedAction$,
-} from '@qspider/game-state';
+import { Attributes, execSelectedAction, isActsVisible$, selectAction, selectedAction$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, ReactElement, ReactNode, useContext } from 'react';
-import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import React from 'react';
+import { Markup } from '@qspider/html-renderer';
+import { actionsWithParsedName$, ListItemWithParsedContent } from '../render-state';
 
-export const actionContext = createContext<{ action: QspListItem; index: number }>({
-  action: { name: 'unknown', image: '' },
+export const actionContext = createContext<{ action: ListItemWithParsedContent; index: number }>({
+  action: { name: [], image: '' },
   index: -1,
 });
 
@@ -30,7 +23,7 @@ export const QspActions: React.FC<{ attrs: Attributes; children: ReactNode }> = 
 };
 
 export const QspActionsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const actions = useAtom(actions$);
+  const actions = useAtom(actionsWithParsedName$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-actions-list');
   return (
     <Tag style={style} {...attributes}>
@@ -88,7 +81,7 @@ export const QspActionName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { action } = useContext(actionContext);
   return (
     <Tag {...attributes} style={style}>
-      <ContentRenderer content={action.name} />
+      <Markup content={action.name} />
     </Tag>
   );
 };

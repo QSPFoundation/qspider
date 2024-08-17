@@ -10,7 +10,8 @@ import { useAtom } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { useAttributes } from '../content/attributes';
 import { scrollContext } from './scrollable';
-import { ContentRenderer } from '../content-renderer';
+import { Markup } from '@qspider/html-renderer';
+import { parsedStatsContent$ } from '../render-state';
 
 export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-stats');
@@ -42,10 +43,10 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 
 export const QspStatsContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-stats-content');
-  const content = useAtom(statsContent$);
+  const content = useAtom(parsedStatsContent$);
   return (
     <Tag style={style} {...attributes}>
-      <ContentRenderer content={content} />
+      <Markup content={content} />
     </Tag>
   );
 };

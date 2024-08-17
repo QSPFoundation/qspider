@@ -1,4 +1,4 @@
-import { Node } from 'interweave';
+import { TransformCallback } from '@qspider/html-renderer';
 import { DockPlace, extractAttributes } from '@qspider/game-state';
 import { Font } from './classic/font';
 import { Big, Strike, Tt } from './classic/format';
@@ -8,7 +8,7 @@ import { Area } from './classic/area';
 import { Video } from './classic/video';
 import { QspCL, QspCLDefaults, QspCLDock, QspCLLayer, QspCLPane } from './classic/classic-layout';
 
-export const classicTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
+export const classicTransformers: Record<string, TransformCallback> = {
   font: (node, children) => {
     return (
       <Font size={node.getAttribute('size')} attrs={extractAttributes(node)}>

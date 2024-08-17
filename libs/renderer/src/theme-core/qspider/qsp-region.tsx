@@ -1,14 +1,15 @@
 import { Attributes, regions$, regionsScroll$ } from '@qspider/game-state';
 import { useAtom, useSetup } from '@xoid/react';
 import { atom } from 'xoid';
-import { ContentRenderer } from '../../content-renderer';
 import { useAttributes } from '../../content/attributes';
 import { QspScrollable, scrollContext } from '../scrollable';
+import { templateParser } from '../../render-state';
+import { Markup } from '@qspider/html-renderer';
 
 export const QspRegion: React.FC<{ name: string; scrollable?: boolean; attrs: Attributes }> = (props) => {
   const content$ = useSetup((props$) => {
     const name$ = atom((get) => get(props$).name);
-    return atom((get) => get(regions$)[get(name$)]);
+    return atom((get) => templateParser.parse(get(regions$)[get(name$)]));
   }, props);
   const scroll$ = useSetup((props$) => {
     const name$ = atom((get) => get(props$).name);
@@ -21,7 +22,7 @@ export const QspRegion: React.FC<{ name: string; scrollable?: boolean; attrs: At
       <scrollContext.Provider value={scroll$}>
         <Tag data-region-name={props.name} style={style} {...attributes}>
           <QspScrollable attrs={{}}>
-            <ContentRenderer content={content} />
+            <Markup content={content} />
           </QspScrollable>
         </Tag>
       </scrollContext.Provider>
@@ -29,7 +30,7 @@ export const QspRegion: React.FC<{ name: string; scrollable?: boolean; attrs: At
   }
   return (
     <Tag data-region-name={props.name} style={style} {...attributes}>
-      <ContentRenderer content={content} />
+      <Markup content={content} />
     </Tag>
   );
 };

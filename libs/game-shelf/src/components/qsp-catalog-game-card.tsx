@@ -7,9 +7,10 @@ import { atom } from 'xoid';
 import { useTranslation } from 'react-i18next';
 import { gameSourceMap$ } from '../game-shelf';
 import { CatalogGame, moveToShelf, sourceName } from '../qsp-catalog';
-import { ContentRenderer } from '@qspider/renderer';
+import { templateParser } from '@qspider/renderer';
 import { formatBytes } from '../formatters';
 import { formatDate } from '@qspider/i18n';
+import { Markup } from '@qspider/html-renderer';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();
@@ -21,7 +22,12 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
       return existingCatalogGames?.has(gameId);
     });
   }, props);
+  const description$ = useSetup((props$) => {
+    const description = props$.focus((s) => s.game.description);
+    return atom((get) => templateParser.parse(get(description)));
+  }, props);
   const isOnShelf = useAtom(isOnShelf$);
+  const description = useAtom(description$);
   const { game } = props;
   const icon = game.icon ? game.icon.substring(game.icon.lastIndexOf('com_sobi2')) : null;
   const [isMoving, setIsMoving] = useState(false);
@@ -92,7 +98,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
             <Dialog.Content className="qspider-dialog-content">
               <ScrollArea.Root className="qspider-scroll-root">
                 <ScrollArea.Viewport className="qspider-scroll-area">
-                  <ContentRenderer content={game.description} />
+                  <Markup content={description} />
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar className="qspider-scroll-bar" orientation="vertical">
                   <ScrollArea.Thumb className="qspider-scroll-thumb" />

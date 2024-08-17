@@ -3,11 +3,12 @@ import { Attributes, input$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
 import { useAttributes } from '../content/attributes';
-import { ContentRenderer } from '../content-renderer';
 import { buttonContext } from './buttons';
 import { QspScrollable } from './scrollable';
 import { useFadeTransition } from '../hooks/fade-transition';
 import { animated } from '@react-spring/web';
+import { Markup } from '@qspider/html-renderer';
+import { parserInputContent$ } from '../render-state';
 
 export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
@@ -55,13 +56,13 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 };
 
 export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const input = useAtom(input$);
+  const inputContent = useAtom(parserInputContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   return (
     <Dialog.Description asChild>
       <QspScrollable attrs={{}}>
         <Tag style={style} {...attributes}>
-          <ContentRenderer content={input.content} />
+          <Markup content={inputContent} />
         </Tag>
       </QspScrollable>
     </Dialog.Description>

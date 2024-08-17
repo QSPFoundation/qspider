@@ -1,4 +1,4 @@
-import { Node } from 'interweave';
+import { TransformCallback } from '@qspider/html-renderer';
 import { Attributes, QUICK_SAVE_KEY, extractAttributes, view$ } from '@qspider/game-state';
 import {
   QspActions,
@@ -58,7 +58,7 @@ import { QspGameHotkeys } from '../theme-core/pause-screen/GameHotkeys';
 import { QspLocaleSelect } from './general/locale-selector';
 import { QspGameAuthor, QspGameDescription, QspGameTitle, QspGameVersion } from './general/game-data';
 
-export function defaultTransform(node: HTMLElement, children: Node[]): React.ReactNode {
+export const defaultTransform: TransformCallback = (node, children) => {
   const tagName = node.tagName.toLowerCase();
   const attributes = extractAttributes(node);
   return (
@@ -66,9 +66,9 @@ export function defaultTransform(node: HTMLElement, children: Node[]): React.Rea
       {children}
     </Element>
   );
-}
+};
 
-export const defaultTransformers: Record<string, (node: HTMLElement, children: Node[]) => React.ReactNode | null> = {
+export const defaultTransformers: Record<string, TransformCallback> = {
   'qsp-scrollable'(node, children) {
     const { scroll, ...attributes } = extractAttributes(node);
     const preparedScroll: ScrollType | undefined = isScrollType(scroll) ? scroll : undefined;

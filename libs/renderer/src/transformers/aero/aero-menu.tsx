@@ -1,22 +1,15 @@
-import {
-  Attributes,
-  DEFAULT_LIST_FORMAT,
-  DEFAULT_SELECTED_LIST_FORMAT,
-  IMAGE_PLACEHOLDER,
-  TEXT_PLACEHOLDER,
-  menu$,
-  useFormatVariable,
-  useQspVariable,
-} from '@qspider/game-state';
+import { Attributes, menu$, selectedMenuItem$, useQspVariable } from '@qspider/game-state';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useAtom } from '@xoid/react';
-import { ReactNode, useContext, useState } from 'react';
+import { ReactElement, ReactNode, useContext } from 'react';
 import { animated } from '@react-spring/web';
 import { useAttributes } from '../../content/attributes';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { menuContext } from '../../theme-core/menu';
-import { ContentRenderer } from '../../content-renderer';
 import { useAeroEffect } from './use-aero-effect';
+import { Markup } from '@qspider/html-renderer';
+import { aeroMenuWithParsedName$ } from '../../render-state';
+import React from 'react';
 
 export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
@@ -59,8 +52,28 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   );
 };
 
+export const AeroQspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const items = useAtom(aeroMenuWithParsedName$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
+  let displayIndex = 1;
+  return (
+    <Tag style={style} {...attributes}>
+      {items.map((item, index) => {
+        return item.name[0] === '-' ? (
+          <qsp-menu-separator key={index} />
+        ) : (
+          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={index}>
+            {React.Children.map(children, (child) => {
+              return React.cloneElement(child as ReactElement);
+            })}
+          </menuContext.Provider>
+        );
+      })}
+    </Tag>
+  );
+};
+
 export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs }) => {
-  const [isSelected, setIsSelected] = useState(false);
   const { item, index } = useContext(menuContext);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-menu-item');
 
@@ -69,18 +82,11 @@ export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode 
     '--menu-item-image': item.image ? `url("${item.image}")` : '',
   } as React.CSSProperties;
 
-  const format = useFormatVariable(useFormat, DEFAULT_LIST_FORMAT)
-    .replace(TEXT_PLACEHOLDER, item.name)
-    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat, DEFAULT_SELECTED_LIST_FORMAT)
-    .replace(TEXT_PLACEHOLDER, item.name)
-    .replace(IMAGE_PLACEHOLDER, item.image ? item.image : '');
-
   const onHover = (): void => {
-    setIsSelected(true);
+    selectedMenuItem$.set(index);
   };
   const onMouseLeave = (): void => {
-    setIsSelected(false);
+    selectedMenuItem$.set(-1);
   };
   const onClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.preventDefault();
@@ -89,7 +95,7 @@ export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode 
   return (
     <DropdownMenu.Item asChild>
       <Tag {...attributes} style={preapredStyle} onClick={onClick} onMouseOver={onHover} onMouseLeave={onMouseLeave}>
-        <ContentRenderer content={isSelected ? selectedFormat : format} />
+        <Markup content={item.name} />
       </Tag>
     </DropdownMenu.Item>
   );

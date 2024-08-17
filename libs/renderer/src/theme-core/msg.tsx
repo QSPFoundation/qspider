@@ -2,12 +2,13 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { Attributes, msg$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { ReactNode } from 'react';
-import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { useFadeTransition } from '../hooks/fade-transition';
 import { buttonContext } from './buttons';
 import { QspScrollable } from './scrollable';
 import { animated } from '@react-spring/web';
+import { Markup } from '@qspider/html-renderer';
+import { parsedMsgContent$ } from '../render-state';
 
 export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
@@ -39,13 +40,13 @@ export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ a
 };
 
 export const QspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const msg = useAtom(msg$);
+  const msgContent = useAtom(parsedMsgContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-msg-content');
   return (
     <Dialog.Description asChild>
       <Tag style={style} {...attributes}>
         <QspScrollable attrs={{}}>
-          <ContentRenderer content={msg.content} />
+          <Markup content={msgContent} />
         </QspScrollable>
       </Tag>
     </Dialog.Description>

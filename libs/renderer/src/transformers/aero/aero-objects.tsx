@@ -1,19 +1,31 @@
-import {
-  Attributes,
-  DEFAULT_LIST_FORMAT,
-  DEFAULT_SELECTED_LIST_FORMAT,
-  IMAGE_PLACEHOLDER,
-  selectObject,
-  TEXT_PLACEHOLDER,
-  useFormatVariable,
-} from '@qspider/game-state';
-import { ReactNode, useContext, useState } from 'react';
-import { ContentRenderer } from '../../content-renderer';
+import { Attributes, selectedObject$, selectObject } from '@qspider/game-state';
+import { ReactElement, ReactNode, useContext } from 'react';
 import { useAttributes } from '../../content/attributes';
 import { objectContext } from '../../theme-core/objects';
+import { Markup } from '@qspider/html-renderer';
+import { useAtom } from '@xoid/react';
+import { aeroObjectsWithParsedName$ } from '../../render-state';
+import React from 'react';
+
+export const AeroQspObjectsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
+  const objects = useAtom(aeroObjectsWithParsedName$);
+  const [Tag, style, attributes] = useAttributes(attrs, 'qsp-objects-list');
+  return (
+    <Tag style={style} {...attributes}>
+      {objects.map((object, index) => {
+        return (
+          <objectContext.Provider value={{ object, index }} key={index}>
+            {React.Children.map(children, (child) => {
+              return React.cloneElement(child as ReactElement);
+            })}
+          </objectContext.Provider>
+        );
+      })}
+    </Tag>
+  );
+};
 
 export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs }) => {
-  const [isSelected, setIsSelected] = useState(false);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-object');
   const { object, index } = useContext(objectContext);
 
@@ -22,25 +34,18 @@ export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNod
     '--object-image': object.image ? `url("${object.image}")` : '',
   };
 
-  const format = useFormatVariable(useFormat, DEFAULT_LIST_FORMAT)
-    .replace(TEXT_PLACEHOLDER, object.name)
-    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-  const selectedFormat = useFormatVariable(useSelectedFormat, DEFAULT_SELECTED_LIST_FORMAT)
-    .replace(TEXT_PLACEHOLDER, object.name)
-    .replace(IMAGE_PLACEHOLDER, object.image ? object.image : '');
-
   const onHover = (): void => {
-    setIsSelected(true);
+    selectedObject$.set(index);
   };
   const onMouseLeave = (): void => {
-    setIsSelected(false);
+    selectedObject$.set(-1);
   };
   const onClick = (): void => {
     selectObject(index);
   };
   return (
     <Tag {...attributes} style={preparedStyle} onClick={onClick} onMouseOver={onHover} onMouseLeave={onMouseLeave}>
-      <ContentRenderer content={isSelected ? selectedFormat : format} />
+      <Markup content={object.name} />
     </Tag>
   );
 };

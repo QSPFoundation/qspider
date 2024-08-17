@@ -1,5 +1,5 @@
 import { QspListItem } from '@qsp/wasm-engine';
-import { create } from 'xoid';
+import { atom } from 'xoid';
 
 interface MenuAtom {
   isOpen: boolean;
@@ -13,7 +13,8 @@ interface MenuAtomAction {
   clear(): void;
 }
 
-export const menu$ = create<MenuAtom, MenuAtomAction>(
+export const selectedMenuItem$ = atom(-1);
+export const menu$ = atom<MenuAtom, MenuAtomAction>(
   {
     isOpen: false,
     items: [],

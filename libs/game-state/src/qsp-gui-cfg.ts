@@ -1,6 +1,5 @@
 import { QspGUIPanel } from '@qspider/contracts';
-import { create } from 'xoid';
-import { defaultClassicTheme$ } from './themes';
+import { atom } from 'xoid';
 
 export enum WxWidgetsDirection {
   top = 1,
@@ -48,21 +47,9 @@ interface LayoutTree {
 
 const CAPTION_SIZE = 20;
 
-export const qspGuiCfg$ = create<CfgData | null>(null);
-export const qspGuiLayout$ = create<string | null>((get) => {
-  const config = get(qspGuiCfg$);
-  if (!config) return null;
-  const defaultTheme = get(defaultClassicTheme$).qsp_player?.template ?? '';
-  const layout = buildLayoutTree(config.Panels);
-  let template = '';
-  if (layout.layer) template += convertLayer(layout.layer, config.Docks, defaultTheme);
-  for (const floating of layout.floating) {
-    template += convertPane(floating, defaultTheme, true);
-  }
-  return template;
-});
+export const qspGuiCfg$ = atom<CfgData | null>(null);
 
-function buildLayoutTree(panels: PanelData[]): LayoutTree {
+export function buildLayoutTree(panels: PanelData[]): LayoutTree {
   const maxLayer = getMaxLayer(panels);
 
   const floating: PanelData[] = panels.filter((panel) => panel.floating && panel.name === 'imgview');
@@ -102,7 +89,7 @@ function cleanEmptyLayers(layer: LayoutLayer): LayoutLayer {
   return layer;
 }
 
-function convertLayer(layer: LayoutLayer, docks: Record<string, number>, defaultTheme: string): string {
+export function convertLayer(layer: LayoutLayer, docks: Record<string, number>, defaultTheme: string): string {
   return `<qsp-cl-layer>${convertDock('top', layer.top, docks, defaultTheme)}${convertDock(
     'left',
     layer.left,
@@ -142,7 +129,7 @@ function convertDock(place: string, panels: PanelData[], docks: Record<string, n
     .join('')}</qsp-cl-dock>`;
 }
 
-function convertPane(pane: PanelData, defaultTheme: string, isFloating: boolean): string {
+export function convertPane(pane: PanelData, defaultTheme: string, isFloating: boolean): string {
   return `<qsp-cl-pane visibility="${pane.name !== 'desc' ? pane.name : ''}" proportion="${
     pane.prop
   }">${extractFromDefaultTheme(pane.name, defaultTheme, isFloating)}</qsp-cl-pane>`;

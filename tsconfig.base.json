@@ -26,6 +26,7 @@
       "@qspider/docusaurus": ["libs/docusaurus/src/index.ts"],
       "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
       "@qspider/game-state": ["libs/game-state/src/index.ts"],
+      "@qspider/html-renderer": ["libs/html-renderer/src/index.ts"],
       "@qspider/i18n": ["libs/i18n/src/index.ts"],
       "@qspider/importers": ["libs/importers/src/index.ts"],
       "@qspider/renderer": ["libs/renderer/src/index.ts"],

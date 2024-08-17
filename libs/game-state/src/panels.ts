@@ -30,6 +30,7 @@ export function execSelectedAction(): void {
 }
 
 export const isObjsVisible$ = atom(false);
+export const selectedObject$ = atom(-1);
 export const objects$ = atom<QspListItem[]>([]);
 export function selectObject(index: number): void {
   qspApi$.value?.selectObject(index);

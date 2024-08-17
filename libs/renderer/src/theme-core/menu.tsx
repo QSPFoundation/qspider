@@ -1,17 +1,17 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-import { QspListItem } from '@qsp/wasm-engine';
 import { Attributes, menu$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
 import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
-import { ContentRenderer } from '../content-renderer';
 import { useAttributes } from '../content/attributes';
 import { useClickCoordinates } from '../hooks/click-coordinates';
 import React from 'react';
 import { useFadeTransition } from '../hooks/fade-transition';
 import { animated } from '@react-spring/web';
+import { ListItemWithParsedContent, menuWithParsedName$ } from '../render-state';
+import { Markup } from '@qspider/html-renderer';
 
-export const menuContext = createContext<{ item: QspListItem; index: number; displayIndex: number }>({
-  item: { name: 'unknown', image: '' },
+export const menuContext = createContext<{ item: ListItemWithParsedContent; index: number; displayIndex: number }>({
+  item: { name: [], image: '' },
   index: -1,
   displayIndex: -1,
 });
@@ -86,13 +86,13 @@ export const QspMenu: React.FC<{
 };
 
 export const QspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
-  const menu = useAtom(menu$);
+  const items = useAtom(menuWithParsedName$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
   let displayIndex = 1;
   return (
     <Tag style={style} {...attributes}>
-      {menu.items.map((item, index) => {
-        return item.name === '-' ? (
+      {items.map((item, index) => {
+        return item.name[0] === '-' ? (
           <qsp-menu-separator key={index} />
         ) : (
           <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={index}>
@@ -147,7 +147,7 @@ export const QspMenuItemName: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-name');
   return (
     <Tag style={style} {...attributes}>
-      <ContentRenderer content={item.name} />
+      <Markup content={item.name} />
     </Tag>
   );
 };

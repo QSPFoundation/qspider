@@ -5,14 +5,14 @@ import {
   isObjsVisible$,
   isStatsVisible$,
   qspGuiCfg$,
-  qspGuiLayout$,
   view$,
 } from '@qspider/game-state';
 import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
 import React, { isValidElement } from 'react';
 import { Atom, atom } from 'xoid';
-import { TemplateRenderer } from '../../template-renderer';
+import { qspGuiLayout$ } from '../../render-state';
+import { Markup } from '@qspider/html-renderer';
 
 interface DockData {
   visibility: string | null;
@@ -24,7 +24,7 @@ export const QspCL: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   if (layoutOverride) {
     return (
       <qsp-cl>
-        <TemplateRenderer template={layoutOverride} />
+        <Markup content={layoutOverride} />
       </qsp-cl>
     );
   }

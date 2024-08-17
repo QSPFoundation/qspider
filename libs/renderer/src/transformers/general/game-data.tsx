@@ -3,7 +3,8 @@ import { Attributes, currentGameEntry$ } from '@qspider/game-state';
 import { useAttributes } from '../../content/attributes';
 import { useAtom } from '@xoid/react';
 import { useTranslation } from 'react-i18next';
-import { ContentRenderer } from '../../content-renderer';
+import { currentGameDescription$ } from '../../render-state';
+import { Markup } from '@qspider/html-renderer';
 
 export const QspGameTitle: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [t] = useTranslation();
@@ -40,10 +41,10 @@ export const QspGameVersion: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
 
 export const QspGameDescription: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-game-description');
-  const currentGame = useAtom(currentGameEntry$);
+  const description = useAtom(currentGameDescription$);
   return (
     <Tag {...attributes} style={style}>
-      {currentGame?.description ? <ContentRenderer content={currentGame.description} /> : ''}
+      <Markup content={description} />
     </Tag>
   );
 };

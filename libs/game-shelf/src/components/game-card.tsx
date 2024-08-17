@@ -5,13 +5,18 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { games$, goToGame } from '../game-shelf';
-import { ContentRenderer } from '@qspider/renderer';
 import { useAtom, useSetup } from '@xoid/react';
 import { moveToShelf, qspCatalogList$ } from '../qsp-catalog';
 import { atom } from 'xoid';
+import { templateParser } from '@qspider/renderer';
+import { Markup } from '@qspider/html-renderer';
 
 export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
   const { game } = props;
+  const description$ = useSetup((props$) => {
+    const description = props$.focus((s) => s.game.description);
+    return atom((get) => templateParser.parse(get(description) ?? ''));
+  }, props);
   const { t } = useTranslation();
   const removeGame = useCallback(() => {
     games$.actions.remove(game.id);
@@ -27,6 +32,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
     });
   }, props);
   const catalogEntry = useAtom(catalogEntry$);
+  const description = useAtom(description$);
   const hasUpdates = game.meta && catalogEntry ? game.meta.source_date < catalogEntry.mod_date : false;
   const updateToLatest = (): void => {
     if (!hasUpdates || !catalogEntry) return;
@@ -98,7 +104,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
             <Dialog.Content className="qspider-dialog-content">
               <ScrollArea.Root className="qspider-scroll-root">
                 <ScrollArea.Viewport className="qspider-scroll-area">
-                  <ContentRenderer content={game.description} />
+                  <Markup content={description} />
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar className="qspider-scroll-bar" orientation="vertical">
                   <ScrollArea.Thumb className="qspider-scroll-thumb" />

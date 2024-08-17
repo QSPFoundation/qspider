@@ -71,7 +71,6 @@
     "i18next-chained-backend": "^4.6.2",
     "i18next-fetch-backend": "^6.0.0",
     "iarna-toml-esm": "^3.0.5",
-    "interweave": "^13.1.0",
     "mousetrap": "^1.6.5",
     "prism-react-renderer": "^2.3.1",
     "react": "18.3.1",
