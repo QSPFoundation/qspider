@@ -43,7 +43,7 @@ export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effect, newLocHash]);
 
-  if (!effect) return <>{children}</>;
+  if (!effect) return children;
 
   return transformation((style, item) => (
     <animated.div key={item} style={style}>
