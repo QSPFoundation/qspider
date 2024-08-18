@@ -87,8 +87,8 @@
     "@docusaurus/module-type-aliases": "^3.5.2",
     "@docusaurus/tsconfig": "^3.5.2",
     "@docusaurus/types": "^3.5.2",
-    "@eslint/eslintrc": "^2.1.1",
-    "@eslint/js": "~8.57.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.9.0",
     "@nx/eslint": "19.6.0",
     "@nx/eslint-plugin": "19.6.0",
     "@nx/js": "19.6.0",
@@ -111,16 +111,16 @@
     "@types/react-dom": "^18.3.0",
     "@types/react-transition-group": "^4.4.11",
     "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "7.17.0",
-    "@typescript-eslint/parser": "7.17.0",
+    "@typescript-eslint/eslint-plugin": "^8.1.0",
+    "@typescript-eslint/parser": "^8.1.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "eslint": "8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-jsx-a11y": "^6.8.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-jsx-a11y": "^6.9.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "husky": "^9.1.4",
     "lint-staged": "^15.2.9",
@@ -157,5 +157,10 @@
   },
   "lint-staged": {
     "*.ts": "eslint --cache --fix"
+  },
+  "overrides": {
+    "@nx/eslint-plugin": {
+      "@typescript-eslint/parser": "^8.0.0"
+    }
   }
 }
