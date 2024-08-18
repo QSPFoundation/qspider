@@ -1,40 +1,37 @@
-const { FlatCompat } = require('@eslint/eslintrc');
-const baseConfig = require('../../eslint.config.js');
+const nxEslintPlugin = require('@nx/eslint-plugin');
 const js = require('@eslint/js');
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-});
+const tseslint = require('typescript-eslint');
 
 module.exports = [
-  ...baseConfig,
+  { ignores: ['libs/docusaurus/eslint.config.js'] },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  { plugins: { '@nx': nxEslintPlugin } },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {},
-  },
-  {
-    files: ['**/*.ts', '**/*.tsx'],
-    rules: {},
-  },
-  {
-    files: ['**/*.js', '**/*.jsx'],
-    rules: {},
-  },
-  ...compat.config({ parser: 'jsonc-eslint-parser' }).map((config) => ({
-    ...config,
-    files: ['**/*.json'],
     rules: {
-      ...config.rules,
-      '@nx/dependency-checks': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+      '@nx/enforce-module-boundaries': [
+        'error',
+        {
+          enforceBuildableLibDependency: true,
+          allow: [],
+          depConstraints: [
+            {
+              sourceTag: '*',
+              onlyDependOnLibsWithTags: ['*'],
+            },
+          ],
+        },
+      ],
     },
-  })),
-  ...compat.config({ parser: 'jsonc-eslint-parser' }).map((config) => ({
-    ...config,
-    files: ['./package.json', './executors.json'],
-    rules: {
-      ...config.rules,
-      '@nx/nx-plugin-checks': 'error',
-    },
-  })),
+  },
 ];
