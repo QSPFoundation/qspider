@@ -1,19 +1,19 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "notes": "",
-  "pub_date": "2024-02-10T11:06:12.960Z",
+  "pub_date": "2024-07-15T13:27:47.306Z",
   "platforms": {
-    "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlZpSFJUUUJKZkFlekJLRTd4ME4rOFlzeVo1TGltT3JqMnRYTG5HL0hqYUEvYzh2MDFWOTNvb1o2ME1TLzhWRWwySFJJTGlOZ2FqUXRRSTZuczVhZ2djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzA3NTYyOTUxCWZpbGU6cVNwaWRlci5hcHAudGFyLmd6Ck5PM0FSelVUTEE5ZzZ0dys3V1B4c2pmVC9yL0VLUjFMSnVtY0tTNW0yNVllbWtSQ0JKSUpueS9IRmNFbXI1VWwrbXdsV1JpUmVMNEhMZk12K3pSeUFnPT0K",
-      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_x64.app.tar.gz"
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlpGcjdvMVJrR0JCVGZUT3VwTFluZUhiNzdpV2hDeXZ0RUdmRy93a1JFMVFIYThFQ3N5Ylg1K1BmZFI0YVVub0ZzczRuT3N5akJuU2ZXK2dNb090QWdRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxMDQ5NzI1CWZpbGU6cVNwaWRlci5hcHAudGFyLmd6CllsSTFYcnlzb0hrKytxS0hQbXpkaDd1N1NTL09FUEdTRjkxS2ZlaWx2NXBMZytDUlhyaEg4RG5CNGp1TmxJdnF6WTk4OERJS2U2RFNHanV6NFVKZ0RRPT0K",
+      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_aarch64.app.tar.gz"
     },
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlJybU1wVnprei9UYmxHMU9ZalBKU1VrRUxucXQxaExENlBWa1NydkVzNG9CYzVLMmtHYUh6VjgwVVZjRVJnL0IweUw5R2hoZGxNZW92emFUdnJwblFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzA3NTYyOTU5CWZpbGU6cS1zcGlkZXJfMS4xLjBfYW1kNjQuQXBwSW1hZ2UudGFyLmd6ClFpUzhMdmNKY0NmOGl5M0F5RWZybC92UVBmNkg3STBTZ1FxQ3duZnFxdENZMVhDdmJWeTlYVkpmd0lZbjYwZGRmdkpHMTlpcHU2amY3K3pNR09RakRBPT0K",
-      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/q-spider_1.1.0_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RmRtZnc3Q1RBTFZRMllyK3YzR0IrNFBZcS9zSWcwOGs2QWEvWGh6VWxIbHJta25FbW41RVF4Yk0vSklsUU8zdWJ4aUpFbUgwUWE3WWNqZFN6TTJSTndvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxMDUwMDQwCWZpbGU6cS1zcGlkZXJfMS4yLjBfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CmlDTm1IK1N1bkVrMXBjcEU4d3IwTjFqaWJQYk5jVVd5WXZwVUZmUEdodXVIajlhRnozUmtoVURuV1Q0MlpIQnBOcWVTWXU1Q2I5N0RNVzFrTjhrNkRBPT0K",
+      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/q-spider_1.2.0_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlRmKyt0U25PQk9CbWxZZi9PK0Q0UXBaV3Z1WVdEUU9mSTFRRFp0ZWcxQjRmeUVMa0dGM2Vzd0w3d1dZQXlMMndRdDYxMnFVSEI4MWhNQTVNNXU0aUE4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzA3NTYzMTY5CWZpbGU6cVNwaWRlcl8xLjEuMF94NjRfZW4tVVMubXNpLnppcAplVVNlTmhmblRDeCtHWU9VTzVoTUR5M0ZZaGw1NnhJc3A1eXkrSzJSUUlkVkV4YUpENm9EbFpYc0VCcmd0Q2JydzQ2bitvY2c0RXMxTnVLY3BmZklCUT09Cg==",
-      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_1.1.0_x64_en-US.msi.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlZUc1BNaWx2djR6TTFmZWVCVHg2ZEtRaVlIWjJtUU00OUM5RjloUmZwK3doQ3hGU0pVd2xpbHE5T3NSdEh2eEZJL0lwdGgrd3F1WnhlWXZDNVFCQ3dRPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzIxMDUwMDY0CWZpbGU6cVNwaWRlcl8xLjIuMF94NjQtc2V0dXAubnNpcy56aXAKQzRmVFFYT2w2NDZnR1F5aVIzdUhSQ3FJdHhMSXN1d0VPOXpVb2JOb0lkUjNxdCtFenBPam5oMmZmUG5aSHMwR3VLQ1N5MGU5bjJMUlNyTThoL3p5Qnc9PQo=",
+      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_1.2.0_x64-setup.nsis.zip"
     }
   }
 }

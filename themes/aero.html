@@ -412,23 +412,17 @@
         <aero-newloc-effect>
           <qsp-stats>
             <qsp-scrollable>
-              <qsp-stats-content use-format="$STAT_FORMAT"></qsp-stats-content>
+              <qsp-stats-content></qsp-stats-content>
             </qsp-scrollable>
           </qsp-stats>
           <qsp-main>
             <qsp-scrollable>
-              <qsp-main-content use-format="$MAIN_FORMAT"></qsp-main-content>
+              <qsp-main-content></qsp-main-content>
               <qsp-show when="INTEGRATED_ACTIONS=1">
                 <div class="integrated-actions">
                   <qsp-actions>
                     <qsp-actions-list>
-                      <qsp-action
-                        tag="button"
-                        class="action-item"
-                        use-format="$ACTION_FORMAT"
-                        use-selected-format="$SEL_ACTION_FORMAT"
-                      >
-                      </qsp-action>
+                      <qsp-action tag="button" class="action-item"> </qsp-action>
                     </qsp-actions-list>
                   </qsp-actions>
                 </div>
@@ -438,12 +432,7 @@
           <qsp-objects>
             <qsp-scrollable>
               <qsp-objects-list>
-                <qsp-object
-                  tag="button"
-                  class="action-item"
-                  use-format="$OBJECT_FORMAT"
-                  use-selected-format="$SEL_OBJECT_FORMAT"
-                ></qsp-object>
+                <qsp-object tag="button" class="action-item"></qsp-object>
               </qsp-objects-list>
             </qsp-scrollable>
           </qsp-objects>
@@ -451,13 +440,7 @@
             <qsp-actions class="regular-actions">
               <qsp-scrollable>
                 <qsp-actions-list>
-                  <qsp-action
-                    tag="button"
-                    class="action-item"
-                    use-format="$ACTION_FORMAT"
-                    use-selected-format="$SEL_ACTION_FORMAT"
-                  >
-                  </qsp-action>
+                  <qsp-action tag="button" class="action-item"> </qsp-action>
                 </qsp-actions-list>
               </qsp-scrollable>
             </qsp-actions>
@@ -471,11 +454,11 @@
         </qsp-view>
         <div class="aero-player-foreground"></div>
         <qsp-msg>
-          <qsp-msg-content use-format="$MSG_FORMAT"></qsp-msg-content>
+          <qsp-msg-content></qsp-msg-content>
           <qsp-ok-button focus></qsp-ok-button>
         </qsp-msg>
         <qsp-input>
-          <qsp-input-content use-format="$INPUT_FORMAT"></qsp-input-content>
+          <qsp-input-content></qsp-input-content>
           <qsp-input-tag></qsp-input-tag>
           <qsp-ok-button></qsp-ok-button>
           <qsp-cancel-button></qsp-cancel-button>
@@ -484,12 +467,7 @@
           <div class="list-wrapper">
             <qsp-scrollable>
               <qsp-menu-list tag="nav" role="menu">
-                <qsp-menu-item
-                  tag="button"
-                  class="action-item"
-                  use-format="$MENU_FORMAT"
-                  use-selected-format="$SEL_MENU_FORMAT"
-                ></qsp-menu-item>
+                <qsp-menu-item tag="button" class="action-item"></qsp-menu-item>
               </qsp-menu-list>
             </qsp-scrollable>
           </div>
