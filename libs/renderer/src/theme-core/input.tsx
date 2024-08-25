@@ -8,7 +8,7 @@ import { QspScrollable } from './scrollable';
 import { useFadeTransition } from '../hooks/fade-transition';
 import { animated } from '@react-spring/web';
 import { Markup } from '@qspider/html-renderer';
-import { parserInputContent$ } from '../render-state';
+import { parsedInputContent$ } from '../render-state';
 
 export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const input = useAtom(input$);
@@ -56,13 +56,13 @@ export const QspInput: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 };
 
 export const QspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const inputContent = useAtom(parserInputContent$);
+  const { content, key } = useAtom(parsedInputContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   return (
     <Dialog.Description asChild>
       <QspScrollable attrs={{}}>
-        <Tag style={style} {...attributes}>
-          <Markup content={inputContent} />
+        <Tag style={style} {...attributes} key={key}>
+          <Markup content={content} />
         </Tag>
       </QspScrollable>
     </Dialog.Description>

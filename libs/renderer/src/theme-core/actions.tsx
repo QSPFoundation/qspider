@@ -29,7 +29,7 @@ export const QspActionsList: React.FC<{ attrs: Attributes; children: ReactNode }
     <Tag style={style} {...attributes}>
       {actions.map((action, index) => {
         return (
-          <actionContext.Provider value={{ action, index }} key={index}>
+          <actionContext.Provider value={{ action, index }} key={action.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}

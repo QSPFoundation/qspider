@@ -9,6 +9,7 @@ import {
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
   defaultClassicTheme$,
+  hasBrowserTranslation$,
   IMAGE_PLACEHOLDER,
   input$,
   mainContent$,
@@ -61,46 +62,59 @@ export const qspGuiLayout$ = atom((get) => {
   return templateParser.parse(template, false);
 });
 
+let mainContentKey = 0;
 export const parsedMainContent$ = atom((get) => {
   const content = get(mainContent$);
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) mainContentKey = 0;
+  return { content: templateParser.parse(content), key: mainContentKey++ };
 });
 
+let statsContentKey = 0;
 export const parsedStatsContent$ = atom((get) => {
   const content = get(statsContent$);
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) statsContentKey = 0;
+  return { content: templateParser.parse(content), key: statsContentKey++ };
 });
 
+let msgKey = 0;
 export const parsedMsgContent$ = atom((get) => {
   const msg = get(msg$);
-  return templateParser.parse(msg.content);
+  if (!get(hasBrowserTranslation$)) msgKey = 0;
+  return { content: templateParser.parse(msg.content), key: msgKey++ };
 });
 
-export const parserInputContent$ = atom((get) => {
+let inputKey = 0;
+export const parsedInputContent$ = atom((get) => {
   const input = get(input$);
-  return templateParser.parse(input.content);
+  if (!get(hasBrowserTranslation$)) inputKey = 0;
+  return { content: templateParser.parse(input.content), key: inputKey++ };
 });
 
+let actionsKey = 0;
 export const actionsWithParsedName$ = atom((get) => {
   const actions = get(actions$);
-  return actions.map((a) => ({ ...a, name: templateParser.parse(a.name) }));
+  if (!get(hasBrowserTranslation$)) actionsKey = 0;
+  return actions.map((a) => ({ ...a, name: templateParser.parse(a.name), key: actionsKey++ }));
 });
 
+let objectsKey = 0;
 export const objectsWithParsedName$ = atom((get) => {
   const objects = get(objects$);
-  return objects.map((o) => ({ ...o, name: templateParser.parse(o.name) }));
+  if (!get(hasBrowserTranslation$)) objectsKey = 0;
+  return objects.map((o) => ({ ...o, name: templateParser.parse(o.name), key: objectsKey++ }));
 });
 
+let menuKey = 0;
 export const menuWithParsedName$ = atom((get) => {
   const menu = get(menu$);
-  return menu.items.map((o) => ({ ...o, name: templateParser.parse(o.name) }));
+  if (!get(hasBrowserTranslation$)) menuKey = 0;
+  return menu.items.map((o) => ({ ...o, name: templateParser.parse(o.name), key: menuKey++ }));
 });
 
 function createVariableAtom(name: string, defaultValue?: string): Atom<string> {
   const atom$ = atom(defaultValue ?? '');
   qspApi$.watch((api) => {
     api?.watchVariable(name, 0, (value) => {
-      console.log('watchVariable', name, value);
       atom$.set((value as unknown as string) || defaultValue || '');
     });
   });
@@ -114,7 +128,8 @@ export const aeroParsedMainContent$ = atom((get) => {
   if (format) {
     content = format.replace(TEXT_PLACEHOLDER, content);
   }
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) mainContentKey = 0;
+  return { content: templateParser.parse(content), key: mainContentKey++ };
 });
 
 const statsFormat$ = createVariableAtom('$STATS_FORMAT');
@@ -124,7 +139,8 @@ export const aeroParsedStatsContent$ = atom((get) => {
   if (format) {
     content = format.replace(TEXT_PLACEHOLDER, content);
   }
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) statsContentKey = 0;
+  return { content: templateParser.parse(content), key: statsContentKey++ };
 });
 
 const inputFormat$ = createVariableAtom('$INPUT_FORMAT');
@@ -134,7 +150,8 @@ export const aeroParsedInputContent$ = atom((get) => {
   if (format) {
     content = format.replace(TEXT_PLACEHOLDER, content);
   }
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) inputKey = 0;
+  return { content: templateParser.parse(content), key: inputKey++ };
 });
 
 const msgFormat$ = createVariableAtom('$MSG_FORMAT');
@@ -144,7 +161,8 @@ export const aeroParsedMsgContent$ = atom((get) => {
   if (format) {
     content = format.replace(TEXT_PLACEHOLDER, content);
   }
-  return templateParser.parse(content);
+  if (!get(hasBrowserTranslation$)) msgKey = 0;
+  return { content: templateParser.parse(content), key: msgKey++ };
 });
 
 const actionFormat$ = createVariableAtom('$ACTION_FORMAT', DEFAULT_LIST_FORMAT);
@@ -155,6 +173,7 @@ export const aeroActionsWithParsedName$ = atom((get) => {
   const format = get(actionFormat$);
   const selectedFormat = get(selectedActionFormat$);
   const selectedAction = get(selectedAction$);
+  if (!get(hasBrowserTranslation$)) actionsKey = 0;
 
   return actions.map((a, index) => {
     const currentFormat = index === selectedAction ? selectedFormat : format;
@@ -163,6 +182,7 @@ export const aeroActionsWithParsedName$ = atom((get) => {
       name: templateParser.parse(
         currentFormat.replace(TEXT_PLACEHOLDER, a.name).replace(IMAGE_PLACEHOLDER, a.image || ''),
       ),
+      key: actionsKey++,
     };
   });
 });
@@ -176,6 +196,8 @@ export const aeroObjectsWithParsedName$ = atom((get) => {
   const selectedFormat = get(selectedObjectFormat$);
   const selectedObject = get(selectedObject$);
 
+  if (!get(hasBrowserTranslation$)) objectsKey = 0;
+
   return objects.map((o, index) => {
     const currentFormat = index === selectedObject ? selectedFormat : format;
     return {
@@ -183,6 +205,7 @@ export const aeroObjectsWithParsedName$ = atom((get) => {
       name: templateParser.parse(
         currentFormat.replace(TEXT_PLACEHOLDER, o.name).replace(IMAGE_PLACEHOLDER, o.image || ''),
       ),
+      key: objectsKey++,
     };
   });
 });
@@ -196,6 +219,8 @@ export const aeroMenuWithParsedName$ = atom((get) => {
   const selectedFormat = get(selectedMenuFormat$);
   const selectedItem = get(selectedMenuItem$);
 
+  if (!get(hasBrowserTranslation$)) menuKey = 0;
+
   return menu.items.map((o, index) => {
     const currentFormat = index === selectedItem ? selectedFormat : format;
     return {
@@ -203,6 +228,7 @@ export const aeroMenuWithParsedName$ = atom((get) => {
       name: templateParser.parse(
         currentFormat.replace(TEXT_PLACEHOLDER, o.name).replace(IMAGE_PLACEHOLDER, o.image || ''),
       ),
+      key: menuKey++,
     };
   });
 });

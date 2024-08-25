@@ -51,12 +51,12 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
 };
 
 export const AeroQspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const msgContent = useAtom(aeroParsedMsgContent$);
+  const { content, key } = useAtom(aeroParsedMsgContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-msg-content');
   return (
-    <Tag style={style} {...attributes}>
+    <Tag style={style} {...attributes} key={key}>
       <QspScrollable attrs={{}}>
-        <Markup content={msgContent} />
+        <Markup content={content} />
       </QspScrollable>
     </Tag>
   );

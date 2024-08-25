@@ -5,10 +5,10 @@ import { Markup } from '@qspider/html-renderer';
 import { aeroParsedMainContent$ } from '../../render-state';
 
 export const AeroQspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const content = useAtom(aeroParsedMainContent$);
+  const { content, key } = useAtom(aeroParsedMainContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-main-content');
   return (
-    <Tag style={style} {...attributes}>
+    <Tag style={style} {...attributes} key={key}>
       <Markup content={content} />
     </Tag>
   );

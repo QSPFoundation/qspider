@@ -14,7 +14,7 @@ export const AeroQspObjectsList: React.FC<{ attrs: Attributes; children: ReactNo
     <Tag style={style} {...attributes}>
       {objects.map((object, index) => {
         return (
-          <objectContext.Provider value={{ object, index }} key={index}>
+          <objectContext.Provider value={{ object, index }} key={object.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}

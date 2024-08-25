@@ -14,7 +14,7 @@ export const AeroQspActionsList: React.FC<{ attrs: Attributes; children: ReactNo
     <Tag style={style} {...attributes}>
       {actions.map((action, index) => {
         return (
-          <actionContext.Provider value={{ action, index }} key={index}>
+          <actionContext.Provider value={{ action, index }} key={action.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}

@@ -66,13 +66,13 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
 };
 
 export const AeroQspInputContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const inputContent = useAtom(aeroParsedInputContent$);
+  const { content, key } = useAtom(aeroParsedInputContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-input-content');
   return (
     <Dialog.Description asChild>
-      <Tag style={style} {...attributes}>
+      <Tag style={style} {...attributes} key={key}>
         <QspScrollable attrs={{}}>
-          <Markup content={inputContent} />
+          <Markup content={content} />
         </QspScrollable>
       </Tag>
     </Dialog.Description>

@@ -40,13 +40,13 @@ export const QspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ a
 };
 
 export const QspMsgContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const msgContent = useAtom(parsedMsgContent$);
+  const { content, key } = useAtom(parsedMsgContent$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-msg-content');
   return (
     <Dialog.Description asChild>
-      <Tag style={style} {...attributes}>
+      <Tag style={style} {...attributes} key={key}>
         <QspScrollable attrs={{}}>
-          <Markup content={msgContent} />
+          <Markup content={content} />
         </QspScrollable>
       </Tag>
     </Dialog.Description>

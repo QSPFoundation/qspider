@@ -93,9 +93,9 @@ export const QspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> =
     <Tag style={style} {...attributes}>
       {items.map((item, index) => {
         return item.name[0] === '-' ? (
-          <qsp-menu-separator key={index} />
+          <qsp-menu-separator key={item.key} />
         ) : (
-          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={index}>
+          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={item.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}

@@ -6,9 +6,9 @@ import { aeroParsedStatsContent$ } from '../../render-state';
 
 export const AeroQspStatsContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-stats-content');
-  const content = useAtom(aeroParsedStatsContent$);
+  const { content, key } = useAtom(aeroParsedStatsContent$);
   return (
-    <Tag style={style} {...attributes}>
+    <Tag style={style} {...attributes} key={key}>
       <Markup content={content} />
     </Tag>
   );

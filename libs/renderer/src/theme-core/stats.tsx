@@ -43,9 +43,9 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 
 export const QspStatsContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-stats-content');
-  const content = useAtom(parsedStatsContent$);
+  const { content, key } = useAtom(parsedStatsContent$);
   return (
-    <Tag style={style} {...attributes}>
+    <Tag style={style} {...attributes} key={key}>
       <Markup content={content} />
     </Tag>
   );

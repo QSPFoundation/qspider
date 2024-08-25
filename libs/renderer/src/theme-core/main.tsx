@@ -33,14 +33,14 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
 };
 
 export const QspMainContent: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
-  const content = useAtom(parsedMainContent$);
+  const { key, content } = useAtom(parsedMainContent$);
   const newLocHash = useAtom(newLocHash$);
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-main-content');
   useEffect(() => {
     mainContent$.set(nextMainContent$.value);
   }, [newLocHash]);
   return (
-    <Tag style={style} {...attributes}>
+    <Tag style={style} {...attributes} key={key}>
       <Markup content={content} />
     </Tag>
   );
