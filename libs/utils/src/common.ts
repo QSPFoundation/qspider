@@ -74,7 +74,7 @@ export function prepareBaseUrl(rawBaseUrl: string): string {
   const url = new URL(rawBaseUrl);
   url.search = '';
   url.hash = '';
-  let baseUrl = url.toString();
-  baseUrl = baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1);
-  return baseUrl;
+  const baseUrl = url.toString();
+  if (baseUrl.endsWith(url.hostname)) return baseUrl + "/";
+  return baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1);
 }
