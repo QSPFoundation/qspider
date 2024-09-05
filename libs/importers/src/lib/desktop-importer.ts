@@ -19,6 +19,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
 
   const urlPrefix = buildGameUrl(uuid);
 
+  // TODO replace with loader
   const content = await fetch(`${urlPrefix}${name}`).then((r) => r.arrayBuffer());
   if (isSupportedArchive(content)) {
     return await importArchive(name, content);
@@ -27,6 +28,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
   const gameConfigUrl = `${urlPrefix}game.cfg`;
 
   try {
+    // TODO replace with loader
     const rawConfig = await fetch(gameConfigUrl).then((r) => r.text());
     const config = parse(rawConfig) as unknown as PlayerConfig;
     const found = config.game.find((game) => game.file === name);
@@ -49,7 +51,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
         },
       },
     ];
-  } catch (err) {
+  } catch {
     return [
       {
         id: cyrb53(filePath),

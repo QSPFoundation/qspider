@@ -10,6 +10,7 @@ export async function runConfig(url: string): Promise<GameShelfEntry> {
   if (!cleanUrl.endsWith('.cfg')) {
     throw new Error('Only .cfg files are supported');
   }
+  // TODO? replace here as well
   const content = await fetchProxyFallback(url).then((r) => {
     if (!r.ok) throw new Error(`Failed to load url ${url}`);
     return r.text();

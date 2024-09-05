@@ -38,6 +38,7 @@ export const windowManager: IWindowManager = {
     appWindow.setTitle(title);
   },
   async setIcon(icon: string): Promise<void> {
+    // TODO replace with loader
     const source = await fetch(icon).then((r) => r.arrayBuffer());
     appWindow.setIcon(new Uint8Array(source));
   },

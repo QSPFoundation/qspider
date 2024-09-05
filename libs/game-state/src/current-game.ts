@@ -17,6 +17,7 @@ import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { windowManager$ } from './window-manager';
 import { parse } from 'iarna-toml-esm';
+// TODO replace with game loader
 import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
@@ -155,7 +156,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     currentTheme$.set(CLASSIC_THEME);
   }
   loadThemeTranslations(currentTranslations$.value);
-  descriptor && applyWindowSettings(descriptor.window);
+  if (descriptor) applyWindowSettings(descriptor.window);
   let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
   if (!gameSource) throw new Error('Failed to load game');
   const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
@@ -165,7 +166,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   qspApi$.value?.openGame(gameSource, true);
   qspApi$.value?.restartGame();
   currentGameEntry$.set(entry);
-  descriptor && currentGame$.set(descriptor);
+  if (descriptor) currentGame$.set(descriptor);
   loadSaveList();
 }
 

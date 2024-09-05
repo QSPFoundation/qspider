@@ -156,7 +156,7 @@
     }
   },
   "lint-staged": {
-    "*.ts": "eslint --cache --fix"
+    "*.ts": "eslint"
   },
   "overrides": {
     "@nx/eslint-plugin": {

@@ -1,4 +1,5 @@
 import { GameDescriptor } from '@qspider/contracts';
+// TODO replace with data loader
 import { defer, fetchProxyFallback } from '@qspider/utils';
 import { cleanPath } from './utils';
 import { baseUrl$ } from './current-game';
