@@ -16,23 +16,18 @@ import {
   onGameEnd$,
   registerDefaultThemes,
   showError,
-  storage$,
-  windowManager$,
 } from '@qspider/game-state';
 import { importUrl } from '@qspider/importers';
-import { WebStorage } from '@qspider/web-storage';
 import { loadQspCatalog } from '@qspider/game-shelf';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
-import { windowManager } from '@qspider/browser-window-manager';
 import { prepareBaseUrl } from '@qspider/utils';
 
 export async function init(): Promise<void> {
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   onGameEnd$.set(() => navigateTo(''));
   initTheme();
-  storage$.set(new WebStorage());
-  windowManager$.set(windowManager);
+
   await loadGamesFromStorage();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);

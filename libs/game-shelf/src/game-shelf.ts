@@ -1,14 +1,8 @@
 import { GameShelfEntry } from '@qspider/contracts';
-import {
-  currentGameEntry$,
-  initDeferred$,
-  initialBaseUrl$,
-  runGame,
-  stopCurrentGame,
-  storage$,
-} from '@qspider/game-state';
+import { currentGameEntry$, initDeferred$, initialBaseUrl$, runGame, stopCurrentGame } from '@qspider/game-state';
 import { atom } from 'xoid';
 import history from 'history/browser';
+import { getStorage } from '@qspider/env';
 
 interface GamesActions {
   add(id: string, data: GameShelfEntry): void;
@@ -28,14 +22,14 @@ export const currentMode$ = atom('shelf');
 export const games$ = atom<Record<string, GameShelfEntry>, GamesActions>({}, (atom) => {
   return {
     add(id: string, data: GameShelfEntry): void {
-      storage$.value?.addGame(id, data).catch(console.error);
+      getStorage().addGame(id, data).catch(console.error);
       atom.update((s) => ({
         ...s,
         [id]: data,
       }));
     },
     update(id: string, data: Partial<GameShelfEntry>): void {
-      storage$.value?.updateGame(id, data).catch(console.error);
+      getStorage().updateGame(id, data).catch(console.error);
       atom.update((s) => ({
         ...s,
         [id]: {
@@ -45,7 +39,7 @@ export const games$ = atom<Record<string, GameShelfEntry>, GamesActions>({}, (at
       }));
     },
     remove(id): void {
-      storage$.value?.removeGame(id).catch(console.error);
+      getStorage().removeGame(id).catch(console.error);
       atom.update((s) => {
         const { [id]: _, ...rest } = s;
         return rest;
@@ -89,7 +83,7 @@ export async function processLocationChange(location: string): Promise<void> {
 }
 
 export async function loadGamesFromStorage(): Promise<void> {
-  const games = await storage$.value?.getGames();
+  const games = await getStorage().getGames();
   if (games) {
     games$.set(games);
   }

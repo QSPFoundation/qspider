@@ -1,11 +1,11 @@
 /* eslint-disable no-restricted-globals */
 import { clientsClaim } from 'workbox-core';
-import { WebStorage } from '@qspider/web-storage';
+import { getStorage } from '@qspider/env';
 import { NetworkOnly, Strategy, StrategyHandler } from 'workbox-strategies';
 import { Route, registerRoute } from 'workbox-routing';
 
 const sw = self as unknown as ServiceWorkerGlobalScope;
-const storage = new WebStorage();
+const storage = getStorage();
 
 clientsClaim();
 

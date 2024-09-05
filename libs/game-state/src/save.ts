@@ -3,7 +3,7 @@ import { create } from 'xoid';
 import { withCounterPaused } from './counter';
 import { currentGameEntry$, onRestore } from './current-game';
 import { qspApi$ } from './qsp-api';
-import { storage$ } from './storage';
+import { getStorage } from '@qspider/env';
 import { closePauseScreen } from './pause-screen';
 
 export const saveLoadedCallback$ = create<null | (() => void)>();
@@ -21,9 +21,9 @@ export async function loadSaveList(): Promise<void> {
     namedSlots$.set([]);
     return;
   }
-  const slots = await storage$.value?.getSavedSlots(currentGame.id);
+  const slots = await getStorage().getSavedSlots(currentGame.id);
   saveSlots$.set(slots || []);
-  const named = await storage$.value?.getNamedSaves(currentGame.id);
+  const named = await getStorage().getNamedSaves(currentGame.id);
   namedSlots$.set(named || []);
 }
 
@@ -32,7 +32,7 @@ export async function saveToSlot(slot: number): Promise<void> {
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
   if (saveData) {
-    await storage$.value?.saveBySlot(currentGame.id, slot, saveData);
+    await getStorage().saveBySlot(currentGame.id, slot, saveData);
   }
   const saved = gameSavedCallback$.value;
   saved?.();
@@ -46,7 +46,7 @@ export async function saveToPath(path: string): Promise<void> {
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
   if (saveData) {
-    await storage$.value?.saveByKey(currentGame.id, path, saveData);
+    await getStorage().saveByKey(currentGame.id, path, saveData);
   }
   const saved = gameSavedCallback$.value;
   saved?.();
@@ -58,7 +58,7 @@ export async function saveToPath(path: string): Promise<void> {
 export async function restoreFromSlot(slot: number): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  const saveData = await storage$.value?.getSaveDataBySlot(currentGame.id, slot);
+  const saveData = await getStorage().getSaveDataBySlot(currentGame.id, slot);
   const loaded = saveLoadedCallback$.value;
   loaded?.();
   saveLoadedCallback$.set(null);
@@ -71,7 +71,7 @@ export async function restoreFromSlot(slot: number): Promise<void> {
 export async function restoreFromPath(path: string): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  const saveData = await storage$.value?.getSaveDataByKey(currentGame.id, path);
+  const saveData = await getStorage().getSaveDataByKey(currentGame.id, path);
   const loaded = saveLoadedCallback$.value;
   loaded?.();
   saveLoadedCallback$.set(null);
@@ -84,14 +84,14 @@ export async function restoreFromPath(path: string): Promise<void> {
 export async function clearSlot(slot: number): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  await storage$.value?.clearSaveSlot(currentGame.id, slot);
+  await getStorage().clearSaveSlot(currentGame.id, slot);
   await loadSaveList();
 }
 
 export async function clearPath(path: string): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  await storage$.value?.clearSaveKey(currentGame.id, path);
+  await getStorage().clearSaveKey(currentGame.id, path);
   await loadSaveList();
 }
 
@@ -103,7 +103,7 @@ export async function quickSave(): Promise<void> {
   await withCounterPaused(async () => {
     const saveData = qspApi$.value?.saveGame();
     if (!saveData) return;
-    await storage$.value?.saveByKey(currentGame.id, QUICK_SAVE_KEY, saveData);
+    await getStorage().saveByKey(currentGame.id, QUICK_SAVE_KEY, saveData);
   });
 }
 
@@ -111,7 +111,7 @@ export async function quickLoad(): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   await withCounterPaused(async () => {
-    const saveData = await storage$.value?.getSaveDataByKey(currentGame.id, QUICK_SAVE_KEY);
+    const saveData = await getStorage().getSaveDataByKey(currentGame.id, QUICK_SAVE_KEY);
     if (saveData) {
       qspApi$.value?.loadSave(saveData);
       onRestore();

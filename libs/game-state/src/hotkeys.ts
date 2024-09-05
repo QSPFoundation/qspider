@@ -6,7 +6,7 @@ import { actions$, canSelectAction, execSelectedAction, selectAction } from './p
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
 import create from 'xoid';
-import { windowManager$ } from './window-manager';
+import { windowManager } from '@qspider/env';
 
 interface GlobalHotKey {
   keys: string;
@@ -169,7 +169,7 @@ export function prettifyHotkeys(keys: string): PrettyHotkeys[] {
       if (symbol in prettySymbolsCommon) {
         symbol = prettySymbolsCommon[symbol];
       }
-      if (windowManager$.value?.platform === 'Macintosh' && plused[j] in prettySymbolsMacOs) {
+      if (windowManager.platform === 'Macintosh' && plused[j] in prettySymbolsMacOs) {
         symbol = prettySymbolsMacOs[plused[j]];
       }
       prettified.push({

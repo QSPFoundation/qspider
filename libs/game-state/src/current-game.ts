@@ -15,7 +15,7 @@ import { muted$, sounds$ } from './audio';
 import { closePauseScreen, isPauseScreenVisible$, openPauseScreen, pauseScreenCurrentPanel$ } from './pause-screen';
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
-import { windowManager$ } from './window-manager';
+import { windowManager } from '@qspider/env';
 import { parse } from 'iarna-toml-esm';
 // TODO replace with game loader
 import { fetchProxyFallback } from '@qspider/utils';
@@ -131,13 +131,13 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
   }
 
-  windowManager$.value?.setTitle(entry.title);
+  windowManager.setTitle(entry.title);
   setupGlobalHotKeys();
   if (descriptor?.hotkeys) {
     setupCustomHotKeys(descriptor.hotkeys);
   }
   if (descriptor?.resources?.icon) {
-    windowManager$.value?.setIcon(descriptor.resources.icon);
+    windowManager.setIcon(descriptor.resources.icon);
   }
   loadAdditionalResources(descriptor?.resources);
   if (descriptor?.themes) {
@@ -174,21 +174,21 @@ let wasResized = false;
 async function applyWindowSettings(window: GameDescriptor['window']): Promise<void> {
   if (window) {
     if (window.width && window.height) {
-      await windowManager$.value?.resize(window.width, window.height);
+      await windowManager.resize(window.width, window.height);
       wasResized = true;
     }
     const resizable = window.resizable ?? true;
-    windowManager$.value?.setResizable(resizable);
+    windowManager.setResizable(resizable);
     if (resizable) {
       if (window.minWidth && window.minHeight) {
-        await windowManager$.value?.setMinSize(window.minWidth, window.minHeight);
+        await windowManager.setMinSize(window.minWidth, window.minHeight);
       }
       if (window.maxWidth && window.maxHeight) {
-        await windowManager$.value?.setMaxSize(window.maxWidth, window.maxHeight);
+        await windowManager.setMaxSize(window.maxWidth, window.maxHeight);
       }
     }
     if (window.fullscreen) {
-      setTimeout(() => windowManager$.value?.goFullscreen(), 0);
+      setTimeout(() => windowManager.goFullscreen(), 0);
     }
   }
 }
@@ -217,15 +217,13 @@ export function stopCurrentGame(): void {
   objects$.set([]);
   cmdText$.set('');
 
-  const windowManager = windowManager$.value;
-  if (windowManager) {
-    windowManager.setTitle('qSpider');
-    windowManager.setIcon('favicon.ico');
-    windowManager.setResizable(true);
-    windowManager.unsetMaxSize();
-    windowManager.unsetMinSize();
-    if (wasResized) windowManager.resize(1024, 768);
-  }
+  windowManager.setTitle('qSpider');
+  windowManager.setIcon('favicon.ico');
+  windowManager.setResizable(true);
+  windowManager.unsetMaxSize();
+  windowManager.unsetMinSize();
+  if (wasResized) windowManager.resize(1024, 768);
+
   sounds$.actions.clear();
   regions$.set({});
   layers$.set({});

@@ -21,8 +21,10 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@qspider/browser-window-manager": ["libs/browser-window-manager/src/index.ts"],
+      "@qspider/env": ["libs/browser/src/index.ts"],
+      "@qspider/browser": ["libs/browser/src/index.ts"],
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
+      "@qspider/desktop": ["libs/desktop/src/index.ts"],
       "@qspider/docusaurus": ["libs/docusaurus/src/index.ts"],
       "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
       "@qspider/game-state": ["libs/game-state/src/index.ts"],
@@ -30,10 +32,7 @@
       "@qspider/i18n": ["libs/i18n/src/index.ts"],
       "@qspider/importers": ["libs/importers/src/index.ts"],
       "@qspider/renderer": ["libs/renderer/src/index.ts"],
-      "@qspider/tauri-storage": ["libs/tauri-storage/src/index.ts"],
-      "@qspider/tauri-window-manager": ["libs/tauri-window-manager/src/index.ts"],
-      "@qspider/utils": ["libs/utils/src/index.ts"],
-      "@qspider/web-storage": ["libs/web-storage/src/index.ts"]
+      "@qspider/utils": ["libs/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -3,7 +3,7 @@ import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
 import { errorMessage$ } from './toasts';
-import { windowManager$ } from './window-manager';
+import { windowManager } from '@qspider/env';
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
   'action:'(action: string): void {
@@ -71,9 +71,9 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
   },
   'fullscreen:'(state: string): void {
     if (state === 'on') {
-      windowManager$.value?.goFullscreen();
+      windowManager.goFullscreen();
     } else {
-      windowManager$.value?.goWindowed();
+      windowManager.goWindowed();
     }
   },
   quit(): void {

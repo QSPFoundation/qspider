@@ -6,9 +6,8 @@ import {
   onGameEnd$,
   registerDefaultThemes,
   runGame,
-  windowManager$,
 } from '@qspider/game-state';
-import { windowManager } from '@qspider/window-manager';
+import { windowManager } from '@qspider/env';
 import { prepareBaseUrl } from '@qspider/utils';
 import { runConfig } from './config-runner';
 
@@ -17,7 +16,6 @@ declare const APP_MODE: string;
 export async function init(): Promise<void> {
   document.body.classList.add(`mode-${APP_MODE}`);
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
-  windowManager$.set(windowManager);
   onGameEnd$.set(() => {
     windowManager.closeWindow();
   });

@@ -1,13 +1,12 @@
 {
-  "name": "web-storage",
+  "name": "browser",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/web-storage/src",
+  "sourceRoot": "libs/browser/src",
   "projectType": "library",
   "tags": [],
   "targets": {
     "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      "executor": "@nx/eslint:lint"
     }
   }
 }

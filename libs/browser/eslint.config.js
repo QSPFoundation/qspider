@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import baseConfig from '../../eslint.config.js';
+import js from '@eslint/js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,7 +15,6 @@ const compat = new FlatCompat({
 
 export default [
   ...baseConfig,
-  ...compat.extends('plugin:@nx/react'),
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
     rules: {},
@@ -28,4 +27,11 @@ export default [
     files: ['**/*.js', '**/*.jsx'],
     rules: {},
   },
+  ...compat.config({ parser: 'jsonc-eslint-parser' }).map((config) => ({
+    ...config,
+    files: ['**/*.json'],
+    rules: {
+      '@nx/dependency-checks': 'error',
+    },
+  })),
 ];

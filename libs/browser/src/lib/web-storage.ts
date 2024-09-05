@@ -135,3 +135,11 @@ export class WebStorage implements Storage {
       .delete();
   }
 }
+
+let instance: WebStorage | null = null;
+export function getStorage(): Storage {
+  if (!instance) {
+    instance = new WebStorage();
+  }
+  return instance;
+}

@@ -183,3 +183,12 @@ export class TauriStorage implements Storage {
     await flushStorageData(this.storageData);
   }
 }
+
+let instance: TauriStorage;
+
+export function getStorage(): Storage {
+  if (!instance) {
+    instance = new TauriStorage();
+  }
+  return instance;
+}

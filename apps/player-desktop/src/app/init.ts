@@ -8,21 +8,16 @@ import {
   onGameEnd$,
   registerDefaultThemes,
   showError,
-  storage$,
-  windowManager$,
 } from '@qspider/game-state';
 import { importDesktop } from '@qspider/importers';
-import { TauriStorage } from '@qspider/tauri-storage';
 import { cli } from '@tauri-apps/api';
-import { windowManager } from '@qspider/tauri-window-manager';
 import { prepareBaseUrl } from '@qspider/utils';
 
 export async function init(): Promise<void> {
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   initTheme();
   onGameEnd$.set(() => navigateTo(''));
-  storage$.set(new TauriStorage());
-  windowManager$.set(windowManager);
+
   await loadGamesFromStorage();
 
   const matches = await cli.getMatches();

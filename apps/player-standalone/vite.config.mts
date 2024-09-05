@@ -37,11 +37,9 @@ export default defineConfig(({ mode }) => {
 
     resolve: {
       alias: {
-        '@qspider/window-manager': resolve(
+        '@qspider/env': resolve(
           __dirname,
-          mode === 'desktop'
-            ? '../../libs/tauri-window-manager/src/index.ts'
-            : '../../libs/browser-window-manager/src/index.ts',
+          mode === 'desktop' ? '../../libs/desktop/src/index.ts' : '../../libs/browser/src/index.ts',
         ),
       },
     },

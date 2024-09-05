@@ -1,7 +1,7 @@
 import { stringify, parse, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
-import { storage$ } from '@qspider/game-state';
+import { getStorage } from '@qspider/env';
 import { isSupportedArchive, readSupportedArchive } from './utils';
 import type { FileDir, File } from './utils';
 
@@ -10,7 +10,7 @@ export async function importArchive(
   source: ArrayBuffer,
   rootDescriptor?: GameDescriptor,
 ): Promise<GameShelfEntry[]> {
-  const storage = storage$.value;
+  const storage = getStorage();
   if (!storage) throw new Error('missing storage');
   if (!isSupportedArchive(source)) throw new Error('unsupporter archive format');
   const root = await readSupportedArchive(source);
@@ -27,11 +27,7 @@ export async function importArchive(
         );
         if (!descriptorFile) {
           const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
-          await storage$.value?.addGameResource(
-            game.id,
-            GAME_DESCRIPTOR_NAME,
-            new TextEncoder().encode(descriptorContent),
-          );
+          await storage.addGameResource(game.id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
         } else {
           const [descriptor] = await readGameDescriptor(descriptorFile.data);
           Object.assign(game, descriptor);
@@ -72,7 +68,7 @@ export async function importArchive(
     await storeFolderContent(game_id, gameFolder);
     if (rootDescriptor) {
       const descriptorContent = stringify({ game: [rootDescriptor] } as unknown as JsonMap);
-      await storage$.value?.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
+      await storage.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
     }
     const loadConfig = await storage.prepareLoadConfig(game_id, filename);
     let icon = rootDescriptor?.resources?.icon;
@@ -156,12 +152,13 @@ async function readGameDescriptor(data: Uint8Array): Promise<GameDescriptor[]> {
 }
 
 async function storeFolderContent(game_id: string, folder: FileDir, prefix = ''): Promise<void> {
+  const storage = getStorage();
   for (const entry of folder.content) {
     if (entry.type === 'dir') {
       await storeFolderContent(game_id, entry, `${prefix}${entry.name}/`);
     } else {
       if (entry.name === '.DS_Store') continue;
-      await storage$.value?.addGameResource(game_id, `${prefix}${entry.name}`, entry.data);
+      await storage.addGameResource(game_id, `${prefix}${entry.name}`, entry.data);
     }
   }
 }

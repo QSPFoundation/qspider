@@ -33,7 +33,7 @@ import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
-import { windowManager$ } from './window-manager';
+import { windowManager } from '@qspider/env';
 
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
@@ -98,7 +98,7 @@ qspApi$.subscribe((api) => {
       case 'player':
         return callback('qSpider');
       case 'platform':
-        return callback(windowManager$.value?.isBrowser ? 'browser' : windowManager$.value?.platform || 'unknown');
+        return callback(windowManager.isBrowser ? 'browser' : windowManager.platform || 'unknown');
     }
     return callback(api.version());
   });

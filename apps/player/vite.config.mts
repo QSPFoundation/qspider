@@ -49,7 +49,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@qspider/web-storage': resolve(__dirname, '../../libs/web-storage/src/index.ts'),
+      '@qspider/env': resolve(__dirname, '../../libs/browser/src/index.ts'),
     },
   },
 
