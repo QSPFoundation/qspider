@@ -8,6 +8,7 @@ use mime_guess::Mime;
 use std::path::Path;
 use std::sync::Mutex;
 use std::{collections::HashMap, io::Read, path::PathBuf, sync::Arc};
+use tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN;
 use tauri::http::ResponseBuilder;
 use tauri::{command, Manager, State};
 use urlencoding::decode;
@@ -48,8 +49,9 @@ fn main() {
     .manage(GamesPath(Default::default()))
     .register_uri_scheme_protocol("qsp", move |app, request| {
       let state: State<'_, GamesPath> = app.try_state().unwrap();
+
       // prepare our response
-      let response = ResponseBuilder::new().header("Access-Control-Allow-Origin", "*");
+      let response = ResponseBuilder::new().header(ACCESS_CONTROL_ALLOW_ORIGIN, "*");
       if request.method() == "POST" {
         return response.status(200).body(Vec::new());
       }
