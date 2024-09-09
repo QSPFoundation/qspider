@@ -10,8 +10,11 @@ import {
 import { windowManager } from '@qspider/env';
 import { prepareBaseUrl } from '@qspider/utils';
 import { runConfig } from './config-runner';
+import { setupEnv } from '@qspider/env';
 
 declare const APP_MODE: string;
+
+setupEnv();
 
 export async function init(): Promise<void> {
   document.body.classList.add(`mode-${APP_MODE}`);

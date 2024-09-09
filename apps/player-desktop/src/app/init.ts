@@ -13,6 +13,10 @@ import { importDesktop } from '@qspider/importers';
 import { cli } from '@tauri-apps/api';
 import { prepareBaseUrl } from '@qspider/utils';
 
+import { setupEnv } from '@qspider/env';
+
+setupEnv();
+
 export async function init(): Promise<void> {
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   initTheme();

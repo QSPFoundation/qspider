@@ -1,8 +1,9 @@
 import { atom } from 'xoid';
 import { Attributes, extractAttributes } from './attributes';
-import { getTextContent } from './resources';
 import { useQspVariable } from './qsp-api';
 import { ThemeTranslation } from '@qspider/contracts';
+import { fetchTextContent } from '@qspider/env';
+import { baseUrl$ } from './current-game';
 
 export const CLASSIC_THEME = 'qspider:classic';
 export const AERO_THEME = 'qspider:aero';
@@ -90,7 +91,7 @@ export function useFormatVariable(variableName?: string, defaultValue?: string):
 }
 export async function registerThemes(themes: string[]): Promise<void> {
   for (const themeUrl of themes) {
-    const content = await getTextContent(themeUrl);
+    const content = await fetchTextContent(baseUrl$.value, themeUrl);
     const parsedThemes = parseTheme(content);
     for (const [alias, data] of Object.entries(parsedThemes)) {
       themeRegistry$.actions.add(alias, data);
@@ -101,7 +102,7 @@ export async function registerThemes(themes: string[]): Promise<void> {
 const defaultThemes = ['themes/classic.html', 'themes/aero.html'];
 export async function registerDefaultThemes(baseUrl: string): Promise<void> {
   for (const themeUrl of defaultThemes) {
-    const content = await getTextContent(new URL(themeUrl, baseUrl).toString());
+    const content = await fetch(new URL(themeUrl, baseUrl).href).then((r) => r.text());
     const parsedThemes = parseTheme(content, false);
     for (const [alias, data] of Object.entries(parsedThemes)) {
       themeRegistry$.actions.add(alias, data);

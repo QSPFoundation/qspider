@@ -4,6 +4,7 @@ import { parse } from 'iarna-toml-esm';
 import { importArchive } from './archive-importer';
 import { isSupportedArchive } from './utils';
 import { cyrb53 } from '@qspider/utils';
+import { fetchBinaryContent, fetchTextContent } from '@qspider/env';
 
 function buildGameUrl(uuid: string): string {
   return navigator.userAgent.includes('Windows') ? `https://qsp.${uuid}/` : `qsp://${uuid}/`;
@@ -19,17 +20,13 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
 
   const urlPrefix = buildGameUrl(uuid);
 
-  // TODO replace with loader
-  const content = await fetch(`${urlPrefix}${name}`).then((r) => r.arrayBuffer());
+  const content = await fetchBinaryContent(urlPrefix, name);
   if (isSupportedArchive(content)) {
     return await importArchive(name, content);
   }
 
-  const gameConfigUrl = `${urlPrefix}game.cfg`;
-
   try {
-    // TODO replace with loader
-    const rawConfig = await fetch(gameConfigUrl).then((r) => r.text());
+    const rawConfig = await fetchTextContent(urlPrefix, 'game.cfg');
     const config = parse(rawConfig) as unknown as PlayerConfig;
     const found = config.game.find((game) => game.file === name);
     if (!found) throw new Error('Config not found');

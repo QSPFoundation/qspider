@@ -2,6 +2,7 @@ import { IWindowManager } from '@qspider/contracts';
 import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
 import { type, platform } from '@tauri-apps/api/os';
 import { exit } from '@tauri-apps/api/process';
+import { fetchBinaryContent } from './data-fetcher';
 
 export const windowManager: IWindowManager = {
   isBrowser: false,
@@ -37,9 +38,8 @@ export const windowManager: IWindowManager = {
   setTitle(title: string): void {
     appWindow.setTitle(title);
   },
-  async setIcon(icon: string): Promise<void> {
-    // TODO replace with loader
-    const source = await fetch(icon).then((r) => r.arrayBuffer());
+  async setIcon(baseUrl: string, icon: string): Promise<void> {
+    const source = await fetchBinaryContent(baseUrl, icon);
     appWindow.setIcon(new Uint8Array(source));
   },
   async goFullscreen(): Promise<void> {

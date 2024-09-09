@@ -23,17 +23,16 @@ import { baseUrl$, currentGameEntry$, GameCommand, onGameCommand } from './curre
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
-import { cleanPath, convertQsps, prepareContent, prepareList } from './utils';
-import { hashString } from '@qspider/utils';
+import { convertQsps, prepareContent, prepareList } from './utils';
+import { cleanPath, hashString } from '@qspider/utils';
 import { menu$ } from './menu';
 import { input$ } from './input';
-import { getBinaryContent } from './resources';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
-import { windowManager } from '@qspider/env';
+import { fetchBinaryContent, windowManager } from '@qspider/env';
 
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
@@ -138,7 +137,7 @@ qspApi$.subscribe((api) => {
       return;
     }
     withCounterPaused(async () => {
-      const source = await getBinaryContent(file);
+      const source = await fetchBinaryContent(baseUrl$.value, file);
       let gameSource = source;
       const isQsps = file.toLowerCase().endsWith('.qsps');
       if (isQsps) {

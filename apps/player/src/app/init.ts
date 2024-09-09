@@ -23,6 +23,10 @@ import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { prepareBaseUrl } from '@qspider/utils';
 
+import { setupEnv } from '@qspider/env';
+
+setupEnv();
+
 export async function init(): Promise<void> {
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   onGameEnd$.set(() => navigateTo(''));

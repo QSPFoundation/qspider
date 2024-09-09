@@ -1,14 +1,15 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-  "name": "Ubuntu",
+  "name": "Ubuntu AMD64",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   "build": {
-    "dockerfile": "Dockerfile",
+    "dockerfile": "Dockerfile.amd64",
     // Update 'VARIANT' to pick an Ubuntu version: jammy / ubuntu-22.04, focal / ubuntu-20.04, bionic /ubuntu-18.04
     // Use ubuntu-22.04 or ubuntu-18.04 on local arm64/Apple Silicon.
     "args": { "VARIANT": "ubuntu-22.04" }
   },
+  "runArgs": ["--platform=linux/amd64"],
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:1": {},
     "ghcr.io/devcontainers/features/rust:1": {},

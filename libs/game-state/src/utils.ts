@@ -1,5 +1,6 @@
 import { readQsps, writeQsp } from '@qsp/converters';
 import { QspListItem } from '@qsp/wasm-engine';
+import { cleanPath } from '@qspider/utils';
 
 export function convertQsps(source: ArrayBuffer): ArrayBuffer {
   const data = new Uint8Array(source.slice(0, 2));
@@ -7,10 +8,6 @@ export function convertQsps(source: ArrayBuffer): ArrayBuffer {
   const decoder = new TextDecoder(encoding);
   const text = decoder.decode(source);
   return writeQsp(readQsps(text));
-}
-
-export function cleanPath(path: string): string {
-  return path.replace(/\\/g, '/');
 }
 
 export function prepareContent(text: string): string {

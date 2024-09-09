@@ -1,28 +1,5 @@
 import { GameDescriptor } from '@qspider/contracts';
-// TODO replace with data loader
-import { defer, fetchProxyFallback } from '@qspider/utils';
-import { cleanPath } from './utils';
-import { baseUrl$ } from './current-game';
-
-export async function getBinaryContent(file: string): Promise<ArrayBuffer> {
-  const path = preparePath(file);
-  return fetchProxyFallback(path).then((r) => {
-    if (!r.ok) throw new Error(`File not found`);
-    return r.arrayBuffer();
-  });
-}
-
-export async function getTextContent(file: string): Promise<string> {
-  const path = preparePath(file);
-  return fetchProxyFallback(path).then((r) => {
-    if (!r.ok) throw new Error(`File not found`);
-    return r.text();
-  });
-}
-
-function preparePath(path: string): string {
-  return `${baseUrl$.value}${cleanPath(path)}`;
-}
+import { defer } from '@qspider/utils';
 
 export async function loadAdditionalResources(resources: GameDescriptor['resources']): Promise<void> {
   if (!resources) return;

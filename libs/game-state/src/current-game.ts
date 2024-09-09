@@ -15,10 +15,8 @@ import { muted$, sounds$ } from './audio';
 import { closePauseScreen, isPauseScreenVisible$, openPauseScreen, pauseScreenCurrentPanel$ } from './pause-screen';
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
-import { windowManager } from '@qspider/env';
+import { fetchBinaryContent, fetchTextContent, windowManager } from '@qspider/env';
 import { parse } from 'iarna-toml-esm';
-// TODO replace with game loader
-import { fetchProxyFallback } from '@qspider/utils';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import {
@@ -61,7 +59,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     file: '',
   };
   try {
-    const configContent = await fetchProxyFallback('game.cfg').then((r) => r.text());
+    const configContent = await fetchTextContent(baseUrl$.value, 'game.cfg');
     const config = parse(configContent) as unknown as PlayerConfig;
     if (config.game?.length === 1) {
       [descriptor] = config.game;
@@ -76,9 +74,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 
   if (descriptor?.mode === 'classic' || !descriptor?.mode) {
     try {
-      const request = await fetchProxyFallback('qspgui.cfg');
-      if (!request.ok) throw new Error('No config file');
-      const cfgContent = await request.text();
+      const cfgContent = await fetchTextContent(baseUrl$.value, 'qspgui.cfg');
       const cfgData = parseCfg(cfgContent);
       if (!cfgData || !Object.keys(cfgData).length) throw new Error('Invalid config file');
       qspGuiCfg$.set(cfgData);
@@ -96,9 +92,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
       };
     } else {
       try {
-        const request = await fetchProxyFallback('config.xml');
-        if (!request.ok) throw new Error('No config file');
-        const content = await request.text();
+        const content = await fetchTextContent(baseUrl$.value, 'config.xml');
         const parser = new DOMParser();
         const doc = parser.parseFromString(content, 'application/xml');
         const gameElement = doc.querySelector('game');
@@ -137,7 +131,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     setupCustomHotKeys(descriptor.hotkeys);
   }
   if (descriptor?.resources?.icon) {
-    windowManager.setIcon(descriptor.resources.icon);
+    windowManager.setIcon(baseUrl$.value, descriptor.resources.icon);
   }
   loadAdditionalResources(descriptor?.resources);
   if (descriptor?.themes) {
@@ -157,7 +151,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   }
   loadThemeTranslations(currentTranslations$.value);
   if (descriptor) applyWindowSettings(descriptor.window);
-  let gameSource = await fetchProxyFallback(entry.loadConfig.entrypoint).then((r) => r.arrayBuffer());
+  let gameSource = await fetchBinaryContent(baseUrl$.value, entry.loadConfig.entrypoint);
   if (!gameSource) throw new Error('Failed to load game');
   const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
   if (isQsps) {
@@ -218,7 +212,7 @@ export function stopCurrentGame(): void {
   cmdText$.set('');
 
   windowManager.setTitle('qSpider');
-  windowManager.setIcon('favicon.ico');
+  windowManager.setIcon(initialBaseUrl$.value, 'favicon.ico');
   windowManager.setResizable(true);
   windowManager.unsetMaxSize();
   windowManager.unsetMinSize();

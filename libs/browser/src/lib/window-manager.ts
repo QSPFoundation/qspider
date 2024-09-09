@@ -9,7 +9,7 @@ export const windowManager: IWindowManager = {
   setTitle(title: string): void {
     document.title = title;
   },
-  setIcon(icon: string): void {
+  setIcon(_baseUrl: string, icon: string): void {
     (document.getElementById('favicon') as HTMLLinkElement).href = icon;
   },
   goFullscreen(): void {

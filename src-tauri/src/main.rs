@@ -43,6 +43,44 @@ fn prepare_game_start(
   }
 }
 
+#[command]
+fn read_resource(url: String, state: State<'_, GamesPath>) -> Result<Vec<u8>, String> {
+  let uri = url.replace("qsp://", "");
+  let path = decode(&uri).unwrap_or_default();
+  let slash_index = path.chars().position(|c| c == '/').unwrap();
+  let uuid_str = &path[0..slash_index];
+  let uuid = Uuid::parse_str(uuid_str).unwrap_or_default();
+  let game_path = state.0.lock().unwrap().get(&uuid).cloned();
+
+  match game_path {
+    Some(game_path) => {
+      let mut file_path = PathBuf::from(game_path.clone());
+      file_path.push(&path[slash_index + 1..]);
+      let file_result = std::fs::File::open(&file_path);
+      match file_result {
+        Ok(mut file) => {
+          let mut buf = Vec::new();
+          let read_result = file.read_to_end(&mut buf);
+          match read_result {
+            Ok(_) => {}
+            Err(e) => {
+              return Err(e.to_string());
+            }
+          }
+          return Ok(buf);
+        }
+        Err(e) => {
+          return Err(e.to_string());
+        }
+      }
+    }
+    None => {
+      print!("Game {} not found", uuid);
+      return Err("Game not found".to_string());
+    }
+  }
+}
+
 fn main() {
   let context = tauri::generate_context!();
   tauri::Builder::default()
@@ -95,7 +133,7 @@ fn main() {
         }
       }
     })
-    .invoke_handler(tauri::generate_handler![prepare_game_start])
+    .invoke_handler(tauri::generate_handler![prepare_game_start, read_resource])
     .plugin(tauri_plugin_window_state::Builder::default().build())
     .run(context)
     .expect("error while running tauri application");
