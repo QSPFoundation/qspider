@@ -16,7 +16,6 @@ import { closePauseScreen, isPauseScreenVisible$, openPauseScreen, pauseScreenCu
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { fetchBinaryContent, fetchTextContent, windowManager } from '@qspider/env';
-import { parse } from 'iarna-toml-esm';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import {
@@ -38,6 +37,7 @@ import { input$ } from './input';
 import { menu$ } from './menu';
 import { msg$ } from './msg';
 import { showNotice } from './toasts';
+import { parseToml } from '@qspider/utils';
 
 export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
 export const currentGame$ = atom<GameDescriptor | null>();
@@ -60,7 +60,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   };
   try {
     const configContent = await fetchTextContent(baseUrl$.value, 'game.cfg');
-    const config = parse(configContent) as unknown as PlayerConfig;
+    const config = parseToml<PlayerConfig>(configContent);
     if (config.game?.length === 1) {
       [descriptor] = config.game;
     } else {

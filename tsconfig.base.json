@@ -11,7 +11,7 @@
     "target": "es2015",
     "module": "esnext",
     "typeRoots": ["node_modules/@types", "node_modules"],
-    "lib": ["es2017", "es2020", "dom", "DOM.Iterable"],
+    "lib": ["es2017", "es2020", "es2021", "dom", "DOM.Iterable"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,

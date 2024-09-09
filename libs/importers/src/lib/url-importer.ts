@@ -1,6 +1,5 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { cyrb53, fetchProxyFallback } from '@qspider/utils';
-import { parse } from 'iarna-toml-esm';
+import { cyrb53, fetchProxyFallback, parseToml } from '@qspider/utils';
 import { isSupportedArchive } from './utils';
 import { importArchive } from './archive-importer';
 
@@ -22,7 +21,7 @@ export async function importUrl(
   const fileName = cleanUrl.replace(base, '');
   if (fileName.endsWith('.cfg')) {
     const rawConfig = new TextDecoder().decode(content);
-    const config = parse(rawConfig) as unknown as PlayerConfig;
+    const config = parseToml<PlayerConfig>(rawConfig);
     const games = [];
     for (const descriptor of config.game) {
       const fullUrl = `${base}${descriptor.file}`;
@@ -33,7 +32,7 @@ export async function importUrl(
     const gameConfigUrl = `${base}game.cfg`;
     try {
       const rawConfig = await fetchProxyFallback(gameConfigUrl).then((r) => r.text());
-      const config = parse(rawConfig) as unknown as PlayerConfig;
+      const config = parseToml<PlayerConfig>(rawConfig);
       const found = config.game.find((game) => game.file === fileName);
       if (!found) throw new Error('Config not found');
       return [

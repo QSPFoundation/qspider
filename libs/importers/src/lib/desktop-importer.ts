@@ -1,9 +1,8 @@
 import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { v4 as uuidv4 } from 'uuid';
-import { parse } from 'iarna-toml-esm';
 import { importArchive } from './archive-importer';
 import { isSupportedArchive } from './utils';
-import { cyrb53 } from '@qspider/utils';
+import { cyrb53, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from '@qspider/env';
 
 function buildGameUrl(uuid: string): string {
@@ -27,7 +26,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
 
   try {
     const rawConfig = await fetchTextContent(urlPrefix, 'game.cfg');
-    const config = parse(rawConfig) as unknown as PlayerConfig;
+    const config = parseToml<PlayerConfig>(rawConfig);
     const found = config.game.find((game) => game.file === name);
     if (!found) throw new Error('Config not found');
     return [

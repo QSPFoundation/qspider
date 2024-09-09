@@ -1,6 +1,5 @@
-import { fetchProxyFallback } from '@qspider/utils';
+import { fetchProxyFallback, parseToml } from '@qspider/utils';
 import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { parse } from 'iarna-toml-esm';
 
 export async function runConfig(url: string): Promise<GameShelfEntry> {
   const urlObject = new URL(url);
@@ -10,12 +9,12 @@ export async function runConfig(url: string): Promise<GameShelfEntry> {
   if (!cleanUrl.endsWith('.cfg')) {
     throw new Error('Only .cfg files are supported');
   }
-  // TODO? replace here as well
+
   const content = await fetchProxyFallback(url).then((r) => {
     if (!r.ok) throw new Error(`Failed to load url ${url}`);
     return r.text();
   });
-  const config = parse(content) as unknown as PlayerConfig;
+  const config = parseToml<PlayerConfig>(content);
   const [game] = config.game;
   if (!game) throw new Error('Game not found');
   const base = cleanUrl.slice(0, cleanUrl.lastIndexOf('/') + 1);
