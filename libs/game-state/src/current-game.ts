@@ -68,8 +68,8 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
       if (!found) throw new Error('Config not found');
       descriptor = found;
     }
-  } catch {
-    // no-op
+  } catch (e) {
+    console.error('Game config not loaded', e);
   }
 
   if (descriptor?.mode === 'classic' || !descriptor?.mode) {
