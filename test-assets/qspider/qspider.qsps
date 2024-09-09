@@ -162,7 +162,7 @@ gs 'back-link'
 
 '<a href="exec: should_show=1">Show</a> | <a href="exec: should_show=0">Hide</a>'
 'Following block is managed by &lt;qsp-show&gt;'
-'<qsp-show when="should_show=1">Some block that can be hodden</qsp-show>'
+'<qsp-show when="should_show" is="1">Some block that can be hodden</qsp-show>'
 ---
 
 # qsp-style

@@ -33,6 +33,7 @@ import { qspiderCommands } from './qspider-commands';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
+import { checkCondition } from './conditions';
 
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
@@ -70,7 +71,7 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
     if (!name) return;
     const unsubscribe = key
       ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue((value as unknown as T) || defaultValue))
-      : qspApi$.value?.watchVariable(name, index, (value) => setValue((value as unknown as T) || defaultValue));
+      : qspApi$.value?.watchVariableByIndex(name, index, (value) => setValue((value as unknown as T) || defaultValue));
     return (): void => {
       unsubscribe?.();
     };
@@ -79,15 +80,17 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
   return value;
 }
 
-export function useQspExpression(expr: string): boolean {
+export function useQspExpression(variable: string, condition: [string, string]): boolean {
   const [value, setValue] = useState(false);
   useEffect(() => {
-    if (!expr) return;
-    const unsubscribe = qspApi$.value?.watchExpression(expr, (v) => setValue(Boolean(v)));
+    if (!variable) return;
+    const unsubscribe = qspApi$.value?.watchVariable(variable, (value) => {
+      setValue(checkCondition(value, condition));
+    });
     return (): void => {
       unsubscribe?.();
     };
-  }, [expr]);
+  }, [variable, condition]);
   return value;
 }
 
@@ -193,7 +196,7 @@ qspApi$.subscribe((api) => {
   });
   api.on('panel_visibility', (type, isShown) => {
     switch (type) {
-      case QspPanel.VARS:
+      case QspPanel.STAT:
         isStatsVisible$.set(isShown);
         break;
       case QspPanel.ACTS:

@@ -17,9 +17,9 @@ export const QspErrorAlert: React.FC = () => {
             <AlertDialog.Description>
               {t('Error')}: {t(errorData.description)}
               <br />
-              {errorData.code >= 0 ? (
+              {errorData.errorCode >= 0 ? (
                 <>
-                  {t('Error code')}: {errorData.code}
+                  {t('Error code')}: {errorData.errorCode}
                   <br />
                 </>
               ) : (
@@ -39,6 +39,8 @@ export const QspErrorAlert: React.FC = () => {
                 ''
               )}
               {errorData.line >= 0 ? t('Line') + ': ' + errorData.line : ''}
+              <br />
+              <code>{errorData.lineSrc}</code>
             </AlertDialog.Description>
             <div className="qsp-dialog-buttons">
               <AlertDialog.Cancel className="qsp-button">{t('Close')}</AlertDialog.Cancel>

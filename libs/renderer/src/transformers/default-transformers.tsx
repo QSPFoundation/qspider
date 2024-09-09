@@ -1,5 +1,5 @@
 import { TransformCallback } from '@qspider/html-renderer';
-import { Attributes, QUICK_SAVE_KEY, extractAttributes, view$ } from '@qspider/game-state';
+import { Attributes, QUICK_SAVE_KEY, extractAttributes, view$, conditionAttributes } from '@qspider/game-state';
 import {
   QspActions,
   QspActionsList,
@@ -288,8 +288,18 @@ export const defaultTransformers: Record<string, TransformCallback> = {
     );
   },
   'qsp-show'(node, children) {
-    const condition = node.getAttribute('when') || '';
-    return <QspShow condition={condition}>{children}</QspShow>;
+    const variable = node.getAttribute('when') || '';
+    let condition: [string, string] = ['is-not', variable.startsWith('$') ? '' : '0'];
+    for (const key of conditionAttributes) {
+      if (node.hasAttribute(key)) {
+        condition = [key, node.getAttribute(key) || ''];
+      }
+    }
+    return (
+      <QspShow variable={variable} condition={condition}>
+        {children}
+      </QspShow>
+    );
   },
   'qsp-style'(node) {
     const from = node.getAttribute('from') || '';

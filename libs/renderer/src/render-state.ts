@@ -114,7 +114,7 @@ export const menuWithParsedName$ = atom((get) => {
 function createVariableAtom(name: string, defaultValue?: string): Atom<string> {
   const atom$ = atom(defaultValue ?? '');
   qspApi$.watch((api) => {
-    api?.watchVariable(name, 0, (value) => {
+    api?.watchVariable(name, (value) => {
       atom$.set((value as unknown as string) || defaultValue || '');
     });
   });
