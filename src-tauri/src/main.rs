@@ -135,6 +135,14 @@ fn main() {
     })
     .invoke_handler(tauri::generate_handler![prepare_game_start, read_resource])
     .plugin(tauri_plugin_window_state::Builder::default().build())
+    .setup(|app| {
+      #[cfg(debug_assertions)] // only include this code on debug builds
+      {
+        let window = app.get_window("main").unwrap();
+        window.open_devtools();
+      }
+      Ok(())
+    })
     .run(context)
     .expect("error while running tauri application");
 }

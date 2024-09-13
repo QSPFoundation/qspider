@@ -15,6 +15,9 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
   },
+  optimizeDeps: {
+    exclude: ["@qsp/wasm-engine/*"]
+  },
   cacheDir: '../../node_modules/.vite/player',
   publicDir: '../../public',
   server: {
