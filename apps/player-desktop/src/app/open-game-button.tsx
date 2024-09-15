@@ -13,7 +13,7 @@ export const OpenGameButton: React.FC = () => {
       filters: [
         {
           name: 'Qsp files',
-          extensions: ['qsp', 'qsps', 'aqsp', 'zip', 'rar', '7z'],
+          extensions: ['qsp', 'qsps', 'gam', 'aqsp', 'zip', 'rar', '7z'],
         },
       ],
     });
