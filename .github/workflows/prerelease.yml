@@ -45,8 +45,6 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-        with:
-          ref: release
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -81,8 +79,6 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-        with:
-          ref: release
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
@@ -129,8 +125,6 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
-        with:
-          ref: release
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
