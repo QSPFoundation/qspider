@@ -6,7 +6,11 @@ FROM --platform=linux/amd64 mcr.microsoft.com/vscode/devcontainers/base:0-${VARI
 # Derived from Tauri contribution and setup guides:
 # See: https://github.com/tauri-apps/tauri/blob/dev/.github/CONTRIBUTING.md#development-guide
 # See: https://tauri.app/v1/guides/getting-started/prerequisites/#setting-up-linux
-ARG TAURI_BUILD_DEPS="build-essential curl libappindicator3-dev libgtk-3-dev librsvg2-dev libssl-dev libwebkit2gtk-4.0-dev wget javascriptcoregtk-4.0 libsoup-3.0 webkit2gtk-4.0"
+ARG TAURI_BUILD_DEPS="build-essential curl file patchelf libappindicator3-dev libgtk-3-dev librsvg2-dev libssl-dev libwebkit2gtk-4.0-dev wget javascriptcoregtk-4.0 libsoup-3.0 webkit2gtk-4.0"
 
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
   && apt-get install -y --no-install-recommends $TAURI_BUILD_DEPS
+
+RUN curl -LO  https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
+RUN rm google-chrome-stable_current_amd64.deb
