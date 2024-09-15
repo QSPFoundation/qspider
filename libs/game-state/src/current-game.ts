@@ -162,6 +162,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
   currentGameEntry$.set(entry);
   if (descriptor) currentGame$.set(descriptor);
   loadSaveList();
+  isPaused$.set(false);
 }
 
 let wasResized = false;

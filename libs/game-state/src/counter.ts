@@ -2,7 +2,7 @@ import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
 
 export const counterDelay$ = atom(500);
-export const isPaused$ = atom(false);
+export const isPaused$ = atom(true);
 const counterTimeout$ = atom<ReturnType<typeof setTimeout>>();
 
 const pauseStack: boolean[] = [];
