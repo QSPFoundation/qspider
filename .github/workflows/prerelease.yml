@@ -33,8 +33,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               tag_name: `v${process.env.PACKAGE_VERSION}-prerelease`,
-              target_commitish: 'release',
-              name: `qSpider v${process.env.PACKAGE_VERSION}`,
+              target_commitish: 'main',
+              name: `qSpider v${process.env.PACKAGE_VERSION} prerelease`,
               body: 'Take a look at the assets to download and install this app.',
               draft: true,
               prerelease: true
@@ -56,6 +56,12 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'qspider-player.zip'
+          path: .
+          directory: dist/apps/player
       - name: Upload Release Asset
         uses: actions/github-script@v7
         env:
@@ -86,6 +92,12 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build:standalone
+      - name: Archive Release
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: 'qspider-player-standalone.zip'
+          path: .
+          directory: dist/apps/player-standalone
       - name: Upload Release Asset
         uses: actions/github-script@v7
         env:
@@ -145,7 +157,6 @@ jobs:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          releaseDraft: true
-          prerelease: false
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           updaterJsonPreferNsis: true
           args: ${{ matrix.args }}
