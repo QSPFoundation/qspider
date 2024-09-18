@@ -16,7 +16,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    exclude: ["@qsp/wasm-engine/*"]
+    exclude: ['@qsp/wasm-engine/*'],
   },
   cacheDir: '../../node_modules/.vite/player',
   publicDir: '../../public',
@@ -53,6 +53,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@qspider/env': resolve(__dirname, '../../libs/browser/src/index.ts'),
+      '@qspider/utils': resolve(__dirname, '../../libs/utils/src/index.ts'),
     },
   },
 
