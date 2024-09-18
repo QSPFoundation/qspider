@@ -114,7 +114,7 @@ jobs:
       matrix:
         include:
           - platform: 'macos-latest'
-            args: ''
+            args: '--target universal-apple-darwin'
           - platform: 'ubuntu-20.04'
             args: ''
           - platform: 'windows-latest'
