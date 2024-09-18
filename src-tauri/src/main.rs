@@ -3,11 +3,10 @@
   windows_subsystem = "windows"
 )]
 
-use entity_tag::EntityTag;
 use mime_guess::Mime;
 use std::path::Path;
 use std::sync::Mutex;
-use std::{collections::HashMap, io::Read, path::PathBuf, sync::Arc};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tauri::http::header::ACCESS_CONTROL_ALLOW_ORIGIN;
 use tauri::http::ResponseBuilder;
 use tauri::{command, Manager, State};
@@ -43,6 +42,24 @@ fn prepare_game_start(
   }
 }
 
+fn read_file(path: &Path, check_lowercase: bool) -> Result<Vec<u8>, String> {
+  let file_result = std::fs::read(path);
+  match file_result {
+    Ok(buf) => {
+      return Ok(buf);
+    }
+    Err(e) => {
+      if check_lowercase {
+        return read_file(
+          path.to_str().unwrap_or_default().to_lowercase().as_ref(),
+          false,
+        );
+      }
+      return Err(e.to_string());
+    }
+  }
+}
+
 #[command]
 fn read_resource(url: String, state: State<'_, GamesPath>) -> Result<Vec<u8>, String> {
   let uri = url.replace("qsp://", "");
@@ -56,23 +73,7 @@ fn read_resource(url: String, state: State<'_, GamesPath>) -> Result<Vec<u8>, St
     Some(game_path) => {
       let mut file_path = PathBuf::from(game_path.clone());
       file_path.push(&path[slash_index + 1..]);
-      let file_result = std::fs::File::open(&file_path);
-      match file_result {
-        Ok(mut file) => {
-          let mut buf = Vec::new();
-          let read_result = file.read_to_end(&mut buf);
-          match read_result {
-            Ok(_) => {}
-            Err(e) => {
-              return Err(e.to_string());
-            }
-          }
-          return Ok(buf);
-        }
-        Err(e) => {
-          return Err(e.to_string());
-        }
-      }
+      return read_file(&file_path, true);
     }
     None => {
       print!("Game {} not found", uuid);
@@ -105,16 +106,12 @@ fn main() {
         Some(game_path) => {
           let mut file_path = PathBuf::from(game_path.clone());
           file_path.push(&path[slash_index + 1..]);
-          let file_result = std::fs::File::open(&file_path);
+          let file_result = read_file(&file_path.as_path(), true);
           match file_result {
-            Ok(mut file) => {
-              let mut buf = Vec::new();
-              file.read_to_end(&mut buf)?;
-              let etag4 = EntityTag::from_file_meta(&file.metadata().unwrap());
+            Ok(buf) => {
               let guess = mime_guess::from_path(path.to_string());
 
               return response
-                .header("ETag", etag4.to_string())
                 .mimetype(
                   guess
                     .first_or("application/octet-stream".parse::<Mime>()?)
