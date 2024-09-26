@@ -48,7 +48,7 @@ export const HtmlLink: React.FC<{
     }
   };
   return (
-    <a {...attributes} style={style} href={href} onClick={onClick}>
+    <a target="_blank" rel="noreferrer" {...attributes} style={style} href={href} onClick={onClick}>
       {children}
     </a>
   );
