@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/QSPFoundation/qspider/compare/v1.2.0...v1.3.0) (2024-09-29)
+
+### Features
+
+- change content fetching on desktop to avoid problems on linux ([1a54386](https://github.com/QSPFoundation/qspider/commit/1a54386a6b8790e5710a52d06cc5883e1dd6af01))
+- html rendering rewamp ([ea09732](https://github.com/QSPFoundation/qspider/commit/ea09732a701bacc75fa4e80c68bb496be664bd42))
+- qsp 5.9.0 ([d813063](https://github.com/QSPFoundation/qspider/commit/d813063270af60b34ab23368524ad2fca878e5e0))
+- support browser translation ([ffbea2f](https://github.com/QSPFoundation/qspider/commit/ffbea2f452a8514c352f0988f47fafed5545c1b2))
+- support windows line feeds in game config ([b1da270](https://github.com/QSPFoundation/qspider/commit/b1da270ec64d94b3c49bd6d5a82460599dc520ad))
+
+### Bug Fixes
+
+- add .gam to selectable file extensions ([8ad805e](https://github.com/QSPFoundation/qspider/commit/8ad805ec341ff5d3d2f7a00535a91585fbb84970))
+- add env flag to overcome webkit issue ([fd8ba90](https://github.com/QSPFoundation/qspider/commit/fd8ba901f7661a30750e8637950d83d3150349d6))
+- add missing translations to win installer ([f3c305c](https://github.com/QSPFoundation/qspider/commit/f3c305c6ca6f39102edd63daf77c74a39631d648))
+- fix base url processing ([85aeda3](https://github.com/QSPFoundation/qspider/commit/85aeda395503f5d4d251c5e1240532dbf0c8a8c3))
+- fix header setting in rust ([04662ae](https://github.com/QSPFoundation/qspider/commit/04662ae612bfc33b5417c3317d2d7e0c328ab269))
+- fix path processing for case sensitive systems ([c6ac858](https://github.com/QSPFoundation/qspider/commit/c6ac858a6c57b79dca84cf037a69462c5bc32b8b))
+- fom't start counter till game started ([c3305f9](https://github.com/QSPFoundation/qspider/commit/c3305f9588bbef44787538055bc51f23200fed65))
+- open web URL in separate window (or in default browser) ([092c5a5](https://github.com/QSPFoundation/qspider/commit/092c5a567b080ecbe1f5de6a33032fd63b46fca9))
+
 ## [1.2.0](https://github.com/QSPFoundation/qspider/compare/v1.1.0...v1.2.0) (2024-07-15)
 
 ### Features
