@@ -418,7 +418,7 @@
           <qsp-main>
             <qsp-scrollable>
               <qsp-main-content></qsp-main-content>
-              <qsp-show when="INTEGRATED_ACTIONS=1">
+              <qsp-show when="INTEGRATED_ACTIONS" is-not="0">
                 <div class="integrated-actions">
                   <qsp-actions>
                     <qsp-actions-list>
@@ -436,7 +436,7 @@
               </qsp-objects-list>
             </qsp-scrollable>
           </qsp-objects>
-          <qsp-show when="INTEGRATED_ACTIONS=0">
+          <qsp-show when="INTEGRATED_ACTIONS" is="0">
             <qsp-actions class="regular-actions">
               <qsp-scrollable>
                 <qsp-actions-list>
