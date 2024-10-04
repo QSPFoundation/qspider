@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/QSPFoundation/qspider/compare/v1.3.0...v1.3.1) (2024-10-04)
+
+### Bug Fixes
+
+- fix game launch in windows ([c687e34](https://github.com/QSPFoundation/qspider/commit/c687e3403b114b9cd508c402fd349dcd54a88314))
+- fix url processing ([8e38b47](https://github.com/QSPFoundation/qspider/commit/8e38b47ba237912974be87e6532c4c819bd7a284))
+
 ## [1.3.0](https://github.com/QSPFoundation/qspider/compare/v1.2.0...v1.3.0) (2024-09-29)
 
 ### Features
