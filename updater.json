@@ -1,23 +1,23 @@
 {
-  "version": "1.3.0",
+  "version": "1.3.1",
   "notes": "",
-  "pub_date": "2024-09-29T17:58:52.801Z",
+  "pub_date": "2024-10-04T14:33:39.218Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlpOZkdNemRLNm9Fekt3NHF5eWt0WWpFWXVtY044ZGNtSC9kU0pOVWdKL1d1eWdpQkRxaitlekwrWDN6MlJ2L1NRVDVONGZBWVpRS3ZJL29LTE1FZXc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjMyNDE0CWZpbGU6cVNwaWRlci5hcHAudGFyLmd6CjkxYlJBTmpzeThUNjI1N2RUc1UvVnVkWDIveFhvSFgyUVgxL3lIdS96QXcxZXlRU3BNdVRPbmZYdlFDR1pVTFJ1MTYzdVRESmdoanJ2Nlc2bmhTS0RRPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlpVYk5mVVJhdWZLWm1qTmthUGxEdE1EanpUWUxYWjVNVnNJSTFHWHRjamlFSUlYVW5RemVZTTR1dk4wOEJnT0plcG9nMkpTcXFqVE9mNXpMZ29jWUFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI4MDUyMjEwCWZpbGU6cVNwaWRlci5hcHAudGFyLmd6CmNGUHVLd0JYdjhSY1Q5b2c5NXUyTUVqcU41QThqTFBZWXlybkJQRHhrajQ1RFZIbjhXK2g5bFozOWVDczI5QWhXOEY0MUt1ZWd6OGhmWXo1Q0hzMUJ3PT0K",
       "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_universal.app.tar.gz"
     },
     "darwin-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlpOZkdNemRLNm9Fekt3NHF5eWt0WWpFWXVtY044ZGNtSC9kU0pOVWdKL1d1eWdpQkRxaitlekwrWDN6MlJ2L1NRVDVONGZBWVpRS3ZJL29LTE1FZXc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjMyNDE0CWZpbGU6cVNwaWRlci5hcHAudGFyLmd6CjkxYlJBTmpzeThUNjI1N2RUc1UvVnVkWDIveFhvSFgyUVgxL3lIdS96QXcxZXlRU3BNdVRPbmZYdlFDR1pVTFJ1MTYzdVRESmdoanJ2Nlc2bmhTS0RRPT0K",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlpVYk5mVVJhdWZLWm1qTmthUGxEdE1EanpUWUxYWjVNVnNJSTFHWHRjamlFSUlYVW5RemVZTTR1dk4wOEJnT0plcG9nMkpTcXFqVE9mNXpMZ29jWUFNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI4MDUyMjEwCWZpbGU6cVNwaWRlci5hcHAudGFyLmd6CmNGUHVLd0JYdjhSY1Q5b2c5NXUyTUVqcU41QThqTFBZWXlybkJQRHhrajQ1RFZIbjhXK2g5bFozOWVDczI5QWhXOEY0MUt1ZWd6OGhmWXo1Q0hzMUJ3PT0K",
       "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_universal.app.tar.gz"
     },
-    "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RmQ2dGNkb2VuMUNUNE5zRzZPOXlWNFMxSitmQ2pQaGpmdWcvR2Z2TnRadDdOeFZsemV5bjJDaVBFaUdBL01WTTJLM3IvUEU5ZENRZEw5YnVOd1BwS0F3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjMyNjM2CWZpbGU6cS1zcGlkZXJfMS4zLjBfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CnZVUkNyQ1FlbkhXQ2Fhck9mWVJKY0FUekVRNS9rZE5YcTFiWDlpTzlPcnIxMnhBdU5tUVgyaERVbnlmdDh6c1I1dGI3VHhqM1k0c2RvODU3eDYrYUN3PT0K",
-      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/q-spider_1.3.0_amd64.AppImage.tar.gz"
-    },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RlhzS1VQOTZETkh1VXZ2elJ4NU94d2luZS9sbVBEd3NWcHVVTi9LOTlDUzFYYTA3UnhIa2grQmRpZzVQZWN0K28vRC93WUlmcjVjZ0NUTFM5K3J3S1FVPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI3NjMyNzMxCWZpbGU6cVNwaWRlcl8xLjMuMF94NjQtc2V0dXAubnNpcy56aXAKTzZsSzlJTmhDL3AzS1EvUWJ6akJhcEh3d2Q3TCsrSDU5WVVPZ2ZQWnRhWSt0TXpMUERpaERSb1RRNHR6NHlPRU9MZjQ2NW9ZVURSOTQ2YmlWUGxPQ1E9PQo=",
-      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_1.3.0_x64-setup.nsis.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RmIwSllDV3gzOTZDeGVUVU5hSHl2RG00emFKblphL0gwR1gwdW5xZWMxaWhxMEtwVFpvbXgyZExicWtZUXpqdlFpSVlkMXBqTHBLbUtYVGFGZmR4NHc0PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI4MDUyMzcxCWZpbGU6cVNwaWRlcl8xLjMuMV94NjQtc2V0dXAubnNpcy56aXAKS2pVUTNlMU1VY0RjTVFiQUJPTVpaTlZYU1haalJFUEFFTllrYmJQV3B1dGNlY1Bnb3JqUndBRUJFWFYvY1B5RG9qNUVENGNLMmIvcHZuY2VnSFFXQ0E9PQo=",
+      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/qSpider_1.3.1_x64-setup.nsis.zip"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSZkdVS0Z3ZTd4RldrdHhyUEpPbi9NYUg2U1NHTGZZbVFHVmdFTmRYNDdHb2FocWExSWVxakk5VFBKSTlnSUVmYWNhM0tpbEVuN1kzL1VIOUlnMzc3bXVnRmE4RnJrZndBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzI4MDUyNDEwCWZpbGU6cS1zcGlkZXJfMS4zLjFfYW1kNjQuQXBwSW1hZ2UudGFyLmd6ClZ0dU5FUW54QTN2dVhrdVgySExxYnZseDlFU29ZWUwyT1l6L0ZXelR4UGZYM2lMWFJsNnNnZkh1QlFjS1h6SWszNnMrOVFUQTlBRE9LdVJtT1Zlb0F3PT0K",
+      "url": "https://github.com/QSPFoundation/qspider/releases/latest/download/q-spider_1.3.1_amd64.AppImage.tar.gz"
     }
   }
 }
