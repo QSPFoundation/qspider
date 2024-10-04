@@ -15,13 +15,13 @@
 
 Online player: [https://qspfoundation.github.io/qspider/](https://qspfoundation.github.io/qspider/)
 
-Current release - [1.3.0](https://github.com/QSPFoundation/qspider/releases/tag/v1.3.0)
+Current release - [1.3.1](https://github.com/QSPFoundation/qspider/releases/tag/v1.3.1)
 
-Windows: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.3.0/qSpider_1.3.0_x64-setup.exe)
+Windows: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.3.1/qSpider_1.3.1_x64-setup.exe)
 
-Macos: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.3.0/qSpider_1.3.0_universal.dmg)
+Macos: [download](https://github.com/QSPFoundation/qspider/releases/download/v1.3.1/qSpider_1.3.1_universal.dmg)
 
-Linux: [deb](https://github.com/QSPFoundation/qspider/releases/download/v1.3.0/q-spider_1.3.0_amd64.deb) | [rpm](https://github.com/QSPFoundation/qspider/releases/download/v1.3.0/q-spider-1.3.0-1.x86_64.rpm) | [AppImage](https://github.com/QSPFoundation/qspider/releases/download/v1.3.0/q-spider_1.3.0_amd64.AppImage)
+Linux: [deb](https://github.com/QSPFoundation/qspider/releases/download/v1.3.1/q-spider_1.3.1_amd64.deb) | [rpm](https://github.com/QSPFoundation/qspider/releases/download/v1.3.1/q-spider-1.3.1-1.x86_64.rpm) | [AppImage](https://github.com/QSPFoundation/qspider/releases/download/v1.3.1/q-spider_1.3.1_amd64.AppImage)
 
 ## Development server
 
