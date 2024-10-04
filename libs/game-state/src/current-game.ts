@@ -50,119 +50,125 @@ export const baseUrl$ = atom('');
 
 export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');
-  baseUrl$.set(entry.loadConfig.url);
-
-  let descriptor: GameDescriptor = entry.loadConfig.descriptor || {
-    id: entry.id,
-    mode: entry.mode,
-    title: entry.title,
-    file: '',
-  };
   try {
-    const configContent = await fetchTextContent(baseUrl$.value, 'game.cfg');
-    const config = parseToml<PlayerConfig>(configContent);
-    if (config.game?.length === 1) {
-      [descriptor] = config.game;
-    } else {
-      const found = config.game?.find((game) => game.id === entry.id);
-      if (!found) throw new Error('Config not found');
-      descriptor = found;
-    }
-  } catch (e) {
-    console.error('Game config not loaded', e);
-  }
+    baseUrl$.set(entry.loadConfig.url);
 
-  if (descriptor?.mode === 'classic' || !descriptor?.mode) {
+    let descriptor: GameDescriptor = entry.loadConfig.descriptor || {
+      id: entry.id,
+      mode: entry.mode,
+      title: entry.title,
+      file: '',
+    };
     try {
-      const cfgContent = await fetchTextContent(baseUrl$.value, 'qspgui.cfg');
-      const cfgData = parseCfg(cfgContent);
-      if (!cfgData || !Object.keys(cfgData).length) throw new Error('Invalid config file');
-      qspGuiCfg$.set(cfgData);
-    } catch {
-      // no-op
+      const configContent = await fetchTextContent(baseUrl$.value, 'game.cfg');
+      const config = parseToml<PlayerConfig>(configContent);
+      if (config.game?.length === 1) {
+        [descriptor] = config.game;
+      } else {
+        const found = config.game?.find((game) => game.id === entry.id);
+        if (!found) throw new Error('Config not found');
+        descriptor = found;
+      }
+    } catch (e) {
+      console.error('Game config not loaded', e);
     }
-  }
 
-  if (descriptor.mode === 'aero') {
-    if (descriptor.aero) {
-      descriptor.window = {
-        ...(descriptor.window ?? {}),
-        ...descriptor.aero,
-        resizable: false,
-      };
-    } else {
+    if (descriptor?.mode === 'classic' || !descriptor?.mode) {
       try {
-        const content = await fetchTextContent(baseUrl$.value, 'config.xml');
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(content, 'application/xml');
-        const gameElement = doc.querySelector('game');
-        if (gameElement) {
-          const width = parseInt(gameElement.getAttribute('width') || '800');
-          const height = parseInt(gameElement.getAttribute('height') || '600');
+        const cfgContent = await fetchTextContent(baseUrl$.value, 'qspgui.cfg');
+        const cfgData = parseCfg(cfgContent);
+        if (!cfgData || !Object.keys(cfgData).length) throw new Error('Invalid config file');
+        qspGuiCfg$.set(cfgData);
+      } catch {
+        // no-op
+      }
+    }
+
+    if (descriptor.mode === 'aero') {
+      if (descriptor.aero) {
+        descriptor.window = {
+          ...(descriptor.window ?? {}),
+          ...descriptor.aero,
+          resizable: false,
+        };
+      } else {
+        try {
+          const content = await fetchTextContent(baseUrl$.value, 'config.xml');
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(content, 'application/xml');
+          const gameElement = doc.querySelector('game');
+          if (gameElement) {
+            const width = parseInt(gameElement.getAttribute('width') || '800');
+            const height = parseInt(gameElement.getAttribute('height') || '600');
+            descriptor.aero = {
+              width,
+              height,
+            };
+            descriptor.window = {
+              ...(descriptor.window ?? {}),
+              width,
+              height,
+              resizable: false,
+            };
+          }
+        } catch {
           descriptor.aero = {
-            width,
-            height,
+            width: 800,
+            height: 600,
           };
           descriptor.window = {
             ...(descriptor.window ?? {}),
-            width,
-            height,
+            width: 800,
+            height: 600,
             resizable: false,
           };
         }
-      } catch {
-        descriptor.aero = {
-          width: 800,
-          height: 600,
-        };
-        descriptor.window = {
-          ...(descriptor.window ?? {}),
-          width: 800,
-          height: 600,
-          resizable: false,
-        };
       }
     }
-  }
 
-  windowManager.setTitle(entry.title);
-  setupGlobalHotKeys();
-  if (descriptor?.hotkeys) {
-    setupCustomHotKeys(descriptor.hotkeys);
-  }
-  if (descriptor?.resources?.icon) {
-    windowManager.setIcon(baseUrl$.value, descriptor.resources.icon);
-  }
-  loadAdditionalResources(descriptor?.resources);
-  if (descriptor?.themes) {
-    await registerThemes(descriptor.themes);
-  }
-  if (descriptor?.defaultTheme) {
-    const theme = themeRegistry$.value[descriptor.defaultTheme];
-    if (theme) {
-      currentTheme$.set(descriptor.defaultTheme);
-    } else {
-      showNotice(`Theme ${descriptor.defaultTheme} not found`);
+    windowManager.setTitle(entry.title);
+    setupGlobalHotKeys();
+    if (descriptor?.hotkeys) {
+      setupCustomHotKeys(descriptor.hotkeys);
     }
-  } else if (descriptor?.mode === 'aero') {
-    currentTheme$.set(AERO_THEME);
-  } else {
-    currentTheme$.set(CLASSIC_THEME);
+    if (descriptor?.resources?.icon) {
+      windowManager.setIcon(baseUrl$.value, descriptor.resources.icon);
+    }
+    loadAdditionalResources(descriptor?.resources);
+    if (descriptor?.themes) {
+      await registerThemes(descriptor.themes);
+    }
+    if (descriptor?.defaultTheme) {
+      const theme = themeRegistry$.value[descriptor.defaultTheme];
+      if (theme) {
+        currentTheme$.set(descriptor.defaultTheme);
+      } else {
+        showNotice(`Theme ${descriptor.defaultTheme} not found`);
+      }
+    } else if (descriptor?.mode === 'aero') {
+      currentTheme$.set(AERO_THEME);
+    } else {
+      currentTheme$.set(CLASSIC_THEME);
+    }
+    loadThemeTranslations(currentTranslations$.value);
+    if (descriptor) applyWindowSettings(descriptor.window);
+    let gameSource = await fetchBinaryContent(baseUrl$.value, entry.loadConfig.entrypoint);
+    if (!gameSource) throw new Error('Failed to load game');
+    const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
+    if (isQsps) {
+      gameSource = convertQsps(gameSource);
+    }
+    qspApi$.value?.openGame(gameSource, true);
+    qspApi$.value?.restartGame();
+    currentGameEntry$.set(entry);
+    if (descriptor) currentGame$.set(descriptor);
+    loadSaveList();
+    isPaused$.set(false);
+  } catch (e) {
+    console.error(e);
+    showNotice(e instanceof Error ? e.message : String(e));
+    stopCurrentGame();
   }
-  loadThemeTranslations(currentTranslations$.value);
-  if (descriptor) applyWindowSettings(descriptor.window);
-  let gameSource = await fetchBinaryContent(baseUrl$.value, entry.loadConfig.entrypoint);
-  if (!gameSource) throw new Error('Failed to load game');
-  const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
-  if (isQsps) {
-    gameSource = convertQsps(gameSource);
-  }
-  qspApi$.value?.openGame(gameSource, true);
-  qspApi$.value?.restartGame();
-  currentGameEntry$.set(entry);
-  if (descriptor) currentGame$.set(descriptor);
-  loadSaveList();
-  isPaused$.set(false);
 }
 
 let wasResized = false;

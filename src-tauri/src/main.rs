@@ -62,7 +62,7 @@ fn read_file(path: &Path, check_lowercase: bool) -> Result<Vec<u8>, String> {
 
 #[command]
 fn read_resource(url: String, state: State<'_, GamesPath>) -> Result<Vec<u8>, String> {
-  let uri = url.replace("qsp://", "");
+  let uri = url.replace("qsp://", "").replace("https://qsp", "");
   let path = decode(&uri).unwrap_or_default();
   let slash_index = path.chars().position(|c| c == '/').unwrap();
   let uuid_str = &path[0..slash_index];
