@@ -7,6 +7,7 @@ import { GameShelf } from './game-shelf';
 import { QspCatalog } from './qsp-catalog';
 import { QspiderThemeSwitch } from './qspider-theme-switch';
 import { LocaleSelector } from './locale-selector';
+import { QspiderVersionModal } from './qspider-version';
 
 export const QspiderPlayer: React.FC = () => {
   const { t } = useTranslation();
@@ -15,7 +16,9 @@ export const QspiderPlayer: React.FC = () => {
   return (
     <div className="qspider-player">
       <nav className="qspider-navbar">
-        <div className="qspider-logo">spider</div>
+        <QspiderVersionModal>
+          <div className="qspider-logo">spider</div>
+        </QspiderVersionModal>
         <div className="qspider-nav">
           <ul>
             <li>

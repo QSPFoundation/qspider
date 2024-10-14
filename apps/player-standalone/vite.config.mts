@@ -4,6 +4,9 @@ import react from '@vitejs/plugin-react';
 import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { resolve } from 'node:path';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pkg = require('../../package.json');
+
 export default defineConfig(({ mode }) => {
   return {
     base: '',
@@ -13,6 +16,7 @@ export default defineConfig(({ mode }) => {
 
     define: {
       APP_MODE: JSON.stringify(mode === 'desktop' ? 'desktop' : 'web'),
+      QSPIDER_VERSION: JSON.stringify(pkg.version),
     },
 
     server: {

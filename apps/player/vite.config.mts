@@ -5,9 +5,15 @@ import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pkg = require('../../package.json');
+
 export default defineConfig({
   base: '',
   root: __dirname,
+  define: {
+    QSPIDER_VERSION: JSON.stringify(pkg.version),
+  },
   build: {
     outDir: '../../dist/apps/player',
     reportCompressedSize: true,
