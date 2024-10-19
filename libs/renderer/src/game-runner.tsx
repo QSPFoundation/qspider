@@ -12,6 +12,7 @@ import {
 } from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
+import { isTouchDevice } from '@qspider/utils';
 import { ClickCoordinates } from './click-coordinates';
 import { useEventListener } from './hooks/event-listener';
 import { QspiderLoader } from './loader';
@@ -21,6 +22,7 @@ import { QspCSSVariables } from './theme-core/css-variables';
 import { WaitLock } from './wait-lock';
 import { QspCSSLinks } from './theme-core/css-links';
 import { QspScriptLinks } from './theme-core/script-links';
+import { TouchPauseButton } from './touch-pause-button';
 
 const handler = throttle((e: KeyboardEvent): void => {
   if (e.key === 'Escape') {
@@ -57,6 +59,7 @@ export const GameRunner: React.FC = () => {
       <WaitLock />
       <QspErrorAlert />
       <QspScriptLinks />
+      {isTouchDevice() && <TouchPauseButton />}
     </qsp-game-root>
   );
 };
