@@ -78,10 +78,16 @@ a.plain {
 
 .qsp-pause-screen {
   max-height: 100%;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: minmax(0, 1fr);
-  column-gap: 12px;
+  overflow: auto;
+}
+@media only screen and (min-width: 768px) {
+  .qsp-pause-screen {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: minmax(0, 1fr);
+    column-gap: 12px;
+    overflow: hidden;
+  }
 }
 qsp-pause-screen {
   display: grid;
@@ -98,6 +104,7 @@ qsp-pause-screen {
   flex-direction: column;
   width: 9em;
   margin-right: 24px;
+  margin-bottom: 12px;
 }
 .qsp-pause-screen-buttons .qsp-button,
 qsp-region[data-region-name='qspider-pause-screen-buttons'] .qsp-button {
