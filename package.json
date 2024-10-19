@@ -76,6 +76,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-i18next": "^15.0.2",
+    "react-use": "^17.5.1",
     "uuid": "^10.0.0",
     "workbox-core": "^7.1.0",
     "workbox-routing": "^7.1.0",

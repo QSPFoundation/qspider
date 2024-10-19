@@ -659,3 +659,21 @@ qsp-cl-dock[data-place='bottom'] > qsp-cl-pane + qsp-cl-pane {
   outline: none;
   box-shadow: 0 0 0 5px var(--black-a8);
 }
+
+.qsp-touch-pause-button {
+  position: fixed;
+  top: 0;
+  left: 50%;
+}
+.qsp-touch-pause-button button {
+  display: inline-block;
+  margin-left: -50%;
+  border: 1px solid white;
+  border-top: 0;
+  border-bottom-left-radius: 50%;
+  border-bottom-right-radius: 50%;
+  padding: 2px 4px;
+  background-color: black;
+  color: white;
+  opacity: 50%;
+}
