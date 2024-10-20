@@ -80,7 +80,7 @@ export async function init(): Promise<void> {
   if (toRun) {
     goToGame(toRun);
   } else {
-    await processLocationChange(window.location.search);
+    await processLocationChange(window.location.search, { paused: false });
   }
   baseInit$.set(true);
 }
