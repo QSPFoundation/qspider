@@ -71,24 +71,27 @@ export const gameSourceMap$ = atom((get) => {
 });
 
 history.listen(({ location }) => {
-  processLocationChange(location.search, location.state as Record<string, unknown> | null);
+  processLocationChange(location.search);
 });
 
-export async function processLocationChange(location: string, state: Record<string, unknown> | null): Promise<void> {
-  if (state) {
-    if (state.paused) {
-      onOpenPauseScreen();
-    } else {
-      onClosePauseScreen();
-    }
-  }
+export async function processLocationChange(location: string): Promise<void> {
   const search = new URLSearchParams(location);
   const game_id = search.get('run');
   if (game_id) {
-    if (currentGame$.value?.id === game_id) return;
+    if (currentGame$.value?.id === game_id) {
+      if (search.has('pause')) {
+        onOpenPauseScreen();
+      } else {
+        onClosePauseScreen();
+      }
+      return;
+    }
     await initDeferred$.value.promise;
     const descriptor = games$.value[game_id];
     await runGame(descriptor);
+    if (search.has('pause')) {
+      onOpenPauseScreen();
+    }
     currentMode$.set('game');
   } else if (search.has('catalog')) {
     if (currentGameEntry$.value) stopCurrentGame();

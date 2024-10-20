@@ -7,14 +7,11 @@ export const isPauseScreenVisible$ = atom(false);
 export const pauseScreenCurrentPanel$ = atom('credits');
 
 export function openPauseScreen(): void {
-  history.push(
-    {
-      search: history.location.search,
-    },
-    {
-      paused: true,
-    },
-  );
+  const search = new URLSearchParams(history.location.search);
+  search.set('pause', 'true');
+  history.push({
+    search: search.toString(),
+  });
 }
 
 export function onOpenPauseScreen(): void {
@@ -22,7 +19,14 @@ export function onOpenPauseScreen(): void {
 }
 
 export function closePauseScreen(): void {
-  history.back();
+  if (window.history.length > 1) {
+    return history.back();
+  }
+  const search = new URLSearchParams(history.location.search);
+  search.delete('pause');
+  history.push({
+    search: search.toString(),
+  });
 }
 
 export function onClosePauseScreen(): void {
