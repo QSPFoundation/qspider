@@ -1,5 +1,14 @@
 import { GameShelfEntry } from '@qspider/contracts';
-import { currentGameEntry$, initDeferred$, initialBaseUrl$, runGame, stopCurrentGame } from '@qspider/game-state';
+import {
+  currentGame$,
+  currentGameEntry$,
+  initDeferred$,
+  initialBaseUrl$,
+  onClosePauseScreen,
+  onOpenPauseScreen,
+  runGame,
+  stopCurrentGame,
+} from '@qspider/game-state';
 import { atom } from 'xoid';
 import history from 'history/browser';
 import { getStorage } from '@qspider/env';
@@ -14,7 +23,7 @@ export function navigateTo(path: string): void {
   history.push(`?${path}`);
 }
 export function goToGame(id: string): void {
-  history.push(`${initialBaseUrl$.value}?run=${id}`);
+  history.push(`${initialBaseUrl$.value}?run=${id}`, { pause: false });
 }
 
 export const currentMode$ = atom('shelf');
@@ -62,13 +71,21 @@ export const gameSourceMap$ = atom((get) => {
 });
 
 history.listen(({ location }) => {
-  processLocationChange(location.search);
+  processLocationChange(location.search, location.state as Record<string, unknown> | null);
 });
 
-export async function processLocationChange(location: string): Promise<void> {
+export async function processLocationChange(location: string, state: Record<string, unknown> | null): Promise<void> {
+  if (state) {
+    if (state.paused) {
+      onOpenPauseScreen();
+    } else {
+      onClosePauseScreen();
+    }
+  }
   const search = new URLSearchParams(location);
   const game_id = search.get('run');
   if (game_id) {
+    if (currentGame$.value?.id === game_id) return;
     await initDeferred$.value.promise;
     const descriptor = games$.value[game_id];
     await runGame(descriptor);
