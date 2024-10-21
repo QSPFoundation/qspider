@@ -99,5 +99,6 @@
     "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
   },
   "useInferencePlugins": false,
-  "defaultBase": "master"
+  "defaultBase": "master",
+  "useLegacyCache": true
 }
