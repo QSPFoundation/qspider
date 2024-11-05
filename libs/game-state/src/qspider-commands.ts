@@ -54,7 +54,7 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
     if (direction === 'top') {
       scroll$.set(-1);
     } else {
-      scroll$.update((x) => Math.max(x, 0) + 1);
+      scroll$.update((x = 0) => Math.max(x, 0) + 1);
     }
   },
   'update_layer:'(name: string): void {
