@@ -12,7 +12,13 @@ import {
 } from './themes';
 import { isPaused$ } from './counter';
 import { muted$, sounds$ } from './audio';
-import { closePauseScreen, isPauseScreenVisible$, openPauseScreen, pauseScreenCurrentPanel$ } from './pause-screen';
+import {
+  closePauseScreen,
+  isPauseScreenVisible$,
+  onClosePauseScreen,
+  openPauseScreen,
+  pauseScreenCurrentPanel$,
+} from './pause-screen';
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { fetchBinaryContent, fetchTextContent, windowManager } from '@qspider/env';
@@ -204,7 +210,7 @@ export function stopCurrentGame(): void {
   currentGameEntry$.set(null);
   currentGame$.set(null);
   qspGuiCfg$.set(null);
-  closePauseScreen();
+  onClosePauseScreen();
   pauseScreenCurrentPanel$.set('credits');
   isPaused$.set(true);
 
