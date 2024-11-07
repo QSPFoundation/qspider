@@ -202,6 +202,7 @@ gs 'back-link'
 
 '<a href="exec: @qspider_event(''test_event'')">Dispatch event without args</a>'
 '<a href="exec: @qspider_event(''event_with_args'', 1, ''test'')">Dispatch event with args</a>'
+'<a href="exec: @qspider_event(''event_with_args'', 1, ''Test, test, test'')">Dispatch event with args with comma in string</a>'
 
 ---
 

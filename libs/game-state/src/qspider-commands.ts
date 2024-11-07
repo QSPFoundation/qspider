@@ -5,6 +5,33 @@ import { currentTheme$, themeRegistry$ } from './themes';
 import { errorMessage$ } from './toasts';
 import { windowManager } from '@qspider/env';
 
+function parseArgs(input: string): Array<string | number> {
+  const args: Array<string | number> = [];
+  let is_string = false;
+  let current: string[] = [];
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+    if (char === '~') {
+      if (is_string) {
+        is_string = false;
+        args.push(current.join(''));
+        current = [];
+      } else {
+        is_string = true;
+      }
+    } else if (!is_string && char === ',') {
+      args.push(parseFloat(current.join('')));
+      current = [];
+    } else {
+      current.push(char);
+    }
+  }
+  if (current.length) {
+    args.push(parseFloat(current.join('')));
+  }
+  return args;
+}
+
 export const qspiderCommands: Record<string, (input: string) => void> = {
   'action:'(action: string): void {
     onGameCommand(action as GameCommand);
@@ -14,13 +41,7 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
       const match = event.trim().match(/(.*?)(\[(.*?)\])/i);
       if (match) {
         const name = match[1];
-        const args = match[3].split(',').map((arg) => {
-          const prepared = arg.trim();
-          if (prepared.startsWith('"') || prepared.startsWith("'")) {
-            return prepared.replace(/['"](.*?)['"]/gim, (_, path) => path);
-          }
-          return parseInt(prepared);
-        });
+        const args = parseArgs(match[3]);
         window.dispatchEvent(
           new CustomEvent('qspider-event', {
             detail: { name, args },

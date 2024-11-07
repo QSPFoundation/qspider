@@ -103,10 +103,10 @@ local $event_args = ''
 if ARRSIZE('$args') > 1:
   loop local i = 1 while i < ARRSIZE('$args') step i += 1:
     if LEN($event_args) > 0:  $event_args += ','
-    if args[i] <> 0:
-      $event_args += args[i]
+    if $args[i] <> '':
+      $event_args += '~<<$args[i]>>~'
     else:
-      $event_args += '"<<$args[i]>>"'
+      $event_args += args[i]
     end
   end
 end
