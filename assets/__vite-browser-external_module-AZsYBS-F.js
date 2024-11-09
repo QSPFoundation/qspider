@@ -1,0 +1,1 @@
+const t=new Proxy({},{get(o,e){throw new Error(`Module "module" has been externalized for browser compatibility. Cannot access "module.${e}" in client code.  See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.`)}});export{t as default};
