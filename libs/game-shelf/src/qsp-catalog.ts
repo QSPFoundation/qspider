@@ -63,6 +63,7 @@ type CatalogLoadingState = 'pending' | 'loading' | 'loaded' | 'failed';
 export const catalogLoading$ = atom<CatalogLoadingState>('pending');
 export const sourceName = 'org.qsp.games';
 const CATALOG_URL = 'https://catalog.qspider.xyz/';
+const GAMEKIT_URL = `https://github.com/QSPFoundation/gamekit/releases/latest/download/games_package.zip`;
 
 const catalogLoadingDeferred = defer<void>();
 export async function loadQspCatalog(): Promise<void> {
@@ -109,6 +110,23 @@ export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> 
     showError(`Failed to load source for game ${game.title}`);
   }
   return [];
+}
+
+export async function importGameKit(): Promise<void> {
+  try {
+    const imported = await importUrl(GAMEKIT_URL, 'games_package.zip');
+    for (const entry of imported) {
+      games$.actions.add(entry.id, entry);
+    }
+    showNotice(
+      i18n.t(`{{ count }} games added to shelf`, {
+        count: imported.length,
+      }),
+    );
+  } catch (err) {
+    console.error(err);
+    showError(`Failed to load gamekit`);
+  }
 }
 
 export function toggleSortDirection(): void {

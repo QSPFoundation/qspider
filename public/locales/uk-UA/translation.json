@@ -109,5 +109,6 @@
   "Loading game from catalog...": "Завантажуємо гру з каталогу...",
   "Theme {{name}} not found": "Тему {{name}} не знайдено",
   "{{ count }} games added to shelf_few": "{{ count }} гри добавлені на полицю",
-  "{{ count }} games added to shelf_many": "{{ count }} ігор добавлені на полицю"
+  "{{ count }} games added to shelf_many": "{{ count }} ігор добавлені на полицю",
+  "Gamekit": "Рекомендовані ігри"
 }

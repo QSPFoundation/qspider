@@ -108,5 +108,6 @@
   "Game with id {{catalogId}} not found in catalog": "Game with id {{catalogId}} not found in catalog",
   "Loading game from catalog...": "Loading game from catalog...",
   "Theme {{name}} not found": "Theme {{name}} not found",
-  "{{ count }} games added to shelf": "{{ count }} games added to shelf"
+  "{{ count }} games added to shelf": "{{ count }} games added to shelf",
+  "Gamekit": "Recomended games"
 }

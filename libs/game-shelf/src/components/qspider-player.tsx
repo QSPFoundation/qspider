@@ -8,6 +8,7 @@ import { QspCatalog } from './qsp-catalog';
 import { QspiderThemeSwitch } from './qspider-theme-switch';
 import { LocaleSelector } from './locale-selector';
 import { QspiderVersionModal } from './qspider-version';
+import { importGameKit } from '../qsp-catalog';
 
 export const QspiderPlayer: React.FC = () => {
   const { t } = useTranslation();
@@ -43,6 +44,17 @@ export const QspiderPlayer: React.FC = () => {
                 className={mode === 'catalog' ? 'qspider-active' : ''}
               >
                 {t('Qsp Game Catalog')}
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                onClick={(e): void => {
+                  e.preventDefault();
+                  importGameKit();
+                }}
+              >
+                {t('Gamekit')}
               </a>
             </li>
           </ul>
