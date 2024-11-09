@@ -107,5 +107,7 @@
   "Aero games": "Aero игры",
   "Game with id {{catalogId}} not found in catalog": "Игра с id {{catalogId}} не найдена в каталоге",
   "Loading game from catalog...": "Загрузка игры из каталога...",
-  "Theme {{name}} not found": "Тема {{name}} не найдена"
+  "Theme {{name}} not found": "Тема {{name}} не найдена",
+  "{{ count }} games added to shelf_few": "{{ count }} игры добавлены на полку",
+  "{{ count }} games added to shelf_many": "{{ count }} игр добавлены на полку"
 }

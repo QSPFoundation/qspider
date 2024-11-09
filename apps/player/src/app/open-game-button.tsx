@@ -1,5 +1,5 @@
 import { games$, goToGame } from '@qspider/game-shelf';
-import { showError } from '@qspider/game-state';
+import { showError, showNotice } from '@qspider/game-state';
 import { importFile } from '@qspider/importers';
 import { ChangeEvent, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,8 +18,16 @@ export const OpenGameButton: React.FC = () => {
         for (const entry of imported) {
           games$.actions.add(entry.id, entry);
         }
-        const toRun = imported[0].id;
-        toRun && goToGame(toRun);
+        if (imported.length > 1) {
+          showNotice(
+            t(`{{ count }} games added to shelf`, {
+              count: imported.length,
+            }),
+          );
+        } else {
+          const toRun = imported[0].id;
+          toRun && goToGame(toRun);
+        }
       } catch (err) {
         showError(err instanceof Error ? err.message : String(err));
       }

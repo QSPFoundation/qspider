@@ -107,5 +107,6 @@
   "Aero games": "Aero游戏",
   "Game with id {{catalogId}} not found in catalog": "目录中找不到ID为 {{catalogId}} 的游戏",
   "Loading game from catalog...": "从目录加载游戏中…",
-  "Theme {{name}} not found": "未找到主题 {{name}}"
+  "Theme {{name}} not found": "未找到主题 {{name}}",
+  "{{ count }} games added to shelf": "{{ count }} 个游戏已添加到书架"
 }
