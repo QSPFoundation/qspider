@@ -28,8 +28,9 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
     <DropdownMenu.Root open={menu.isOpen} onOpenChange={(): void => menu$.actions.close()}>
       <DropdownMenu.Trigger asChild>
         <div
+          data-menu-trigger
           style={{
-            position: 'fixed',
+            position: 'absolute',
             left,
             top,
           }}
