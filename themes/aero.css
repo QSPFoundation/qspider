@@ -293,6 +293,11 @@ qsp-menu.aero-fixed-menu .list-wrapper {
 .action-item table img {
   display: inherit;
 }
+
+.qsp-scroll-area {
+  padding-right: max(var(--up-arrow-w), var(--down-arrow-w));
+}
+
 .qsp-scrollbar[data-orientation='vertical']::before {
   content: '';
   position: absolute;
