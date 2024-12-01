@@ -164,12 +164,12 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     if (isQsps) {
       gameSource = convertQsps(gameSource);
     }
+    isPaused$.set(false);
     qspApi$.value?.openGame(gameSource, true);
     qspApi$.value?.restartGame();
     currentGameEntry$.set(entry);
     if (descriptor) currentGame$.set(descriptor);
     loadSaveList();
-    isPaused$.set(false);
   } catch (e) {
     console.error(e);
     showNotice(e instanceof Error ? e.message : String(e));
