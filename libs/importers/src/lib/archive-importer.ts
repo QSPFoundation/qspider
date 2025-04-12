@@ -78,7 +78,7 @@ export async function importArchive(
     return [
       {
         id: game_id,
-        title: rootDescriptor?.title || archiveName.slice(archiveName.lastIndexOf('/') + 1),
+        title: rootDescriptor?.title || decodeURI(archiveName.slice(archiveName.lastIndexOf('/') + 1)),
         mode: rootDescriptor?.mode || (archiveName.endsWith('aqsp') ? 'aero' : 'classic'),
         author: rootDescriptor?.author,
         ported_by: rootDescriptor?.ported_by,
