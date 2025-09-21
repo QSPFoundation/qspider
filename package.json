@@ -163,5 +163,10 @@
     "@nx/eslint-plugin": {
       "@typescript-eslint/parser": "^8.0.0"
     }
+  },
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   }
 }

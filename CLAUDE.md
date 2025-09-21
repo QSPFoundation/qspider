@@ -9,22 +9,22 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 ## Development Commands
 
 ### Starting Development Server
-- `npm start` - Start the main web player development server (http://localhost:4200)
-- `npm run start:standalone` - Start standalone web player
-- `npm run start:desktop` - Start desktop version with Tauri (requires Rust installed)
-- `npm run start:docs` - Start documentation site
+- `pnpm start` - Start the main web player development server (http://localhost:4200)
+- `pnpm start:standalone` - Start standalone web player
+- `pnpm start:desktop` - Start desktop version with Tauri (requires Rust installed)
+- `pnpm start:docs` - Start documentation site
 
 ### Building
-- `npm run build` - Build all projects for production
-- `npm run build:standalone` - Build standalone web player
-- `npm run build:desktop` - Build desktop version
-- `npm run build:docs` - Build documentation
+- `pnpm build` - Build all projects for production
+- `pnpm build:standalone` - Build standalone web player
+- `pnpm build:desktop` - Build desktop version
+- `pnpm build:docs` - Build documentation
 
 ### Testing and Quality
-- `npm test` - Run tests for all projects
-- `npm run lint` - Run ESLint on all projects
-- `npm run format` - Format code with Prettier
-- `npm run format:check` - Check code formatting
+- `pnpm test` - Run tests for all projects
+- `pnpm lint` - Run ESLint on all projects
+- `pnpm format` - Format code with Prettier
+- `pnpm format:check` - Check code formatting
 
 ### NX Specific Commands
 - `nx build player` - Build specific player app
@@ -89,7 +89,7 @@ The project uses NX monorepo with the following structure:
 To set up desktop development:
 1. Install Rust: https://rustup.rs/
 2. Navigate to `src-tauri` directory and run `cargo install`
-3. Use `npm run start:desktop` for development
+3. Use `pnpm start:desktop` for development
 
 ### Game Engine Integration
 The application integrates with QSP games through the `@qsp/wasm-engine` WebAssembly module, providing:
