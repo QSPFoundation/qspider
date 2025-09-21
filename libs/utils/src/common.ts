@@ -75,6 +75,6 @@ export function prepareBaseUrl(rawBaseUrl: string): string {
   url.search = '';
   url.hash = '';
   const baseUrl = url.toString();
-  if (baseUrl.endsWith(url.hostname)) return baseUrl + "/";
+  if (baseUrl.endsWith(url.hostname)) return baseUrl + '/';
   return baseUrl.slice(0, baseUrl.lastIndexOf('/') + 1);
 }

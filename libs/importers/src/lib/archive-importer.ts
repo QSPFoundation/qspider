@@ -27,7 +27,11 @@ export async function importArchive(
         );
         if (!descriptorFile) {
           const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
-          await storage.addGameResource(game.id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent).buffer);
+          await storage.addGameResource(
+            game.id,
+            GAME_DESCRIPTOR_NAME,
+            new TextEncoder().encode(descriptorContent).buffer,
+          );
         } else {
           const [descriptor] = await readGameDescriptor(descriptorFile.data);
           Object.assign(game, descriptor);
@@ -145,7 +149,7 @@ function getGameFolder(root: FileDir, filename: string): FileDir {
 }
 
 async function readGameDescriptor(data: Uint8Array): Promise<GameDescriptor[]> {
-  const blob = new Blob([data.slice()]);  // slice() returns a copy as ArrayBuffer
+  const blob = new Blob([data.slice()]); // slice() returns a copy as ArrayBuffer
   const text = await blob.text();
   const descriptor = parseToml<PlayerConfig>(text);
   return descriptor.game;
