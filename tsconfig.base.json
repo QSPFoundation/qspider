@@ -21,11 +21,11 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@qspider/env": ["libs/browser/src/index.ts"],
       "@qspider/browser": ["libs/browser/src/index.ts"],
       "@qspider/contracts": ["libs/contracts/src/index.ts"],
       "@qspider/desktop": ["libs/desktop/src/index.ts"],
       "@qspider/docusaurus": ["libs/docusaurus/src/index.ts"],
+      "@qspider/env": ["libs/browser/src/index.ts"],
       "@qspider/game-shelf": ["libs/game-shelf/src/index.ts"],
       "@qspider/game-state": ["libs/game-state/src/index.ts"],
       "@qspider/html-renderer": ["libs/html-renderer/src/index.ts"],

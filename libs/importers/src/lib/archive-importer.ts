@@ -27,7 +27,7 @@ export async function importArchive(
         );
         if (!descriptorFile) {
           const descriptorContent = stringify({ game: [game] } as unknown as JsonMap);
-          await storage.addGameResource(game.id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
+          await storage.addGameResource(game.id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent).buffer);
         } else {
           const [descriptor] = await readGameDescriptor(descriptorFile.data);
           Object.assign(game, descriptor);
@@ -68,7 +68,7 @@ export async function importArchive(
     await storeFolderContent(game_id, gameFolder);
     if (rootDescriptor) {
       const descriptorContent = stringify({ game: [rootDescriptor] } as unknown as JsonMap);
-      await storage.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent));
+      await storage.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent).buffer);
     }
     const loadConfig = await storage.prepareLoadConfig(game_id, filename);
     let icon = rootDescriptor?.resources?.icon;
@@ -145,7 +145,7 @@ function getGameFolder(root: FileDir, filename: string): FileDir {
 }
 
 async function readGameDescriptor(data: Uint8Array): Promise<GameDescriptor[]> {
-  const blob = new Blob([data]);
+  const blob = new Blob([data.slice()]);  // slice() returns a copy as ArrayBuffer
   const text = await blob.text();
   const descriptor = parseToml<PlayerConfig>(text);
   return descriptor.game;
@@ -158,7 +158,7 @@ async function storeFolderContent(game_id: string, folder: FileDir, prefix = '')
       await storeFolderContent(game_id, entry, `${prefix}${entry.name}/`);
     } else {
       if (entry.name === '.DS_Store') continue;
-      await storage.addGameResource(game_id, `${prefix}${entry.name}`, entry.data);
+      await storage.addGameResource(game_id, `${prefix}${entry.name}`, entry.data.slice().buffer);
     }
   }
 }
