@@ -1,4 +1,4 @@
-import { QspListItem } from '@qsp/wasm-engine';
+import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
 
@@ -31,7 +31,7 @@ export function execSelectedAction(): void {
 
 export const isObjsVisible$ = atom(false);
 export const selectedObject$ = atom(-1);
-export const objects$ = atom<QspListItem[]>([]);
+export const objects$ = atom<QspObjectItem[]>([]);
 export function selectObject(index: number): void {
   qspApi$.value?.selectObject(index);
 }

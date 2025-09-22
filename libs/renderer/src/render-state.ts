@@ -101,7 +101,7 @@ let objectsKey = 0;
 export const objectsWithParsedName$ = atom((get) => {
   const objects = get(objects$);
   if (!get(hasBrowserTranslation$)) objectsKey = 0;
-  return objects.map((o) => ({ ...o, name: templateParser.parse(o.name), key: objectsKey++ }));
+  return objects.map((o) => ({ ...o, name: templateParser.parse(o.title || o.name), key: objectsKey++ }));
 });
 
 let menuKey = 0;
@@ -200,10 +200,11 @@ export const aeroObjectsWithParsedName$ = atom((get) => {
 
   return objects.map((o, index) => {
     const currentFormat = index === selectedObject ? selectedFormat : format;
+    const displayText = o.title || o.name;
     return {
       ...o,
       name: templateParser.parse(
-        currentFormat.replace(TEXT_PLACEHOLDER, o.name).replace(IMAGE_PLACEHOLDER, o.image || ''),
+        currentFormat.replace(TEXT_PLACEHOLDER, displayText).replace(IMAGE_PLACEHOLDER, o.image || ''),
       ),
       key: objectsKey++,
     };

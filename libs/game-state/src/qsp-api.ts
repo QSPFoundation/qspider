@@ -23,7 +23,7 @@ import { baseUrl$, currentGameEntry$, GameCommand, onGameCommand } from './curre
 import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
-import { convertQsps, prepareContent, prepareList } from './utils';
+import { convertQsps, prepareContent, prepareList, prepareObjectList } from './utils';
 import { cleanPath, hashString } from '@qspider/utils';
 import { menu$ } from './menu';
 import { input$ } from './input';
@@ -182,7 +182,7 @@ qspApi$.subscribe((api) => {
     actions$.set(prepareList(actions));
   });
   api.on('objects_changed', (objects) => {
-    objects$.set(prepareList(objects));
+    objects$.set(prepareObjectList(objects));
   });
   api.on('user_input', (text) => {
     cmdText$.set(text);
@@ -195,19 +195,17 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('panel_visibility', (type, isShown) => {
-    switch (type) {
-      case QspPanel.STAT:
-        isStatsVisible$.set(isShown);
-        break;
-      case QspPanel.ACTS:
-        isActsVisible$.set(isShown);
-        break;
-      case QspPanel.OBJS:
-        isObjsVisible$.set(isShown);
-        break;
-      case QspPanel.INPUT:
-        isCmdVisible$.set(isShown);
-        break;
+    if (type & QspPanel.VARS) {
+      isStatsVisible$.set(isShown);
+    }
+    if (type & QspPanel.ACTS) {
+      isActsVisible$.set(isShown);
+    }
+    if (type & QspPanel.OBJS) {
+      isObjsVisible$.set(isShown);
+    }
+    if (type & QspPanel.INPUT) {
+      isCmdVisible$.set(isShown);
     }
   });
   api.on('load_save', async (path, loaded) => {

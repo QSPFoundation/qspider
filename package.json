@@ -43,7 +43,7 @@
     "@mdx-js/react": "^3.1.1",
     "@nx/devkit": "21.5.3",
     "@qsp/converters": "^1.0.1",
-    "@qsp/wasm-engine": "^1.5.1",
+    "@qsp/wasm-engine": "^1.6.0",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.5",

@@ -1,5 +1,5 @@
 import { readQsps, writeQsp } from '@qsp/converters';
-import { QspListItem } from '@qsp/wasm-engine';
+import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { cleanPath } from '@qspider/utils';
 
 export function convertQsps(source: ArrayBuffer): ArrayBuffer {
@@ -25,6 +25,14 @@ export function prepareList(list: QspListItem[]): QspListItem[] {
   return list.map((item) => ({
     name: prepareContent(item.name),
     image: cleanPath(item.image),
+  }));
+}
+
+export function prepareObjectList(list: QspObjectItem[]): QspObjectItem[] {
+  return list.map((item) => ({
+    name: prepareContent(item.name),
+    image: cleanPath(item.image),
+    title: prepareContent(item.title),
   }));
 }
 
