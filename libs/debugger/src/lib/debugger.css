@@ -1,0 +1,1185 @@
+/* QSP Debugger Styles */
+
+/* Layout container for main content and debugger */
+.qsp-debugger-layout {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  overflow: hidden;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+
+.qsp-debugger-layout.debugger-open.debugger-bottom {
+  grid-template-rows: 1fr auto;
+  grid-template-areas: "main" "debugger";
+}
+
+.qsp-debugger-layout.debugger-open.debugger-left {
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "debugger main";
+}
+
+.qsp-debugger-layout.debugger-open.debugger-right {
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "main debugger";
+}
+
+.qsp-debugger-layout.debugger-open qsp-player {
+  width: 100%;
+  height: 100%;
+}
+
+.qsp-debugger-main-content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  grid-area: main;
+}
+
+.qsp-debugger-container {
+  grid-area: debugger;
+  background-color: var(--app-background);
+  border: 1px solid var(--subtle-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
+  transition: all 0.2s ease-in-out;
+}
+
+.qsp-debugger-container.bottom {
+  height: 40vh;
+  min-height: 300px;
+  max-height: 70vh;
+  border-top: 2px solid var(--solid-background);
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+}
+
+.qsp-debugger-container.right {
+  width: 40vw;
+  min-width: 400px;
+  max-width: 70vw;
+  height: 100vh;
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  border-left: 2px solid var(--solid-background);
+}
+
+.qsp-debugger-container.left {
+  width: 40vw;
+  min-width: 400px;
+  max-width: 70vw;
+  height: 100vh;
+  border-left: none;
+  border-top: none;
+  border-bottom: none;
+  border-right: 2px solid var(--solid-background);
+}
+
+/* Hidden state handled by conditional rendering now */
+
+.qsp-debugger-resizer {
+  position: absolute;
+  background-color: var(--solid-background);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.qsp-debugger-resizer:hover,
+.qsp-debugger-resizer.resizing {
+  opacity: 1;
+}
+
+.qsp-debugger-container.bottom .qsp-debugger-resizer {
+  top: -2px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  cursor: ns-resize;
+}
+
+.qsp-debugger-container.right .qsp-debugger-resizer {
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  width: 4px;
+  cursor: ew-resize;
+}
+
+.qsp-debugger-container.left .qsp-debugger-resizer {
+  top: 0;
+  bottom: 0;
+  right: -2px;
+  width: 4px;
+  cursor: ew-resize;
+}
+
+.qsp-debugger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacer--xs);
+  border-bottom: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--text-hc);
+  margin: 0;
+}
+
+.qsp-debugger-header-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer--sm);
+}
+
+.qsp-debugger-dock-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer--xs);
+  margin-right: var(--spacer--sm);
+}
+
+.qsp-debugger-dock-button {
+  background: none;
+  border: 1px solid var(--subtle-border);
+  color: var(--text-lc);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: var(--spacer--xs);
+  border-radius: var(--border-radius);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qsp-debugger-dock-button:hover {
+  background-color: var(--ui-element-hover-background);
+  color: var(--text-hc);
+}
+
+.qsp-debugger-dock-button.active {
+  background-color: var(--solid-background);
+  color: var(--text-solid);
+  border-color: var(--solid-background);
+}
+
+.qsp-debugger-toggle-button {
+  font-size: 0.875rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+}
+
+.qsp-debugger-toggle-button.enabled {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+.qsp-debugger-toggle-button.disabled {
+  background: var(--solid-background);
+  border-color: var(--solid-background);
+}
+
+.qsp-debugger-close-button {
+  color: var(--text-lc);
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: var(--spacer--xs);
+  border-radius: var(--border-radius);
+}
+
+.qsp-debugger-close-button:hover {
+  background-color: var(--ui-element-hover-background);
+  color: var(--text-hc);
+}
+
+.qsp-debugger-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.qsp-debugger-container.bottom .qsp-debugger-content {
+  flex-direction: row;
+}
+
+.qsp-debugger-container.left .qsp-debugger-content,
+.qsp-debugger-container.right .qsp-debugger-content {
+  flex-direction: column;
+}
+
+.qsp-debugger-sidebar {
+  background-color: var(--subtle-background);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-container.bottom .qsp-debugger-sidebar {
+  width: 300px;
+  min-width: 250px;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+}
+
+.qsp-debugger-container.left .qsp-debugger-sidebar,
+.qsp-debugger-container.right .qsp-debugger-sidebar {
+  height: 200px;
+  min-height: 150px;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+
+.qsp-debugger-locations-content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacer--xs);
+}
+
+.qsp-debugger-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--subtle-border);
+  overflow-x: auto;
+}
+
+.qsp-debugger-container.bottom .qsp-debugger-tabs {
+  flex-direction: row;
+}
+
+.qsp-debugger-container.left .qsp-debugger-tabs,
+.qsp-debugger-container.right .qsp-debugger-tabs {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.qsp-debugger-tab {
+  background: transparent;
+  border: none;
+  padding: var(--spacer--sm);
+  color: var(--text-lc);
+  cursor: pointer;
+  text-transform: capitalize;
+  font-size: 0.875rem;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.qsp-debugger-container.bottom .qsp-debugger-tab {
+  flex: 1;
+}
+
+.qsp-debugger-container.left .qsp-debugger-tab,
+.qsp-debugger-container.right .qsp-debugger-tab {
+  flex: 0 0 auto;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  font-size: 0.75rem;
+}
+
+.qsp-debugger-tab:hover {
+  background-color: var(--ui-element-hover-background);
+}
+
+.qsp-debugger-tab.active {
+  color: var(--solid-background);
+  border-bottom-color: var(--solid-background);
+}
+
+.qsp-debugger-tab-content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacer--sm);
+}
+
+.qsp-debugger-location-item {
+  padding: var(--spacer--sm);
+  margin-bottom: var(--spacer--xs);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qsp-debugger-location-item:hover {
+  background-color: var(--ui-element-hover-background);
+}
+
+.qsp-debugger-location-item.selected {
+  background-color: var(--ui-element-active-background);
+  color: var(--text-hc);
+}
+
+.qsp-debugger-location-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qsp-debugger-breakpoint-button {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-lc);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 4px;
+  border-radius: var(--border-radius);
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.qsp-debugger-breakpoint-button:hover {
+  color: #1a73e8;
+  background: rgba(26, 115, 232, 0.1);
+  border-color: rgba(26, 115, 232, 0.3);
+}
+
+.qsp-debugger-breakpoint-button.has-breakpoint {
+  color: #1a73e8;
+  background: rgba(26, 115, 232, 0.15);
+  border-color: #1a73e8;
+  font-weight: bold;
+}
+
+.qsp-debugger-breakpoint-button.has-breakpoint:hover {
+  color: var(--danger);
+  background: rgba(231, 76, 60, 0.1);
+  border-color: var(--danger);
+}
+
+.qsp-debugger-execution-info {
+  margin-bottom: var(--spacer--md);
+}
+
+.qsp-debugger-debug-toggle-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacer--sm);
+}
+
+.qsp-debugger-debug-toggle-section .qsp-debugger-toggle-button {
+  font-size: 0.75rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  min-width: 70px;
+}
+
+.qsp-debugger-execution-label {
+  font-size: 0.75rem;
+  color: var(--text-lc);
+  margin-bottom: var(--spacer--xs);
+}
+
+.qsp-debugger-current-execution {
+  padding: var(--spacer--sm);
+  background-color: var(--ui-element-background);
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+}
+
+.qsp-debugger-current-execution div {
+  margin-bottom: var(--spacer--xs);
+}
+
+.qsp-debugger-current-execution div:last-child {
+  margin-bottom: 0;
+}
+
+.qsp-debugger-execution-history {
+  max-height: 160px;
+  overflow: auto;
+}
+
+.qsp-debugger-history-item {
+  padding: var(--spacer--xs);
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-history-item:last-child {
+  border-bottom: none;
+}
+
+.qsp-debugger-controls {
+  display: flex;
+  gap: var(--spacer--sm);
+  margin-top: var(--spacer--sm);
+}
+
+.qsp-debugger-control-button {
+  font-size: 0.75rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+}
+
+.qsp-debugger-control-button.resume {
+  background: var(--solid-background);
+  border-color: var(--solid-background);
+}
+
+.qsp-debugger-control-button.step {
+  background: var(--solid-background);
+  border-color: var(--solid-background);
+}
+
+.qsp-debugger-breakpoint-item {
+  padding: var(--spacer--sm);
+  border: 1px solid var(--subtle-border);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacer--sm);
+  font-size: 0.875rem;
+}
+
+.qsp-debugger-breakpoint-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.qsp-debugger-breakpoint-location {
+  color: var(--text-hc);
+}
+
+.qsp-debugger-breakpoint-location:hover {
+  color: var(--solid-background);
+  text-decoration: underline;
+}
+
+.qsp-debugger-breakpoint-location.disabled {
+  color: var(--text-lc);
+}
+
+.qsp-debugger-breakpoint-controls {
+  display: flex;
+  gap: var(--spacer--xs);
+}
+
+.qsp-debugger-breakpoint-control {
+  background: none;
+  border: none;
+  color: var(--text-lc);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: var(--spacer--xs);
+  border-radius: var(--border-radius);
+}
+
+.qsp-debugger-breakpoint-control:hover {
+  background-color: var(--ui-element-hover-background);
+}
+
+.qsp-debugger-breakpoint-control.enabled {
+  color: var(--danger);
+}
+
+.qsp-debugger-breakpoint-control.remove:hover {
+  color: var(--danger);
+}
+
+.qsp-debugger-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.qsp-debugger-code-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.qsp-debugger-code-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacer--sm);
+  background-color: var(--subtle-background);
+  border-bottom: 1px solid var(--subtle-border);
+  gap: var(--spacer--sm);
+}
+
+.qsp-debugger-code-type-selector {
+  display: flex;
+  gap: var(--spacer--xs);
+}
+
+.qsp-debugger-code-type-button {
+  background: transparent;
+  border: 1px solid var(--subtle-border);
+  color: var(--text-lc);
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  border-radius: var(--border-radius);
+}
+
+.qsp-debugger-code-type-button:hover {
+  background-color: var(--ui-element-hover-background);
+  color: var(--text-hc);
+}
+
+.qsp-debugger-code-type-button.active {
+  background-color: var(--solid-background);
+  color: var(--text-solid);
+  border-color: var(--solid-background);
+}
+
+.qsp-debugger-action-selector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer--xs);
+}
+
+.qsp-debugger-action-select {
+  background: var(--app-background);
+  border: 1px solid var(--subtle-border);
+  border-radius: var(--border-radius);
+  color: var(--text-hc);
+  font-size: 0.875rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  cursor: pointer;
+}
+
+.qsp-debugger-action-select:hover {
+  border-color: var(--hover-border);
+}
+
+.qsp-debugger-action-select:focus {
+  outline: none;
+  border-color: var(--solid-background);
+  box-shadow: 0 0 0 1px var(--solid-background);
+}
+
+/* Radix Select Trigger styling for action selector */
+.qsp-debugger-action-selector .q-select {
+  background: var(--app-background);
+  border: 1px solid var(--subtle-border);
+  border-radius: var(--border-radius);
+  color: var(--text-hc);
+  font-size: 0.875rem;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 120px;
+}
+
+.qsp-debugger-action-selector .q-select:hover {
+  border-color: var(--hover-border);
+}
+
+.qsp-debugger-action-selector .q-select:focus {
+  outline: none;
+  border-color: var(--solid-background);
+  box-shadow: 0 0 0 1px var(--solid-background);
+}
+
+.qsp-debugger-monaco-container {
+  flex: 1;
+  overflow: hidden;
+}
+
+.qsp-debugger-code-section {
+  margin-bottom: var(--spacer--lg);
+}
+
+.qsp-debugger-code-section-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-hc);
+  margin-bottom: var(--spacer--sm);
+}
+
+.qsp-debugger-code-block {
+  background-color: var(--ui-element-background);
+  padding: var(--spacer--sm);
+  border-radius: var(--border-radius);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: var(--text-hc);
+  border: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-action-header {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-lc);
+  margin-bottom: var(--spacer--xs);
+}
+
+.qsp-debugger-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-lc);
+  font-size: 1rem;
+}
+
+.qsp-debugger-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-lc);
+  font-size: 1rem;
+}
+
+.qsp-debugger-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--danger);
+  font-size: 1rem;
+}
+
+.qsp-debugger-button {
+  position: absolute;
+  top: var(--spacer--md);
+  right: var(--spacer--md);
+  z-index: 40;
+  background: var(--solid-background);
+  color: var(--text-solid);
+  border: 1px solid var(--solid-background);
+  border-radius: var(--border-radius);
+  padding: var(--spacer--sm) var(--spacer--md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow:
+    0 3px 1px -2px rgb(0 0 0 / 20%),
+    0 2px 2px 0 rgb(0 0 0 / 14%),
+    0 1px 5px 0 rgb(0 0 0 / 12%);
+}
+
+.qsp-debugger-button:hover {
+  background: var(--solid-hover-background);
+}
+
+.qsp-debugger-no-data {
+  color: var(--text-lc);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: var(--spacer--md);
+}
+
+/* Monaco Editor Styles */
+.qsp-monaco-code-viewer {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.qsp-monaco-code-title {
+  padding: var(--spacer--sm);
+  background-color: var(--subtle-background);
+  border-bottom: 1px solid var(--subtle-border);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-hc);
+}
+
+.qsp-monaco-editor-container {
+  flex: 1;
+  position: relative;
+  background-color: var(--app-background);
+}
+
+.qsp-monaco-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-lc);
+  font-size: 0.875rem;
+}
+
+/* Monaco Editor Theme Overrides */
+.monaco-editor {
+  background-color: var(--app-background) !important;
+}
+
+.monaco-editor .view-lines {
+  background-color: var(--app-background) !important;
+}
+
+.monaco-editor .margin {
+  background-color: var(--subtle-background) !important;
+}
+
+.monaco-editor .line-numbers {
+  color: var(--text-lc) !important;
+}
+
+.monaco-editor .current-line ~ .line-numbers {
+  color: var(--text-hc) !important;
+}
+
+/* Current execution line highlighting */
+.qsp-current-line-decoration {
+  background-color: rgba(255, 235, 59, 0.3) !important;
+  border-left: 4px solid #ffc107 !important;
+  position: relative !important;
+}
+
+.qsp-current-line-decoration::before {
+  content: '▶' !important;
+  position: absolute !important;
+  left: -18px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #ffc107 !important;
+  font-weight: bold !important;
+  font-size: 12px !important;
+}
+
+.qsp-current-line-margin {
+  background-color: #ffc107 !important;
+  width: 4px !important;
+}
+
+/* Monaco scrollbars to match qSpider theme */
+.monaco-scrollable-element > .scrollbar {
+  background-color: var(--subtle-background) !important;
+}
+
+.monaco-scrollable-element > .scrollbar > .slider {
+  background-color: var(--ui-element-background) !important;
+}
+
+.monaco-scrollable-element > .scrollbar > .slider:hover {
+  background-color: var(--ui-element-hover-background) !important;
+}
+
+/* Monaco minimap theming */
+.monaco-editor .minimap {
+  background-color: var(--subtle-background) !important;
+}
+
+.monaco-editor .minimap-slider {
+  background-color: var(--ui-element-background) !important;
+}
+
+.monaco-editor .minimap-slider:hover {
+  background-color: var(--ui-element-hover-background) !important;
+}
+
+/* Breakpoint glyph styles */
+.qsp-breakpoint-glyph {
+  display: block !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  margin: 2px !important;
+  cursor: pointer !important;
+}
+
+.qsp-breakpoint-glyph.enabled {
+  background: var(--danger) !important;
+}
+
+.qsp-breakpoint-glyph.enabled::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 6px !important;
+  height: 6px !important;
+  background: white !important;
+  border-radius: 50% !important;
+}
+
+.qsp-breakpoint-glyph.disabled {
+  background: var(--text-lc) !important;
+  border: 2px solid var(--danger) !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+/* Breakpoint hover effects */
+.qsp-breakpoint-glyph:hover {
+  transform: scale(1.1) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* Chrome DevTools style breakpoints */
+.qsp-breakpoint-enabled {
+  background: #1a73e8 !important;
+  border-radius: 50% !important;
+  width: 10px !important;
+  height: 10px !important;
+  margin-left: 3px !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  position: relative !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+.qsp-breakpoint-enabled:hover {
+  transform: scale(1.2) !important;
+  transition: transform 0.1s ease !important;
+}
+
+.qsp-breakpoint-disabled {
+  background: transparent !important;
+  border: 2px solid #1a73e8 !important;
+  border-radius: 50% !important;
+  width: 8px !important;
+  height: 8px !important;
+  margin-left: 4px !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+}
+
+.qsp-breakpoint-disabled:hover {
+  transform: scale(1.2) !important;
+  transition: transform 0.1s ease !important;
+  border-width: 2.5px !important;
+}
+
+/* Simple breakpoint glyph - Chrome DevTools style */
+.qsp-breakpoint-simple {
+  background: #1a73e8 !important;
+  border-radius: 50% !important;
+  width: 10px !important;
+  height: 10px !important;
+  display: inline-block !important;
+  margin-left: 3px !important;
+  cursor: pointer !important;
+  position: relative !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.8) !important;
+}
+
+.qsp-breakpoint-simple:hover {
+  transform: scale(1.2) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* Backup line decorations for breakpoints - Chrome DevTools style */
+.qsp-breakpoint-line-enabled {
+  background-color: rgba(26, 115, 232, 0.08) !important;
+}
+
+.qsp-breakpoint-line-disabled {
+  background-color: rgba(26, 115, 232, 0.03) !important;
+}
+
+/* Margin decorations for breakpoints */
+.qsp-breakpoint-margin-enabled {
+  background-color: transparent !important;
+}
+
+.qsp-breakpoint-margin-disabled {
+  background-color: transparent !important;
+}
+
+/* Debug Control Buttons */
+.qsp-debugger-controls {
+  display: flex;
+  gap: var(--spacer--sm);
+  padding: var(--spacer--sm);
+  border-top: 1px solid var(--subtle-border);
+  background-color: var(--subtle-background);
+  flex-wrap: wrap;
+}
+
+.qsp-debugger-control-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.qsp-debugger-control-button.resume {
+  background-color: #28a745 !important;
+  color: white !important;
+  border-color: #28a745 !important;
+}
+
+.qsp-debugger-control-button.resume:hover {
+  background-color: #218838 !important;
+  border-color: #218838 !important;
+  color: white !important;
+}
+
+.qsp-debugger-control-button.step {
+  background-color: #ffc107 !important;
+  color: #212529 !important;
+  border-color: #ffc107 !important;
+}
+
+.qsp-debugger-control-button.step:hover {
+  background-color: #e0a800 !important;
+  border-color: #e0a800 !important;
+  color: #212529 !important;
+}
+
+.qsp-debugger-control-button.pause {
+  background-color: var(--danger) !important;
+  color: white !important;
+  border-color: var(--danger) !important;
+}
+
+.qsp-debugger-control-button.pause:hover {
+  background-color: #c0392b !important;
+  border-color: #c0392b !important;
+  color: white !important;
+}
+
+.qsp-debugger-control-button.clear {
+  background-color: var(--ui-element-background) !important;
+  color: var(--text-hc) !important;
+  border-color: var(--subtle-border) !important;
+}
+
+.qsp-debugger-control-button.clear:hover {
+  background-color: var(--ui-element-hover-background) !important;
+  color: var(--text-hc) !important;
+  border-color: var(--hover-border) !important;
+}
+
+/* Debug Status Indicators */
+.qsp-debugger-status {
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+}
+
+.qsp-debugger-status .status-running {
+  color: #28a745;
+}
+
+.qsp-debugger-status .status-paused {
+  color: var(--warning, #f39c12);
+}
+
+.qsp-debugger-status .status-disabled {
+  color: var(--text-lc);
+}
+
+/* Current execution indicators */
+.qsp-debugger-location-item.current-execution {
+  background-color: rgba(46, 204, 113, 0.1);
+  border-left: 3px solid #28a745;
+}
+
+.qsp-debugger-location-item.current-execution.selected {
+  background-color: rgba(52, 152, 219, 0.2);
+  border-left: 3px solid var(--primary);
+}
+
+.execution-indicator {
+  color: #28a745;
+  font-weight: bold;
+  margin-right: 4px;
+}
+
+/* Glyph margin styling */
+.monaco-editor .margin-view-overlays .cgmr {
+  cursor: pointer !important;
+}
+
+.monaco-editor .glyph-margin {
+  background-color: var(--subtle-background) !important;
+  border-right: 1px solid var(--subtle-border) !important;
+}
+
+/* Main panel layout for locations tab */
+.qsp-debugger-main-with-panel {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+.qsp-debugger-code-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-right-panel-main {
+  width: 350px;
+  min-width: 300px;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.qsp-debugger-right-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--app-background);
+}
+
+.qsp-debugger-right-panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--subtle-border);
+  background-color: var(--subtle-background);
+  flex-shrink: 0;
+}
+
+.qsp-debugger-right-panel-tab {
+  background: transparent;
+  border: none;
+  padding: var(--spacer--sm);
+  color: var(--text-lc);
+  cursor: pointer;
+  text-transform: capitalize;
+  font-size: 0.875rem;
+  border-bottom: 2px solid transparent;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.qsp-debugger-right-panel-tab:hover {
+  background-color: var(--ui-element-hover-background);
+  color: var(--text-hc);
+}
+
+.qsp-debugger-right-panel-tab[data-state="active"] {
+  color: var(--solid-background);
+  border-bottom-color: var(--solid-background);
+  background-color: var(--app-background);
+}
+
+/* Legacy support for .active class */
+.qsp-debugger-right-panel-tab.active {
+  color: var(--solid-background);
+  border-bottom-color: var(--solid-background);
+  background-color: var(--app-background);
+}
+
+.qsp-debugger-right-panel-content {
+  flex: 1;
+  overflow: auto;
+  padding: var(--spacer--sm);
+}
+
+/* Event Logger Styles */
+.qsp-debugger-events-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacer--sm);
+  padding-bottom: var(--spacer--sm);
+  border-bottom: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-events-controls {
+  display: flex;
+  gap: var(--spacer--xs);
+}
+
+.qsp-debugger-events-count {
+  font-size: 0.75rem;
+  color: var(--text-lc);
+}
+
+.qsp-debugger-events-list {
+  /* Remove max-height and overflow to prevent double scrollbars */
+  /* Parent .qsp-debugger-right-panel-content handles scrolling */
+}
+
+.qsp-debugger-event-item {
+  padding: var(--spacer--sm);
+  border-bottom: 1px solid var(--subtle-border);
+  font-size: 0.875rem;
+}
+
+.qsp-debugger-event-item:last-child {
+  border-bottom: none;
+}
+
+.qsp-debugger-event-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacer--xs);
+}
+
+.qsp-debugger-event-name {
+  font-weight: 500;
+  color: var(--text-hc);
+  background-color: var(--ui-element-background);
+  padding: 2px 6px;
+  border-radius: var(--border-radius);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+}
+
+.qsp-debugger-event-timestamp {
+  font-size: 0.75rem;
+  color: var(--text-lc);
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.qsp-debugger-event-args {
+  padding-left: var(--spacer--sm);
+  border-left: 2px solid var(--subtle-border);
+  background-color: var(--subtle-background);
+  border-radius: var(--border-radius);
+  padding: var(--spacer--xs) var(--spacer--sm);
+}
+
+.qsp-debugger-event-arg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacer--xs);
+  margin-bottom: var(--spacer--xs);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+}
+
+.qsp-debugger-event-arg:last-child {
+  margin-bottom: 0;
+}
+
+.qsp-debugger-event-arg-name {
+  color: var(--text-lc);
+  font-weight: bold;
+  min-width: 60px;
+  margin-right: 4px;
+}
+
+.qsp-debugger-event-arg-value {
+  color: var(--text-hc);
+  word-break: break-word;
+  white-space: pre-wrap;
+  flex: 1;
+  font-family: 'Courier New', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.9em;
+  line-height: 1.3;
+}

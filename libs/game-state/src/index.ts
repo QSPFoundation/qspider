@@ -21,3 +21,5 @@ export * from './init';
 export * from './hotkeys';
 export * from './browser-translation';
 export * from './conditions';
+export * from './debug';
+export * from './code-inspector';

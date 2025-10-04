@@ -44,6 +44,7 @@ import { menu$ } from './menu';
 import { msg$ } from './msg';
 import { showNotice } from './toasts';
 import { parseToml } from '@qspider/utils';
+import { debugActions } from './debug';
 
 export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
 export const currentGame$ = atom<GameDescriptor | null>();
@@ -223,6 +224,13 @@ export function stopCurrentGame(): void {
   actions$.set([]);
   objects$.set([]);
   cmdText$.set('');
+
+  // clear debugger state
+  debugActions.disableDebug();
+  debugActions.clearExecutionHistory();
+  debugActions.clearEventLog();
+  debugActions.clearAllBreakpoints();
+  debugActions.selectLocation(null);
 
   windowManager.setTitle('qSpider');
   windowManager.setIcon(initialBaseUrl$.value, 'favicon.ico');

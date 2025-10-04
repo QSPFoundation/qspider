@@ -97,6 +97,15 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
   },
   { when_paused: true, description: 'Mute', keys: 'home', on_press: { type: 'game_action', action: 'mute' } },
   { when_paused: true, description: 'Unmute', keys: 'end', on_press: { type: 'game_action', action: 'unmute' } },
+  {
+    when_paused: false,
+    keys: 'f12',
+    description: 'Open QSP Debugger (F12)',
+    on_press: (): boolean => {
+      // Debug functionality is handled in DebugButton component
+      return true; // Don't prevent default, let other handlers process F12
+    },
+  },
 ]);
 
 export function setupGlobalHotKeys(): void {
@@ -146,6 +155,7 @@ const prettySymbolsCommon: Record<string, string> = {
   ins: 'Insert',
   del: 'Delete',
   plus: '+',
+  f12: 'F12',
   shift: 'Shift',
   ctrl: 'Ctrl',
   alt: 'Alt',

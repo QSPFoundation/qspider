@@ -1,4 +1,13 @@
-import { initQspEngine, QspAPI, QspErrorData, QspPanel, QspVariableType } from '@qsp/wasm-engine';
+import {
+  initQspEngine,
+  QspAPI,
+  QspErrorData,
+  QspPanel,
+  QspVariableType,
+  QspListItem,
+  DebugRecord as QspDebugRecord,
+  QspEventLogger,
+} from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -30,6 +39,7 @@ import { input$ } from './input';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
+import { debugActions } from './debug';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
@@ -40,16 +50,71 @@ export const qspApiInitialized$ = atom(false);
 export const qspError$ = atom<QspErrorData | null>(null);
 export const qspiderModule$ = atom(writeQsp(readQsps(qspiderModuleContent)));
 
+// Event logger implementation
+const eventLogger: QspEventLogger = {
+  log(event, ...args) {
+    debugActions.logEvent(event, ...args);
+  },
+};
+
 export async function initQspApi(): Promise<void> {
   const wasm = await fetch(wasmUrl).then((r) => r.arrayBuffer());
   const api = await initQspEngine(wasm);
-  console.log(`QSP version: ${api.version()}`);
+  console.log(`QSP version: ${api.version()} ${api.getCompiledDateTime()}`);
+
+  // Register event logger
+  api.registerEventLogger(eventLogger);
+
   qspApi$.set(api);
   qspApiInitialized$.set(true);
 }
 
 export function execCode(code: string): void {
-  qspApi$.value?.execCode(code);
+  const api = qspApi$.value;
+  if (!api) return;
+
+  // Check if debug mode is enabled and should pause on link execution
+  const debugState = debugActions.getDebugState();
+  const shouldPauseOnLink = debugState.isEnabled && (debugState.isPaused || debugState.autoPauseOnLinks);
+
+  if (shouldPauseOnLink) {
+    // Create a synthetic debug record for the link execution
+    debugActions.setLinkExecution(code, () => {
+      api.execCode(code);
+    });
+  } else {
+    api.execCode(code);
+  }
+}
+
+export function enableDebugMode(): void {
+  qspApi$.value?.enableDebugMode();
+  debugActions.enableDebug();
+}
+
+export function disableDebugMode(): void {
+  qspApi$.value?.disableDebugMode();
+  debugActions.disableDebug();
+}
+
+export function getLocationsList(): string[] {
+  return qspApi$.value?.getLocationsList() || [];
+}
+
+export function getLocationCode(name: string): string[] {
+  return qspApi$.value?.getLocationCode(name) || [];
+}
+
+export function getActionCode(location: string, index: number): string[] {
+  return qspApi$.value?.getActionCode(location, index) || [];
+}
+
+export function getLocationActions(name: string): QspListItem[] {
+  return qspApi$.value?.getLocationActions(name) || [];
+}
+
+export function getLocationDescription(name: string): string {
+  return qspApi$.value?.getLocationDescription(name) || '';
 }
 
 export function onLinkClicked(href: string): void {
@@ -236,5 +301,8 @@ qspApi$.subscribe((api) => {
   });
   api.on('wait', (ms, finish) => {
     wait$.set({ ms, finish });
+  });
+  api.on('debug', (debugRecord: QspDebugRecord, resume: () => void) => {
+    debugActions.setCurrentRecord(debugRecord, resume);
   });
 });
