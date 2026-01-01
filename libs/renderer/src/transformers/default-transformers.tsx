@@ -57,6 +57,8 @@ import { QspGlobalHotkeys } from '../theme-core/pause-screen/GlobalHotkeys';
 import { QspGameHotkeys } from '../theme-core/pause-screen/GameHotkeys';
 import { QspLocaleSelect } from './general/locale-selector';
 import { QspGameAuthor, QspGameDescription, QspGameTitle, QspGameVersion } from './general/game-data';
+import { QspOrientation } from '../theme-core/orientation';
+import { QspDevice } from '../theme-core/device';
 
 export const defaultTransform: TransformCallback = (node, children) => {
   const tagName = node.tagName.toLowerCase();
@@ -376,5 +378,13 @@ export const defaultTransformers: Record<string, TransformCallback> = {
   },
   'qsp-game-description'(node) {
     return <QspGameDescription attrs={extractAttributes(node)} />;
+  },
+  'qsp-orientation'(node, children) {
+    const type = node.getAttribute('is') ?? 'landscape';
+    return <QspOrientation type={type}>{children}</QspOrientation>;
+  },
+  'qsp-device'(node, children) {
+    const type = node.getAttribute('is') ?? 'desktop';
+    return <QspDevice type={type}>{children}</QspDevice>;
   },
 };
