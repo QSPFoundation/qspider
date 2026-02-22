@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/QSPFoundation/qspider/compare/v1.3.1...v1.4.0) (2026-02-22)
+
+
+### Features
+
+* add link to game kit ([4ebd309](https://github.com/QSPFoundation/qspider/commit/4ebd309a15f08f15c49806a6f531bc2c399e6be8))
+* add orientation and device tags ([8f3b6d6](https://github.com/QSPFoundation/qspider/commit/8f3b6d6711cca0dbb6829a3eda8f87cfd6c5f188))
+* add pause button for touch devices ([fd7a0ae](https://github.com/QSPFoundation/qspider/commit/fd7a0ae964def37a2f20d5de646f5b42d9e9c934))
+* add qsp debugger functionality ([31f0495](https://github.com/QSPFoundation/qspider/commit/31f04950d09ed5dca87a0346aa6ce04e57a09e3c))
+* back button should only close pause screen ([40b864d](https://github.com/QSPFoundation/qspider/commit/40b864dcd23c40beaffd05e960abec0d95e96574))
+* make qspider version visible ([08c188d](https://github.com/QSPFoundation/qspider/commit/08c188debc3f35c17fe3f1bbaa130e9fd415a369))
+* update to qsp 5.9.4 ([711f59d](https://github.com/QSPFoundation/qspider/commit/711f59dfaed79c46dda27a645c1b783371900cf7))
+
+
+### Bug Fixes
+
+* add space for scroll arrows ([1caa428](https://github.com/QSPFoundation/qspider/commit/1caa42801aea82c0c9716f50d4f3c63b6f3d190e))
+* close view on poutside click ([83e2b11](https://github.com/QSPFoundation/qspider/commit/83e2b113ba330e813237fb2f514f3359e10baf25))
+* decode name if imported from URL ([caa3e4f](https://github.com/QSPFoundation/qspider/commit/caa3e4feb4a475271a55562022f78d57f7ab34e6))
+* don't start first game in multi game archive ([068b0d1](https://github.com/QSPFoundation/qspider/commit/068b0d160342f13ade09174896aca70929fd96d6))
+* fix call ([3a4c029](https://github.com/QSPFoundation/qspider/commit/3a4c029b4de5e06833844697e68ce50402336119))
+* fix game quit ([457181d](https://github.com/QSPFoundation/qspider/commit/457181d8d991cd354f45d454aab812d3f85f91a7))
+* fix game starting paused weh using inclib ([735e1d0](https://github.com/QSPFoundation/qspider/commit/735e1d07650e13466db3bd115b83b9f22ac53b1c))
+* fix loading games from url containing non asci characters ([30f9f8d](https://github.com/QSPFoundation/qspider/commit/30f9f8d8bb9a2f9000775a64b5afc0dc6caf0641))
+* fix menu placement in aero theme ([b0b110f](https://github.com/QSPFoundation/qspider/commit/b0b110f93f936ea9e2200d1a08069ed77c335089))
+* fix pause processing for better mobile support ([8d68125](https://github.com/QSPFoundation/qspider/commit/8d68125456317104feb370dfbef137a8f60cb7ef))
+* fix qspider event arg processing ([b1298ae](https://github.com/QSPFoundation/qspider/commit/b1298ae23809bf3f1cf5eeae8a3c37cf561c2fba))
+* fix region scroll ([976ba72](https://github.com/QSPFoundation/qspider/commit/976ba72e95b31714001dcab14b9d3d96348805de))
+* hide pause button from shelf ([66e67c1](https://github.com/QSPFoundation/qspider/commit/66e67c15868d7c6efed35a1b757087b2ebfa4e45))
+
 ### [1.3.1](https://github.com/QSPFoundation/qspider/compare/v1.3.0...v1.3.1) (2024-10-04)
 
 ### Bug Fixes
