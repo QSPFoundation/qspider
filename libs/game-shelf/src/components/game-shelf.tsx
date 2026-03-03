@@ -1,11 +1,17 @@
 import { useAtom } from '@xoid/react';
+import { useEffect } from 'react';
 import { gamesList$ } from '../game-shelf';
+import { checkForUpdates } from '../qsp-catalog';
 import { GameCard } from './game-card';
 import { useTranslation } from 'react-i18next';
 
 export const GameShelf: React.FC = () => {
   const games = useAtom(gamesList$);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    checkForUpdates();
+  }, []);
   return (
     <div className="game-shelf">
       {games.length > 0 ? (

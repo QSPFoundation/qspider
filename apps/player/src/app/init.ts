@@ -1,11 +1,11 @@
 import {
+  fetchCatalogGame,
   games$,
   goToGame,
   loadGamesFromStorage,
   moveToShelf,
   navigateTo,
   processLocationChange,
-  qspCatalogList$,
 } from '@qspider/game-shelf';
 import {
   baseInit$,
@@ -18,7 +18,6 @@ import {
   showError,
 } from '@qspider/game-state';
 import { importUrl } from '@qspider/importers';
-import { loadQspCatalog } from '@qspider/game-shelf';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { prepareBaseUrl } from '@qspider/utils';
@@ -58,17 +57,17 @@ export async function init(): Promise<void> {
       }
     }
     if (!existing) {
-      await loadQspCatalog();
-      const catalogGame = qspCatalogList$.value.find((game) => game.id === Number(catalogId));
-      if (catalogGame) {
+      try {
         loadingMessage$.set(i18n.t('Loading game from catalog...'));
+        const catalogGame = await fetchCatalogGame(catalogId);
         const [imported] = await moveToShelf(catalogGame);
         if (imported) {
           toRun = imported.id;
         }
-        loadingMessage$.set('');
-      } else {
+      } catch {
         showError(i18n.t(`Game with id {{catalogId}} not found in catalog`, { catalogId }));
+      } finally {
+        loadingMessage$.set('');
       }
     } else {
       toRun = existing;

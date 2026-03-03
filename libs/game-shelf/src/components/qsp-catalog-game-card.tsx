@@ -1,4 +1,4 @@
-import { Cross1Icon, UpdateIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, UpdateIcon, DownloadIcon, PlayIcon, HeartIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import * as Dialog from '@radix-ui/react-dialog';
 import { useAtom, useSetup } from '@xoid/react';
@@ -11,25 +11,25 @@ import { templateParser } from '@qspider/renderer';
 import { formatBytes } from '../formatters';
 import { formatDate } from '@qspider/i18n';
 import { Markup } from '@qspider/html-renderer';
+import { Tooltip } from './primitives';
 
 export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   const { t } = useTranslation();
   const isOnShelf$ = useSetup((props$) => {
-    const gameId$ = props$.focus((p) => p.game.id);
+    const gameSlug$ = props$.focus((p) => p.game.slug);
     return atom((get) => {
       const existingCatalogGames = get(gameSourceMap$).get(sourceName);
-      const gameId = String(get(gameId$));
-      return existingCatalogGames?.has(gameId);
+      const gameSlug = get(gameSlug$);
+      return existingCatalogGames?.has(gameSlug);
     });
   }, props);
   const description$ = useSetup((props$) => {
-    const description = props$.focus((s) => s.game.description);
+    const description = props$.focus((s) => s.game.description_html);
     return atom((get) => templateParser.parse(get(description)));
   }, props);
   const isOnShelf = useAtom(isOnShelf$);
   const description = useAtom(description$);
   const { game } = props;
-  const icon = game.icon ? game.icon.substring(game.icon.lastIndexOf('com_sobi2')) : null;
   const [isMoving, setIsMoving] = useState(false);
   const doMove = useCallback(async () => {
     setIsMoving(true);
@@ -38,40 +38,53 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
   }, [game]);
   return (
     <Dialog.Root>
-      <div className="q-catalog__card" data-id={game.id}>
+      <div className="q-catalog__card" data-id={game.slug}>
         <h5 className="q-title">
-          {game.icon && <img alt="" src={'https://qsp.su/gamestock/image.php?name=' + icon} loading="lazy" />}
-          {game.title}
+          {game.icon_url && <img alt="" src={game.icon_url} loading="lazy" />}
+          {game.name}
         </h5>
 
         <div className="q-catalog__card-details">
           <div>
             <div className="q-catalog__card-details-row">
-              {t('Author')}: {game.author}
+              {t('Author')}: {game.authors}
             </div>
-            {game.ported_by && (
+            {game.translators && (
               <div className="q-catalog__card-details-row">
-                {t('Ported by')}: {game.ported_by}
+                {t('Ported by')}: {game.translators}
               </div>
             )}
             <div className="q-catalog__card-details-row">
-              {t('Version')}: {game.version}
+              {t('Version')}: {game.ver}
             </div>
           </div>
           <div>
+            {game.file_size != null && (
+              <div className="q-catalog__card-details-row">
+                {t('Size')}: {formatBytes(game.file_size)}
+              </div>
+            )}
             <div className="q-catalog__card-details-row">
-              {t('Size')}: {formatBytes(game.file_size)}
-            </div>
-            <div className="q-catalog__card-details-row">
-              {t('Type')}: {game.file_ext}
-            </div>
-            <div className="q-catalog__card-details-row">
-              {t('Last update')}: {formatDate(new Date(game.mod_date))}
+              {t('Last update')}: {formatDate(new Date(game.updated_at))}
             </div>
           </div>
         </div>
+        <div className="q-catalog__card-engagement">
+          <Tooltip content={t('Downloads')}>
+            <span aria-label={`${t('Downloads')}: ${game.downloads_count}`}><DownloadIcon aria-hidden="true" /> {game.downloads_count}</span>
+          </Tooltip>
+          <Tooltip content={t('Plays')}>
+            <span aria-label={`${t('Plays')}: ${game.plays_count}`}><PlayIcon aria-hidden="true" /> {game.plays_count}</span>
+          </Tooltip>
+          <Tooltip content={t('Likes')}>
+            <span aria-label={`${t('Likes')}: ${game.likes_count}`}><HeartIcon aria-hidden="true" /> {game.likes_count}</span>
+          </Tooltip>
+          <Tooltip content={t('Comments')}>
+            <span aria-label={`${t('Comments')}: ${game.comments_count}`}><ChatBubbleIcon aria-hidden="true" /> {game.comments_count}</span>
+          </Tooltip>
+        </div>
         <div className="q-catalog__card-buttons">
-          {game.description ? (
+          {game.description_html ? (
             <Dialog.Trigger asChild>
               <button className="q-ghost-button">{t('Read Description')}</button>
             </Dialog.Trigger>
@@ -92,7 +105,7 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
             </button>
           )}
         </div>
-        {game.description ? (
+        {game.description_html ? (
           <Dialog.Portal>
             <Dialog.Overlay className="qspider-dialog-overlay" />
             <Dialog.Content className="qspider-dialog-content">

@@ -1,77 +1,98 @@
 import { QspiderLoader } from '@qspider/renderer';
-import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, DoubleArrowDownIcon, DoubleArrowUpIcon, UpdateIcon } from '@radix-ui/react-icons';
 
 import { useAtom } from '@xoid/react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   catalogLoading$,
+  loadMoreCatalog,
+  loadQspAuthors,
   loadQspCatalog,
   qspAuthorFilter$,
   qspAuthors$,
-  qspCatalogPreparedList$,
+  qspCatalogList$,
   qspSortByField$,
   qspSortDirection$,
   qspTitleSearch$,
-  onlyAero$,
   toggleSortDirection,
 } from '../qsp-catalog';
 import { CatalogGameCard } from './qsp-catalog-game-card';
-import { Select, Tooltip } from './primitives';
-import { Switch } from './primitives/switch';
+import { Combobox, Select, Tooltip } from './primitives';
 
 const sortOptions = [
-  {
-    label: 'Title',
-    value: 'title',
-  },
-  {
-    label: 'Size',
-    value: 'file_size',
-  },
-  {
-    label: 'Last Updated',
-    value: 'mod_date',
-  },
+  { label: 'Latest', value: 'created' },
+  { label: 'Updated', value: 'updated' },
+  { label: 'Most Liked', value: 'likes' },
+  { label: 'Most Downloaded', value: 'downloads' },
+  { label: 'Most Played', value: 'plays' },
+  { label: 'Most Comments', value: 'comments' },
 ];
-
-loadQspCatalog();
 
 export const QspCatalog: React.FC = () => {
   const { t } = useTranslation();
   const loadingState = useAtom(catalogLoading$);
-  const games = useAtom(qspCatalogPreparedList$);
+  const games = useAtom(qspCatalogList$);
   const authors = useAtom(qspAuthors$);
   const authorsFilter = useAtom(qspAuthorFilter$);
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
-  const onlyAero = useAtom(onlyAero$);
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  if ((loadingState === 'pending' || loadingState === 'loading') && !games.length) return <QspiderLoader />;
-  if (loadingState === 'failed')
-    return (
-      <>
-        {t('Loading failed')}
-        <button
-          onClick={(): void => {
-            loadQspCatalog();
-          }}
-        >
-          {t('Retry')}
-        </button>
-      </>
+  // Load authors on first mount
+  useEffect(() => {
+    loadQspAuthors();
+  }, []);
+
+  // Reload when sort/author/language filters change
+  useEffect(() => {
+    loadQspCatalog(1, true);
+  }, [sortField, sortDirection, authorsFilter]);
+
+  // Debounced reload when search text changes
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    if (search.length > 0 && search.length <= 2) return;
+    searchDebounceRef.current = setTimeout(() => {
+      loadQspCatalog(1, true);
+    }, 400);
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+  }, [search]);
+
+  // Infinite scroll via IntersectionObserver
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const scrollContainer = sentinel.closest('.qspider-player-main');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreCatalog();
+        }
+      },
+      { root: scrollContainer, threshold: 0 },
     );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, []);
+
+  const isInitialLoading = (loadingState === 'pending' || loadingState === 'loading') && !games.length;
+
   return (
     <div>
       <div className="q-catalog__filterbar">
         <div className="q-catalog__filterbar-block">
           <label>{t('Filter by Author')}:</label>
           <div className="q-catalog__filterbar-group">
-            <Select
-              name="author-filter"
-              options={authors.map((author) => ({ label: author, value: author }))}
-              placeholder=""
-              label="Author"
+            <Combobox
+              options={authors.map((a) => ({ label: `${a.names} (${a.games_count})`, value: a.names }))}
+              placeholder={t('All') ?? ''}
+              searchPlaceholder={t('Search authors') ?? ''}
+              label={t('Author') ?? ''}
               value={authorsFilter}
               onValueChange={(value): void => qspAuthorFilter$.set(value)}
             />
@@ -111,10 +132,6 @@ export const QspCatalog: React.FC = () => {
           </div>
         </div>
         <div className="q-catalog__filterbar-block">
-          <label htmlFor="only-aero">{t('Aero games')}</label>
-          <Switch checked={onlyAero} onChange={(checked): void => onlyAero$.set(checked)} />
-        </div>
-        <div className="q-catalog__filterbar-block">
           <label htmlFor="search-input">{t('Search')}:</label>
           <div>
             <input
@@ -127,11 +144,34 @@ export const QspCatalog: React.FC = () => {
           </div>
         </div>
       </div>
-      <div className="q-catalog__list">
-        {games.map((game) => (
-          <CatalogGameCard key={game.id} game={game} />
-        ))}
-      </div>
+      {isInitialLoading ? (
+        <QspiderLoader />
+      ) : loadingState === 'failed' ? (
+        <>
+          {t('Loading failed')}
+          <button onClick={(): void => void loadQspCatalog()}>{t('Retry')}</button>
+        </>
+      ) : (
+        <>
+          {games.length === 0 ? (
+            <div className="q-catalog__empty">{t('No games found')}</div>
+          ) : (
+            <div className="q-catalog__list">
+              {games.map((game) => (
+                <CatalogGameCard key={game.slug} game={game} />
+              ))}
+            </div>
+          )}
+          {loadingState === 'loading-more' && (
+            <div className="q-catalog__load-more">
+              <span className="q-spin">
+                <UpdateIcon />
+              </span>
+            </div>
+          )}
+        </>
+      )}
+      <div ref={sentinelRef} style={{ height: 1 }} />
     </div>
   );
 };
