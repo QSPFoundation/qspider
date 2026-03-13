@@ -36,6 +36,7 @@ export const qspAuthorFilter$ = atom('');
 export const qspSortByField$ = atom('created');
 export const qspSortDirection$ = atom<'asc' | 'desc'>('desc');
 export const qspTitleSearch$ = atom('');
+export const qspFeaturedFilter$ = atom(false);
 export const qspHasMore$ = atom(false);
 export const qspCurrentPage$ = atom(1);
 export const qspAuthors$ = atom<CatalogAuthor[]>([]);
@@ -47,7 +48,6 @@ export const catalogLoading$ = atom<CatalogLoadingState>('pending');
 export const sourceName = 'qsp.org';
 const CATALOG_URL = 'https://qsp.org/api/v1/games';
 const AUTHORS_URL = 'https://qsp.org/api/v1/games/authors';
-const GAMEKIT_URL = `https://github.com/QSPFoundation/gamekit/releases/latest/download/games_package.zip`;
 
 export const gameUpdates$ = atom<Record<string, CatalogGame | null>>({});
 
@@ -139,9 +139,11 @@ export async function loadQspCatalog(page = 1, reset = true): Promise<void> {
     url.searchParams.set('sort', sortField);
     url.searchParams.set('order', sortDirection);
     const titleSearch = qspTitleSearch$.value;
-    if (titleSearch) url.searchParams.set('searchName', titleSearch);
+    if (titleSearch) url.searchParams.set('search-name', titleSearch);
     const authorFilter = qspAuthorFilter$.value;
-    if (authorFilter) url.searchParams.set('searchAuthors', authorFilter);
+    if (authorFilter) url.searchParams.set('search-authors', authorFilter);
+    const featured = qspFeaturedFilter$.value;
+    if (featured) url.searchParams.set('featured', '1');
     const request = await fetch(url.toString());
     if (!request.ok) throw new Error('Failed to load catalog');
     const data = await request.json();
@@ -195,22 +197,6 @@ export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> 
   return [];
 }
 
-export async function importGameKit(): Promise<void> {
-  try {
-    const imported = await importUrl(GAMEKIT_URL, 'games_package.zip');
-    for (const entry of imported) {
-      games$.actions.add(entry.id, entry);
-    }
-    showNotice(
-      i18n.t(`{{ count }} games added to shelf`, {
-        count: imported.length,
-      }),
-    );
-  } catch (err) {
-    console.error(err);
-    showError(`Failed to load gamekit`);
-  }
-}
 
 export function toggleSortDirection(): void {
   qspSortDirection$.update((current) => (current === 'asc' ? 'desc' : 'asc'));

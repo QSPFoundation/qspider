@@ -12,13 +12,14 @@ import {
   qspAuthorFilter$,
   qspAuthors$,
   qspCatalogList$,
+  qspFeaturedFilter$,
   qspSortByField$,
   qspSortDirection$,
   qspTitleSearch$,
   toggleSortDirection,
 } from '../qsp-catalog';
 import { CatalogGameCard } from './qsp-catalog-game-card';
-import { Combobox, Select, Tooltip } from './primitives';
+import { Combobox, Select, Switch, Tooltip } from './primitives';
 
 const sortOptions = [
   { label: 'Latest', value: 'created' },
@@ -38,6 +39,7 @@ export const QspCatalog: React.FC = () => {
   const sortField = useAtom(qspSortByField$);
   const sortDirection = useAtom(qspSortDirection$);
   const search = useAtom(qspTitleSearch$);
+  const featured = useAtom(qspFeaturedFilter$);
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,7 +51,7 @@ export const QspCatalog: React.FC = () => {
   // Reload when sort/author/language filters change
   useEffect(() => {
     loadQspCatalog(1, true);
-  }, [sortField, sortDirection, authorsFilter]);
+  }, [sortField, sortDirection, authorsFilter, featured]);
 
   // Debounced reload when search text changes
   useEffect(() => {
@@ -130,6 +132,10 @@ export const QspCatalog: React.FC = () => {
               </button>
             </Tooltip>
           </div>
+        </div>
+        <div className="q-catalog__filterbar-block">
+          <label>{t('Featured only')}:</label>
+          <Switch checked={featured} onChange={(checked): void => qspFeaturedFilter$.set(checked)} />
         </div>
         <div className="q-catalog__filterbar-block">
           <label htmlFor="search-input">{t('Search')}:</label>
