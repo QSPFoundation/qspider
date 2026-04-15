@@ -21,6 +21,7 @@ import { importUrl } from '@qspider/importers';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { prepareBaseUrl } from '@qspider/utils';
+import { GameShelfEntry } from '@qspider/contracts';
 
 import { setupEnv } from '@qspider/env';
 
@@ -49,10 +50,10 @@ export async function init(): Promise<void> {
   }
   const catalogId = urlParams.get('catalogId');
   if (catalogId) {
-    let existing;
-    for (const [id, game] of Object.entries(games$.value)) {
+    let existing: GameShelfEntry | undefined;
+    for (const game of Object.values(games$.value)) {
       if (game.meta?.source_id === catalogId) {
-        existing = id;
+        existing = game;
         break;
       }
     }
@@ -70,7 +71,23 @@ export async function init(): Promise<void> {
         loadingMessage$.set('');
       }
     } else {
-      toRun = existing;
+      toRun = existing.id;
+      try {
+        loadingMessage$.set(i18n.t('Checking for updates...'));
+        const catalogGame = await fetchCatalogGame(catalogId);
+        const catalogDate = new Date(catalogGame.updated_at).getTime();
+        if ((existing.meta?.source_date ?? 0) < catalogDate) {
+          loadingMessage$.set(i18n.t('Updating game from catalog...'));
+          const [imported] = await moveToShelf(catalogGame);
+          if (imported) {
+            toRun = imported.id;
+          }
+        }
+      } catch {
+        // ignore update check failures, run existing version
+      } finally {
+        loadingMessage$.set('');
+      }
     }
   }
   initDeferred$.value.resolve();
