@@ -559,6 +559,9 @@ Manual. No code merges to `release` until all boxes are ticked.
   - drag-drop hover/unsupported/drop/leave work
   - resize/min/max/fullscreen/title/icon from game config work
   - exit works
+  - external `https://` link in game text opens the system browser
+  - Linux: before building rc.1, on a v1.4.0 Linux install note which `~/.local/share/*` dir holds the webview `localstorage`. v2 uses `~/.local/share/org.qsp.qspider`; if v1 used a different dir, the theme setting won't carry over on Linux. Decide whether to add a one-time copy or accept it
+  - a game using root-relative (`/img/x.png`) resource paths still loads
   - restart → rc.1 → rc.2 update via the prompt
 - [ ] **Step 4: Ship the bridge.**
   1. Revert the test endpoint and set the version to `2.0.0`.
@@ -566,4 +569,5 @@ Manual. No code merges to `release` until all boxes are ticked.
   3. After the Release workflow publishes, set `BRIDGE_RELEASE_TAG: 'v2.0.0'` in `demo.yml`, commit, and run `demo.yml`.
   4. Confirm `updater.json` and `updater-v2.json` on gh-pages both reference 2.0.0 assets.
   5. Add "Do not delete: v1 → v2 update bridge" to the 2.0.0 release description.
+  6. State the Linux minimum (Ubuntu 22.04-era / glibc 2.35 / WebKitGTK 4.1) in the 2.0.0 release notes (shown in the v1 update dialog) so users on older distros can decline. Alternatively, exclude `linux-x86_64` from the frozen `updater.json`; decide which.
 - [ ] **Step 5: Post-bridge switch.** In the next release's PR, set `bundle.createUpdaterArtifacts: true` in `src-tauri/tauri.conf.json`. After it ships, confirm `updater.json` on gh-pages still references 2.0.0.
