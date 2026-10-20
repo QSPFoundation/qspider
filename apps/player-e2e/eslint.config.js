@@ -39,6 +39,12 @@ const NO_SLEEP = {
   selector: "CallExpression[callee.object.name='Wait'][callee.property.name='for']",
   message: 'No fixed sleeps: wait for a condition (waitUntilPresent, Wait.until, seeEventually).',
 };
+// no-restricted-imports does not see import(), so dynamic imports would bypass every import ban above.
+const NO_DYNAMIC_IMPORT = {
+  selector: 'ImportExpression',
+  message:
+    'No dynamic import(): it bypasses the import rules. Only screenplay/support/scenario.ts loads a target shim this way.',
+};
 const MARKER = /\[data-qsp|\[data-qa|\[role=/.source;
 const BY_CSS = "CallExpression[callee.object.name='By'][callee.property.name='css']";
 const UNMARKED_SELECTOR_MESSAGE =
@@ -70,7 +76,7 @@ const conventions = [
     files: ['**/*.ts', '**/*.mts', '**/*.js'],
     rules: {
       ...restrictImports({ paths: [NO_ENSURE, NO_BY] }),
-      'no-restricted-syntax': ['error', NO_SLEEP],
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT],
     },
   },
   {
@@ -84,7 +90,7 @@ const conventions = [
     files: ['screenplay/**/elements.ts'],
     rules: {
       ...restrictImports({ paths: [NO_ENSURE], patterns: [TARGETS, NO_FRAMEWORKS] }),
-      'no-restricted-syntax': ['error', NO_SLEEP, ...UNMARKED_SELECTORS],
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, ...UNMARKED_SELECTORS],
     },
   },
   {
@@ -98,7 +104,10 @@ const conventions = [
   {
     // Loads targets/<target>/scenario.ts at runtime by design: the one bridge from shared code to the runners.
     files: ['screenplay/support/scenario.ts'],
-    rules: restrictImports({ patterns: [NO_FRAMEWORKS] }),
+    rules: {
+      ...restrictImports({ patterns: [NO_FRAMEWORKS] }),
+      'no-restricted-syntax': ['error', NO_SLEEP],
+    },
   },
   {
     files: ['scenarios/**/*.ts'],

@@ -87,8 +87,23 @@ describe('player-e2e lint rules', () => {
     expect(await ruleIds(code, 'screenplay/game/elements.ts')).toEqual([]);
   });
 
-  it('lets support/scenario.ts load the target shims', async () => {
-    const code = `import type { ScenarioFn } from '../../targets/web/scenario';\nexport type S = ScenarioFn;\n`;
+  it('bans dynamic imports of targets in screenplay', async () => {
+    const code = `export const load = async () => import('../../targets/web/scenario');\n`;
+    expect(await ruleIds(code, 'screenplay/game/tasks.ts')).toContain('no-restricted-syntax');
+  });
+
+  it('bans dynamic framework imports in scenarios', async () => {
+    const code = `export const load = async () => import('@playwright/test');\n`;
+    expect(await ruleIds(code, 'scenarios/core-flow.scenario.ts')).toContain('no-restricted-syntax');
+  });
+
+  it('lets support/scenario.ts load the target shims with a dynamic import', async () => {
+    const code = [
+      `const target = process.env['QSPIDER_E2E_TARGET'] ?? '';`,
+      'const shim = (await import(`../../targets/${target}/scenario.ts`)) as { scenario: unknown };',
+      `export const scenario = shim.scenario;`,
+      ``,
+    ].join('\n');
     expect(await ruleIds(code, 'screenplay/support/scenario.ts')).toEqual([]);
   });
 });

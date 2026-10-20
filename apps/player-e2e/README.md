@@ -32,12 +32,13 @@ apps/player-e2e/
 
 Scenarios are written under these rules. `nx lint player-e2e` enforces the mechanical ones (`eslint.config.js`, tested by `lint-rules.spec.ts`), all as errors:
 
-- `scenarios/**`: no imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
-- `screenplay/**`: no imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. The one exception is `support/scenario.ts`, which loads the target's scenario shim.
-- `Ensure` is imported only in `checks.ts` and `support/`.
-- `By` is imported only in `elements.ts` and `support/`.
-- In `elements.ts`, a `By.css` selector must contain `[data-qsp`, `[data-qa` or `[role=` (best effort: string and template literals only).
-- No `Wait.for` anywhere.
+- `scenarios/**`: no static imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
+- `screenplay/**`: no static imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. `support/scenario.ts` may reach `targets/` (it loads the target's scenario shim).
+- No dynamic `import()` anywhere in `apps/player-e2e`, so the import bans cannot be bypassed. The one exception is `screenplay/support/scenario.ts`, the shim loader above.
+- `Ensure` is imported only in `checks.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
+- `By` is imported only in `elements.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
+- In `elements.ts`, a string or template literal passed straight to `By.css` must contain `[data-qsp`, `[data-qa` or `[role=`. Other `By` forms (`By.xpath`, `By.id`, `By.cssContainingText`, …) and non-literal arguments are not checked; reviewers cover those.
+- No fixed sleeps: a call written as `Wait.for(...)` fails lint anywhere (an aliased `Wait` is not caught).
 - `screenplay/**` files have at most 150 lines.
 - `@typescript-eslint/no-floating-promises` and `no-misused-promises` (type-aware) everywhere, so an `attemptsTo(...)` without `await` fails lint.
 
