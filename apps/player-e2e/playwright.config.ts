@@ -12,7 +12,8 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   fullyParallel: false,
-  forbidOnly: !!process.env['CI'],
+  // A stray test.only would silently skip the rest of the suite.
+  forbidOnly: true,
   outputDir: 'artifacts/web',
   reporter: [['list'], ['html', { open: 'never', outputFolder: 'artifacts/web-report' }]],
   use: {
@@ -35,7 +36,8 @@ export default defineConfig({
     command: 'pnpm nx run player:preview:production',
     cwd: workspaceRoot,
     url: baseURL,
-    reuseExistingServer: !process.env['CI'],
+    // Never test whatever else is listening on the port: a busy port fails the run.
+    reuseExistingServer: false,
     timeout: 180_000,
   },
 });
