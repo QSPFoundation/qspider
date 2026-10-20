@@ -115,7 +115,7 @@ The rules apply now: elements use only the theme contract, so they are the same 
 ## Commands
 
 - `pnpm e2e:web` - build the player, then run Playwright.
-- `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO.
+- `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO through `targets/desktop/run-desktop-e2e.mjs` (below). Extra arguments to that script go to `wdio run`.
 - `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`) and the lint rules (`lint-rules.spec.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
@@ -130,10 +130,10 @@ Desktop:
 - Rust toolchain.
 - `tauri-driver`: `cargo install tauri-driver --locked`, with `~/.cargo/bin` on `PATH`.
 - `WebKitWebDriver`: Arch `webkit2gtk-4.1`; Debian/Ubuntu `webkit2gtk-driver` (`webkitgtk-webdriver` on Ubuntu 26.04+).
-- A display on Linux (`DISPLAY` or `WAYLAND_DISPLAY`; CI uses `xvfb-run -a`).
+- Linux (the run is always headless, see "Desktop runs on Linux"): `xvfb-run`, `dbus-run-session`/`dbus-send`, the AT-SPI daemons and `python3` with `gi.repository.Atspi`. Arch: `xorg-server-xvfb dbus at-spi2-core python-gobject`; Debian/Ubuntu: `xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0`. No display is needed.
 - Port 4444 free (tauri-driver's port).
 
-A missing tool, a missing display or a busy port 4444 makes `pnpm e2e:desktop` fail with a message naming it. Web E2E likewise fails if port 4300 is already in use; it never reuses a running server.
+A missing tool, missing AT-SPI Python bindings or a busy port 4444 makes `pnpm e2e:desktop` fail with a message naming it. Web E2E likewise fails if port 4300 is already in use; it never reuses a running server.
 
 ## Headed runs
 
@@ -143,7 +143,29 @@ The configs read no headed env var. Web: run Playwright directly (after `nx buil
 CHROME_BIN=/usr/bin/chromium pnpm exec playwright test -c apps/player-e2e/targets/web/playwright.config.ts --headed
 ```
 
-Desktop: the app is a real window, so it is visible whenever a display is available (no flag needed).
+Desktop: on Linux the run is always headless (below), so there is no headed mode; the window lives on a private Xvfb display.
+
+## Desktop runs on Linux
+
+`targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root:
+
+```bash
+env -u WAYLAND_DISPLAY GDK_BACKEND=x11 \
+  dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
+  xvfb-run -a wdio run apps/player-e2e/targets/desktop/wdio.conf.ts [args]
+```
+
+- `dbus-run-session` gives the run a private session bus, so nothing talks to your desktop's bus.
+- `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on it. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself (from `/usr/libexec` on Debian/Ubuntu, `/usr/lib` on Arch; exits 1 naming a missing one), polls until `org.a11y.Bus` answers, runs the command, then stops both daemons and exits with the command's status. The launcher gets a private `XDG_RUNTIME_DIR`: its socket path depends only on the display number, so otherwise it would replace your desktop's own accessibility bus socket. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
+- `xvfb-run -a` provides a virtual X display. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
+
+On Windows and macOS the script runs `wdio run …` directly. CI runs plain `pnpm e2e:desktop`.
+
+To run a helper inside the same environment by hand (for example to inspect the accessibility tree):
+
+```bash
+env -u WAYLAND_DISPLAY GDK_BACKEND=x11 dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh xvfb-run -a <command>
+```
 
 ## Failure artifacts
 

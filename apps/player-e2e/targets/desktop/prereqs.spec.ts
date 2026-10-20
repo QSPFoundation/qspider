@@ -1,36 +1,50 @@
 import { describe, expect, it } from 'vitest';
-import { DISPLAY_PREREQ, findMissingPrereqs } from './prereqs';
+import { ATSPI_PREREQ, findMissingPrereqs } from './prereqs';
 
-const x11 = { DISPLAY: ':0' };
+const all = (c: string): string => `/usr/bin/${c}`;
+const atspi = (): boolean => true;
+const noAtspi = (): boolean => false;
 
 describe('findMissingPrereqs', () => {
   it('names every missing tool on linux', () => {
-    expect(findMissingPrereqs('linux', () => null, x11)).toEqual(['tauri-driver', 'WebKitWebDriver']);
+    expect(findMissingPrereqs('linux', () => null, atspi)).toEqual([
+      'tauri-driver',
+      'WebKitWebDriver',
+      'xvfb-run',
+      'dbus-run-session',
+      'python3',
+    ]);
   });
-  it('returns empty when all present', () => {
-    expect(findMissingPrereqs('linux', (c) => `/usr/bin/${c}`, x11)).toEqual([]);
+  it('returns empty when all present; no display is needed on linux (Xvfb provides it)', () => {
+    expect(findMissingPrereqs('linux', all, atspi)).toEqual([]);
+  });
+  it('names xvfb-run on linux', () => {
+    expect(findMissingPrereqs('linux', (c) => (c === 'xvfb-run' ? null : all(c)), atspi)).toEqual(['xvfb-run']);
+  });
+  it('names dbus-run-session on linux', () => {
+    expect(findMissingPrereqs('linux', (c) => (c === 'dbus-run-session' ? null : all(c)), atspi)).toEqual([
+      'dbus-run-session',
+    ]);
+  });
+  it('names Atspi on linux when python3 cannot import it', () => {
+    expect(findMissingPrereqs('linux', all, noAtspi)).toEqual([ATSPI_PREREQ]);
+  });
+  it('names python3 alone when it is missing, without probing Atspi', () => {
+    let probed = false;
+    const probe = (): boolean => {
+      probed = true;
+      return false;
+    };
+    expect(findMissingPrereqs('linux', (c) => (c === 'python3' ? null : all(c)), probe)).toEqual(['python3']);
+    expect(probed).toBe(false);
   });
   it('names msedgedriver on windows', () => {
-    expect(findMissingPrereqs('win32', (c) => (c === 'tauri-driver' ? 'C:\\tauri-driver.exe' : null), {})).toEqual([
-      'msedgedriver',
-    ]);
+    expect(findMissingPrereqs('win32', (c) => (c === 'tauri-driver' ? 'C:\\tauri-driver.exe' : null), noAtspi)).toEqual(
+      ['msedgedriver'],
+    );
   });
-  it('names the display on linux when neither DISPLAY nor WAYLAND_DISPLAY is set', () => {
-    expect(findMissingPrereqs('linux', (c) => `/usr/bin/${c}`, {})).toEqual([DISPLAY_PREREQ]);
-  });
-  it('treats empty display variables as unset', () => {
-    expect(findMissingPrereqs('linux', (c) => `/usr/bin/${c}`, { DISPLAY: '', WAYLAND_DISPLAY: '' })).toEqual([
-      DISPLAY_PREREQ,
-    ]);
-  });
-  it('accepts a Wayland display alone', () => {
-    expect(findMissingPrereqs('linux', (c) => `/usr/bin/${c}`, { WAYLAND_DISPLAY: 'wayland-1' })).toEqual([]);
-  });
-  it('reports missing tools and display together', () => {
-    expect(findMissingPrereqs('linux', () => null, {})).toEqual(['tauri-driver', 'WebKitWebDriver', DISPLAY_PREREQ]);
-  });
-  it('does not require a display on windows or macos', () => {
-    expect(findMissingPrereqs('win32', (c) => `C:\\${c}.exe`, {})).toEqual([]);
-    expect(findMissingPrereqs('darwin', () => null, {})).toEqual([]);
+  it('checks neither display nor Atspi on windows or macos', () => {
+    expect(findMissingPrereqs('win32', (c) => `C:\\${c}.exe`, noAtspi)).toEqual([]);
+    expect(findMissingPrereqs('darwin', () => null, noAtspi)).toEqual([]);
   });
 });
