@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { ACTION, SAVE_SLOT, SHELF_TITLE, TEXT } from '../shared/core-flow';
+import { E2E_GAME } from '../fixtures/e2e-game';
 import {
   chooseSaveSlot,
   clickAction,
@@ -12,6 +12,9 @@ import {
   reachCounter,
   returnToShelf,
 } from './player';
+
+const { action: ACTION, shelfTitle: SHELF_TITLE, text: TEXT } = E2E_GAME;
+const SAVE_SLOT = 1;
 
 // Each test runs in a fresh browser context: empty shelf, no saves.
 

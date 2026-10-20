@@ -1,23 +1,34 @@
 import { defineConfig, devices } from '@playwright/test';
+import type { SerenityFixtures, SerenityWorkerFixtures } from '@serenity-js/playwright-test';
 import { fileURLToPath } from 'node:url';
 
 // Preview port of apps/player (apps/player/vite.config.mts `preview.port`).
 const PORT = 4300;
 const baseURL = `http://localhost:${PORT}`;
-const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
+const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const chromeBin = process.env['CHROME_BIN'];
 
-export default defineConfig({
-  testDir: './web',
-  testMatch: '**/*.e2e.ts',
+// Read by screenplay/support/scenario.ts to pick this target's scenario shim.
+process.env['QSPIDER_E2E_TARGET'] = 'web';
+
+export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
+  testDir: '../../scenarios',
+  testMatch: '**/*.scenario.ts',
   retries: 0,
   workers: 1,
   fullyParallel: false,
   // A stray test.only would silently skip the rest of the suite.
   forbidOnly: true,
-  outputDir: 'artifacts/web',
-  reporter: [['list'], ['html', { open: 'never', outputFolder: 'artifacts/web-report' }]],
+  outputDir: '../../artifacts/web',
+  reporter: [
+    ['list'],
+    ['html', { open: 'never', outputFolder: '../../artifacts/web-report' }],
+    // Serenity/JS step trace for every scenario, in the same form as on desktop.
+    ['@serenity-js/playwright-test', { crew: ['@serenity-js/console-reporter'] }],
+  ],
   use: {
+    // Same actor name as on desktop (targets/desktop/scenario.ts).
+    defaultActorName: 'Player',
     baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

@@ -1,5 +1,5 @@
-import { ACTION, SAVE_SLOT, SHELF_TITLE, TEXT } from '../shared/core-flow';
-import { restartAppWithEmptyData } from './fresh-app';
+import { E2E_GAME } from '../fixtures/e2e-game';
+import { restartAppWithEmptyData } from '../targets/desktop/fresh-app';
 import {
   chooseSaveSlot,
   clickAction,
@@ -11,6 +11,9 @@ import {
   reachCounter,
   returnToShelf,
 } from './player';
+
+const { action: ACTION, shelfTitle: SHELF_TITLE, text: TEXT } = E2E_GAME;
+const SAVE_SLOT = 1;
 
 // Each test runs in a fresh app process with empty app data: empty shelf, no saves.
 // The app opens the fixture from its CLI argument, so there is no empty-shelf/import step.

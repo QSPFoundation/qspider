@@ -4,12 +4,12 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 
 - Web: Playwright (`web/core-flow.e2e.ts`), runs against the production build of `apps/player`.
 - Desktop: WebdriverIO + `tauri-driver` (`desktop/core-flow.e2e.ts`), runs against the debug Tauri binary.
-- Both are thin test files with the same four independent tests, same names, same order. Shared constants (fixture path, texts, action labels) live in `shared/core-flow.ts`.
+- Both are thin test files with the same four independent tests, same names, same order. Shared constants (fixture path, texts, action labels) live in `fixtures/e2e-game.ts`.
 - Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions). Each test starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.
 
 ### Desktop isolation
 
-`wdio.desktop.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each test, `desktop/fresh-app.ts` ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms the tests fail in the `beforeEach` hook.
+`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each test, `targets/desktop/fresh-app.ts` ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms the tests fail in the `beforeEach` hook.
 
 ## Commands
 
@@ -39,7 +39,7 @@ A missing tool, a missing display or a busy port 4444 makes `pnpm e2e:desktop` f
 The configs read no headed env var. Web: run Playwright directly (after `nx build player`) with the flag:
 
 ```bash
-CHROME_BIN=/usr/bin/chromium pnpm exec playwright test -c apps/player-e2e/playwright.config.ts --headed
+CHROME_BIN=/usr/bin/chromium pnpm exec playwright test -c apps/player-e2e/targets/web/playwright.config.ts --headed
 ```
 
 Desktop: the app is a real window, so it is visible whenever a display is available (no flag needed).

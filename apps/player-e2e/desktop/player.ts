@@ -1,7 +1,9 @@
 // WebdriverIO helpers for the desktop core-flow tests. Same names and meaning as
 // web/player.ts, without the `page` argument (WDIO's `browser` is global).
 import { $, $$, browser, expect } from '@wdio/globals';
-import { ACTION, TEXT } from '../shared/core-flow';
+import { E2E_GAME } from '../fixtures/e2e-game';
+
+const { action: ACTION, text: TEXT } = E2E_GAME;
 
 const MAIN_TEXT_TIMEOUT = 15_000;
 

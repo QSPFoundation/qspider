@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test';
-import { ACTION, FIXTURE_PATH, TEXT } from '../shared/core-flow';
+import { E2E_GAME } from '../fixtures/e2e-game';
+
+const { action: ACTION, path: FIXTURE_PATH, text: TEXT } = E2E_GAME;
 
 const MAIN_TEXT_TIMEOUT = 15_000;
 

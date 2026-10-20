@@ -8,11 +8,13 @@
     "types": ["node"]
   },
   "include": [
-    "shared/**/*.ts",
+    "fixtures/**/*.ts",
+    "scenarios/**/*.ts",
+    "screenplay/**/*.ts",
+    "targets/web/**/*.ts",
+    "targets/desktop/prereqs.ts",
+    "targets/desktop/prereqs.spec.ts",
     "web/**/*.ts",
-    "desktop/prereqs.ts",
-    "desktop/prereqs.spec.ts",
-    "*.config.ts",
     "*.config.mts"
   ]
 }

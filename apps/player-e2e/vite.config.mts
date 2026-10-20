@@ -7,6 +7,6 @@ export default defineConfig({
   test: {
     name: 'player-e2e',
     environment: 'node',
-    include: ['desktop/**/*.spec.ts'],
+    include: ['targets/desktop/**/*.spec.ts'],
   },
 });

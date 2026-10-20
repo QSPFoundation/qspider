@@ -8,12 +8,13 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
-import { FIXTURE_PATH } from './shared/core-flow';
-import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './desktop/fresh-app';
-import { findMissingPrereqs, INSTALL_HINT, which } from './desktop/prereqs';
+import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
+import { E2E_GAME } from '../../fixtures/e2e-game';
+import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
+import { findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 
-const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
-const artifactsDir = fileURLToPath(new URL('./artifacts/desktop', import.meta.url));
+const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
+const artifactsDir = fileURLToPath(new URL('../../artifacts/desktop', import.meta.url));
 // Binary name = Cargo package name (src-tauri/Cargo.toml).
 const application = join(
   workspaceRoot,
@@ -22,8 +23,11 @@ const application = join(
 );
 const DRIVER_PORT = 4444;
 
+// Read by screenplay/support/scenario.ts to pick this target's scenario shim.
+process.env['QSPIDER_E2E_TARGET'] = 'desktop';
+
 // One tauri-driver for the whole run, with one set of XDG dirs. Before each test,
-// desktop/fresh-app.ts ends the app, empties those dirs and starts a new session, for
+// fresh-app.ts ends the app, empties those dirs and starts a new session, for
 // which tauri-driver launches a new app process.
 let tauriDriver: ChildProcess | undefined;
 let runDir: string | undefined;
@@ -90,9 +94,9 @@ async function assertDriverPortFree(): Promise<void> {
 
 const safeName = (s: string): string => s.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
 
-export const config: WebdriverIO.Config = {
+export const config: WebdriverIOConfig = {
   runner: 'local',
-  specs: ['./desktop/**/*.e2e.ts'],
+  specs: ['../../scenarios/**/*.scenario.ts'],
   maxInstances: 1,
   hostname: '127.0.0.1',
   port: DRIVER_PORT,
@@ -100,14 +104,16 @@ export const config: WebdriverIO.Config = {
     {
       // tauri-driver's WebKitWebDriver/msedgedriver speak WebDriver classic only.
       'wdio:enforceWebDriverClassic': true,
-      'tauri:options': { application, args: [FIXTURE_PATH] },
+      'tauri:options': { application, args: [E2E_GAME.path] },
     } as WebdriverIO.Capabilities,
   ],
   logLevel: 'warn',
   outputDir: join(artifactsDir, 'wdio-logs'),
   waitforTimeout: 10_000,
   specFileRetries: 0,
-  framework: 'mocha',
+  framework: '@serenity-js/webdriverio',
+  // console-reporter: without it, desktop failures show only as "Unknown error".
+  serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'] },
   // forbidOnly: a stray it.only would silently skip the rest of the suite.
   mochaOpts: { ui: 'bdd', timeout: 120_000, retries: 0, forbidOnly: true },
   reporters: ['spec'],
@@ -146,13 +152,14 @@ export const config: WebdriverIO.Config = {
         `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
       );
     }
-    // Read by desktop/fresh-app.ts in the worker, which inherits the launcher's env.
+    // Read by fresh-app.ts in the worker, which inherits the launcher's env.
     process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
     process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
   },
 
-  async afterTest(test, _context, { passed }) {
-    if (passed) return;
+  async afterTest(test, _context, { passed, error }) {
+    // A skipped scenario (this.skip()) reports passed: false without an error.
+    if (passed || !error) return;
     mkdirSync(artifactsDir, { recursive: true });
     const base = join(artifactsDir, safeName(test.title));
     try {
