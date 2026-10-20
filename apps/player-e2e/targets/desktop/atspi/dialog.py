@@ -73,6 +73,11 @@ def action_index(node, name):
     return None
 
 
+def entry_text(entry):
+    # Called through Atspi.Text: on the Accessible, get_text resolves to an unrelated method.
+    return Atspi.Text.get_text(entry, 0, Atspi.Text.get_character_count(entry))
+
+
 def do_action(node, name):
     index = action_index(node, name)
     if index is None:
@@ -95,10 +100,19 @@ def open_path(path, timeout):
     )
     entry.get_editable_text_iface().set_text_contents(path)
     # GTK's location entry autocompletes: the first activation (Return) may only accept the
-    # completion, so activate until the dialog closes, at most 3 times.
+    # completion, so activate until the dialog closes, at most 3 times. Before each, the entry must
+    # still hold `path`: a completion that changed it would open a different file.
     for _ in range(3):
         if find_dialog() is None:
             break
+        try:
+            text = entry_text(entry)
+        except Exception:
+            if find_dialog() is None:  # it closed between the check and the read
+                break
+            raise
+        if text != path:
+            fail(f"The native file dialog changed the path {path} to {text}")
         do_action(entry, "activate")
         deadline = time.time() + 1
         while find_dialog() is not None and time.time() < deadline:
