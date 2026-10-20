@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://qspfoundation.github.io/qspider/qspider.desktop.schema.json",
+  "title": "qSpider standalone desktop config",
+  "type": "object",
+  "required": ["productName", "version", "identifier", "publisher", "window"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "productName": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1, "description": "Semver version of the game build" },
+    "identifier": { "type": "string", "minLength": 1, "description": "Reverse-DNS bundle identifier, e.g. my.game.id" },
+    "publisher": { "type": "string", "minLength": 1 },
+    "copyright": { "type": "string" },
+    "category": { "type": "string", "default": "Game" },
+    "shortDescription": { "type": "string" },
+    "longDescription": { "type": "string" },
+    "window": {
+      "type": "object",
+      "required": ["title"],
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "width": { "type": "number", "default": 1024 },
+        "height": { "type": "number", "default": 768 },
+        "resizable": { "type": "boolean", "default": true },
+        "fullscreen": { "type": "boolean", "default": false },
+        "center": { "type": "boolean", "default": true }
+      }
+    },
+    "updater": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": false },
+        "endpoint": { "type": "string", "description": "URL of the Tauri 2 updater manifest" },
+        "pubkey": { "type": "string" }
+      }
+    }
+  }
+}

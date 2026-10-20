@@ -32,6 +32,7 @@
     "workspace-generator": "nx workspace-generator",
     "prepare": "husky || true",
     "tauri": "tauri",
+    "standalone:config": "node tools/standalone-config/cli.mjs",
     "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk"
   },
   "private": true,
