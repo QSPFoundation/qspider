@@ -32,10 +32,10 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 - `pnpm check:rust` - Rust fmt, clippy and tests for `src-tauri`
 - `pnpm e2e:web` - Web E2E (Playwright); needs `CHROME_BIN=/usr/bin/chromium` or `pnpm exec playwright install chromium`
 - `pnpm e2e:desktop` - Desktop E2E (WebdriverIO + tauri-driver); needs `tauri-driver` on PATH (`~/.cargo/bin`), `WebKitWebDriver` and Rust
-- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, web E2E (no desktop E2E)
+- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web E2E (no desktop E2E)
 - `pnpm check:full` - `pnpm check` plus desktop E2E
 
-Before declaring work done, run `pnpm check:full` and report its result. `pnpm check` is the fast subset (no desktop E2E). Desktop E2E currently fails 3 of 4 tests on a known Tauri 2 bug (see `apps/player-e2e/README.md`); report it honestly, don't hide or skip it. Setup details: `apps/player-e2e/README.md`.
+Before declaring work done, run `pnpm check:full` and report its result. `pnpm check` is the fast subset (no desktop E2E). Desktop E2E is currently red on a known Tauri 2 bug (see `apps/player-e2e/README.md`); report it honestly, don't hide or skip it. Until that fix lands, the expected desktop result is exactly: `2-actions.e2e.ts` passes; `1-open-game.e2e.ts`, `3-save-load.e2e.ts` and `4-reopen-from-shelf.e2e.ts` fail with the webview landing on `qsp://localhost/?…pause=true`. Any other desktop failure, or any failure in `pnpm check`, is a regression. Setup details: `apps/player-e2e/README.md`.
 
 ### NX Specific Commands
 
