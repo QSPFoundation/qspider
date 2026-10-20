@@ -19,6 +19,7 @@
     "dialog:allow-open",
     "dialog:allow-ask",
     "cli:default",
+    "opener:default",
     "os:default",
     "process:allow-exit",
     "process:allow-restart",
