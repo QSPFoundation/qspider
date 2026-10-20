@@ -1,5 +1,5 @@
 // Per-test isolation for the desktop tests: one tauri-driver serves the whole run
-// (wdio.desktop.conf.ts), and each test gets a new app process with empty app data.
+// (wdio.conf.ts), and each test gets a new app process with empty app data.
 import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { browser } from '@wdio/globals';
 
@@ -71,7 +71,7 @@ async function waitForExit(procs: Proc[]): Promise<void> {
 
 function requireEnv(name: string): string {
   const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set; run the desktop tests through wdio.desktop.conf.ts`);
+  if (!value) throw new Error(`${name} is not set; run the desktop tests through targets/desktop/wdio.conf.ts`);
   return value;
 }
 

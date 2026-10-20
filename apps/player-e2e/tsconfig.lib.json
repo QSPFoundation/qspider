@@ -8,11 +8,15 @@
     "types": ["node"]
   },
   "include": [
-    "shared/**/*.ts",
-    "web/**/*.ts",
-    "desktop/prereqs.ts",
-    "desktop/prereqs.spec.ts",
-    "*.config.ts",
+    "fixtures/**/*.ts",
+    "scenarios/**/*.ts",
+    "screenplay/**/*.ts",
+    "targets/web/**/*.ts",
+    "targets/desktop/prereqs.ts",
+    "targets/desktop/prereqs.spec.ts",
+    "targets/desktop/launch-fixture.ts",
+    "targets/desktop/launch-fixture.spec.ts",
+    "lint-rules.spec.ts",
     "*.config.mts"
   ]
 }

@@ -12,7 +12,12 @@ export const ErrorAlert: React.FC = () => {
   if (!isOpen) return null;
   return (
     <Toast.Provider>
-      <Toast.Root className="qsp-toast-root error" open={isOpen} onOpenChange={(): void => isErrorShown$.set(false)}>
+      <Toast.Root
+        className="qsp-toast-root error"
+        data-qa="error-alert"
+        open={isOpen}
+        onOpenChange={(): void => isErrorShown$.set(false)}
+      >
         <Toast.Description className="qsp-toast-description">{t(message)}</Toast.Description>
         <Toast.Close className="q-ghost-button">
           <Cross1Icon />

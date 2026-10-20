@@ -20,7 +20,7 @@
       "dependsOn": ["player:build"],
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "playwright test -c apps/player-e2e/playwright.config.ts"
+        "command": "playwright test -c apps/player-e2e/targets/web/playwright.config.ts"
       }
     },
     "build-desktop-e2e": {
@@ -38,7 +38,7 @@
       "dependsOn": ["build-desktop-e2e"],
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "wdio run apps/player-e2e/wdio.desktop.conf.ts"
+        "command": "wdio run apps/player-e2e/targets/desktop/wdio.conf.ts"
       }
     }
   }

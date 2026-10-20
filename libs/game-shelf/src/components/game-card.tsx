@@ -33,7 +33,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
   }, [catalogUpdate, game.id]);
   return (
     <Dialog.Root>
-      <div className="game-shelf__card" data-qa={`game-${game.id}`}>
+      <div className="game-shelf__card" data-qa="game-card">
         <div className="game-shelf__card-content">
           <button
             type="button"
@@ -43,7 +43,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
           >
             <Cross1Icon />
           </button>
-          <h3 className="game-shelf__card-title">
+          <h3 className="game-shelf__card-title" data-qa="game-title">
             {game.icon && <img alt="" src={game.icon} loading="lazy" />}
             {game.title}
           </h3>
@@ -82,6 +82,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
             <div></div>
           )}
           <a
+            data-qa="game-run"
             href="#"
             onClick={(e): void => {
               e.preventDefault();

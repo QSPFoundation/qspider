@@ -37,6 +37,8 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 
 Before declaring work done, run `pnpm check:full` and report its result. `pnpm check` is the fast subset (no desktop E2E). All of it must pass; any failure is a regression to fix or report, never to hide or skip. Setup details: `apps/player-e2e/README.md`.
 
+When writing or changing E2E tests, follow the Rules section of `apps/player-e2e/README.md` (areas, naming, locating by `data-qsp`/role/`data-qa`, `seeEventually`, `OperatePlayer`).
+
 ### NX Specific Commands
 
 - `nx build player` - Build specific player app

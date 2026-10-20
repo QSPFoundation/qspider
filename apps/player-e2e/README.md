@@ -1,21 +1,122 @@
 # player-e2e
 
-End-to-end tests for the core flow: open a game, run actions, save/load, reopen from the shelf.
+End-to-end tests for the core flow: open a game, run actions, save/load, reopen from the shelf. They are written as [Serenity/JS](https://serenity-js.org) Screenplay scenarios that run unchanged on both targets.
 
-- Web: Playwright (`web/core-flow.e2e.ts`), runs against the production build of `apps/player`.
-- Desktop: WebdriverIO + `tauri-driver` (`desktop/core-flow.e2e.ts`), runs against the debug Tauri binary.
-- Both are thin test files with the same four independent tests, same names, same order. Shared constants (fixture path, texts, action labels) live in `shared/core-flow.ts`.
-- Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions). Each test starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.
+- Web: Playwright Test (`targets/web/`), runs against the production build of `apps/player`.
+- Desktop: WebdriverIO + mocha + `tauri-driver` (`targets/desktop/`), runs against the debug Tauri binary.
+- Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions); `fixtures/e2e-game.ts` holds its path and the texts it writes. Each scenario starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.
+
+## Layout
+
+```
+apps/player-e2e/
+  scenarios/            the tests, one file per feature (*.scenario.ts); run on both targets
+  screenplay/
+    <area>/             elements.ts, tasks.ts, checks.ts (as needed) for one place in the UI
+      shelf/ game/ pause/ saves/
+    common/             elements and checks used by more than one area
+    support/            shared primitives (below)
+  targets/
+    web/                playwright.config.ts, Cast, OperateWebPlayer, scenario shim
+    desktop/            wdio.conf.ts, Cast, OperateDesktopPlayer, scenario shim, fresh-app, prereqs
+  fixtures/             test games and their constants
+```
+
+`screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
 
 ### Desktop isolation
 
-`wdio.desktop.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each test, `desktop/fresh-app.ts` ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms the tests fail in the `beforeEach` hook.
+`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
+
+## Rules
+
+Scenarios are written under these rules. `nx lint player-e2e` enforces the mechanical ones (`eslint.config.js`, tested by `lint-rules.spec.ts`), all as errors:
+
+- `scenarios/**`: no static imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
+- `screenplay/**`: no static imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. `support/scenario.ts` may reach `targets/` (it loads the target's scenario shim).
+- No dynamic `import()` anywhere in `apps/player-e2e`, so the import bans cannot be bypassed. The one exception is `screenplay/support/scenario.ts`, the shim loader above.
+- `Ensure` is imported only in `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`, `checks.ts` included (checks go through `seeEventually`).
+- `isPresent` (from `@serenity-js/assertions` or `@serenity-js/web`) is imported only in `screenplay/support/`: on desktop it throws instead of answering false (see "Reading and waiting").
+- `tasks.ts` may import checks only from `common/checks.ts` (the fail-fast guards such as `SeeGameStarted`); an import of any other `checks` module fails lint.
+- `By` is imported only in `elements.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
+- In `elements.ts`, a string or template literal passed straight to `By.css` must contain `[data-qsp`, `[data-qa` or `[role=`. Other `By` forms (`By.xpath`, `By.id`, `By.cssContainingText`, …) and non-literal arguments are not checked; reviewers cover those.
+- No fixed sleeps: a call written as `Wait.for(...)` fails lint anywhere (an aliased `Wait` is not caught).
+- `screenplay/**` files have at most 150 lines.
+- `@typescript-eslint/no-floating-promises` and `no-misused-promises` (type-aware) everywhere, so an `attemptsTo(...)` without `await` fails lint.
+
+The rest (naming, where an element or task belongs, no text or class lookups beyond what the selector check catches) is up to review.
+
+### Where things go
+
+An **area** is a place in the UI where the player can be: a screen (shelf, game) or an overlay on it (pause menu, saves panel). Test: can you name where the player is looking with one noun?
+
+| What     | Where                                                                                                                             |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Area     | `screenplay/<area>/`, with `elements.ts` (definitions only, the only file with selectors), `tasks.ts`, `checks.ts` as needed      |
+| Element  | In the area where it is visible; visible in more than one area: `screenplay/common/`                                              |
+| Task     | In the area where the player starts it (`ReturnToShelf` starts in the game, so it is in `game/`, though it passes the pause menu) |
+| Check    | In the area that shows what is checked                                                                                            |
+| New area | When a new screen or overlay appears, or a file passes about 150 lines and a natural sub-place can be split out                   |
+| Never    | An area per feature. "Quick save" is a scenario that uses tasks from the places it touches                                        |
+
+An area has only the files it needs: `pause/` has only `elements.ts`.
+
+- `elements.ts`: `PageElement` / `PageElements` and nothing else.
+- `tasks.ts`: `Task`s and `Interaction`s (what the player does). Never calls `Ensure`. May compose only the fail-fast guards in `common/checks.ts` (`OpenFixture` uses `SeeGameStarted` to fail fast on an error alert); area checks belong in scenarios. May wait for the UI to settle after its own action.
+- `checks.ts`: what the player expects to see, always through `seeEventually` (never `Ensure` directly).
+- Scenarios contain only tasks, checks and constants: no selectors, no `Ensure`, no framework or `targets/` imports.
+
+### Naming
+
+- Elements are nouns: `Shelf`, `MainText`, `RunLink`.
+- Tasks are verb phrases: `OpenFromShelf`, `ReturnToShelf`, `OpenGameFile`.
+- Checks start with `See`: `SeeMainText`, `SeeShelfTitles`, `SeeSlotEmpty`.
+- Scenario files are named for the feature: `saves.scenario.ts`. Titles state behaviour: `loading a save restores the saved state`.
+
+### Locating elements
+
+Find controls and panels only by:
+
+- `data-qsp*` markers, the theme contract: the renderer's markers on `qsp-*` building blocks;
+- ARIA roles;
+- `data-qa` hooks, **for app-shell UI only** (the shelf and the import error toast, which are not rendered from theme templates): `game-shelf`, `game-shelf-empty`, `game-card` (on the card root), `game-title`, `game-run`, `error-alert`.
+
+Never by visible text, CSS class, nesting or layout: themes and translations change all of them. Text is only for checking content the game writes (`ROOM counter=1`) or that the scenario controls (fixture titles). If a control has no marker or role, add a `data-qsp` marker in the renderer (or a `data-qa` hook in app-shell UI); do not use a fragile selector. Lookups that can match hidden duplicates go through `visible()`.
+
+### Reading and waiting
+
+- **One check primitive.** Every check is `seeEventually(element, question, expectation, description)`: it polls until the element is present and the question meets the expectation. A read error during polling means "not yet". On timeout one strict `Ensure.that` reports Expected/Received, with the last read error appended.
+- **The desktop trap.** On desktop, WebKitWebDriver answers a read of a missing element with a raw "no such element" (it prints as `[object Object]`), and Serenity's `isPresent()`, `Wait.until` and `Ensure.eventually` rethrow it instead of retrying. So an element that has not rendered yet, or is re-rendering, fails a plain read at once.
+- **Presence helpers.** Checks read only through `seeEventually`. Tasks wait and click through `support/presence.ts`: `waitUntilPresent` (any read error means "not yet"), `ClickWhenPresent` (retries the click while the element is missing, up to the timeout), `waitUntilAbsent` (only a missing element counts as gone; other errors surface), `TextNow`, `isShown`, `textIfPresent`. Lint bans `Ensure` and `isPresent` outside `support/`; other reads (`Text.of`, `Attribute`, …) outside these helpers are up to review.
+- **Emptiness needs a settled anchor.** A check that something is empty or absent (empty shelf, empty save slot) passes as soon as the UI is briefly empty, and `games$` and the save slots load asynchronously, so they start empty. Before such a check, check a settled anchor: something that shows only once loading has finished, or a non-empty state seen earlier in the same scenario. Neither the shelf's empty notice nor a slot's `data-save-empty` marker is one (both show while loading), so `SeeShelfTitles([])` and `SeeSlotEmpty` in `core-flow` show the expected start state but cannot prove that no game or save was left over; a real guard needs a loaded marker in the UI first. Eventual checks in general only wait for a match: they do not prove the state stays that way, so they do not catch leftovers or duplicates that appear after the match.
+- **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. The support helpers poll every 250ms (`POLLING_INTERVAL`), not with Serenity's exponential backoff, so a failing check gives up after about 15s. The per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 45s: the scenario's steps (and, on desktop, the app restart) plus one failing check.
+- **No fixed sleeps** (`Wait.for`) and **no retries** (Playwright `retries: 0`, mocha `retries: 0`, WDIO `specFileRetries: 0`).
+- Every `actor.attemptsTo(...)` is awaited; a missing `await` lets a scenario pass without checking anything.
+- A game that fails to open fails the scenario within seconds with the player's error text (`SeeGameStarted` in `common/checks.ts`).
+
+### Target differences: `OperatePlayer`
+
+`support/operate-player.ts` defines `abstract class OperatePlayer extends Ability` with one method per capability that differs by target (`startPlayer`, `openGameFile`), and one `Interaction` per capability (`StartPlayer()`, `OpenGameFile(path)`). Shared code only calls `OperatePlayer.as(actor)`. There is one subclass per target: `targets/web/operate-web-player.ts` and `targets/desktop/operate-desktop-player.ts`. Each target's Cast (`targets/<target>/cast.ts`) gives every actor its browsing ability plus its subclass. A new method does not compile until both targets implement it.
+
+Desktop opens only the launch fixture: `tauri-driver` starts the app with `LAUNCH_FIXTURE` (`targets/desktop/launch-fixture.ts`, the e2e fixture) as its argument, once per app launch, so `OpenGameFile` on desktop opens nothing itself and throws for any other path. A scenario that needs another game file on desktop needs a launch-argument change first (for example, per-scenario capabilities in `wdio.conf.ts`).
+
+### Single-target scenarios
+
+`scenario(title, body)` runs on both targets; each target's shim (`targets/<target>/scenario.ts`) maps it to its runner. When a step exists on only one target, split the scenario into `scenario.webOnly(...)` and `scenario.desktopOnly(...)` variants with the **same base title**. On the other target a variant shows as skipped, never silently absent. Titles get a ` (web only)` / ` (desktop only)` suffix, because Playwright rejects duplicate titles. **Never branch inside a scenario.**
+
+### Failure locations
+
+Failure messages carry the scenario file and line as a `[scenarios/x.scenario.ts:N]` prefix. Playwright's list reporter still names the shim file as the test location (the prefix and a `scenario` annotation carry the real one). The WDIO spec reporter prints `(root)` without titles; Serenity's console reporter carries the detail, so read that.
+
+### Themes
+
+The rules apply now: elements use only the theme contract, so they are the same under every theme. The machinery (fixture variants through `game.cfg`, `forEachTheme`, `themes.scenario.ts`) comes with phase 2. UI a theme renders outside the `qsp-*` vocabulary would get elements under `screenplay/themes/<theme>/`. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
 
 ## Commands
 
 - `pnpm e2e:web` - build the player, then run Playwright.
-- `pnpm e2e:desktop` - check desktop prerequisites (fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO.
-- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself (the desktop prerequisite check).
+- `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO.
+- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`) and the lint rules (`lint-rules.spec.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
 ## Prerequisites
@@ -39,7 +140,7 @@ A missing tool, a missing display or a busy port 4444 makes `pnpm e2e:desktop` f
 The configs read no headed env var. Web: run Playwright directly (after `nx build player`) with the flag:
 
 ```bash
-CHROME_BIN=/usr/bin/chromium pnpm exec playwright test -c apps/player-e2e/playwright.config.ts --headed
+CHROME_BIN=/usr/bin/chromium pnpm exec playwright test -c apps/player-e2e/targets/web/playwright.config.ts --headed
 ```
 
 Desktop: the app is a real window, so it is visible whenever a display is available (no flag needed).
@@ -49,7 +150,7 @@ Desktop: the app is a real window, so it is visible whenever a display is availa
 All under `apps/player-e2e/artifacts/`:
 
 - Web: `web/` (screenshots, traces) and `web-report/` (HTML report).
-- Desktop: `desktop/` (per failed test: `<test-name>.png` screenshot and `<test-name>.html` page source with the webview URL; on a failed run: `tauri-driver.log`; `wdio-logs/`).
+- Desktop: `desktop/` (per failed scenario: `<test-name>.png` screenshot and `<test-name>.html` page source with the webview URL; on a failed run: `tauri-driver.log`; `wdio-logs/`).
 
 ## CI and branch protection
 
