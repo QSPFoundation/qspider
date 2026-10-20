@@ -4,7 +4,17 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 
 - Web: Playwright Test (`targets/web/`), runs against the production build of `apps/player`.
 - Desktop: WebdriverIO + mocha + `tauri-driver` (`targets/desktop/`), runs against the debug Tauri binary.
-- Test pack: `fixtures/game.cfg` lists two games, `e2e-game/e2e-game.qsps` ("E2E game": a tiny QSP game with a `start` and a `room` location, a counter, Save and Load actions) and `second/game.qsps` ("Second game"). `fixtures/test-pack.ts` (`TEST_PACK`) holds the config path, the pack zip path and the shelf titles; `fixtures/e2e-game.ts` holds the first game's file path and the texts it writes. `e2e-game.qsps` sits in its own folder, away from `game.cfg`: the desktop player titles a single game file from a `game.cfg` next to it, and a single-file open must show the file name (`e2e-game.qsps`) on both targets. Each scenario starts with an empty shelf and no saves, then both targets load the same pack: on web, `targets/web/global-setup.ts` zips `game.cfg` and the games it lists into `artifacts/test-pack.zip`, and the scenario uploads it through the Open game input; on desktop, `tauri-driver` starts the app with `game.cfg` as its argument.
+- Test pack: `fixtures/game.cfg` lists two games, `e2e-game/e2e-game.qsps` ("E2E game": a tiny QSP game with a `start` and a `room` location, a counter, Save and Load actions) and `second/game.qsps` ("Second game"). `fixtures/test-pack.ts` (`TEST_PACK`) holds the config path, the pack zip path and the shelf titles; `fixtures/e2e-game.ts` holds the first game's file path and the texts it writes. `e2e-game.qsps` sits in its own folder, away from `game.cfg`: the desktop player titles a single game file from a `game.cfg` next to it, and a single-file open must show the file name (`e2e-game.qsps`) on both targets. Each scenario starts with an empty shelf and no saves. On desktop the app is always launched with the pack: `tauri-driver` starts it with `game.cfg` as its argument. On web a scenario loads the pack only when it calls `LoadTestPack()` (directly or through `OpenFixture()`): `targets/web/global-setup.ts` zips `game.cfg` and the games it lists into `artifacts/test-pack.zip`, and the scenario uploads it through the Open game input. Every scenario does so except "opening a game file", which on web starts from an empty shelf.
+
+### Product behaviour the suite relies on
+
+The desktop player opens what it is launched with, what is dropped on it and what is picked with Open game through the same decision as the web player's Open game (`addImported`, `libs/game-shelf/src/add-imported.ts`):
+
+- more than one game imported (a `game.cfg` listing several, or a multi-game `.zip`): all go on the shelf, overwriting entries with the same id, with the notice `{{ count }} games added to shelf`, and none starts;
+- exactly one: it is added (overwriting) and starts;
+- none: an error.
+
+This changed desktop behaviour on this branch: launching with, or dropping, a multi-game `.zip` used to start its first game; it now only shelves the games. On desktop, only a file named `game.cfg` (any case) is a game config; any other `.cfg` is an error ("Only game.cfg is supported …"), not a single-file import, and a `game.cfg` that lists the same `id` twice is an error.
 
 ## Layout
 
@@ -19,13 +29,15 @@ apps/player-e2e/
   targets/
     web/                playwright.config.ts, global-setup (builds the pack zip), Cast, OperateWebPlayer, scenario shim
     desktop/            wdio.conf.ts, Cast, OperateDesktopPlayer, native-dialog, atspi/ (dialog.py, with-a11y-bus.sh),
-                        run-desktop-e2e.mjs, scenario shim, fresh-app, prereqs
+                        run-desktop-e2e.mjs, private-session, scenario shim, fresh-app, prereqs
   fixtures/             the test pack (game.cfg, test-pack.ts), its games and their constants
 ```
 
 `screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
 
 ### Desktop isolation
+
+**Never run `wdio` directly for desktop** (`wdio run apps/player-e2e/targets/desktop/wdio.conf.ts`): the app would open on your real display, GTK would write your real dconf, and the dialog driver would talk to your real accessibility bus. Use `pnpm e2e:desktop`, or `node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs [wdio args]` after a build. On Linux, `wdio.conf.ts` (`onPrepare`, before launching anything), `atspi/dialog.py` and `atspi/with-a11y-bus.sh` all refuse to run (`targets/desktop/private-session.ts` for the first) unless `QSPIDER_E2E_PRIVATE_SESSION=1` is set and `DBUS_SESSION_BUS_ADDRESS` is set and is not the desktop bus (`/run/user/<uid>/bus`).
 
 `targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the pack's `game.cfg` as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
 
@@ -90,8 +102,9 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 - **The desktop trap.** On desktop, WebKitWebDriver answers a read of a missing element with a raw "no such element" (it prints as `[object Object]`), and Serenity's `isPresent()`, `Wait.until` and `Ensure.eventually` rethrow it instead of retrying. So an element that has not rendered yet, or is re-rendering, fails a plain read at once.
 - **Presence helpers.** Checks read only through `seeEventually`. Tasks wait and click through `support/presence.ts`: `waitUntilPresent` (any read error means "not yet"), `ClickWhenPresent` (retries the click while the element is missing, up to the timeout), `waitUntilAbsent` (only a missing element counts as gone; other errors surface), `TextNow`, `isShown`, `textIfPresent`. Lint bans `Ensure` and `isPresent` outside `support/`; other reads (`Text.of`, `Attribute`, …) outside these helpers are up to review.
 - **Emptiness needs a settled anchor.** A check that something is empty or absent (empty shelf, empty save slot) passes as soon as the UI is briefly empty, and `games$` and the save slots load asynchronously, so they start empty. Before such a check, check a settled anchor: something that shows only once loading has finished, or a non-empty state seen earlier in the same scenario. Neither the shelf's empty notice nor a slot's `data-save-empty` marker is one (both show while loading), so `SeeShelfTitles([])` and `SeeSlotEmpty` in `core-flow` show the expected start state but cannot prove that no game or save was left over; a real guard needs a loaded marker in the UI first. Eventual checks in general only wait for a match: they do not prove the state stays that way, so they do not catch leftovers or duplicates that appear after the match.
-  - "No game started" has a settled anchor on desktop: `[data-qa="startup-finished"]` (`StartupMarker`, rendered from `startupFinished$` in `libs/game-state/src/init.ts`, set at the end of each player's `init()`, after the launch's start decision; `SeeStartupFinished` in `common/checks.ts`). On desktop the start-up shows the shelf first and starts a launched game only later, so a shelf check alone could pass before the game replaces it. "loading a game config adds all its games to the shelf without starting one" checks the marker first, then the shelf with exactly the pack's titles: a game started at launch would have replaced the shelf by then, so on desktop this exact check proves that no game started.
-  - On web this proof is weaker. The pack is uploaded after startup, and the upload's start decision (`apps/player/src/app/open-game-button.tsx`) has its own copy of the multi-game logic, so the marker says nothing about it. Web proves only the shelf titles, an eventual check that waits for the import. Unifying both targets on one shared helper for that decision is a known follow-up.
+  - "No game started" has a settled anchor on desktop: `[data-qa="startup-finished"]` (`StartupMarker`, rendered from `startupFinished$` in `libs/game-state/src/init.ts`, set at the end of the web and desktop players' `init()` (not the standalone player's), after the desktop launch's start decision; `SeeStartupFinished` in `common/checks.ts`). On desktop the start-up shows the shelf first and starts a launched game only later, so a shelf check alone could pass before the game replaces it. "loading a game config adds all its games to the shelf without starting one" checks the marker first, then the shelf with exactly the pack's titles: a game started at launch would have replaced the shelf by then, so on desktop this exact check proves that no game started.
+  - Both targets make that start decision with the same shared code, `addImported` (`libs/game-shelf/src/add-imported.ts`, unit-tested in `add-imported.spec.ts`). Desktop proves "no game started" through the startup marker as above. On web the pack is uploaded after startup, so the marker says nothing about the upload: web exercises the same code but checks only the shelf titles, an eventual check that waits for the import.
+  - "opening a game file" checks the marker before `OpenGameFile`, on both targets, so the Open game click does not race `init()`.
 - **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. The support helpers poll every 250ms (`POLLING_INTERVAL`), not with Serenity's exponential backoff, so a failing check gives up after about 15s. The per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 45s: the scenario's steps (and, on desktop, the app restart) plus one failing check.
 - **No fixed sleeps** (`Wait.for`) and **no retries** (Playwright `retries: 0`, mocha `retries: 0`, WDIO `specFileRetries: 0`).
 - Every `actor.attemptsTo(...)` is awaited; a missing `await` lets a scenario pass without checking anything.
@@ -99,7 +112,7 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 
 ### Target differences: `OperatePlayer`
 
-`support/operate-player.ts` defines `abstract class OperatePlayer extends Ability` with one method per capability that differs by target (`startPlayer`, `openGameFile`), and one `Interaction` per capability (`StartPlayer()`, `OpenGameFile(path)`). Shared code only calls `OperatePlayer.as(actor)`. There is one subclass per target: `targets/web/operate-web-player.ts` and `targets/desktop/operate-desktop-player.ts`. Each target's Cast (`targets/<target>/cast.ts`) gives every actor its browsing ability plus its subclass. A new method does not compile until both targets implement it.
+`support/operate-player.ts` defines `abstract class OperatePlayer extends Ability` with one method per capability that differs by target (`startPlayer`, `loadTestPack`, `openGameFile`), and one `Interaction` per capability (`StartPlayer()`, `LoadTestPack()`, `OpenGameFile(path)`). Shared code only calls `OperatePlayer.as(actor)`. There is one subclass per target: `targets/web/operate-web-player.ts` and `targets/desktop/operate-desktop-player.ts`. Each target's Cast (`targets/<target>/cast.ts`) gives every actor its browsing ability plus its subclass. A new method does not compile until both targets implement it.
 
 - `startPlayer`: web navigates to `/`; desktop does nothing (the app is already launched).
 - `loadTestPack` (`LoadTestPack()`): web uploads `TEST_PACK.zipPath` through `openGameFile`; desktop does nothing, because `tauri-driver` launches the app with `TEST_PACK.configPath` as its argument (`wdio.conf.ts`), once per app launch.
@@ -131,7 +144,7 @@ The rules apply now: elements use only the theme contract, so they are the same 
 
 - `pnpm e2e:web` - build the player, then run Playwright.
 - `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO through `targets/desktop/run-desktop-e2e.mjs` (below). Extra arguments to that script go to `wdio run`.
-- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`) and the lint rules (`lint-rules.spec.ts`).
+- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), the private-session guard (`targets/desktop/private-session.ts`) and the lint rules (`lint-rules.spec.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
 ## Prerequisites
@@ -162,11 +175,13 @@ Desktop: on Linux the run is always headless (below), so there is no headed mode
 
 ## Desktop runs on Linux
 
-`targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root, the equivalent of:
+`targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root, roughly the equivalent of the following (a sketch, not a recipe: the script also pins `node`/`python3`, strips more of the session's env, manages the process group and removes the private dir):
 
 ```bash
 d="$(mktemp -d)" && mkdir "$d"/config "$d"/data "$d"/cache "$d"/state && \
-env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS \
+env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u XDG_SESSION_TYPE \
+  -u XDG_CURRENT_DESKTOP -u XDG_SESSION_DESKTOP -u PULSE_SERVER -u PIPEWIRE_REMOTE -u GTK_MODULES \
+  -u SSH_AUTH_SOCK -u HYPRLAND_INSTANCE_SIGNATURE \
   XDG_RUNTIME_DIR="$d" XDG_CONFIG_HOME="$d/config" XDG_DATA_HOME="$d/data" \
   XDG_CACHE_HOME="$d/cache" XDG_STATE_HOME="$d/state" GSETTINGS_BACKEND=memory \
   GDK_BACKEND=x11 GIO_USE_VFS=local GVFS_DISABLE_FUSE=1 QSPIDER_E2E_PRIVATE_SESSION=1 \
@@ -177,7 +192,7 @@ env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS \
 Nothing in the run may touch your desktop session or your home, so the layers nest outside-in:
 
 - `xvfb-run -a` is the outermost layer: everything inside sees only its virtual `DISPLAY`. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
-- A fresh private dir (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates (dconf, portals), wdio and the app. It is `XDG_RUNTIME_DIR`, and `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` point at subdirectories of it. `GSETTINGS_BACKEND=memory` keeps settings out of dconf. So nothing writes `~/.config/dconf/user`, `~/.local/share/recently-used.xbel` or the like. `wdio.conf.ts` still sets its own per-run `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME` for tauri-driver and the app, which take precedence. `AT_SPI_BUS_ADDRESS` and `DBUS_SESSION_BUS_ADDRESS` are removed. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
+- A fresh private dir (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates (dconf, portals), wdio and the app. It is `XDG_RUNTIME_DIR`, and `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` point at subdirectories of it. `GSETTINGS_BACKEND=memory` keeps settings out of dconf. So nothing writes `~/.config/dconf/user`, `~/.local/share/recently-used.xbel` or the like. `wdio.conf.ts` still sets its own per-run `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME` for tauri-driver and the app, which take precedence. Every variable that points at the desktop session is removed: `AT_SPI_BUS_ADDRESS`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_SESSION_TYPE`, `XDG_CURRENT_DESKTOP`, `XDG_SESSION_DESKTOP`, `PULSE_SERVER`, `PIPEWIRE_REMOTE`, `GTK_MODULES`, `SSH_AUTH_SOCK` and `HYPRLAND_INSTANCE_SIGNATURE` (and `WAYLAND_DISPLAY`, above). Version-manager shims would read their state from the replaced XDG dirs, so `node` and `python3` are pinned (symlinked in the private dir) to the interpreters resolved with the real env. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
 - `dbus-run-session` gives the run a private session bus.
 - `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on that bus. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself, from `/usr/libexec` on Debian/Ubuntu or `/usr/lib` on Arch, and exits 1 naming a missing one. It fails closed: it refuses to run (exit 1) without `QSPIDER_E2E_PRIVATE_SESSION=1`, when `DBUS_SESSION_BUS_ADDRESS` is unset or is the desktop bus (`/run/user/$UID/bus`), or when `org.a11y.Bus` already has an owner. The daemons run without `DISPLAY`, so they can't publish `AT_SPI_BUS` on any X server, and with their own runtime dir. The script polls until the bus and then the registry answer, runs the command, then stops the two daemons it started (TERM, then KILL after about 2s) and exits with the command's status. The daemons' output goes to `artifacts/desktop/a11y-bus.log`, which is copied before any KILL. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
 - The runner starts the tree in its own process group. On Ctrl-C (or TERM/HUP) it passes the signal to the whole group and exits with `128+n`. When the child exits, normally or not, it TERMs what is left of the group (for example, services the private bus activated), waits up to 30s, then KILLs, and only then removes the private dir.
@@ -186,7 +201,7 @@ Trade-off: the tree is a separate process group, so the terminal's Ctrl-C reache
 
 On Windows and macOS the script runs `wdio run …` directly. CI runs plain `pnpm e2e:desktop`.
 
-To run a helper inside the same environment by hand (for example, to inspect the accessibility tree), use the command above with `<command>` in place of `wdio run …`.
+Don't rebuild that environment by hand. To run part of the suite, pass wdio arguments through the runner: `pnpm e2e:desktop --spec apps/player-e2e/scenarios/core-flow.scenario.ts`, or, with the E2E binary already built, `node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs --spec …`. To inspect the dialog's accessibility tree, temporarily call `dialog.py dump` from a scenario run this way; `dialog.py` refuses to run outside the runner's session.
 
 ## Failure artifacts
 

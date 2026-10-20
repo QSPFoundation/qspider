@@ -42,7 +42,9 @@ Read them with `git show spike/desktop-dialog-atspi:<path>`. Don't copy its comm
   - exactly 1 → start it;
   - 0 → error.
 - **Unchanged:** existing single-file and `.zip` behaviour on desktop.
+  - Deviation (final review): desktop launch, drop and Open game now share the web's decision (`addImported`, `libs/game-shelf`), so a multi-game `.zip` launched with or dropped on desktop puts its games on the shelf instead of starting the first one. A `.cfg` other than `game.cfg` is now an error instead of a single-file import.
 - **Nothing test-only in release builds.**
+  - The startup marker (`startupFinished$`, `StartupMarker`, `data-qa="startup-finished"`) exists for automation, like the `data-qa` hooks, and ships in release builds as harmless hidden markup; it changes no behaviour.
 - **Desktop E2E on Linux always runs headless** under Xvfb, with an AT-SPI bus and registry started explicitly (no systemd activation in a bare session), `WAYLAND_DISPLAY` unset and `GDK_BACKEND=x11`.
 - **AT-SPI binary paths differ per distro:** Arch uses `/usr/lib/at-spi-bus-launcher` and `/usr/lib/at-spi2-registryd`; Ubuntu uses `/usr/libexec/…`.
 - **Prerequisites fail loudly and are named:** a missing tool is never a silent skip.
