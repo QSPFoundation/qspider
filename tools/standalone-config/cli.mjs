@@ -28,8 +28,9 @@ const v1File = v1Idx >= 0 ? args[v1Idx + 1] : undefined;
 if (v1Idx >= 0 && !v1File) fail('--from-v1 requires a file path');
 
 if (v1File) {
-  const { config, dropped } = convertFromV1(readJson(v1File));
+  const { config, dropped, warnings } = convertFromV1(readJson(v1File));
   console.log(JSON.stringify(config, null, 2));
+  for (const w of warnings) console.error(`warning: ${w}`);
   if (dropped.length > 0) {
     console.error('The following v1 settings have no equivalent and were dropped:');
     for (const d of dropped) console.error(`  - ${d}`);

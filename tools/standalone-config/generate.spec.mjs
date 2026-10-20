@@ -63,6 +63,11 @@ describe('generateTauriConfig', () => {
     });
   });
 
+  it('falls back to productName for an empty shortDescription', () => {
+    expect(generateTauriConfig(sample).config.bundle.shortDescription).toBe('My Game');
+    expect(generateTauriConfig({ ...sample, shortDescription: 'Hi' }).config.bundle.shortDescription).toBe('Hi');
+  });
+
   it('never emits v1Compatible', () => {
     expect(JSON.stringify(generateTauriConfig(withUpdater).config)).not.toContain('v1Compatible');
     expect(JSON.stringify(generateTauriConfig(sample).config)).not.toContain('v1Compatible');
@@ -127,6 +132,22 @@ describe('convertFromV1', () => {
     v1.tauri.updater = { active: true, endpoints: ['https://x/u.json'], pubkey: 'K' };
     const { config } = convertFromV1(v1);
     expect(config.updater).toEqual({ enabled: true, endpoint: 'https://x/u.json', pubkey: 'K' });
+  });
+
+  it('rewrites a frozen v1 updater endpoint to updater-v2.json with a warning', () => {
+    const v1 = structuredClone(templateV1WithExtras);
+    v1.tauri.updater = { active: true, endpoints: ['https://u.github.io/g/updater.json'], pubkey: 'K' };
+    const { config, warnings } = convertFromV1(v1);
+    expect(config.updater.endpoint).toBe('https://u.github.io/g/updater-v2.json');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toContain('updater-v2.json');
+  });
+
+  it('emits $schema and schemaVersion', () => {
+    const { config, warnings } = convertFromV1(templateV1WithExtras);
+    expect(config.$schema).toMatch(/qspider\.desktop\.schema\.json$/);
+    expect(config.schemaVersion).toBe(1);
+    expect(warnings).toEqual([]);
   });
 
   it('produces a config that validates against the schema required fields', () => {

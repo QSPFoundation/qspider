@@ -1,6 +1,9 @@
 // Generates a Tauri 2 config overlay (RFC 7396 merge patch over src-tauri/tauri.conf.json)
 // from a game author's qspider.desktop.json.
 
+const DESKTOP_SCHEMA_URL =
+  'https://raw.githubusercontent.com/QSPFoundation/qspider/release/tools/standalone-config/qspider.desktop.schema.json';
+
 const REQUIRED = ['productName', 'version', 'identifier', 'publisher'];
 
 export function validate(cfg) {
@@ -42,7 +45,8 @@ export function generateTauriConfig(cfg) {
       publisher: cfg.publisher,
       copyright: cfg.copyright ?? '',
       category: cfg.category ?? 'Game',
-      shortDescription: cfg.shortDescription ?? '',
+      // Linux packages need a non-empty description
+      shortDescription: cfg.shortDescription || cfg.productName,
       longDescription: cfg.longDescription ?? '',
       // never v1Compatible: standalone games have no v1 updater lineage
       createUpdaterArtifacts: updaterEnabled,
@@ -108,10 +112,18 @@ export function convertFromV1(v1) {
   const bundle = v1.tauri?.bundle ?? {};
   const upd = v1.tauri?.updater ?? {};
   const win = v1.tauri?.windows?.[0] ?? {};
-  const endpoint = upd.endpoints?.[0] ?? '';
+  const warnings = [];
+  let endpoint = upd.endpoints?.[0] ?? '';
+  if (endpoint.endsWith('/updater.json')) {
+    // updater.json is frozen on the v1-format bridge release; v2 apps must read updater-v2.json
+    const rewritten = endpoint.replace(/\/updater\.json$/, '/updater-v2.json');
+    warnings.push(`updater endpoint rewritten from ${endpoint} to ${rewritten} (updater.json is frozen for v1 apps)`);
+    endpoint = rewritten;
+  }
   const pubkey = upd.pubkey ?? '';
 
   const config = {
+    $schema: DESKTOP_SCHEMA_URL,
     schemaVersion: 1,
     productName: pkg.productName ?? '',
     version: pkg.version ?? '',
@@ -140,5 +152,5 @@ export function convertFromV1(v1) {
   // including v1 keys with no v2 meaning (bundle.active, updater.dialog, windows[0].visible),
   // since an author may have set them deliberately.
   const dropped = leafPaths(v1, '', []).filter((p) => !V1_KNOWN.has(p) && !p.startsWith('build.'));
-  return { config, dropped };
+  return { config, dropped, warnings };
 }
