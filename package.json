@@ -36,7 +36,8 @@
     "standalone:config": "node tools/standalone-config/cli.mjs",
     "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk",
     "check:rust": "cd src-tauri && cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test",
-    "check": "pnpm format:check && nx run-many -t lint typecheck build && pnpm check:rust"
+    "check": "pnpm format:check && nx run-many -t lint typecheck build && pnpm check:rust && pnpm e2e:web",
+    "e2e:web": "nx build player && playwright test -c apps/player-e2e/playwright.config.ts"
   },
   "private": true,
   "dependencies": {
@@ -115,6 +116,7 @@
     "@nx/vitest": "23.3.0",
     "@nx/web": "23.3.0",
     "@nx/workspace": "23.3.0",
+    "@playwright/test": "^1.64.1",
     "@swc-node/register": "1.12.1",
     "@swc/cli": "0.8.1",
     "@swc/core": "1.16.18",

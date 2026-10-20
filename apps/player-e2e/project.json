@@ -14,6 +14,14 @@
         "cwd": "{projectRoot}",
         "command": "tsc -p tsconfig.lib.json --noEmit"
       }
+    },
+    "e2e-web": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["player:build"],
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "command": "playwright test -c apps/player-e2e/playwright.config.ts"
+      }
     }
   }
 }
