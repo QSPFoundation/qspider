@@ -48,7 +48,6 @@ jobs:
         if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
-          dpkg -l | grep -i libunwind || true
           # The 22.04 image preinstalls libunwind-14-dev, which conflicts with the libunwind-dev
           # that libgstreamer1.0-dev depends on ("held broken packages").
           sudo apt-get remove -y libunwind-14-dev || true
