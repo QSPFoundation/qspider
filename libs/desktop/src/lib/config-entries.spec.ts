@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PlayerConfig } from '@qspider/contracts';
-import { entriesFromConfig, findMissingFiles } from './config-entries';
+import { configKind, entriesFromConfig, findDuplicateIds, findMissingFiles } from './config-entries';
 
 describe('entriesFromConfig', () => {
   it('maps every [[game]] to an entry sharing the load location', () => {
@@ -53,5 +53,46 @@ describe('findMissingFiles', () => {
 
   it('returns nothing when all files exist', async () => {
     expect(await findMissingFiles(entries, async () => true)).toEqual([]);
+  });
+});
+
+describe('configKind', () => {
+  it('treats game.cfg, in any case, as a game config', () => {
+    expect(configKind('game.cfg')).toBe('game-config');
+    expect(configKind('Game.CFG')).toBe('game-config');
+  });
+
+  it('marks any other .cfg as unsupported, not as a game file', () => {
+    expect(configKind('other.cfg')).toBe('unsupported-config');
+    expect(configKind('mygame.CFG')).toBe('unsupported-config');
+  });
+
+  it('treats everything else as a game file', () => {
+    expect(configKind('game.qsps')).toBe('file');
+    expect(configKind('pack.zip')).toBe('file');
+  });
+});
+
+describe('findDuplicateIds', () => {
+  it('lists each id that appears more than once', () => {
+    const config = {
+      game: [
+        { id: 'a', title: 'A', file: 'a.qsp' },
+        { id: 'b', title: 'B', file: 'b.qsp' },
+        { id: 'a', title: 'A again', file: 'c.qsp' },
+        { id: 'a', title: 'A third', file: 'd.qsp' },
+      ],
+    } as PlayerConfig;
+    expect(findDuplicateIds(entriesFromConfig(config, 'p/', '/d', 'u'))).toEqual(['a']);
+  });
+
+  it('returns nothing when every id is unique', () => {
+    const config = {
+      game: [
+        { id: 'a', title: 'A', file: 'a.qsp' },
+        { id: 'b', title: 'B', file: 'a.qsp' },
+      ],
+    } as PlayerConfig;
+    expect(findDuplicateIds(entriesFromConfig(config, 'p/', '/d', 'u'))).toEqual([]);
   });
 });

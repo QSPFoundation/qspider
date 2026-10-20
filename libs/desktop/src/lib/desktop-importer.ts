@@ -5,13 +5,17 @@ import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
 import { importArchive, isSupportedArchive } from '@qspider/importers';
 import { cyrb53, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
-import { entriesFromConfig, findMissingFiles } from './config-entries';
+import { configKind, entriesFromConfig, findDuplicateIds, findMissingFiles } from './config-entries';
 import { buildGameUrl } from './game-url';
 
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
   if (!(await isAbsolute(filePath))) filePath = await resolve(filePath);
   const uuid = uuidv4();
   const name = await basename(filePath);
+  const kind = configKind(name);
+  if (kind === 'unsupported-config') {
+    throw new Error(`Only game.cfg is supported as a game config, not ${name}`);
+  }
   const fileDir = await dirname(filePath);
   await invoke('prepare_game_start', { path: fileDir, id: uuid });
 
@@ -22,7 +26,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
     return await importArchive(name, content);
   }
 
-  if (name === 'game.cfg') {
+  if (kind === 'game-config') {
     const entries = entriesFromConfig(
       parseToml<PlayerConfig>(new TextDecoder().decode(content)),
       urlPrefix,
@@ -30,6 +34,8 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
       uuid,
     );
     if (!entries.length) throw new Error('No games listed in game.cfg');
+    const [duplicate] = findDuplicateIds(entries);
+    if (duplicate) throw new Error(`game.cfg lists the id ${duplicate} more than once`);
     const [missing] = await findMissingFiles(entries, (file) =>
       fetchBinaryContent(urlPrefix, file).then(
         () => true,

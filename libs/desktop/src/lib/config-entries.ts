@@ -32,3 +32,24 @@ export async function findMissingFiles(
   const found = await Promise.all(files.map((file) => exists(file)));
   return files.filter((_, i) => !found[i]);
 }
+
+/**
+ * How the desktop importer treats a file by its name: `game.cfg` (any case) is a game config;
+ * any other `.cfg` is unsupported (it must not be opened as a single game file); the rest are game files.
+ */
+export function configKind(fileName: string): 'game-config' | 'unsupported-config' | 'file' {
+  const name = fileName.toLowerCase();
+  if (name === 'game.cfg') return 'game-config';
+  return name.endsWith('.cfg') ? 'unsupported-config' : 'file';
+}
+
+/** The ids listed more than once (a game.cfg must give each game its own id). */
+export function findDuplicateIds(entries: GameShelfEntry[]): string[] {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+  for (const { id } of entries) {
+    if (seen.has(id)) duplicates.add(id);
+    seen.add(id);
+  }
+  return [...duplicates];
+}
