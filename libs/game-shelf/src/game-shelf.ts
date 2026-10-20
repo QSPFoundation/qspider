@@ -3,9 +3,9 @@ import {
   currentGame$,
   currentGameEntry$,
   initDeferred$,
-  initialBaseUrl$,
   onClosePauseScreen,
   onOpenPauseScreen,
+  playerUrl,
   runGame,
   stopCurrentGame,
 } from '@qspider/game-state';
@@ -20,10 +20,10 @@ interface GamesActions {
 }
 
 export function navigateTo(path: string): void {
-  history.push(`?${path}`);
+  history.push(playerUrl(path));
 }
 export function goToGame(id: string): void {
-  history.push(`${initialBaseUrl$.value}?run=${id}`, { pause: false });
+  history.push(playerUrl(`run=${id}`), { pause: false });
 }
 
 export const currentMode$ = atom('shelf');
