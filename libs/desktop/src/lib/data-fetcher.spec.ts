@@ -9,6 +9,15 @@ vi.mock('@tauri-apps/api/core', () => ({ invoke: vi.fn() }));
 const invokeMock = vi.mocked(invoke);
 const fetchMock = vi.fn();
 
+function okResponse(bytes: number[], contentType = 'application/octet-stream'): unknown {
+  return {
+    ok: true,
+    status: 200,
+    headers: new Headers({ 'content-type': contentType }),
+    arrayBuffer: async () => toBuffer(bytes),
+  };
+}
+
 function toBuffer(bytes: number[]): ArrayBuffer {
   return new Uint8Array(bytes).buffer;
 }
@@ -30,7 +39,7 @@ describe('data-fetcher', () => {
   });
 
   it('uses fetch for bundled standalone files', async () => {
-    fetchMock.mockResolvedValue({ arrayBuffer: async () => toBuffer([1, 2]) });
+    fetchMock.mockResolvedValue(okResponse([1, 2]));
     const result = await fetchBinaryContent('tauri://localhost/game/', 'game.cfg');
     expect(invoke).not.toHaveBeenCalled();
     expect(fetch).toHaveBeenCalledWith('tauri://localhost/game/game.cfg');
@@ -39,8 +48,25 @@ describe('data-fetcher', () => {
 
   it('decodes utf-16le with BOM on both paths', async () => {
     invokeMock.mockResolvedValue(toBuffer(HI_UTF16));
-    fetchMock.mockResolvedValue({ arrayBuffer: async () => toBuffer(HI_UTF16) });
+    fetchMock.mockResolvedValue(okResponse(HI_UTF16));
     expect(await fetchTextContent('qsp://localhost/abc/', 'game.cfg')).toBe('hi');
     expect(await fetchTextContent('tauri://localhost/game/', 'game.cfg')).toBe('hi');
+  });
+
+  it('rejects on non-ok responses', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 404, headers: new Headers() });
+    await expect(fetchBinaryContent('tauri://localhost/game/', 'missing.bin')).rejects.toThrow(
+      'tauri://localhost/game/missing.bin',
+    );
+  });
+
+  it('rejects when the asset server falls back to html for a non-html path', async () => {
+    fetchMock.mockResolvedValue(okResponse([0x3c], 'text/html'));
+    await expect(fetchTextContent('tauri://localhost/game/', 'a.xml')).rejects.toThrow('tauri://localhost/game/a.xml');
+  });
+
+  it('accepts html content for html paths', async () => {
+    fetchMock.mockResolvedValue(okResponse([0x68, 0x69], 'text/html'));
+    expect(await fetchTextContent('tauri://localhost/game/', 'page.html')).toBe('hi');
   });
 });

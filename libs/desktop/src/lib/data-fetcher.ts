@@ -8,6 +8,14 @@ async function readBytes(baseUrl: string, path: string): Promise<ArrayBuffer> {
     return invoke<ArrayBuffer>('read_resource', { url });
   }
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to load ${url}: ${response.status}`);
+  }
+  // Tauri's asset server answers missing files with index.html and status 200.
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.startsWith('text/html') && !/\.html?$/i.test(path)) {
+    throw new Error(`Failed to load ${url}: file not found`);
+  }
   return response.arrayBuffer();
 }
 
