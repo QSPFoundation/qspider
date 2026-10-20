@@ -2,7 +2,7 @@
   "name": "@qspider/docusaurus",
   "version": "0.0.1",
   "dependencies": {
-    "@nx/devkit": "17.2.8",
+    "@nx/devkit": "23.3.0",
     "tslib": "^2.3.0"
   },
   "type": "commonjs",

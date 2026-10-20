@@ -70,7 +70,7 @@ export const TAGS_MAP: Record<string, string> = {
 
 export const Element: React.FC<ElementProps> = ({ attrs = {}, children = null, tagName }) => {
   const tag = tagName in TAGS_MAP ? TAGS_MAP[tagName] : tagName;
-  const [Tag, style, attributes] = useAttributes(attrs, tag as keyof JSX.IntrinsicElements);
+  const [Tag, style, attributes] = useAttributes(attrs, tag as keyof React.JSX.IntrinsicElements);
   const selfClose = voidTags.includes(tagName);
   return selfClose ? (
     <Tag style={style} {...attributes} />

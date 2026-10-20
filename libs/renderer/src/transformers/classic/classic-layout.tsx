@@ -37,7 +37,7 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
     const docks$ = atom((get) => {
       const docks: Record<string, DockData> = {};
       React.Children.forEach(get(children$), (child) => {
-        if (isValidElement(child) && child.type === QspCLDock) {
+        if (isValidElement<React.ComponentProps<typeof QspCLDock>>(child) && child.type === QspCLDock) {
           docks[child.props.place] = {
             visibility: child.props.visibility,
             size: child.props.size,

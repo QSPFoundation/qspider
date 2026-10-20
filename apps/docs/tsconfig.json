@@ -3,7 +3,8 @@
   "files": [],
   "include": [],
   "compilerOptions": {
-    "types": ["node", "@docusaurus/module-type-aliases", "@docusaurus/theme-classic"]
+    "types": ["node", "@docusaurus/module-type-aliases", "@docusaurus/theme-classic"],
+    "ignoreDeprecations": "6.0"
   },
   "references": [
     {

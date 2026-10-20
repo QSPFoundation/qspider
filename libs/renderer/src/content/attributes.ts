@@ -84,7 +84,7 @@ const eventsMap: Record<string, keyof EventAttributes> = {
   contextmenu: 'onContextMenu',
   dblclick: 'onDoubleClick',
 };
-export const useAttributes = <Tag extends keyof JSX.IntrinsicElements>(
+export const useAttributes = <Tag extends keyof React.JSX.IntrinsicElements>(
   attributes: Attributes,
   tagName: Tag,
   dataName: string = tagName,
