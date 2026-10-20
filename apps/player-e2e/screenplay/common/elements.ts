@@ -1,5 +1,4 @@
 import { By, PageElements } from '@serenity-js/web';
-import { visible } from '../support/visible';
 
 /**
  * An error the player shows while opening or running a game: the import error toast
@@ -8,4 +7,3 @@ import { visible } from '../support/visible';
 export const ErrorAlerts = PageElements.located(By.css('[data-qa="error-alert"], [role="alertdialog"]')).describedAs(
   'error alerts',
 );
-export const ErrorAlert = visible(ErrorAlerts, 'error alert');

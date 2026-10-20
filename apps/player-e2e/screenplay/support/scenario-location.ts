@@ -17,8 +17,11 @@ export async function withLocation(location: string | undefined, body: () => Pro
   } catch (error) {
     if (location && error instanceof Error) {
       const original = error.message;
+      // Read the stack before changing the message: V8 formats it on first access, and would
+      // otherwise already include the new message, which the replace below would prefix again.
+      const stack = error.stack;
       error.message = `[${location}] ${original}`;
-      if (error.stack?.includes(original)) error.stack = error.stack.replace(original, error.message);
+      if (stack?.includes(original)) error.stack = stack.replace(original, error.message);
     }
     throw error;
   }

@@ -1,12 +1,13 @@
-import { Interaction, Task } from '@serenity-js/core';
+import { Question, Task, Wait } from '@serenity-js/core';
+import { equals } from '@serenity-js/assertions';
 import { Click, Key, Press } from '@serenity-js/web';
 import { E2E_GAME } from '../../fixtures/e2e-game';
 import { SeeGameStarted } from '../common/checks';
 import { PauseScreen, QuitButton } from '../pause/elements';
 import { Shelf } from '../shelf/elements';
 import { OpenGameFile, StartPlayer } from '../support/operate-player';
-import { waitUntilPresent } from '../support/presence';
-import { Action } from './elements';
+import { textIfPresent, waitUntilPresent } from '../support/presence';
+import { Action, MainText } from './elements';
 
 /** From a clean app: starts the player and opens the e2e fixture game. */
 export const OpenFixture = (): Task =>
@@ -17,7 +18,28 @@ export const OpenFixture = (): Task =>
     SeeGameStarted(E2E_GAME.text.start),
   );
 
-export const ClickAction = (label: string): Interaction => Click.on(Action(label));
+/** Clicks the game action labelled `label`, once the game shows it. */
+export const ClickAction = (label: string): Task =>
+  Task.where(`#actor clicks the "${label}" action`, waitUntilPresent(Action(label)), Click.on(Action(label)));
+
+/** The main text as the player reads it now; undefined while it is not rendered. */
+const MainTextNow = Question.about('the main text', async (actor) => textIfPresent(await actor.answer(MainText)));
+
+/** Clicks the action `label`, then waits until the main text reads `text`. */
+const ClickActionUntil = (label: string, text: string): Task =>
+  Task.where(
+    `#actor clicks "${label}" until the main text reads "${text}"`,
+    ClickAction(label),
+    Wait.until(MainTextNow, equals(text)),
+  );
+
+/** From the game's start: goes to the room and increments its counter to `n`. */
+export const ReachCounter = (n: number): Task =>
+  Task.where(
+    `#actor reaches counter ${n}`,
+    ClickActionUntil(E2E_GAME.action.goToRoom, E2E_GAME.text.room(0)),
+    ...Array.from({ length: n }, (_, i) => ClickActionUntil(E2E_GAME.action.increment, E2E_GAME.text.room(i + 1))),
+  );
 
 /** Opens the pause screen and quits to the game shelf. */
 export const ReturnToShelf = (): Task =>

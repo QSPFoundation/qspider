@@ -1,2 +1,8 @@
-// Tasks the player starts on the shelf (opening a game from its card) arrive with the scenarios that use them.
-export {};
+import { Task } from '@serenity-js/core';
+import { Click } from '@serenity-js/web';
+import { waitUntilPresent } from '../support/presence';
+import { RunLink } from './elements';
+
+/** Runs the game titled `title` from its shelf card. */
+export const OpenFromShelf = (title: string): Task =>
+  Task.where(`#actor opens "${title}" from the shelf`, waitUntilPresent(RunLink(title)), Click.on(RunLink(title)));

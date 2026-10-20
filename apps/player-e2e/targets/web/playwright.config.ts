@@ -16,6 +16,10 @@ export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
   testDir: '../../scenarios',
   testMatch: '**/*.scenario.ts',
   retries: 0,
+  // Same as desktop's mocha timeout. Playwright's 30s default ends a failing scenario before its
+  // check can report: Ensure.eventually backs off exponentially, so with a 15s interactionTimeout
+  // it gives up only after about 25s, and with the steps before it the 30s are gone.
+  timeout: 120_000,
   workers: 1,
   fullyParallel: false,
   // A stray test.only would silently skip the rest of the suite.
