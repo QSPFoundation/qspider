@@ -2,10 +2,10 @@ import { Task } from '@serenity-js/core';
 import { equals } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
-import { seeEventually } from '../support/seeEventually';
+import { seeEventually } from '../support/see-eventually';
 import { EmptyShelfNotice, Shelf, ShelfTitles } from './elements';
 
-/** The shelf lists exactly `titles`, in order, so a duplicate fails. `[]`: the shelf shows its empty notice. */
+/** The shelf eventually lists exactly `titles`, in order. `[]`: the shelf shows its empty notice. */
 export const SeeShelfTitles = (titles: string[]): Task => {
   const listed = seeEventually(
     Shelf,

@@ -2,8 +2,8 @@ import { AssertionError, Question, Task, Wait } from '@serenity-js/core';
 import { equals, not } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { MainText } from '../game/elements';
-import { isShown, textIfPresent } from '../support/presence';
-import { seeEventually } from '../support/seeEventually';
+import { isShown, TextNow, textIfPresent } from '../support/presence';
+import { seeEventually } from '../support/see-eventually';
 import { ErrorAlerts } from './elements';
 
 type StartOutcome = { kind: 'started' } | { kind: 'waiting' } | { kind: 'error'; text: string };
@@ -19,9 +19,7 @@ const GameStartOutcome = (startText: string) =>
       const text = (await textIfPresent(alert)) ?? '(closed before its text could be read)';
       return { kind: 'error', text: normalize(text) };
     }
-    return (await textIfPresent(await actor.answer(MainText))) === startText
-      ? { kind: 'started' }
-      : { kind: 'waiting' };
+    return (await actor.answer(TextNow(MainText))) === startText ? { kind: 'started' } : { kind: 'waiting' };
   });
 
 /** Waits for the game to start or an error alert; fails at once, with the alert's text, on an error. */

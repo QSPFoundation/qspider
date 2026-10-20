@@ -115,8 +115,9 @@ export const config: WebdriverIOConfig = {
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
+  // timeout: as Playwright's (targets/web/playwright.config.ts); it includes the per-test app restart.
   // forbidOnly: a stray it.only would silently skip the rest of the suite.
-  mochaOpts: { ui: 'bdd', timeout: 120_000, retries: 0, forbidOnly: true },
+  mochaOpts: { ui: 'bdd', timeout: 45_000, retries: 0, forbidOnly: true },
   reporters: ['spec'],
 
   async onPrepare() {

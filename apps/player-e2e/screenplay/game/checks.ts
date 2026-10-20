@@ -1,7 +1,7 @@
 import { Task } from '@serenity-js/core';
 import { equals } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
-import { seeEventually } from '../support/seeEventually';
+import { seeEventually } from '../support/see-eventually';
 import { MainText } from './elements';
 
 export const SeeMainText = (text: string): Task =>

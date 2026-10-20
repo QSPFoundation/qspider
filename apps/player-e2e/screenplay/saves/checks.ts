@@ -1,7 +1,7 @@
 import { Task } from '@serenity-js/core';
 import { equals } from '@serenity-js/assertions';
 import { Attribute } from '@serenity-js/web';
-import { seeEventually } from '../support/seeEventually';
+import { seeEventually } from '../support/see-eventually';
 import { SaveSlot } from './elements';
 
 /** Slot `index` holds no save. Checks the slot's marker only: its "Empty" label is translated. */
