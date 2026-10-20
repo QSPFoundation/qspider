@@ -178,39 +178,22 @@ Maintainer decision (2026-10-20): Playwright for web, WebdriverIO for desktop, w
   export const ACTION = { goToRoom: 'Go to room', increment: 'Increment', save: 'Save', load: 'Load' };
   export const SAVE_SLOT = 1;
   ```
-- Produces (`web/player.ts`, each taking `page: Page` first): `clickAction(page, label)`, `expectMainText(page, text)`, `chooseSaveSlot(page, index)`, `expectSlotEmpty(page, index)`, `returnToShelf(page)`, `shelfGameTitles(page): Promise<string[]>`, `openFromShelf(page, title)`, `failOnErrorAlert(page)` (throws with the alert text if the error alert from `libs/game-shelf/src/components/error-alert.tsx` is visible). Task 4 implements the same names for WebdriverIO (without the `page` argument).
+- Produces (`web/player.ts`, each taking `page: Page` first): `openFixture(page)`, `reachCounter(page, n)`, `clickAction(page, label)`, `expectMainText(page, text)`, `chooseSaveSlot(page, index)`, `expectSlotEmpty(page, index)`, `returnToShelf(page)`, `shelfGameTitles(page): Promise<string[]>`, `openFromShelf(page, title)`, `failOnErrorAlert(page)` (throws with the alert text if the error alert from `libs/game-shelf/src/components/error-alert.tsx` is visible). Task 4 implements the same names for WebdriverIO (without the `page` argument).
 
 - [ ] **Step 1: Install Playwright**
 
 Add devDep `@playwright/test` (latest 1.x). Browser: locally use system Chromium via `launchOptions.executablePath = process.env.CHROME_BIN` when set (this machine's downloads are slow); otherwise Playwright's own Chromium (`npx playwright install --with-deps chromium` in CI).
 
-- [ ] **Step 2: Write the test (fails: no config/helpers yet)**
+- [ ] **Step 2: Write the tests (fail: no config/helpers yet)**
 
-```ts
-test('opens a game from file, plays, saves, loads and returns to shelf', async ({ page }) => {
-  await page.goto('/');
-  expect(await shelfGameTitles(page)).toEqual([]); // clean state
-  await page.locator('#openGame').setInputFiles(FIXTURE_PATH);
-  await failOnErrorAlert(page);
-  await expectMainText(page, TEXT.start);
-  await clickAction(page, ACTION.goToRoom);
-  await expectMainText(page, TEXT.room(0));
-  await clickAction(page, ACTION.increment);
-  await expectMainText(page, TEXT.room(1));
-  await clickAction(page, ACTION.save);
-  await expectSlotEmpty(page, SAVE_SLOT); // no leftover saves
-  await chooseSaveSlot(page, SAVE_SLOT);
-  await clickAction(page, ACTION.increment);
-  await expectMainText(page, TEXT.room(2));
-  await clickAction(page, ACTION.load);
-  await chooseSaveSlot(page, SAVE_SLOT);
-  await expectMainText(page, TEXT.room(1)); // restore is observable
-  await returnToShelf(page);
-  expect(await shelfGameTitles(page)).toContain(SHELF_TITLE);
-  await openFromShelf(page, SHELF_TITLE);
-  await expectMainText(page, TEXT.start);
-});
-```
+Maintainer decision (2026-10-20): four independent tests, not one journey test. Each starts from a clean app (fresh context) and does its own setup through helpers, so one broken feature doesn't hide the others.
+
+1. `opening a game file starts it and adds it to the shelf` — goto `/`; `expect(await shelfGameTitles(page)).toEqual([])`; `setInputFiles(FIXTURE_PATH)` on `#openGame`; `failOnErrorAlert`; `expectMainText(TEXT.start)`; `returnToShelf`; shelf contains `SHELF_TITLE`.
+2. `actions update the game text` — `openFixture`; click `ACTION.goToRoom` → `TEXT.room(0)`; click `ACTION.increment` → `TEXT.room(1)`.
+3. `loading a save restores the saved state` — `openFixture`; `reachCounter(page, 1)`; click `ACTION.save`; `expectSlotEmpty(SAVE_SLOT)`; `chooseSaveSlot(SAVE_SLOT)`; increment → `TEXT.room(2)`; click `ACTION.load`; `chooseSaveSlot(SAVE_SLOT)`; `expectMainText(TEXT.room(1))`.
+4. `a game on the shelf can be reopened` — `openFixture`; `returnToShelf`; `openFromShelf(SHELF_TITLE)`; `expectMainText(TEXT.start)`.
+
+Extra helpers in `web/player.ts`: `openFixture(page)` (goto `/`, file input, `failOnErrorAlert`, wait for `TEXT.start`) and `reachCounter(page, n)` (go to room, increment `n` times, waiting for each `TEXT.room(i)`).
 
 `expectMainText` waits up to 15s; on timeout it calls `failOnErrorAlert()` first so an import error surfaces as the failure message.
 
@@ -224,7 +207,7 @@ test('opens a game from file, plays, saves, loads and returns to shelf', async (
 - [ ] **Step 4: Run and iterate until pass**
 
 Run: `pnpm e2e:web` (`"e2e:web": "nx build player && playwright test -c apps/player-e2e/playwright.config.ts"`; NX target `e2e-web` with `dependsOn: ["player:build"]`)
-Expected: 1 passed. Run it 3 times in a row. Then break it on purpose (temporarily expect `TEXT.room(2)` after load) and confirm it FAILS with a readable message; revert.
+Expected: 4 passed. Run the file 3 times in a row. Then break test 3 on purpose (temporarily expect `TEXT.room(2)` after load) and confirm only test 3 fails with a readable message while 1, 2 and 4 pass; revert.
 
 - [ ] **Step 5: Wire into `pnpm check`**
 
@@ -251,7 +234,7 @@ git commit -am "test(e2e): core flow test on web player with playwright"
 **Interfaces:**
 
 - Consumes: `shared/core-flow.ts` constants from Task 3 (verbatim; do not redefine strings).
-- Produces (`desktop/player.ts`): same helper names and meaning as `web/player.ts`, WDIO-flavoured (no `page` argument): `clickAction(label)`, `expectMainText(text)`, `chooseSaveSlot(index)`, `expectSlotEmpty(index)`, `returnToShelf()`, `shelfGameTitles()`, `openFromShelf(title)`, `failOnErrorAlert()`.
+- Produces (`desktop/player.ts`): same helper names and meaning as `web/player.ts`, WDIO-flavoured (no `page` argument): `openFixture()`, `reachCounter(n)`, `clickAction(label)`, `expectMainText(text)`, `chooseSaveSlot(index)`, `expectSlotEmpty(index)`, `returnToShelf()`, `shelfGameTitles()`, `openFromShelf(title)`, `failOnErrorAlert()`.
 - Produces: `findMissingPrereqs(platform: NodeJS.Platform, which: (cmd: string) => string | null): string[]` — returns names from `['tauri-driver', 'WebKitWebDriver']` (Linux) / `['tauri-driver', 'msedgedriver']` (win32) that `which` can't find.
 
 - [ ] **Step 1: Failing tests for prereq check**
@@ -287,9 +270,9 @@ Verify no leak: `pnpm build:desktop && ! grep -r "QSPIDER_E2E" dist/apps/player-
 - Capabilities: `'tauri:options': { application: <binary>, args: [FIXTURE_PATH] }`, `hostname: '127.0.0.1'`, `port: 4444`. If tauri-driver does not pass `args` to the app, stop and raise it with the maintainer. Do not work around it with a test-only env var or a faked drag-drop event, because the spec forbids test-only hooks in the app.
 - `mochaOpts: { timeout: 120000, retries: 0 }`, `specFileRetries: 0`, `afterTest`: on failure save screenshot + logs to `apps/player-e2e/artifacts/desktop/`.
 
-- [ ] **Step 6: Desktop test**
+- [ ] **Step 6: Desktop tests**
 
-Same steps and order as `web/core-flow.spec.ts`, with these differences only: no "shelf empty" check at start and no file-input step (the game was passed as the CLI argument; `apps/player-desktop/src/app/init.ts` imports and starts it); after `returnToShelf()` assert the shelf contains exactly one entry. Confirm the desktop shelf title for the fixture; if it differs from `SHELF_TITLE`, add a separate `DESKTOP_SHELF_TITLE` constant in `shared/core-flow.ts` rather than changing the web expectation.
+The same four independent tests, names and order as `web/core-flow.spec.ts`. Each test gets a fresh app: one test per spec file under `desktop/` (WDIO starts a new session, i.e. relaunches the app, per spec file) or `browser.reloadSession()` in `beforeEach`, each with its own isolated `XDG_*` dirs. The game is passed as the CLI argument (`apps/player-desktop/src/app/init.ts` imports and starts it), so desktop `openFixture()` just waits for `TEXT.start` + `failOnErrorAlert`. Differences from web: test 1 has no "shelf empty" or file-input step and asserts the shelf has exactly one entry after `returnToShelf()`. Confirm the desktop shelf title for the fixture; if it differs from `SHELF_TITLE`, add a separate `DESKTOP_SHELF_TITLE` constant in `shared/core-flow.ts` rather than changing the web expectation. Deliberate-break check as in Task 3: break test 3 only → only test 3 fails.
 
 - [ ] **Step 7: Scripts**
 
