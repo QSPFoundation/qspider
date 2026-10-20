@@ -26,32 +26,52 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
-      - name: Fill updater.json
+      - name: Fill updater files
         uses: actions/github-script@v7
+        env:
+          # Release tag whose latest.json feeds the frozen v1 updater endpoint (updater.json).
+          # While empty, updater.json mirrors the latest release (pre-bridge behavior).
+          # Once set, it must only ever change to a fixed bridge release that is also v1Compatible.
+          BRIDGE_RELEASE_TAG: ''
         with:
           script: |
             const { createWriteStream }  = require("node:fs");
             const { pipeline } = require("node:stream/promises");
 
-            const release = await github.rest.repos.getLatestRelease({
+            const downloadLatestJson = async (release, outputPath) => {
+              const latestAsset = release.data.assets.find(asset => asset.name === 'latest.json');
+              if (!latestAsset) {
+                throw new Error(`latest.json not found in release ${release.data.tag_name}`);
+              }
+              const assetContent = await github.rest.repos.getReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                asset_id: latestAsset.id,
+                headers: {
+                  accept: "application/octet-stream",
+                },
+                request: {
+                  parseSuccessResponseBody: false, // required to access response as stream
+                },
+              });
+              await pipeline(assetContent.data, createWriteStream(outputPath));
+            };
+
+            const latestRelease = await github.rest.repos.getLatestRelease({
               owner: context.repo.owner,
               repo: context.repo.repo
             });
-            const latestAsset = release.data.assets.find(asset => asset.name === 'latest.json');
-            const assetContent = await github.rest.repos.getReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              asset_id: latestAsset.id,
-              headers: {
-                accept: "application/octet-stream",
-              },
-              request: {
-                parseSuccessResponseBody: false, // required to access response as stream
-              },
-            });
-            const assetStream = assetContent.data;
-            const outputFile = createWriteStream("./dist/apps/player/updater.json");
-            await pipeline(assetStream, outputFile);
+            await downloadLatestJson(latestRelease, "./dist/apps/player/updater-v2.json");
+
+            const bridgeTag = process.env.BRIDGE_RELEASE_TAG;
+            const v1Release = bridgeTag
+              ? await github.rest.repos.getReleaseByTag({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  tag: bridgeTag
+                })
+              : latestRelease;
+            await downloadLatestJson(v1Release, "./dist/apps/player/updater.json");
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
