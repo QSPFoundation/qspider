@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test';
+import { ACTION, FIXTURE_PATH, TEXT } from '../shared/core-flow';
 
 const MAIN_TEXT_TIMEOUT = 15_000;
 
@@ -70,4 +71,22 @@ export async function openFromShelf(page: Page, title: string): Promise<void> {
     .filter({ has: page.getByRole('heading', { name: title, exact: true }) })
     .getByRole('link', { name: 'Run', exact: true })
     .click();
+}
+
+/** Starts from the app root and opens the e2e fixture through the file input. */
+export async function openFixture(page: Page): Promise<void> {
+  await page.goto('/');
+  await page.locator('#openGame').setInputFiles(FIXTURE_PATH);
+  await failOnErrorAlert(page);
+  await expectMainText(page, TEXT.start);
+}
+
+/** From the start location: goes to the room and increments the counter `n` times. */
+export async function reachCounter(page: Page, n: number): Promise<void> {
+  await clickAction(page, ACTION.goToRoom);
+  await expectMainText(page, TEXT.room(0));
+  for (let i = 1; i <= n; i++) {
+    await clickAction(page, ACTION.increment);
+    await expectMainText(page, TEXT.room(i));
+  }
 }

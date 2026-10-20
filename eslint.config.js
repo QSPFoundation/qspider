@@ -53,6 +53,11 @@ export default [
     },
   },
   {
-    ignores: ['**/vite.config.*.timestamp*', '**/vitest.config.*.timestamp*'],
+    ignores: [
+      '**/vite.config.*.timestamp*',
+      '**/vitest.config.*.timestamp*',
+      // Playwright output (html report bundle, traces) left after a failed e2e run.
+      'apps/player-e2e/artifacts/**',
+    ],
   },
 ];
