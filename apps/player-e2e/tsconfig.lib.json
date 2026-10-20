@@ -14,8 +14,6 @@
     "targets/web/**/*.ts",
     "targets/desktop/prereqs.ts",
     "targets/desktop/prereqs.spec.ts",
-    "targets/desktop/launch-fixture.ts",
-    "targets/desktop/launch-fixture.spec.ts",
     "lint-rules.spec.ts",
     "*.config.mts"
   ]

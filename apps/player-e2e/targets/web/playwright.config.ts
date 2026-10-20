@@ -15,6 +15,8 @@ process.env['QSPIDER_E2E_TARGET'] = 'web';
 export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
   testDir: '../../scenarios',
   testMatch: '**/*.scenario.ts',
+  // Zips the test pack (fixtures/) for OperateWebPlayer.loadTestPack.
+  globalSetup: './global-setup.ts',
   retries: 0,
   // Same as desktop's mocha timeout. A failing check gives up after about 15s (INTERACTION_TIMEOUT,
   // fixed polling in screenplay/support), so a scenario's steps plus one failing check fit in 45s.

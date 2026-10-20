@@ -17,3 +17,6 @@ export const ShelfCard = (title: string) =>
 /** The run link of the shelf card titled `title`. */
 export const RunLink = (title: string) =>
   PageElement.located(By.css('[data-qa="game-run"]')).of(ShelfCard(title)).describedAs(`run link of "${title}"`);
+
+/** The player's Open game control (desktop: a button that opens the native file dialog). */
+export const OpenGameButton = PageElement.located(By.css('[data-qa="open-game"]')).describedAs('Open game button');
