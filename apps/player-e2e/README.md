@@ -4,7 +4,7 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 
 - Web: Playwright Test (`targets/web/`), runs against the production build of `apps/player`.
 - Desktop: WebdriverIO + mocha + `tauri-driver` (`targets/desktop/`), runs against the debug Tauri binary.
-- Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions); `fixtures/e2e-game.ts` holds its path and the texts it writes. Each scenario starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.
+- Test pack: `fixtures/game.cfg` lists two games, `e2e-game/e2e-game.qsps` ("E2E game": a tiny QSP game with a `start` and a `room` location, a counter, Save and Load actions) and `second/game.qsps` ("Second game"). `fixtures/test-pack.ts` (`TEST_PACK`) holds the config path, the pack zip path and the shelf titles; `fixtures/e2e-game.ts` holds the first game's file path and the texts it writes. `e2e-game.qsps` sits in its own folder, away from `game.cfg`: the desktop player titles a single game file from a `game.cfg` next to it, and a single-file open must show the file name (`e2e-game.qsps`) on both targets. Each scenario starts with an empty shelf and no saves, then both targets load the same pack: on web, `targets/web/global-setup.ts` zips `game.cfg` and the games it lists into `artifacts/test-pack.zip`, and the scenario uploads it through the Open game input; on desktop, `tauri-driver` starts the app with `game.cfg` as its argument.
 
 ## Layout
 
@@ -17,16 +17,17 @@ apps/player-e2e/
     common/             elements and checks used by more than one area
     support/            shared primitives (below)
   targets/
-    web/                playwright.config.ts, Cast, OperateWebPlayer, scenario shim
-    desktop/            wdio.conf.ts, Cast, OperateDesktopPlayer, scenario shim, fresh-app, prereqs
-  fixtures/             test games and their constants
+    web/                playwright.config.ts, global-setup (builds the pack zip), Cast, OperateWebPlayer, scenario shim
+    desktop/            wdio.conf.ts, Cast, OperateDesktopPlayer, native-dialog, atspi/ (dialog.py, with-a11y-bus.sh),
+                        run-desktop-e2e.mjs, scenario shim, fresh-app, prereqs
+  fixtures/             the test pack (game.cfg, test-pack.ts), its games and their constants
 ```
 
 `screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
 
 ### Desktop isolation
 
-`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
+`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the pack's `game.cfg` as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
 
 ## Rules
 
@@ -79,7 +80,7 @@ Find controls and panels only by:
 
 - `data-qsp*` markers, the theme contract: the renderer's markers on `qsp-*` building blocks;
 - ARIA roles;
-- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf`, `game-shelf-empty`, `game-card` (on the card root), `game-title`, `game-run`, `open-game` (desktop), `error-alert`, `startup-finished` (a hidden marker, below).
+- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf` and `game-shelf-empty` (`libs/game-shelf`, `game-shelf.tsx`), `game-card` (on the card root), `game-title` and `game-run` (`game-card.tsx`), `error-alert` (`error-alert.tsx`), `startup-finished` (`startup-marker.tsx`, a hidden marker, below) and `open-game` (`apps/player-desktop/src/app/open-game-button.tsx`, desktop only). These are all the `data-qa` hooks that exist; the web player's Open game control is the `#openGame` file input, which only the web target's `openGameFile` touches.
 
 Never by visible text, CSS class, nesting or layout: themes and translations change all of them. Text is only for checking content the game writes (`ROOM counter=1`) or that the scenario controls (fixture titles). If a control has no marker or role, add a `data-qsp` marker in the renderer (or a `data-qa` hook in app-shell UI); do not use a fragile selector. Lookups that can match hidden duplicates go through `visible()`.
 
@@ -89,7 +90,8 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 - **The desktop trap.** On desktop, WebKitWebDriver answers a read of a missing element with a raw "no such element" (it prints as `[object Object]`), and Serenity's `isPresent()`, `Wait.until` and `Ensure.eventually` rethrow it instead of retrying. So an element that has not rendered yet, or is re-rendering, fails a plain read at once.
 - **Presence helpers.** Checks read only through `seeEventually`. Tasks wait and click through `support/presence.ts`: `waitUntilPresent` (any read error means "not yet"), `ClickWhenPresent` (retries the click while the element is missing, up to the timeout), `waitUntilAbsent` (only a missing element counts as gone; other errors surface), `TextNow`, `isShown`, `textIfPresent`. Lint bans `Ensure` and `isPresent` outside `support/`; other reads (`Text.of`, `Attribute`, …) outside these helpers are up to review.
 - **Emptiness needs a settled anchor.** A check that something is empty or absent (empty shelf, empty save slot) passes as soon as the UI is briefly empty, and `games$` and the save slots load asynchronously, so they start empty. Before such a check, check a settled anchor: something that shows only once loading has finished, or a non-empty state seen earlier in the same scenario. Neither the shelf's empty notice nor a slot's `data-save-empty` marker is one (both show while loading), so `SeeShelfTitles([])` and `SeeSlotEmpty` in `core-flow` show the expected start state but cannot prove that no game or save was left over; a real guard needs a loaded marker in the UI first. Eventual checks in general only wait for a match: they do not prove the state stays that way, so they do not catch leftovers or duplicates that appear after the match.
-  - "No game started" has a settled anchor: `[data-qa="startup-finished"]` (`StartupMarker`, set from `startupFinished$` at the end of each player's `init()`, after any launch game has started; `SeeStartupFinished` in `common/checks.ts`). On desktop the start-up shows the shelf first and starts a launched game only later, so a shelf check alone could pass before the game replaces it. "loading a game config adds all its games to the shelf without starting one" checks the marker first, then the shelf with exactly the pack's titles: a game started at launch would have replaced the shelf by then.
+  - "No game started" has a settled anchor on desktop: `[data-qa="startup-finished"]` (`StartupMarker`, rendered from `startupFinished$` in `libs/game-state/src/init.ts`, set at the end of each player's `init()`, after the launch's start decision; `SeeStartupFinished` in `common/checks.ts`). On desktop the start-up shows the shelf first and starts a launched game only later, so a shelf check alone could pass before the game replaces it. "loading a game config adds all its games to the shelf without starting one" checks the marker first, then the shelf with exactly the pack's titles: a game started at launch would have replaced the shelf by then, so on desktop this exact check proves that no game started.
+  - On web this proof is weaker. The pack is uploaded after startup, and the upload's start decision (`apps/player/src/app/open-game-button.tsx`) has its own copy of the multi-game logic, so the marker says nothing about it. Web proves only the shelf titles, an eventual check that waits for the import. Unifying both targets on one shared helper for that decision is a known follow-up.
 - **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. The support helpers poll every 250ms (`POLLING_INTERVAL`), not with Serenity's exponential backoff, so a failing check gives up after about 15s. The per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 45s: the scenario's steps (and, on desktop, the app restart) plus one failing check.
 - **No fixed sleeps** (`Wait.for`) and **no retries** (Playwright `retries: 0`, mocha `retries: 0`, WDIO `specFileRetries: 0`).
 - Every `actor.attemptsTo(...)` is awaited; a missing `await` lets a scenario pass without checking anything.
@@ -99,7 +101,19 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 
 `support/operate-player.ts` defines `abstract class OperatePlayer extends Ability` with one method per capability that differs by target (`startPlayer`, `openGameFile`), and one `Interaction` per capability (`StartPlayer()`, `OpenGameFile(path)`). Shared code only calls `OperatePlayer.as(actor)`. There is one subclass per target: `targets/web/operate-web-player.ts` and `targets/desktop/operate-desktop-player.ts`. Each target's Cast (`targets/<target>/cast.ts`) gives every actor its browsing ability plus its subclass. A new method does not compile until both targets implement it.
 
-Desktop opens only the launch fixture: `tauri-driver` starts the app with `LAUNCH_FIXTURE` (`targets/desktop/launch-fixture.ts`, the e2e fixture) as its argument, once per app launch, so `OpenGameFile` on desktop opens nothing itself and throws for any other path. A scenario that needs another game file on desktop needs a launch-argument change first (for example, per-scenario capabilities in `wdio.conf.ts`).
+- `startPlayer`: web navigates to `/`; desktop does nothing (the app is already launched).
+- `loadTestPack` (`LoadTestPack()`): web uploads `TEST_PACK.zipPath` through `openGameFile`; desktop does nothing, because `tauri-driver` launches the app with `TEST_PACK.configPath` as its argument (`wdio.conf.ts`), once per app launch.
+- `openGameFile(path)` (`OpenGameFile(path)`): starts on the shelf and opens the file at `path` through the player's Open game control. Web sets the file on the `#openGame` input through the native Playwright page (Serenity's web API has no upload). Desktop clicks the `open-game` button and then drives the native GTK file chooser from `targets/desktop/native-dialog.ts`, which runs `atspi/dialog.py` (below).
+
+Windows later uses UI Automation for the native dialog, behind the same `openGameFile`: no scenario changes.
+
+#### The native dialog (desktop)
+
+The file chooser is a window outside the webview, so WebDriver cannot reach it. `atspi/dialog.py` drives it through AT-SPI, the Linux accessibility API, with no keystrokes and no dependence on the UI language: it waits for the chooser (role `FILE_CHOOSER` in the `qspider` app), runs its `show_location` action to reveal the location entry, sets the path through the entry's EditableText, and activates the entry (Return). Failures exit 1 with a message that `native-dialog.ts` rethrows as `Native file dialog: ...`; a driver that hangs is killed after 22s.
+
+- Clicking Open through AT-SPI does not confirm a path typed into the entry, so it is not used.
+- GTK's location entry autocompletes, and the first activation may only accept the completion. So the entry is activated until the dialog closes, at most 3 times, and before each activation its text must still be the requested path: a completion that changed it would open a different file, so that fails instead.
+- `xdotool` was considered and rejected as fragile: it depends on window focus, sends synthetic keystrokes that land wherever focus is, and depends on keyboard layout and language.
 
 ### Single-target scenarios
 

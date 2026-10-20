@@ -15,9 +15,10 @@ const [PACK_E2E_GAME] = TEST_PACK.titles;
 const SAVE_SLOT = 1;
 
 scenario('loading a game config adds all its games to the shelf without starting one', async (player) => {
-  // Startup has finished (a launch game would have started by then), so the shelf seen after it,
-  // with exactly the pack's titles, shows that no game started. On web the exact titles also wait
-  // for the import, which runs after startup.
+  // Desktop: the startup marker comes after the launch's start decision, so the exact shelf check
+  // proves no game started. Web: the pack is uploaded after startup, and the upload's start decision
+  // (apps/player/src/app/open-game-button.tsx) has its own copy of the multi-game logic, so web
+  // proves only the shelf titles (an eventual check). One shared helper for both is a known follow-up.
   await player.attemptsTo(StartPlayer(), LoadTestPack(), SeeStartupFinished(), SeeShelfTitles([...TEST_PACK.titles]));
 });
 
