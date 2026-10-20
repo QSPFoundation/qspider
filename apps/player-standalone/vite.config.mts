@@ -10,7 +10,7 @@ const pkg = require('../../package.json');
 export default defineConfig(({ mode }) => {
   return {
     base: '',
-    root: __dirname,
+    root: import.meta.dirname,
     cacheDir: '../../node_modules/.vite/apps/player-standalone',
     publicDir: '../../public',
 
@@ -42,7 +42,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@qspider/env': resolve(
-          __dirname,
+          import.meta.dirname,
           mode === 'desktop' ? '../../libs/desktop/src/index.ts' : '../../libs/browser/src/index.ts',
         ),
       },

@@ -51,7 +51,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const breakpointDecorationsRef = useRef<editor.IEditorDecorationsCollection | null>(null);
   const [editorMounted, setEditorMounted] = useState(false);
-  const handleToggleBreakpointRef = useRef<(lineNumber: number) => void>();
+  const handleToggleBreakpointRef = useRef<(lineNumber: number) => void>(undefined);
 
   const handleToggleBreakpoint = React.useCallback(
     (line: number) => {

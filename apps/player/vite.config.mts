@@ -10,7 +10,7 @@ const pkg = require('../../package.json');
 
 export default defineConfig({
   base: '',
-  root: __dirname,
+  root: import.meta.dirname,
   define: {
     QSPIDER_VERSION: JSON.stringify(pkg.version),
   },
@@ -58,8 +58,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@qspider/env': resolve(__dirname, '../../libs/browser/src/index.ts'),
-      '@qspider/utils': resolve(__dirname, '../../libs/utils/src/index.ts'),
+      '@qspider/env': resolve(import.meta.dirname, '../../libs/browser/src/index.ts'),
+      '@qspider/utils': resolve(import.meta.dirname, '../../libs/utils/src/index.ts'),
     },
   },
 

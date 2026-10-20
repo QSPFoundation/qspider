@@ -34,7 +34,10 @@
       "@qspider/renderer": ["libs/renderer/src/index.ts"],
       "@qspider/utils": ["libs/utils/src/index.ts"],
       "@qspider/debugger": ["libs/debugger/src/index.ts"]
-    }
+    },
+    "noUncheckedSideEffectImports": false,
+    "types": ["*"],
+    "ignoreDeprecations": "6.0"
   },
   "exclude": ["node_modules", "tmp"]
 }

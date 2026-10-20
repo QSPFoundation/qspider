@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import baseConfig from '../../eslint.config.js';
+import baseConfig, { reactCompilerRules } from '../../eslint.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +18,7 @@ export default [
   ...compat.extends('plugin:@nx/react'),
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
-    rules: {},
+    rules: { ...reactCompilerRules },
   },
   {
     files: ['**/*.ts', '**/*.tsx'],

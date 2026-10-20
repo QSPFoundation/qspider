@@ -6,7 +6,7 @@ export function useEventListener<E extends Event>(
   element: HTMLElement | Window | Document = window,
   options?: AddEventListenerOptions,
 ): void {
-  const savedHandler = useRef<(e: E) => void>();
+  const savedHandler = useRef<(e: E) => void>(undefined);
   const { capture, passive, once } = options || {};
 
   useEffect(() => {
