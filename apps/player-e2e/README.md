@@ -14,7 +14,7 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 ## Commands
 
 - `pnpm e2e:web` - build the player, then run Playwright.
-- `pnpm e2e:desktop` - build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO. Note the prerequisite check runs after that build.
+- `pnpm e2e:desktop` - check desktop prerequisites (fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO.
 - `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself (the desktop prerequisite check).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
