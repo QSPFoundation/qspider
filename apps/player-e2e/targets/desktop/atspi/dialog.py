@@ -8,11 +8,34 @@ button through AT-SPI does not confirm a path typed into the location entry, so 
 Usage: dialog.py open <path> [timeout_s]   choose <path> and confirm; exit 1 with a message on failure
        dialog.py dump [timeout_s]           print the dialog's accessible tree (debugging)
 Needs: an AT-SPI bus and registry in the session, GTK on X11. No dependence on UI language.
+Runs only inside run-desktop-e2e.mjs's private session (it refuses otherwise), never on the desktop's
+own accessibility bus.
 """
+import os
 import sys
 import time
 
-import gi
+
+def refuse_outside_private_session():
+    # Same checks as with-a11y-bus.sh and private-session.ts. Runs before Atspi is imported, since
+    # importing it connects to the session's accessibility bus.
+    def refuse(reason):
+        print(f"dialog.py: refusing to run: {reason}; run it through pnpm e2e:desktop "
+              "(apps/player-e2e/targets/desktop/run-desktop-e2e.mjs)", file=sys.stderr)
+        raise SystemExit(1)
+
+    if os.environ.get("QSPIDER_E2E_PRIVATE_SESSION") != "1":
+        refuse("QSPIDER_E2E_PRIVATE_SESSION is not set")
+    bus = os.environ.get("DBUS_SESSION_BUS_ADDRESS", "")
+    if not bus:
+        refuse("DBUS_SESSION_BUS_ADDRESS is not set")
+    if f"/run/user/{os.getuid()}/bus" in bus:
+        refuse(f"DBUS_SESSION_BUS_ADDRESS is the desktop session bus ({bus})")
+
+
+refuse_outside_private_session()
+
+import gi  # noqa: E402
 
 gi.require_version("Atspi", "2.0")
 from gi.repository import Atspi  # noqa: E402

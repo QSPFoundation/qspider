@@ -1,5 +1,7 @@
 // WebdriverIO config for the desktop (Tauri) core-flow tests. Run via `pnpm e2e:desktop`,
-// which first builds the E2E debug binary (`nx run player-e2e:build-desktop-e2e`).
+// which first builds the E2E debug binary (`nx run player-e2e:build-desktop-e2e`) and then runs
+// wdio through run-desktop-e2e.mjs. Never run `wdio run` on this file directly: on Linux,
+// onPrepare refuses to start outside the runner's private session (private-session.ts).
 import { spawn, type ChildProcess } from 'node:child_process';
 import { copyFileSync, createWriteStream, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
@@ -13,6 +15,7 @@ import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { TEST_PACK } from '../../fixtures/test-pack';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
+import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const artifactsDir = fileURLToPath(new URL('../../artifacts/desktop', import.meta.url));
@@ -122,6 +125,16 @@ export const config: WebdriverIOConfig = {
   reporters: ['spec'],
 
   async onPrepare() {
+    // First, before anything is launched: outside the private session the app would use the real
+    // display, dconf and accessibility bus.
+    if (process.platform === 'linux') {
+      const problem = privateSessionProblem(process.env, process.getuid?.() ?? -1);
+      if (problem) {
+        throw new SevereServiceError(
+          `Refusing to run the desktop E2E outside its private session: ${problem}. ${PRIVATE_SESSION_HINT}`,
+        );
+      }
+    }
     const missing = findMissingPrereqs(process.platform, which, atspiProbes);
     if (missing.length > 0) {
       // SevereServiceError makes WDIO abort with a non-zero exit instead of logging and continuing.
