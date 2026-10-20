@@ -14,7 +14,6 @@
     "targets/web/**/*.ts",
     "targets/desktop/prereqs.ts",
     "targets/desktop/prereqs.spec.ts",
-    "web/**/*.ts",
     "*.config.mts"
   ]
 }

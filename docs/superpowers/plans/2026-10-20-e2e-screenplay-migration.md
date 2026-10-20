@@ -57,7 +57,7 @@ Controls are located only by theme-contract markers (`data-qsp*`), or by `data-q
 
 ## Plan decisions (not in the spec; check these)
 
-- **D1.** The game shelf and the import error toast are app-shell UI. They are not rendered from theme templates, so they get `data-qa` hooks, the convention `game-card.tsx` already uses (`data-qa="game-<id>"`), rather than `data-qsp` markers. The `elements.ts` selector lint allows `[data-qsp…]`, `[data-qa…]` and roles.
+- **D1.** The game shelf and the import error toast are app-shell UI. They are not rendered from theme templates, so they get `data-qa` hooks, the convention `game-card.tsx` already uses (`data-qa="game-card"` on the card root), rather than `data-qsp` markers. The `elements.ts` selector lint allows `[data-qsp…]`, `[data-qa…]` and roles.
 - **D2.** The `scenario()` shim chooses the runner implementation at runtime from `process.env.QSPIDER_E2E_TARGET` (`'web' | 'desktop'`). Each target config sets it before tests load. There is no module aliasing.
 - **D3.** Fixture constants move from `shared/core-flow.ts` to `fixtures/e2e-game.ts`, with the same export names except as noted in Task 2. `shared/` is removed.
 - **D4.** The desktop shim calls `restartAppWithEmptyData()` itself at the start of every scenario, so scenarios never import target code.

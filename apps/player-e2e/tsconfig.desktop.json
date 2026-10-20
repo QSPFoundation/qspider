@@ -8,12 +8,6 @@
     "allowImportingTsExtensions": true,
     "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework", "expect-webdriverio"]
   },
-  "include": [
-    "fixtures/**/*.ts",
-    "scenarios/**/*.ts",
-    "screenplay/**/*.ts",
-    "targets/desktop/**/*.ts",
-    "desktop/**/*.ts"
-  ],
+  "include": ["fixtures/**/*.ts", "scenarios/**/*.ts", "screenplay/**/*.ts", "targets/desktop/**/*.ts"],
   "exclude": ["targets/desktop/**/*.spec.ts"]
 }
