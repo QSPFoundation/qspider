@@ -5,3 +5,4 @@ export * from './lib/setup';
 export * from './lib/game-url';
 export * from './lib/desktop-importer';
 export * from './lib/shell';
+export * from './lib/updater';

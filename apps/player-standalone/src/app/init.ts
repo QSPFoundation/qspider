@@ -7,7 +7,7 @@ import {
   registerDefaultThemes,
   runGame,
 } from '@qspider/game-state';
-import { windowManager } from '@qspider/env';
+import { checkForUpdates, windowManager } from '@qspider/env';
 import { prepareBaseUrl } from '@qspider/utils';
 import { runConfig } from './config-runner';
 import { setupEnv } from '@qspider/env';
@@ -30,4 +30,5 @@ export async function init(): Promise<void> {
   await registerDefaultThemes(initialBaseUrl$.value);
   await runGame(game);
   baseInit$.set(true);
+  void checkForUpdates();
 }

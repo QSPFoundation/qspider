@@ -12,7 +12,7 @@ import {
 import { getLaunchFilePath, importDesktop } from '@qspider/desktop';
 import { prepareBaseUrl } from '@qspider/utils';
 
-import { setupEnv } from '@qspider/env';
+import { checkForUpdates, setupEnv } from '@qspider/env';
 
 setupEnv();
 
@@ -45,4 +45,5 @@ export async function init(): Promise<void> {
   if (toRun) {
     goToGame(toRun);
   }
+  void checkForUpdates();
 }
