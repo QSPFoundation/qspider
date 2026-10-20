@@ -1,8 +1,7 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { goToGame } from '@qspider/game-shelf';
+import { addImported, goToGame } from '@qspider/game-shelf';
 import { showError } from '@qspider/game-state';
-import { addImported } from './add-imported';
 import { importDesktop, pickGameFile } from '@qspider/desktop';
 
 export const OpenGameButton: React.FC = () => {

@@ -2,7 +2,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
 
-import { addImported } from './add-imported';
 import { isSupportedFileType } from './utils';
 
 import { init } from './init';
@@ -12,7 +11,7 @@ import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { ErrorAlert, goToGame, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
+import { addImported, ErrorAlert, goToGame, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);

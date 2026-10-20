@@ -1,11 +1,14 @@
 import { TFunction } from 'i18next';
 import { GameShelfEntry } from '@qspider/contracts';
-import { games$ } from '@qspider/game-shelf';
 import { showNotice } from '@qspider/game-state';
+import { games$ } from './game-shelf';
 
 /**
- * Adds (or overwrites) freshly imported entries to the shelf. Several entries only land on the
- * shelf (with a notice); a single entry is returned so the caller can start it.
+ * The shared start decision after an import (web and desktop: launch, drop, Open game).
+ * Every imported entry is added to the shelf, overwriting an entry with the same id.
+ * - more than one entry: they only land on the shelf, with a notice; returns undefined (start nothing);
+ * - one entry: returns its id, for the caller to start;
+ * - none: throws.
  */
 export function addImported(imported: GameShelfEntry[], t: TFunction): string | undefined {
   if (!imported.length) throw new Error('No games imported');

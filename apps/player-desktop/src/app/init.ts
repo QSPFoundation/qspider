@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { goToGame, loadGamesFromStorage, locationSettled, navigateTo } from '@qspider/game-shelf';
+import { addImported, goToGame, loadGamesFromStorage, locationSettled, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
   initDeferred$,
@@ -12,7 +12,6 @@ import {
   startupFinished$,
 } from '@qspider/game-state';
 import { getLaunchFilePath, importDesktop } from '@qspider/desktop';
-import { addImported } from './add-imported';
 import { prepareBaseUrl } from '@qspider/utils';
 
 import { checkForUpdates, setupEnv } from '@qspider/env';
