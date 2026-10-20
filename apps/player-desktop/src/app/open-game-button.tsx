@@ -3,7 +3,7 @@ import { dialog } from '@tauri-apps/api';
 import { useTranslation } from 'react-i18next';
 import { games$, goToGame } from '@qspider/game-shelf';
 import { showError, showNotice } from '@qspider/game-state';
-import { importDesktop } from '@qspider/importers';
+import { importDesktop } from '@qspider/desktop';
 
 export const OpenGameButton: React.FC = () => {
   const { t } = useTranslation();

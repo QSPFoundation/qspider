@@ -9,7 +9,7 @@ import {
   registerDefaultThemes,
   showError,
 } from '@qspider/game-state';
-import { importDesktop } from '@qspider/importers';
+import { importDesktop } from '@qspider/desktop';
 import { cli } from '@tauri-apps/api';
 import { prepareBaseUrl } from '@qspider/utils';
 
