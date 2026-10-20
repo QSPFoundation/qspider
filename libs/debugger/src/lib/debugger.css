@@ -12,17 +12,17 @@
 
 .qsp-debugger-layout.debugger-open.debugger-bottom {
   grid-template-rows: 1fr auto;
-  grid-template-areas: "main" "debugger";
+  grid-template-areas: 'main' 'debugger';
 }
 
 .qsp-debugger-layout.debugger-open.debugger-left {
   grid-template-columns: auto 1fr;
-  grid-template-areas: "debugger main";
+  grid-template-areas: 'debugger main';
 }
 
 .qsp-debugger-layout.debugger-open.debugger-right {
   grid-template-columns: 1fr auto;
-  grid-template-areas: "main debugger";
+  grid-template-areas: 'main debugger';
 }
 
 .qsp-debugger-layout.debugger-open qsp-player {
@@ -1069,7 +1069,7 @@
   color: var(--text-hc);
 }
 
-.qsp-debugger-right-panel-tab[data-state="active"] {
+.qsp-debugger-right-panel-tab[data-state='active'] {
   color: var(--solid-background);
   border-bottom-color: var(--solid-background);
   background-color: var(--app-background);

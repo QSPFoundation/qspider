@@ -34,12 +34,14 @@
 ### Task 1: Make the frame green — format, typecheck, `pnpm check` (no E2E yet)
 
 **Files:**
+
 - Modify: `.prettierignore`, `nx.json` (`defaultBase`), `package.json` (scripts, lint-staged)
 - Modify: `libs/desktop/tsconfig.lib.json`, `libs/game-shelf/tsconfig.lib.json`, `libs/renderer/tsconfig.lib.json`
 - Modify: every `apps/*/project.json` and `libs/*/project.json` (add `typecheck` target)
 - Reformat: files listed by `pnpm format:check` (currently `libs/debugger/src/lib/*`, `libs/game-shelf/src/{qsp-catalog.ts,components/qsp-catalog-game-card.tsx}`, `docs/superpowers/**`)
 
 **Interfaces:**
+
 - Produces: NX target `typecheck` on all 17 projects; pnpm scripts `typecheck`, `check:rust`, `check` (used by Tasks 5–6).
 
 - [ ] **Step 1: Confirm current failures**
@@ -60,12 +62,14 @@ Expected: format check exits 0. Review the diff: whitespace/formatting only.
 - [ ] **Step 4: Add `typecheck` targets**
 
 In each project.json add:
+
 ```json
 "typecheck": {
   "executor": "nx:run-commands",
   "options": { "cwd": "{projectRoot}", "command": "tsc -p tsconfig.lib.json --noEmit" }
 }
 ```
+
 using `tsconfig.app.json` for apps. `libs/utils` additionally checks `tsconfig.spec.json` (`commands` with both). In `nx.json` `targetDefaults` add `"typecheck": { "cache": true, "inputs": ["default", "^default"] }`.
 
 - [ ] **Step 5: Run typecheck to see it fail**
@@ -83,6 +87,7 @@ Expected: all 17 succeed.
 - [ ] **Step 7: Add scripts and lint-staged**
 
 `package.json` scripts:
+
 - `"typecheck": "nx run-many -t typecheck"`
 - `"check:rust": "cd src-tauri && cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test"`
 - `"check": "pnpm format:check && nx run-many -t lint typecheck build && pnpm check:rust"` (Task 3 appends `&& pnpm e2e:web`)
@@ -100,6 +105,7 @@ Expected: exit 0. (Rust: clippy and fmt already pass; 8 tests pass.)
 git add -A
 git commit -m "chore: green check frame with typecheck targets and pnpm check"
 ```
+
 (Format-only changes may go in a separate preceding commit `style: apply prettier`.)
 
 ---
@@ -107,10 +113,12 @@ git commit -m "chore: green check frame with typecheck targets and pnpm check"
 ### Task 2: Deterministic E2E test game
 
 **Files:**
+
 - Create: `apps/player-e2e/fixtures/e2e-game.qsps`
 - Create: `apps/player-e2e/project.json`, `apps/player-e2e/tsconfig.json`, `apps/player-e2e/eslint.config.js` (copy pattern from `libs/desktop`)
 
 **Interfaces:**
+
 - Produces: fixture path `apps/player-e2e/fixtures/e2e-game.qsps`; visible strings `E2E START`, `ROOM counter=<n>`; actions named `Go to room`, `Increment`, `Save`, `Load`. Shelf title of the game: `e2e-game.qsps` (web `file-importer` uses the file name; desktop to be confirmed in Task 4).
 
 - [ ] **Step 1: Write the game**
@@ -129,6 +137,7 @@ act 'Save': savegame
 act 'Load': opengame
 ---
 ```
+
 `savegame`/`opengame` without arguments open the in-app save/load slots panel (`requestedAction$` → `pause:saves`, see `libs/game-state/src/qsp-api.ts:276-300`); slots render as `[data-qsp-save-index="<n>"]` with `data-save-empty` when empty (`libs/renderer/src/theme-core/pause-screen/slots.tsx`).
 
 - [ ] **Step 2: Verify manually once in the web player**
@@ -148,6 +157,7 @@ git commit -m "test(e2e): add deterministic e2e test game and project"
 ### Task 3: Core-flow scenario on web (WebdriverIO)
 
 **Files:**
+
 - Create: `apps/player-e2e/src/core-flow.e2e.ts` (the scenario, shared by both targets)
 - Create: `apps/player-e2e/src/player.ts` (page helpers)
 - Create: `apps/player-e2e/src/target.ts` (per-target hooks interface)
@@ -156,6 +166,7 @@ git commit -m "test(e2e): add deterministic e2e test game and project"
 - Possibly modify: `libs/renderer/src/theme-core/pause-screen/*.tsx` (add `data-testid` only where a control has no accessible name/text)
 
 **Interfaces:**
+
 - Consumes: fixture and strings from Task 2.
 - Produces (`target.ts`):
   ```ts
@@ -177,7 +188,7 @@ Add devDeps: `@wdio/cli@^9`, `@wdio/local-runner@^9`, `@wdio/mocha-framework@^9`
 ```ts
 describe('core flow', () => {
   it('opens a game from file, plays, saves, loads and returns to shelf', async () => {
-    expect(await shelfGameTitles()).toEqual([]);           // clean state
+    expect(await shelfGameTitles()).toEqual([]); // clean state
     await currentTarget().openGame(FIXTURE);
     await failOnErrorAlert();
     await expectMainText('E2E START');
@@ -186,13 +197,13 @@ describe('core flow', () => {
     await clickAction('Increment');
     await expectMainText('ROOM counter=1');
     await clickAction('Save');
-    await expectSlotEmpty(1);                               // no leftover saves
+    await expectSlotEmpty(1); // no leftover saves
     await chooseSaveSlot(1);
     await clickAction('Increment');
     await expectMainText('ROOM counter=2');
     await clickAction('Load');
     await chooseSaveSlot(1);
-    await expectMainText('ROOM counter=1');                 // restore is observable
+    await expectMainText('ROOM counter=1'); // restore is observable
     await returnToShelf();
     expect(await shelfGameTitles()).toContain('e2e-game.qsps');
     await openFromShelf('e2e-game.qsps');
@@ -200,6 +211,7 @@ describe('core flow', () => {
   });
 });
 ```
+
 `expectMainText` waits up to 15s; on timeout it calls `failOnErrorAlert()` first so an import error surfaces as the failure message.
 
 - [ ] **Step 3: Implement `wdio.web.conf.ts` and the web target**
@@ -230,12 +242,14 @@ git commit -am "test(e2e): core flow scenario on web player"
 ### Task 4: Desktop target — updater gate, prerequisites, tauri-driver
 
 **Files:**
+
 - Modify: `libs/desktop/src/lib/updater.ts` (gate)
 - Create: `apps/player-e2e/src/desktop-prereqs.ts`, `apps/player-e2e/src/desktop-prereqs.spec.ts`
 - Create: `apps/player-e2e/wdio.desktop.conf.ts`
 - Modify: `apps/player-e2e/project.json` (targets `build-desktop-e2e`, `e2e-desktop`), root `package.json` (`e2e:desktop`, `check:full`)
 
 **Interfaces:**
+
 - Consumes: scenario + `E2ETarget` from Task 3.
 - Produces: `findMissingPrereqs(platform: NodeJS.Platform, which: (cmd: string) => string | null): string[]` — returns names from `['tauri-driver', 'WebKitWebDriver']` (Linux) / `['tauri-driver', 'msedgedriver']` (win32) that `which` can't find.
 
@@ -249,6 +263,7 @@ it('returns empty when all present', () => {
   expect(findMissingPrereqs('linux', (c) => `/usr/bin/${c}`)).toEqual([]);
 });
 ```
+
 Run: `npx vitest run apps/player-e2e` → FAIL (not defined). (Add `apps/player-e2e/vite.config.mts` with a `test` block and list it in root `vitest.config.mjs` projects.)
 
 - [ ] **Step 2: Implement, run → PASS**
@@ -292,9 +307,11 @@ git commit -am "test(e2e): core flow on desktop via tauri-driver"
 ### Task 5: CI workflow `checks.yml` and desktop build matrix
 
 **Files:**
+
 - Create: `.github/workflows/checks.yml`, `.github/workflows/desktop-build.yml`
 
 **Interfaces:**
+
 - Consumes: scripts `format:check`, `typecheck`, `check:rust`, `e2e:web`, `e2e:desktop`, target `player-e2e:build-desktop-e2e`.
 
 - [ ] **Step 1: `checks.yml`** — `on: pull_request` and `push: branches: [main]`; `env: HUSKY: 0`; concurrency group per ref with cancel-in-progress. Jobs (all ubuntu-latest, pnpm 10.17.0, Node 24, `pnpm install --frozen-lockfile`):
@@ -315,6 +332,7 @@ git commit -m "ci: run checks and e2e on pull requests"
 ### Task 6: Document for agents and the maintainer
 
 **Files:**
+
 - Modify: `CLAUDE.md` (Testing and Quality section)
 - Create: `apps/player-e2e/README.md`
 
