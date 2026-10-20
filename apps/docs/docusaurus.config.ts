@@ -70,7 +70,7 @@ const config: Config = {
           items: [
             {
               label: 'Guides',
-              to: '/docs',
+              to: '/docs/game.cfg',
             },
           ],
         },
