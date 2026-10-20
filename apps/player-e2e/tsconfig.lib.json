@@ -14,6 +14,7 @@
     "targets/web/**/*.ts",
     "targets/desktop/prereqs.ts",
     "targets/desktop/prereqs.spec.ts",
+    "lint-rules.spec.ts",
     "*.config.mts"
   ]
 }

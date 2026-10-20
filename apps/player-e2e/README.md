@@ -12,7 +12,7 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 apps/player-e2e/
   scenarios/            the tests, one file per feature (*.scenario.ts); run on both targets
   screenplay/
-    <area>/             elements.ts, tasks.ts, checks.ts for one place in the UI
+    <area>/             elements.ts, tasks.ts, checks.ts (as needed) for one place in the UI
       shelf/ game/ pause/ saves/
     common/             elements and checks used by more than one area
     support/            shared primitives (below)
@@ -30,7 +30,18 @@ apps/player-e2e/
 
 ## Rules
 
-Scenarios are written under these rules. Lint does not enforce them yet (only the repo-wide TypeScript and ESLint rules apply), so reviewers do.
+Scenarios are written under these rules. `nx lint player-e2e` enforces the mechanical ones (`eslint.config.js`, tested by `lint-rules.spec.ts`), all as errors:
+
+- `scenarios/**`: no imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
+- `screenplay/**`: no imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. The one exception is `support/scenario.ts`, which loads the target's scenario shim.
+- `Ensure` is imported only in `checks.ts` and `support/`.
+- `By` is imported only in `elements.ts` and `support/`.
+- In `elements.ts`, a `By.css` selector must contain `[data-qsp`, `[data-qa` or `[role=` (best effort: string and template literals only).
+- No `Wait.for` anywhere.
+- `screenplay/**` files have at most 150 lines.
+- `@typescript-eslint/no-floating-promises` and `no-misused-promises` (type-aware) everywhere, so an `attemptsTo(...)` without `await` fails lint.
+
+The rest (naming, where an element or task belongs, no text or class lookups beyond what the selector check catches) is up to review.
 
 ### Where things go
 
@@ -38,15 +49,17 @@ An **area** is a place in the UI where the player can be: a screen (shelf, game)
 
 | What     | Where                                                                                                                             |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Area     | `screenplay/<area>/`, with `elements.ts` (definitions only, the only file with selectors), `tasks.ts`, `checks.ts`                |
+| Area     | `screenplay/<area>/`, with `elements.ts` (definitions only, the only file with selectors), `tasks.ts`, `checks.ts` as needed      |
 | Element  | In the area where it is visible; visible in more than one area: `screenplay/common/`                                              |
 | Task     | In the area where the player starts it (`ReturnToShelf` starts in the game, so it is in `game/`, though it passes the pause menu) |
 | Check    | In the area that shows what is checked                                                                                            |
 | New area | When a new screen or overlay appears, or a file passes about 150 lines and a natural sub-place can be split out                   |
 | Never    | An area per feature. "Quick save" is a scenario that uses tasks from the places it touches                                        |
 
+An area has only the files it needs: `pause/` has only `elements.ts`.
+
 - `elements.ts`: `PageElement` / `PageElements` and nothing else.
-- `tasks.ts`: `Task`s and `Interaction`s (what the player does). Never asserts. May wait for the UI to settle after its own action.
+- `tasks.ts`: `Task`s and `Interaction`s (what the player does). Never calls `Ensure`; may compose checks from a `checks.ts` (`OpenFixture` uses `SeeGameStarted` to fail fast on an error alert). May wait for the UI to settle after its own action.
 - `checks.ts`: what the player expects to see. The only place `Ensure` is used, and only through `seeEventually`.
 - Scenarios contain only tasks, checks and constants: no selectors, no `Ensure`, no framework or `targets/` imports.
 
@@ -96,7 +109,7 @@ The rules apply now: elements use only the theme contract, so they are the same 
 
 - `pnpm e2e:web` - build the player, then run Playwright.
 - `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO.
-- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself (the desktop prerequisite check, `targets/desktop/check-prereqs.ts`).
+- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`) and the lint rules (`lint-rules.spec.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
 ## Prerequisites
