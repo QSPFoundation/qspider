@@ -1,5 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 import type { SerenityFixtures, SerenityWorkerFixtures } from '@serenity-js/playwright-test';
+import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { fileURLToPath } from 'node:url';
 
 // Preview port of apps/player (apps/player/vite.config.mts `preview.port`).
@@ -29,6 +30,7 @@ export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
   use: {
     // Same actor name as on desktop (targets/desktop/scenario.ts).
     defaultActorName: 'Player',
+    interactionTimeout: INTERACTION_TIMEOUT,
     baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',

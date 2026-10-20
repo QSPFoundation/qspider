@@ -1,6 +1,7 @@
 import { Task } from '@serenity-js/core';
-import { equals, isPresent } from '@serenity-js/assertions';
+import { equals } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
+import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/seeEventually';
 import { EmptyShelfNotice, Shelf, ShelfTitles } from './elements';
 
@@ -15,7 +16,7 @@ export const SeeShelfTitles = (titles: string[]): Task => {
   if (titles.length > 0) return listed;
   return Task.where(
     '#actor sees an empty shelf',
-    seeEventually(EmptyShelfNotice, (e) => e, isPresent(), '#actor sees the empty shelf notice'),
+    seeEventually(EmptyShelfNotice, (e) => PresenceOf(e), equals(true), '#actor sees the empty shelf notice'),
     listed,
   );
 };

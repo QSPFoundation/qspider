@@ -2,13 +2,15 @@ import { actorCalled, engage } from '@serenity-js/core';
 import type { ScenarioBody, ScenarioFn } from '../../screenplay/support/scenario';
 import { desktopCast } from './cast';
 import { restartAppWithEmptyData } from './fresh-app';
+import { scenarioLocation, withLocation } from '../../screenplay/support/scenario-location';
 
 const test = (title: string, body: ScenarioBody): void => {
+  const location = scenarioLocation();
   it(title, async () => {
     // Every scenario starts in a fresh app process with empty app data.
     await restartAppWithEmptyData();
     engage(desktopCast());
-    await body(actorCalled('Player'));
+    await withLocation(location, () => body(actorCalled('Player')));
   });
 };
 

@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
 import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
+import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { E2E_GAME } from '../../fixtures/e2e-game';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
@@ -113,7 +114,7 @@ export const config: WebdriverIOConfig = {
   specFileRetries: 0,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
-  serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'] },
+  serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
   // forbidOnly: a stray it.only would silently skip the rest of the suite.
   mochaOpts: { ui: 'bdd', timeout: 120_000, retries: 0, forbidOnly: true },
   reporters: ['spec'],
