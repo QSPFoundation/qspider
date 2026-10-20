@@ -11,7 +11,7 @@ const PREREQS: Partial<Record<NodeJS.Platform, string[]>> = {
 export const DISPLAY_PREREQ = 'a display (DISPLAY or WAYLAND_DISPLAY; headless: xvfb-run -a)';
 
 export const INSTALL_HINT =
-  'Install: cargo install tauri-driver --locked, and make sure ~/.cargo/bin is on PATH; Arch: webkit2gtk-4.1 provides WebKitWebDriver; Debian/Ubuntu: webkit2gtk-driver';
+  'Install: cargo install tauri-driver --locked, and make sure ~/.cargo/bin is on PATH; Arch: webkit2gtk-4.1 provides WebKitWebDriver; Debian/Ubuntu: webkit2gtk-driver (webkitgtk-webdriver on Ubuntu 26.04+)';
 
 /**
  * Returns the names of the prerequisites the desktop E2E needs on `platform` that are missing:
