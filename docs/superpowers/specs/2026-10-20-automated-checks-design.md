@@ -75,8 +75,8 @@ Work is split into four phases, shipped in order. Each phase is independently us
 #### 1b. Core-flow E2E
 
 - **Test game:** a small deterministic game written for testing, committed as `.qsps` under `test-assets/e2e/`, with a few locations, actions that change visible text and a variable, so "same state after load" is observable. Compiled to `.qsp` at test setup with `@qsp/converters` (or committed pre-built — builder's call). It must exercise save/load meaningfully (state changes between save and load must be detectable).
-- **Shared scenario:** the core flow is written once as a scenario (steps + expected visible results) and run against both targets via a thin per-target driver, so web and desktop can't drift.
-- **Runner:** WebdriverIO for both targets, so there is one framework, one locator/waiting model and one set of failure artifacts. Web: the built `player` served statically, in a browser via WebdriverIO, opening from file through the file input. Desktop: `tauri-driver` against a debug build of `player-desktop`. Opening from file uses the CLI argument path (`qspider <file>`) as the primary route.
+- **Two thin test files, one per target (maintainer's decision):** Playwright for web, WebdriverIO for desktop (tauri-driver speaks WebDriver; Playwright cannot attach to WebKitGTK). Each file spells out the core-flow steps in its own framework. To limit drift they share one constants module (fixture path, expected visible strings, action labels, slot index, shelf title) and use the same helper names in the same order, so the two files read side by side.
+- **Runners:** Web: Playwright against the built `player` served statically (`webServer`), opening from file through the file input. Desktop: WebdriverIO + `tauri-driver` against a debug build of `player-desktop`. Opening from file uses the CLI argument path (`qspider <file>`) as the primary route.
 - **Test mode for desktop:** the updater check on startup is disabled in test runs so it cannot block the UI. Mechanism (env var, Cargo feature, or separate Vite mode) is the builder's call, subject to the anti-goal: nothing test-only in release builds.
 - **Isolation:** each run uses a fresh app data directory / browser profile so shelf and saves start empty.
 - CI: web E2E and desktop E2E (under `xvfb-run`) jobs on ubuntu in `checks.yml`. Local: `pnpm e2e`, `pnpm e2e:web`, `pnpm e2e:desktop`. Failure artifacts: screenshots and logs uploaded in CI.
@@ -86,7 +86,7 @@ Work is split into four phases, shipped in order. Each phase is independently us
 
 ### Phase 2 — Broaden E2E flows
 
-Scenarios added to the shared suite (exact list approved by the maintainer before implementation, since these define "correct"):
+Scenarios added to both suites (exact list approved by the maintainer before implementation, since these define "correct"):
 
 - All open routes: CLI argument, Open dialog (desktop: stubbed in test mode to return a fixed path; web: file chooser), drag-and-drop, URL import (web), re-opening from shelf.
 - Archive games (`.zip`, multi-game archive from `test-assets/`).
@@ -112,12 +112,12 @@ Scenarios added to the shared suite (exact list approved by the maintainer befor
 - Core flow definition: open game from file → shelf → play → save → load.
 - Desktop E2E is non-blocking in CI until the Tauri 2 migration fix lands, then required; everything else blocks.
 - Agents run checks locally on the maintainer's Linux machine.
+- E2E tooling: Playwright for web, WebdriverIO for desktop, two thin test files rather than one shared scenario over an adapter.
 - Phased order above. Unit-test wiring alone gives little value with today's ~26 tests, so phase 1 pairs the build/typecheck/lint frame with the core-flow E2E; unit tests come last.
 
 ## My calls (Claude's — check these)
 
-- Tools: Vitest (already present) for unit tests; WebdriverIO for E2E on both web and desktop (tauri-driver on desktop). This replaces the earlier idea of Playwright for web plus a custom layer over two frameworks, which would be the main source of flakiness.
-- One scenario suite run against both targets.
+- Tools: Vitest (already present) for unit tests. (E2E tools were the maintainer's decision: Playwright for web, WebdriverIO + tauri-driver for desktop, two thin test files sharing constants.)
 - Phase 1 includes the format/typecheck/clippy clean-up needed to start green.
 - Windows/macOS desktop builds in PR CI only when desktop-relevant paths change.
 - CLI argument as primary desktop "open from file" route; dialog stubbed only in test mode.
