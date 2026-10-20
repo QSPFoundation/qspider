@@ -1,6 +1,7 @@
 #!/bin/sh
 # Usage: dbus-run-session -- with-a11y-bus.sh <command> [args...]
-# Normally started by run-desktop-e2e.mjs inside xvfb-run, with a private XDG_RUNTIME_DIR.
+# Started by run-desktop-e2e.mjs inside xvfb-run, with a private XDG_RUNTIME_DIR and home dirs; it
+# refuses to run anywhere else (fails closed), so it can never touch the desktop session's a11y bus.
 # Starts the AT-SPI accessibility bus and registry explicitly (a bare dbus-run-session has no
 # systemd activation, so AT-SPI can't auto-start), waits until both answer, runs the command,
 # then stops the two daemons it started and exits with the command's status.
@@ -12,6 +13,17 @@ log_dest=${QSPIDER_A11Y_LOG:-$script_dir/../../../artifacts/desktop/a11y-bus.log
 
 # Never inherit a pointer to another accessibility bus.
 unset AT_SPI_BUS_ADDRESS
+
+refuse() {
+  echo "$me: refusing to run: $1" >&2
+  exit 1
+}
+[ "$QSPIDER_E2E_PRIVATE_SESSION" = 1 ] ||
+  refuse "QSPIDER_E2E_PRIVATE_SESSION is not set; run it through apps/player-e2e/targets/desktop/run-desktop-e2e.mjs"
+case "${DBUS_SESSION_BUS_ADDRESS:-}" in
+  '') refuse "DBUS_SESSION_BUS_ADDRESS is not set (not inside dbus-run-session?)" ;;
+  *"/run/user/$(id -u)/bus"*) refuse "DBUS_SESSION_BUS_ADDRESS is the desktop session bus ($DBUS_SESSION_BUS_ADDRESS)" ;;
+esac
 
 # Arch keeps the daemons in /usr/lib, Debian/Ubuntu in /usr/libexec.
 find_daemon() {
@@ -36,8 +48,7 @@ registry=$(find_daemon at-spi2-registryd) || exit 1
 
 # On the desktop's own session bus the a11y bus is already owned; starting another would replace it.
 if has_owner --session org.a11y.Bus; then
-  echo "$me: refusing to run: org.a11y.Bus already owned (not inside dbus-run-session?)" >&2
-  exit 1
+  refuse "org.a11y.Bus already owned (not inside dbus-run-session?)"
 fi
 
 # The daemons get their own runtime dir too (the launcher names its socket after it) and no DISPLAY,
@@ -54,6 +65,7 @@ stop_pid() { # TERM, up to ~2s for it to exit, then KILL. Only PIDs this script 
   while kill -0 "$1" 2>/dev/null && ! ps -o stat= -p "$1" 2>/dev/null | grep -q Z; do
     n=$((n + 1))
     if [ "$n" -gt 40 ]; then
+      save_log # before KILL, in case the shell does not get to the end of cleanup
       kill -9 "$1" 2>/dev/null
       break
     fi
@@ -61,12 +73,15 @@ stop_pid() { # TERM, up to ~2s for it to exit, then KILL. Only PIDs this script 
   done
   wait "$1" 2>/dev/null
 }
+save_log() {
+  if mkdir -p "$(dirname "$log_dest")" 2>/dev/null; then cp "$log" "$log_dest" 2>/dev/null; fi
+}
 cleanup() {
   stop_pid "$registry_pid"
   stop_pid "$launcher_pid"
   registry_pid=
   launcher_pid=
-  if mkdir -p "$(dirname "$log_dest")" 2>/dev/null; then cp "$log" "$log_dest" 2>/dev/null; fi
+  save_log
   rm -rf "$daemon_dir"
 }
 fail() {

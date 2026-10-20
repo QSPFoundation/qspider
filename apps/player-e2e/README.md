@@ -150,19 +150,24 @@ Desktop: on Linux the run is always headless (below), so there is no headed mode
 `targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root, the equivalent of:
 
 ```bash
-env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS XDG_RUNTIME_DIR="$(mktemp -d)" \
-  GDK_BACKEND=x11 GIO_USE_VFS=local GVFS_DISABLE_FUSE=1 \
+d="$(mktemp -d)" && mkdir "$d"/config "$d"/data "$d"/cache "$d"/state && \
+env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS \
+  XDG_RUNTIME_DIR="$d" XDG_CONFIG_HOME="$d/config" XDG_DATA_HOME="$d/data" \
+  XDG_CACHE_HOME="$d/cache" XDG_STATE_HOME="$d/state" GSETTINGS_BACKEND=memory \
+  GDK_BACKEND=x11 GIO_USE_VFS=local GVFS_DISABLE_FUSE=1 QSPIDER_E2E_PRIVATE_SESSION=1 \
   xvfb-run -a dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
   wdio run apps/player-e2e/targets/desktop/wdio.conf.ts [args]
 ```
 
-Nothing in the run may touch your desktop session, so the layers nest outside-in:
+Nothing in the run may touch your desktop session or your home, so the layers nest outside-in:
 
 - `xvfb-run -a` is the outermost layer: everything inside sees only its virtual `DISPLAY`. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
-- A fresh private `XDG_RUNTIME_DIR` (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates, the app. `AT_SPI_BUS_ADDRESS` is removed. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
+- A fresh private dir (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates (dconf, portals), wdio and the app. It is `XDG_RUNTIME_DIR`, and `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` point at subdirectories of it. `GSETTINGS_BACKEND=memory` keeps settings out of dconf. So nothing writes `~/.config/dconf/user`, `~/.local/share/recently-used.xbel` or the like. `wdio.conf.ts` still sets its own per-run `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME` for tauri-driver and the app, which take precedence. `AT_SPI_BUS_ADDRESS` and `DBUS_SESSION_BUS_ADDRESS` are removed. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
 - `dbus-run-session` gives the run a private session bus.
-- `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on that bus. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself, from `/usr/libexec` on Debian/Ubuntu or `/usr/lib` on Arch, and exits 1 naming a missing one. It refuses to run if `org.a11y.Bus` already has an owner, which means it is not inside a private `dbus-run-session`. The daemons run without `DISPLAY`, so they can't publish `AT_SPI_BUS` on any X server, and with their own runtime dir. The script polls until the bus and then the registry answer, runs the command, then stops the two daemons it started (TERM, then KILL after about 2s) and exits with the command's status. The daemons' output goes to `artifacts/desktop/a11y-bus.log`. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
-- The script runs the child in its own process group. On Ctrl-C (or TERM/HUP) it signals the whole tree, waits up to 10s for it to exit (then KILLs it), removes the runtime dir and exits with `128+n`.
+- `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on that bus. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself, from `/usr/libexec` on Debian/Ubuntu or `/usr/lib` on Arch, and exits 1 naming a missing one. It fails closed: it refuses to run (exit 1) without `QSPIDER_E2E_PRIVATE_SESSION=1`, when `DBUS_SESSION_BUS_ADDRESS` is unset or is the desktop bus (`/run/user/$UID/bus`), or when `org.a11y.Bus` already has an owner. The daemons run without `DISPLAY`, so they can't publish `AT_SPI_BUS` on any X server, and with their own runtime dir. The script polls until the bus and then the registry answer, runs the command, then stops the two daemons it started (TERM, then KILL after about 2s) and exits with the command's status. The daemons' output goes to `artifacts/desktop/a11y-bus.log`, which is copied before any KILL. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
+- The runner starts the tree in its own process group. On Ctrl-C (or TERM/HUP) it passes the signal to the whole group and exits with `128+n`. When the child exits, normally or not, it TERMs what is left of the group (for example, services the private bus activated), waits up to 30s, then KILLs, and only then removes the private dir.
+
+Trade-off: the tree is a separate process group, so the terminal's Ctrl-C reaches it only through the runner. If the runner itself is SIGKILLed (or crashes), nothing forwards signals or cleans up: Xvfb, the private buses, wdio, tauri-driver and the app can be orphaned, and the private dir under `$TMPDIR` (`qspider-e2e-runtime-*`) stays behind. Find them by that process group (`ps -o pid,pgid,cmd`) and kill that group, not processes by name.
 
 On Windows and macOS the script runs `wdio run …` directly. CI runs plain `pnpm e2e:desktop`.
 

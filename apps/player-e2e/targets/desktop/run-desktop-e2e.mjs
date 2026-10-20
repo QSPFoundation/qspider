@@ -1,15 +1,17 @@
 // Runs the desktop E2E (WebdriverIO + tauri-driver): `node run-desktop-e2e.mjs [wdio args...]`.
-// On Linux the run is always headless and isolated from the developer's desktop session:
+// On Linux the run is always headless and isolated from the developer's desktop session and home:
 //   xvfb-run -a                      a virtual X display; everything below sees only its DISPLAY
-//   └ private environment            fresh XDG_RUNTIME_DIR (0700), no WAYLAND_DISPLAY / AT_SPI_BUS_ADDRESS,
-//                                    GDK_BACKEND=x11, gvfs kept local (no FUSE mounts)
+//   └ private environment            fresh private dir (0700) as XDG_RUNTIME_DIR, with XDG_CONFIG/DATA/CACHE/
+//                                    STATE_HOME under it; GSETTINGS_BACKEND=memory; no WAYLAND_DISPLAY,
+//                                    AT_SPI_BUS_ADDRESS or DBUS_SESSION_BUS_ADDRESS; GDK_BACKEND=x11;
+//                                    gvfs kept local (no FUSE mounts); QSPIDER_E2E_PRIVATE_SESSION=1
 //     └ dbus-run-session --          a private session bus
 //       └ atspi/with-a11y-bus.sh     the AT-SPI accessibility bus + registry (the native file dialog
-//                                    is driven through AT-SPI)
-//         └ wdio run …/wdio.conf.ts
+//                                    is driven through AT-SPI); refuses to run outside this tree
+//         └ wdio run …/wdio.conf.ts  (sets its own per-run XDG_* dirs for tauri-driver and the app)
 // Other platforms run wdio directly.
-import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { constants, tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import process from 'node:process';
@@ -19,27 +21,52 @@ import { fileURLToPath, URL } from 'node:url';
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const a11yBus = fileURLToPath(new URL('./atspi/with-a11y-bus.sh', import.meta.url));
 const wdio = ['wdio', 'run', 'apps/player-e2e/targets/desktop/wdio.conf.ts', ...process.argv.slice(2)];
+/** How long the process group gets to exit after TERM before it is KILLed. */
+const GROUP_EXIT_TIMEOUT_MS = 30_000;
 
 const env = { ...process.env };
 // Find the workspace's wdio even when not started through a pnpm script.
 env.PATH = [join(workspaceRoot, 'node_modules/.bin'), env.PATH].join(delimiter);
 
 let command = wdio;
-let runtimeDir;
+let privateDir;
 if (process.platform === 'linux') {
-  runtimeDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-runtime-')); // created 0700
-  env.XDG_RUNTIME_DIR = runtimeDir;
+  privateDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-runtime-')); // created 0700
+  env.XDG_RUNTIME_DIR = privateDir;
+  // Nothing in the tree (GTK, dconf-service and other services the private bus activates) writes the real home.
+  for (const [name, sub] of [
+    ['XDG_CONFIG_HOME', 'config'],
+    ['XDG_DATA_HOME', 'data'],
+    ['XDG_CACHE_HOME', 'cache'],
+    ['XDG_STATE_HOME', 'state'],
+  ]) {
+    env[name] = join(privateDir, sub);
+    mkdirSync(env[name], { mode: 0o700 });
+  }
+  // Version-manager shims (mise, asdf, …) read their config and trust state from the XDG dirs replaced
+  // above and can fail there, so pin node and python3 to the interpreters resolved with the real env.
+  const pinned = join(privateDir, 'bin');
+  mkdirSync(pinned);
+  symlinkSync(process.execPath, join(pinned, 'node'));
+  const python = spawnSync('python3', ['-c', 'import sys; print(sys.executable)'], { encoding: 'utf8' });
+  const pythonExe = python.status === 0 ? python.stdout.trim() : '';
+  if (pythonExe) symlinkSync(pythonExe, join(pinned, 'python3'));
+  env.PATH = [pinned, env.PATH].join(delimiter);
+  env.GSETTINGS_BACKEND = 'memory';
   delete env.WAYLAND_DISPLAY;
   delete env.AT_SPI_BUS_ADDRESS;
+  delete env.DBUS_SESSION_BUS_ADDRESS;
   env.GDK_BACKEND = 'x11';
   env.GIO_USE_VFS = 'local';
   env.GVFS_DISABLE_FUSE = '1';
+  // with-a11y-bus.sh refuses to run without it.
+  env.QSPIDER_E2E_PRIVATE_SESSION = '1';
   command = ['xvfb-run', '-a', 'dbus-run-session', '--', a11yBus, ...wdio];
 }
 
-function removeRuntimeDir() {
-  if (runtimeDir) rmSync(runtimeDir, { recursive: true, force: true });
-  runtimeDir = undefined;
+function removePrivateDir() {
+  if (privateDir) rmSync(privateDir, { recursive: true, force: true });
+  privateDir = undefined;
 }
 
 const [file, ...args] = command;
@@ -55,49 +82,54 @@ const child = spawn(file, args, {
   shell: process.platform === 'win32',
 });
 
-let signalled = false;
-function signalTree(signal) {
-  try {
-    if (ownGroup) process.kill(-child.pid, signal);
-    else child.kill(signal);
-  } catch {
-    // already gone
-  }
-}
+// Once the group is seen empty, its id may be reused: never signal it again.
+let groupGone = !ownGroup;
 function groupAlive() {
+  if (groupGone) return false;
   try {
     process.kill(-child.pid, 0);
     return true;
   } catch {
+    groupGone = true;
     return false;
   }
 }
-/** After a signal, gives the tree about 10s to clean up (the a11y wrapper stops its daemons), then KILLs it. */
-async function waitForGroup() {
-  if (!ownGroup || !signalled) return;
-  const deadline = Date.now() + 10_000;
+function signalTree(signal) {
+  if (!ownGroup) {
+    child.kill(signal);
+    return;
+  }
+  if (!groupAlive()) return;
+  try {
+    process.kill(-child.pid, signal);
+  } catch {
+    groupGone = true;
+  }
+}
+/** Stops what is left of the group (e.g. services the private bus activated): TERM, up to 30s, then KILL. */
+async function stopGroup() {
+  if (!ownGroup) return;
+  signalTree('SIGTERM');
+  const deadline = Date.now() + GROUP_EXIT_TIMEOUT_MS;
   while (groupAlive() && Date.now() < deadline) await delay(100);
-  if (groupAlive()) signalTree('SIGKILL');
+  signalTree('SIGKILL');
 }
 
 // Keep running until the tree has exited (so cleanup happens); pass the signal on to all of it.
 for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
-  process.on(signal, () => {
-    signalled = true;
-    signalTree(signal);
-  });
+  process.on(signal, () => signalTree(signal));
 }
 
 child.on('error', (error) => {
   process.stderr.write(`Could not start ${file}: ${error.message}\n`);
-  removeRuntimeDir();
+  removePrivateDir();
   process.exit(1);
 });
 
 child.on('exit', (code, signal) => {
   // A signal-terminated child exits 128+n, like a shell.
   const status = signal ? 128 + (constants.signals[signal] ?? 0) : (code ?? 1);
-  waitForGroup()
-    .finally(removeRuntimeDir)
+  stopGroup()
+    .finally(removePrivateDir)
     .finally(() => process.exit(status));
 });
