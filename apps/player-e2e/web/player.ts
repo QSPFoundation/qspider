@@ -3,11 +3,18 @@ import { ACTION, FIXTURE_PATH, TEXT } from '../shared/core-flow';
 
 const MAIN_TEXT_TIMEOUT = 15_000;
 
-/** Throws with the alert text if the shelf/import error toast is showing. */
+const mainContent = (page: Page) => page.locator('[data-qsp="main-content"]');
+// Error UI the player can show while opening a game:
+// - the import error toast (libs/game-shelf/src/components/error-alert.tsx), which closes
+//   itself after a few seconds, so it must be checked as soon as it can appear;
+// - the QSP engine error dialog (libs/renderer/src/qsp-error-alert.tsx), e.g. "Game not loaded!".
+const errorAlert = (page: Page) => page.locator('.qsp-toast-root.error').or(page.getByRole('alertdialog'));
+
+/** Throws with the alert text if an error toast or QSP error dialog is showing. */
 export async function failOnErrorAlert(page: Page): Promise<void> {
-  const alert = page.locator('.qsp-toast-root.error');
+  const alert = errorAlert(page).first();
   if (await alert.isVisible()) {
-    throw new Error(`Player shows an error alert: ${(await alert.innerText()).trim()}`);
+    throw new Error(`Player shows an error alert: ${(await alert.innerText()).replace(/\s+/g, ' ').trim()}`);
   }
 }
 
@@ -18,12 +25,7 @@ export async function clickAction(page: Page, label: string): Promise<void> {
 
 /** Waits until the main description panel shows exactly `text`. */
 export async function expectMainText(page: Page, text: string): Promise<void> {
-  try {
-    await expect(page.locator('[data-qsp="main-content"]')).toHaveText(text, { timeout: MAIN_TEXT_TIMEOUT });
-  } catch (err) {
-    await failOnErrorAlert(page);
-    throw err;
-  }
+  await expect(mainContent(page)).toHaveText(text, { timeout: MAIN_TEXT_TIMEOUT });
 }
 
 function saveSlot(page: Page, index: number) {
@@ -57,12 +59,19 @@ export async function returnToShelf(page: Page): Promise<void> {
   await expect(page.locator('.game-shelf')).toBeVisible();
 }
 
-/** Titles of the games on the shelf, once the shelf has rendered. */
-export async function shelfGameTitles(page: Page): Promise<string[]> {
+/**
+ * Waits until the shelf lists exactly `titles`, in order, so a duplicate entry fails.
+ * An empty list means the shelf shows its empty state.
+ */
+export async function expectShelfTitles(page: Page, titles: string[]): Promise<void> {
   const shelf = page.locator('.game-shelf');
-  const titles = shelf.getByRole('heading', { level: 3 });
-  await expect(shelf.getByText('Game shelf is empty').or(titles.first())).toBeVisible();
-  return titles.allInnerTexts();
+  const cardTitles = shelf.getByRole('heading', { level: 3 });
+  if (titles.length === 0) {
+    await expect(shelf.getByText('Game shelf is empty')).toBeVisible();
+    await expect(cardTitles).toHaveCount(0);
+  } else {
+    await expect(cardTitles).toHaveText(titles);
+  }
 }
 
 export async function openFromShelf(page: Page, title: string): Promise<void> {
@@ -73,12 +82,22 @@ export async function openFromShelf(page: Page, title: string): Promise<void> {
     .click();
 }
 
-/** Starts from the app root and opens the e2e fixture through the file input. */
-export async function openFixture(page: Page): Promise<void> {
-  await page.goto('/');
+/**
+ * Opens the e2e fixture through the shelf's file input. Waits for whichever comes
+ * first, the game text or the import error toast, and fails with the toast's text.
+ */
+export async function importFixture(page: Page): Promise<void> {
   await page.locator('#openGame').setInputFiles(FIXTURE_PATH);
+  const started = mainContent(page).filter({ hasText: TEXT.start });
+  await expect(started.or(errorAlert(page)).first()).toBeVisible({ timeout: MAIN_TEXT_TIMEOUT });
   await failOnErrorAlert(page);
   await expectMainText(page, TEXT.start);
+}
+
+/** Starts from the app root and opens the e2e fixture. */
+export async function openFixture(page: Page): Promise<void> {
+  await page.goto('/');
+  await importFixture(page);
 }
 
 /** From the start location: goes to the room and increments the counter `n` times. */

@@ -1,28 +1,26 @@
-import { expect, test } from '@playwright/test';
-import { ACTION, FIXTURE_PATH, SAVE_SLOT, SHELF_TITLE, TEXT } from '../shared/core-flow';
+import { test } from '@playwright/test';
+import { ACTION, SAVE_SLOT, SHELF_TITLE, TEXT } from '../shared/core-flow';
 import {
   chooseSaveSlot,
   clickAction,
   expectMainText,
+  expectShelfTitles,
   expectSlotEmpty,
-  failOnErrorAlert,
+  importFixture,
   openFixture,
   openFromShelf,
   reachCounter,
   returnToShelf,
-  shelfGameTitles,
 } from './player';
 
 // Each test runs in a fresh browser context: empty shelf, no saves.
 
 test('opening a game file starts it and adds it to the shelf', async ({ page }) => {
   await page.goto('/');
-  expect(await shelfGameTitles(page)).toEqual([]); // clean state
-  await page.locator('#openGame').setInputFiles(FIXTURE_PATH);
-  await failOnErrorAlert(page);
-  await expectMainText(page, TEXT.start);
+  await expectShelfTitles(page, []); // clean state
+  await importFixture(page);
   await returnToShelf(page);
-  expect(await shelfGameTitles(page)).toContain(SHELF_TITLE);
+  await expectShelfTitles(page, [SHELF_TITLE]);
 });
 
 test('actions update the game text', async ({ page }) => {
