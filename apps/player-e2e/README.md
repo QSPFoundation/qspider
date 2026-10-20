@@ -43,7 +43,7 @@ apps/player-e2e/
 
 ## Rules
 
-Scenarios are written under these rules. `nx lint player-e2e` enforces the mechanical ones (`eslint.config.js`, tested by `lint-rules.spec.ts`), all as errors:
+Scenarios are written under these rules. `nx lint player-e2e` enforces the mechanical ones (`eslint.config.js`), all as errors:
 
 - `scenarios/**`: no static imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
 - `screenplay/**`: no static imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. `support/scenario.ts` may reach `targets/` (it loads the target's scenario shim).
@@ -144,7 +144,7 @@ The rules apply now: elements use only the theme contract, so they are the same 
 
 - `pnpm e2e:web` - build the player, then run Playwright.
 - `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO through `targets/desktop/run-desktop-e2e.mjs` (below). Extra arguments to that script go to `wdio run`.
-- `pnpm nx test player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), the private-session guard (`targets/desktop/private-session.ts`) and the lint rules (`lint-rules.spec.ts`).
+- `pnpm nx test player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), and the private-session guard (`targets/desktop/private-session.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
 ## Prerequisites
