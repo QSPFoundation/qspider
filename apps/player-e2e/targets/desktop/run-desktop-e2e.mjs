@@ -2,8 +2,9 @@
 // On Linux the run is always headless and isolated from the developer's desktop session and home:
 //   xvfb-run -a                      a virtual X display; everything below sees only its DISPLAY
 //   └ private environment            fresh private dir (0700) as XDG_RUNTIME_DIR, with XDG_CONFIG/DATA/CACHE/
-//                                    STATE_HOME under it; GSETTINGS_BACKEND=memory; no WAYLAND_DISPLAY,
-//                                    AT_SPI_BUS_ADDRESS or DBUS_SESSION_BUS_ADDRESS; GDK_BACKEND=x11;
+//                                    STATE_HOME under it; GSETTINGS_BACKEND=memory; no variable that points
+//                                    at the desktop session (Wayland, D-Bus, AT-SPI, XDG_SESSION_*, audio,
+//                                    ssh agent, GTK_MODULES, Hyprland); GDK_BACKEND=x11;
 //                                    gvfs kept local (no FUSE mounts); QSPIDER_E2E_PRIVATE_SESSION=1
 //     └ dbus-run-session --          a private session bus
 //       └ atspi/with-a11y-bus.sh     the AT-SPI accessibility bus + registry (the native file dialog
@@ -30,7 +31,14 @@ env.PATH = [join(workspaceRoot, 'node_modules/.bin'), env.PATH].join(delimiter);
 
 let command = wdio;
 let privateDir;
-if (process.platform === 'linux') {
+
+function removePrivateDir() {
+  if (privateDir) rmSync(privateDir, { recursive: true, force: true });
+  privateDir = undefined;
+}
+
+/** Points the env at a fresh private dir and strips everything that reaches the desktop session. */
+function preparePrivateSession() {
   privateDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-runtime-')); // created 0700
   env.XDG_RUNTIME_DIR = privateDir;
   // Nothing in the tree (GTK, dconf-service and other services the private bus activates) writes the real home.
@@ -53,34 +61,51 @@ if (process.platform === 'linux') {
   if (pythonExe) symlinkSync(pythonExe, join(pinned, 'python3'));
   env.PATH = [pinned, env.PATH].join(delimiter);
   env.GSETTINGS_BACKEND = 'memory';
-  delete env.WAYLAND_DISPLAY;
-  delete env.AT_SPI_BUS_ADDRESS;
-  delete env.DBUS_SESSION_BUS_ADDRESS;
+  // Everything that points at the desktop session: its display, buses, audio, agents and compositor.
+  for (const name of [
+    'WAYLAND_DISPLAY',
+    'AT_SPI_BUS_ADDRESS',
+    'DBUS_SESSION_BUS_ADDRESS',
+    'XDG_SESSION_TYPE',
+    'XDG_CURRENT_DESKTOP',
+    'XDG_SESSION_DESKTOP',
+    'PULSE_SERVER',
+    'PIPEWIRE_REMOTE',
+    'GTK_MODULES',
+    'SSH_AUTH_SOCK',
+    'HYPRLAND_INSTANCE_SIGNATURE',
+  ]) {
+    delete env[name];
+  }
   env.GDK_BACKEND = 'x11';
   env.GIO_USE_VFS = 'local';
   env.GVFS_DISABLE_FUSE = '1';
-  // with-a11y-bus.sh refuses to run without it.
+  // with-a11y-bus.sh, wdio.conf.ts and dialog.py refuse to run without it.
   env.QSPIDER_E2E_PRIVATE_SESSION = '1';
   command = ['xvfb-run', '-a', 'dbus-run-session', '--', a11yBus, ...wdio];
 }
 
-function removePrivateDir() {
-  if (privateDir) rmSync(privateDir, { recursive: true, force: true });
-  privateDir = undefined;
-}
-
-const [file, ...args] = command;
 const ownGroup = process.platform !== 'win32';
-const child = spawn(file, args, {
-  cwd: workspaceRoot,
-  env,
-  stdio: 'inherit',
-  // Its own process group, so a signal reaches the whole tree (xvfb-run, Xvfb, the buses, wdio, the app),
-  // not only xvfb-run, which would exit and orphan the rest.
-  detached: ownGroup,
-  // wdio is a .cmd shim on Windows.
-  shell: process.platform === 'win32',
-});
+let child;
+try {
+  // Anything here that throws (the private dir, the symlinks, the python probe, spawn) must not leave
+  // the private dir behind.
+  if (process.platform === 'linux') preparePrivateSession();
+  const [file, ...args] = command;
+  child = spawn(file, args, {
+    cwd: workspaceRoot,
+    env,
+    stdio: 'inherit',
+    // Its own process group, so a signal reaches the whole tree (xvfb-run, Xvfb, the buses, wdio, the app),
+    // not only xvfb-run, which would exit and orphan the rest.
+    detached: ownGroup,
+    // wdio is a .cmd shim on Windows.
+    shell: process.platform === 'win32',
+  });
+} catch (error) {
+  removePrivateDir();
+  throw error;
+}
 
 // Once the group is seen empty, its id may be reused: never signal it again.
 let groupGone = !ownGroup;
@@ -121,7 +146,7 @@ for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
 }
 
 child.on('error', (error) => {
-  process.stderr.write(`Could not start ${file}: ${error.message}\n`);
+  process.stderr.write(`Could not start ${command[0]}: ${error.message}\n`);
   removePrivateDir();
   process.exit(1);
 });
