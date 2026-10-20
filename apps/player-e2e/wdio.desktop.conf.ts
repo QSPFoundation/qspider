@@ -63,6 +63,30 @@ function waitForPort(port: number, timeoutMs: number): Promise<void> {
   });
 }
 
+/** Resolves true when something already accepts TCP connections on `port`. */
+function isPortInUse(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = connect(port, '127.0.0.1');
+    socket.once('connect', () => {
+      socket.end();
+      resolve(true);
+    });
+    socket.once('error', () => {
+      socket.destroy();
+      resolve(false);
+    });
+  });
+}
+
+/** Fails the run when a foreign process holds the driver port: WDIO would talk to it instead of our tauri-driver. */
+async function assertDriverPortFree(): Promise<void> {
+  if (await isPortInUse(DRIVER_PORT)) {
+    throw new SevereServiceError(
+      `Port ${DRIVER_PORT} (tauri-driver) is already in use by another process. Stop it and re-run.`,
+    );
+  }
+}
+
 const safeName = (s: string): string => s.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
 
 export const config: WebdriverIO.Config = {
@@ -83,21 +107,25 @@ export const config: WebdriverIO.Config = {
   waitforTimeout: 10_000,
   specFileRetries: 0,
   framework: 'mocha',
-  mochaOpts: { ui: 'bdd', timeout: 120_000, retries: 0 },
+  // forbidOnly: a stray it.only would silently skip the rest of the suite.
+  mochaOpts: { ui: 'bdd', timeout: 120_000, retries: 0, forbidOnly: true },
   reporters: ['spec'],
 
-  onPrepare() {
-    const missing = findMissingPrereqs(process.platform, which);
+  async onPrepare() {
+    const missing = findMissingPrereqs(process.platform, which, process.env);
     if (missing.length > 0) {
       // SevereServiceError makes WDIO abort with a non-zero exit instead of logging and continuing.
       throw new SevereServiceError(`Missing desktop E2E prerequisites: ${missing.join(', ')}. ${INSTALL_HINT}`);
     }
+    await assertDriverPortFree();
     rmSync(artifactsDir, { recursive: true, force: true });
     mkdirSync(artifactsDir, { recursive: true });
   },
 
   async beforeSession() {
     sessionFailed = false;
+    // Re-checked per session: the previous session's driver has exited by now (afterSession awaits it).
+    await assertDriverPortFree();
     sessionDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
     const xdg = {
       XDG_DATA_HOME: join(sessionDir, 'data'),
@@ -114,6 +142,12 @@ export const config: WebdriverIO.Config = {
     tauriDriver.stderr?.pipe(log);
     process.once('exit', () => tauriDriver?.kill());
     await waitForPort(DRIVER_PORT, 10_000);
+    // If our driver died (e.g. failed to bind), the port answer came from someone else.
+    if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
+      throw new SevereServiceError(
+        `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
+      );
+    }
   },
 
   async afterTest(test, _context, { passed }) {

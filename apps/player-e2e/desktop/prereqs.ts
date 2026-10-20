@@ -7,12 +7,24 @@ const PREREQS: Partial<Record<NodeJS.Platform, string[]>> = {
   win32: ['tauri-driver', 'msedgedriver'],
 };
 
-export const INSTALL_HINT =
-  'Install: cargo install tauri-driver --locked; Arch: webkit2gtk-4.1 provides WebKitWebDriver; Debian/Ubuntu: webkit2gtk-driver';
+/** Name reported when Linux has no display for the app window. */
+export const DISPLAY_PREREQ = 'a display (DISPLAY or WAYLAND_DISPLAY; headless: xvfb-run -a)';
 
-/** Returns the names of the tools the desktop E2E needs on `platform` that `which` can't find. */
-export function findMissingPrereqs(platform: NodeJS.Platform, which: (cmd: string) => string | null): string[] {
-  return (PREREQS[platform] ?? []).filter((cmd) => which(cmd) === null);
+export const INSTALL_HINT =
+  'Install: cargo install tauri-driver --locked, and make sure ~/.cargo/bin is on PATH; Arch: webkit2gtk-4.1 provides WebKitWebDriver; Debian/Ubuntu: webkit2gtk-driver';
+
+/**
+ * Returns the names of the prerequisites the desktop E2E needs on `platform` that are missing:
+ * tools `which` can't find and, on Linux, a display when neither DISPLAY nor WAYLAND_DISPLAY is set in `env`.
+ */
+export function findMissingPrereqs(
+  platform: NodeJS.Platform,
+  which: (cmd: string) => string | null,
+  env: Record<string, string | undefined>,
+): string[] {
+  const missing = (PREREQS[platform] ?? []).filter((cmd) => which(cmd) === null);
+  if (platform === 'linux' && !env['DISPLAY'] && !env['WAYLAND_DISPLAY']) missing.push(DISPLAY_PREREQ);
+  return missing;
 }
 
 /** Resolves `cmd` on PATH (honouring PATHEXT on Windows); null when not found. */
