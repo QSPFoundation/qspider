@@ -197,7 +197,6 @@ export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> 
   return [];
 }
 
-
 export function toggleSortDirection(): void {
   qspSortDirection$.update((current) => (current === 'asc' ? 'desc' : 'asc'));
 }

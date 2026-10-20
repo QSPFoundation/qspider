@@ -71,16 +71,24 @@ export const CatalogGameCard: React.FC<{ game: CatalogGame }> = (props) => {
         </div>
         <div className="q-catalog__card-engagement">
           <Tooltip content={t('Downloads')}>
-            <span aria-label={`${t('Downloads')}: ${game.downloads_count}`}><DownloadIcon aria-hidden="true" /> {game.downloads_count}</span>
+            <span aria-label={`${t('Downloads')}: ${game.downloads_count}`}>
+              <DownloadIcon aria-hidden="true" /> {game.downloads_count}
+            </span>
           </Tooltip>
           <Tooltip content={t('Plays')}>
-            <span aria-label={`${t('Plays')}: ${game.plays_count}`}><PlayIcon aria-hidden="true" /> {game.plays_count}</span>
+            <span aria-label={`${t('Plays')}: ${game.plays_count}`}>
+              <PlayIcon aria-hidden="true" /> {game.plays_count}
+            </span>
           </Tooltip>
           <Tooltip content={t('Likes')}>
-            <span aria-label={`${t('Likes')}: ${game.likes_count}`}><HeartIcon aria-hidden="true" /> {game.likes_count}</span>
+            <span aria-label={`${t('Likes')}: ${game.likes_count}`}>
+              <HeartIcon aria-hidden="true" /> {game.likes_count}
+            </span>
           </Tooltip>
           <Tooltip content={t('Comments')}>
-            <span aria-label={`${t('Comments')}: ${game.comments_count}`}><ChatBubbleIcon aria-hidden="true" /> {game.comments_count}</span>
+            <span aria-label={`${t('Comments')}: ${game.comments_count}`}>
+              <ChatBubbleIcon aria-hidden="true" /> {game.comments_count}
+            </span>
           </Tooltip>
         </div>
         <div className="q-catalog__card-buttons">

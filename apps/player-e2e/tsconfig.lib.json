@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "types": ["node"]
+  },
+  "include": [
+    "shared/**/*.ts",
+    "web/**/*.ts",
+    "desktop/prereqs.ts",
+    "desktop/prereqs.spec.ts",
+    "*.config.ts",
+    "*.config.mts"
+  ]
+}

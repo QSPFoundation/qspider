@@ -2,13 +2,7 @@ import { useAtom } from '@xoid/react';
 import { useTranslation } from 'react-i18next';
 import * as RadixTabs from '@radix-ui/react-tabs';
 import * as RadixTooltip from '@radix-ui/react-tooltip';
-import {
-  debugState$,
-  debugActions,
-  enableDebugMode,
-  disableDebugMode,
-  canStep$,
-} from '@qspider/game-state';
+import { debugState$, debugActions, enableDebugMode, disableDebugMode, canStep$ } from '@qspider/game-state';
 import { TooltipButton } from './tooltip-button';
 import { formatEventArgs } from './debug-utils';
 
@@ -122,7 +116,11 @@ export const LocationRightPanel: React.FC = () => {
                 <RadixTooltip.Provider>
                   <TooltipButton
                     onClick={debugActions.toggleAutoPauseOnLinks}
-                    tooltip={debugState.autoPauseOnLinks ? t('Disable pausing on link execution') : t('Enable pausing on link execution')}
+                    tooltip={
+                      debugState.autoPauseOnLinks
+                        ? t('Disable pausing on link execution')
+                        : t('Enable pausing on link execution')
+                    }
                     className={`q-button qsp-debugger-toggle-button ${debugState.autoPauseOnLinks ? 'enabled' : 'disabled'}`}
                   >
                     {debugState.autoPauseOnLinks ? t('Disable') : t('Enable')}
@@ -136,9 +134,15 @@ export const LocationRightPanel: React.FC = () => {
             <div className="qsp-debugger-execution-label">{t('Current Execution')}</div>
             {debugState.currentRecord ? (
               <div className="qsp-debugger-current-execution">
-                <div>{t('Location')}: {debugState.currentRecord.loc}</div>
-                <div>{t('Line')}: {debugState.currentRecord.line}</div>
-                <div>{t('Action')}: {debugState.currentRecord.actIndex}</div>
+                <div>
+                  {t('Location')}: {debugState.currentRecord.loc}
+                </div>
+                <div>
+                  {t('Line')}: {debugState.currentRecord.line}
+                </div>
+                <div>
+                  {t('Action')}: {debugState.currentRecord.actIndex}
+                </div>
               </div>
             ) : (
               <div className="qsp-debugger-no-data">{t('No execution data')}</div>
@@ -211,7 +215,9 @@ export const LocationRightPanel: React.FC = () => {
               </TooltipButton>
             </div>
           </RadixTooltip.Provider>
-          <div className="qsp-debugger-events-count">{t('Events')}: {debugState.eventLog.length}</div>
+          <div className="qsp-debugger-events-count">
+            {t('Events')}: {debugState.eventLog.length}
+          </div>
         </div>
         <div className="qsp-debugger-events-list">
           {debugState.eventLog

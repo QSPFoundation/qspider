@@ -24,10 +24,18 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 
 ### Testing and Quality
 
-- `pnpm test` - Run tests for all projects
+- Unit tests: wiring comes in phase 4; existing Vitest specs run via `npx vitest run`
 - `pnpm lint` - Run ESLint on all projects
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting
+- `pnpm typecheck` - Type-check all projects
+- `pnpm check:rust` - Rust fmt, clippy and tests for `src-tauri`
+- `pnpm e2e:web` - Web E2E (Playwright); needs `CHROME_BIN=/usr/bin/chromium` or `pnpm exec playwright install chromium`
+- `pnpm e2e:desktop` - Desktop E2E (WebdriverIO + tauri-driver); needs `tauri-driver` on PATH (`~/.cargo/bin`), `WebKitWebDriver` and Rust
+- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web E2E (no desktop E2E)
+- `pnpm check:full` - `pnpm check` plus desktop E2E
+
+Before declaring work done, run `pnpm check:full` and report its result. `pnpm check` is the fast subset (no desktop E2E). Desktop E2E is currently red on a known Tauri 2 bug (see `apps/player-e2e/README.md`); report it honestly, don't hide or skip it. Until that fix lands, the expected desktop result is exactly (tests in `apps/player-e2e/desktop/core-flow.e2e.ts`): `actions update the game text` passes; the other three (`opening a game file starts it and adds it to the shelf`, `loading a save restores the saved state`, `a game on the shelf can be reopened`) fail with the webview landing on `qsp://localhost/?…pause=true`; on the same bug one of those three may instead time out after 120s (seen in ~3 of 10 runs, layout-independent) — that is the known failure too. Any other desktop failure, or any failure in `pnpm check`, is a regression. Setup details: `apps/player-e2e/README.md`.
 
 ### NX Specific Commands
 

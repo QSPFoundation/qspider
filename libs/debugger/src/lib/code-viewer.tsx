@@ -3,12 +3,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as RadixSelect from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
-import {
-  debugState$,
-  debugActions,
-  codeInspectorActions,
-  type LocationInfo,
-} from '@qspider/game-state';
+import { debugState$, debugActions, codeInspectorActions, type LocationInfo } from '@qspider/game-state';
 import { MonacoCodeViewer } from './monaco-code-viewer';
 
 export const CodeViewer: React.FC = () => {
@@ -30,9 +25,10 @@ export const CodeViewer: React.FC = () => {
   useEffect(() => {
     if (debugState.isEnabled && debugState.currentRecord) {
       // Only auto-select if the current record actually changed (i.e., we stepped)
-      const recordChanged = lastCurrentRecord?.loc !== debugState.currentRecord.loc ||
-                           lastCurrentRecord?.line !== debugState.currentRecord.line ||
-                           lastCurrentRecord?.actIndex !== debugState.currentRecord.actIndex;
+      const recordChanged =
+        lastCurrentRecord?.loc !== debugState.currentRecord.loc ||
+        lastCurrentRecord?.line !== debugState.currentRecord.line ||
+        lastCurrentRecord?.actIndex !== debugState.currentRecord.actIndex;
 
       if (recordChanged) {
         setLastCurrentRecord(debugState.currentRecord);

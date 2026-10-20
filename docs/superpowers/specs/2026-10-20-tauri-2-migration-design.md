@@ -104,7 +104,7 @@ Success: existing desktop users and players of standalone games auto-update to t
   - Read the game uuid from the **first path segment**, not the host (see §2).
   - Keep behavior: 200 for POST with an empty body, `Access-Control-Allow-Origin: *`, mime from the extension, 404 for a missing file or unknown game, and the lowercase-path fallback.
   - No panics on malformed input. Replace the `unwrap()`s and `?`s with 400/404 responses.
-- **`read_resource`** uses the same URL parsing as the protocol (one shared function). It returns raw bytes via `tauri::ipc::Response` instead of a JSON number array; the JS side receives an `ArrayBuffer`. *(My call: the function is being rewritten anyway, and this removes a large serialization cost for images and audio.)*
+- **`read_resource`** uses the same URL parsing as the protocol (one shared function). It returns raw bytes via `tauri::ipc::Response` instead of a JSON number array; the JS side receives an `ArrayBuffer`. _(My call: the function is being rewritten anyway, and this removes a large serialization cost for images and audio.)_
 - `prepare_game_start` is unchanged in behavior, but returns an error rather than panicking on a bad uuid.
 
 ### 2. Game URL scheme
@@ -122,12 +122,13 @@ v2 serves custom protocols at `qsp://localhost/<path>` (macOS/Linux) and `http(s
   - rebuild `loadConfig.url` with the new helper
   - rewrite `icon` if it starts with the game's old URL prefix
   - flush once if anything changed
-  
+
   The migration is idempotent. A game whose old URL can't be mapped keeps the existing removal rule (it is dropped only if `prepare_game_start` fails, as today).
+
 - Catalog-downloaded games (stored under `<appData>/<id>/game/`) go through the same path, since they also have `local_id`/`local_path`.
 - Saves need no migration (they are file-based and keyed by game id).
 - `localStorage` (theme, debugger layout) survives because the webview origin is unchanged: `tauri://localhost` on macOS/Linux, and `https://tauri.localhost` on Windows via `useHttpsScheme: true`.
-- Window size/position from `window-state` may reset once if the v2 plugin uses a different state file. *(My call: acceptable, no migration.)*
+- Window size/position from `window-state` may reset once if the v2 plugin uses a different state file. _(My call: acceptable, no migration.)_
 
 ### 4. Config and permissions
 
@@ -151,12 +152,13 @@ v2 serves custom protocols at `qsp://localhost/<path>` (macOS/Linux) and `http(s
   - webview drag-drop
 
   Game folders are not exposed to the fs plugin; they are read only through the `qsp` protocol / `read_resource`.
+
 - `standalone.conf.json` becomes a v2-schema overlay with the same purpose (local dev only).
-- Keep the `devtools` cargo feature, so release builds keep devtools as today. *(My call: parity, and useful for game authors.)*
+- Keep the `devtools` cargo feature, so release builds keep devtools as today. _(My call: parity, and useful for game authors.)_
 
 ### 5. JS side
 
-All Tauri imports move into `libs/desktop`. `apps/player-desktop` and `libs/importers` call desktop functions through `@qspider/env` (or `libs/desktop` exports), and do not import `@tauri-apps/*` directly. *(My call: this is the "mobile-ready boundary". A future mobile env replaces `libs/desktop`, not app code.)*
+All Tauri imports move into `libs/desktop`. `apps/player-desktop` and `libs/importers` call desktop functions through `@qspider/env` (or `libs/desktop` exports), and do not import `@tauri-apps/*` directly. _(My call: this is the "mobile-ready boundary". A future mobile env replaces `libs/desktop`, not app code.)_
 
 - `@tauri-apps/api` v2 plus the plugin JS packages.
 - `tauri.invoke` → `invoke` from `@tauri-apps/api/core`.
@@ -175,8 +177,8 @@ All Tauri imports move into `libs/desktop`. `apps/player-desktop` and `libs/impo
 - Open dialog → `@tauri-apps/plugin-dialog` `open()`, same filters/behavior.
 - File drop (`app.tsx`) → `getCurrentWebview().onDragDropEvent()`. Map `enter`/`over` to today's hover handling, `drop` to today's drop handling, and `leave` to today's cancelled handling. The payload is `{ paths }`, not a bare array.
 - `data-fetcher.ts`: `read_resource` now returns an `ArrayBuffer`. Keep the UTF-16LE BOM detection.
-- **Fixes standalone:** the desktop `data-fetcher` routes only game-protocol URLs (`isGameUrl`) through `read_resource`. Any other URL, such as the bundled standalone game at `<app origin>/game/`, uses plain `fetch`, as the browser env does. *(My call.)*
-- **XHR override:** keep today's platform split. The override in `setup.ts` applies on macOS/Linux only; on Windows, game XHRs keep going straight to the protocol. *(My call: no behavior change on the platform that works today.)*
+- **Fixes standalone:** the desktop `data-fetcher` routes only game-protocol URLs (`isGameUrl`) through `read_resource`. Any other URL, such as the bundled standalone game at `<app origin>/game/`, uses plain `fetch`, as the browser env does. _(My call.)_
+- **XHR override:** keep today's platform split. The override in `setup.ts` applies on macOS/Linux only; on Windows, game XHRs keep going straight to the protocol. _(My call: no behavior change on the platform that works today.)_
 
 ### 6. Updater and the v1→v2 bridge
 
@@ -193,15 +195,15 @@ All Tauri imports move into `libs/desktop`. `apps/player-desktop` and `libs/impo
   - The bridge release and its assets must **never be deleted** from GitHub Releases, because the frozen `updater.json` links to them. Note this in the release description.
   - If the bridge has a bug, publish a fixed bridge (e.g. 2.0.1, also `v1Compatible`) and repoint `updater.json` to it by changing the pinned bridge tag (§9).
 - **How the bridge flag is set:** the builder decides whether it's a config overlay used only for the bridge build or a workflow input. Either way, it must be impossible for a normal release to write `updater.json`.
-- **Standalone games:** no bridge. The generator always emits the v2 format. The author's `updater.endpoint` is used as-is; the migration guide recommends a new file name (e.g. `updater-v2.json`), so any v1 players' apps don't try to apply a package they can't read. *(My call: no known standalone players.)*
-- CI passes the signing key as `TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, **mapped from the existing secrets** (`${{ secrets.TAURI_PRIVATE_KEY }}`), so no secret has to be renamed in any repo. *(My call.)*
+- **Standalone games:** no bridge. The generator always emits the v2 format. The author's `updater.endpoint` is used as-is; the migration guide recommends a new file name (e.g. `updater-v2.json`), so any v1 players' apps don't try to apply a package they can't read. _(My call: no known standalone players.)_
+- CI passes the signing key as `TAURI_SIGNING_PRIVATE_KEY` / `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`, **mapped from the existing secrets** (`${{ secrets.TAURI_PRIVATE_KEY }}`), so no secret has to be renamed in any repo. _(My call.)_
 - Keep `updaterJsonPreferNsis: true`.
 
 ### 7. Game-build config for standalone builds
 
 Game authors stop editing Tauri config. qSpider owns a small config file and a generator.
 
-- **File:** `qspider.desktop.json` in the game repo root, which lands in `public/game/` in CI. *(Name is my call. A distinct name avoids confusion with the old v1 file.)* A JSON Schema ships in the qSpider repo for editor autocomplete. Fields:
+- **File:** `qspider.desktop.json` in the game repo root, which lands in `public/game/` in CI. _(Name is my call. A distinct name avoids confusion with the old v1 file.)_ A JSON Schema ships in the qSpider repo for editor autocomplete. Fields:
   - `productName`, `version`
   - `identifier` — must equal the old `tauri.bundle.identifier` for existing games
   - `publisher`, `copyright`, `category`, `shortDescription`, `longDescription`
@@ -212,7 +214,7 @@ Game authors stop editing Tauri config. qSpider owns a small config file and a g
   - If `qspider.desktop.json` is missing but an old `game.build.conf.json` exists, fail with a message pointing to the migration guide.
   - Required fields missing → fail and name them.
 - **Auto-convert helper:** the same script has a `--from-v1 <game.build.conf.json>` mode that prints a `qspider.desktop.json` built from an old v1 file. This carries over the identifier exactly, so authors don't have to retype it. It **lists every v1 field it dropped** (anything outside the schema: custom targets, icons, NSIS, CLI, …), so nothing is lost silently.
-- **Updater enabled but empty:** `enabled: true` with an empty endpoint or pubkey (the template's v1 default) is treated as disabled, with a warning. *(My call.)*
+- **Updater enabled but empty:** `enabled: true` with an empty endpoint or pubkey (the template's v1 default) is treated as disabled, with a warning. _(My call.)_
 - The JSON-schema version of the config gets a `"$schema"` / version field, so it can evolve later.
 
 ### 8. Template repo update

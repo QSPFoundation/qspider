@@ -1,0 +1,12 @@
+# start
+*pl 'E2E START'
+counter = 0
+act 'Go to room': gt 'room'
+---
+
+# room
+*pl 'ROOM counter=<<counter>>'
+act 'Increment': counter += 1 & gt 'room'
+act 'Save': savegame
+act 'Load': opengame
+---

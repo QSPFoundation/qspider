@@ -147,12 +147,15 @@ export const qspLanguageDefinition: languages.IMonarchLanguage = {
       [/[$#%][a-zA-Z_]\w*/, 'variable'],
 
       // Keywords and identifiers (keywords checked first via cases)
-      [/[a-zA-Z_]\w*/, {
-        cases: {
-          '@keywords': 'keyword',
-          '@default': 'identifier'
-        }
-      }],
+      [
+        /[a-zA-Z_]\w*/,
+        {
+          cases: {
+            '@keywords': 'keyword',
+            '@default': 'identifier',
+          },
+        },
+      ],
 
       // Comments (if QSP supports them, might need adjustment)
       [/!.*$/, 'comment'],

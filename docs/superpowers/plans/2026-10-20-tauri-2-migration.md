@@ -5,6 +5,7 @@
 **Goal:** Move qSpider desktop and the standalone desktop builds from Tauri v1 to v2. Existing users keep all their data, and v1 installs can auto-update to v2 at any time.
 
 **Architecture:**
+
 - The Rust shell is upgraded to Tauri 2 plus official plugins. The `qsp` protocol and `read_resource` share one URL parser that takes the game uuid from the path.
 - All Tauri JS calls live in `libs/desktop`. Apps reach them via `@qspider/desktop` / `@qspider/env`.
 - Standalone game repos use a qSpider-owned `qspider.desktop.json`. A Node generator turns it into a Tauri v2 config overlay.
@@ -32,22 +33,24 @@
 
 ## Review Focus
 
-1. **Game files with spaces or Cyrillic names, raw or percent-encoded in the URL.** Must load. *Test in Task 1.*
-2. **Resource path in different case than on disk** (old games reference `IMG/Pic.PNG`). The lowercase fallback still applies. *Test in Task 1.*
-3. **Malformed protocol/IPC URLs** (no uuid segment, invalid uuid, unknown game). Return 404/400 or an `Err`, never panic. A panic in the protocol handler kills the app. *Test in Task 1.*
-4. **Library entries whose stored URL is already new-format, or that have no `local_id`** (web-imported or legacy). The migration leaves them untouched and doesn't rewrite the file needlessly. *Test in Task 3.*
-5. **`game.cfg` saved as UTF-16LE with BOM.** Still decoded correctly on both the IPC path and the plain-`fetch` path. *Test in Task 2.*
+1. **Game files with spaces or Cyrillic names, raw or percent-encoded in the URL.** Must load. _Test in Task 1._
+2. **Resource path in different case than on disk** (old games reference `IMG/Pic.PNG`). The lowercase fallback still applies. _Test in Task 1._
+3. **Malformed protocol/IPC URLs** (no uuid segment, invalid uuid, unknown game). Return 404/400 or an `Err`, never panic. A panic in the protocol handler kills the app. _Test in Task 1._
+4. **Library entries whose stored URL is already new-format, or that have no `local_id`** (web-imported or legacy). The migration leaves them untouched and doesn't rewrite the file needlessly. _Test in Task 3._
+5. **`game.cfg` saved as UTF-16LE with BOM.** Still decoded correctly on both the IPC path and the plain-`fetch` path. _Test in Task 2._
 
 ---
 
 ### Task 1: Rust shell and Tauri v2 config
 
 **Files:**
+
 - Modify: `src-tauri/Cargo.toml`, `src-tauri/src/main.rs`, `src-tauri/tauri.conf.json`, `src-tauri/standalone.conf.json`
 - Create: `src-tauri/src/game_uri.rs`, `src-tauri/capabilities/default.json`
 - Modify: `package.json` (`@tauri-apps/cli` → `^2`)
 
 **Interfaces:**
+
 - Produces (Rust):
   - `game_uri::parse_game_uri(uri: &str) -> Option<(Uuid, String)>`
   - `game_uri::read_game_file(root: &Path, rel: &str) -> std::io::Result<Vec<u8>>`
@@ -177,11 +180,13 @@ git commit -m "feat(desktop): migrate rust shell and config to tauri 2"
 ### Task 2: Game URLs and data fetching in `libs/desktop`
 
 **Files:**
+
 - Modify: `package.json` (`@tauri-apps/api@^2`, `@tauri-apps/plugin-{fs,dialog,cli,os,process,updater}@^2`)
 - Create: `libs/desktop/src/lib/game-url.ts`, `libs/desktop/src/lib/game-url.spec.ts`, `libs/desktop/src/lib/data-fetcher.spec.ts`, `libs/desktop/vite.config.mts` (test-only: `test: { name: 'desktop', environment: 'node' }`)
 - Modify: `libs/desktop/src/lib/data-fetcher.ts`, `libs/desktop/src/index.ts`, `vitest.config.mjs` (add `./libs/desktop/vite.config.mts` to `projects`)
 
 **Interfaces:**
+
 - Consumes: IPC `read_resource` → `ArrayBuffer` (Task 1).
 - Produces:
   - `gameUrlBase(): string` — `'https://qsp.localhost/'` when `platform() === 'windows'` (`@tauri-apps/plugin-os`), else `'qsp://localhost/'`
@@ -194,15 +199,39 @@ git commit -m "feat(desktop): migrate rust shell and config to tauri 2"
 
 ```ts
 // game-url.spec.ts — vi.mock('@tauri-apps/plugin-os', () => ({ platform: vi.fn() }))
-it('uses https host form on windows', () => { platform.mockReturnValue('windows'); expect(buildGameUrl('abc')).toBe('https://qsp.localhost/abc/'); });
-it('uses qsp scheme elsewhere', () => { platform.mockReturnValue('linux'); expect(buildGameUrl('abc')).toBe('qsp://localhost/abc/'); });
-it('detects game urls', () => { platform.mockReturnValue('macos'); expect(isGameUrl('qsp://localhost/abc/x.png')).toBe(true); expect(isGameUrl('tauri://localhost/game/x')).toBe(false); });
-it('detects legacy urls', () => { expect(isLegacyGameUrl('qsp://abc/', 'abc')).toBe(true); expect(isLegacyGameUrl('https://qsp.abc/i.png', 'abc')).toBe(true); expect(isLegacyGameUrl('qsp://localhost/abc/', 'abc')).toBe(false); });
+it('uses https host form on windows', () => {
+  platform.mockReturnValue('windows');
+  expect(buildGameUrl('abc')).toBe('https://qsp.localhost/abc/');
+});
+it('uses qsp scheme elsewhere', () => {
+  platform.mockReturnValue('linux');
+  expect(buildGameUrl('abc')).toBe('qsp://localhost/abc/');
+});
+it('detects game urls', () => {
+  platform.mockReturnValue('macos');
+  expect(isGameUrl('qsp://localhost/abc/x.png')).toBe(true);
+  expect(isGameUrl('tauri://localhost/game/x')).toBe(false);
+});
+it('detects legacy urls', () => {
+  expect(isLegacyGameUrl('qsp://abc/', 'abc')).toBe(true);
+  expect(isLegacyGameUrl('https://qsp.abc/i.png', 'abc')).toBe(true);
+  expect(isLegacyGameUrl('qsp://localhost/abc/', 'abc')).toBe(false);
+});
 
 // data-fetcher.spec.ts — mock '@tauri-apps/api/core' invoke and global fetch
-it('routes game urls through read_resource', async () => { /* invoke resolves bytes of "hi" */ expect(await fetchTextContent('qsp://localhost/abc/', 'a.txt')).toBe('hi'); expect(invoke).toHaveBeenCalledWith('read_resource', { url: 'qsp://localhost/abc/a.txt' }); });
-it('uses fetch for bundled standalone files', async () => { await fetchBinaryContent('tauri://localhost/game/', 'game.cfg'); expect(invoke).not.toHaveBeenCalled(); expect(fetch).toHaveBeenCalledWith('tauri://localhost/game/game.cfg'); });
-it('decodes utf-16le with BOM on both paths', async () => { /* bytes FF FE 'h' 0 'i' 0 */ expect(await fetchTextContent('qsp://localhost/abc/', 'game.cfg')).toBe('hi'); expect(await fetchTextContent('tauri://localhost/game/', 'game.cfg')).toBe('hi'); });
+it('routes game urls through read_resource', async () => {
+  /* invoke resolves bytes of "hi" */ expect(await fetchTextContent('qsp://localhost/abc/', 'a.txt')).toBe('hi');
+  expect(invoke).toHaveBeenCalledWith('read_resource', { url: 'qsp://localhost/abc/a.txt' });
+});
+it('uses fetch for bundled standalone files', async () => {
+  await fetchBinaryContent('tauri://localhost/game/', 'game.cfg');
+  expect(invoke).not.toHaveBeenCalled();
+  expect(fetch).toHaveBeenCalledWith('tauri://localhost/game/game.cfg');
+});
+it('decodes utf-16le with BOM on both paths', async () => {
+  /* bytes FF FE 'h' 0 'i' 0 */ expect(await fetchTextContent('qsp://localhost/abc/', 'game.cfg')).toBe('hi');
+  expect(await fetchTextContent('tauri://localhost/game/', 'game.cfg')).toBe('hi');
+});
 ```
 
 - [ ] **Step 2: Run, expect failure**
@@ -227,10 +256,12 @@ it('decodes utf-16le with BOM on both paths', async () => { /* bytes FF FE 'h' 0
 ### Task 3: Storage on plugin-fs, plus library URL migration
 
 **Files:**
+
 - Create: `libs/desktop/src/lib/storage-migration.ts`, `libs/desktop/src/lib/storage-migration.spec.ts`
 - Modify: `libs/desktop/src/lib/utils.ts`, `libs/desktop/src/lib/tauri-storage.ts`
 
 **Interfaces:**
+
 - Consumes: `buildGameUrl`, `isLegacyGameUrl` (Task 2); IPC `prepare_game_start`.
 - Produces: `migrateGameUrls(games: Record<string, GameShelfEntry>, buildUrl: (uuid: string) => string): boolean`. It mutates in place, returns whether anything changed, and is idempotent.
 
@@ -239,15 +270,31 @@ it('decodes utf-16le with BOM on both paths', async () => { /* bytes FF FE 'h' 0
 ```ts
 const build = (id: string) => `qsp://localhost/${id}/`;
 it('rewrites legacy url and icon', () => {
-  const games = { g: { id: 'g', title: 't', mode: 'classic', icon: 'qsp://u1/icon.png', loadConfig: { url: 'qsp://u1/', entrypoint: 'a.qsp', local_id: 'u1', local_path: '/x' } } };
+  const games = {
+    g: {
+      id: 'g',
+      title: 't',
+      mode: 'classic',
+      icon: 'qsp://u1/icon.png',
+      loadConfig: { url: 'qsp://u1/', entrypoint: 'a.qsp', local_id: 'u1', local_path: '/x' },
+    },
+  };
   expect(migrateGameUrls(games, build)).toBe(true);
   expect(games.g.loadConfig.url).toBe('qsp://localhost/u1/');
   expect(games.g.icon).toBe('qsp://localhost/u1/icon.png');
 });
-it('rewrites windows legacy form', () => { /* url 'https://qsp.u1/' → build('u1') */ });
-it('is idempotent and reports no change for new-format entries', () => { /* url already build('u1') → returns false, unchanged */ });
-it('leaves entries without local_id untouched', () => { /* url 'https://example.com/game/' → returns false */ });
-it('leaves non-game icons untouched', () => { /* icon 'https://qsp.org/x.png' stays */ });
+it('rewrites windows legacy form', () => {
+  /* url 'https://qsp.u1/' → build('u1') */
+});
+it('is idempotent and reports no change for new-format entries', () => {
+  /* url already build('u1') → returns false, unchanged */
+});
+it('leaves entries without local_id untouched', () => {
+  /* url 'https://example.com/game/' → returns false */
+});
+it('leaves non-game icons untouched', () => {
+  /* icon 'https://qsp.org/x.png' stays */
+});
 ```
 
 - [ ] **Step 2: Run, expect failure**
@@ -287,10 +334,12 @@ it('leaves non-game icons untouched', () => { /* icon 'https://qsp.org/x.png' st
 ### Task 4: Move desktop importer behind the desktop lib
 
 **Files:**
+
 - Move: `libs/importers/src/lib/desktop-importer.ts` → `libs/desktop/src/lib/desktop-importer.ts`
 - Modify: `libs/importers/src/index.ts` (remove the desktop export; add `export { isSupportedArchive } from './lib/utils'`), `libs/desktop/src/index.ts`, `apps/player-desktop/src/app/{init.ts,app.tsx,open-game-button.tsx}` (import `importDesktop` from `@qspider/desktop`)
 
 **Interfaces:**
+
 - Consumes: `buildGameUrl` (Task 2); `importArchive`, `isSupportedArchive` from `@qspider/importers`.
 - Produces: `importDesktop(filePath: string): Promise<GameShelfEntry[]>` exported from `@qspider/desktop` (same behavior).
 
@@ -304,6 +353,7 @@ it('leaves non-game icons untouched', () => { /* icon 'https://qsp.org/x.png' st
 
   Run: `pnpm nx run-many -t lint -p desktop importers player-desktop && pnpm nx build player && pnpm nx build player-desktop`
   Expected: pass. `grep -rn "@tauri-apps" libs/importers` returns nothing.
+
 - [ ] **Step 4: Commit** — `refactor(desktop): move desktop importer into desktop lib`
 
 ---
@@ -311,19 +361,30 @@ it('leaves non-game icons untouched', () => { /* icon 'https://qsp.org/x.png' st
 ### Task 5: Window manager and XHR shim
 
 **Files:**
+
 - Modify: `libs/desktop/src/lib/window-manager.ts`, `libs/desktop/src/lib/setup.ts`
 - Create: `libs/desktop/src/lib/setup.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `isGameUrl` (Task 2).
 - Produces: `shouldShimXhr(baseUrl: string): boolean` (exported from `setup.ts`), true iff `isGameUrl(baseUrl) && platform() !== 'windows'`.
 
 - [ ] **Step 1: Failing test**
 
 ```ts
-it('shims on linux/macos game urls', () => { platform.mockReturnValue('linux'); expect(shouldShimXhr('qsp://localhost/u/')).toBe(true); });
-it('does not shim on windows', () => { platform.mockReturnValue('windows'); expect(shouldShimXhr('https://qsp.localhost/u/')).toBe(false); });
-it('does not shim bundled standalone', () => { platform.mockReturnValue('macos'); expect(shouldShimXhr('tauri://localhost/game/')).toBe(false); });
+it('shims on linux/macos game urls', () => {
+  platform.mockReturnValue('linux');
+  expect(shouldShimXhr('qsp://localhost/u/')).toBe(true);
+});
+it('does not shim on windows', () => {
+  platform.mockReturnValue('windows');
+  expect(shouldShimXhr('https://qsp.localhost/u/')).toBe(false);
+});
+it('does not shim bundled standalone', () => {
+  platform.mockReturnValue('macos');
+  expect(shouldShimXhr('tauri://localhost/game/')).toBe(false);
+});
 ```
 
 - [ ] **Step 2: Run, expect failure**
@@ -343,6 +404,7 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 - [ ] **Step 4: Run, expect pass**
 
   Run: `pnpm vitest run --project desktop`
+
 - [ ] **Step 5: Commit** — `feat(desktop): tauri 2 window manager, keep xhr shim platform split`
 
 ---
@@ -350,10 +412,12 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 ### Task 6: Desktop app shell (CLI, open dialog, drag-and-drop)
 
 **Files:**
+
 - Create: `libs/desktop/src/lib/shell.ts`
 - Modify: `libs/desktop/src/index.ts`, `apps/player-desktop/src/app/{init.ts,app.tsx,open-game-button.tsx}`
 
 **Interfaces:**
+
 - Produces (in `@qspider/desktop`):
   - `getLaunchFilePath(): Promise<string | undefined>` — `getMatches()` from `@tauri-apps/plugin-cli`, returns `args.file.value || args.filePath.value` when it's a string.
   - `pickGameFile(): Promise<string | null>` — `open()` from `@tauri-apps/plugin-dialog`, with the same `multiple: false` and `Qsp files` filter list as today.
@@ -380,10 +444,12 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 ### Task 7: Update check on startup
 
 **Files:**
+
 - Create: `libs/desktop/src/lib/updater.ts`
 - Modify: `libs/desktop/src/index.ts`, `libs/browser/src/index.ts` + `libs/browser/src/lib/updater.ts` (no-op), `apps/player-desktop/src/app/init.ts`, `apps/player-standalone/src/app/init.ts`
 
 **Interfaces:**
+
 - Produces: `checkForUpdates(): Promise<void>` from both `@qspider/env` implementations. The browser version resolves immediately.
 
 - [ ] **Step 1: Implement the desktop `checkForUpdates`**
@@ -402,6 +468,7 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 ### Task 8: Standalone game-build config generator
 
 **Files:**
+
 - Create:
   - `tools/standalone-config/generate.mjs`
   - `tools/standalone-config/cli.mjs`
@@ -411,6 +478,7 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 - Modify: `vitest.config.mjs` (add the project), `package.json` (`"standalone:config": "node tools/standalone-config/cli.mjs"`)
 
 **Interfaces:**
+
 - Produces:
   - `validate(cfg: object): string[]` — error messages; empty means valid. Required fields: `productName`, `version`, `identifier`, `publisher`, `window.title`.
   - `generateTauriConfig(cfg: QspiderDesktopConfig): { config: object, warnings: string[] }`
@@ -421,9 +489,20 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
   - `QspiderDesktopConfig` (the JSON Schema is the source of truth):
 
 ```json
-{ "$schema": "...", "schemaVersion": 1, "productName": "", "version": "", "identifier": "", "publisher": "", "copyright": "", "category": "Game", "shortDescription": "", "longDescription": "",
+{
+  "$schema": "...",
+  "schemaVersion": 1,
+  "productName": "",
+  "version": "",
+  "identifier": "",
+  "publisher": "",
+  "copyright": "",
+  "category": "Game",
+  "shortDescription": "",
+  "longDescription": "",
   "window": { "title": "", "width": 1024, "height": 768, "resizable": true, "fullscreen": false, "center": true },
-  "updater": { "enabled": false, "endpoint": "", "pubkey": "" } }
+  "updater": { "enabled": false, "endpoint": "", "pubkey": "" }
+}
 ```
 
 - [ ] **Step 1: Failing tests**
@@ -432,10 +511,15 @@ it('does not shim bundled standalone', () => { platform.mockReturnValue('macos')
 it('generates a self-contained overlay', () => {
   const { config } = generateTauriConfig(sample);
   expect(config.identifier).toBe('my.game.id');
-  expect(config.build).toEqual({ frontendDist: '../dist/apps/player-standalone', beforeBuildCommand: 'pnpm run build:standalone-desktop' });
+  expect(config.build).toEqual({
+    frontendDist: '../dist/apps/player-standalone',
+    beforeBuildCommand: 'pnpm run build:standalone-desktop',
+  });
   expect(config.app.windows[0]).toMatchObject({ title: 'My Game', width: 1024, visible: false, useHttpsScheme: true });
 });
-it('never emits v1Compatible', () => { expect(JSON.stringify(generateTauriConfig(withUpdater).config)).not.toContain('v1Compatible'); });
+it('never emits v1Compatible', () => {
+  expect(JSON.stringify(generateTauriConfig(withUpdater).config)).not.toContain('v1Compatible');
+});
 it('emits updater plugin and artifacts when enabled', () => {
   const { config } = generateTauriConfig(withUpdater);
   expect(config.plugins.updater).toEqual({ endpoints: ['https://u.github.io/g/updater-v2.json'], pubkey: 'KEY' });
@@ -443,11 +527,15 @@ it('emits updater plugin and artifacts when enabled', () => {
 });
 it('removes base updater config when disabled', () => {
   const { config } = generateTauriConfig(sample); // enabled: false
-  expect(config.plugins.updater).toBeNull();          // JSON merge patch delete
+  expect(config.plugins.updater).toBeNull(); // JSON merge patch delete
   expect(config.bundle.createUpdaterArtifacts).toBe(false);
 });
-it('treats enabled-but-empty updater as disabled with a warning', () => { /* endpoint '' → updater null, warnings.length === 1 */ });
-it('validate lists missing required fields', () => { expect(validate({})).toEqual(expect.arrayContaining([expect.stringContaining('identifier')])); });
+it('treats enabled-but-empty updater as disabled with a warning', () => {
+  /* endpoint '' → updater null, warnings.length === 1 */
+});
+it('validate lists missing required fields', () => {
+  expect(validate({})).toEqual(expect.arrayContaining([expect.stringContaining('identifier')]));
+});
 it('convertFromV1 keeps identifier and lists dropped fields', () => {
   const { config, dropped } = convertFromV1(templateV1WithExtras); // template's game.build.conf.json + bundle.targets + tauri.cli
   expect(config.identifier).toBe('my.game.id');
@@ -459,6 +547,7 @@ it('convertFromV1 keeps identifier and lists dropped fields', () => {
 - [ ] **Step 2: Run, expect failure**
 
   Run: `pnpm vitest run --project standalone-config`
+
 - [ ] **Step 3: Implement `generate.mjs` and `cli.mjs`**
   - The overlay is applied as an RFC 7396 merge patch over `src-tauri/tauri.conf.json`. `null` deletes keys from the base: set `plugins.updater: null` when disabled. Leave `plugins.cli` from the base in place, because the Rust side always registers the cli plugin and needs its config. It also sets `bundle.targets: "all"`, `bundle.publisher`/`copyright`/`category`/`shortDescription`/`longDescription`, and top-level `productName`/`version`/`identifier`.
   - **`--from-v1` mapping:**
@@ -475,6 +564,7 @@ it('convertFromV1 keeps identifier and lists dropped fields', () => {
   Run: `pnpm standalone:config public/game/qspider.desktop.json --out standalone.tauri.json && pnpm tauri build --debug --config standalone.tauri.json`. Add `standalone.tauri.json` to `.gitignore`.
 
   Expected: the app opens and the bundled game loads (this proves the standalone fix from Task 2). The window title and identifier come from the sample.
+
 - [ ] **Step 6: Commit** — `feat(standalone): qspider.desktop.json and tauri config generator`
 
 ---
@@ -482,6 +572,7 @@ it('convertFromV1 keeps identifier and lists dropped fields', () => {
 ### Task 9: qSpider CI
 
 **Files:**
+
 - Modify: `.github/workflows/main.yml`, `.github/workflows/prerelease.yml`, `.github/workflows/demo.yml`
 
 - [ ] **Step 1: `main.yml` + `prerelease.yml`**
@@ -508,6 +599,7 @@ it('convertFromV1 keeps identifier and lists dropped fields', () => {
 **Repo:** `QSPFoundation/qspider-standalone-game-template`. Work on a branch in a fresh clone and open a PR. **Merge only together with the qSpider `release` merge (Task 11).**
 
 **Files:**
+
 - Delete: `game.build.conf.json`
 - Create: `qspider.desktop.json` (template defaults, `updater.enabled: false`, `$schema` → raw GitHub URL of `tools/standalone-config/qspider.desktop.schema.json` on qSpider `release`)
 - Modify: `.github/workflows/{release.yml,gh-pages.yml,gh-pages-updater.yml,gn-pages-game.yml}`, `README.md`
