@@ -116,7 +116,7 @@
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
+    "sharedGlobals": ["{workspaceRoot}/babel.config.json", "{workspaceRoot}/tsconfig.base.json"]
   },
   "useInferencePlugins": false,
   "defaultBase": "main"
