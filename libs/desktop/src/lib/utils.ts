@@ -2,13 +2,12 @@ import {
   exists,
   readTextFile,
   writeTextFile,
-  readBinaryFile,
+  readFile,
   BaseDirectory,
-  writeBinaryFile,
-  createDir,
-  removeFile,
-  removeDir,
-} from '@tauri-apps/api/fs';
+  writeFile,
+  mkdir,
+  remove,
+} from '@tauri-apps/plugin-fs';
 import { appDataDir, dirname } from '@tauri-apps/api/path';
 import { TauriStorageData } from './contracts';
 
@@ -18,13 +17,13 @@ export async function ensureAppDataDir(): Promise<void> {
   const appDataDirPath = await appDataDir();
   const isCreated = await exists(appDataDirPath);
   if (!isCreated) {
-    await createDir(appDataDirPath);
+    await mkdir(appDataDirPath, { recursive: true });
   }
 }
 
 export async function readStorageData(): Promise<TauriStorageData | null> {
   try {
-    const content = await readTextFile(storageFile, { dir: BaseDirectory.AppData });
+    const content = await readTextFile(storageFile, { baseDir: BaseDirectory.AppData });
     if (content) return JSON.parse(content);
   } catch (err) {
     console.error(err);
@@ -33,22 +32,23 @@ export async function readStorageData(): Promise<TauriStorageData | null> {
 }
 
 export async function flushStorageData(data: TauriStorageData): Promise<void> {
-  await writeTextFile(storageFile, JSON.stringify(data), { dir: BaseDirectory.AppData });
+  await writeTextFile(storageFile, JSON.stringify(data), { baseDir: BaseDirectory.AppData });
 }
 
 export async function storeBinaryData(file: string, content: ArrayBuffer): Promise<void> {
   if (file.includes('/')) {
     const dir = await dirname(file);
-    if (!(await exists(dir, { dir: BaseDirectory.AppData }))) {
-      await createDir(dir, { dir: BaseDirectory.AppData, recursive: true });
+    if (!(await exists(dir, { baseDir: BaseDirectory.AppData }))) {
+      await mkdir(dir, { baseDir: BaseDirectory.AppData, recursive: true });
     }
   }
-  await writeBinaryFile(file, content, { dir: BaseDirectory.AppData });
+  await writeFile(file, new Uint8Array(content), { baseDir: BaseDirectory.AppData });
 }
 
 export async function readBinaryData(file: string): Promise<ArrayBuffer | undefined> {
   try {
-    return await readBinaryFile(file, { dir: BaseDirectory.AppData });
+    const bytes = await readFile(file, { baseDir: BaseDirectory.AppData });
+    return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
   } catch (err) {
     console.error(err);
   }
@@ -56,17 +56,17 @@ export async function readBinaryData(file: string): Promise<ArrayBuffer | undefi
 }
 
 export async function ensureGameDirectories(game_id: string): Promise<void> {
-  await createDir(`${game_id}/game`, { dir: BaseDirectory.AppData, recursive: true });
-  await createDir(`${game_id}/saves`, { dir: BaseDirectory.AppData, recursive: true });
+  await mkdir(`${game_id}/game`, { baseDir: BaseDirectory.AppData, recursive: true });
+  await mkdir(`${game_id}/saves`, { baseDir: BaseDirectory.AppData, recursive: true });
 }
 
 export async function removeGameDirectories(game_id: string): Promise<void> {
-  await removeDir(game_id, { dir: BaseDirectory.AppData, recursive: true });
+  await remove(game_id, { baseDir: BaseDirectory.AppData, recursive: true });
 }
 
 export async function clearBinaryData(file: string): Promise<void> {
   try {
-    return await removeFile(file, { dir: BaseDirectory.AppData });
+    return await remove(file, { baseDir: BaseDirectory.AppData });
   } catch (err) {
     console.error(err);
   }
