@@ -20,6 +20,7 @@
     "build:docs": "nx build docs --prod",
     "test": "nx run-many --all --target=test",
     "lint": "nx run-many --all --target=lint",
+    "typecheck": "nx run-many -t typecheck",
     "affected": "nx affected",
     "format": "nx format:write",
     "format:write": "nx format:write",
@@ -33,7 +34,9 @@
     "prepare": "husky || true",
     "tauri": "tauri",
     "standalone:config": "node tools/standalone-config/cli.mjs",
-    "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk"
+    "write-docs-translations": "nx write-translations docs --locale=ru && nx write-translations docs --locale=uk",
+    "check:rust": "cd src-tauri && cargo fmt --check && cargo clippy --all-targets -- -D warnings && cargo test",
+    "check": "pnpm format:check && nx run-many -t lint typecheck build && pnpm check:rust"
   },
   "private": true,
   "dependencies": {
@@ -173,7 +176,8 @@
     }
   },
   "lint-staged": {
-    "*.ts": "eslint"
+    "*.{ts,tsx}": "eslint",
+    "*.{ts,tsx,js,mjs,json,md,css,yml}": "prettier --write"
   },
   "overrides": {
     "@nx/eslint-plugin": {

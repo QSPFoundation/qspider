@@ -100,6 +100,10 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "typecheck": {
+      "cache": true,
+      "inputs": ["default", "^default"]
     }
   },
   "namedInputs": {
@@ -115,5 +119,5 @@
     "sharedGlobals": ["{workspaceRoot}/babel.config.json"]
   },
   "useInferencePlugins": false,
-  "defaultBase": "master"
+  "defaultBase": "main"
 }

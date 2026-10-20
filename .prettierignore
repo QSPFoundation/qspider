@@ -8,3 +8,8 @@
 
 /.nx/workspace-data
 .nx/self-healing
+pnpm-lock.yaml
+CHANGELOG.md
+/src-tauri/gen
+/.claude
+/.superpowers
