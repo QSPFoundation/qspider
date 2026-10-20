@@ -23,3 +23,12 @@ export function entriesFromConfig(
     },
   }));
 }
+
+export async function findMissingFiles(
+  entries: GameShelfEntry[],
+  exists: (file: string) => Promise<boolean>,
+): Promise<string[]> {
+  const files = [...new Set(entries.map((entry) => entry.loadConfig.entrypoint))];
+  const found = await Promise.all(files.map((file) => exists(file)));
+  return files.filter((_, i) => !found[i]);
+}

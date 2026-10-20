@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PlayerConfig } from '@qspider/contracts';
-import { entriesFromConfig } from './config-entries';
+import { entriesFromConfig, findMissingFiles } from './config-entries';
 
 describe('entriesFromConfig', () => {
   it('maps every [[game]] to an entry sharing the load location', () => {
@@ -31,5 +31,27 @@ describe('entriesFromConfig', () => {
   it('returns no entries for an empty config', () => {
     expect(entriesFromConfig({ game: [] } as unknown as PlayerConfig, 'p/', '/d', 'u')).toEqual([]);
     expect(entriesFromConfig({} as PlayerConfig, 'p/', '/d', 'u')).toEqual([]);
+  });
+});
+
+describe('findMissingFiles', () => {
+  const entries = entriesFromConfig(
+    {
+      game: [
+        { id: 'a', title: 'A', file: 'a.qsp' },
+        { id: 'b', title: 'B', file: 'b/b.qsp' },
+      ],
+    } as PlayerConfig,
+    'p/',
+    '/d',
+    'u',
+  );
+
+  it('lists the files that do not exist', async () => {
+    expect(await findMissingFiles(entries, async (f) => f === 'a.qsp')).toEqual(['b/b.qsp']);
+  });
+
+  it('returns nothing when all files exist', async () => {
+    expect(await findMissingFiles(entries, async () => true)).toEqual([]);
   });
 });

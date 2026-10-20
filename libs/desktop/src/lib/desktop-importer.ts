@@ -5,7 +5,7 @@ import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
 import { importArchive, isSupportedArchive } from '@qspider/importers';
 import { cyrb53, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
-import { entriesFromConfig } from './config-entries';
+import { entriesFromConfig, findMissingFiles } from './config-entries';
 import { buildGameUrl } from './game-url';
 
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
@@ -30,6 +30,13 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
       uuid,
     );
     if (!entries.length) throw new Error('No games listed in game.cfg');
+    const [missing] = await findMissingFiles(entries, (file) =>
+      fetchBinaryContent(urlPrefix, file).then(
+        () => true,
+        () => false,
+      ),
+    );
+    if (missing) throw new Error(`game.cfg lists a missing file: ${missing}`);
     return entries;
   }
 

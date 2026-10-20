@@ -1,7 +1,8 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { games$, goToGame } from '@qspider/game-shelf';
-import { showError, showNotice } from '@qspider/game-state';
+import { goToGame } from '@qspider/game-shelf';
+import { showError } from '@qspider/game-state';
+import { addImported } from './add-imported';
 import { importDesktop, pickGameFile } from '@qspider/desktop';
 
 export const OpenGameButton: React.FC = () => {
@@ -11,18 +12,8 @@ export const OpenGameButton: React.FC = () => {
     if (filePath) {
       try {
         const imported = await importDesktop(filePath);
-        for (const entry of imported) {
-          games$.actions.add(entry.id, entry);
-        }
-        if (imported.length > 1) {
-          showNotice(
-            t(`{{ count }} games added to shelf`, {
-              count: imported.length,
-            }),
-          );
-        } else if (imported.length === 1) {
-          goToGame(imported[0].id);
-        }
+        const toRun = addImported(imported, t);
+        if (toRun) goToGame(toRun);
       } catch (err) {
         showError(err instanceof Error ? err.message : String(err));
       }
