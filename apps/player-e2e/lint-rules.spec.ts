@@ -4,6 +4,11 @@ import { describe, expect, it } from 'vitest';
 
 // Lints snippets the way `nx lint player-e2e` does: from the repo root, with the project config.
 // Paths are real files, so type-aware rules find them in the project's tsconfigs; the snippet replaces their content.
+// These tests lint in-memory snippets at real file paths. With CI=true, typescript-eslint infers a
+// "single run" and builds its program from the files on disk, which then crashes TypeScript in
+// type-aware rules. Opt out of that inference here; `nx lint` keeps it.
+process.env['TSESTREE_SINGLE_RUN'] = 'false';
+
 const appDir = import.meta.dirname;
 const repoRoot = path.resolve(appDir, '../..');
 const eslint = new ESLint({ cwd: repoRoot, overrideConfigFile: path.join(appDir, 'eslint.config.js') });
