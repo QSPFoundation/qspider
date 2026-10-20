@@ -10,7 +10,7 @@ import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
 import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
 import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
-import { E2E_GAME } from '../../fixtures/e2e-game';
+import { LAUNCH_FIXTURE } from './launch-fixture';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 
@@ -105,7 +105,7 @@ export const config: WebdriverIOConfig = {
     {
       // tauri-driver's WebKitWebDriver/msedgedriver speak WebDriver classic only.
       'wdio:enforceWebDriverClassic': true,
-      'tauri:options': { application, args: [E2E_GAME.path] },
+      'tauri:options': { application, args: [LAUNCH_FIXTURE] },
     } as WebdriverIO.Capabilities,
   ],
   logLevel: 'warn',
