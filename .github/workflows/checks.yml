@@ -81,8 +81,7 @@ jobs:
           if-no-files-found: ignore
 
   e2e-desktop:
-    name: e2e-desktop (non-blocking until Tauri 2 fix)
-    # Shows red when its tests fail; non-blocking only because it is not a required status check.
+    name: e2e-desktop
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
