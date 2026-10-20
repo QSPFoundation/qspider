@@ -11,7 +11,7 @@
     "shared/**/*.ts",
     "web/**/*.ts",
     "desktop/prereqs.ts",
-    "desktop/prereqs.test.ts",
+    "desktop/prereqs.spec.ts",
     "*.config.ts",
     "*.config.mts"
   ]

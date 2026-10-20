@@ -2,7 +2,7 @@
 
 End-to-end tests for the core flow: open a game, run actions, save/load, reopen from the shelf.
 
-- Web: Playwright (`web/core-flow.spec.ts`), runs against the production build of `apps/player`.
+- Web: Playwright (`web/core-flow.e2e.ts`), runs against the production build of `apps/player`.
 - Desktop: WebdriverIO + `tauri-driver` (`desktop/core-flow.e2e.ts`), runs against the debug Tauri binary.
 - Both are thin test files with the same four independent tests, same names, same order. Shared constants (fixture path, texts, action labels) live in `shared/core-flow.ts`.
 - Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions). Each test starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.

@@ -9,6 +9,7 @@ const chromeBin = process.env['CHROME_BIN'];
 
 export default defineConfig({
   testDir: './web',
+  testMatch: '**/*.e2e.ts',
   retries: 0,
   workers: 1,
   fullyParallel: false,
