@@ -1,10 +1,19 @@
 #!/bin/sh
-# Usage (inside a D-Bus session): dbus-run-session -- with-a11y-bus.sh <command> [args...]
+# Usage: dbus-run-session -- with-a11y-bus.sh <command> [args...]
+# Normally started by run-desktop-e2e.mjs inside xvfb-run, with a private XDG_RUNTIME_DIR.
 # Starts the AT-SPI accessibility bus and registry explicitly (a bare dbus-run-session has no
-# systemd activation, so AT-SPI can't auto-start), waits until the bus answers, runs the command,
-# then stops both daemons and exits with the command's status.
-# Arch keeps the daemons in /usr/lib, Debian/Ubuntu in /usr/libexec.
+# systemd activation, so AT-SPI can't auto-start), waits until both answer, runs the command,
+# then stops the two daemons it started and exits with the command's status.
+# Daemon output goes to $QSPIDER_A11Y_LOG (default: apps/player-e2e/artifacts/desktop/a11y-bus.log).
 
+me=with-a11y-bus.sh
+script_dir=$(cd "$(dirname "$0")" && pwd) || exit 1
+log_dest=${QSPIDER_A11Y_LOG:-$script_dir/../../../artifacts/desktop/a11y-bus.log}
+
+# Never inherit a pointer to another accessibility bus.
+unset AT_SPI_BUS_ADDRESS
+
+# Arch keeps the daemons in /usr/lib, Debian/Ubuntu in /usr/libexec.
 find_daemon() {
   for dir in /usr/libexec /usr/lib; do
     if [ -x "$dir/$1" ]; then
@@ -12,51 +21,96 @@ find_daemon() {
       return 0
     fi
   done
-  echo "with-a11y-bus.sh: $1 not found in /usr/libexec or /usr/lib (install at-spi2-core)" >&2
+  echo "$me: $1 not found in /usr/libexec or /usr/lib (install at-spi2-core)" >&2
   return 1
+}
+
+# NameHasOwner never triggers D-Bus activation (calling the name itself would).
+has_owner() { # <bus option> <name>
+  dbus-send "$1" --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+    org.freedesktop.DBus.NameHasOwner "string:$2" 2>/dev/null | grep -q 'boolean true'
 }
 
 launcher=$(find_daemon at-spi-bus-launcher) || exit 1
 registry=$(find_daemon at-spi2-registryd) || exit 1
 
-# The launcher names its socket $XDG_RUNTIME_DIR/at-spi/bus_<display>, the same path as the desktop
-# session's own accessibility bus, which it would replace. A private runtime dir keeps them apart;
-# clients find the bus through org.a11y.Bus.GetAddress, not the path.
-runtime_dir=$(mktemp -d "${TMPDIR:-/tmp}/qspider-a11y.XXXXXX") || exit 1
+# On the desktop's own session bus the a11y bus is already owned; starting another would replace it.
+if has_owner --session org.a11y.Bus; then
+  echo "$me: refusing to run: org.a11y.Bus already owned (not inside dbus-run-session?)" >&2
+  exit 1
+fi
+
+# The daemons get their own runtime dir too (the launcher names its socket after it) and no DISPLAY,
+# so they can't publish anything on an X server.
+daemon_dir=$(mktemp -d "${TMPDIR:-/tmp}/qspider-a11y.XXXXXX") || exit 1
+log="$daemon_dir/a11y-bus.log"
 launcher_pid=
 registry_pid=
-cleanup() {
-  [ -n "$registry_pid" ] && kill "$registry_pid" 2>/dev/null
-  [ -n "$launcher_pid" ] && kill "$launcher_pid" 2>/dev/null
-  wait 2>/dev/null
-  rm -rf "$runtime_dir"
+
+stop_pid() { # TERM, up to ~2s for it to exit, then KILL. Only PIDs this script started.
+  [ -n "$1" ] || return 0
+  kill "$1" 2>/dev/null || return 0
+  n=0
+  while kill -0 "$1" 2>/dev/null && ! ps -o stat= -p "$1" 2>/dev/null | grep -q Z; do
+    n=$((n + 1))
+    if [ "$n" -gt 40 ]; then
+      kill -9 "$1" 2>/dev/null
+      break
+    fi
+    sleep 0.05
+  done
+  wait "$1" 2>/dev/null
 }
+cleanup() {
+  stop_pid "$registry_pid"
+  stop_pid "$launcher_pid"
+  registry_pid=
+  launcher_pid=
+  if mkdir -p "$(dirname "$log_dest")" 2>/dev/null; then cp "$log" "$log_dest" 2>/dev/null; fi
+  rm -rf "$daemon_dir"
+}
+fail() {
+  echo "$me: $1 (daemon log: $log_dest)" >&2
+  cleanup
+  exit 1
+}
+trap 'cleanup; exit 129' HUP
 trap 'cleanup; exit 130' INT
 trap 'cleanup; exit 143' TERM
 
-XDG_RUNTIME_DIR=$runtime_dir "$launcher" --launch-immediately >/dev/null 2>&1 &
+XDG_RUNTIME_DIR=$daemon_dir env -u DISPLAY "$launcher" --launch-immediately >>"$log" 2>&1 &
 launcher_pid=$!
 
-# Poll (no fixed sleep) until the launcher owns org.a11y.Bus and answers; give up after about 10s.
-# NameHasOwner first: calling org.a11y.Bus before it is owned would make D-Bus activate a second launcher.
-a11y_bus_ready() {
-  dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
-    org.freedesktop.DBus.NameHasOwner string:org.a11y.Bus 2>/dev/null | grep -q 'boolean true' &&
-    dbus-send --session --print-reply --dest=org.a11y.Bus /org/a11y/bus org.a11y.Bus.GetAddress >/dev/null 2>&1
-}
+# Poll (no fixed sleep): until the launcher owns org.a11y.Bus and returns its address; about 10s.
 i=0
-until a11y_bus_ready; do
+until has_owner --session org.a11y.Bus &&
+  a11y_address=$(dbus-send --session --print-reply --dest=org.a11y.Bus /org/a11y/bus org.a11y.Bus.GetAddress 2>/dev/null |
+    sed -n 's/^ *string "\(.*\)"$/\1/p') && [ -n "$a11y_address" ]; do
   i=$((i + 1))
-  if [ "$i" -gt 200 ]; then
-    echo "with-a11y-bus.sh: the accessibility bus ($launcher) did not answer within 10s" >&2
-    cleanup
-    exit 1
-  fi
+  [ "$i" -gt 200 ] && fail "the accessibility bus ($launcher) did not answer within 10s"
   sleep 0.05
 done
 
-XDG_RUNTIME_DIR=$runtime_dir "$registry" >/dev/null 2>&1 &
+XDG_RUNTIME_DIR=$daemon_dir env -u DISPLAY "$registry" >>"$log" 2>&1 &
 registry_pid=$!
+
+# Poll (inside one python3, about 10s) until the registry owns org.a11y.atspi.Registry on the accessibility
+# bus. Not dbus-send: with --address it skips Hello(), which the accessibility bus (dbus-broker) requires.
+python3 -I -c '
+import sys, time
+from gi.repository import Gio, GLib
+flags = Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION
+bus = Gio.DBusConnection.new_for_address_sync(sys.argv[1], flags, None, None)
+deadline = time.monotonic() + 10
+while time.monotonic() < deadline:
+    reply = bus.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "NameHasOwner",
+                          GLib.Variant("(s)", ("org.a11y.atspi.Registry",)), None, Gio.DBusCallFlags.NONE, 2000, None)
+    if reply.unpack()[0]:
+        sys.exit(0)
+    time.sleep(0.05)
+sys.exit(1)
+' "$a11y_address" >>"$log" 2>&1 ||
+  fail "the AT-SPI registry ($registry) did not register on the accessibility bus within 10s"
 
 "$@"
 status=$?

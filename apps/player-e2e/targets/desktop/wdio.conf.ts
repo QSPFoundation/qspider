@@ -12,7 +12,7 @@ import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
 import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { LAUNCH_FIXTURE } from './launch-fixture';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
-import { canImportAtspi, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
+import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const artifactsDir = fileURLToPath(new URL('../../artifacts/desktop', import.meta.url));
@@ -121,7 +121,7 @@ export const config: WebdriverIOConfig = {
   reporters: ['spec'],
 
   async onPrepare() {
-    const missing = findMissingPrereqs(process.platform, which, canImportAtspi);
+    const missing = findMissingPrereqs(process.platform, which, atspiProbes);
     if (missing.length > 0) {
       // SevereServiceError makes WDIO abort with a non-zero exit instead of logging and continuing.
       throw new SevereServiceError(`Missing desktop E2E prerequisites: ${missing.join(', ')}. ${INSTALL_HINT}`);

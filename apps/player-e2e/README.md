@@ -130,10 +130,10 @@ Desktop:
 - Rust toolchain.
 - `tauri-driver`: `cargo install tauri-driver --locked`, with `~/.cargo/bin` on `PATH`.
 - `WebKitWebDriver`: Arch `webkit2gtk-4.1`; Debian/Ubuntu `webkit2gtk-driver` (`webkitgtk-webdriver` on Ubuntu 26.04+).
-- Linux (the run is always headless, see "Desktop runs on Linux"): `xvfb-run`, `dbus-run-session`/`dbus-send`, the AT-SPI daemons and `python3` with `gi.repository.Atspi`. Arch: `xorg-server-xvfb dbus at-spi2-core python-gobject`; Debian/Ubuntu: `xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0`. No display is needed.
+- Linux (the run is always headless, see "Desktop runs on Linux"): `xvfb-run`, `dbus-run-session`, `dbus-send`, the AT-SPI daemons (`at-spi-bus-launcher`, `at-spi2-registryd` in `/usr/libexec` or `/usr/lib`) and `python3` with `gi.repository.Atspi`. Arch: `xorg-server-xvfb dbus at-spi2-core python-gobject`; Debian/Ubuntu: `xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0`. No display is needed.
 - Port 4444 free (tauri-driver's port).
 
-A missing tool, missing AT-SPI Python bindings or a busy port 4444 makes `pnpm e2e:desktop` fail with a message naming it. Web E2E likewise fails if port 4300 is already in use; it never reuses a running server.
+A missing tool, AT-SPI daemon or AT-SPI Python bindings, or a busy port 4444 makes `pnpm e2e:desktop` fail with a message naming it. Web E2E likewise fails if port 4300 is already in use; it never reuses a running server.
 
 ## Headed runs
 
@@ -147,32 +147,33 @@ Desktop: on Linux the run is always headless (below), so there is no headed mode
 
 ## Desktop runs on Linux
 
-`targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root:
+`targets/desktop/run-desktop-e2e.mjs` runs, from the workspace root, the equivalent of:
 
 ```bash
-env -u WAYLAND_DISPLAY GDK_BACKEND=x11 \
-  dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
-  xvfb-run -a wdio run apps/player-e2e/targets/desktop/wdio.conf.ts [args]
+env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS XDG_RUNTIME_DIR="$(mktemp -d)" \
+  GDK_BACKEND=x11 GIO_USE_VFS=local GVFS_DISABLE_FUSE=1 \
+  xvfb-run -a dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
+  wdio run apps/player-e2e/targets/desktop/wdio.conf.ts [args]
 ```
 
-- `dbus-run-session` gives the run a private session bus, so nothing talks to your desktop's bus.
-- `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on it. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself (from `/usr/libexec` on Debian/Ubuntu, `/usr/lib` on Arch; exits 1 naming a missing one), polls until `org.a11y.Bus` answers, runs the command, then stops both daemons and exits with the command's status. The launcher gets a private `XDG_RUNTIME_DIR`: its socket path depends only on the display number, so otherwise it would replace your desktop's own accessibility bus socket. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
-- `xvfb-run -a` provides a virtual X display. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
+Nothing in the run may touch your desktop session, so the layers nest outside-in:
+
+- `xvfb-run -a` is the outermost layer: everything inside sees only its virtual `DISPLAY`. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
+- A fresh private `XDG_RUNTIME_DIR` (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates, the app. `AT_SPI_BUS_ADDRESS` is removed. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
+- `dbus-run-session` gives the run a private session bus.
+- `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on that bus. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself, from `/usr/libexec` on Debian/Ubuntu or `/usr/lib` on Arch, and exits 1 naming a missing one. It refuses to run if `org.a11y.Bus` already has an owner, which means it is not inside a private `dbus-run-session`. The daemons run without `DISPLAY`, so they can't publish `AT_SPI_BUS` on any X server, and with their own runtime dir. The script polls until the bus and then the registry answer, runs the command, then stops the two daemons it started (TERM, then KILL after about 2s) and exits with the command's status. The daemons' output goes to `artifacts/desktop/a11y-bus.log`. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
+- The script runs the child in its own process group. On Ctrl-C (or TERM/HUP) it signals the whole tree, waits up to 10s for it to exit (then KILLs it), removes the runtime dir and exits with `128+n`.
 
 On Windows and macOS the script runs `wdio run …` directly. CI runs plain `pnpm e2e:desktop`.
 
-To run a helper inside the same environment by hand (for example to inspect the accessibility tree):
-
-```bash
-env -u WAYLAND_DISPLAY GDK_BACKEND=x11 dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh xvfb-run -a <command>
-```
+To run a helper inside the same environment by hand (for example, to inspect the accessibility tree), use the command above with `<command>` in place of `wdio run …`.
 
 ## Failure artifacts
 
 All under `apps/player-e2e/artifacts/`:
 
 - Web: `web/` (screenshots, traces) and `web-report/` (HTML report).
-- Desktop: `desktop/` (per failed scenario: `<test-name>.png` screenshot and `<test-name>.html` page source with the webview URL; on a failed run: `tauri-driver.log`; `wdio-logs/`).
+- Desktop: `desktop/` (per failed scenario: `<test-name>.png` screenshot and `<test-name>.html` page source with the webview URL; on a failed run: `tauri-driver.log`; `wdio-logs/`; on Linux, `a11y-bus.log` from the AT-SPI daemons).
 
 ## CI and branch protection
 
