@@ -1,14 +1,13 @@
 import React, { Suspense, useEffect, useState } from 'react';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
-import { event, path } from '@tauri-apps/api';
 
 import { isSupportedFileType } from './utils';
 
 import { init } from './init';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
 import { baseInit$, componentsRegistry$, currentGame$, showError, stopCurrentGame } from '@qspider/game-state';
-import { importDesktop } from '@qspider/desktop';
+import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
@@ -23,13 +22,17 @@ export const App: React.FC = () => {
   const [isFileDropHovered, setIsFileDropHovered] = useState(false);
   const [unsupportedType, setUnsupportedType] = useState('');
   useEffect(() => {
-    let fileDropUnlisten: event.UnlistenFn | null = null;
-    let fileDropHoverUnlisten: event.UnlistenFn | null = null;
-    let fileDropCancelledUnlisten: event.UnlistenFn | null = null;
+    let unlisten: (() => void) | null = null;
+    let disposed = false;
 
-    const setupCallbacks = async (): Promise<void> => {
-      fileDropUnlisten = await event.listen<string[]>('tauri://file-drop', async (e) => {
-        const [filePath] = e.payload;
+    onFileDrop({
+      onHover: async (filePath) => {
+        if (!isSupportedFileType(filePath)) {
+          setUnsupportedType(await extname(filePath));
+        }
+        setIsFileDropHovered(true);
+      },
+      onDrop: async (filePath) => {
         if (isSupportedFileType(filePath)) {
           try {
             const imported = await importDesktop(filePath);
@@ -48,24 +51,18 @@ export const App: React.FC = () => {
           }
         }
         setIsFileDropHovered(false);
-      });
-      fileDropHoverUnlisten = await event.listen<string[]>('tauri://file-drop-hover', async (e) => {
-        const [filePath] = e.payload;
-        if (!isSupportedFileType(filePath)) {
-          setUnsupportedType(await path.extname(filePath));
-        }
-        setIsFileDropHovered(true);
-      });
-      fileDropCancelledUnlisten = await event.listen('tauri://file-drop-cancelled', () => {
+      },
+      onCancel: () => {
         setIsFileDropHovered(false);
         setUnsupportedType('');
-      });
-    };
-    setupCallbacks();
+      },
+    }).then((fn) => {
+      if (disposed) fn();
+      else unlisten = fn;
+    });
     return (): void => {
-      fileDropUnlisten?.();
-      fileDropHoverUnlisten?.();
-      fileDropCancelledUnlisten?.();
+      disposed = true;
+      unlisten?.();
     };
   }, [t]);
 
