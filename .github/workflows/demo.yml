@@ -72,6 +72,21 @@ jobs:
                 })
               : latestRelease;
             await downloadLatestJson(v1Release, "./dist/apps/player/updater.json");
+
+            if (!bridgeTag) {
+              const { readFileSync } = require("node:fs");
+              const manifest = JSON.parse(readFileSync("./dist/apps/player/updater.json", "utf8"));
+              const bad = Object.entries(manifest.platforms ?? {}).filter(
+                ([, platform]) => !/\.(zip|tar\.gz)$/.test(platform.url)
+              );
+              if (bad.length > 0) {
+                throw new Error(
+                  `Latest release ${latestRelease.data.tag_name} is a v2-format release (` +
+                  `${bad.map(([name, platform]) => `${name}: ${platform.url}`).join(", ")}). ` +
+                  `Refusing to write it to the frozen updater.json: set BRIDGE_RELEASE_TAG to the bridge release tag.`
+                );
+              }
+            }
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
