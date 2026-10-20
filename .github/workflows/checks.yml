@@ -30,8 +30,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
-      - run: pnpm nx run-many -t lint typecheck build
-      - run: pnpm exec vitest run --project player-e2e
+      - run: pnpm nx run-many -t lint typecheck test build
 
   rust:
     runs-on: ubuntu-24.04

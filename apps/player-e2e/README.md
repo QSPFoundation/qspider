@@ -144,7 +144,7 @@ The rules apply now: elements use only the theme contract, so they are the same 
 
 - `pnpm e2e:web` - build the player, then run Playwright.
 - `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO through `targets/desktop/run-desktop-e2e.mjs` (below). Extra arguments to that script go to `wdio run`.
-- `pnpm exec vitest run --project player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), the private-session guard (`targets/desktop/private-session.ts`) and the lint rules (`lint-rules.spec.ts`).
+- `pnpm nx test player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), the private-session guard (`targets/desktop/private-session.ts`) and the lint rules (`lint-rules.spec.ts`).
 - `pnpm check` runs those unit tests and then `e2e:web` as its last steps; `pnpm check:full` adds `e2e:desktop`.
 
 ## Prerequisites
