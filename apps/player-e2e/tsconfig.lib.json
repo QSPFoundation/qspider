@@ -7,5 +7,12 @@
     "target": "es2022",
     "types": ["node"]
   },
-  "include": ["shared/**/*.ts", "web/**/*.ts", "*.config.ts"]
+  "include": [
+    "shared/**/*.ts",
+    "web/**/*.ts",
+    "desktop/prereqs.ts",
+    "desktop/prereqs.test.ts",
+    "*.config.ts",
+    "*.config.mts"
+  ]
 }

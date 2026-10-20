@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../dist/out-tsc",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "target": "es2022",
+    "types": ["node", "@wdio/globals/types", "@wdio/mocha-framework", "expect-webdriverio"]
+  },
+  "include": ["shared/**/*.ts", "desktop/**/*.ts", "wdio.desktop.conf.ts"],
+  "exclude": ["desktop/**/*.test.ts"]
+}

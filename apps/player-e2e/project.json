@@ -12,7 +12,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}",
-        "command": "tsc -p tsconfig.lib.json --noEmit"
+        "command": "tsc -p tsconfig.lib.json --noEmit && tsc -p tsconfig.desktop.json --noEmit"
       }
     },
     "e2e-web": {
@@ -21,6 +21,24 @@
       "options": {
         "cwd": "{workspaceRoot}",
         "command": "playwright test -c apps/player-e2e/playwright.config.ts"
+      }
+    },
+    "build-desktop-e2e": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "command": "pnpm tauri build --debug --no-bundle",
+        "env": {
+          "VITE_QSPIDER_E2E": "true"
+        }
+      }
+    },
+    "e2e-desktop": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-desktop-e2e"],
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "command": "wdio run apps/player-e2e/wdio.desktop.conf.ts"
       }
     }
   }
