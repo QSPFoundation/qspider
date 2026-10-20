@@ -2,6 +2,7 @@ import { atom } from 'xoid';
 import history from 'history/browser';
 import { isPaused$ } from './counter';
 import { gameSavedCallback$, saveLoadedCallback$ } from './save';
+import { playerUrl } from './init';
 
 export const isPauseScreenVisible$ = atom(false);
 export const pauseScreenCurrentPanel$ = atom('credits');
@@ -9,9 +10,7 @@ export const pauseScreenCurrentPanel$ = atom('credits');
 export function openPauseScreen(): void {
   const search = new URLSearchParams(history.location.search);
   search.set('pause', 'true');
-  history.push({
-    search: search.toString(),
-  });
+  history.push(playerUrl(search));
 }
 
 export function onOpenPauseScreen(): void {
@@ -24,9 +23,7 @@ export function closePauseScreen(): void {
   }
   const search = new URLSearchParams(history.location.search);
   search.delete('pause');
-  history.push({
-    search: search.toString(),
-  });
+  history.push(playerUrl(search));
 }
 
 export function onClosePauseScreen(): void {
