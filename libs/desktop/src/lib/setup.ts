@@ -1,5 +1,12 @@
 import { fetchBinaryContent } from './data-fetcher';
 import { baseUrl$ } from '@qspider/game-state';
+import { platform } from '@tauri-apps/plugin-os';
+import { isGameUrl } from './game-url';
+
+/** Windows serves game files over https://qsp.localhost, so only linux/macos need the XHR shim. */
+export function shouldShimXhr(baseUrl: string): boolean {
+  return isGameUrl(baseUrl) && platform() !== 'windows';
+}
 
 export function setupEnv() {
   const OriginalXMLHttpRequest = XMLHttpRequest;
@@ -66,7 +73,7 @@ export function setupEnv() {
       user: string | null | undefined = undefined,
       password: string | null | undefined = undefined,
     ): void {
-      if (baseUrl$.value.startsWith('qsp://')) {
+      if (shouldShimXhr(baseUrl$.value)) {
         this.url = url;
         this.is_replacing = true;
       } else {

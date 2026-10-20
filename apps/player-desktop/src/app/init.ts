@@ -9,23 +9,22 @@ import {
   registerDefaultThemes,
   showError,
 } from '@qspider/game-state';
-import { importDesktop } from '@qspider/importers';
-import { cli } from '@tauri-apps/api';
+import { getLaunchFilePath, importDesktop } from '@qspider/desktop';
 import { prepareBaseUrl } from '@qspider/utils';
 
-import { setupEnv } from '@qspider/env';
+import { checkForUpdates, setupEnv } from '@qspider/env';
 
 setupEnv();
 
 export async function init(): Promise<void> {
+  void checkForUpdates();
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   initTheme();
   onGameEnd$.set(() => navigateTo(''));
 
   await loadGamesFromStorage();
 
-  const matches = await cli.getMatches();
-  const filePath = (matches.args.file.value || matches.args.filePath.value) as string | undefined;
+  const filePath = await getLaunchFilePath();
   let toRun: string | null = null;
   if (filePath) {
     try {

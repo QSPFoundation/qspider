@@ -7,7 +7,7 @@ import {
   registerDefaultThemes,
   runGame,
 } from '@qspider/game-state';
-import { windowManager } from '@qspider/env';
+import { checkForUpdates, windowManager } from '@qspider/env';
 import { prepareBaseUrl } from '@qspider/utils';
 import { runConfig } from './config-runner';
 import { setupEnv } from '@qspider/env';
@@ -17,6 +17,7 @@ declare const APP_MODE: string;
 setupEnv();
 
 export async function init(): Promise<void> {
+  void checkForUpdates();
   document.body.classList.add(`mode-${APP_MODE}`);
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   onGameEnd$.set(() => {

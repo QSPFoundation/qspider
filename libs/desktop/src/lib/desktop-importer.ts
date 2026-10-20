@@ -1,21 +1,18 @@
 import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { v4 as uuidv4 } from 'uuid';
-import { importArchive } from './archive-importer';
-import { isSupportedArchive } from './utils';
+import { invoke } from '@tauri-apps/api/core';
+import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
+import { importArchive, isSupportedArchive } from '@qspider/importers';
 import { cyrb53, parseToml } from '@qspider/utils';
-import { fetchBinaryContent, fetchTextContent } from '@qspider/env';
-
-function buildGameUrl(uuid: string): string {
-  return navigator.userAgent.includes('Windows') ? `https://qsp.${uuid}/` : `qsp://${uuid}/`;
-}
+import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
+import { buildGameUrl } from './game-url';
 
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
-  const { path, tauri } = await import('@tauri-apps/api');
-  if (!(await path.isAbsolute(filePath))) filePath = await path.resolve(filePath);
+  if (!(await isAbsolute(filePath))) filePath = await resolve(filePath);
   const uuid = uuidv4();
-  const name = await path.basename(filePath);
-  const fileDir = await path.dirname(filePath);
-  await tauri.invoke('prepare_game_start', { path: fileDir, id: uuid });
+  const name = await basename(filePath);
+  const fileDir = await dirname(filePath);
+  await invoke('prepare_game_start', { path: fileDir, id: uuid });
 
   const urlPrefix = buildGameUrl(uuid);
 

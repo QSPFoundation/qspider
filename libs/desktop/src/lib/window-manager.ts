@@ -1,8 +1,11 @@
 import { IWindowManager } from '@qspider/contracts';
-import { appWindow, currentMonitor, LogicalSize, PhysicalSize } from '@tauri-apps/api/window';
-import { type, platform } from '@tauri-apps/api/os';
-import { exit } from '@tauri-apps/api/process';
+import { currentMonitor, getCurrentWindow } from '@tauri-apps/api/window';
+import { LogicalSize, PhysicalSize } from '@tauri-apps/api/dpi';
+import { platform } from '@tauri-apps/plugin-os';
+import { exit } from '@tauri-apps/plugin-process';
 import { fetchBinaryContent } from './data-fetcher';
+
+const appWindow = getCurrentWindow();
 
 export const windowManager: IWindowManager = {
   isBrowser: false,
@@ -24,13 +27,13 @@ export const windowManager: IWindowManager = {
     appWindow.setMinSize(new LogicalSize(width, await adjustHeight(height)));
   },
   unsetMinSize(): void {
-    appWindow.setMinSize(undefined);
+    appWindow.setMinSize(null);
   },
   async setMaxSize(width: number, height: number): Promise<void> {
     appWindow.setMaxSize(new LogicalSize(width, await adjustHeight(height)));
   },
   unsetMaxSize(): void {
-    appWindow.setMaxSize(undefined);
+    appWindow.setMaxSize(null);
   },
   setResizable(isResizable: boolean): void {
     appWindow.setResizable(isResizable);
@@ -55,18 +58,15 @@ export const windowManager: IWindowManager = {
 
 // solwing a bug https://github.com/tauri-apps/tauri/issues/6333
 async function adjustHeight(height: number): Promise<number> {
-  const isMacOS = (await platform()) === 'darwin';
-  return isMacOS ? height + 28 : height;
+  return platform() === 'macos' ? height + 28 : height;
 }
 
-const platformsMap = {
-  Darwin: 'Macintosh',
-  Linux: 'Linux',
-  Windows_NT: 'Windows',
+const platformsMap: Record<string, string> = {
+  macos: 'Macintosh',
+  linux: 'Linux',
+  windows: 'Windows',
 };
-type().then((type) => {
-  const resolved = platformsMap[type];
-  if (resolved) {
-    windowManager.platform = resolved;
-  }
-});
+const resolvedPlatform = platformsMap[platform()];
+if (resolvedPlatform) {
+  windowManager.platform = resolvedPlatform;
+}

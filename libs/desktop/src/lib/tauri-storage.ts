@@ -12,11 +12,10 @@ import {
   storeBinaryData,
 } from './utils';
 import { v4 as uuidv4 } from 'uuid';
-import { path, tauri } from '@tauri-apps/api';
-
-function buildGameUrl(uuid: string): string {
-  return navigator.userAgent.includes('Windows') ? `https://qsp.${uuid}/` : `qsp://${uuid}/`;
-}
+import { invoke } from '@tauri-apps/api/core';
+import * as path from '@tauri-apps/api/path';
+import { buildGameUrl } from './game-url';
+import { migrateGameUrls } from './storage-migration';
 
 export class TauriStorage implements Storage {
   private storageData!: TauriStorageData;
@@ -32,13 +31,15 @@ export class TauriStorage implements Storage {
       games: {},
       saves: {},
     };
+    let dirty = migrateGameUrls(games, buildGameUrl);
     for (const [id, game] of Object.entries(games)) {
       if (game.loadConfig.local_path) {
         if (!game.loadConfig.local_id) game.loadConfig.local_id = uuidv4();
         try {
-          await tauri.invoke('prepare_game_start', { path: game.loadConfig.local_path, id: game.loadConfig.local_id });
+          await invoke('prepare_game_start', { path: game.loadConfig.local_path, id: game.loadConfig.local_id });
         } catch {
           delete games[id];
+          dirty = true;
         }
       }
     }
@@ -46,6 +47,7 @@ export class TauriStorage implements Storage {
       games,
       saves,
     };
+    if (dirty) await flushStorageData(this.storageData);
     this.initialized.resolve();
   }
 
@@ -53,7 +55,7 @@ export class TauriStorage implements Storage {
     const appDataDirPath = await path.appDataDir();
     const uuid = uuidv4();
     const localPath = await path.resolve(appDataDirPath, `${game_id}/game/`);
-    await tauri.invoke('prepare_game_start', { path: localPath, id: uuid });
+    await invoke('prepare_game_start', { path: localPath, id: uuid });
     return {
       url: buildGameUrl(uuid),
       entrypoint,

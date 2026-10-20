@@ -6,6 +6,8 @@ export default defineConfig({
       './apps/player/vite.config.mts',
       './apps/player-desktop/vite.config.mts',
       './apps/player-standalone/vite.config.mts',
+      './libs/desktop/vite.config.mts',
+      './tools/standalone-config/vitest.config.mjs',
       '!vitest.config.mjs',
     ],
   },
