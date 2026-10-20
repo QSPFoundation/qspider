@@ -10,7 +10,7 @@ edition = "2021"
 build = "src/build.rs"
 
 [build-dependencies]
-tauri-build = "2"
+tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = ["devtools", "image-png", "image-ico"] }
