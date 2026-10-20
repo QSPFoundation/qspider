@@ -24,12 +24,23 @@ const NO_FRAMEWORKS = { group: FRAMEWORKS, message: 'Use Serenity/JS; runner and
 const NO_ENSURE = {
   name: '@serenity-js/assertions',
   importNames: ['Ensure'],
-  message: 'Ensure is used only in checks.ts (through seeEventually) and support/; tasks compose checks instead.',
+  message: 'Ensure is used only in screenplay/support/; checks go through seeEventually.',
 };
+// Serenity's isPresent() throws on desktop instead of answering false (support/presence.ts).
+const IS_PRESENT_MESSAGE = 'Use the helpers in screenplay/support/presence.ts (PresenceOf, waitUntilPresent, …).';
+const NO_IS_PRESENT = [
+  { name: '@serenity-js/assertions', importNames: ['isPresent'], message: IS_PRESENT_MESSAGE },
+  { name: '@serenity-js/web', importNames: ['isPresent'], message: IS_PRESENT_MESSAGE },
+];
 const NO_BY = {
   name: '@serenity-js/web',
   importNames: ['By'],
   message: 'Selectors live only in elements.ts (and support/).',
+};
+// Tasks may compose only the fail-fast guards in common/checks.ts (e.g. SeeGameStarted), not an area's checks.
+const NO_AREA_CHECKS = {
+  regex: '(^|/)(?!common/)[^/]+/checks$',
+  message: 'Tasks may compose only the fail-fast guards in common/checks.ts; scenarios call area checks.',
 };
 const restrictImports = ({ paths = [], patterns = [] }) => ({
   'no-restricted-imports': ['error', { paths, patterns }],
@@ -75,27 +86,34 @@ const conventions = [
   {
     files: ['**/*.ts', '**/*.mts', '**/*.js'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_BY] }),
+      ...restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT] }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT],
     },
   },
   {
     files: ['screenplay/**/*.ts'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_BY], patterns: [TARGETS, NO_FRAMEWORKS] }),
+      ...restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
       'max-lines': ['error', 150],
     },
   },
   {
+    files: ['screenplay/**/tasks.ts'],
+    rules: restrictImports({
+      paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT],
+      patterns: [TARGETS, NO_FRAMEWORKS, NO_AREA_CHECKS],
+    }),
+  },
+  {
     files: ['screenplay/**/elements.ts'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE], patterns: [TARGETS, NO_FRAMEWORKS] }),
+      ...restrictImports({ paths: [NO_ENSURE, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, ...UNMARKED_SELECTORS],
     },
   },
   {
     files: ['screenplay/**/checks.ts'],
-    rules: restrictImports({ paths: [NO_BY], patterns: [TARGETS, NO_FRAMEWORKS] }),
+    rules: restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
   },
   {
     files: ['screenplay/support/**/*.ts'],
@@ -112,7 +130,7 @@ const conventions = [
   {
     files: ['scenarios/**/*.ts'],
     rules: restrictImports({
-      paths: [NO_ENSURE, NO_BY],
+      paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT],
       patterns: [
         TARGETS,
         {

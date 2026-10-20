@@ -30,14 +30,40 @@ describe('player-e2e lint rules', () => {
     expect(ids.filter((id) => id === 'no-restricted-imports')).toHaveLength(2);
   });
 
-  it('bans Ensure outside checks.ts and support/', async () => {
+  it('bans Ensure in tasks.ts', async () => {
     const code = `import { Ensure, equals } from '@serenity-js/assertions';\nexport const T = () => Ensure.that(1, equals(1));\n`;
     expect(await ruleIds(code, 'screenplay/game/tasks.ts')).toContain('no-restricted-imports');
   });
 
-  it('allows Ensure in checks.ts', async () => {
+  it('bans raw Ensure in checks.ts: checks go through seeEventually', async () => {
     const code = `import { Ensure, equals } from '@serenity-js/assertions';\nexport const SeeOne = () => Ensure.that(1, equals(1));\n`;
-    expect(await ruleIds(code, 'screenplay/game/checks.ts')).toEqual([]);
+    expect(await ruleIds(code, 'screenplay/game/checks.ts')).toContain('no-restricted-imports');
+  });
+
+  it('allows Ensure in support/', async () => {
+    const code = `import { Ensure, equals } from '@serenity-js/assertions';\nexport const SeeOne = () => Ensure.that(1, equals(1));\n`;
+    expect(await ruleIds(code, 'screenplay/support/visible.ts')).toEqual([]);
+  });
+
+  it('bans isPresent from @serenity-js/assertions and @serenity-js/web in tasks.ts', async () => {
+    const code = `import { isPresent } from '@serenity-js/assertions';\nimport { isPresent as p } from '@serenity-js/web';\nexport const x = [isPresent, p];\n`;
+    const ids = await ruleIds(code, 'screenplay/game/tasks.ts');
+    expect(ids.filter((id) => id === 'no-restricted-imports')).toHaveLength(2);
+  });
+
+  it('allows isPresent in support/', async () => {
+    const code = `import { isPresent } from '@serenity-js/assertions';\nexport const x = isPresent;\n`;
+    expect(await ruleIds(code, 'screenplay/support/visible.ts')).toEqual([]);
+  });
+
+  it("bans an area's checks in tasks.ts", async () => {
+    const code = `import { SeeSlotEmpty } from '../saves/checks';\nexport const x = SeeSlotEmpty;\n`;
+    expect(await ruleIds(code, 'screenplay/game/tasks.ts')).toContain('no-restricted-imports');
+  });
+
+  it('lets tasks.ts compose the guards in common/checks.ts', async () => {
+    const code = `import { SeeGameStarted } from '../common/checks';\nexport const x = SeeGameStarted;\n`;
+    expect(await ruleIds(code, 'screenplay/game/tasks.ts')).toEqual([]);
   });
 
   it('bans By outside elements.ts and support/', async () => {
