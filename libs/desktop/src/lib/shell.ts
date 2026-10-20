@@ -16,7 +16,7 @@ export async function pickGameFile(): Promise<string | null> {
     filters: [
       {
         name: 'Qsp files',
-        extensions: ['qsp', 'qsps', 'gam', 'aqsp', 'zip', 'rar', '7z'],
+        extensions: ['qsp', 'qsps', 'gam', 'aqsp', 'zip', 'rar', '7z', 'cfg'],
       },
     ],
   });

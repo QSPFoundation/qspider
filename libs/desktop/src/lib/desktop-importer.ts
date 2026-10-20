@@ -5,6 +5,7 @@ import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
 import { importArchive, isSupportedArchive } from '@qspider/importers';
 import { cyrb53, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
+import { entriesFromConfig } from './config-entries';
 import { buildGameUrl } from './game-url';
 
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
@@ -21,29 +22,25 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
     return await importArchive(name, content);
   }
 
+  if (name === 'game.cfg') {
+    const entries = entriesFromConfig(
+      parseToml<PlayerConfig>(new TextDecoder().decode(content)),
+      urlPrefix,
+      fileDir,
+      uuid,
+    );
+    if (!entries.length) throw new Error('No games listed in game.cfg');
+    return entries;
+  }
+
   try {
     const rawConfig = await fetchTextContent(urlPrefix, 'game.cfg');
     const config = parseToml<PlayerConfig>(rawConfig);
-    const found = config.game.find((game) => game.file === name);
+    const found = entriesFromConfig(config, urlPrefix, fileDir, uuid).find(
+      (entry) => entry.loadConfig.entrypoint === name,
+    );
     if (!found) throw new Error('Config not found');
-    return [
-      {
-        id: found.id,
-        mode: found.mode,
-        title: found.title,
-        author: found.author,
-        ported_by: found.ported_by,
-        version: found.version,
-        description: found.description,
-        icon: found.resources?.icon ? `${urlPrefix}${found.resources.icon}` : undefined,
-        loadConfig: {
-          url: urlPrefix,
-          entrypoint: found.file,
-          local_path: fileDir,
-          local_id: uuid,
-        },
-      },
-    ];
+    return [found];
   } catch {
     return [
       {

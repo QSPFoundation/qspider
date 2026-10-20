@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { OpenGameButton } from './open-game-button';
 import { ProvidedComponents } from '@qspider/contracts';
 
+import { addImported } from './add-imported';
 import { isSupportedFileType } from './utils';
 
 import { init } from './init';
@@ -11,7 +12,7 @@ import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { ErrorAlert, games$, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
+import { ErrorAlert, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
@@ -36,16 +37,13 @@ export const App: React.FC = () => {
         if (isSupportedFileType(filePath)) {
           try {
             const imported = await importDesktop(filePath);
-            for (const entry of imported) {
-              if (!games$.value[entry.id]) {
-                games$.actions.add(entry.id, entry);
+            const toRun = addImported(imported, t);
+            if (toRun) {
+              if (currentGame$.value) {
+                stopCurrentGame();
               }
+              goToGame(toRun);
             }
-            if (currentGame$.value) {
-              stopCurrentGame();
-            }
-            const toRun = imported[0].id;
-            toRun && goToGame(toRun);
           } catch (err) {
             showError(err instanceof Error ? err.message : String(err));
           }

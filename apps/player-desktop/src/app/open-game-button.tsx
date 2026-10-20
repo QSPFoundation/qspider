@@ -29,7 +29,7 @@ export const OpenGameButton: React.FC = () => {
     }
   }, [t]);
   return (
-    <button className="q-button" onClick={selectGame}>
+    <button className="q-button" data-qa="open-game" onClick={selectGame}>
       {t('Open game')}
     </button>
   );
