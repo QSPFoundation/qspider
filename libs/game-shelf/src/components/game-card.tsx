@@ -43,7 +43,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
           >
             <Cross1Icon />
           </button>
-          <h3 className="game-shelf__card-title">
+          <h3 className="game-shelf__card-title" data-qa="game-title">
             {game.icon && <img alt="" src={game.icon} loading="lazy" />}
             {game.title}
           </h3>
@@ -82,6 +82,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
             <div></div>
           )}
           <a
+            data-qa="game-run"
             href="#"
             onClick={(e): void => {
               e.preventDefault();

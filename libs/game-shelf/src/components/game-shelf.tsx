@@ -13,7 +13,7 @@ export const GameShelf: React.FC = () => {
     checkForUpdates();
   }, []);
   return (
-    <div className="game-shelf">
+    <div className="game-shelf" data-qa="game-shelf">
       {games.length > 0 ? (
         <div className="game-shelf__list">
           {games.map((game) => (
@@ -21,7 +21,9 @@ export const GameShelf: React.FC = () => {
           ))}
         </div>
       ) : (
-        <div className="game-shelf__empty">{t('Game shelf is empty')}</div>
+        <div className="game-shelf__empty" data-qa="game-shelf-empty">
+          {t('Game shelf is empty')}
+        </div>
       )}
     </div>
   );
