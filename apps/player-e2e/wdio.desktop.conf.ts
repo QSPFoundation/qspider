@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
 import { FIXTURE_PATH } from './shared/core-flow';
+import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './desktop/fresh-app';
 import { findMissingPrereqs, INSTALL_HINT, which } from './desktop/prereqs';
 
 const workspaceRoot = fileURLToPath(new URL('../..', import.meta.url));
@@ -21,11 +22,11 @@ const application = join(
 );
 const DRIVER_PORT = 4444;
 
-// One tauri-driver per WDIO session (one session per spec file), each with its own
-// XDG dirs, so every test starts the app with an empty shelf and no saves.
+// One tauri-driver for the whole run, with one set of XDG dirs. Before each test,
+// desktop/fresh-app.ts ends the app, empties those dirs and starts a new session, for
+// which tauri-driver launches a new app process.
 let tauriDriver: ChildProcess | undefined;
-let sessionDir: string | undefined;
-let sessionFailed = false;
+let runDir: string | undefined;
 
 /** Stops tauri-driver; resolves after it exits so its log is complete. */
 function killDriver(): Promise<void> {
@@ -119,27 +120,24 @@ export const config: WebdriverIO.Config = {
     }
     await assertDriverPortFree();
     rmSync(artifactsDir, { recursive: true, force: true });
-    mkdirSync(artifactsDir, { recursive: true });
-  },
+    // Recreate outputDir too: WDIO workers write their logs there.
+    mkdirSync(join(artifactsDir, 'wdio-logs'), { recursive: true });
 
-  async beforeSession() {
-    sessionFailed = false;
-    // Re-checked per session: the previous session's driver has exited by now (afterSession awaits it).
-    await assertDriverPortFree();
-    sessionDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
+    runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
     const xdg = {
-      XDG_DATA_HOME: join(sessionDir, 'data'),
-      XDG_CONFIG_HOME: join(sessionDir, 'config'),
-      XDG_CACHE_HOME: join(sessionDir, 'cache'),
+      XDG_DATA_HOME: join(runDir, 'data'),
+      XDG_CONFIG_HOME: join(runDir, 'config'),
+      XDG_CACHE_HOME: join(runDir, 'cache'),
     };
     Object.values(xdg).forEach((dir) => mkdirSync(dir));
-    const log = createWriteStream(join(sessionDir, 'tauri-driver.log'));
+    const log = createWriteStream(join(runDir, 'tauri-driver.log'));
     tauriDriver = spawn('tauri-driver', ['--port', String(DRIVER_PORT)], {
       env: { ...process.env, ...xdg },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
     tauriDriver.stdout?.pipe(log);
     tauriDriver.stderr?.pipe(log);
+    // Covers an aborted launcher; onComplete is the normal teardown.
     process.once('exit', () => tauriDriver?.kill());
     await waitForPort(DRIVER_PORT, 10_000);
     // If our driver died (e.g. failed to bind), the port answer came from someone else.
@@ -148,11 +146,13 @@ export const config: WebdriverIO.Config = {
         `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
       );
     }
+    // Read by desktop/fresh-app.ts in the worker, which inherits the launcher's env.
+    process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
+    process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
   },
 
   async afterTest(test, _context, { passed }) {
     if (passed) return;
-    sessionFailed = true;
     mkdirSync(artifactsDir, { recursive: true });
     const base = join(artifactsDir, safeName(test.title));
     try {
@@ -164,18 +164,17 @@ export const config: WebdriverIO.Config = {
     }
   },
 
-  async afterSession(_config, _capabilities, specs) {
+  async onComplete(exitCode) {
     await killDriver();
-    if (!sessionDir) return;
-    if (sessionFailed) {
-      const spec = safeName(specs[0]?.split('/').pop() ?? 'session');
+    if (!runDir) return;
+    if (exitCode !== 0) {
       try {
-        copyFileSync(join(sessionDir, 'tauri-driver.log'), join(artifactsDir, `${spec}.tauri-driver.log`));
+        copyFileSync(join(runDir, 'tauri-driver.log'), join(artifactsDir, 'tauri-driver.log'));
       } catch {
         // no log written
       }
     }
-    rmSync(sessionDir, { recursive: true, force: true });
-    sessionDir = undefined;
+    rmSync(runDir, { recursive: true, force: true });
+    runDir = undefined;
   },
 };

@@ -3,9 +3,13 @@
 End-to-end tests for the core flow: open a game, run actions, save/load, reopen from the shelf.
 
 - Web: Playwright (`web/core-flow.spec.ts`), runs against the production build of `apps/player`.
-- Desktop: WebdriverIO + `tauri-driver` (`desktop/*.e2e.ts`), runs against the debug Tauri binary.
-- Both are thin test files with the same four independent tests. Shared constants (fixture path, texts, action labels) live in `shared/core-flow.ts`.
-- Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions). Each test imports it fresh into an empty shelf.
+- Desktop: WebdriverIO + `tauri-driver` (`desktop/core-flow.e2e.ts`), runs against the debug Tauri binary.
+- Both are thin test files with the same four independent tests, same names, same order. Shared constants (fixture path, texts, action labels) live in `shared/core-flow.ts`.
+- Fixture: `fixtures/e2e-game.qsps` is a tiny QSP game (a `start` and a `room` location with a counter, Save and Load actions). Each test starts with an empty shelf and no saves: on the web a fresh browser context imports it; on desktop the app opens it from its CLI argument.
+
+### Desktop isolation
+
+`wdio.desktop.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each test, `desktop/fresh-app.ts` ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms the tests fail in the `beforeEach` hook.
 
 ## Commands
 
@@ -36,11 +40,12 @@ A missing tool, a missing display or a busy port 4444 makes `pnpm e2e:desktop` f
 
 Expected result while this bug is open:
 
-- `desktop/2-actions.e2e.ts` must pass.
-- `desktop/1-open-game.e2e.ts`, `desktop/3-save-load.e2e.ts` and `desktop/4-reopen-from-shelf.e2e.ts` are expected to fail, with the webview landing on `qsp://localhost/?...pause=true` (the URL is in the failure artifact `artifacts/desktop/<test>.html`).
+- `actions update the game text` must pass.
+- The other three (`opening a game file starts it and adds it to the shelf`, `loading a save restores the saved state`, `a game on the shelf can be reopened`) are expected to fail, with the webview landing on `qsp://localhost/?...pause=true` (the URL is in the failure artifact `artifacts/desktop/<test-name>.html`). The first and last fail at the Quit button, the save/load test at the saves panel.
+- Known flake on the same bug: in roughly 3 of 10 runs one of those three times out after 120s instead (the next app session gets stuck after the previous one ended on the blank `qsp://` page; seen with both the one-file and the old per-file layout). Treat that as the known failure, not a regression. It should disappear with the app fix; if it doesn't, investigate.
 - Any other desktop failure (a different test, or one of these three failing another way), and any failure in `pnpm check`, is a regression.
 
-When the Tauri pause/saves fix lands: re-run `pnpm e2e:desktop` (all 4 pass); do the deliberate-break check on test 3 (break only `3-save-load.e2e.ts`, confirm only test 3 fails, revert); confirm the desktop shelf title and XDG isolation (each session starts with an empty shelf); remove this red-state section and the matching text in the root `CLAUDE.md`; drop the `(non-blocking until Tauri 2 fix)` suffix from the job name in `checks.yml` and make `e2e-desktop` a required check.
+When the Tauri pause/saves fix lands: re-run `pnpm e2e:desktop` (all 4 pass); do the deliberate-break check on `loading a save restores the saved state` (break only that test, confirm only it fails, revert); confirm the desktop shelf title and isolation (each test starts with an empty shelf); remove this red-state section and the matching text in the root `CLAUDE.md`; drop the `(non-blocking until Tauri 2 fix)` suffix from the job name in `checks.yml` and make `e2e-desktop` a required check.
 
 ## Headed runs
 
@@ -57,7 +62,7 @@ Desktop: the app is a real window, so it is visible whenever a display is availa
 All under `apps/player-e2e/artifacts/`:
 
 - Web: `web/` (screenshots, traces) and `web-report/` (HTML report).
-- Desktop: `desktop/` (per failed test: screenshot and page source with the webview URL; per spec: `tauri-driver` log; `wdio-logs/`).
+- Desktop: `desktop/` (per failed test: `<test-name>.png` screenshot and `<test-name>.html` page source with the webview URL; on a failed run: `tauri-driver.log`; `wdio-logs/`).
 
 ## CI and branch protection
 
