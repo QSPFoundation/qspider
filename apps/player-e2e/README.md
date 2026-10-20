@@ -22,11 +22,11 @@ apps/player-e2e/
   fixtures/             test games and their constants
 ```
 
-`screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `seeEventually.ts`, `presence.ts` (`waitUntilPresent`, `PresenceOf`, `isShown`, `textIfPresent`), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
+`screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
 
 ### Desktop isolation
 
-`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms the tests fail in the `beforeEach` hook.
+`targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the fixture as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
 
 ## Rules
 
@@ -35,7 +35,9 @@ Scenarios are written under these rules. `nx lint player-e2e` enforces the mecha
 - `scenarios/**`: no static imports from Playwright, WebdriverIO, `@wdio/*`, `@serenity-js/playwright*`, `@serenity-js/webdriverio`, `@serenity-js/web` or `targets/**`.
 - `screenplay/**`: no static imports from `targets/**`, Playwright, WebdriverIO or `@wdio/*`. `support/scenario.ts` may reach `targets/` (it loads the target's scenario shim).
 - No dynamic `import()` anywhere in `apps/player-e2e`, so the import bans cannot be bypassed. The one exception is `screenplay/support/scenario.ts`, the shim loader above.
-- `Ensure` is imported only in `checks.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
+- `Ensure` is imported only in `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`, `checks.ts` included (checks go through `seeEventually`).
+- `isPresent` (from `@serenity-js/assertions` or `@serenity-js/web`) is imported only in `screenplay/support/`: on desktop it throws instead of answering false (see "Reading and waiting").
+- `tasks.ts` may import checks only from `common/checks.ts` (the fail-fast guards such as `SeeGameStarted`); an import of any other `checks` module fails lint.
 - `By` is imported only in `elements.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
 - In `elements.ts`, a string or template literal passed straight to `By.css` must contain `[data-qsp`, `[data-qa` or `[role=`. Other `By` forms (`By.xpath`, `By.id`, `By.cssContainingText`, …) and non-literal arguments are not checked; reviewers cover those.
 - No fixed sleeps: a call written as `Wait.for(...)` fails lint anywhere (an aliased `Wait` is not caught).
@@ -60,8 +62,8 @@ An **area** is a place in the UI where the player can be: a screen (shelf, game)
 An area has only the files it needs: `pause/` has only `elements.ts`.
 
 - `elements.ts`: `PageElement` / `PageElements` and nothing else.
-- `tasks.ts`: `Task`s and `Interaction`s (what the player does). Never calls `Ensure`; may compose checks from a `checks.ts` (`OpenFixture` uses `SeeGameStarted` to fail fast on an error alert). May wait for the UI to settle after its own action.
-- `checks.ts`: what the player expects to see. The only place `Ensure` is used, and only through `seeEventually`.
+- `tasks.ts`: `Task`s and `Interaction`s (what the player does). Never calls `Ensure`. May compose only the fail-fast guards in `common/checks.ts` (`OpenFixture` uses `SeeGameStarted` to fail fast on an error alert); area checks belong in scenarios. May wait for the UI to settle after its own action.
+- `checks.ts`: what the player expects to see, always through `seeEventually` (never `Ensure` directly).
 - Scenarios contain only tasks, checks and constants: no selectors, no `Ensure`, no framework or `targets/` imports.
 
 ### Naming
@@ -83,9 +85,11 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 
 ### Reading and waiting
 
-- **One check primitive.** Every check is `seeEventually(element, question, expectation, description)`: it waits until the element is present, then runs `Ensure.eventually`.
-- **Presence helpers.** All element reads go through `support/presence.ts` (`waitUntilPresent`, `PresenceOf`, `isShown`, `textIfPresent`) or `seeEventually`. On desktop, Serenity's own `isPresent()` / `Wait.until` throw WebKit's raw "no such element" instead of returning false, so an element that has not rendered yet would fail at once with `[object Object]`. The helpers treat any read error as "not there yet".
-- **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. A failing `Ensure.eventually` takes about 25s to give up because of Serenity's backoff, so the per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 120s.
+- **One check primitive.** Every check is `seeEventually(element, question, expectation, description)`: it polls until the element is present and the question meets the expectation. A read error during polling means "not yet". On timeout one strict `Ensure.that` reports Expected/Received, with the last read error appended.
+- **The desktop trap.** On desktop, WebKitWebDriver answers a read of a missing element with a raw "no such element" (it prints as `[object Object]`), and Serenity's `isPresent()`, `Wait.until` and `Ensure.eventually` rethrow it instead of retrying. So an element that has not rendered yet, or is re-rendering, fails a plain read at once.
+- **Presence helpers.** Checks read only through `seeEventually`. Tasks wait and click through `support/presence.ts`: `waitUntilPresent` (any read error means "not yet"), `ClickWhenPresent` (retries the click while the element is missing, up to the timeout), `waitUntilAbsent` (only a missing element counts as gone; other errors surface), `TextNow`, `isShown`, `textIfPresent`. Lint bans `Ensure` and `isPresent` outside `support/`; other reads (`Text.of`, `Attribute`, …) outside these helpers are up to review.
+- **Emptiness needs a settled anchor.** A check that something is empty or absent (empty shelf, empty save slot) passes as soon as the UI is briefly empty, and `games$` and the save slots load asynchronously, so they start empty. Before such a check, check a settled anchor: something that shows only once loading has finished, or a non-empty state seen earlier in the same scenario. Neither the shelf's empty notice nor a slot's `data-save-empty` marker is one (both show while loading), so `SeeShelfTitles([])` and `SeeSlotEmpty` in `core-flow` show the expected start state but cannot prove that no game or save was left over; a real guard needs a loaded marker in the UI first. Eventual checks in general only wait for a match: they do not prove the state stays that way, so they do not catch leftovers or duplicates that appear after the match.
+- **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. The support helpers poll every 250ms (`POLLING_INTERVAL`), not with Serenity's exponential backoff, so a failing check gives up after about 15s. The per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 45s: the scenario's steps (and, on desktop, the app restart) plus one failing check.
 - **No fixed sleeps** (`Wait.for`) and **no retries** (Playwright `retries: 0`, mocha `retries: 0`, WDIO `specFileRetries: 0`).
 - Every `actor.attemptsTo(...)` is awaited; a missing `await` lets a scenario pass without checking anything.
 - A game that fails to open fails the scenario within seconds with the player's error text (`SeeGameStarted` in `common/checks.ts`).
@@ -93,6 +97,8 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 ### Target differences: `OperatePlayer`
 
 `support/operate-player.ts` defines `abstract class OperatePlayer extends Ability` with one method per capability that differs by target (`startPlayer`, `openGameFile`), and one `Interaction` per capability (`StartPlayer()`, `OpenGameFile(path)`). Shared code only calls `OperatePlayer.as(actor)`. There is one subclass per target: `targets/web/operate-web-player.ts` and `targets/desktop/operate-desktop-player.ts`. Each target's Cast (`targets/<target>/cast.ts`) gives every actor its browsing ability plus its subclass. A new method does not compile until both targets implement it.
+
+Desktop opens only the launch fixture: `tauri-driver` starts the app with `LAUNCH_FIXTURE` (`targets/desktop/launch-fixture.ts`, the e2e fixture) as its argument, once per app launch, so `OpenGameFile` on desktop opens nothing itself and throws for any other path. A scenario that needs another game file on desktop needs a launch-argument change first (for example, per-scenario capabilities in `wdio.conf.ts`).
 
 ### Single-target scenarios
 

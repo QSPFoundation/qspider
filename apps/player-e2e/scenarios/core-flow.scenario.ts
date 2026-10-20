@@ -17,7 +17,7 @@ const SAVE_SLOT = 1;
 scenario.webOnly('opening a game file starts it and adds it to the shelf', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
-    SeeShelfTitles([]), // clean state
+    SeeShelfTitles([]), // start state; not a leftover guard (README, "Emptiness needs a settled anchor")
     OpenGameFile(E2E_GAME.path),
     SeeGameStarted(TEXT.start),
     ReturnToShelf(),
@@ -44,7 +44,7 @@ scenario('loading a save restores the saved state', async (player) => {
     OpenFixture(),
     ReachCounter(1),
     ClickAction(ACTION.save),
-    SeeSlotEmpty(SAVE_SLOT), // no leftover saves
+    SeeSlotEmpty(SAVE_SLOT), // start state; not a leftover guard (README, "Emptiness needs a settled anchor")
     ChooseSaveSlot(SAVE_SLOT),
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.room(2)),

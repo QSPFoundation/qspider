@@ -201,7 +201,7 @@ ESLint rules scoped to `apps/player-e2e` (`no-restricted-imports` / `no-restrict
 - Failure artifacts stay under `apps/player-e2e/artifacts/`:
   - Playwright traces and screenshots;
   - desktop screenshots, page source and tauri-driver log;
-  - Serenity's report, alongside them.
+  - no archived Serenity report: only the console reporter's output is used (in the runner's log), as decided during implementation (controller ruling R8).
 - Desktop keeps phase 1's infrastructure unchanged: one tauri-driver per run, fresh app per test, the port and driver guards, the prerequisite check before the build.
 
 ## Calls made while writing this (Claude's — check these)
