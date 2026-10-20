@@ -1,16 +1,66 @@
 {
+  "productName": "qSpider",
+  "version": "../package.json",
+  "identifier": "org.qsp.qspider",
   "build": {
-    "distDir": "../dist/apps/player-desktop",
-    "devPath": "http://localhost:4200",
+    "frontendDist": "../dist/apps/player-desktop",
+    "devUrl": "http://localhost:4200",
     "beforeDevCommand": "npm run serve:desktop",
-    "beforeBuildCommand": "npm run build:desktop",
-    "withGlobalTauri": false
+    "beforeBuildCommand": "npm run build:desktop"
   },
-  "package": {
-    "productName": "qSpider",
-    "version": "../package.json"
+  "bundle": {
+    "active": true,
+    "targets": ["deb", "rpm", "appimage", "nsis", "app", "dmg"],
+    "publisher": "QSPFoundation",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "resources": [],
+    "externalBin": [],
+    "copyright": "QSPFoundation",
+    "category": "Entertainment",
+    "shortDescription": "Player to run QSP games",
+    "longDescription": "",
+    "createUpdaterArtifacts": "v1Compatible",
+    "linux": {
+      "deb": {
+        "depends": []
+      },
+      "appimage": {
+        "bundleMediaFramework": true
+      }
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      },
+      "nsis": {
+        "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinese"],
+        "displayLanguageSelector": true,
+        "customLanguageFiles": {
+          "Russian": "./lang/Russian.nsh",
+          "Ukrainian": "./lang/Ukrainian.nsh"
+        }
+      }
+    }
   },
-  "tauri": {
+  "app": {
+    "withGlobalTauri": false,
+    "security": {
+      "freezePrototype": false
+    },
+    "windows": [
+      {
+        "title": "qSpider",
+        "width": 1024,
+        "height": 768,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "visible": false,
+        "useHttpsScheme": true
+      }
+    ]
+  },
+  "plugins": {
     "cli": {
       "description": "qSpider CLI",
       "args": [
@@ -28,66 +78,9 @@
         }
       ]
     },
-    "bundle": {
-      "active": true,
-      "targets": ["deb", "rpm", "appimage", "nsis", "app", "dmg", "updater"],
-      "identifier": "org.qsp.qspider",
-      "publisher": "QSPFoundation",
-      "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-      "resources": [],
-      "externalBin": [],
-      "copyright": "QSPFoundation",
-      "category": "Entertainment",
-      "shortDescription": "Player to run QSP games",
-      "longDescription": "",
-
-      "deb": {
-        "depends": []
-      },
-      "appimage": {
-        "bundleMediaFramework": true
-      },
-      "windows": {
-        "webviewInstallMode": {
-          "type": "embedBootstrapper"
-        },
-        "nsis": {
-          "languages": ["English", "Russian", "Ukrainian", "SimpChinese", "TradChinese"],
-          "displayLanguageSelector": true,
-          "customLanguageFiles": {
-            "Russian": "./lang/Russian.nsh",
-            "Ukrainian": "./lang/Ukrainian.nsh"
-          }
-        }
-      }
-    },
-
     "updater": {
-      "active": true,
-      "endpoints": ["https://qspfoundation.github.io/qspider/updater.json"],
-      "dialog": true,
+      "endpoints": ["https://qspfoundation.github.io/qspider/updater-v2.json"],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDE1RjFFRUMxODU0MjE5NUYKUldSZkdVS0Z3ZTd4RlVJQkZhQURQb0VJTVJ0QnI2NVZNOTJMQm5qdzZYRjNYa1ppVmZ0SFpndHQK"
-    },
-
-    "allowlist": {
-      "all": true,
-      "fs": { "scope": ["$APPDATA/**", "$APPDATA/*", "$APPDATA"] }
-    },
-
-    "security": {
-      "freezePrototype": false
-    },
-
-    "windows": [
-      {
-        "title": "qSpider",
-        "width": 1024,
-        "height": 768,
-        "center": true,
-        "resizable": true,
-        "fullscreen": false,
-        "visible": false
-      }
-    ]
+    }
   }
 }
