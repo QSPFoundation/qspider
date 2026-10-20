@@ -8,6 +8,7 @@
     "build": {
       "executor": "@nx/vite:build",
       "outputs": ["{options.outputPath}"],
+      "inputs": ["production", "^production", { "env": "VITE_QSPIDER_E2E" }],
       "defaultConfiguration": "production",
       "options": {
         "outputPath": "dist/apps/player-standalone"
