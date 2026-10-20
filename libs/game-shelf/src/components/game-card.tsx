@@ -33,7 +33,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
   }, [catalogUpdate, game.id]);
   return (
     <Dialog.Root>
-      <div className="game-shelf__card" data-qa={`game-${game.id}`}>
+      <div className="game-shelf__card" data-qa="game-card">
         <div className="game-shelf__card-content">
           <button
             type="button"
