@@ -5,8 +5,8 @@
   "build": {
     "frontendDist": "../dist/apps/player-desktop",
     "devUrl": "http://localhost:4200",
-    "beforeDevCommand": "npm run serve:desktop",
-    "beforeBuildCommand": "npm run build:desktop"
+    "beforeDevCommand": "pnpm run serve:desktop",
+    "beforeBuildCommand": "pnpm run build:desktop"
   },
   "bundle": {
     "active": true,

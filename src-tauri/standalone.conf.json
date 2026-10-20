@@ -2,7 +2,7 @@
   "build": {
     "frontendDist": "../dist/apps/player-standalone",
     "devUrl": "http://localhost:4200",
-    "beforeDevCommand": "npm run serve:standalone-desktop",
-    "beforeBuildCommand": "npm run build:standalone-desktop"
+    "beforeDevCommand": "pnpm run serve:standalone-desktop",
+    "beforeBuildCommand": "pnpm run build:standalone-desktop"
   }
 }
