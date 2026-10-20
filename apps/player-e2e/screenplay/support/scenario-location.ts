@@ -21,7 +21,8 @@ export async function withLocation(location: string | undefined, body: () => Pro
       // otherwise already include the new message, which the replace below would prefix again.
       const stack = error.stack;
       error.message = `[${location}] ${original}`;
-      if (stack?.includes(original)) error.stack = stack.replace(original, error.message);
+      // A replacer function: a string replacement would expand `$&`-style patterns in the message.
+      if (stack?.includes(original)) error.stack = stack.replace(original, () => error.message);
     }
     throw error;
   }

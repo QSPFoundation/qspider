@@ -7,6 +7,6 @@ export default defineConfig({
   test: {
     name: 'player-e2e',
     environment: 'node',
-    include: ['targets/desktop/**/*.spec.ts', 'lint-rules.spec.ts'],
+    include: ['targets/desktop/**/*.spec.ts', 'screenplay/**/*.spec.ts', 'lint-rules.spec.ts'],
   },
 });
