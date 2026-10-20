@@ -1,30 +1,24 @@
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { TEST_PACK } from '../fixtures/test-pack';
-import { SeeGameStarted } from '../screenplay/common/checks';
+import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, OpenFixture, ReachCounter, ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeSlotEmpty } from '../screenplay/saves/checks';
 import { ChooseSaveSlot } from '../screenplay/saves/tasks';
-import { SeeNotice, SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
+import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { LoadTestPack, OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 const { action: ACTION, shelfTitle: SHELF_TITLE, text: TEXT } = E2E_GAME;
 const [PACK_E2E_GAME] = TEST_PACK.titles;
-const PACK_NOTICE = `${TEST_PACK.titles.length} games added to shelf`;
 const SAVE_SLOT = 1;
 
 scenario('loading a game config adds all its games to the shelf without starting one', async (player) => {
-  // No UI marker shows that start-up has finished, so "without starting one" is proven only as far as
-  // the notice and the shelf seen after it go (README, "Emptiness needs a settled anchor").
-  await player.attemptsTo(
-    StartPlayer(),
-    LoadTestPack(),
-    SeeShelfTitles([...TEST_PACK.titles]),
-    SeeNotice(PACK_NOTICE), // the multi-game import branch ran
-    SeeShelfTitles([...TEST_PACK.titles]), // still on the shelf after it: no game started
-  );
+  // Startup has finished (a launch game would have started by then), so the shelf seen after it,
+  // with exactly the pack's titles, shows that no game started. On web the exact titles also wait
+  // for the import, which runs after startup.
+  await player.attemptsTo(StartPlayer(), LoadTestPack(), SeeStartupFinished(), SeeShelfTitles([...TEST_PACK.titles]));
 });
 
 scenario('opening a game file starts it and adds it to the shelf', async (player) => {

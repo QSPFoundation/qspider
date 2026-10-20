@@ -12,7 +12,7 @@ import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { ErrorAlert, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
+import { ErrorAlert, goToGame, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
@@ -72,6 +72,7 @@ export const App: React.FC = () => {
         <PlayerWithShelf />
         <ErrorAlert />
         <NoticeToast />
+        <StartupMarker />
       </QspiderRoot>
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>

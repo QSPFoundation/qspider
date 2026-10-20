@@ -1,5 +1,5 @@
 import { ProvidedComponents } from '@qspider/contracts';
-import { ErrorAlert, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
+import { ErrorAlert, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
 import { baseInit$, componentsRegistry$ } from '@qspider/game-state';
 import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
 import { Debugger } from '@qspider/debugger';
@@ -21,6 +21,7 @@ export const App: React.FC = () => {
           <PlayerWithShelf />
           <ErrorAlert />
           <NoticeToast />
+          <StartupMarker />
         </Debugger>
       </QspiderRoot>
     </Suspense>

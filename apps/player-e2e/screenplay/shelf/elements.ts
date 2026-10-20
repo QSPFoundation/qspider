@@ -20,6 +20,3 @@ export const RunLink = (title: string) =>
 
 /** The player's Open game control (desktop: a button that opens the native file dialog). */
 export const OpenGameButton = PageElement.located(By.css('[data-qa="open-game"]')).describedAs('Open game button');
-
-/** The notice toast the shelf shows after an import that adds several games (app shell, libs/game-shelf). */
-export const Notice = PageElement.located(By.css('[data-qa="notice"]')).describedAs('notice');

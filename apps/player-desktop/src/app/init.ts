@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { goToGame, loadGamesFromStorage, navigateTo } from '@qspider/game-shelf';
+import { goToGame, loadGamesFromStorage, locationSettled, navigateTo } from '@qspider/game-shelf';
 import {
   baseInit$,
   initDeferred$,
@@ -9,6 +9,7 @@ import {
   onGameEnd$,
   registerDefaultThemes,
   showError,
+  startupFinished$,
 } from '@qspider/game-state';
 import { getLaunchFilePath, importDesktop } from '@qspider/desktop';
 import { addImported } from './add-imported';
@@ -42,5 +43,7 @@ export async function init(): Promise<void> {
   await registerDefaultThemes(initialBaseUrl$.value);
   if (toRun) {
     goToGame(toRun);
+    await locationSettled();
   }
+  startupFinished$.set(true);
 }
