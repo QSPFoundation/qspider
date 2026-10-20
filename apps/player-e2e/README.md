@@ -28,7 +28,7 @@ Desktop:
 
 - Rust toolchain.
 - `tauri-driver`: `cargo install tauri-driver --locked`, with `~/.cargo/bin` on `PATH`.
-- `WebKitWebDriver`: Arch `webkit2gtk-4.1`; Debian/Ubuntu `webkit2gtk-driver`.
+- `WebKitWebDriver`: Arch `webkit2gtk-4.1`; Debian/Ubuntu `webkit2gtk-driver` (`webkitgtk-webdriver` on Ubuntu 26.04+).
 - A display on Linux (`DISPLAY` or `WAYLAND_DISPLAY`; CI uses `xvfb-run -a`).
 - Port 4444 free (tauri-driver's port).
 
