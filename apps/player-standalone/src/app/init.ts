@@ -17,6 +17,7 @@ declare const APP_MODE: string;
 setupEnv();
 
 export async function init(): Promise<void> {
+  void checkForUpdates();
   document.body.classList.add(`mode-${APP_MODE}`);
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   onGameEnd$.set(() => {
@@ -30,5 +31,4 @@ export async function init(): Promise<void> {
   await registerDefaultThemes(initialBaseUrl$.value);
   await runGame(game);
   baseInit$.set(true);
-  void checkForUpdates();
 }

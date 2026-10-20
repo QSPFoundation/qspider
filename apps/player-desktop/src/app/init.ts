@@ -17,6 +17,7 @@ import { checkForUpdates, setupEnv } from '@qspider/env';
 setupEnv();
 
 export async function init(): Promise<void> {
+  void checkForUpdates();
   initialBaseUrl$.set(prepareBaseUrl(window.location.href));
   initTheme();
   onGameEnd$.set(() => navigateTo(''));
@@ -45,5 +46,4 @@ export async function init(): Promise<void> {
   if (toRun) {
     goToGame(toRun);
   }
-  void checkForUpdates();
 }
