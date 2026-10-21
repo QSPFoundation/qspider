@@ -3,6 +3,7 @@ import {
   games$,
   goToGame,
   loadGamesFromStorage,
+  locationSettled,
   moveToShelf,
   navigateTo,
   processLocationChange,
@@ -16,6 +17,7 @@ import {
   onGameEnd$,
   registerDefaultThemes,
   showError,
+  startupFinished$,
 } from '@qspider/game-state';
 import { importUrl } from '@qspider/importers';
 import { loadingMessage$ } from '@qspider/renderer';
@@ -99,4 +101,7 @@ export async function init(): Promise<void> {
     await processLocationChange(window.location.search);
   }
   baseInit$.set(true);
+  // After the shell renders: the launch game (goToGame) starts asynchronously.
+  await locationSettled();
+  startupFinished$.set(true);
 }

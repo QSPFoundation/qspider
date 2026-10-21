@@ -1,4 +1,4 @@
-import { ListItemNotFoundError } from '@serenity-js/core';
+import { ListItemNotFoundError, LogicError } from '@serenity-js/core';
 import { describe, expect, it } from 'vitest';
 import { describeError, isMissingElementError } from './element-errors';
 
@@ -13,6 +13,15 @@ describe('isMissingElementError', () => {
   it('accepts a WebdriverIO error named "no such element" and a ListItemNotFoundError', () => {
     expect(isMissingElementError(Object.assign(new Error('x'), { name: 'no such element' }))).toBe(true);
     expect(isMissingElementError(new ListItemNotFoundError('no item'))).toBe(true);
+  });
+  it('accepts a filtered-list LogicError caused by a missing element, as PageElements.where() throws it', () => {
+    expect(isMissingElementError(new LogicError("Couldn't check if ...", noSuchElement as unknown as Error))).toBe(
+      true,
+    );
+  });
+  it('rejects a LogicError caused by another error', () => {
+    expect(isMissingElementError(new LogicError('x', new Error('boom')))).toBe(false);
+    expect(isMissingElementError(new LogicError('x'))).toBe(false);
   });
   it('rejects other errors', () => {
     expect(isMissingElementError({ error: 'element click intercepted', message: '' })).toBe(false);

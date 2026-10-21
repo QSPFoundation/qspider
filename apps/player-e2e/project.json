@@ -38,7 +38,7 @@
       "dependsOn": ["build-desktop-e2e"],
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "wdio run apps/player-e2e/targets/desktop/wdio.conf.ts"
+        "command": "node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs"
       }
     }
   }

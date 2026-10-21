@@ -2,9 +2,9 @@ import { AssertionError, Question, Task, Wait } from '@serenity-js/core';
 import { equals, not } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { MainText } from '../game/elements';
-import { isShown, TextNow, textIfPresent } from '../support/presence';
+import { isShown, PresenceOf, TextNow, textIfPresent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { ErrorAlerts } from './elements';
+import { ErrorAlerts, StartupFinishedMarker } from './elements';
 
 type StartOutcome = { kind: 'started' } | { kind: 'waiting' } | { kind: 'error'; text: string };
 
@@ -37,3 +37,10 @@ export const SeeGameStarted = (startText: string) =>
     Wait.until(GameStartedOrFailed(startText), not(equals('waiting'))),
     seeEventually(MainText, (e) => Text.of(e).trim(), equals(startText), `#actor sees main text "${startText}"`),
   );
+
+/**
+ * The player has finished starting up: any game it was launched with has started by now, so a
+ * screen checked after this is not about to be replaced by one.
+ */
+export const SeeStartupFinished = (): Task =>
+  seeEventually(StartupFinishedMarker, (e) => PresenceOf(e), equals(true), '#actor sees the player finish starting up');

@@ -159,7 +159,9 @@ Placement rules:
 - **One interaction per capability** wraps it (e.g. `OpenGameFile(path)`). Shared code only ever calls `OperatePlayer.as(actor)`.
 - **Two subclasses:**
   - `targets/web/operate-web-player.ts` (`OperateWebPlayer`) uses the native Playwright page, e.g. for file upload (spike problem 4).
-  - `targets/desktop/operate-desktop-player.ts` (`OperateDesktopPlayer`) works with the game passed as the launch argument, and restarts the app through a new session.
+  - `targets/desktop/operate-desktop-player.ts` (`OperateDesktopPlayer`) launches the app with the test pack's `game.cfg` as its argument, restarts it through a new session, and opens game files through the native Open game dialog, driven through AT-SPI (`targets/desktop/native-dialog.ts`, `atspi/dialog.py`). Windows later uses UI Automation behind the same `openGameFile`.
+- **One shared test pack:** both targets load `fixtures/game.cfg` (two games). Web zips it in `global-setup.ts` and uploads it through the Open game input; desktop gets the config as its launch argument.
+- **Desktop E2E runs headless and isolated on Linux:** `run-desktop-e2e.mjs` runs the tree under Xvfb with a private D-Bus session and AT-SPI bus, private XDG directories and no writes to the real session or home. `xdotool` was rejected as fragile (focus, keystrokes, layout).
 - **Wiring:** each runner's Cast gives every actor its web-browsing ability plus its `OperatePlayer` subclass.
 - **Compile-checked:** adding a method to `OperatePlayer` does not compile until both targets implement it.
 

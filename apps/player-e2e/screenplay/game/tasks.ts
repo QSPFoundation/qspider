@@ -4,17 +4,23 @@ import { Key, Press } from '@serenity-js/web';
 import { E2E_GAME } from '../../fixtures/e2e-game';
 import { SeeGameStarted } from '../common/checks';
 import { PauseScreen, QuitButton } from '../pause/elements';
+import { TEST_PACK } from '../../fixtures/test-pack';
 import { Shelf } from '../shelf/elements';
-import { OpenGameFile, StartPlayer } from '../support/operate-player';
+import { OpenFromShelf } from '../shelf/tasks';
+import { LoadTestPack, StartPlayer } from '../support/operate-player';
 import { ClickWhenPresent, TextNow, waitUntilPresent } from '../support/presence';
 import { Action, MainText } from './elements';
 
-/** From a clean app: starts the player and opens the e2e fixture game. */
+/** The e2e fixture game's title in the test pack. */
+const PACK_E2E_GAME = TEST_PACK.titles[0];
+
+/** From a clean app: starts the player, loads the test pack and opens the e2e game from the shelf. */
 export const OpenFixture = (): Task =>
   Task.where(
     '#actor opens the e2e fixture game',
     StartPlayer(),
-    OpenGameFile(E2E_GAME.path),
+    LoadTestPack(),
+    OpenFromShelf(PACK_E2E_GAME),
     SeeGameStarted(E2E_GAME.text.start),
   );
 

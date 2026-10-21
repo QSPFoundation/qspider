@@ -5,12 +5,17 @@ import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
 import { importArchive, isSupportedArchive } from '@qspider/importers';
 import { cyrb53, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
+import { configKind, entriesFromConfig, findDuplicateIds, findMissingFiles } from './config-entries';
 import { buildGameUrl } from './game-url';
 
 export async function importDesktop(filePath: string): Promise<GameShelfEntry[]> {
   if (!(await isAbsolute(filePath))) filePath = await resolve(filePath);
   const uuid = uuidv4();
   const name = await basename(filePath);
+  const kind = configKind(name);
+  if (kind === 'unsupported-config') {
+    throw new Error(`Only game.cfg is supported as a game config, not ${name}`);
+  }
   const fileDir = await dirname(filePath);
   await invoke('prepare_game_start', { path: fileDir, id: uuid });
 
@@ -21,29 +26,34 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
     return await importArchive(name, content);
   }
 
+  if (kind === 'game-config') {
+    const entries = entriesFromConfig(
+      parseToml<PlayerConfig>(new TextDecoder().decode(content)),
+      urlPrefix,
+      fileDir,
+      uuid,
+    );
+    if (!entries.length) throw new Error('No games listed in game.cfg');
+    const [duplicate] = findDuplicateIds(entries);
+    if (duplicate) throw new Error(`game.cfg lists the id ${duplicate} more than once`);
+    const [missing] = await findMissingFiles(entries, (file) =>
+      fetchBinaryContent(urlPrefix, file).then(
+        () => true,
+        () => false,
+      ),
+    );
+    if (missing) throw new Error(`game.cfg lists a missing file: ${missing}`);
+    return entries;
+  }
+
   try {
     const rawConfig = await fetchTextContent(urlPrefix, 'game.cfg');
     const config = parseToml<PlayerConfig>(rawConfig);
-    const found = config.game.find((game) => game.file === name);
+    const found = entriesFromConfig(config, urlPrefix, fileDir, uuid).find(
+      (entry) => entry.loadConfig.entrypoint === name,
+    );
     if (!found) throw new Error('Config not found');
-    return [
-      {
-        id: found.id,
-        mode: found.mode,
-        title: found.title,
-        author: found.author,
-        ported_by: found.ported_by,
-        version: found.version,
-        description: found.description,
-        icon: found.resources?.icon ? `${urlPrefix}${found.resources.icon}` : undefined,
-        loadConfig: {
-          url: urlPrefix,
-          entrypoint: found.file,
-          local_path: fileDir,
-          local_id: uuid,
-        },
-      },
-    ];
+    return [found];
   } catch {
     return [
       {

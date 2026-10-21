@@ -1,18 +1,25 @@
-import type { AnswersQuestions, UsesAbilities } from '@serenity-js/core';
+import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
-import { assertLaunchFixture } from './launch-fixture';
+import { ClickWhenPresent } from '../../screenplay/support/presence';
+import { pickFileInNativeDialog } from './native-dialog';
 
 /**
- * The desktop player: tauri-driver launches the app with the launch fixture as its argument
- * (wdio.conf.ts), so it is already started with that game open.
+ * The desktop player: tauri-driver launches the app with the test pack's game.cfg as its argument
+ * (wdio.conf.ts), so it starts on the shelf with the pack loaded. Game files open through the
+ * native Open game dialog, driven through AT-SPI (native-dialog.ts).
  */
 export class OperateDesktopPlayer extends OperatePlayer {
   async startPlayer(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
     // Already launched.
   }
 
-  async openGameFile(_actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
-    // Opened at launch from the app's argument; any other file cannot be opened.
-    assertLaunchFixture(path);
+  async loadTestPack(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
+    // Loaded at launch from the app's argument.
+  }
+
+  async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
+    await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
+    await pickFileInNativeDialog(path);
   }
 }

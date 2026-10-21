@@ -36,6 +36,8 @@ export const waitUntilPresent = (element: Answerable<PageElement>) =>
 /**
  * Whether `element` is gone. Only a missing element counts as gone: isPresent() false, or a
  * "no such element" / stale-element error. Any other read error surfaces.
+ * Never pass a `.where()`-filtered element (such as ShelfCard): isMissingElementError counts a
+ * filtered list's wrapped error as missing, so an item re-rendering mid-read would read as gone.
  */
 export const AbsenceOf = (element: Answerable<PageElement>): QuestionAdapter<boolean> =>
   Question.about(d`the absence of ${element}`, async (actor) => {
@@ -47,7 +49,7 @@ export const AbsenceOf = (element: Answerable<PageElement>): QuestionAdapter<boo
     }
   });
 
-/** Waits until `element` is gone (see AbsenceOf). */
+/** Waits until `element` is gone (see AbsenceOf; not for `.where()`-filtered elements). */
 export const waitUntilAbsent = (element: Answerable<PageElement>) =>
   Wait.upTo(INTERACTION_TIMEOUT).until(AbsenceOf(element), equals(true)).pollingEvery(POLLING_INTERVAL);
 

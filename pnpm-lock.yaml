@@ -345,6 +345,9 @@ importers:
       expect-webdriverio:
         specifier: ^6.1.0
         version: 6.1.0(@wdio/globals@9.31.3)(@wdio/logger@9.29.1)(webdriverio@9.32.0)
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
       husky:
         specifier: ^9.1.7
         version: 9.1.7

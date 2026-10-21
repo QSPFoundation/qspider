@@ -70,9 +70,21 @@ export const gameSourceMap$ = atom((get) => {
   return map;
 });
 
+let locationChange: Promise<void> = Promise.resolve();
 history.listen(({ location }) => {
-  processLocationChange(location.search);
+  locationChange = processLocationChange(location.search);
 });
+
+/**
+ * Resolves once the latest navigation (e.g. goToGame, whose game starts asynchronously) has been
+ * handled, whether it succeeded or not.
+ */
+export function locationSettled(): Promise<void> {
+  return locationChange.then(
+    () => undefined,
+    () => undefined,
+  );
+}
 
 export async function processLocationChange(location: string): Promise<void> {
   const search = new URLSearchParams(location);

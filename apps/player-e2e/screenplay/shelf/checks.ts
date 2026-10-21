@@ -1,5 +1,5 @@
 import { Task } from '@serenity-js/core';
-import { equals } from '@serenity-js/assertions';
+import { contain, equals } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
@@ -20,3 +20,7 @@ export const SeeShelfTitles = (titles: string[]): Task => {
     listed,
   );
 };
+
+/** The shelf eventually lists a game titled `title`, among any others. */
+export const SeeShelfIncludes = (title: string): Task =>
+  seeEventually(Shelf, () => ShelfTitles.eachMappedTo(Text), contain(title), `#actor sees "${title}" on the shelf`);

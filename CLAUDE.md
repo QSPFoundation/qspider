@@ -24,7 +24,7 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 
 ### Testing and Quality
 
-- Unit tests: wiring comes in phase 4; existing Vitest specs run via `npx vitest run`
+- `pnpm test` - unit tests in every project (nx `test` targets, inferred by the `@nx/vitest` plugin from each project's vite/vitest config); one project: `pnpm nx test <project>`
 - `pnpm lint` - Run ESLint on all projects
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting

@@ -11,7 +11,7 @@ import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { ErrorAlert, games$, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
+import { addImported, ErrorAlert, goToGame, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
@@ -36,16 +36,13 @@ export const App: React.FC = () => {
         if (isSupportedFileType(filePath)) {
           try {
             const imported = await importDesktop(filePath);
-            for (const entry of imported) {
-              if (!games$.value[entry.id]) {
-                games$.actions.add(entry.id, entry);
+            const toRun = addImported(imported, t);
+            if (toRun) {
+              if (currentGame$.value) {
+                stopCurrentGame();
               }
+              goToGame(toRun);
             }
-            if (currentGame$.value) {
-              stopCurrentGame();
-            }
-            const toRun = imported[0].id;
-            toRun && goToGame(toRun);
           } catch (err) {
             showError(err instanceof Error ? err.message : String(err));
           }
@@ -74,6 +71,7 @@ export const App: React.FC = () => {
         <PlayerWithShelf />
         <ErrorAlert />
         <NoticeToast />
+        <StartupMarker />
       </QspiderRoot>
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>

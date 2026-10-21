@@ -65,3 +65,6 @@ standalone.tauri.json
 /apps/player-e2e/artifacts
 /test-results
 /playwright-report
+
+# Python bytecode (AT-SPI helpers)
+__pycache__/
