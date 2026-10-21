@@ -44,3 +44,7 @@ export const SeeGameStarted = (startText: string) =>
  */
 export const SeeStartupFinished = (): Task =>
   seeEventually(StartupFinishedMarker, (e) => PresenceOf(e), equals(true), '#actor sees the player finish starting up');
+
+/** The player shows an error alert (an import failure toast or an engine error dialog). */
+export const SeeErrorShown = (): Task =>
+  seeEventually(ErrorAlerts.first(), (e) => PresenceOf(e), equals(true), '#actor sees an error alert');

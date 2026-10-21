@@ -21,6 +21,8 @@ export abstract class OperatePlayer extends Ability {
    * where that control is.
    */
   abstract openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
+  /** Opens the player with the game `url` in its `?game=` parameter (web only). A path like `/x/y.qsps` is served by the player's own origin. */
+  abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -28,6 +30,11 @@ export const StartPlayer = (): Interaction =>
 
 export const LoadTestPack = (): Interaction =>
   Interaction.where('#actor loads the test pack', (actor) => OperatePlayer.as(actor).loadTestPack(actor));
+
+export const OpenGameUrl = (url: string): Interaction =>
+  Interaction.where(`#actor opens the player with game url ${url}`, (actor) =>
+    OperatePlayer.as(actor).openGameUrl(actor, url),
+  );
 
 export const OpenGameFile = (path: string): Interaction =>
   Interaction.where(`#actor opens the game file ${path}`, (actor) =>
