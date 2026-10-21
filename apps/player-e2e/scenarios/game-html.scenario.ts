@@ -147,14 +147,14 @@ scenario('qsp-bind stores a double quote literally instead of breaking the gener
   );
 });
 
-scenario('qsp-bind stores <<expr>> text literally instead of interpolating it', async (player) => {
+// Web only: <<...>> needs repeated Shift sequences that WebKitWebDriver sendKeys drops; the escaper (toQspString) is platform-independent JS covered on web.
+scenario.webOnly('qsp-bind stores <<expr>> text literally instead of interpolating it', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
     OpenGameFile(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.bind),
-    // Typing the Shift-interleaved <<2+2>> can drop a character on desktop WebKit; the specFileRetry absorbs it.
     TypeInto('<<2+2>>', BindField),
     ClickAction(ACTION.showBind),
     SeeMainText(TEXT.bound('<<2+2>>')),
