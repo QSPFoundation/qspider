@@ -14,7 +14,7 @@ export const DIALOGS = {
     hideView: 'Hide view',
     /** wait 300 ms, then writes text.afterShortWait. */
     waitShort: 'Wait short',
-    /** wait 3000 ms, then writes text.afterLongWait. */
+    /** wait 60000 ms (longer than the 15s interaction timeout, so only a click can end it in time), then writes text.afterLongWait. */
     waitLong: 'Wait long',
   },
   text: {

@@ -23,7 +23,7 @@ act 'Wait short':
   *clr & *pl 'AFTER SHORT WAIT'
 end
 act 'Wait long':
-  wait 3000
+  wait 60000
   *clr & *pl 'AFTER LONG WAIT'
 end
 ---
