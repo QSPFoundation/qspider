@@ -61,7 +61,7 @@ export const AeroQspMenuList: React.FC<{ attrs: Attributes; children: ReactNode 
     <Tag style={style} {...attributes}>
       {items.map((item, index) => {
         return item.name[0] === '-' ? (
-          <qsp-menu-separator key={item.key} />
+          <qsp-menu-separator key={item.key} data-qsp="menu-separator" />
         ) : (
           <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={item.key}>
             {React.Children.map(children, (child) => {

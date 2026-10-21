@@ -1,0 +1,46 @@
+# start
+*pl 'DIALOGS START'
+act 'Show message':
+  msg 'DIALOG MESSAGE'
+  *clr & *pl 'AFTER MESSAGE'
+end
+act 'Ask input':
+  $r = input('DIALOG PROMPT')
+  *clr & *pl 'INPUT ECHO: <<$r>>'
+end
+act 'Open menu':
+  $picked = ''
+  $arr[0] = 'First item:menu_first:'
+  $arr[1] = '-:-'
+  $arr[2] = 'Second item:menu_second:'
+  $arr[3] = 'Open message:menu_msg:'
+  menu '$arr'
+  if $picked = '': *clr & *pl 'MENU CANCELLED'
+end
+act 'Show view': view 'view.png'
+act 'Hide view': view ''
+act 'Wait short':
+  wait 300
+  *clr & *pl 'AFTER SHORT WAIT'
+end
+act 'Wait long':
+  wait 60000
+  *clr & *pl 'AFTER LONG WAIT'
+end
+---
+
+# menu_first
+$picked = 'first'
+*clr & *pl 'MENU RESULT FIRST'
+---
+
+# menu_second
+$picked = 'second'
+*clr & *pl 'MENU RESULT SECOND'
+---
+
+# menu_msg
+$picked = 'msg'
+msg 'MENU MSG'
+*clr & *pl 'MENU MSG CLOSED'
+---

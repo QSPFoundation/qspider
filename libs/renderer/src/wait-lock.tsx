@@ -18,5 +18,5 @@ export const WaitLock: React.FC = () => {
   );
   if (!wait) return null;
 
-  return <div className="wait-lock" onClick={finishWait} />;
+  return <div className="wait-lock" data-qsp="wait" onClick={finishWait} />;
 };
