@@ -10,18 +10,19 @@ import { ARCHIVES, SOURCES } from './archives';
 import { TEST_PACK } from './test-pack';
 
 /** game.cfg and every file its [[game]] entries list, keyed by path relative to game.cfg. */
-function packFiles(configPath: string): Record<string, Uint8Array> {
+function packFiles(configPath: string, extraFiles: string[] = []): Record<string, Uint8Array> {
   const config = readFileSync(configPath);
   const { game = [] } = parse(config.toString('utf8')) as { game?: { file: string }[] };
   if (game.length === 0) throw new Error(`${configPath} lists no games`);
   const files: Record<string, Uint8Array> = { 'game.cfg': config };
-  for (const { file } of game) files[file] = readFileSync(join(dirname(configPath), file));
+  for (const file of [...game.map((g) => g.file), ...extraFiles])
+    files[file] = readFileSync(join(dirname(configPath), file));
   return files;
 }
 
 /** Zip of a game.cfg and the games it lists. */
-export function zipPack(configPath: string): Uint8Array {
-  return zipSync(packFiles(configPath) as Zippable);
+export function zipPack(configPath: string, extraFiles: string[] = []): Uint8Array {
+  return zipSync(packFiles(configPath, extraFiles) as Zippable);
 }
 
 function write(path: string, data: Uint8Array | ArrayBuffer): void {
@@ -45,7 +46,7 @@ export async function buildFixtures(): Promise<void> {
   const singleConfig = join(SOURCES.single, 'game.cfg');
   write(ARCHIVES.singleZip.path, zipPack(singleConfig));
   write(ARCHIVES.multiZip.path, zipPack(TEST_PACK.configPath));
-  write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg')));
+  write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
 
   const singleSource = readFileSync(join(SOURCES.single, 'single.qsps'), 'utf8');
   write(ARCHIVES.qspBinary.path, writeQsp(readQsps(singleSource)));

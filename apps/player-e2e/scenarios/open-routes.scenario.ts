@@ -1,5 +1,6 @@
 import { TEST_PACK } from '../fixtures/test-pack';
 import { ARCHIVES } from '../fixtures/archives';
+import { CYRILLIC_GAME } from '../fixtures/cyrillic-game';
 import { URL_GAME } from '../fixtures/url-game';
 import {
   SeeErrorShown,
@@ -8,6 +9,7 @@ import {
   SeeStartupFinished,
   WaitNoticeGone,
 } from '../screenplay/common/checks';
+import { SeeMainText } from '../screenplay/game/checks';
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
@@ -40,6 +42,19 @@ const opensArchive = (name: string, archive: { path: string; title: string; star
 
 opensArchive('opening a single-game zip starts it', ARCHIVES.singleZip);
 opensArchive('opening a .7z starts it', ARCHIVES.sevenZip);
+opensArchive('opening a .qsp binary starts it', ARCHIVES.qspBinary);
+// Non-ASCII path: on desktop it must survive the GTK dialog's path autocomplete unchanged.
+opensArchive('opening a Cyrillic-named game starts it', CYRILLIC_GAME);
+
+scenario('an includer game loads its included file', async (player) => {
+  // The marker is pushed by a label that exists only in the included file (inclib).
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(ARCHIVES.includerZip.path),
+    SeeMainText(ARCHIVES.includerZip.includedMarker),
+  );
+});
 
 scenario('a multi-game zip is shelved, not started', async (player) => {
   await player.attemptsTo(
