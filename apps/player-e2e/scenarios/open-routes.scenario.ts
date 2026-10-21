@@ -1,7 +1,8 @@
 import { ARCHIVES } from '../fixtures/archives';
 import { URL_GAME } from '../fixtures/url-game';
 import { SeeErrorShown, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { SeeNoGameRunning } from '../screenplay/game/checks';
+import { E2E_GAME } from '../fixtures/e2e-game';
+import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
 import { OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
@@ -39,6 +40,9 @@ scenario('a multi-game zip is shelved, not started', async (player) => {
     SeeStartupFinished(),
     OpenGameFile(ARCHIVES.multiZip.path),
     SeeShelfTitles([...ARCHIVES.multiZip.titles]),
-    SeeNoGameRunning(),
+    // Settle anchor: both games are shelved and still startable from the shelf. Had one auto-started,
+    // the shelf would be gone and this fails; opening one shows nothing was running before.
+    OpenFromShelf(ARCHIVES.multiZip.titles[0]),
+    SeeGameStarted(E2E_GAME.text.start),
   );
 });
