@@ -10,6 +10,8 @@ import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
+import { SeeView, SeeViewGone } from '../screenplay/view/checks';
+import { CloseView } from '../screenplay/view/tasks';
 
 const { actions: ACTION, text: TEXT } = DIALOGS;
 
@@ -79,5 +81,18 @@ scenario('cancelling a menu returns to the game', async (player) => {
     SeeMenu(),
     CancelMenu(),
     SeeMainText(DIALOGS.menu.cancelResult),
+  );
+});
+
+scenario('an image view opens and closes', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.showView),
+    SeeView(),
+    CloseView(),
+    SeeViewGone(),
   );
 });
