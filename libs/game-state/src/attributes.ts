@@ -52,6 +52,7 @@ export type EventAttributes = {
   onMouseLeave?: (e: MouseEvent) => void;
   onContextMenu?: (e: MouseEvent) => void;
   onDoubleClick?: (e: MouseEvent) => void;
+  onSubmit?: (e: Event) => void;
 };
 export type Attributes = {
   style?: React.CSSProperties;

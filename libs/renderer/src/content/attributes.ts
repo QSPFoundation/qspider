@@ -76,13 +76,14 @@ const attributesToStyle = (attributes: Attributes, tag: string): Record<string, 
   return style;
 };
 
-const supportedEvents = ['click', 'mouseenter', 'mouseleave', 'contextmenu', 'dblclick', 'wheel'];
+const supportedEvents = ['click', 'mouseenter', 'mouseleave', 'contextmenu', 'dblclick', 'wheel', 'submit'];
 const eventsMap: Record<string, keyof EventAttributes> = {
   click: 'onClick',
   mouseenter: 'onMouseEnter',
   mouseleave: 'onMouseLeave',
   contextmenu: 'onContextMenu',
   dblclick: 'onDoubleClick',
+  submit: 'onSubmit',
 };
 export const useAttributes = <Tag extends keyof React.JSX.IntrinsicElements>(
   attributes: Attributes,
@@ -107,7 +108,7 @@ export const useAttributes = <Tag extends keyof React.JSX.IntrinsicElements>(
       const code = (value as string).slice(5);
       const [, event] = key.split(':');
       if (supportedEvents.includes(event)) {
-        converted[eventsMap[event as keyof typeof eventsMap]] = (e: MouseEvent): void => {
+        converted[eventsMap[event as keyof typeof eventsMap]] = (e: Event): void => {
           e.preventDefault();
           execCode(code);
         };
