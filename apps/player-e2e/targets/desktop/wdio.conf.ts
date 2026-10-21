@@ -6,7 +6,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { copyFileSync, createWriteStream, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
@@ -31,9 +31,11 @@ const DRIVER_PORT = 4444;
 // Read by screenplay/support/scenario.ts to pick this target's scenario shim.
 process.env['QSPIDER_E2E_TARGET'] = 'desktop';
 
-// One tauri-driver for the whole run, with one set of XDG dirs. Before each test,
-// fresh-app.ts ends the app, empties those dirs and starts a new session, for
-// which tauri-driver launches a new app process.
+// One tauri-driver PER spec-file worker (spawned in beforeSession, stopped in afterSession), each with
+// its own XDG dirs. A single driver shared across workers intermittently lost the second worker's
+// session-creation handshake (tauri-driver logged hyper::Error(IncompleteMessage)) and orphaned the
+// app processes, which then poisoned later scenarios; a fresh driver per worker isolates that.
+// Within a worker, fresh-app.ts ends the app, empties the dirs and starts a new session per test.
 let tauriDriver: ChildProcess | undefined;
 let runDir: string | undefined;
 
@@ -99,6 +101,51 @@ async function assertDriverPortFree(): Promise<void> {
 
 const safeName = (s: string): string => s.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
 
+/** Resolves once nothing accepts TCP on `port`: our previous worker's driver has fully released it. */
+function waitForPortFree(port: number, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  return new Promise((resolve, reject) => {
+    const attempt = async (): Promise<void> => {
+      if (!(await isPortInUse(port))) return resolve();
+      if (Date.now() > deadline)
+        return reject(new Error(`tauri-driver port ${port} still in use after ${timeoutMs}ms`));
+      setTimeout(() => void attempt(), 100); // poll interval, not a fixed wait
+    };
+    void attempt();
+  });
+}
+
+/** Spawns a fresh tauri-driver with its own XDG dirs for one worker, and exposes it to fresh-app.ts. */
+async function startDriver(): Promise<void> {
+  await waitForPortFree(DRIVER_PORT, 10_000);
+  runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
+  const xdg = {
+    XDG_DATA_HOME: join(runDir, 'data'),
+    XDG_CONFIG_HOME: join(runDir, 'config'),
+    XDG_CACHE_HOME: join(runDir, 'cache'),
+  };
+  Object.values(xdg).forEach((dir) => mkdirSync(dir));
+  const log = createWriteStream(join(runDir, 'tauri-driver.log'));
+  tauriDriver = spawn('tauri-driver', ['--port', String(DRIVER_PORT)], {
+    env: { ...process.env, ...xdg },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  tauriDriver.stdout?.pipe(log);
+  tauriDriver.stderr?.pipe(log);
+  // Covers an aborted worker; afterSession is the normal teardown.
+  process.once('exit', () => tauriDriver?.kill());
+  await waitForPort(DRIVER_PORT, 10_000);
+  // If our driver died (e.g. failed to bind), the port answer came from someone else.
+  if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
+    throw new SevereServiceError(
+      `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
+    );
+  }
+  // Read by fresh-app.ts in this same worker process.
+  process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
+  process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
+}
+
 export const config: WebdriverIOConfig = {
   runner: 'local',
   specs: ['../../scenarios/**/*.scenario.ts'],
@@ -116,7 +163,9 @@ export const config: WebdriverIOConfig = {
   logLevel: 'warn',
   outputDir: join(artifactsDir, 'wdio-logs'),
   waitforTimeout: 10_000,
-  specFileRetries: 0,
+  // A spec file whose worker still hit the session-handshake flake is retried once, in a brand-new
+  // worker with its own fresh tauri-driver (beforeSession) — no orphaned state carries over.
+  specFileRetries: 1,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
@@ -147,33 +196,29 @@ export const config: WebdriverIOConfig = {
     mkdirSync(join(artifactsDir, 'wdio-logs'), { recursive: true });
 
     await buildFixtures();
+  },
 
-    runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
-    const xdg = {
-      XDG_DATA_HOME: join(runDir, 'data'),
-      XDG_CONFIG_HOME: join(runDir, 'config'),
-      XDG_CACHE_HOME: join(runDir, 'cache'),
-    };
-    Object.values(xdg).forEach((dir) => mkdirSync(dir));
-    const log = createWriteStream(join(runDir, 'tauri-driver.log'));
-    tauriDriver = spawn('tauri-driver', ['--port', String(DRIVER_PORT)], {
-      env: { ...process.env, ...xdg },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    });
-    tauriDriver.stdout?.pipe(log);
-    tauriDriver.stderr?.pipe(log);
-    // Covers an aborted launcher; onComplete is the normal teardown.
-    process.once('exit', () => tauriDriver?.kill());
-    await waitForPort(DRIVER_PORT, 10_000);
-    // If our driver died (e.g. failed to bind), the port answer came from someone else.
-    if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
-      throw new SevereServiceError(
-        `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
-      );
+  // A fresh tauri-driver per worker (see the note by `let tauriDriver`). maxInstances is 1, so workers
+  // run serially and only one driver holds DRIVER_PORT at a time.
+  async beforeSession() {
+    if (process.platform !== 'linux') return;
+    await startDriver();
+  },
+
+  async afterSession(_config, _caps, specs) {
+    await killDriver();
+    if (runDir) {
+      try {
+        copyFileSync(
+          join(runDir, 'tauri-driver.log'),
+          join(artifactsDir, `tauri-driver-${safeName(basename(String(specs?.[0] ?? 'run')))}.log`),
+        );
+      } catch {
+        // no log written
+      }
+      rmSync(runDir, { recursive: true, force: true });
+      runDir = undefined;
     }
-    // Read by fresh-app.ts in the worker, which inherits the launcher's env.
-    process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
-    process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
   },
 
   async afterTest(test, _context, { passed, error }) {
@@ -188,19 +233,5 @@ export const config: WebdriverIOConfig = {
     } catch (err) {
       writeFileSync(`${base}.capture-error.txt`, String(err));
     }
-  },
-
-  async onComplete(exitCode) {
-    await killDriver();
-    if (!runDir) return;
-    if (exitCode !== 0) {
-      try {
-        copyFileSync(join(runDir, 'tauri-driver.log'), join(artifactsDir, 'tauri-driver.log'));
-      } catch {
-        // no log written
-      }
-    }
-    rmSync(runDir, { recursive: true, force: true });
-    runDir = undefined;
   },
 };
