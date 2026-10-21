@@ -17,3 +17,8 @@ export const MarkupBold = ContentMark(GAME_HTML.marks.bold);
 export const AreaImage = PageElements.located(By.css(`[data-qa="${GAME_HTML.marks.areaImage}"]`))
   .first()
   .describedAs('area image');
+
+// `qsp-on:wheel` is listed in the renderer's `supportedEvents` but has no `eventsMap` entry (latent bug, out of 2c scope).
+export const OnClick = ContentMark(GAME_HTML.marks.onClick);
+export const OnEnter = ContentMark(GAME_HTML.marks.onEnter);
+export const OnLeave = ContentMark(GAME_HTML.marks.onLeave);

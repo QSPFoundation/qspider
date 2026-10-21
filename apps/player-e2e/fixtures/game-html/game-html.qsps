@@ -36,8 +36,8 @@ act 'num target': *clr & *pl 'NUM LINK RESULT'
 # events
 *clr
 *pl '<span qsp-on:click="exec:gt ''click_done''" data-qa="on-click">CLICK ME</span>'
-*pl '<span qsp-on:mouseenter="exec:gt ''enter_done''" data-qa="on-enter">ENTER ME</span>'
-*pl '<span qsp-on:mouseleave="exec:gt ''leave_done''" data-qa="on-leave">LEAVE ME</span>'
+*pl '<span qsp-on:mouseenter="exec:gs ''enter_done''" data-qa="on-enter">ENTER ME</span>'
+*pl '<span qsp-on:mouseleave="exec:gs ''leave_done''" data-qa="on-leave">LEAVE ME</span>'
 ---
 
 # click_done
@@ -45,11 +45,19 @@ act 'num target': *clr & *pl 'NUM LINK RESULT'
 ---
 
 # enter_done
-*clr & *pl 'ON ENTER RESULT'
+! Once, and via gs (gt would clear the main panel and detach the hovered element mid-hover): a re-render under the pointer re-fires the event.
+if entered = 0:
+  entered = 1
+  *pl '<span data-qa="enter-result">ON ENTER RESULT</span>'
+end
 ---
 
 # leave_done
-*clr & *pl 'ON LEAVE RESULT'
+! Once, and via gs (gt would clear the main panel and detach the hovered element mid-hover): a re-render under the pointer re-fires the event.
+if left = 0:
+  left = 1
+  *pl '<span data-qa="leave-result">ON LEAVE RESULT</span>'
+end
 ---
 
 # form
