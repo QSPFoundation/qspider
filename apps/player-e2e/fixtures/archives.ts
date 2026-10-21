@@ -11,6 +11,7 @@ export const ARCHIVES = {
   sevenZip: { path: out('single-game.7z'), title: 'Single game', startText: 'SINGLE START' },
   /** Compiled .qsp of the single game; the shelf titles it by file name. */
   qspBinary: { path: out('single.qsp'), title: 'single.qsp', startText: 'SINGLE START' },
+  dialogsZip: { path: out('dialogs.zip'), title: 'Dialogs game', image: 'view.png' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -18,4 +19,5 @@ export const ARCHIVES = {
 export const SOURCES = {
   single: fileURLToPath(new URL('./single-game/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
+  dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
 } as const;
