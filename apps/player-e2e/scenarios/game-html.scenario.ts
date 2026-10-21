@@ -146,3 +146,16 @@ scenario('qsp-bind stores a double quote literally instead of breaking the gener
     SeeMainText(TEXT.bound('a"b')),
   );
 });
+
+scenario('qsp-bind stores <<expr>> text literally instead of interpolating it', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.bind),
+    TypeInto('<<2+2>>', BindField),
+    ClickAction(ACTION.showBind),
+    SeeMainText(TEXT.bound('<<2+2>>')),
+  );
+});

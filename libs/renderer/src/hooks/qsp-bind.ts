@@ -2,15 +2,15 @@ import { qspApi$, useQspVariable } from '@qspider/game-state';
 import { ChangeEvent, ChangeEventHandler } from 'react';
 
 /**
- * Builds a QSP double-quoted string literal. Inside such a literal a quote is written doubled (`""`),
- * the same rule `@qsp/converters` readQsps applies when scanning strings. Line breaks (textarea input)
- * are joined with `chr(10)` so the generated statement stays on one line.
+ * Builds a QSP double-quoted string literal that evaluates to `value` verbatim.
+ * - A quote inside a literal is written doubled (`""`), the rule `@qsp/converters` readQsps applies.
+ * - QSP expands `<<expr>>` inside literals, so every `<` that precedes another `<` is cut off with
+ *   `" + "`: the pieces concatenate back to the text without `<<` ever being adjacent in the source.
+ * - Line breaks (textarea input) are joined with `chr(10)`; the join text is added last so it is not re-escaped.
  */
 export function toQspString(value: string): string {
-  return `"${value
-    .replace(/"/g, '""')
-    .split(/\r\n|\r|\n/)
-    .join('" + chr(10) + "')}"`;
+  const escaped = value.replace(/"/g, '""').replace(/<(?=<)/g, '<" + "');
+  return `"${escaped.split(/\r\n|\r|\n/).join('" + chr(10) + "')}"`;
 }
 
 export function useQspBind(bind: string, bindKey: string, bindIndex: number): [string, ChangeEventHandler] {
