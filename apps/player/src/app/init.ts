@@ -42,13 +42,19 @@ export async function init(): Promise<void> {
   const toImport = gameUrl || configUrl;
   let toRun: string | null = null;
   if (toImport) {
-    const imported = await importUrl(toImport);
-    for (const entry of imported) {
-      if (!games$.value[entry.id]) {
-        games$.actions.add(entry.id, entry);
+    try {
+      const imported = await importUrl(toImport);
+      for (const entry of imported) {
+        if (!games$.value[entry.id]) {
+          games$.actions.add(entry.id, entry);
+        }
       }
+      toRun = imported[0].id;
+    } catch {
+      showError(i18n.t(`Failed to load game from {{url}}`, { url: toImport }));
+    } finally {
+      loadingMessage$.set('');
     }
-    toRun = imported[0].id;
   }
   const catalogId = urlParams.get('catalogId');
   if (catalogId) {
