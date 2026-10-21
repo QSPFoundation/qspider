@@ -163,9 +163,11 @@ export const config: WebdriverIOConfig = {
   logLevel: 'warn',
   outputDir: join(artifactsDir, 'wdio-logs'),
   waitforTimeout: 10_000,
-  // A spec file whose worker still hit the session-handshake flake is retried once, in a brand-new
-  // worker with its own fresh tauri-driver (beforeSession) — no orphaned state carries over.
-  specFileRetries: 1,
+  // The per-scenario app relaunch (deleteSession+reloadSession) intermittently hangs (~5-10%/run) in
+  // wry/WebKitWebDriver's session handling — independent of our code. A failed spec is retried in a
+  // brand-new worker with its own fresh tauri-driver (beforeSession), so no orphaned state carries over;
+  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec.
+  specFileRetries: 2,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
