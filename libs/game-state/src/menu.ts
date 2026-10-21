@@ -33,16 +33,20 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
         });
       },
       select(index: number): void {
-        isPaused$.set(false);
-        isOpen$.set(false);
-        atom.value.onselect?.(index);
-        atom.value.onselect = null;
+        if (isOpen$.value) {
+          isPaused$.set(false);
+          isOpen$.set(false);
+          atom.value.onselect?.(index);
+          atom.value.onselect = null;
+        }
       },
       close(): void {
-        isPaused$.set(false);
-        isOpen$.set(false);
-        atom.value.onselect?.(-1);
-        atom.value.onselect = null;
+        if (isOpen$.value) {
+          isPaused$.set(false);
+          isOpen$.set(false);
+          atom.value.onselect?.(-1);
+          atom.value.onselect = null;
+        }
       },
       clear(): void {
         if (isOpen$.value) {
