@@ -6,6 +6,11 @@ act 'events': gt 'events'
 act 'form': gt 'form'
 act 'bind': gt 'bind'
 act 'watchers': gt 'watchers'
+act 'hostile': gt 'hostile'
+---
+
+# hostile
+*clr
 act 'hostile svg': gt 'hostile_svg'
 act 'hostile iframe': gt 'hostile_iframe'
 act 'hostile js': gt 'hostile_js'
@@ -111,7 +116,7 @@ end
 
 # hostile_js
 *clr
-*pl '<a href="JavaScript:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-link">JS LINK</a>'
+*pl '<a target="_self" href="JavaScript:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-link">JS LINK</a>'
 *pl 'JS BENIGN'
 ---
 

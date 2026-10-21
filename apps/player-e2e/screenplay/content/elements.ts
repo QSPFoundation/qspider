@@ -36,3 +36,8 @@ export const ShowChild = PageElements.located(By.css(`[data-qa="${GAME_HTML.mark
 export const QspStyle = PageElements.located(By.css('[data-qsp="style"]')).first().describedAs('qsp-style');
 export const QspRegion = visible(PageElements.located(By.css('[data-qsp="region"]')), 'qsp-region');
 export const QspLayer = PageElements.located(By.css('[data-qsp="layer"]')).first().describedAs('qsp-layer');
+
+// Selector mirrors GAME_HTML.marks.pwnedAttribute (the lint rule needs a literal). Set on <body> by the hostile iframe's srcdoc script if it reaches the host page.
+export const PwnedAttribute = PageElements.located(By.css('[data-qa-pwned]'))
+  .first()
+  .describedAs('pwned marker attribute');

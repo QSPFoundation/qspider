@@ -14,6 +14,8 @@ export const GAME_HTML = {
     form: 'form',
     bind: 'bind',
     watchers: 'watchers',
+    /** Start location: opens the hostile menu (the start actions panel clips more than eight rows). */
+    hostile: 'hostile',
     hostileSvg: 'hostile svg',
     hostileIframe: 'hostile iframe',
     hostileJs: 'hostile js',

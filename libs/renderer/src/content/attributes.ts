@@ -134,7 +134,7 @@ export const useAttributes = <Tag extends keyof React.JSX.IntrinsicElements>(
     delete converted['className'];
   }
   if (tag === 'iframe') {
-    converted['sandbox'] = 'allow-scripts allow-same-origin';
+    converted['sandbox'] = 'allow-scripts';
   }
   if (qspCommand) {
     converted['onClick'] = (e: MouseEvent): void => {
