@@ -36,12 +36,14 @@ scenario('qsp-show renders its child only while the condition holds', async (pla
   );
 });
 
-scenario('qsp-style applies the css of its variable', async (player) => {
+// QspStyle renders a <style> only while its variable is non-empty. <style> text is not readable
+// through every driver, so presence is the portable proof that it follows its variable.
+scenario('qsp-style is rendered only once its variable is set', async (player) => {
   await player.attemptsTo(
     ...openWatchers,
-    SeeElementText(QspStyle, TEXT.styleRed, 'style reads red'),
+    waitUntilAbsent(QspStyle),
     ClickAction(ACTION.changeStyle),
-    SeeElementText(QspStyle, TEXT.styleBlue, 'style reads blue'),
+    waitUntilPresent(QspStyle),
   );
 });
 

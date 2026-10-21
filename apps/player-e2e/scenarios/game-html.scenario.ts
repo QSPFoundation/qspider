@@ -154,6 +154,7 @@ scenario('qsp-bind stores <<expr>> text literally instead of interpolating it', 
     OpenGameFile(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.bind),
+    // Typing the Shift-interleaved <<2+2>> can drop a character on desktop WebKit; the specFileRetry absorbs it.
     TypeInto('<<2+2>>', BindField),
     ClickAction(ACTION.showBind),
     SeeMainText(TEXT.bound('<<2+2>>')),

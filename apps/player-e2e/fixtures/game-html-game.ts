@@ -67,8 +67,6 @@ export const GAME_HTML = {
     varOne: 'VAR ONE',
     varTwo: 'VAR TWO',
     shown: 'SHOWN',
-    styleRed: '.e2e{color:red}',
-    styleBlue: '.e2e{color:blue}',
     regionText: 'REGION TEXT',
     layerText: 'LAYER TEXT',
     svgBenign: 'SVG BENIGN',

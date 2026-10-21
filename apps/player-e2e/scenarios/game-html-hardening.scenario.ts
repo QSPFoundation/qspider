@@ -1,6 +1,6 @@
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { SeeElementAttribute } from '../screenplay/content/checks';
+import { SeeElementAttribute, SeeNeutralizedHref } from '../screenplay/content/checks';
 import { ErrorAlerts } from '../screenplay/common/elements';
 import { ContentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
@@ -47,10 +47,9 @@ scenario('a mixed-case javascript: link does not run', async (player) => {
     ClickAction(ACTION.hostile),
     ClickAction(ACTION.hostileJs),
     ClickContent(ContentMark(MARK.jsLink)),
-    // The href='#' assertion pins the player's own guard (extractAttributes valueProcessors.href rewrites
-    // JavaScript: to '#' before React sees it). React is only a secondary backstop: it throws on a raw
-    // javascript: URL.
-    SeeElementAttribute(ContentMark(MARK.jsLink), 'href', '#'),
+    // Pins the player's own guard (extractAttributes valueProcessors.href rewrites JavaScript: to '#' before
+    // React sees it). React is only a secondary backstop: it throws on a raw javascript: URL.
+    SeeNeutralizedHref(ContentMark(MARK.jsLink)),
     SeeMainTextContaining(TEXT.jsBenign),
     SeeMainTextWithout(TEXT.inject),
   );

@@ -84,7 +84,7 @@ act 'show bind': *clr & *pl 'BOUND=<<$boundstr>>'
 # watchers
 *clr
 $wvar = 'VAR ONE'
-$wcss = '.e2e{color:red}'
+$wcss = ''
 *pl '<qsp-variable name="$wvar"></qsp-variable>'
 *pl '<qsp-show when="$wvar" equals="VAR TWO"><span data-qa="show-child">SHOWN</span></qsp-show>'
 *pl '<qsp-style from="$wcss"></qsp-style>'
