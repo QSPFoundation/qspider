@@ -12,6 +12,8 @@ import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player'
 import { scenario } from '../screenplay/support/scenario';
 import { SeeView, SeeViewGone } from '../screenplay/view/checks';
 import { CloseView } from '../screenplay/view/tasks';
+import { SeeWaiting } from '../screenplay/wait/checks';
+import { ClickWaitLock } from '../screenplay/wait/tasks';
 
 const { actions: ACTION, text: TEXT } = DIALOGS;
 
@@ -94,5 +96,29 @@ scenario('an image view opens and closes', async (player) => {
     SeeView(),
     CloseView(),
     SeeViewGone(),
+  );
+});
+
+scenario('a wait ends on its own', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.waitShort),
+    SeeMainText(TEXT.afterShortWait),
+  );
+});
+
+scenario('clicking the wait lock ends the wait', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.waitLong),
+    SeeWaiting(),
+    ClickWaitLock(),
+    SeeMainText(TEXT.afterLongWait),
   );
 });
