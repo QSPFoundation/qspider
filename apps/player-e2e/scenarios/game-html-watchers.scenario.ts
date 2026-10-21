@@ -1,0 +1,65 @@
+import { GAME_HTML } from '../fixtures/game-html-game';
+import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
+import { SeeElementText } from '../screenplay/content/checks';
+import { QspLayer, QspRegion, QspStyle, QspVariable, ShowChild } from '../screenplay/content/elements';
+import { ClickAction } from '../screenplay/game/tasks';
+import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
+import { scenario } from '../screenplay/support/scenario';
+
+const { actions: ACTION, text: TEXT } = GAME_HTML;
+
+const openWatchers = [
+  StartPlayer(),
+  SeeStartupFinished(),
+  OpenGameFile(GAME_HTML.path),
+  SeeGameStarted(TEXT.start),
+  ClickAction(ACTION.watchers),
+] as const;
+
+scenario('qsp-variable follows its variable', async (player) => {
+  await player.attemptsTo(
+    ...openWatchers,
+    SeeElementText(QspVariable, TEXT.varOne, `#actor sees the variable read "${TEXT.varOne}"`),
+    ClickAction(ACTION.changeVar),
+    SeeElementText(QspVariable, TEXT.varTwo, `#actor sees the variable read "${TEXT.varTwo}"`),
+  );
+});
+
+scenario('qsp-show renders its child only while the condition holds', async (player) => {
+  await player.attemptsTo(
+    ...openWatchers,
+    SeeElementText(QspVariable, TEXT.varOne, `#actor sees the variable read "${TEXT.varOne}"`),
+    waitUntilAbsent(ShowChild),
+    ClickAction(ACTION.changeVar),
+    waitUntilPresent(ShowChild),
+  );
+});
+
+scenario('qsp-style applies the css of its variable', async (player) => {
+  await player.attemptsTo(
+    ...openWatchers,
+    SeeElementText(QspStyle, TEXT.styleRed, 'style reads red'),
+    ClickAction(ACTION.changeStyle),
+    SeeElementText(QspStyle, TEXT.styleBlue, 'style reads blue'),
+  );
+});
+
+scenario('qsp-region shows the text put into its region', async (player) => {
+  await player.attemptsTo(
+    ...openWatchers,
+    ClickAction(ACTION.fillRegion),
+    SeeElementText(QspRegion, TEXT.regionText, 'region'),
+  );
+});
+
+// A hidden layer renders nothing (QspLayer returns null), so absent-then-present is the show.
+// (Playwright reports the shown full-viewport layer as not visible, so isVisible() cannot be used.)
+scenario('qsp-layer is rendered only once shown', async (player) => {
+  await player.attemptsTo(
+    ...openWatchers,
+    waitUntilAbsent(QspLayer),
+    ClickAction(ACTION.fillLayer),
+    SeeElementText(QspLayer, TEXT.layerText, 'layer'),
+  );
+});

@@ -25,3 +25,14 @@ export const OnLeave = ContentMark(GAME_HTML.marks.onLeave);
 export const FormField = ContentMark(GAME_HTML.marks.formField);
 export const FormSubmit = ContentMark(GAME_HTML.marks.formSubmit);
 export const BindField = ContentMark(GAME_HTML.marks.bindField);
+
+// Engine-variable watchers (watchers location). qsp-show renders no wrapper, so its child is the handle.
+// QspStyle is not wrapped in visible(): a <style> element is never visible. Nor is QspLayer: the shown
+// full-viewport layer is reported not visible by Playwright, and a hidden layer is not rendered at all.
+export const QspVariable = visible(PageElements.located(By.css('[data-qsp="variable"]')), 'qsp-variable');
+export const ShowChild = PageElements.located(By.css(`[data-qa="${GAME_HTML.marks.showChild}"]`))
+  .first()
+  .describedAs('qsp-show child');
+export const QspStyle = PageElements.located(By.css('[data-qsp="style"]')).first().describedAs('qsp-style');
+export const QspRegion = visible(PageElements.located(By.css('[data-qsp="region"]')), 'qsp-region');
+export const QspLayer = PageElements.located(By.css('[data-qsp="layer"]')).first().describedAs('qsp-layer');

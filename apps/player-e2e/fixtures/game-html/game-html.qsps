@@ -81,7 +81,7 @@ act 'show bind': *clr & *pl 'BOUND=<<$boundstr>>'
 $wvar = 'VAR ONE'
 $wcss = '.e2e{color:red}'
 *pl '<qsp-variable name="$wvar"></qsp-variable>'
-*pl '<qsp-show when="$wvar=''VAR TWO''"><span data-qa="show-child">SHOWN</span></qsp-show>'
+*pl '<qsp-show when="$wvar" equals="VAR TWO"><span data-qa="show-child">SHOWN</span></qsp-show>'
 *pl '<qsp-style from="$wcss"></qsp-style>'
 *pl '<qsp-region name="reg"></qsp-region>'
 *pl '<qsp-layer name="lay" index="1">LAYER TEXT</qsp-layer>'
@@ -89,11 +89,11 @@ act 'change var': $wvar = 'VAR TWO'
 act 'change style': $wcss = '.e2e{color:blue}'
 act 'fill region':
   $qspider_region['reg'] = 'REGION TEXT'
-  cmd 'qspider.update_region:reg'
+  exec 'qspider.update_region:reg'
 end
 act 'fill layer':
   qspider_layers['lay'] = 1
-  cmd 'qspider.update_layer:lay'
+  exec 'qspider.update_layer:lay'
 end
 ---
 
