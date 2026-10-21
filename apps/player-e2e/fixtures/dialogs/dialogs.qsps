@@ -13,6 +13,7 @@ act 'Open menu':
   $arr[0] = 'First item:menu_first:'
   $arr[1] = '-:-'
   $arr[2] = 'Second item:menu_second:'
+  $arr[3] = 'Open message:menu_msg:'
   menu '$arr'
   if $picked = '': *clr & *pl 'MENU CANCELLED'
 end
@@ -36,4 +37,10 @@ $picked = 'first'
 # menu_second
 $picked = 'second'
 *clr & *pl 'MENU RESULT SECOND'
+---
+
+# menu_msg
+$picked = 'msg'
+msg 'MENU MSG'
+*clr & *pl 'MENU MSG CLOSED'
 ---

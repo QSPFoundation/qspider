@@ -68,3 +68,20 @@ scenario('an action hotkey pressed over a menu leaves the menu usable', async (p
     SeeMainText(DIALOGS.menu.firstResult),
   );
 });
+
+scenario('an action hotkey is ignored over a message box opened from a menu item', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.menu),
+    SeeMenu(),
+    ChooseMenuItem(DIALOGS.menu.items[2]),
+    SeeMsg(DIALOGS.menu.msgBody),
+    PressActionHotkey(1),
+    SeeMsg(DIALOGS.menu.msgBody),
+    DismissMsg(),
+    SeeMainText(DIALOGS.menu.msgClosedResult),
+  );
+});

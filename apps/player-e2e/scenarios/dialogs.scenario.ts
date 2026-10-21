@@ -73,6 +73,19 @@ scenario('selecting a menu item runs its location', async (player) => {
   );
 });
 
+scenario('selecting a menu item after the separator runs its location', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.menu),
+    SeeMenu(),
+    ChooseMenuItem(DIALOGS.menu.items[1]),
+    SeeMainText(DIALOGS.menu.secondResult),
+  );
+});
+
 scenario('cancelling a menu returns to the game', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
