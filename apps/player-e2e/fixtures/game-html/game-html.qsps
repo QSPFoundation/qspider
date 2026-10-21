@@ -22,7 +22,7 @@ act 'hostile malformed': gt 'hostile_malformed'
 act 'num target': *clr & *pl 'NUM LINK RESULT'
 *pl '<a href="exec:gt ''exec_done''" data-qa="exec-link">EXEC LINK</a>'
 *pl '<a href="1" data-qa="num-link">NUM LINK</a>'
-*pl '<img src="view.png" usemap="#m"><map name="m"><area shape="rect" coords="0,0,20,20" href="exec:gt ''area_done''" data-qa="area-link"></map>'
+*pl '<img src="view.png" width="40" height="40" usemap="#m" data-qa="area-image"><map name="m"><area shape="rect" coords="0,0,40,40" href="exec:gt ''area_done''" data-qa="area-link"></map>'
 ---
 
 # exec_done
