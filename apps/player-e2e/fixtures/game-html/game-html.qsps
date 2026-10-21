@@ -1,0 +1,113 @@
+# start
+*pl 'GAME HTML START'
+act 'markup': gt 'markup'
+act 'links': gt 'links'
+act 'events': gt 'events'
+act 'form': gt 'form'
+act 'bind': gt 'bind'
+act 'watchers': gt 'watchers'
+act 'hostile svg': gt 'hostile_svg'
+act 'hostile iframe': gt 'hostile_iframe'
+act 'hostile js': gt 'hostile_js'
+act 'hostile malformed': gt 'hostile_malformed'
+---
+
+# markup
+*clr
+*pl '<b data-qa="mk-bold">MARKUP BOLD</b>'
+---
+
+# links
+*clr
+act 'num target': *clr & *pl 'NUM LINK RESULT'
+*pl '<a href="exec:gt ''exec_done''" data-qa="exec-link">EXEC LINK</a>'
+*pl '<a href="1" data-qa="num-link">NUM LINK</a>'
+*pl '<img src="view.png" usemap="#m"><map name="m"><area shape="rect" coords="0,0,20,20" href="exec:gt ''area_done''" data-qa="area-link"></map>'
+---
+
+# exec_done
+*clr & *pl 'EXEC LINK RESULT'
+---
+
+# area_done
+*clr & *pl 'AREA LINK RESULT'
+---
+
+# events
+*clr
+*pl '<span qsp-on:click="exec:gt ''click_done''" data-qa="on-click">CLICK ME</span>'
+*pl '<span qsp-on:mouseenter="exec:gt ''enter_done''" data-qa="on-enter">ENTER ME</span>'
+*pl '<span qsp-on:mouseleave="exec:gt ''leave_done''" data-qa="on-leave">LEAVE ME</span>'
+---
+
+# click_done
+*clr & *pl 'ON CLICK RESULT'
+---
+
+# enter_done
+*clr & *pl 'ON ENTER RESULT'
+---
+
+# leave_done
+*clr & *pl 'ON LEAVE RESULT'
+---
+
+# form
+*clr
+*pl '<form qsp-on:submit="exec:gt ''form_done''" data-qa="the-form"><input type="text" data-qa="form-field"><button type="submit" data-qa="form-submit">GO</button></form>'
+---
+
+# form_done
+*clr & *pl 'FORM SUBMIT RESULT'
+---
+
+# bind
+*clr
+$boundstr = ''
+*pl '<input type="text" qsp-bind="$boundstr" data-qa="bind-field">'
+act 'show bind': *clr & *pl 'BOUND=<<$boundstr>>'
+---
+
+# watchers
+*clr
+$wvar = 'VAR ONE'
+$wcss = '.e2e{color:red}'
+*pl '<qsp-variable name="$wvar"></qsp-variable>'
+*pl '<qsp-show when="$wvar=''VAR TWO''"><span data-qa="show-child">SHOWN</span></qsp-show>'
+*pl '<qsp-style from="$wcss"></qsp-style>'
+*pl '<qsp-region name="reg"></qsp-region>'
+*pl '<qsp-layer name="lay" index="1">LAYER TEXT</qsp-layer>'
+act 'change var': $wvar = 'VAR TWO'
+act 'change style': $wcss = '.e2e{color:blue}'
+act 'fill region':
+  $qspider_region['reg'] = 'REGION TEXT'
+  cmd 'qspider.update_region:reg'
+end
+act 'fill layer':
+  qspider_layers['lay'] = 1
+  cmd 'qspider.update_layer:lay'
+end
+---
+
+# hostile_svg
+*clr
+*pl '<svg><script>document.querySelector(''[data-qsp="main-content"]'').append(''PWNED'')</script></svg>'
+*pl 'SVG BENIGN'
+---
+
+# hostile_iframe
+*clr
+*pl '<iframe data-qa="hostile-frame" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>"></iframe>'
+*pl 'IFRAME BENIGN'
+---
+
+# hostile_js
+*clr
+*pl '<a href="JavaScript:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-link">JS LINK</a>'
+*pl 'JS BENIGN'
+---
+
+# hostile_malformed
+*clr
+*pl '<b><i>MALFORMED OK'
+---
