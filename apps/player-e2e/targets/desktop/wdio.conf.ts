@@ -13,6 +13,7 @@ import { SevereServiceError } from 'webdriverio';
 import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
 import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { TEST_PACK } from '../../fixtures/test-pack';
+import { buildFixtures } from '../../fixtures/build-fixtures';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
@@ -144,6 +145,8 @@ export const config: WebdriverIOConfig = {
     rmSync(artifactsDir, { recursive: true, force: true });
     // Recreate outputDir too: WDIO workers write their logs there.
     mkdirSync(join(artifactsDir, 'wdio-logs'), { recursive: true });
+
+    await buildFixtures();
 
     runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
     const xdg = {
