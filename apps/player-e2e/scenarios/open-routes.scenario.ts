@@ -1,6 +1,10 @@
+import { ARCHIVES } from '../fixtures/archives';
 import { URL_GAME } from '../fixtures/url-game';
 import { SeeErrorShown, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { OpenGameUrl } from '../screenplay/support/operate-player';
+import { SeeNoGameRunning } from '../screenplay/game/checks';
+import { ReturnToShelf } from '../screenplay/game/tasks';
+import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
+import { OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 /** Path of a fixture served by the player's own origin (see global-setup.ts). */
@@ -12,4 +16,29 @@ scenario.webOnly('importing a game by URL starts it', async (player) => {
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {
   await player.attemptsTo(OpenGameUrl(served(URL_GAME.invalid.file)), SeeStartupFinished(), SeeErrorShown());
+});
+
+const opensArchive = (name: string, archive: { path: string; title: string; startText: string }) =>
+  scenario(name, async (player) => {
+    await player.attemptsTo(
+      StartPlayer(),
+      SeeStartupFinished(),
+      OpenGameFile(archive.path),
+      SeeGameStarted(archive.startText),
+      ReturnToShelf(),
+      SeeShelfIncludes(archive.title),
+    );
+  });
+
+opensArchive('opening a single-game zip starts it', ARCHIVES.singleZip);
+opensArchive('opening a .7z starts it', ARCHIVES.sevenZip);
+
+scenario('a multi-game zip is shelved, not started', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(ARCHIVES.multiZip.path),
+    SeeShelfTitles([...ARCHIVES.multiZip.titles]),
+    SeeNoGameRunning(),
+  );
 });
