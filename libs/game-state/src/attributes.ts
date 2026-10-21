@@ -52,6 +52,7 @@ export type EventAttributes = {
   onMouseLeave?: (e: MouseEvent) => void;
   onContextMenu?: (e: MouseEvent) => void;
   onDoubleClick?: (e: MouseEvent) => void;
+  onSubmit?: (e: Event) => void;
 };
 export type Attributes = {
   style?: React.CSSProperties;
@@ -59,10 +60,12 @@ export type Attributes = {
     [attr: string]: AttributeValue;
   } & EventAttributes;
 
+const BLOCKED_HREF_SCHEMES = ['javascript:', 'vbscript:', 'livescript:', 'data:'];
+
 const valueProcessors: Record<string, (value: string) => string> = {
   href(value: string) {
-    // eslint-disable-next-line no-script-url
-    if (value.startsWith('javascript:')) return '#';
+    const scheme = value.trim().toLowerCase();
+    if (BLOCKED_HREF_SCHEMES.some((blocked) => scheme.startsWith(blocked))) return '#';
     return value;
   },
 };

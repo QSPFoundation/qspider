@@ -62,6 +62,8 @@ import { QspDevice } from '../theme-core/device';
 
 export const defaultTransform: TransformCallback = (node, children) => {
   const tagName = node.tagName.toLowerCase();
+  // Game text is untrusted: a <script> (top-level or inside <svg>) must never reach the DOM.
+  if (tagName === 'script') return null;
   const attributes = extractAttributes(node);
   return (
     <Element tagName={tagName} attrs={attributes}>

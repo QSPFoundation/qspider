@@ -5,6 +5,7 @@ import { ARCHIVES } from './archives';
 import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
 import { DIALOGS } from './dialogs-game';
+import { GAME_HTML } from './game-html-game';
 
 const bytes = (path: string): Uint8Array => new Uint8Array(readFileSync(path));
 const startsWith = (path: string, magic: number[]): boolean => magic.every((b, i) => bytes(path)[i] === b);
@@ -19,7 +20,13 @@ describe('buildFixtures', () => {
   });
 
   it('writes zips with the ZIP magic', () => {
-    for (const { path } of [ARCHIVES.singleZip, ARCHIVES.multiZip, ARCHIVES.includerZip, ARCHIVES.dialogsZip]) {
+    for (const { path } of [
+      ARCHIVES.singleZip,
+      ARCHIVES.multiZip,
+      ARCHIVES.includerZip,
+      ARCHIVES.dialogsZip,
+      ARCHIVES.gameHtmlZip,
+    ]) {
       expect(startsWith(path, [0x50, 0x4b]), path).toBe(true);
     }
   });
@@ -40,5 +47,11 @@ describe('buildFixtures', () => {
     const files = unzipSync(bytes(ARCHIVES.dialogsZip.path));
     expect(Object.keys(files).sort()).toEqual(['dialogs.qsps', 'game.cfg', DIALOGS.viewImage].sort());
     expect([...files[DIALOGS.viewImage].slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
+  });
+
+  it('packs the game-html game with its image', () => {
+    expect(GAME_HTML.path).toBe(ARCHIVES.gameHtmlZip.path);
+    const files = unzipSync(bytes(ARCHIVES.gameHtmlZip.path));
+    expect(Object.keys(files).sort()).toEqual(['game-html.qsps', 'game.cfg', GAME_HTML.image].sort());
   });
 });
