@@ -24,3 +24,4 @@ export const OnEnter = ContentMark(GAME_HTML.marks.onEnter);
 export const OnLeave = ContentMark(GAME_HTML.marks.onLeave);
 export const FormField = ContentMark(GAME_HTML.marks.formField);
 export const FormSubmit = ContentMark(GAME_HTML.marks.formSubmit);
+export const BindField = ContentMark(GAME_HTML.marks.bindField);

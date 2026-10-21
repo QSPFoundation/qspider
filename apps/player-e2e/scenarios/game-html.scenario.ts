@@ -1,7 +1,16 @@
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeContentText } from '../screenplay/content/checks';
-import { AreaImage, ExecLink, FormField, NumLink, OnClick, OnEnter, OnLeave } from '../screenplay/content/elements';
+import {
+  AreaImage,
+  BindField,
+  ExecLink,
+  FormField,
+  NumLink,
+  OnClick,
+  OnEnter,
+  OnLeave,
+} from '../screenplay/content/elements';
 import { ClickContent, SubmitForm } from '../screenplay/content/tasks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
@@ -109,5 +118,31 @@ scenario('a form with qsp-on:submit runs its code on submit', async (player) => 
     TypeInto('hello', FormField),
     SubmitForm(),
     SeeMainText(TEXT.formResult),
+  );
+});
+
+scenario('qsp-bind stores typed text in the bound variable', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.bind),
+    TypeInto('hello', BindField),
+    ClickAction(ACTION.showBind),
+    SeeMainText(TEXT.bound('hello')),
+  );
+});
+
+scenario('qsp-bind stores a double quote literally instead of breaking the generated code', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.bind),
+    TypeInto('a"b', BindField),
+    ClickAction(ACTION.showBind),
+    SeeMainText(TEXT.bound('a"b')),
   );
 });
