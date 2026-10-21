@@ -1,7 +1,13 @@
 import { TEST_PACK } from '../fixtures/test-pack';
 import { ARCHIVES } from '../fixtures/archives';
 import { URL_GAME } from '../fixtures/url-game';
-import { SeeErrorShown, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
+import {
+  SeeErrorShown,
+  SeeGameStarted,
+  SeeNoticeShown,
+  SeeStartupFinished,
+  WaitNoticeGone,
+} from '../screenplay/common/checks';
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
@@ -49,11 +55,16 @@ scenario('a multi-game zip is shelved, not started', async (player) => {
 });
 
 scenario.desktopOnly('re-opening the launch pack keeps one entry each', async (player) => {
-  // Desktop launches with the pack already shelved; opening it again overwrites by id (#164).
+  // Desktop launches with the pack already shelved, so the shelf check alone would pass before the
+  // re-import runs. The launch's own notice is waited out first; the new notice then proves the
+  // re-import was processed (addImported shows it for a multi-game import), and only then is the
+  // shelf checked: a duplicate would fail the exact match (#164: overwrite by id).
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
+    WaitNoticeGone(),
     OpenGameFile(TEST_PACK.configPath),
+    SeeNoticeShown(),
     SeeShelfTitles([...TEST_PACK.titles]),
   );
 });

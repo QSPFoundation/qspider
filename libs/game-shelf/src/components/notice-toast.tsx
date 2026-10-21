@@ -12,7 +12,7 @@ export const NoticeToast: React.FC = () => {
   if (!isOpen) return null;
   return (
     <Toast.Provider>
-      <Toast.Root className="qsp-toast-root" open={isOpen}>
+      <Toast.Root className="qsp-toast-root" open={isOpen} data-qa="notice-toast">
         <Toast.Description className="qsp-toast-description">{t(message)}</Toast.Description>
       </Toast.Root>
       <Toast.Viewport className="qsp-toast-viewport" />
