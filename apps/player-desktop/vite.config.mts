@@ -47,4 +47,10 @@ export default defineConfig({
   worker: {
     plugins: () => [nxViteTsPaths()],
   },
+
+  test: {
+    name: 'player-desktop',
+    environment: 'node',
+    include: ['src/**/*.spec.ts'],
+  },
 });
