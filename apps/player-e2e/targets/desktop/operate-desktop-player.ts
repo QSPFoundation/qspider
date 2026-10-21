@@ -26,4 +26,15 @@ export class OperateDesktopPlayer extends OperatePlayer {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);
   }
+
+  async dropGameFile(_actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
+    await browser.execute(async (p: string) => {
+      const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke(c: string, a: object): Promise<void> } })
+        .__TAURI_INTERNALS__;
+      await internals.invoke('plugin:event|emit', {
+        event: 'tauri://drag-drop',
+        payload: { type: 'drop', paths: [p], position: { x: 1, y: 1 } },
+      });
+    }, path);
+  }
 }

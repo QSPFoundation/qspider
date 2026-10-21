@@ -14,7 +14,7 @@ import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
-import { OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
+import { DropGameFile, OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 /** Path of a fixture served by the player's own origin (see global-setup.ts). */
@@ -81,5 +81,14 @@ scenario.desktopOnly('re-opening the launch pack keeps one entry each', async (p
     OpenGameFile(TEST_PACK.configPath),
     SeeNoticeShown(),
     SeeShelfTitles([...TEST_PACK.titles]),
+  );
+});
+
+scenario.desktopOnly('dropping a game file opens it', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    DropGameFile(ARCHIVES.singleZip.path),
+    SeeGameStarted(ARCHIVES.singleZip.startText),
   );
 });

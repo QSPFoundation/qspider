@@ -15,6 +15,10 @@ export class OperateWebPlayer extends OperatePlayer {
     await this.openGameFile(actor, TEST_PACK.zipPath);
   }
 
+  async dropGameFile(_actor: UsesAbilities & AnswersQuestions, _path: string): Promise<void> {
+    throw new Error('dropGameFile is not supported on web');
+  }
+
   async openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void> {
     const page = await BrowseTheWebWithPlaywright.as(actor).currentPage();
     // A relative url is resolved against the origin the player is served at (the config's baseURL).
