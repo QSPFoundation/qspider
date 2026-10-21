@@ -1,6 +1,7 @@
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementAttribute } from '../screenplay/content/checks';
+import { ErrorAlerts } from '../screenplay/common/elements';
 import { ContentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
 import { SeeMainText, SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
@@ -34,6 +35,8 @@ scenario('an iframe in game text cannot reach the host page', async (player) => 
     ClickAction(ACTION.hostileIframe),
     SeeMainText(TEXT.iframeBenign),
     waitUntilPresent(ContentMark(MARK.hostileFrame)),
+    // Deterministic pin of the sandbox fix; the runtime check below cannot see a late-running script.
+    SeeElementAttribute(ContentMark(MARK.hostileFrame), 'sandbox', 'allow-scripts'),
     waitUntilAbsent(PwnedAttribute),
   );
 });
@@ -44,8 +47,9 @@ scenario('a mixed-case javascript: link does not run', async (player) => {
     ClickAction(ACTION.hostile),
     ClickAction(ACTION.hostileJs),
     ClickContent(ContentMark(MARK.jsLink)),
-    // React already blocks a javascript: href at render time (rewriting it to a throwing URL), so the
-    // payload never runs here; the player's own guard is pinned on the rendered href instead.
+    // The href='#' assertion pins the player's own guard (extractAttributes valueProcessors.href rewrites
+    // JavaScript: to '#' before React sees it). React is only a secondary backstop: it throws on a raw
+    // javascript: URL.
     SeeElementAttribute(ContentMark(MARK.jsLink), 'href', '#'),
     SeeMainTextContaining(TEXT.jsBenign),
     SeeMainTextWithout(TEXT.inject),
@@ -58,5 +62,6 @@ scenario('malformed markup still renders', async (player) => {
     ClickAction(ACTION.hostile),
     ClickAction(ACTION.hostileMalformed),
     SeeMainTextContaining(TEXT.malformed),
+    waitUntilAbsent(ErrorAlerts.first()),
   );
 });

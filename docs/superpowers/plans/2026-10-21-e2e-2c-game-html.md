@@ -220,7 +220,7 @@ Observability: each hostile location injects a script/handler that, if it ran, w
 
 **Step scan:** each step yields one checkable action (author/write test → run red → implement → run green → lint → commit). No "handle edge cases" placeholders.
 
-**Type/name consistency:** `content/` area locators and the `GAME_HTML` marker/outcome names are defined once in Task 1's interface table and consumed verbatim by Tasks 2–7. `data-qa` marks are game-authored (verified pass-through at `content/attributes.ts:104-128`); only `[data-qsp="style"]` is an added renderer marker (Task 6) and only `[data-qsp="variable"|"region"|"layer"|"main-content"]` are pre-existing.
+**Type/name consistency:** `content/` area locators and the `GAME_HTML` marker/outcome names are defined once in Task 1's interface table and consumed verbatim by Tasks 2–7. `data-qa` marks are game-authored (verified pass-through at `content/attributes.ts:104-128`); `[data-qsp="variable"]` and `[data-qsp="style"]` are added renderer markers (Task 6, `qsp-variable.tsx` / `qsp-style`) and only `[data-qsp="region"|"layer"|"main-content"]` are pre-existing.
 
 **Review Focus:** each of the five lines has an owning task (quote-in-bind → T5; malformed → T7; mixed-case scheme → T7; wheel note → T3; both-target/hover parity → T2/T3).
 

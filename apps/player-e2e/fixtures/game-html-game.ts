@@ -39,7 +39,7 @@ export const GAME_HTML = {
     onClick: 'on-click',
     onEnter: 'on-enter',
     onLeave: 'on-leave',
-    /** Outcome spans of mouseenter/mouseleave: those handlers gs without clearing, or the hovered element is detached mid-hover. */
+    /** Outcome spans of mouseenter/mouseleave: those handlers append without clearing, so the spans survive the hovered element being detached mid-hover. */
     enterResult: 'enter-result',
     leaveResult: 'leave-result',
     form: 'the-form',
