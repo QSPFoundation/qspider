@@ -2,9 +2,9 @@ import { AssertionError, Question, Task, Wait } from '@serenity-js/core';
 import { equals, not } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { MainText } from '../game/elements';
-import { isShown, PresenceOf, TextNow, textIfPresent } from '../support/presence';
+import { isShown, PresenceOf, waitUntilAbsent, TextNow, textIfPresent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { ErrorAlerts, StartupFinishedMarker } from './elements';
+import { ErrorAlerts, NoticeToastElement, StartupFinishedMarker } from './elements';
 
 type StartOutcome = { kind: 'started' } | { kind: 'waiting' } | { kind: 'error'; text: string };
 
@@ -44,3 +44,15 @@ export const SeeGameStarted = (startText: string) =>
  */
 export const SeeStartupFinished = (): Task =>
   seeEventually(StartupFinishedMarker, (e) => PresenceOf(e), equals(true), '#actor sees the player finish starting up');
+
+/** The player shows an error alert (an import failure toast or an engine error dialog). */
+export const SeeErrorShown = (): Task =>
+  seeEventually(ErrorAlerts.first(), (e) => PresenceOf(e), equals(true), '#actor sees an error alert');
+
+/** The notice toast is showing. */
+export const SeeNoticeShown = (): Task =>
+  seeEventually(NoticeToastElement, (e) => PresenceOf(e), equals(true), '#actor sees the notice toast');
+
+/** Waits for any notice toast to close (it closes itself), so a later SeeNoticeShown is about a new notice. */
+export const WaitNoticeGone = (): Task =>
+  Task.where('#actor waits for the notice toast to close', waitUntilAbsent(NoticeToastElement));

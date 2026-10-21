@@ -15,3 +15,6 @@ export const ErrorAlerts = PageElements.located(By.css('[data-qa="error-alert"],
 export const StartupFinishedMarker = PageElement.located(By.css('[data-qa="startup-finished"]')).describedAs(
   'startup finished marker',
 );
+
+/** The transient notice toast (NoticeToast, libs/game-shelf), e.g. "2 games added to shelf". It closes itself after 3 s. */
+export const NoticeToastElement = PageElement.located(By.css('[data-qa="notice-toast"]')).describedAs('notice toast');

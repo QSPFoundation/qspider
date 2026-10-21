@@ -15,6 +15,18 @@ export class OperateWebPlayer extends OperatePlayer {
     await this.openGameFile(actor, TEST_PACK.zipPath);
   }
 
+  async dropGameFile(_actor: UsesAbilities & AnswersQuestions, _path: string): Promise<void> {
+    throw new Error('dropGameFile is not supported on web');
+  }
+
+  async openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void> {
+    const page = await BrowseTheWebWithPlaywright.as(actor).currentPage();
+    // A relative url is resolved against the origin the player is served at (the config's baseURL).
+    await page.navigateTo('/');
+    const origin = new URL((await page.url()).href).origin;
+    await page.navigateTo(`/?game=${encodeURIComponent(new URL(url, origin).href)}`);
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
     // Serenity's web API has no file upload, so this uses the native Playwright page.
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;

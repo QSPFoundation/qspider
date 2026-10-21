@@ -18,8 +18,23 @@ export class OperateDesktopPlayer extends OperatePlayer {
     // Loaded at launch from the app's argument.
   }
 
+  async openGameUrl(_actor: UsesAbilities & AnswersQuestions, _url: string): Promise<void> {
+    throw new Error('openGameUrl is not supported on desktop');
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);
+  }
+
+  async dropGameFile(_actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
+    await browser.execute(async (p: string) => {
+      const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke(c: string, a: object): Promise<void> } })
+        .__TAURI_INTERNALS__;
+      await internals.invoke('plugin:event|emit', {
+        event: 'tauri://drag-drop',
+        payload: { type: 'drop', paths: [p], position: { x: 1, y: 1 } },
+      });
+    }, path);
   }
 }
