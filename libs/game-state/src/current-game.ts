@@ -282,18 +282,21 @@ export function onGameCommand(action: GameCommand): void {
     case 'quit':
       stopCurrentGame();
       break;
-    case 'restart': {
-      const wasPaused = isPaused$.value;
-      isPaused$.set(true);
-      qspApi$.value?.restartGame();
-      onRestart();
-      // Closing the pause screen goes back in history (to the shelf when it is not open), and closing
-      // it is what un-pauses the counter; without it, the counter goes back to its state before.
-      if (isPauseScreenVisible$.value) closePauseScreen();
-      else isPaused$.set(wasPaused);
+    case 'restart':
+      // Closing the pause screen goes back in history (to the shelf when it is not open) and un-pauses
+      // the counter, so the pause juggling belongs to the open pause screen only. restartGame is
+      // synchronous: no counter tick can interleave when the pause screen is closed.
+      if (isPauseScreenVisible$.value) {
+        isPaused$.set(true);
+        qspApi$.value?.restartGame();
+        onRestart();
+        closePauseScreen();
+      } else {
+        qspApi$.value?.restartGame();
+        onRestart();
+      }
       pauseScreenCurrentPanel$.set('credits');
       break;
-    }
     case 'resume':
       closePauseScreen();
       break;
