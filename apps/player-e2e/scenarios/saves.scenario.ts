@@ -4,7 +4,7 @@ import { TEST_PACK } from '../fixtures/test-pack';
 import { SeeGameStarted } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, OpenSavesFixture, ReachCounter, ReturnToShelf } from '../screenplay/game/tasks';
-import { SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
+import { SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
 import { CancelSavesPanel, ClearSlot, LoadFromSlot, OpenSavesPanel, SaveToSlot } from '../screenplay/saves/tasks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { LoadTestPack } from '../screenplay/support/operate-player';
@@ -88,5 +88,57 @@ scenario('saves belong to their game', async (player) => {
     OpenSavesPanel(),
     SeeSlotFilled(2), // settled: one loadSaveList sets all slots
     SeeSlotEmpty(1),
+  );
+});
+
+scenario('a named save restores by name', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.saveNamed),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
+    ClickAction(ACTION.loadNamed),
+    SeeMainText(TEXT.counter(1)),
+  );
+});
+
+scenario('cancelling the save panel resumes the game', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    ClickAction(ACTION.saveThenMark),
+    SeeRequestedSaveCommand('save'),
+    CancelSavesPanel(),
+    SeeMainText(TEXT.afterSavePanel),
+  );
+});
+
+scenario('cancelling the load panel resumes the game', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    ClickAction(ACTION.loadThenMark),
+    SeeRequestedSaveCommand('load'),
+    CancelSavesPanel(),
+    SeeMainText(TEXT.afterLoadPanel),
+  );
+});
+
+scenario('loading from the panel opened by the game restores the slot', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.save),
+    SaveToSlot(1),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
+    ClickAction(ACTION.loadThenMark),
+    SeeRequestedSaveCommand('load'),
+    LoadFromSlot(1),
+    // Observed: the restore wins; the marker written after opengame never shows (restoreFromSlot calls loaded() before loadSave).
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
   );
 });
