@@ -8,6 +8,14 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 
 The panels fixture (`fixtures/panels/`, packed as `artifacts/fixtures/panels.zip`, "Panels game"; `fixtures/panels-game.ts` holds its action names and texts) is not in the pack either: scenarios open it with `OpenGameFile` (`OpenPanelsFixture()`). It is a game with a `game.cfg` and one room per feature: `start` (the hub), stats, objects, the command line, action keys (`keys`, `single`), system commands (`system`), lifecycle (`life`) and the timer (`counter`). `start` runs `inclib 'qspider'` (the built-in module, for `qspider_event`, `qspider_restart` and the other `qspider.*` commands) and `inclib 'panels-lib.qsps'` (a real library loaded from the archive), and its `game.cfg` has a `[game.hotkeys]` entry (`k` runs `hotkey_loc`). Keep a location to at most 8 actions: Serenity `isVisible()` treats an action scrolled out of view as invisible, so a longer list makes later actions unclickable.
 
+The theme fixtures (`fixtures/themes-game.ts` holds their paths, titles, texts and the theme aliases) are built by `fixtures/build-fixtures.ts` into `artifacts/fixtures/` and opened with `OpenGameFile`, not through the pack:
+
+- `aero-game/` ("Aero game", `mode = "aero"`): a message and a next location.
+- `themed-game/` ("Themed game"): a game theme made of `e2e-theme.html`, `e2e-theme.css` and `e2e-theme.js` (`defaultTheme = "e2e-custom"`; the theme writes `data-qa` marks of its own, and has a layout-level `qsp-layer` outside the main content). Its actions switch themes at runtime (`qspider_change_theme`, including an unknown name).
+- `missing-theme/`: two zips (`missing-aero.cfg`, `missing-classic.cfg`) whose `defaultTheme` names no theme, in Aero and in classic mode.
+- `gui-cfg-game/` ("GUI cfg game"): a game with a `qspgui.cfg` that puts the stats panel in the left dock, plus a control zip of the same game without the cfg.
+- The e2e game in theme variants (`e2e-game-aero.zip`, `e2e-game-custom.zip`): the same `e2e-game.qsps` with an authored `game.cfg` that selects Aero, or the themed game's theme files. `CORE_THEME_VARIANTS` points at them.
+
 ### Product behaviour the suite relies on
 
 The desktop player opens what it is launched with, what is dropped on it and what is picked with Open game through the same decision as the web player's Open game (`addImported`, `libs/game-shelf/src/add-imported.ts`):
@@ -100,7 +108,7 @@ Find controls and panels only by:
 
 - `data-qsp*` markers, the theme contract: the renderer's markers on `qsp-*` building blocks;
 - ARIA roles;
-- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf` and `game-shelf-empty` (`libs/game-shelf`, `game-shelf.tsx`), `game-card` (on the card root), `game-title` and `game-run` (`game-card.tsx`), `error-alert` (`error-alert.tsx`), `startup-finished` (`startup-marker.tsx`, a hidden marker, below) and `open-game` (`apps/player-desktop/src/app/open-game-button.tsx`, desktop only). These are all the `data-qa` hooks that exist; the web player's Open game control is the `#openGame` file input, which only the web target's `openGameFile` touches.
+- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf` and `game-shelf-empty` (`libs/game-shelf`, `game-shelf.tsx`), `game-card` (on the card root), `game-title` and `game-run` (`game-card.tsx`), `error-alert` (`error-alert.tsx`), `notice-toast` (`notice-toast.tsx`, the transient notice), `startup-finished` (`startup-marker.tsx`, a hidden marker, below) and `open-game` (`apps/player-desktop/src/app/open-game-button.tsx`, desktop only). These are all the app-shell `data-qa` hooks that exist. Game-authored markup passes through the sanitizer with its own `data-qa`, so a hook in a theme or fixture file (e.g. `e2e-theme-chrome`, `e2e-theme-script` in `fixtures/themed-game/e2e-theme.html`) is not an app-shell hook and is not in this list; such hooks are located from `screenplay/themes/<theme>/`. the web player's Open game control is the `#openGame` file input, which only the web target's `openGameFile` touches.
 
 Never by visible text, CSS class, nesting or layout: themes and translations change all of them. Text is only for checking content the game writes (`ROOM counter=1`) or that the scenario controls (fixture titles). If a control has no marker or role, add a `data-qsp` marker in the renderer (or a `data-qa` hook in app-shell UI); do not use a fragile selector. Lookups that can match hidden duplicates go through `visible()`.
 
@@ -147,7 +155,15 @@ Failure messages carry the scenario file and line as a `[scenarios/x.scenario.ts
 
 ### Themes
 
-The rules apply now: elements use only the theme contract, so they are the same under every theme. The machinery (fixture variants through `game.cfg`, `forEachTheme`, `themes.scenario.ts`) comes with phase 2. UI a theme renders outside the `qsp-*` vocabulary would get elements under `screenplay/themes/<theme>/`. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
+Elements use only the theme contract, so they are the same under every theme. The machinery:
+
+- `forEachTheme(variants, title, body, { webOnly })` (`screenplay/support/for-each-theme.ts`) registers one scenario per variant, titled `title [variant name]`. The variants are `CORE_THEME_VARIANTS` in `fixtures/themes-game.ts` (`aero` and `custom`); each carries the theme alias and the zip of the e2e game packed with that theme selected (`mode = "aero"`, or `themes` plus `defaultTheme`). `core-flow-themes.scenario.ts` runs the core flows (actions update the text, load restores a save) through it.
+- `SeeActiveTheme(alias)` (`common/checks.ts`) reads the `data-qsp-theme` marker the renderer puts on `qsp-game-root` (`THEME_ALIAS`: `qspider:classic`, `qspider:aero`, `e2e-custom`).
+- UI a theme renders outside the `qsp-*` vocabulary gets elements under `screenplay/themes/<theme>/` (`e2e-custom` exists: the theme's chrome and script marker).
+- The classic layout's docks carry `data-qsp-dock` (`top`, `left`, `center`, `right`, `bottom`); their elements and checks are `screenplay/classic/` (`SeeStatsInDock`).
+- `themes.scenario.ts` covers theme features: Aero mode, a game-provided theme with its files, the missing-`defaultTheme` fallback and notice, runtime `change_theme` (and its unknown-name error), a theme-level layer cleared by restart, and the `qspgui.cfg` docks against a control without it.
+
+The matrix: the core flows run under aero and custom on web only (`webOnly`; they show as skipped on desktop). Desktop runs each theme-feature scenario once, in `themes.scenario.ts`. The desktop-specific risk is theme files loaded through the Tauri protocol and Aero under WebKit, not the markup contract, which is the same code on both targets. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
 
 ## Commands
 
