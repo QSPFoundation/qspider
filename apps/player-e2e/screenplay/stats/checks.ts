@@ -51,6 +51,8 @@ export const SeeStatsCountRising = (by = 2, pattern: RegExp = PANELS_GAME.text.t
  * The count `pattern` captures stays exactly where it is when first read, after `ms` on the page's clock: proof
  * the timer did not run meanwhile (the caller picks ms as a few timer intervals). Counts only rise, so seeing
  * the first reading again means no tick came. Use after a dialog is up, when no tick is in flight.
+ * The only allowed use: the counter "does not run while a dialog / the pause screen is open" checks, with
+ * ms = 5 x the timer interval (it waits via PageClockAdvanced). Any other use needs maintainer approval.
  */
 export const SeeStatsCountStill = (ms: number, pattern: RegExp = PANELS_GAME.text.ticksPattern): Task => {
   let baseline = Number.NaN;

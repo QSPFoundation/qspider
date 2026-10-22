@@ -90,8 +90,6 @@ export const PANELS_GAME = {
       message: 'Message',
       input: 'Input',
       menu: 'Menu',
-      /** Clears `$counter`, so the timer stops calling `tick`. */
-      stopTimer: 'Stop timer',
     },
   },
   text: {

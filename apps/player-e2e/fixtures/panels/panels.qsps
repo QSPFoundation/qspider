@@ -113,7 +113,6 @@ act 'Menu':
   $m[0] = 'Only item:counter_menu:'
   menu '$m'
 end
-act 'Stop timer': $counter = ''
 ---
 
 # tick

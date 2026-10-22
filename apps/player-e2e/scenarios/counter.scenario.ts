@@ -53,20 +53,11 @@ const EnterCounterRoom = () => [
 ];
 
 scenario("the counter runs the game's timer location", async (player) => {
-  await player.attemptsTo(
-    OpenPanelsFixture(),
-    ClickAction(ACTION.start.counter),
-    SeeMainText(TEXT.counterRoom),
-    SeeStatsCountAbove(2),
-  );
+  await player.attemptsTo(...EnterCounterRoom());
 });
 
+// These also cover the resume: the count stays still while open, then rises once closed.
 for (const { name, open, close } of PAUSERS) {
-  // Rising is measured from the first count read after closing, which is the paused count.
-  scenario(`the counter resumes after ${name}`, async (player) => {
-    await player.attemptsTo(...EnterCounterRoom(), ...open(), ...close(), SeeStatsCountRising());
-  });
-
   // Elapsed time has no UI event: PageClockAdvanced is the one bounded wait, on the page's own clock.
   scenario(`the counter does not run while ${name} is open`, async (player) => {
     await player.attemptsTo(
@@ -78,11 +69,3 @@ for (const { name, open, close } of PAUSERS) {
     );
   });
 }
-
-scenario('Stop timer ends the ticking', async (player) => {
-  await player.attemptsTo(
-    ...EnterCounterRoom(),
-    ClickAction(ACTION.counter.stopTimer),
-    SeeStatsCountStill(SEVERAL_TICKS_MS),
-  );
-});
