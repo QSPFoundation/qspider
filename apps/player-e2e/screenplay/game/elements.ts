@@ -10,3 +10,6 @@ export const Action = (label: string) =>
 
 /** The actions panel (qsp-actions). Not rendered at all while the game hides it (`showacts 0`). */
 export const ActionsPanel = PageElement.located(By.css('[data-qsp="actions"]')).describedAs('actions panel');
+
+/** The link the panels fixture writes in the main text; it runs `showacts 1`. */
+export const ShowActionsLink = PageElement.located(By.css('[data-qa="show-acts"]')).describedAs('show actions link');

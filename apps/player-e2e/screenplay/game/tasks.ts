@@ -12,7 +12,7 @@ import { OpenFromShelf } from '../shelf/tasks';
 import { LoadTestPack, OpenGameFile, StartPlayer } from '../support/operate-player';
 import { Hover } from '../support/hover';
 import { ClickWhenPresent, TextNow, waitUntilPresent } from '../support/presence';
-import { Action, MainText } from './elements';
+import { Action, MainText, ShowActionsLink } from './elements';
 
 /** The e2e fixture game's title in the test pack. */
 const PACK_E2E_GAME = TEST_PACK.titles[0];
@@ -120,3 +120,7 @@ export const PressSaveHotkey = (): Interaction => Press.the(Key.Control, 's');
 
 /** Ctrl+O: opens the saves panel for loading. */
 export const PressLoadHotkey = (): Interaction => Press.the(Key.Control, 'o');
+
+/** Clicks the panels fixture's "show actions" link in the main text. */
+export const ClickShowActionsLink = (): Task =>
+  Task.where('#actor clicks the show actions link', ClickWhenPresent(ShowActionsLink));
