@@ -42,7 +42,7 @@ $usercom = 'usercom'
 *clr & *pl 'CMD ROOM'
 act 'Show input': showinput 1
 act 'Hide input': showinput 0
-act 'Set input': $user_text = 'PRESET'
+act 'Clear input': cmdclear
 ---
 
 # usercom

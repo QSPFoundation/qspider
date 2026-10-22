@@ -38,10 +38,16 @@ const NO_BY = {
   message: 'Selectors live only in elements.ts (and support/).',
 };
 // In-page script runs only in support/page-script.ts, as named read-only probes (no arbitrary code).
+const PAGE_SCRIPT_MESSAGE =
+  'Page scripts live only in screenplay/support/page-script.ts; use its named probes and recorders.';
 const NO_PAGE_SCRIPT = {
   name: '@serenity-js/web',
   importNames: ['ExecuteScript', 'LastScriptExecution'],
-  message: 'Page scripts live only in screenplay/support/page-script.ts; use its named probes and recorders.',
+  message: PAGE_SCRIPT_MESSAGE,
+};
+const NO_EXECUTE_SCRIPT_CALL = {
+  selector: "CallExpression[callee.property.name='executeScript']",
+  message: PAGE_SCRIPT_MESSAGE,
 };
 // Tasks may compose only the fail-fast guards in common/checks.ts (e.g. SeeGameStarted), not an area's checks.
 const NO_AREA_CHECKS = {
@@ -93,7 +99,7 @@ const conventions = [
     files: ['**/*.ts', '**/*.mts', '**/*.js'],
     rules: {
       ...restrictImports({ paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT] }),
-      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT],
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, NO_EXECUTE_SCRIPT_CALL],
     },
   },
   {
@@ -117,7 +123,7 @@ const conventions = [
     files: ['screenplay/**/elements.ts'],
     rules: {
       ...restrictImports({ paths: [NO_ENSURE, NO_PAGE_SCRIPT, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
-      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, ...UNMARKED_SELECTORS],
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, NO_EXECUTE_SCRIPT_CALL, ...UNMARKED_SELECTORS],
     },
   },
   {
@@ -129,14 +135,22 @@ const conventions = [
   },
   {
     files: ['screenplay/support/**/*.ts'],
-    rules: restrictImports({ patterns: [TARGETS, NO_FRAMEWORKS] }),
+    rules: restrictImports({ paths: [NO_PAGE_SCRIPT], patterns: [TARGETS, NO_FRAMEWORKS] }),
+  },
+  {
+    // The one home of in-page script (ExecuteScript, LastScriptExecution).
+    files: ['screenplay/support/page-script.ts'],
+    rules: {
+      ...restrictImports({ patterns: [TARGETS, NO_FRAMEWORKS] }),
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT],
+    },
   },
   {
     // Loads targets/<target>/scenario.ts at runtime by design: the one bridge from shared code to the runners.
     files: ['screenplay/support/scenario.ts'],
     rules: {
-      ...restrictImports({ patterns: [NO_FRAMEWORKS] }),
-      'no-restricted-syntax': ['error', NO_SLEEP],
+      ...restrictImports({ paths: [NO_PAGE_SCRIPT], patterns: [NO_FRAMEWORKS] }),
+      'no-restricted-syntax': ['error', NO_SLEEP, NO_EXECUTE_SCRIPT_CALL],
     },
   },
   {

@@ -6,7 +6,8 @@
 // - Handlers are set by assigning a location name to a special string variable: `$onobjsel`
 //   (object selected; the object's name is in `$selobj`), `$usercom` (text typed in the input line;
 //   the text is in `$user_text`), `$counter` (called by the `settimer` interval).
-// - The input line is set from game code by assigning `$user_text`.
+// - Assigning `$user_text` does NOT change the input line (observed: the input line keeps its text);
+//   game code empties the input line with `cmdclear`.
 // - `addobj 'Name', 'image'` adds an object with an image; `showstat` / `showobjs` / `showacts` /
 //   `showinput` take 0 or 1.
 // - Every location has at most 8 actions.
@@ -51,8 +52,8 @@ export const PANELS_GAME = {
     command: {
       showInput: 'Show input',
       hideInput: 'Hide input',
-      /** Puts text.preset into the input line. */
-      setInput: 'Set input',
+      /** `cmdclear`: empties the input line. */
+      clearInput: 'Clear input',
     },
     keys: {
       first: 'First',
@@ -97,8 +98,6 @@ export const PANELS_GAME = {
     /** Written after selecting the object with the given name. */
     selected: (name: string): string => `SELECTED ${name}`,
     cmdRoom: 'CMD ROOM',
-    /** Value the Set input action puts into the input line. */
-    preset: 'PRESET',
     /** Written after the player submitted the given text in the input line. */
     typed: (text: string): string => `TYPED ${text}`,
     keysRoom: 'KEYS ROOM',

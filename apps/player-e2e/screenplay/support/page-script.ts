@@ -1,5 +1,4 @@
 import {
-  AssertionError,
   d,
   type Expectation,
   ExpectationMet,
@@ -10,33 +9,40 @@ import {
 } from '@serenity-js/core';
 import { containAtLeastOneItemThat, Ensure, equals } from '@serenity-js/assertions';
 import { ExecuteScript, LastScriptExecution } from '@serenity-js/web';
-import { describeError } from './element-errors';
 import { pollUntil } from './polling';
-import { INTERACTION_TIMEOUT } from './timeouts';
+import { reportTimedOutCheck } from './timeout-report';
 
 // The one place that runs script in the page. Every script here only reads page state (or, for the
-// recorder, appends to its own store): scenarios pick a named probe and cannot pass code of their own.
+// recorder, writes its own store): scenarios pick a named probe and cannot pass code of their own.
 // The functions below are serialised into the page, so they must be self-contained (no outer names).
-// Results go through JSON on desktop (WebKitWebDriver), so each one returns plain data; the recorder
-// stores a JSON copy of each detail, so both targets read the same thing (NaN reads as null).
+// Results go through JSON on desktop (WebKitWebDriver), so each one returns plain data.
 
 type EventStore = Record<string, unknown[]>;
 
 function installRecorder(type: string): void {
   const page = window as unknown as { __e2eEvents?: EventStore };
   const store = (page.__e2eEvents ??= {});
-  if (store[type]) return; // already listening since this page load
-  const events: unknown[] = (store[type] = []);
+  const listening = type in store;
+  store[type] = []; // every call starts a fresh recording
+  if (listening) return; // one listener per page load
   window.addEventListener(type, (event) => {
-    const detail = (event as CustomEvent<unknown>).detail ?? null;
-    events.push(JSON.parse(JSON.stringify(detail)) as unknown);
+    try {
+      const detail = (event as CustomEvent<unknown>).detail ?? null;
+      store[type]?.push(JSON.parse(JSON.stringify(detail)) as unknown);
+    } catch {
+      // a detail JSON cannot copy (cyclic, BigInt) is dropped
+    }
   });
 }
 
-function readRecorded(type: string): unknown[] {
+/** The recorded details, or `{ notRecording: true }` when RecordWindowEvents has not run on this page load. */
+function readRecorded(type: string): unknown[] | { notRecording: true } {
   const page = window as unknown as { __e2eEvents?: EventStore };
-  return page.__e2eEvents?.[type] ?? [];
+  return page.__e2eEvents?.[type] ?? { notRecording: true };
 }
+
+/** Thrown at once (not polled) when the page has no recorder for the event type. */
+class NotRecordingError extends Error {}
 
 /** The read-only probes a scenario may check, by name. */
 const PROBES = {
@@ -63,8 +69,11 @@ const scriptResult = <R>(description: string, script: (...args: never[]) => R, .
   });
 
 /**
- * Starts recording window events of `type`: each event's `detail` is kept in the page until it
- * unloads. Installs one listener per page load; calling it again on the same page does nothing.
+ * Starts a fresh recording of window events of `type`: each event's `detail` is kept in the page until
+ * it unloads. The first call on a page load installs the one listener; every call (including the first)
+ * clears the details recorded so far. So a scenario that must see only fresh events calls it right
+ * before the trigger, and must call it again after a reload. Details are JSON copies, so both targets
+ * read the same plain data: NaN and undefined read as null, and a detail JSON cannot copy is dropped.
  */
 export const RecordWindowEvents = (type: string): Interaction =>
   Interaction.where(`#actor records "${type}" window events`, async (actor) => {
@@ -73,10 +82,11 @@ export const RecordWindowEvents = (type: string): Interaction =>
 
 /** The details of the `type` events recorded since RecordWindowEvents on this page load. */
 export const RecordedEvents = (type: string): QuestionAdapter<unknown[]> =>
-  Question.about(
-    `the recorded "${type}" events`,
-    async (actor) => (await actor.answer(scriptResult(`the recorded "${type}" events`, readRecorded, type))) ?? [],
-  );
+  Question.about(`the recorded "${type}" events`, async (actor) => {
+    const recorded = await actor.answer(scriptResult(`the recorded "${type}" events`, readRecorded, type));
+    if (Array.isArray(recorded)) return recorded as unknown[];
+    throw new NotRecordingError(`RecordWindowEvents("${type}") was not run on this page load (was the page reloaded?)`);
+  });
 
 /** One probe's current answer. */
 const ProbeResult = (name: PageProbe): QuestionAdapter<unknown> =>
@@ -84,7 +94,8 @@ const ProbeResult = (name: PageProbe): QuestionAdapter<unknown> =>
 
 /**
  * Like seeEventually, for a page-script question: polls until `actual` meets `expectation` (a script
- * error means "not yet"); on timeout one strict Ensure.that reports Expected/Received.
+ * error means "not yet", except NotRecordingError, which fails at once); on timeout one strict
+ * Ensure.that reports Expected/Received.
  */
 function seeScriptEventually<T>(actual: QuestionAdapter<T>, expectation: Expectation<T>, description: string): Task {
   const check = Interaction.where(d`#actor waits until ${actual} does ${expectation}`, async (actor) => {
@@ -92,19 +103,12 @@ function seeScriptEventually<T>(actual: QuestionAdapter<T>, expectation: Expecta
       actor,
       d`whether ${actual} does ${expectation}`,
       async (a) => (await a.answer(expectation.isMetFor(actual))) instanceof ExpectationMet,
-      () => true,
+      (error) => !(error instanceof NotRecordingError),
     );
     if (met) return;
-    const last = lastError === undefined ? '' : `\nLast script error while waiting: ${describeError(lastError)}`;
-    try {
-      await Ensure.that(actual, expectation).performAs(actor);
-    } catch (error) {
-      if (error instanceof AssertionError) throw new AssertionError(`${error.message}${last}`, error);
-      throw new AssertionError(
-        `Timed out after ${INTERACTION_TIMEOUT.toString()}: could not run ${d`${actual}`} (${describeError(error)})${last}`,
-        error instanceof Error ? error : undefined,
-      );
-    }
+    await reportTimedOutCheck(lastError, 'script', d`run ${actual}`, () =>
+      Ensure.that(actual, expectation).performAs(actor),
+    );
   });
   return Task.where(description, check);
 }
@@ -117,7 +121,11 @@ export const SeeRecordedEvent = (type: string, expected: unknown): Task =>
     `#actor sees a "${type}" event with detail ${JSON.stringify(expected)}`,
   );
 
-/** The named probe eventually answers `expected` (deep equality). */
+/**
+ * The named probe eventually answers `expected` (deep equality). An expected `null` ("nothing is
+ * fullscreen") is an absence-style check: it passes at once while the page is still settling, so check
+ * a settled anchor first (see README, "Reading and waiting").
+ */
 export const SeePageProbe = (name: PageProbe, expected: unknown): Task =>
   seeScriptEventually(
     ProbeResult(name),
