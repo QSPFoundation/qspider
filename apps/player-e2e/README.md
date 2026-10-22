@@ -224,4 +224,6 @@ All under `apps/player-e2e/artifacts/`:
 Workflows: `.github/workflows/checks.yml` (every PR) and `.github/workflows/desktop-build.yml` (build-only on Linux, Windows and macOS; path-filtered). Branch protection, by the names GitHub shows in the checks list:
 
 - Required checks on `main` (ruleset "main"): `frame`, `rust`, `e2e-web`, `e2e-desktop`.
+- `rust` (fmt, clippy, cargo test) runs on a PR only when `src-tauri/`, `checks.yml` or `package.json` changed. The `changes` job decides, and a job skipped by its `if:` counts as passing. On `main` it always runs. Rust compile errors are still caught on every PR, because `e2e-desktop` builds the Tauri app.
+- The Tauri build dependencies are restored from an apt cache shared by `rust` and `e2e-desktop`. To invalidate it, bump `APT_CACHE_VERSION` in `checks.yml`. The packages that need post-install setup (WebDriver, Xvfb, dbus, AT-SPI) are installed with plain apt, with a timeout and retries.
 - Not required: `build-desktop (…)` (the `desktop-build.yml` matrix jobs). The workflow is path-filtered, so a required check would block PRs where it never runs.
