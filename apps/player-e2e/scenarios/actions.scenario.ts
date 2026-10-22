@@ -47,8 +47,8 @@ scenario('space does nothing when there are several actions', async (player) => 
     ClickAction(ACTION.start.keys),
     SeeMainText(TEXT.keysRoom),
     PressSpace(),
-    PressActionHotkey(1), // the exact log "1" proves Space ran no action (it would have logged a digit first)
-    SeeMainText(TEXT.keyLog('1')),
+    PressActionHotkey(2), // the exact log "2" proves Space ran no action (it would have logged a digit first)
+    SeeMainText(TEXT.keyLog('2')),
   );
 });
 

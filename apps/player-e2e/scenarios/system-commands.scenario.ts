@@ -56,8 +56,7 @@ scenario.webOnly('going fullscreen', async (player) => {
   );
 });
 
-// Desktop (Tauri under Xvfb, no window manager) cannot observe fullscreen, so per the maintainer decision
-// it asserts "no error, game continues": the text after the command, a working action and no error alert.
+// Desktop (Tauri under Xvfb) has no window manager, so fullscreen cannot be observed; it asserts "no error, game continues": the text after the command, a working action and no error alert.
 scenario.desktopOnly('going fullscreen', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),

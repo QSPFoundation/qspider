@@ -91,6 +91,8 @@ scenario('the game can clear the command line', async (player) => {
     ClickAction(ACTION.command.showInput),
     TypeInto('hello', CommandInput),
     SeeCommandInput('hello'), // anchor: the typed text is in the field
+    ClickAction(ACTION.command.showInput), // control: an action that does not clear leaves the text alone
+    SeeCommandInput('hello'),
     ClickAction(ACTION.command.clearInput),
     SeeCommandInput(''),
   );

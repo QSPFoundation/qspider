@@ -85,9 +85,7 @@ act 'Quit': gs 'qspider_quit'
 ---
 
 # life
-lifemark = 1
 *clr & *pl 'LIFE ROOM'
-*pl 'LIFEMARK=<<lifemark>>'
 *pl '<qsp-region name="lifereg"></qsp-region>'
 *pl '<qsp-layer name="lifelay" index="1">LIFE LAYER</qsp-layer>'
 act 'Fill':

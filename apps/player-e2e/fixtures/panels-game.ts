@@ -58,6 +58,7 @@ export const PANELS_GAME = {
       clearInput: 'Clear input',
     },
     keys: {
+      // first and third are fixture labels (they log digits 1 and 3 when run by the digit keys); only second is referenced by name.
       first: 'First',
       second: 'Second',
       third: 'Third',
@@ -94,14 +95,11 @@ export const PANELS_GAME = {
   },
   text: {
     start: 'PANELS START',
-    statsRoom: 'STATS ROOM',
     statsOne: 'STATS ONE',
     statsTwo: 'STATS TWO',
     actionsHidden: 'ACTIONS HIDDEN',
-    objectsRoom: 'OBJECTS ROOM',
     /** Written after selecting the object with the given name. */
     selected: (name: string): string => `SELECTED ${name}`,
-    cmdRoom: 'CMD ROOM',
     /** Written after the player submitted the given text in the input line. */
     typed: (text: string): string => `TYPED ${text}`,
     keysRoom: 'KEYS ROOM',
@@ -117,20 +115,15 @@ export const PANELS_GAME = {
     layerOn: 'LAYER ON',
     afterFullscreen: 'AFTER FULLSCREEN',
     lifeRoom: 'LIFE ROOM',
-    /** Shown in the life room after lifemark was set to 1. */
-    lifemark: 'LIFEMARK=1',
     /** The life room writes region `lifereg` (empty) and layer `lifelay` (hidden); action life.fill fills and shows them. */
     lifeRegion: 'LIFE REGION',
     lifeLayer: 'LIFE LAYER',
     counterRoom: 'COUNTER ROOM',
-    /** Written to the stats panel on every timer tick; delimited so TICKS=1 is not a substring of TICKS=10. The counter resets to 0 on entering the counter room. */
-    ticks: (n: number): string => `[TICKS=${n}]`,
-    /** Parses text.ticks: one capture group, the tick count. */
+    /** Every timer tick writes `[TICKS=n]` to the stats panel (delimited so TICKS=1 is not a substring of TICKS=10; the counter resets to 0 on entering the counter room). This parses it: one capture group, the tick count. */
     ticksPattern: /\[TICKS=(\d+)\]/,
     counterMsg: 'COUNTER MSG',
     /** Prompt of the Input action's dialog (not a prefix of the echo). */
     counterInputPrompt: 'ENTER COUNTER VALUE',
-    counterInput: (value: string): string => `COUNTER INPUT=${value}`,
     counterMenuItem: 'Only item',
     counterMenuPicked: 'COUNTER MENU PICKED',
   },
@@ -142,6 +135,6 @@ export const PANELS_GAME = {
   hotkey: 'k',
   /** Event raised by system.fireEvent: name and args as the game passes them. */
   event: { name: 'e2e_event', args: ['A', 7] },
-  /** The data-qa of the always-present link that runs `showacts 1`. */
+  /** The data-qa of the always-present link that runs `showacts 1`. Documents the literal in `screenplay/game/elements.ts` (ShowActionsLink); not imported there. */
   showActsLink: 'show-acts',
 } as const;
