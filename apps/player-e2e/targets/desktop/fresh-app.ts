@@ -76,11 +76,12 @@ function requireEnv(name: string): string {
 }
 
 /**
- * Ends the running app, waits until it and its WebKit processes have exited (so nothing
- * still writes app data), empties the app data dirs, then starts a new session:
- * tauri-driver launches a new app process, which opens the fixture from its CLI argument.
+ * Ends the running app and waits until it and its WebKit processes have exited (so nothing still
+ * writes app data). Then, when `wipeData`, empties the run's private app data dirs (from
+ * ENV_APP_DATA_DIRS, never anything else). Then starts a new session: tauri-driver launches a new
+ * app process, which opens the test pack from its CLI argument.
  */
-export async function restartAppWithEmptyData(): Promise<void> {
+async function restartApp(wipeData: boolean): Promise<void> {
   if (process.platform !== 'linux') {
     // XDG dirs and /proc are Linux-only; other platforms have no isolated app data here.
     throw new Error(`Desktop E2E isolation is implemented for Linux only, not ${process.platform}`);
@@ -93,9 +94,20 @@ export async function restartAppWithEmptyData(): Promise<void> {
   await browser.deleteSession();
   await waitForExit(running);
 
-  for (const dir of dataDirs) {
-    rmSync(dir, { recursive: true, force: true });
-    mkdirSync(dir);
+  if (wipeData) {
+    for (const dir of dataDirs) {
+      rmSync(dir, { recursive: true, force: true });
+      mkdirSync(dir);
+    }
   }
   await browser.reloadSession();
 }
+
+/** A new app process with empty app data: the start of every scenario. */
+export const restartAppWithEmptyData = (): Promise<void> => restartApp(true);
+
+/**
+ * A new app process on the same private app data dirs, kept as they are: for scenarios about what
+ * survives a restart. Same isolation as restartAppWithEmptyData.
+ */
+export const restartAppKeepingData = (): Promise<void> => restartApp(false);

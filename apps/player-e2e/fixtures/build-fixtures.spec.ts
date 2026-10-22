@@ -6,6 +6,7 @@ import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
 import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
+import { SAVES_GAME } from './saves-game';
 
 const bytes = (path: string): Uint8Array => new Uint8Array(readFileSync(path));
 const startsWith = (path: string, magic: number[]): boolean => magic.every((b, i) => bytes(path)[i] === b);
@@ -53,5 +54,12 @@ describe('buildFixtures', () => {
     expect(GAME_HTML.path).toBe(ARCHIVES.gameHtmlZip.path);
     const files = unzipSync(bytes(ARCHIVES.gameHtmlZip.path));
     expect(Object.keys(files).sort()).toEqual(['game-html.qsps', 'game.cfg', GAME_HTML.image].sort());
+  });
+
+  it('packs the saves game as a zip', () => {
+    expect(SAVES_GAME.path).toBe(ARCHIVES.savesZip.path);
+    expect(startsWith(ARCHIVES.savesZip.path, [0x50, 0x4b, 0x03, 0x04])).toBe(true);
+    const files = unzipSync(bytes(ARCHIVES.savesZip.path));
+    expect(Object.keys(files).sort()).toEqual(['game.cfg', 'saves.qsps']);
   });
 });

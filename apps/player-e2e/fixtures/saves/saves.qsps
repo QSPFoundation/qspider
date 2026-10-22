@@ -1,0 +1,26 @@
+# start
+*pl 'SAVES START'
+counter = 0
+act 'Go to room': gt 'room'
+act 'Go to message room': gt 'message room'
+---
+
+# room
+*clr & *pl 'COUNTER=<<counter>>'
+if nosave: *pl 'NOSAVE ON'
+act 'Increment': counter += 1 & gt 'room'
+act 'Save': savegame
+act 'Load': opengame
+act 'Save then mark': savegame & *clr & *pl 'AFTER SAVE PANEL'
+act 'Load then mark': opengame & *clr & *pl 'AFTER LOAD PANEL'
+act 'Save named': savegame 'named.sav'
+act 'Load named': opengame 'named.sav'
+act 'Enable nosave': nosave = 1 & gt 'room'
+---
+
+# message room
+*clr & *pl 'COUNTER=<<counter>>'
+act 'Increment': counter += 1 & gt 'message room'
+act 'Save': savegame
+act 'Load then message': opengame & msg 'AFTER LOAD MSG'
+---

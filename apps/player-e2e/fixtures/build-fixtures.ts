@@ -49,6 +49,7 @@ export async function buildFixtures(): Promise<void> {
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
+  write(ARCHIVES.savesZip.path, zipPack(join(SOURCES.saves, 'game.cfg')));
 
   const singleSource = readFileSync(join(SOURCES.single, 'single.qsps'), 'utf8');
   write(ARCHIVES.qspBinary.path, writeQsp(readQsps(singleSource)));

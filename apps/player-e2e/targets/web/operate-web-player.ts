@@ -10,6 +10,13 @@ export class OperateWebPlayer extends OperatePlayer {
     await page.navigateTo('/');
   }
 
+  async restartPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void> {
+    // A full page load in the same browser context (page.goto, not a client-side route change): the
+    // app's init() runs again and reads the shelf and saves back from IndexedDB.
+    const page = await BrowseTheWebWithPlaywright.as(actor).currentPage();
+    await page.navigateTo('/');
+  }
+
   async loadTestPack(actor: UsesAbilities & AnswersQuestions): Promise<void> {
     // The pack zip is built by global-setup.ts.
     await this.openGameFile(actor, TEST_PACK.zipPath);

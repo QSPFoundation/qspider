@@ -58,26 +58,36 @@ export async function saveToPath(path: string): Promise<void> {
 export async function restoreFromSlot(slot: number): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  const saveData = await getStorage().getSaveDataBySlot(currentGame.id, slot);
+  try {
+    const saveData = await getStorage().getSaveDataBySlot(currentGame.id, slot);
+    // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
+    if (saveData) {
+      qspApi$.value?.loadSave(saveData);
+    }
+  } finally {
+    // Always resume the engine, even if reading or restoring the save failed.
+    resumeAfterLoad();
+  }
+}
+
+function resumeAfterLoad(): void {
   const loaded = saveLoadedCallback$.value;
-  loaded?.();
   saveLoadedCallback$.set(null);
   requestedAction$.set(null);
-  if (saveData) {
-    qspApi$.value?.loadSave(saveData);
-  }
+  loaded?.();
 }
 
 export async function restoreFromPath(path: string): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  const saveData = await getStorage().getSaveDataByKey(currentGame.id, path);
-  const loaded = saveLoadedCallback$.value;
-  loaded?.();
-  saveLoadedCallback$.set(null);
-  requestedAction$.set(null);
-  if (saveData) {
-    qspApi$.value?.loadSave(saveData);
+  try {
+    const saveData = await getStorage().getSaveDataByKey(currentGame.id, path);
+    // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
+    if (saveData) {
+      qspApi$.value?.loadSave(saveData);
+    }
+  } finally {
+    resumeAfterLoad();
   }
 }
 
@@ -104,6 +114,7 @@ export async function quickSave(): Promise<void> {
     const saveData = qspApi$.value?.saveGame();
     if (!saveData) return;
     await getStorage().saveByKey(currentGame.id, QUICK_SAVE_KEY, saveData);
+    await loadSaveList();
   });
 }
 

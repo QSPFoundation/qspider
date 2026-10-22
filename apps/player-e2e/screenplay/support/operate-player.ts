@@ -23,12 +23,20 @@ export abstract class OperatePlayer extends Ability {
   abstract openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
   /** Drops the game file at `path` on the player window (desktop only). */
   abstract dropGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void>;
+  /**
+   * Ends the player and starts it again with its stored data (shelf, saves) kept. Ends on the
+   * player's start-up; check SeeStartupFinished before relying on what it shows.
+   */
+  abstract restartPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void>;
   /** Opens the player with the game `url` in its `?game=` parameter (web only). A path like `/x/y.qsps` is served by the player's own origin. */
   abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
 }
 
 export const StartPlayer = (): Interaction =>
   Interaction.where('#actor starts the player', (actor) => OperatePlayer.as(actor).startPlayer(actor));
+
+export const RestartPlayer = (): Interaction =>
+  Interaction.where('#actor restarts the player', (actor) => OperatePlayer.as(actor).restartPlayer(actor));
 
 export const LoadTestPack = (): Interaction =>
   Interaction.where('#actor loads the test pack', (actor) => OperatePlayer.as(actor).loadTestPack(actor));
