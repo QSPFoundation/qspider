@@ -45,7 +45,8 @@ export const THEMED_GAME = {
     showLayer: 'Show layer',
     hideLayer: 'Hide layer',
     restart: 'Restart',
-    toAero: 'To aero',
+    toClassic: 'To classic',
+    toCustom: 'To custom',
     /** gs 'qspider_change_theme', 'no-such' */
     toMissing: 'To missing',
   },

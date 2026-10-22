@@ -1,4 +1,8 @@
 import { AERO_GAME, MISSING_THEME_GAME, THEMED_GAME, THEME_ALIAS } from '../fixtures/themes-game';
+import { includes } from '@serenity-js/assertions';
+import { Text } from '@serenity-js/web';
+import { seeEventually } from '../screenplay/support/see-eventually';
+import { ErrorAlerts } from '../screenplay/common/elements';
 import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
@@ -88,5 +92,40 @@ scenario('a classic game after an Aero game is shown', async (player) => {
     OpenGameFile(MISSING_THEME_GAME.classicPath),
     SeeActiveTheme(THEME_ALIAS.classic),
     SeeMainText(MISSING_THEME_GAME.text.start), // guards against the window shrinking below the layout minimum after an Aero game
+  );
+});
+
+scenario('the game switches theme at runtime', async (player) => {
+  const { action } = THEMED_GAME;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    SeeActiveTheme(THEME_ALIAS.custom),
+    ClickAction(action.toClassic),
+    SeeActiveTheme(THEME_ALIAS.classic),
+    SeeMainText(THEMED_GAME.text.start), // the game still plays
+    ClickAction(action.toCustom), // and its actions still work
+    SeeActiveTheme(THEME_ALIAS.custom),
+    SeeThemeChrome(),
+  );
+});
+
+scenario('switching to an unknown theme shows an error and keeps the theme', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    SeeActiveTheme(THEME_ALIAS.custom),
+    ClickAction(THEMED_GAME.action.toMissing),
+    seeEventually(
+      ErrorAlerts.first(),
+      (e) => Text.of(e),
+      includes('Theme no-such is not registered'),
+      '#actor sees the unknown-theme error',
+    ),
+    SeeActiveTheme(THEME_ALIAS.custom), // unchanged: anchored on the alert having appeared
   );
 });
