@@ -1,5 +1,5 @@
 import { Task } from '@serenity-js/core';
-import { equals, includes } from '@serenity-js/assertions';
+import { equals, includes, isGreaterThan } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { waitUntilAbsent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
@@ -11,6 +11,18 @@ export const SeeStats = (text: string): Task =>
 
 export const SeeStatsContaining = (text: string): Task =>
   seeEventually(StatsContent, (e) => Text.of(e), includes(text), `#actor sees stats containing "${text}"`);
+
+/**
+ * The first number in the stats panel eventually exceeds `n`, e.g. a timer's tick count: proof that the
+ * timer runs. An exact count would race a fast timer (the poll can miss it), so the check is "above".
+ */
+export const SeeStatsCountAbove = (n: number): Task =>
+  seeEventually(
+    StatsContent,
+    (e) => Text.of(e).as((text) => Number(/\d+/.exec(text)?.[0] ?? Number.NaN)),
+    isGreaterThan(n),
+    `#actor sees a stats count above ${n}`,
+  );
 
 /** The stats panel is gone. An absence check: check a settled anchor first (see README, "Reading and waiting"). */
 export const SeeNoStatsPanel = (): Task => Task.where('#actor sees no stats panel', waitUntilAbsent(StatsPanel));

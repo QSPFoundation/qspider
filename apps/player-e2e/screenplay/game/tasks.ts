@@ -118,6 +118,12 @@ export const PressQuickLoad = (): Interaction => Press.the(Key.F9);
 /** Ctrl+S: opens the saves panel for saving. */
 export const PressSaveHotkey = (): Interaction => Press.the(Key.Control, 's');
 
+/** Ctrl+R: restarts the game. */
+export const PressRestartHotkey = (): Interaction => Press.the(Key.Control, 'r');
+
+/** Presses the single key `key` (e.g. a game.cfg hotkey). */
+export const PressKey = (key: string): Interaction => Press.the(key);
+
 /** Ctrl+O: opens the saves panel for loading. */
 export const PressLoadHotkey = (): Interaction => Press.the(Key.Control, 'o');
 
