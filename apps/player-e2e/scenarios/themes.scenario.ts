@@ -1,9 +1,5 @@
 import { AERO_GAME, MISSING_THEME_GAME, THEMED_GAME, THEME_ALIAS } from '../fixtures/themes-game';
-import { includes } from '@serenity-js/assertions';
-import { Text } from '@serenity-js/web';
-import { seeEventually } from '../screenplay/support/see-eventually';
-import { ErrorAlerts } from '../screenplay/common/elements';
-import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
+import { SeeActiveTheme, SeeErrorAlertText, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
 import { QspLayer } from '../screenplay/content/elements';
@@ -120,12 +116,7 @@ scenario('switching to an unknown theme shows an error and keeps the theme', asy
     SeeGameStarted(THEMED_GAME.text.start),
     SeeActiveTheme(THEME_ALIAS.custom),
     ClickAction(THEMED_GAME.action.toMissing),
-    seeEventually(
-      ErrorAlerts.first(),
-      (e) => Text.of(e),
-      includes('Theme no-such is not registered'),
-      '#actor sees the unknown-theme error',
-    ),
+    SeeErrorAlertText('Theme no-such is not registered'),
     SeeActiveTheme(THEME_ALIAS.custom), // unchanged: anchored on the alert having appeared
   );
 });

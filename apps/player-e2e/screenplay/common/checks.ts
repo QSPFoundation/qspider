@@ -1,5 +1,5 @@
 import { AssertionError, Question, Task, Wait } from '@serenity-js/core';
-import { equals, not } from '@serenity-js/assertions';
+import { equals, includes, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { MainText } from '../game/elements';
 import { isShown, PresenceOf, waitUntilAbsent, TextNow, textIfPresent } from '../support/presence';
@@ -48,6 +48,10 @@ export const SeeStartupFinished = (): Task =>
 /** The player shows an error alert (an import failure toast or an engine error dialog). */
 export const SeeErrorShown = (): Task =>
   seeEventually(ErrorAlerts.first(), (e) => PresenceOf(e), equals(true), '#actor sees an error alert');
+
+/** The player shows an error alert reading (containing) `text`. */
+export const SeeErrorAlertText = (text: string): Task =>
+  seeEventually(ErrorAlerts.first(), (e) => Text.of(e), includes(text), `#actor sees an error alert reading "${text}"`);
 
 /** The notice toast is showing. */
 export const SeeNoticeShown = (): Task =>
