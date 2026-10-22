@@ -75,7 +75,7 @@ The project uses NX monorepo with the following structure:
 
 ### Technology Stack
 
-- **Frontend**: React 18.3, TypeScript, Vite
+- **Frontend**: React 19.3, TypeScript, Vite
 - **State Management**: Xoid for reactive state
 - **UI Components**: Radix UI primitives with custom styling
 - **Desktop**: Tauri (Rust backend)

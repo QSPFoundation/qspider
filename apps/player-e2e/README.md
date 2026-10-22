@@ -8,6 +8,14 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 
 The panels fixture (`fixtures/panels/`, packed as `artifacts/fixtures/panels.zip`, "Panels game"; `fixtures/panels-game.ts` holds its action names and texts) is not in the pack either: scenarios open it with `OpenGameFile` (`OpenPanelsFixture()`). It is a game with a `game.cfg` and one room per feature: `start` (the hub), stats, objects, the command line, action keys (`keys`, `single`), system commands (`system`), lifecycle (`life`) and the timer (`counter`). `start` runs `inclib 'qspider'` (the built-in module, for `qspider_event`, `qspider_restart` and the other `qspider.*` commands) and `inclib 'panels-lib.qsps'` (a real library loaded from the archive), and its `game.cfg` has a `[game.hotkeys]` entry (`k` runs `hotkey_loc`). Keep a location to at most 8 actions: Serenity `isVisible()` treats an action scrolled out of view as invisible, so a longer list makes later actions unclickable.
 
+The theme fixtures (`fixtures/themes-game.ts` holds their paths, titles, texts and the theme aliases) are built by `fixtures/build-fixtures.ts` into `artifacts/fixtures/` and opened with `OpenGameFile`, not through the pack:
+
+- `aero-game/` ("Aero game", `mode = "aero"`): a message and a next location.
+- `themed-game/` ("Themed game"): a game theme made of `e2e-theme.html`, `e2e-theme.css` and `e2e-theme.js` (`defaultTheme = "e2e-custom"`; the theme writes `data-qa` marks of its own, and has a layout-level `qsp-layer` outside the main content). Its actions switch themes at runtime (`qspider_change_theme`, including an unknown name).
+- `missing-theme/`: two zips (`missing-aero.cfg`, `missing-classic.cfg`) whose `defaultTheme` names no theme, in Aero and in classic mode.
+- `gui-cfg-game/` ("GUI cfg game"): a game with a `qspgui.cfg` that puts the stats panel in the left dock, plus a control zip of the same game without the cfg.
+- The e2e game in theme variants (`e2e-game-aero.zip`, `e2e-game-custom.zip`): the same `e2e-game.qsps` with an authored `game.cfg` that selects Aero, or the themed game's theme files. `CORE_THEME_VARIANTS` points at them.
+
 ### Product behaviour the suite relies on
 
 The desktop player opens what it is launched with, what is dropped on it and what is picked with Open game through the same decision as the web player's Open game (`addImported`, `libs/game-shelf/src/add-imported.ts`):
@@ -100,7 +108,7 @@ Find controls and panels only by:
 
 - `data-qsp*` markers, the theme contract: the renderer's markers on `qsp-*` building blocks;
 - ARIA roles;
-- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf` and `game-shelf-empty` (`libs/game-shelf`, `game-shelf.tsx`), `game-card` (on the card root), `game-title` and `game-run` (`game-card.tsx`), `error-alert` (`error-alert.tsx`), `startup-finished` (`startup-marker.tsx`, a hidden marker, below) and `open-game` (`apps/player-desktop/src/app/open-game-button.tsx`, desktop only). These are all the `data-qa` hooks that exist; the web player's Open game control is the `#openGame` file input, which only the web target's `openGameFile` touches.
+- `data-qa` hooks, **for app-shell UI only** (the shelf, the Open game button and the toasts, which are not rendered from theme templates): `game-shelf` and `game-shelf-empty` (`libs/game-shelf`, `game-shelf.tsx`), `game-card` (on the card root), `game-title` and `game-run` (`game-card.tsx`), `error-alert` (`error-alert.tsx`), `notice-toast` (`notice-toast.tsx`, the transient notice), `startup-finished` (`startup-marker.tsx`, a hidden marker, below) and `open-game` (`apps/player-desktop/src/app/open-game-button.tsx`, desktop only). These are all the app-shell `data-qa` hooks that exist. Game-authored markup passes through the sanitizer with its own `data-qa`, so a hook in a theme or fixture file (e.g. `e2e-theme-chrome`, `e2e-theme-script` in `fixtures/themed-game/e2e-theme.html`) is not an app-shell hook and is not in this list; such hooks are located from `screenplay/themes/<theme>/`. The web player's Open game control is the `#openGame` file input, which only the web target's `openGameFile` touches.
 
 Never by visible text, CSS class, nesting or layout: themes and translations change all of them. Text is only for checking content the game writes (`ROOM counter=1`) or that the scenario controls (fixture titles). If a control has no marker or role, add a `data-qsp` marker in the renderer (or a `data-qa` hook in app-shell UI); do not use a fragile selector. Lookups that can match hidden duplicates go through `visible()`.
 
@@ -147,7 +155,15 @@ Failure messages carry the scenario file and line as a `[scenarios/x.scenario.ts
 
 ### Themes
 
-The rules apply now: elements use only the theme contract, so they are the same under every theme. The machinery (fixture variants through `game.cfg`, `forEachTheme`, `themes.scenario.ts`) comes with phase 2. UI a theme renders outside the `qsp-*` vocabulary would get elements under `screenplay/themes/<theme>/`. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
+Elements use only the theme contract, so they are the same under every theme. The machinery:
+
+- `forEachTheme(variants, title, body, { webOnly })` (`screenplay/support/for-each-theme.ts`) registers one scenario per variant, titled `title [variant name]`. The variants are `CORE_THEME_VARIANTS` in `fixtures/themes-game.ts` (`aero` and `custom`); each carries the theme alias and the zip of the e2e game packed with that theme selected (`mode = "aero"`, or `themes` plus `defaultTheme`). `core-flow-themes.scenario.ts` runs the core flows (actions update the text, load restores a save) through it.
+- `SeeActiveTheme(alias)` (`common/checks.ts`) reads the `data-qsp-theme` marker the renderer puts on `qsp-game-root` (`THEME_ALIAS`: `qspider:classic`, `qspider:aero`, `e2e-custom`).
+- UI a theme renders outside the `qsp-*` vocabulary gets elements under `screenplay/themes/<theme>/` (`e2e-custom` exists: the theme's chrome and script marker).
+- The classic layout's docks carry `data-qsp-dock` (`top`, `left`, `center`, `right`, `bottom`); their elements and checks are `screenplay/classic/` (`SeeStatsInDock`).
+- `themes.scenario.ts` covers theme features: Aero mode, a game-provided theme with its files, the missing-`defaultTheme` fallback and notice, runtime `change_theme` (and its unknown-name error), a theme-level layer cleared by restart, and the `qspgui.cfg` docks against a control without it.
+
+The matrix: the core flows run under aero and custom on web only (`webOnly`; they show as skipped on desktop). Desktop runs each theme-feature scenario once, in `themes.scenario.ts`. The desktop-specific risk is theme files loaded through the Tauri protocol and Aero under WebKit, not the markup contract, which is the same code on both targets. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
 
 ## Commands
 
@@ -190,18 +206,19 @@ Desktop: on Linux the run is always headless (below), so there is no headed mode
 d="$(mktemp -d)" && mkdir "$d"/config "$d"/data "$d"/cache "$d"/state && \
 env -u WAYLAND_DISPLAY -u AT_SPI_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u XDG_SESSION_TYPE \
   -u XDG_CURRENT_DESKTOP -u XDG_SESSION_DESKTOP -u PULSE_SERVER -u PIPEWIRE_REMOTE -u GTK_MODULES \
-  -u SSH_AUTH_SOCK -u HYPRLAND_INSTANCE_SIGNATURE \
+  -u SSH_AUTH_SOCK -u HYPRLAND_INSTANCE_SIGNATURE -u GDK_SCALE -u GDK_DPI_SCALE -u QT_SCALE_FACTOR \
+  -u QT_AUTO_SCREEN_SCALE_FACTOR -u GTK_THEME -u XCURSOR_SIZE \
   XDG_RUNTIME_DIR="$d" XDG_CONFIG_HOME="$d/config" XDG_DATA_HOME="$d/data" \
   XDG_CACHE_HOME="$d/cache" XDG_STATE_HOME="$d/state" GSETTINGS_BACKEND=memory \
   GDK_BACKEND=x11 GIO_USE_VFS=local GVFS_DISABLE_FUSE=1 QSPIDER_E2E_PRIVATE_SESSION=1 \
-  xvfb-run -a dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
+  xvfb-run -a -s '-screen 0 1280x1024x24' dbus-run-session -- apps/player-e2e/targets/desktop/atspi/with-a11y-bus.sh \
   wdio run apps/player-e2e/targets/desktop/wdio.conf.ts [args]
 ```
 
 Nothing in the run may touch your desktop session or your home, so the layers nest outside-in:
 
-- `xvfb-run -a` is the outermost layer: everything inside sees only its virtual `DISPLAY`. `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
-- A fresh private dir (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates (dconf, portals), wdio and the app. It is `XDG_RUNTIME_DIR`, and `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` point at subdirectories of it. `GSETTINGS_BACKEND=memory` keeps settings out of dconf. So nothing writes `~/.config/dconf/user`, `~/.local/share/recently-used.xbel` or the like. `wdio.conf.ts` still sets its own per-run `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME` for tauri-driver and the app, which take precedence. Every variable that points at the desktop session is removed: `AT_SPI_BUS_ADDRESS`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_SESSION_TYPE`, `XDG_CURRENT_DESKTOP`, `XDG_SESSION_DESKTOP`, `PULSE_SERVER`, `PIPEWIRE_REMOTE`, `GTK_MODULES`, `SSH_AUTH_SOCK` and `HYPRLAND_INSTANCE_SIGNATURE` (and `WAYLAND_DISPLAY`, above). Version-manager shims would read their state from the replaced XDG dirs, so `node` and `python3` are pinned (symlinked in the private dir) to the interpreters resolved with the real env. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
+- `xvfb-run -a -s '-screen 0 1280x1024x24'` is the outermost layer: everything inside sees only its virtual `DISPLAY`, on a screen of a fixed size (the xvfb-run default varies by distribution, 640x480 on Arch, and is too small for the app; pinning it gives every machine and CI the same size). `WAYLAND_DISPLAY` is removed and `GDK_BACKEND=x11` set, so GTK uses Xvfb even on a Wayland desktop: no window appears on your screen.
+- A fresh private dir (0700, removed when the run ends) covers the whole tree: the private bus, the services it activates (dconf, portals), wdio and the app. It is `XDG_RUNTIME_DIR`, and `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_CACHE_HOME` and `XDG_STATE_HOME` point at subdirectories of it. `GSETTINGS_BACKEND=memory` keeps settings out of dconf. So nothing writes `~/.config/dconf/user`, `~/.local/share/recently-used.xbel` or the like. `wdio.conf.ts` still sets its own per-run `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME` for tauri-driver and the app, which take precedence. Every variable that points at the desktop session is removed: `AT_SPI_BUS_ADDRESS`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_SESSION_TYPE`, `XDG_CURRENT_DESKTOP`, `XDG_SESSION_DESKTOP`, `PULSE_SERVER`, `PIPEWIRE_REMOTE`, `GTK_MODULES`, `SSH_AUTH_SOCK` and `HYPRLAND_INSTANCE_SIGNATURE` (and `WAYLAND_DISPLAY`, above). The host's display scaling and look are removed too: `GDK_SCALE`, `GDK_DPI_SCALE`, `QT_SCALE_FACTOR`, `QT_AUTO_SCREEN_SCALE_FACTOR`, `GTK_THEME` and `XCURSOR_SIZE`. A leaked `GDK_SCALE=2` would make the screen count as half its size in logical pixels and collapse the app's layout. Version-manager shims would read their state from the replaced XDG dirs, so `node` and `python3` are pinned (symlinked in the private dir) to the interpreters resolved with the real env. `GIO_USE_VFS=local` and `GVFS_DISABLE_FUSE=1` keep gvfs from mounting anything.
 - `dbus-run-session` gives the run a private session bus.
 - `atspi/with-a11y-bus.sh` starts the AT-SPI accessibility bus and registry on that bus. A bare `dbus-run-session` can't activate them (D-Bus would ask systemd), so the script starts `at-spi-bus-launcher --launch-immediately` and `at-spi2-registryd` itself, from `/usr/libexec` on Debian/Ubuntu or `/usr/lib` on Arch, and exits 1 naming a missing one. It fails closed: it refuses to run (exit 1) without `QSPIDER_E2E_PRIVATE_SESSION=1`, when `DBUS_SESSION_BUS_ADDRESS` is unset or is the desktop bus (`/run/user/$UID/bus`), or when `org.a11y.Bus` already has an owner. The daemons run without `DISPLAY`, so they can't publish `AT_SPI_BUS` on any X server, and with their own runtime dir. The script polls until the bus and then the registry answer, runs the command, then stops the two daemons it started (TERM, then KILL after about 2s) and exits with the command's status. The daemons' output goes to `artifacts/desktop/a11y-bus.log`, which is copied before any KILL. The AT-SPI bus lets tests drive native GTK dialogs (the file picker) from Python.
 - The runner starts the tree in its own process group. On Ctrl-C (or TERM/HUP) it passes the signal to the whole group and exits with `128+n`. When the child exits, normally or not, it TERMs what is left of the group (for example, services the private bus activated), waits up to 30s, then KILLs, and only then removes the private dir.

@@ -1,10 +1,10 @@
 import { AssertionError, Question, Task, Wait } from '@serenity-js/core';
-import { equals, not } from '@serenity-js/assertions';
-import { Text } from '@serenity-js/web';
+import { equals, includes, not } from '@serenity-js/assertions';
+import { Attribute, Text } from '@serenity-js/web';
 import { MainText } from '../game/elements';
 import { isShown, PresenceOf, waitUntilAbsent, TextNow, textIfPresent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { ErrorAlerts, NoticeToastElement, StartupFinishedMarker } from './elements';
+import { ErrorAlerts, GameRoot, NoticeToastElement, StartupFinishedMarker } from './elements';
 
 type StartOutcome = { kind: 'started' } | { kind: 'waiting' } | { kind: 'error'; text: string };
 
@@ -49,6 +49,10 @@ export const SeeStartupFinished = (): Task =>
 export const SeeErrorShown = (): Task =>
   seeEventually(ErrorAlerts.first(), (e) => PresenceOf(e), equals(true), '#actor sees an error alert');
 
+/** The player shows an error alert reading (containing) `text`. */
+export const SeeErrorAlertText = (text: string): Task =>
+  seeEventually(ErrorAlerts.first(), (e) => Text.of(e), includes(text), `#actor sees an error alert reading "${text}"`);
+
 /** The notice toast is showing. */
 export const SeeNoticeShown = (): Task =>
   seeEventually(NoticeToastElement, (e) => PresenceOf(e), equals(true), '#actor sees the notice toast');
@@ -56,3 +60,12 @@ export const SeeNoticeShown = (): Task =>
 /** Waits for any notice toast to close (it closes itself), so a later SeeNoticeShown is about a new notice. */
 export const WaitNoticeGone = (): Task =>
   Task.where('#actor waits for the notice toast to close', waitUntilAbsent(NoticeToastElement));
+
+/** The player runs the theme with this alias (`qspider:classic`, `qspider:aero`, or a game theme's name). */
+export const SeeActiveTheme = (alias: string): Task =>
+  seeEventually(
+    GameRoot,
+    (e) => Attribute.called('data-qsp-theme').of(e),
+    equals(alias),
+    `#actor sees the active theme "${alias}"`,
+  );

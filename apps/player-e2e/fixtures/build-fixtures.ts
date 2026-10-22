@@ -9,6 +9,8 @@ import SevenZip from '7z-wasm';
 import { ARCHIVES, SOURCES } from './archives';
 import { TEST_PACK } from './test-pack';
 
+const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
+
 /** game.cfg and every file its [[game]] entries list, keyed by path relative to game.cfg. */
 function packFiles(configPath: string, extraFiles: string[] = []): Record<string, Uint8Array> {
   const config = readFileSync(configPath);
@@ -18,6 +20,18 @@ function packFiles(configPath: string, extraFiles: string[] = []): Record<string
   for (const file of [...game.map((g) => g.file), ...extraFiles])
     files[file] = readFileSync(join(dirname(configPath), file));
   return files;
+}
+
+/** Zip of an authored game.cfg text and files read from folders (`[folder, name]`, packed under `name`). */
+function zipWithConfig(cfg: string, files: [folder: string, name: string][]): Uint8Array {
+  const entries: Record<string, Uint8Array> = { 'game.cfg': new TextEncoder().encode(cfg) };
+  for (const [folder, name] of files) entries[name] = readFileSync(join(folder, name));
+  return zipSync(entries as Zippable);
+}
+
+/** game.cfg text for the e2e game with the given theme settings. */
+function e2eGameConfig(id: string, title: string, themeLines: string[]): string {
+  return ['[[game]]', `id = "${id}"`, `title = "${title}"`, 'file = "e2e-game.qsps"', ...themeLines, ''].join('\n');
 }
 
 /** Zip of a game.cfg and the games it lists. */
@@ -51,6 +65,29 @@ export async function buildFixtures(): Promise<void> {
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
   write(ARCHIVES.savesZip.path, zipPack(join(SOURCES.saves, 'game.cfg')));
   write(ARCHIVES.panelsZip.path, zipPack(join(SOURCES.panels, 'game.cfg'), ['obj.png', 'panels-lib.qsps']));
+
+  write(ARCHIVES.aeroZip.path, zipPack(join(SOURCES.aero, 'game.cfg')));
+  write(ARCHIVES.themedZip.path, zipPack(join(SOURCES.themed, 'game.cfg'), THEME_FILES));
+  write(ARCHIVES.guiCfgZip.path, zipPack(join(SOURCES.guiCfg, 'game.cfg'), ['qspgui.cfg']));
+  write(ARCHIVES.guiCfgControlZip.path, zipPack(join(SOURCES.guiCfg, 'game.cfg')));
+  for (const [archive, cfg] of [
+    [ARCHIVES.missingAeroZip, 'missing-aero.cfg'],
+    [ARCHIVES.missingClassicZip, 'missing-classic.cfg'],
+  ] as const) {
+    const config = readFileSync(join(SOURCES.missingTheme, cfg), 'utf8');
+    write(archive.path, zipWithConfig(config, [[SOURCES.missingTheme, 'missing-theme.qsps']]));
+  }
+  const e2eGame: [string, string] = [SOURCES.e2eGame, 'e2e-game.qsps'];
+  const aeroConfig = e2eGameConfig('e2e-game-aero', ARCHIVES.e2eGameAeroZip.title, ['mode = "aero"']);
+  write(ARCHIVES.e2eGameAeroZip.path, zipWithConfig(aeroConfig, [e2eGame]));
+  const customConfig = e2eGameConfig('e2e-game-custom', ARCHIVES.e2eGameCustomZip.title, [
+    'themes = ["e2e-theme.html"]',
+    'defaultTheme = "e2e-custom"',
+  ]);
+  write(
+    ARCHIVES.e2eGameCustomZip.path,
+    zipWithConfig(customConfig, [e2eGame, ...THEME_FILES.map((f): [string, string] => [SOURCES.themed, f])]),
+  );
 
   const singleSource = readFileSync(join(SOURCES.single, 'single.qsps'), 'utf8');
   write(ARCHIVES.qspBinary.path, writeQsp(readQsps(singleSource)));

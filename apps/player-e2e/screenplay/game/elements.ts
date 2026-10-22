@@ -1,12 +1,21 @@
 import { Text, By, PageElement, PageElements } from '@serenity-js/web';
-import { equals } from '@serenity-js/assertions';
+import { Expectation } from '@serenity-js/core';
 import { visible } from '../support/visible';
 
 export const MainText = visible(PageElements.located(By.css('[data-qsp="main-content"]')), 'main text');
 
-/** A game action, by the label the game gives it. */
+const normalize = (s: string): string => s.replace(/\s+/g, ' ').trim();
+
+/** The text is `label` once whitespace is collapsed: Aero's default $ACTION_FORMAT wraps the label in a table. */
+const isLabel = Expectation.define<string, [string]>(
+  'isLabel',
+  'is the label',
+  (actual, label) => normalize(actual) === label,
+);
+
+/** A game action, by the label the game gives it (in any theme; whitespace around the label is ignored). */
 export const Action = (label: string) =>
-  visible(PageElements.located(By.css('[data-qsp="action"]')).where(Text, equals(label)), `"${label}" action`);
+  visible(PageElements.located(By.css('[data-qsp="action"]')).where(Text, isLabel(label)), `"${label}" action`);
 
 /** The actions panel (qsp-actions). Not rendered at all while the game hides it (`showacts 0`). */
 export const ActionsPanel = PageElement.located(By.css('[data-qsp="actions"]')).describedAs('actions panel');

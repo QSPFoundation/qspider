@@ -2,7 +2,7 @@ import { currentGameEntry$, GameCommand, onGameCommand, stopCurrentGame } from '
 import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
-import { errorMessage$ } from './toasts';
+import { showError } from './toasts';
 import { windowManager } from '@qspider/env';
 
 function parseArgs(input: string): Array<string | number> {
@@ -76,7 +76,7 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
     const themes = themeRegistry$.value;
     const existingTheme = themes[name];
     if (!existingTheme) {
-      errorMessage$.set(`Theme ${name} is not registered`);
+      showError(`Theme ${name} is not registered`);
       return;
     }
     currentTheme$.set(name);

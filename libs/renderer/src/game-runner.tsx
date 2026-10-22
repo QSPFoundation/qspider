@@ -1,5 +1,6 @@
 import {
   currentGameEntry$,
+  currentTheme$,
   isBlockingDialogOpen,
   isPauseScreenVisible$,
   openPauseScreen,
@@ -39,10 +40,11 @@ const handler = (e: KeyboardEvent): void => {
 
 export const GameRunner: React.FC = () => {
   const currentGame = useAtom(currentGameEntry$);
+  const currentTheme = useAtom(currentTheme$);
   useEventListener('keydown', handler, document, { capture: true });
   if (!currentGame) return <QspiderLoader />;
   return (
-    <qsp-game-root>
+    <qsp-game-root data-qsp-theme={currentTheme}>
       <ClickCoordinates />
       <QspCSSVariables />
       <QspCSSLinks />

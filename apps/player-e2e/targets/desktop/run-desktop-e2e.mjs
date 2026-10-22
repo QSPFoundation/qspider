@@ -1,10 +1,12 @@
 // Runs the desktop E2E (WebdriverIO + tauri-driver): `node run-desktop-e2e.mjs [wdio args...]`.
 // On Linux the run is always headless and isolated from the developer's desktop session and home:
-//   xvfb-run -a                      a virtual X display; everything below sees only its DISPLAY
+//   xvfb-run -a -s '-screen 0 1280x1024x24'
+//                                    a virtual X display of a fixed size; everything below sees only its DISPLAY
 //   └ private environment            fresh private dir (0700) as XDG_RUNTIME_DIR, with XDG_CONFIG/DATA/CACHE/
 //                                    STATE_HOME under it; GSETTINGS_BACKEND=memory; no variable that points
 //                                    at the desktop session (Wayland, D-Bus, AT-SPI, XDG_SESSION_*, audio,
-//                                    ssh agent, GTK_MODULES, Hyprland); GDK_BACKEND=x11;
+//                                    ssh agent, GTK_MODULES, Hyprland) and no host display scaling or look
+//                                    (GDK_SCALE, GDK_DPI_SCALE, QT_*, GTK_THEME, XCURSOR_SIZE); GDK_BACKEND=x11;
 //                                    gvfs kept local (no FUSE mounts); QSPIDER_E2E_PRIVATE_SESSION=1
 //     └ dbus-run-session --          a private session bus
 //       └ atspi/with-a11y-bus.sh     the AT-SPI accessibility bus + registry (the native file dialog
@@ -77,12 +79,25 @@ function preparePrivateSession() {
   ]) {
     delete env[name];
   }
+  // The host's display scaling and look: GDK_SCALE halves the screen in logical pixels (e.g. 320x240 on a
+  // 640x480 screen), which is why the scaling vars are stripped and the screen is pinned.
+  for (const name of [
+    'GDK_SCALE',
+    'GDK_DPI_SCALE',
+    'QT_SCALE_FACTOR',
+    'QT_AUTO_SCREEN_SCALE_FACTOR',
+    'GTK_THEME',
+    'XCURSOR_SIZE',
+  ]) {
+    delete env[name];
+  }
   env.GDK_BACKEND = 'x11';
   env.GIO_USE_VFS = 'local';
   env.GVFS_DISABLE_FUSE = '1';
   // with-a11y-bus.sh, wdio.conf.ts and dialog.py refuse to run without it.
   env.QSPIDER_E2E_PRIVATE_SESSION = '1';
-  command = ['xvfb-run', '-a', 'dbus-run-session', '--', a11yBus, ...wdio];
+  // A fixed screen, so every machine and CI gets the same size (the xvfb-run default varies by distribution, 640x480 on Arch).
+  command = ['xvfb-run', '-a', '-s', '-screen 0 1280x1024x24', 'dbus-run-session', '--', a11yBus, ...wdio];
 }
 
 const ownGroup = process.platform !== 'win32';

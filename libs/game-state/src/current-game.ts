@@ -151,6 +151,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
         currentTheme$.set(descriptor.defaultTheme);
       } else {
         showNotice(`Theme ${descriptor.defaultTheme} not found`);
+        currentTheme$.set(descriptor.mode === 'aero' ? AERO_THEME : CLASSIC_THEME);
       }
     } else if (descriptor?.mode === 'aero') {
       currentTheme$.set(AERO_THEME);
