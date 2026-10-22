@@ -1,0 +1,9 @@
+# start
+inclib 'qspider'
+*pl 'THEMED START'
+act 'Show layer': gs 'qspider_show_layer', 'themelay'
+act 'Hide layer': gs 'qspider_hide_layer', 'themelay'
+act 'Restart': gs 'qspider_restart'
+act 'To aero': gs 'qspider_change_theme', 'qspider:aero'
+act 'To missing': gs 'qspider_change_theme', 'no-such'
+---

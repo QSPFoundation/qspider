@@ -1,0 +1,9 @@
+# start
+*pl 'AERO START'
+act 'Next': gt 'next'
+act 'Show message': msg 'AERO MESSAGE'
+---
+
+# next
+*pl 'AERO NEXT'
+---

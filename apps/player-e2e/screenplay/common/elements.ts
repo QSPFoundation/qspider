@@ -18,3 +18,6 @@ export const StartupFinishedMarker = PageElement.located(By.css('[data-qa="start
 
 /** The transient notice toast (NoticeToast, libs/game-shelf), e.g. "2 games added to shelf". It closes itself after 3 s. */
 export const NoticeToastElement = PageElement.located(By.css('[data-qa="notice-toast"]')).describedAs('notice toast');
+
+/** The game's root element (`<qsp-game-root>`, libs/renderer); its `data-qsp-theme` is the active theme's alias. */
+export const GameRoot = PageElement.located(By.css('[data-qsp-theme]')).describedAs('game root');

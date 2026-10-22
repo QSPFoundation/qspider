@@ -15,6 +15,14 @@ export const ARCHIVES = {
   savesZip: { path: out('saves.zip'), title: 'Saves game' },
   panelsZip: { path: out('panels.zip'), title: 'Panels game' },
   gameHtmlZip: { path: out('game-html.zip'), title: 'Game HTML', image: 'view.png' },
+  aeroZip: { path: out('aero-game.zip'), title: 'Aero game' },
+  themedZip: { path: out('themed-game.zip'), title: 'Themed game' },
+  missingAeroZip: { path: out('missing-aero.zip'), title: 'Missing aero theme' },
+  missingClassicZip: { path: out('missing-classic.zip'), title: 'Missing classic theme' },
+  guiCfgZip: { path: out('gui-cfg-game.zip'), title: 'GUI cfg game' },
+  /** The e2e game (fixtures/e2e-game) packed with a game.cfg that selects a theme. */
+  e2eGameAeroZip: { path: out('e2e-game-aero.zip'), title: 'E2E game (aero)' },
+  e2eGameCustomZip: { path: out('e2e-game-custom.zip'), title: 'E2E game (custom theme)' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -26,4 +34,9 @@ export const SOURCES = {
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
   saves: fileURLToPath(new URL('./saves/', import.meta.url)),
   panels: fileURLToPath(new URL('./panels/', import.meta.url)),
+  aero: fileURLToPath(new URL('./aero-game/', import.meta.url)),
+  themed: fileURLToPath(new URL('./themed-game/', import.meta.url)),
+  missingTheme: fileURLToPath(new URL('./missing-theme/', import.meta.url)),
+  guiCfg: fileURLToPath(new URL('./gui-cfg-game/', import.meta.url)),
+  e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;
