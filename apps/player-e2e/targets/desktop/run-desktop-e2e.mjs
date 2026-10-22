@@ -96,7 +96,7 @@ function preparePrivateSession() {
   env.GVFS_DISABLE_FUSE = '1';
   // with-a11y-bus.sh, wdio.conf.ts and dialog.py refuse to run without it.
   env.QSPIDER_E2E_PRIVATE_SESSION = '1';
-  // A fixed screen, so every machine and CI gets the same size (the default is 640x480).
+  // A fixed screen, so every machine and CI gets the same size (the xvfb-run default varies by distribution, 640x480 on Arch).
   command = ['xvfb-run', '-a', '-s', '-screen 0 1280x1024x24', 'dbus-run-session', '--', a11yBus, ...wdio];
 }
 
