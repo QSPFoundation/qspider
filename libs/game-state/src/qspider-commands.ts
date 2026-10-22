@@ -20,16 +20,21 @@ function parseArgs(input: string): Array<string | number> {
         is_string = true;
       }
     } else if (!is_string && char === ',') {
-      args.push(parseFloat(current.join('')));
+      // A comma right after a closing `~` ends nothing: that string is already pushed.
+      pushNumber(args, current);
       current = [];
     } else {
       current.push(char);
     }
   }
-  if (current.length) {
-    args.push(parseFloat(current.join('')));
-  }
+  pushNumber(args, current);
   return args;
+}
+
+/** Pushes the bare (number) token in `chars`, if it holds anything but whitespace. */
+function pushNumber(args: Array<string | number>, chars: string[]): void {
+  const token = chars.join('').trim();
+  if (token) args.push(parseFloat(token));
 }
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
