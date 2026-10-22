@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { isPaused$ } from './counter';
+import { pauseCounter, resumeCounter } from './counter';
 
 interface InputAtom {
   isOpen: boolean;
@@ -27,7 +27,7 @@ export const input$ = create<InputAtom, InputAtomActions>(
     const entered$ = atom.focus((s) => s.entered);
     return {
       open(content: string, onfinished: (result: string) => void): void {
-        isPaused$.set(true);
+        pauseCounter('input');
         atom.set({
           isOpen: true,
           content,
@@ -41,21 +41,21 @@ export const input$ = create<InputAtom, InputAtomActions>(
       finish(): void {
         if (isOpen$.value) {
           isOpen$.set(false);
-          isPaused$.set(false);
+          resumeCounter('input');
           atom.value.onfinished?.(entered$.value);
         }
       },
       close(): void {
         if (isOpen$.value) {
           isOpen$.set(false);
-          isPaused$.set(false);
+          resumeCounter('input');
           atom.value.onfinished?.('');
         }
       },
       clear(): void {
         if (isOpen$.value) {
           atom.value.onfinished?.('');
-          isPaused$.set(false);
+          resumeCounter('input');
         }
         atom.set({
           isOpen: false,

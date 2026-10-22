@@ -1,6 +1,6 @@
 import { atom } from 'xoid';
 import history from 'history/browser';
-import { isPaused$ } from './counter';
+import { pauseCounter, resumeCounter } from './counter';
 import { gameSavedCallback$, requestedAction$, saveLoadedCallback$ } from './save';
 import { playerUrl } from './init';
 
@@ -42,8 +42,8 @@ export function onClosePauseScreen(): void {
 
 isPauseScreenVisible$.subscribe((isVisible) => {
   if (isVisible) {
-    isPaused$.set(true);
+    pauseCounter('pause-screen');
   } else {
-    isPaused$.set(false); // TODO check collisions
+    resumeCounter('pause-screen');
   }
 });
