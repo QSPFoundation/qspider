@@ -6,6 +6,7 @@ act 'Go to room': gt 'room'
 
 # room
 *clr & *pl 'COUNTER=<<counter>>'
+if nosave: *pl 'NOSAVE ON'
 act 'Increment': counter += 1 & gt 'room'
 act 'Save': savegame
 act 'Load': opengame

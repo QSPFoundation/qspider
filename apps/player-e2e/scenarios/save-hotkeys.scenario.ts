@@ -1,5 +1,5 @@
 import { SAVES_GAME } from '../fixtures/saves-game';
-import { SeeMainText } from '../screenplay/game/checks';
+import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
 import {
   ClickAction,
   OpenSavesFixture,
@@ -111,14 +111,15 @@ scenario('NOSAVE blocks quicksave', async (player) => {
     SeeQuickSaveFilled(),
     CancelSavesPanel(),
     ClickAction(ACTION.enableNosave),
+    SeeMainTextContaining(TEXT.nosaveOn),
     ClickAction(ACTION.increment),
-    SeeMainText(TEXT.counter(2)),
+    SeeMainTextContaining(TEXT.counter(2)),
     PressQuickSave(),
     ClickAction(ACTION.increment),
-    SeeMainText(TEXT.counter(3)),
+    SeeMainTextContaining(TEXT.counter(3)),
     PressQuickLoad(),
     // Still the counter-1 quicksave: the blocked F5 at counter 2 saved nothing.
-    SeeMainText(TEXT.counter(1)),
+    SeeMainTextContaining(TEXT.counter(1)),
   );
 });
 
@@ -126,10 +127,11 @@ scenario('NOSAVE blocks Ctrl+S', async (player) => {
   await player.attemptsTo(
     OpenSavesFixture(),
     ClickAction(ACTION.enableNosave),
+    SeeMainTextContaining(TEXT.nosaveOn),
     PressSaveHotkey(),
     // The action result is the anchor: a saves panel opened by Ctrl+S would have paused the game.
     ClickAction(ACTION.increment),
-    SeeMainText(TEXT.counter(1)),
+    SeeMainTextContaining(TEXT.counter(1)),
     SeeNoPauseScreen(),
   );
 });
@@ -144,11 +146,12 @@ scenario('NOSAVE: Escape opens the pause screen for loading only', async (player
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.counter(2)),
     ClickAction(ACTION.enableNosave),
+    SeeMainTextContaining(TEXT.nosaveOn),
     PressEscape(),
     SeeRequestedSaveCommand('load'),
     ShowSavesPanel(),
     LoadFromSlot(1),
-    SeeMainText(TEXT.counter(1)),
+    SeeMainTextContaining(TEXT.counter(1)),
   );
 });
 

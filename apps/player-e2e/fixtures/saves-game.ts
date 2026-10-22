@@ -7,6 +7,8 @@ export const SAVES_GAME = {
   title: 'Saves game',
   text: {
     start: 'SAVES START',
+    /** Shown in the room text once `nosave` is set. */
+    nosaveOn: 'NOSAVE ON',
     counter: (n: number): string => `COUNTER=${n}`,
     /** Written by code that runs after `savegame` returned. */
     afterSavePanel: 'AFTER SAVE PANEL',
