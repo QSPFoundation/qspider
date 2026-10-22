@@ -104,6 +104,7 @@ export async function quickSave(): Promise<void> {
     const saveData = qspApi$.value?.saveGame();
     if (!saveData) return;
     await getStorage().saveByKey(currentGame.id, QUICK_SAVE_KEY, saveData);
+    await loadSaveList();
   });
 }
 
