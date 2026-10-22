@@ -1,5 +1,5 @@
 import { E2E_GAME } from '../fixtures/e2e-game';
-import { CORE_THEME_VARIANTS } from '../fixtures/themes-game';
+import { CORE_THEME_VARIANTS, type ThemeVariant } from '../fixtures/themes-game';
 import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, ReachCounter } from '../screenplay/game/tasks';
@@ -7,7 +7,6 @@ import { SeeSlotEmpty } from '../screenplay/saves/checks';
 import { ChooseSaveSlot } from '../screenplay/saves/tasks';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { forEachTheme } from '../screenplay/support/for-each-theme';
-import type { ThemeVariant } from '../fixtures/themes-game';
 import type { Actor } from '@serenity-js/core';
 
 // The core flows under the non-default themes, web only (maintainer decision, 2026-10-22). The

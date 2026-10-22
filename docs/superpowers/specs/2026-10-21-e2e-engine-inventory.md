@@ -88,7 +88,7 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 | Aero `*_FORMAT` (`$MAIN_FORMAT`, `$ACTION_FORMAT`, …)                                                                        | R/render-state.ts:124-235                     | —                                                                                        |
 | Aero new-location effects (`$NEWLOC_EFFECT`, …)                                                                              | aero-newloc-effect.tsx                        | —                                                                                        |
 | `qspgui.cfg` classic layout (docks, panes, colours, font)                                                                    | GS/qsp-gui-cfg.ts; classic-layout.tsx         | ◐ docks (stats panel in the cfg's dock vs the default one); panes, colours, font are 2f′ |
-| Aero window size (`config.xml` UTF-16 / `game.cfg aero`)                                                                     | current-game.ts:94-134                        | — (the classic game after an Aero game is shown, so the window is not left shrunk)       |
+| Aero window size (`config.xml` UTF-16 / `game.cfg aero`)                                                                     | current-game.ts:94-134                        | — (see defect 28)                                                                        |
 
 ## F. Themes
 
@@ -244,9 +244,9 @@ _Pack: extend fixtures with stats, objects, a command-line prompt, SETTIMER, pan
 
 - Aero-mode game loads — Pack: an Aero game
 - Game-provided theme via `defaultTheme`; `forEachTheme` dimension
-- Missing `defaultTheme` → notice ⚠ aero mode falls back to classic
+- Missing `defaultTheme` → notice; falls back to the mode's theme
 - Runtime `change_theme`
-- Classic `qspgui.cfg` layout (docks, panes)
+- Classic `qspgui.cfg` layout (docks only; panes are 2f′)
 
 ### 2f′. Aero/classic variables that change how the game looks (§E)
 
@@ -327,7 +327,7 @@ Open (found in 2e, not fixed):
 Fixed in 2f:
 
 25. **Theme script-links never executed**: the renderer rendered them as React `<script src>` elements, which are inert. They are now appended to `document.head` as real elements and removed on a theme switch or game stop (script-links.tsx:6-22).
-26. **`change_theme` to an unknown name never showed its error**: it set `errorMessage$` directly, which nothing displayed. It now goes through `showError` (qspider-commands.ts:78).
+26. **`change_theme` to an unknown name never showed its error**: it set `errorMessage$` directly, which nothing displayed. It now goes through `showError` (qspider-commands.ts:79).
 
 Open (found in 2f, parked by the maintainer):
 

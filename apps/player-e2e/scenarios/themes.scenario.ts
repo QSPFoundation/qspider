@@ -90,7 +90,7 @@ scenario('a classic game after an Aero game is shown', async (player) => {
     ReturnToShelf(),
     OpenGameFile(MISSING_THEME_GAME.classicPath),
     SeeActiveTheme(THEME_ALIAS.classic),
-    SeeMainText(MISSING_THEME_GAME.text.start), // guards against the window shrinking below the layout minimum after an Aero game
+    SeeMainText(MISSING_THEME_GAME.text.start), // the main text is readable after an Aero game
   );
 });
 

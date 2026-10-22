@@ -79,8 +79,8 @@ function preparePrivateSession() {
   ]) {
     delete env[name];
   }
-  // The host's display scaling and look: a GDK_SCALE=2 turns the 640x480 default Xvfb screen into 320x240
-  // logical pixels, which collapses the app's layout (the window is capped to the screen).
+  // The host's display scaling and look: GDK_SCALE halves the screen in logical pixels (e.g. 320x240 on a
+  // 640x480 screen), which is why the scaling vars are stripped and the screen is pinned.
   for (const name of [
     'GDK_SCALE',
     'GDK_DPI_SCALE',
