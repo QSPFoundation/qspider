@@ -89,8 +89,10 @@ lifemark = 1
 *pl 'LIFEMARK=<<lifemark>>'
 *pl '<qsp-region name="lifereg"></qsp-region>'
 *pl '<qsp-layer name="lifelay" index="1">LIFE LAYER</qsp-layer>'
-gs 'qspider_update_region', 'lifereg', 'LIFE REGION'
-gs 'qspider_show_layer', 'lifelay'
+act 'Fill':
+  gs 'qspider_update_region', 'lifereg', 'LIFE REGION'
+  gs 'qspider_show_layer', 'lifelay'
+end
 act 'Restart via game': gs 'qspider_restart'
 ---
 

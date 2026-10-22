@@ -1,6 +1,6 @@
 import { PANELS_GAME } from '../fixtures/panels-game';
 import { SeeElementText } from '../screenplay/content/checks';
-import { QspLayer, QspRegion } from '../screenplay/content/elements';
+import { FirstQspRegion, QspLayer, QspRegion } from '../screenplay/content/elements';
 import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
 import { ClickAction, OpenPanelsFixture, PressEscape, PressKey, PressRestartHotkey } from '../screenplay/game/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
@@ -54,17 +54,23 @@ scenario('the game can restart itself', async (player) => {
   );
 });
 
-// The start location has no region or layer markup, so after the restart both are gone; the anchor
-// is that both were seen filled first, and the start text settles before the absence checks.
+// Region: QspRegion renders regions$[name] and never re-reads the engine, so without reloadRegions on restart
+// the re-entered life room would still show LIFE REGION. Layer: QspLayer re-reads the engine on mount
+// (registerLayer), so its absence here holds even without reloadLayers; it checks behaviour, not the reload.
 scenario('restart resets regions and layers', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
     ClickAction(ACTION.start.lifecycle),
+    ClickAction(ACTION.life.fill),
     SeeElementText(QspRegion, TEXT.lifeRegion, 'region'),
     SeeElementText(QspLayer, TEXT.lifeLayer, 'layer'),
-    PressRestartHotkey(),
+    PressEscape(),
+    waitUntilPresent(PauseScreen),
+    ClickWhenPresent(RestartButton),
     SeeMainText(TEXT.start),
-    waitUntilAbsent(QspRegion),
+    ClickAction(ACTION.start.lifecycle),
+    SeeMainTextContaining(TEXT.lifeRoom), // settled anchor for the checks below
+    SeeElementText(FirstQspRegion, '', 'region'),
     waitUntilAbsent(QspLayer),
   );
 });

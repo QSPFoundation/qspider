@@ -79,7 +79,11 @@ export const PANELS_GAME = {
       fullscreen: 'Fullscreen',
       quit: 'Quit',
     },
-    life: { restart: 'Restart via game' },
+    life: {
+      /** Fills region `lifereg` with text.lifeRegion and shows layer `lifelay` (text.lifeLayer). */
+      fill: 'Fill',
+      restart: 'Restart via game',
+    },
     counter: {
       message: 'Message',
       input: 'Input',
@@ -115,7 +119,7 @@ export const PANELS_GAME = {
     lifeRoom: 'LIFE ROOM',
     /** Shown in the life room after lifemark was set to 1. */
     lifemark: 'LIFEMARK=1',
-    /** Region `lifereg` and layer `lifelay` are filled on entering the life room. */
+    /** The life room writes region `lifereg` (empty) and layer `lifelay` (hidden); action life.fill fills and shows them. */
     lifeRegion: 'LIFE REGION',
     lifeLayer: 'LIFE LAYER',
     counterRoom: 'COUNTER ROOM',
