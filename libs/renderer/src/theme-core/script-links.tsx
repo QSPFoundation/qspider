@@ -13,6 +13,7 @@ export const QspScriptLinks: React.FC = () => {
   useEffect(() => {
     const added = scriptLinks.map((src) => {
       const script = document.createElement('script');
+      script.async = false; // dynamically added scripts are async by default; keep the declared order
       script.src = src.startsWith('qspider:') ? src.replace('qspider:', baseUrl) : src;
       document.head.appendChild(script);
       return script;
