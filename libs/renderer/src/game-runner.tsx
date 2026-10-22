@@ -24,27 +24,30 @@ import { QspCSSLinks } from './theme-core/css-links';
 import { QspScriptLinks } from './theme-core/script-links';
 import { TouchPauseButton } from './touch-pause-button';
 
-const handler = throttle((e: KeyboardEvent): void => {
-  if (e.key === 'Escape') {
-    if (!currentGameEntry$.value) return;
-    if (
-      wait$.value ||
-      msg$.value.isOpen ||
-      input$.value.isOpen ||
-      menu$.value.isOpen ||
-      isPauseScreenVisible$.value ||
-      (view$.value.isOpen && view$.value.isModal)
-    )
-      return;
-    e.preventDefault();
-    e.stopPropagation();
-    const nosave = qspApi$.value?.readVariable('NOSAVE');
-    if (nosave) {
-      requestedAction$.set('load');
-    }
-    openPauseScreen();
+const openPauseOnEscape = throttle((e: KeyboardEvent): void => {
+  if (!currentGameEntry$.value) return;
+  if (
+    wait$.value ||
+    msg$.value.isOpen ||
+    input$.value.isOpen ||
+    menu$.value.isOpen ||
+    isPauseScreenVisible$.value ||
+    (view$.value.isOpen && view$.value.isModal)
+  )
+    return;
+  e.preventDefault();
+  e.stopPropagation();
+  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  if (nosave) {
+    requestedAction$.set('load');
   }
+  openPauseScreen();
 }, 10);
+
+// Only Escape is throttled: throttling every key let a preceding key (e.g. F5) swallow a quick Escape.
+const handler = (e: KeyboardEvent): void => {
+  if (e.key === 'Escape') openPauseOnEscape(e);
+};
 
 export const GameRunner: React.FC = () => {
   const currentGame = useAtom(currentGameEntry$);
