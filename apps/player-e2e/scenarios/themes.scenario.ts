@@ -74,3 +74,21 @@ scenario("a missing defaultTheme does not keep the previous game's theme", async
     SeeActiveTheme(THEME_ALIAS.classic),
   );
 });
+
+// ⚠ Currently RED on desktop on a machine whose GDK_SCALE=2 leaks into the run (green on web): the Xvfb
+// screen is then 320x240 logical, the Aero game's resize clamps the window to 319x239, quitting cannot
+// restore it, and the classic layout clips the main text. The fix is pending a maintainer decision; see
+// .superpowers/sdd/2026-10-22-e2e-2f-themes/aero-blank-report.md. Do not merge while it is red.
+scenario('a classic game after an Aero game is shown', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(AERO_GAME.path),
+    SeeGameStarted(TEXT.start),
+    SeeActiveTheme(THEME_ALIAS.aero),
+    ReturnToShelf(),
+    OpenGameFile(MISSING_THEME_GAME.classicPath),
+    SeeActiveTheme(THEME_ALIAS.classic),
+    SeeMainText(MISSING_THEME_GAME.text.start), // RED on desktop: the main text is not shown
+  );
+});
