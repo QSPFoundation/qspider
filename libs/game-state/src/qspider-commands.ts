@@ -39,6 +39,14 @@ function pushNumber(args: Array<string | number>, chars: string[]): void {
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
   'action:'(action: string): void {
+    if (action === 'restart') {
+      // A restart from game code runs on the next tick, after the engine call that requested it has
+      // returned: restarting inside it lets the new game's async library load re-enter the engine mid-call,
+      // and the restart is lost. Code after `gs 'qspider_restart'` in the same action still runs first;
+      // the restart then discards its effects.
+      setTimeout(() => onGameCommand('restart'), 0);
+      return;
+    }
     onGameCommand(action as GameCommand);
   },
   'event:'(event: string): void {
