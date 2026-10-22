@@ -10,7 +10,7 @@ import {
   registerThemes,
   themeRegistry$,
 } from './themes';
-import { isPaused$ } from './counter';
+import { resetCounterPauses } from './counter';
 import { muted$, sounds$ } from './audio';
 import {
   closePauseScreen,
@@ -165,7 +165,8 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     if (isQsps) {
       gameSource = convertQsps(gameSource);
     }
-    isPaused$.set(false);
+    // A clean slate for the new game: no pause reason left over from the previous one.
+    resetCounterPauses();
     qspApi$.value?.openGame(gameSource, true);
     qspApi$.value?.restartGame();
     currentGameEntry$.set(entry);
@@ -213,12 +214,13 @@ export function stopCurrentGame(): void {
   qspGuiCfg$.set(null);
   onClosePauseScreen();
   pauseScreenCurrentPanel$.set('credits');
-  isPaused$.set(true);
 
   // clear state
   input$.actions.clear();
   menu$.actions.clear();
   msg$.actions.clear();
+  // After the dialog clears (they resume their own reasons): only "no game" pauses the counter now.
+  resetCounterPauses('no-game');
   mainContent$.set('');
   statsContent$.set('');
   actions$.set([]);
@@ -283,10 +285,12 @@ export function onGameCommand(action: GameCommand): void {
       stopCurrentGame();
       break;
     case 'restart':
-      isPaused$.set(true);
+      // Closing the pause screen goes back in history, to the shelf when it is not open, so only an open
+      // pause screen is closed. The counter needs no handling here: the pause screen and a library the
+      // restart loads (withCounterPaused) each hold their own pause reason and release only that.
       qspApi$.value?.restartGame();
       onRestart();
-      closePauseScreen();
+      if (isPauseScreenVisible$.value) closePauseScreen();
       pauseScreenCurrentPanel$.set('credits');
       break;
     case 'resume':

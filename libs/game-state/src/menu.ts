@@ -1,6 +1,6 @@
 import { QspListItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
-import { isPaused$ } from './counter';
+import { pauseCounter, resumeCounter } from './counter';
 
 interface MenuAtom {
   isOpen: boolean;
@@ -25,7 +25,7 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
     const isOpen$ = atom.focus((s) => s.isOpen);
     return {
       open(items: QspListItem[], onselect: (index: number) => void): void {
-        isPaused$.set(true);
+        pauseCounter('menu');
         atom.set({
           isOpen: true,
           items,
@@ -34,7 +34,7 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       },
       select(index: number): void {
         if (isOpen$.value) {
-          isPaused$.set(false);
+          resumeCounter('menu');
           isOpen$.set(false);
           atom.value.onselect?.(index);
           atom.value.onselect = null;
@@ -42,7 +42,7 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       },
       close(): void {
         if (isOpen$.value) {
-          isPaused$.set(false);
+          resumeCounter('menu');
           isOpen$.set(false);
           atom.value.onselect?.(-1);
           atom.value.onselect = null;
@@ -50,7 +50,7 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       },
       clear(): void {
         if (isOpen$.value) {
-          isPaused$.set(false);
+          resumeCounter('menu');
           atom.value.onselect?.(-1);
         }
         atom.set({

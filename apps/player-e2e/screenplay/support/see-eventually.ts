@@ -9,8 +9,8 @@ import {
 } from '@serenity-js/core';
 import { Ensure } from '@serenity-js/assertions';
 import type { PageElement } from '@serenity-js/web';
-import { describeError } from './element-errors';
 import { pollUntil } from './polling';
+import { reportTimedOutCheck } from './timeout-report';
 import { INTERACTION_TIMEOUT } from './timeouts';
 
 /**
@@ -42,21 +42,12 @@ export function seeEventually<T>(
     const name = d`${element}`;
 
     // Timed out: one strict read reports what the player sees now.
-    const last = lastError === undefined ? '' : `\nLast read error while waiting: ${describeError(lastError)}`;
-    try {
+    await reportTimedOutCheck(lastError, 'read', `read ${name}`, async (last) => {
       if (!(await (await actor.answer(element)).isPresent())) {
         throw new AssertionError(`Timed out after ${INTERACTION_TIMEOUT.toString()}: ${name} is not present${last}`);
       }
       await Ensure.that(actual, expectation).performAs(actor);
-    } catch (error) {
-      if (error instanceof AssertionError) {
-        throw error.message.includes(last) ? error : new AssertionError(`${error.message}${last}`, error);
-      }
-      throw new AssertionError(
-        `Timed out after ${INTERACTION_TIMEOUT.toString()}: could not read ${name} (${describeError(error)})${last}`,
-        error instanceof Error ? error : undefined,
-      );
-    }
+    });
   });
   return Task.where(description, check);
 }

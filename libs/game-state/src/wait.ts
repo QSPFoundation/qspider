@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { isPaused$ } from './counter';
+import { pauseCounter, resumeCounter } from './counter';
 
 export const wait$ = create<{ ms: number; finish: () => void } | null>(null);
 const waitTimeout$ = create<ReturnType<typeof setTimeout>>();
@@ -8,7 +8,7 @@ export function finishWait(): void {
   const wait = wait$.value;
   if (!wait) return;
   clearTimeout(waitTimeout$.value);
-  isPaused$.set(false);
+  resumeCounter('wait');
   wait$.set(null);
   wait.finish();
 }
@@ -16,7 +16,7 @@ export function finishWait(): void {
 wait$.subscribe((wait) => {
   if (wait) {
     clearTimeout(waitTimeout$.value);
-    isPaused$.set(true);
+    pauseCounter('wait');
     waitTimeout$.set(
       setTimeout(() => {
         finishWait();

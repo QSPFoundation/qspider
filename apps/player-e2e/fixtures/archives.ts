@@ -13,6 +13,7 @@ export const ARCHIVES = {
   qspBinary: { path: out('single.qsp'), title: 'single.qsp', startText: 'SINGLE START' },
   dialogsZip: { path: out('dialogs.zip'), title: 'Dialogs game', image: 'view.png' },
   savesZip: { path: out('saves.zip'), title: 'Saves game' },
+  panelsZip: { path: out('panels.zip'), title: 'Panels game' },
   gameHtmlZip: { path: out('game-html.zip'), title: 'Game HTML', image: 'view.png' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
@@ -24,4 +25,5 @@ export const SOURCES = {
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
   saves: fileURLToPath(new URL('./saves/', import.meta.url)),
+  panels: fileURLToPath(new URL('./panels/', import.meta.url)),
 } as const;

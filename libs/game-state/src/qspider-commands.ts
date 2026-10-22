@@ -1,4 +1,4 @@
-import { GameCommand, onGameCommand, stopCurrentGame } from './current-game';
+import { currentGameEntry$, GameCommand, onGameCommand, stopCurrentGame } from './current-game';
 import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
@@ -20,20 +20,36 @@ function parseArgs(input: string): Array<string | number> {
         is_string = true;
       }
     } else if (!is_string && char === ',') {
-      args.push(parseFloat(current.join('')));
+      // A comma right after a closing `~` ends nothing: that string is already pushed.
+      pushNumber(args, current);
       current = [];
     } else {
       current.push(char);
     }
   }
-  if (current.length) {
-    args.push(parseFloat(current.join('')));
-  }
+  pushNumber(args, current);
   return args;
+}
+
+/** Pushes the bare (number) token in `chars`, if it holds anything but whitespace. */
+function pushNumber(args: Array<string | number>, chars: string[]): void {
+  const token = chars.join('').trim();
+  if (token) args.push(parseFloat(token));
 }
 
 export const qspiderCommands: Record<string, (input: string) => void> = {
   'action:'(action: string): void {
+    if (action === 'restart') {
+      // A restart from game code runs on the next tick, after the engine call that requested it has
+      // returned: restarting inside it lets the new game's async library load re-enter the engine mid-call,
+      // and the restart is lost. Code after `gs 'qspider_restart'` in the same action still runs first;
+      // the restart then discards its effects. Skipped when the game was stopped meanwhile (a restart then
+      // a quit in the same action), so a stale engine is not restarted onto the shelf.
+      setTimeout(() => {
+        if (currentGameEntry$.value) onGameCommand('restart');
+      }, 0);
+      return;
+    }
     onGameCommand(action as GameCommand);
   },
   'event:'(event: string): void {

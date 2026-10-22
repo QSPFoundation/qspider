@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { isPaused$ } from './counter';
+import { pauseCounter, resumeCounter } from './counter';
 
 interface MsgAtom {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
     const isOpen$ = atom.focus((s) => s.isOpen);
     return {
       open(content: string, onclosed: () => void): void {
-        isPaused$.set(true);
+        pauseCounter('msg');
         atom.set({
           isOpen: true,
           content,
@@ -31,14 +31,14 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
       },
       close(): void {
         if (isOpen$.value) {
-          isPaused$.set(false);
+          resumeCounter('msg');
           isOpen$.set(false);
           atom.value.onclosed?.();
         }
       },
       clear(): void {
         if (isOpen$.value) {
-          isPaused$.set(false);
+          resumeCounter('msg');
           atom.value.onclosed?.();
         }
         atom.set({

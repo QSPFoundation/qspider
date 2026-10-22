@@ -6,6 +6,7 @@ import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
 import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
+import { PANELS_GAME } from './panels-game';
 import { SAVES_GAME } from './saves-game';
 
 const bytes = (path: string): Uint8Array => new Uint8Array(readFileSync(path));
@@ -61,5 +62,13 @@ describe('buildFixtures', () => {
     expect(startsWith(ARCHIVES.savesZip.path, [0x50, 0x4b, 0x03, 0x04])).toBe(true);
     const files = unzipSync(bytes(ARCHIVES.savesZip.path));
     expect(Object.keys(files).sort()).toEqual(['game.cfg', 'saves.qsps']);
+  });
+
+  it('packs the panels game with its object image, a valid PNG and its library', () => {
+    expect(PANELS_GAME.path).toBe(ARCHIVES.panelsZip.path);
+    expect(startsWith(ARCHIVES.panelsZip.path, [0x50, 0x4b, 0x03, 0x04])).toBe(true);
+    const files = unzipSync(bytes(ARCHIVES.panelsZip.path));
+    expect(Object.keys(files).sort()).toEqual(['game.cfg', 'obj.png', 'panels-lib.qsps', 'panels.qsps']);
+    expect([...files['obj.png'].slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
   });
 });

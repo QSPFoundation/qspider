@@ -1,0 +1,123 @@
+# start
+inclib 'qspider'
+inclib 'panels-lib.qsps'
+*pl 'PANELS START'
+act 'Stats': gt 'stats'
+act 'Objects': gt 'objects'
+act 'Command line': gt 'cmd'
+act 'Action keys': gt 'keys'
+act 'System': gt 'system'
+act 'Lifecycle': gt 'life'
+act 'Counter': gt 'counter'
+---
+
+# stats
+*clr & *pl 'STATS ROOM'
+*pl '<a href="exec:showacts 1" data-qa="show-acts">Show actions</a>'
+act 'Write stats': clr & pl 'STATS ONE'
+act 'Add stats': pl 'STATS TWO'
+act 'Hide stats': showstat 0
+act 'Show stats': showstat 1
+act 'Hide actions':
+  showacts 0
+  *pl 'ACTIONS HIDDEN'
+end
+---
+
+# objects
+$onobjsel = 'onobjsel'
+*clr & *pl 'OBJECTS ROOM'
+act 'Add object': addobj 'Lamp', 'obj.png'
+act 'Add plain': addobj 'Key'
+act 'Remove plain': delobj 'Key'
+act 'Hide objects': showobjs 0
+act 'Show objects': showobjs 1
+---
+
+# onobjsel
+*clr & *pl 'SELECTED <<$selobj>>'
+---
+
+# cmd
+$usercom = 'usercom'
+*clr & *pl 'CMD ROOM'
+act 'Show input': showinput 1
+act 'Hide input': showinput 0
+act 'Clear input': cmdclear
+---
+
+# usercom
+*clr & *pl 'TYPED <<$user_text>>'
+---
+
+# keys
+$keylog = ''
+*clr & *pl 'KEYS ROOM'
+act 'First': $keylog += '1' & *clr & *pl 'LOG=' + $keylog
+act 'Second': $keylog += '2' & *clr & *pl 'LOG=' + $keylog
+act 'Third': $keylog += '3' & *clr & *pl 'LOG=' + $keylog
+act 'Single': gt 'single'
+---
+
+# single
+*clr & *pl 'SINGLE ROOM'
+act 'Only': *clr & *pl 'SPACE RAN'
+---
+
+# hotkey_loc
+*clr & *pl 'HOTKEY RAN'
+---
+
+# system
+*clr & *pl 'SYSTEM ROOM'
+*pl '<qsp-region name="reg"></qsp-region>'
+*pl '<qsp-layer name="lay" index="1">LAYER ON</qsp-layer>'
+gs 'qspider_hide_layer', 'lay'
+act 'Fire event': gs 'qspider_event', 'e2e_event', 'A', 7
+act 'Region': gs 'qspider_update_region', 'reg', 'REGION ONE'
+act 'Layer': gs 'qspider_show_layer', 'lay'
+act 'Unlayer': gs 'qspider_hide_layer', 'lay'
+act 'Fullscreen':
+  exec 'qspider.fullscreen:on'
+  *pl 'AFTER FULLSCREEN'
+end
+act 'Quit': gs 'qspider_quit'
+---
+
+# life
+*clr & *pl 'LIFE ROOM'
+*pl '<qsp-region name="lifereg"></qsp-region>'
+*pl '<qsp-layer name="lifelay" index="1">LIFE LAYER</qsp-layer>'
+act 'Fill':
+  gs 'qspider_update_region', 'lifereg', 'LIFE REGION'
+  gs 'qspider_show_layer', 'lifelay'
+end
+act 'Restart via game': gs 'qspider_restart'
+---
+
+# counter
+ticks = 0
+$counter = 'tick'
+settimer 100
+*clr & *pl 'COUNTER ROOM'
+act 'Message':
+  msg 'COUNTER MSG'
+end
+act 'Input':
+  $x = input('ENTER COUNTER VALUE')
+  *pl 'COUNTER INPUT=<<$x>>'
+end
+act 'Menu':
+  $m[0] = 'Only item:counter_menu:'
+  menu '$m'
+end
+---
+
+# tick
+ticks += 1
+clr & pl '[TICKS=<<ticks>>]'
+---
+
+# counter_menu
+*pl 'COUNTER MENU PICKED'
+---

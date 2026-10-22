@@ -35,6 +35,8 @@ export const ShowChild = PageElements.located(By.css(`[data-qa="${GAME_HTML.mark
   .describedAs('qsp-show child');
 export const QspStyle = PageElements.located(By.css('[data-qsp="style"]')).first().describedAs('qsp-style');
 export const QspRegion = visible(PageElements.located(By.css('[data-qsp="region"]')), 'qsp-region');
+/** The first qsp-region, visible or not: an empty region has no box, so QspRegion cannot read it. */
+export const FirstQspRegion = PageElements.located(By.css('[data-qsp="region"]')).first().describedAs('qsp-region');
 export const QspLayer = PageElements.located(By.css('[data-qsp="layer"]')).first().describedAs('qsp-layer');
 
 // Selector mirrors GAME_HTML.marks.pwnedAttribute (the lint rule needs a literal). Set on <body> by the hostile iframe's srcdoc script if it reaches the host page.

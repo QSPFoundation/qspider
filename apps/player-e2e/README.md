@@ -6,6 +6,8 @@ End-to-end tests for the core flow: open a game, run actions, save/load, reopen 
 - Desktop: WebdriverIO + mocha + `tauri-driver` (`targets/desktop/`), runs against the debug Tauri binary.
 - Test pack: `fixtures/game.cfg` lists two games, `e2e-game/e2e-game.qsps` ("E2E game": a tiny QSP game with a `start` and a `room` location, a counter, Save and Load actions) and `second/game.qsps` ("Second game"). `fixtures/test-pack.ts` (`TEST_PACK`) holds the config path, the pack zip path and the shelf titles; `fixtures/e2e-game.ts` holds the first game's file path and the texts it writes. `e2e-game.qsps` sits in its own folder, away from `game.cfg`: the desktop player titles a single game file from a `game.cfg` next to it, and a single-file open must show the file name (`e2e-game.qsps`) on both targets. Each scenario starts with an empty shelf and no saves. On desktop the app is always launched with the pack: `tauri-driver` starts it with `game.cfg` as its argument. On web a scenario loads the pack only when it calls `LoadTestPack()` (directly or through `OpenFixture()`): `targets/web/global-setup.ts` zips `game.cfg` and the games it lists into `artifacts/test-pack.zip`, and the scenario uploads it through the Open game input. Every scenario does so except "opening a game file", which on web starts from an empty shelf. The saves fixture (`fixtures/saves/saves.qsps`, packed as `artifacts/fixtures/saves.zip`; `fixtures/saves-game.ts` holds its path and texts) is not in the pack: saves scenarios open it with `OpenGameFile` (`OpenSavesFixture()`).
 
+The panels fixture (`fixtures/panels/`, packed as `artifacts/fixtures/panels.zip`, "Panels game"; `fixtures/panels-game.ts` holds its action names and texts) is not in the pack either: scenarios open it with `OpenGameFile` (`OpenPanelsFixture()`). It is a game with a `game.cfg` and one room per feature: `start` (the hub), stats, objects, the command line, action keys (`keys`, `single`), system commands (`system`), lifecycle (`life`) and the timer (`counter`). `start` runs `inclib 'qspider'` (the built-in module, for `qspider_event`, `qspider_restart` and the other `qspider.*` commands) and `inclib 'panels-lib.qsps'` (a real library loaded from the archive), and its `game.cfg` has a `[game.hotkeys]` entry (`k` runs `hotkey_loc`). Keep a location to at most 8 actions: Serenity `isVisible()` treats an action scrolled out of view as invisible, so a longer list makes later actions unclickable.
+
 ### Product behaviour the suite relies on
 
 The desktop player opens what it is launched with, what is dropped on it and what is picked with Open game through the same decision as the web player's Open game (`addImported`, `libs/game-shelf/src/add-imported.ts`):
@@ -23,7 +25,7 @@ apps/player-e2e/
   scenarios/            the tests, one file per feature (*.scenario.ts); run on both targets
   screenplay/
     <area>/             elements.ts, tasks.ts, checks.ts (as needed) for one place in the UI
-      shelf/ game/ pause/ saves/
+      shelf/ game/ pause/ saves/ stats/ objects/ cmd/ content/ view/ wait/ msg/ input/ menu/
     common/             elements and checks used by more than one area
     support/            shared primitives (below)
   targets/
@@ -33,7 +35,10 @@ apps/player-e2e/
   fixtures/             the test pack (game.cfg, test-pack.ts), its games and their constants
 ```
 
-`screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `timeouts.ts` and `scenario-location.ts`. Add to it only with a reason.
+`screenplay/support/` holds: `operate-player.ts` (the abstract ability), `scenario.ts` (the `scenario()` shim), `see-eventually.ts`, `presence.ts` (`waitUntilPresent`, `waitUntilAbsent`, `ClickWhenPresent`, `PresenceOf`, `AbsenceOf`, `TextNow`, `isShown`, `textIfPresent`), `polling.ts` (`pollUntil`, the fixed-interval loop under them), `element-errors.ts` (which driver errors mean "element missing"), `visible.ts`, `hover.ts` (`Hover`, `MoveAway`), `type-into.ts` (`TypeInto`), `timeouts.ts`, `scenario-location.ts`, `timeout-report.ts` (the timeout tail shared by `seeEventually` and the page-script checks: one strict `Ensure.that` reports Expected/Received, with the last error appended), `page-script.ts` and `page-clock.ts`. Add to it only with a reason.
+
+- `page-script.ts` is the one place that runs script in the page, and it is read-only: a scenario picks a named probe (`SeePageProbe`: `fullscreenElementMarker`, `pageClock`) and cannot pass code. `RecordWindowEvents(type)` starts a recording of window events and `SeeRecordedEvent(type, detail)` checks it. `RecordWindowEvents` clears what was recorded on every call, so call it right before the trigger, and again after a reload (the recorder lives in the page; a check without it fails at once). Details are JSON copies, so both targets read the same data (`NaN` and `undefined` read as `null`).
+- `page-clock.ts`: `PageClockAdvanced(ms)` waits on the page's own clock. It is the single documented exception to "no fixed sleeps", for elapsed time that has no UI event. The only allowed use is the counter "does not run while a dialog / the pause screen is open" checks (`counter.scenario.ts`), with ms = 5 x the timer interval. Any other use needs maintainer approval.
 
 ### Desktop isolation
 
@@ -52,6 +57,7 @@ Scenarios are written under these rules. `nx lint player-e2e` enforces the mecha
 - No dynamic `import()` anywhere in `apps/player-e2e`, so the import bans cannot be bypassed. The one exception is `screenplay/support/scenario.ts`, the shim loader above.
 - `Ensure` is imported only in `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`, `checks.ts` included (checks go through `seeEventually`).
 - `isPresent` (from `@serenity-js/assertions` or `@serenity-js/web`) is imported only in `screenplay/support/`: on desktop it throws instead of answering false (see "Reading and waiting").
+- `ExecuteScript` and `LastScriptExecution` (from `@serenity-js/web`) are imported only in `screenplay/support/page-script.ts`, and a `.executeScript(...)` call fails lint everywhere else. That file exposes only read-only named probes (`SeePageProbe`) and an event recorder (`RecordWindowEvents`, `SeeRecordedEvent`), never an arbitrary-code API.
 - `tasks.ts` may import checks only from `common/checks.ts` (the fail-fast guards such as `SeeGameStarted`); an import of any other `checks` module fails lint.
 - `By` is imported only in `elements.ts` and `screenplay/support/`; the ban covers `scenarios/`, `targets/` and the rest of `screenplay/`.
 - In `elements.ts`, a string or template literal passed straight to `By.css` must contain `[data-qsp`, `[data-qa` or `[role=`. Other `By` forms (`By.xpath`, `By.id`, `By.cssContainingText`, …) and non-literal arguments are not checked; reviewers cover those.
@@ -108,7 +114,7 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
   - Both targets make that start decision with the same shared code, `addImported` (`libs/game-shelf/src/add-imported.ts`, unit-tested in `add-imported.spec.ts`). Desktop proves "no game started" through the startup marker as above. On web the pack is uploaded after startup, so the marker says nothing about the upload: web exercises the same code but checks only the shelf titles, an eventual check that waits for the import.
   - "opening a game file" checks the marker before `OpenGameFile`, on both targets, so the Open game click does not race `init()`.
 - **Timeouts.** `INTERACTION_TIMEOUT` is 15s (`support/timeouts.ts`), set as Serenity's `interactionTimeout` by both target configs. The support helpers poll every 250ms (`POLLING_INTERVAL`), not with Serenity's exponential backoff, so a failing check gives up after about 15s. The per-scenario timeout (Playwright `timeout`, mocha `timeout`) is 45s: the scenario's steps (and, on desktop, the app restart) plus one failing check.
-- **No fixed sleeps** (`Wait.for`) and **no test-level retries** (Playwright `retries: 0`, mocha `retries: 0`). The one exception is WDIO `specFileRetries: 2` on desktop: an intrinsic app-relaunch hang (#167) is absorbed by retrying the spec file in a fresh worker (see the comment in `wdio.conf.ts`).
+- **No fixed sleeps** (`Wait.for`) and **no test-level retries** (Playwright `retries: 0`, mocha `retries: 0`). The one sleep exception is `PageClockAdvanced` (see `page-clock.ts` above). The one retry exception is WDIO `specFileRetries: 2` on desktop: an intrinsic app-relaunch hang (#167) is absorbed by retrying the spec file in a fresh worker (see the comment in `wdio.conf.ts`).
 - Every `actor.attemptsTo(...)` is awaited; a missing `await` lets a scenario pass without checking anything.
 - A game that fails to open fails the scenario within seconds with the player's error text (`SeeGameStarted` in `common/checks.ts`).
 
