@@ -36,6 +36,7 @@ scenario('the game shows and hides a layer', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
     ClickAction(ACTION.start.system),
+    SeeMainTextContaining(TEXT.systemRoom), // settled anchor for the absence check below
     waitUntilAbsent(QspLayer),
     ClickAction(ACTION.system.layer),
     SeeElementText(QspLayer, TEXT.layerOn, 'layer'),
@@ -44,6 +45,7 @@ scenario('the game shows and hides a layer', async (player) => {
   );
 });
 
+// Web asserts document.fullscreenElement through the page probe; Chromium grants fullscreen on the action click.
 scenario.webOnly('going fullscreen', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
@@ -54,6 +56,8 @@ scenario.webOnly('going fullscreen', async (player) => {
   );
 });
 
+// Desktop (Tauri under Xvfb, no window manager) cannot observe fullscreen, so per the maintainer decision
+// it asserts "no error, game continues": the text after the command, a working action and no error alert.
 scenario.desktopOnly('going fullscreen', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
