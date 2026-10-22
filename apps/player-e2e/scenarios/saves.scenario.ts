@@ -143,7 +143,7 @@ scenario('loading from the panel opened by the game restores the slot', async (p
     ClickAction(ACTION.loadThenMark),
     SeeRequestedSaveCommand('load'),
     LoadFromSlot(1),
-    // Observed: the restore wins; the marker written after opengame never shows (restoreFromSlot calls loaded() before loadSave).
+    // Asserted: the final state is the restored save (restoreFromSlot calls loaded() before loadSave).
     SeeMainText(TEXT.counter(1)),
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.counter(2)),
