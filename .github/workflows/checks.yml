@@ -74,7 +74,8 @@ jobs:
     needs: changes
     if: needs.changes.outputs.rust == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    # A cold apt cache on a slow mirror has taken 15+ minutes on its own; cache hits take seconds.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -92,7 +93,6 @@ jobs:
         with:
           workspaces: src-tauri
       - name: Install Tauri build dependencies (cached)
-        timeout-minutes: 10
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.TAURI_BUILD_PKGS }}
@@ -142,15 +142,14 @@ jobs:
         with:
           workspaces: src-tauri
       - name: Install Tauri build dependencies (cached)
-        timeout-minutes: 10
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.TAURI_BUILD_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
       # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
-      # Bounded and retried, so a stalled mirror fails in minutes instead of eating the job timeout.
+      # Retried with network timeouts, so one dropped connection doesn't fail the job.
       - name: Install WebDriver, Xvfb and AT-SPI
-        timeout-minutes: 10
+        timeout-minutes: 20
         run: |
           apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
           for attempt in 1 2 3; do
