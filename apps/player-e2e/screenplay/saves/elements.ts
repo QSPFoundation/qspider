@@ -18,3 +18,27 @@ export const SlotCommandButton = (index: number) =>
     PageElements.located(By.css('[data-qsp-save-command="save"], [data-qsp-save-command="load"]')).of(SaveSlot(index)),
     `save/load button of save slot ${index}`,
   );
+
+const SlotButton = (index: number, command: 'save' | 'load' | 'clear') =>
+  visible(
+    PageElements.located(By.css(`[data-qsp-save-command="${command}"]`)).of(SaveSlot(index)),
+    `${command} button of save slot ${index}`,
+  );
+
+export const SlotSaveButton = (index: number) => SlotButton(index, 'save');
+export const SlotLoadButton = (index: number) => SlotButton(index, 'load');
+export const SlotClearButton = (index: number) => SlotButton(index, 'clear');
+
+/** The quicksave slot of the saves panel. */
+export const QuickSaveSlot = PageElement.located(By.css('[data-qsp-save-path="__quicksave_qspider__"]'))
+  .of(PauseScreen)
+  .describedAs('quicksave slot');
+
+export const QuickSaveButton = visible(
+  PageElements.located(By.css('[data-qsp-save-command="save"]')).of(QuickSaveSlot),
+  'quicksave save button',
+);
+export const QuickLoadButton = visible(
+  PageElements.located(By.css('[data-qsp-save-command="load"]')).of(QuickSaveSlot),
+  'quicksave load button',
+);
