@@ -69,6 +69,7 @@ act 'Only': *clr & *pl 'SPACE RAN'
 *clr & *pl 'SYSTEM ROOM'
 *pl '<qsp-region name="reg"></qsp-region>'
 *pl '<qsp-layer name="lay" index="1">LAYER ON</qsp-layer>'
+gs 'qspider_hide_layer', 'lay'
 act 'Fire event': gs 'qspider_event', 'e2e_event', 'A', 7
 act 'Region': gs 'qspider_update_region', 'reg', 'REGION ONE'
 act 'Layer': gs 'qspider_show_layer', 'lay'
@@ -82,16 +83,17 @@ act 'Quit': gs 'qspider_quit'
 
 # life
 lifemark = 1
-gs 'qspider_update_region', 'lifereg', 'LIFE REGION'
-gs 'qspider_show_layer', 'lifelay'
 *clr & *pl 'LIFE ROOM'
 *pl 'LIFEMARK=<<lifemark>>'
 *pl '<qsp-region name="lifereg"></qsp-region>'
 *pl '<qsp-layer name="lifelay" index="1">LIFE LAYER</qsp-layer>'
+gs 'qspider_update_region', 'lifereg', 'LIFE REGION'
+gs 'qspider_show_layer', 'lifelay'
 act 'Restart via game': gs 'qspider_restart'
 ---
 
 # counter
+ticks = 0
 $counter = 'tick'
 settimer 100
 *clr & *pl 'COUNTER ROOM'
@@ -99,7 +101,7 @@ act 'Message':
   msg 'COUNTER MSG'
 end
 act 'Input':
-  $x = input('COUNTER INPUT')
+  $x = input('ENTER COUNTER VALUE')
   *pl 'COUNTER INPUT=<<$x>>'
 end
 act 'Menu':
@@ -111,7 +113,7 @@ act 'Stop timer': $counter = ''
 
 # tick
 ticks += 1
-clr & pl 'TICKS=<<ticks>>'
+clr & pl '[TICKS=<<ticks>>]'
 ---
 
 # counter_menu

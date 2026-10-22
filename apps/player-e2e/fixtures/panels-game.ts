@@ -65,7 +65,11 @@ export const PANELS_GAME = {
       fireEvent: 'Fire event',
       /** Fills the region `reg` with text.regionOne. */
       region: 'Region',
-      /** Shows the layer `lay` (text.layerOn). */
+      /**
+       * Shows the layer `lay` (text.layerOn). It is hidden on entering the system room. A hidden
+       * qsp-layer renders nothing (the renderer returns null), so "layer shown" is the presence of
+       * `[data-layer-name="lay"]` content in the DOM, not visibility of an always-present element.
+       */
       layer: 'Layer',
       unlayer: 'Unlayer',
       /** exec 'qspider.fullscreen:on', then writes text.afterFullscreen. */
@@ -115,11 +119,11 @@ export const PANELS_GAME = {
     lifeRegion: 'LIFE REGION',
     lifeLayer: 'LIFE LAYER',
     counterRoom: 'COUNTER ROOM',
-    /** Written to the stats panel on every timer tick. */
-    ticks: (n: number): string => `TICKS=${n}`,
+    /** Written to the stats panel on every timer tick; delimited so TICKS=1 is not a substring of TICKS=10. The counter resets to 0 on entering the counter room. */
+    ticks: (n: number): string => `[TICKS=${n}]`,
     counterMsg: 'COUNTER MSG',
-    /** Prompt of the Input action's dialog. */
-    counterInputPrompt: 'COUNTER INPUT',
+    /** Prompt of the Input action's dialog (not a prefix of the echo). */
+    counterInputPrompt: 'ENTER COUNTER VALUE',
     counterInput: (value: string): string => `COUNTER INPUT=${value}`,
     counterMenuItem: 'Only item',
     counterMenuPicked: 'COUNTER MENU PICKED',
