@@ -1,13 +1,20 @@
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { SAVES_GAME } from '../fixtures/saves-game';
 import { TEST_PACK } from '../fixtures/test-pack';
-import { SeeGameStarted } from '../screenplay/common/checks';
+import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
-import { ClickAction, OpenSavesFixture, ReachCounter, ReturnToShelf } from '../screenplay/game/tasks';
-import { SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
+import {
+  ClickAction,
+  OpenSavesFixture,
+  PressQuickLoad,
+  PressQuickSave,
+  ReachCounter,
+  ReturnToShelf,
+} from '../screenplay/game/tasks';
+import { SeeQuickSaveFilled, SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
 import { CancelSavesPanel, ClearSlot, LoadFromSlot, OpenSavesPanel, SaveToSlot } from '../screenplay/saves/tasks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
-import { LoadTestPack } from '../screenplay/support/operate-player';
+import { LoadTestPack, RestartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 const { action: ACTION, text: TEXT } = SAVES_GAME;
@@ -140,5 +147,35 @@ scenario('loading from the panel opened by the game restores the slot', async (p
     SeeMainText(TEXT.counter(1)),
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.counter(2)),
+  );
+});
+
+scenario('saves survive a restart of the player', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.save),
+    SaveToSlot(1),
+    // Settled "save written" anchors: each save has reached storage before the app is ended.
+    OpenSavesPanel(),
+    SeeSlotFilled(1),
+    CancelSavesPanel(),
+    PressQuickSave(),
+    OpenSavesPanel(),
+    SeeQuickSaveFilled(),
+    CancelSavesPanel(),
+    RestartPlayer(),
+    SeeStartupFinished(),
+    OpenFromShelf(SAVES_GAME.title),
+    ClickAction(ACTION.goToRoom),
+    SeeMainText(TEXT.counter(0)),
+    ClickAction(ACTION.load),
+    LoadFromSlot(1),
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
+    PressQuickLoad(),
+    SeeMainText(TEXT.counter(1)),
   );
 });

@@ -128,13 +128,13 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 | Touch point                                                          | Where                                         | E2E |
 | -------------------------------------------------------------------- | --------------------------------------------- | --- |
 | `savegame` / `opengame` without path → saves panel, slot save / load | qsp-api.ts:276-300; save.ts                   | ✅  |
-| Several slots, clear slot                                            | save.ts:147-213                               | —   |
-| `savegame "name"` / `opengame "name"` (named saves)                  | save.ts:47,80                                 | —   |
-| Quicksave / quickload (F5 / F9, pause-screen command)                | save.ts:215-237                               | —   |
-| Ctrl+S / Ctrl+O                                                      | hotkeys.ts:58-79                              | —   |
-| `NOSAVE`: blocks save, quicksave, Ctrl+S; Esc opens load             | save.ts:99; hotkeys.ts:63; game-runner.tsx:41 | —   |
-| Cancelling the saves panel resumes the engine                        | pause-screen.ts:34-44                         | —   |
-| Saves survive app restart                                            | —                                             | —   |
+| Several slots, clear slot                                            | save.ts:147-213                               | ✅  |
+| `savegame "name"` / `opengame "name"` (named saves)                  | save.ts:47,80                                 | ✅  |
+| Quicksave / quickload (F5 / F9, pause-screen command)                | save.ts:215-237                               | ✅  |
+| Ctrl+S / Ctrl+O                                                      | hotkeys.ts:58-79                              | ✅  |
+| `NOSAVE`: blocks save, quicksave, Ctrl+S; Esc opens load             | save.ts:99; hotkeys.ts:63; game-runner.tsx:41 | ✅  |
+| Cancelling the saves panel resumes the engine                        | pause-screen.ts:34-44                         | ✅  |
+| Saves survive app restart                                            | —                                             | ✅  |
 
 ## J. Lifecycle and timing
 
