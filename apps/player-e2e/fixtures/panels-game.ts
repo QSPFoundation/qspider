@@ -13,6 +13,8 @@
 // - Every location has at most 8 actions.
 // - The start location runs `inclib 'qspider'`: the qspider_* locations (event, region, layer)
 //   live in the player's qspider module, which a game must include before calling them.
+// - The start location also runs `inclib 'panels-lib.qsps'`, a real file in the zip: unlike the built-in
+//   qspider module, it is fetched asynchronously, so a restart exercises the player's async library load.
 import { ARCHIVES } from './archives';
 
 export const PANELS_GAME = {
@@ -125,6 +127,8 @@ export const PANELS_GAME = {
     counterRoom: 'COUNTER ROOM',
     /** Written to the stats panel on every timer tick; delimited so TICKS=1 is not a substring of TICKS=10. The counter resets to 0 on entering the counter room. */
     ticks: (n: number): string => `[TICKS=${n}]`,
+    /** Parses text.ticks: one capture group, the tick count. */
+    ticksPattern: /\[TICKS=(\d+)\]/,
     counterMsg: 'COUNTER MSG',
     /** Prompt of the Input action's dialog (not a prefix of the echo). */
     counterInputPrompt: 'ENTER COUNTER VALUE',

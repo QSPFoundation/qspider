@@ -1,5 +1,6 @@
 # start
 inclib 'qspider'
+inclib 'panels-lib.qsps'
 *pl 'PANELS START'
 act 'Stats': gt 'stats'
 act 'Objects': gt 'objects'

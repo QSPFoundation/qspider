@@ -50,7 +50,7 @@ export async function buildFixtures(): Promise<void> {
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
   write(ARCHIVES.savesZip.path, zipPack(join(SOURCES.saves, 'game.cfg')));
-  write(ARCHIVES.panelsZip.path, zipPack(join(SOURCES.panels, 'game.cfg'), ['obj.png']));
+  write(ARCHIVES.panelsZip.path, zipPack(join(SOURCES.panels, 'game.cfg'), ['obj.png', 'panels-lib.qsps']));
 
   const singleSource = readFileSync(join(SOURCES.single, 'single.qsps'), 'utf8');
   write(ARCHIVES.qspBinary.path, writeQsp(readQsps(singleSource)));
