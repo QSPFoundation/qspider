@@ -14,16 +14,24 @@ export const SAVES_GAME = {
     afterSavePanel: 'AFTER SAVE PANEL',
     /** Written by code that runs after `opengame` returned. */
     afterLoadPanel: 'AFTER LOAD PANEL',
+    /** Shown in a msg box by code that runs after `opengame` returned. */
+    afterLoadMsg: 'AFTER LOAD MSG',
   },
-  /** Action labels on the room location (goToRoom is on the start location). */
+  /**
+   * Action labels on the room location (goToRoom and goToMessageRoom are on the start location;
+   * the message room has increment, save and loadThenMessage: the room's list already fills the
+   * actions panel, and an action below the fold is not visible to the scenarios).
+   */
   action: {
     goToRoom: 'Go to room',
+    goToMessageRoom: 'Go to message room',
     increment: 'Increment',
     /** savegame / opengame without a path. */
     save: 'Save',
     load: 'Load',
     saveThenMark: 'Save then mark',
     loadThenMark: 'Load then mark',
+    loadThenMessage: 'Load then message',
     /** savegame / opengame 'named.sav'. */
     saveNamed: 'Save named',
     loadNamed: 'Load named',

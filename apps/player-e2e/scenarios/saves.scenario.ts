@@ -3,6 +3,7 @@ import { SAVES_GAME } from '../fixtures/saves-game';
 import { TEST_PACK } from '../fixtures/test-pack';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
+import { SeeMsgGone } from '../screenplay/msg/checks';
 import {
   ClickAction,
   OpenSavesFixture,
@@ -14,7 +15,7 @@ import {
 import { SeeQuickSaveFilled, SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
 import { CancelSavesPanel, ClearSlot, LoadFromSlot, OpenSavesPanel, SaveToSlot } from '../screenplay/saves/tasks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
-import { LoadTestPack, RestartPlayer } from '../screenplay/support/operate-player';
+import { LoadTestPack, OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 const { action: ACTION, text: TEXT } = SAVES_GAME;
@@ -149,6 +150,33 @@ scenario('loading from the panel opened by the game restores the slot', async (p
     // 2 = restored 1 + 1 (not 3): the game state is the save, not the state before the load.
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.counter(2)),
+  );
+});
+
+scenario('loading from the panel opened by the game does not run the code after opengame', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(SAVES_GAME.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.goToMessageRoom),
+    SeeMainText(TEXT.counter(0)),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.save),
+    SaveToSlot(1),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
+    ClickAction(ACTION.loadThenMessage),
+    SeeRequestedSaveCommand('load'),
+    LoadFromSlot(1),
+    // loadSave runs before loaded(), so the engine drops the rest of the action. With loaded() first,
+    // the msg box after `opengame` (TEXT.afterLoadMsg, outside the save) opened over the restored
+    // text and blocked the game. The Increment result is the anchor.
+    SeeMainText(TEXT.counter(1)),
+    ClickAction(ACTION.increment),
+    SeeMainText(TEXT.counter(2)),
+    SeeMsgGone(),
   );
 });
 
