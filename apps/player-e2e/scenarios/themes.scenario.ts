@@ -1,4 +1,5 @@
-import { AERO_GAME, MISSING_THEME_GAME, THEMED_GAME, THEME_ALIAS } from '../fixtures/themes-game';
+import { AERO_GAME, GUI_CFG_GAME, MISSING_THEME_GAME, THEMED_GAME, THEME_ALIAS } from '../fixtures/themes-game';
+import { SeeStatsInDock } from '../screenplay/classic/checks';
 import { SeeActiveTheme, SeeErrorAlertText, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
@@ -139,5 +140,30 @@ scenario('restart hides a theme-layout layer the game showed', async (player) =>
     ClickWhenPresent(RestartButton),
     SeeMainText(THEMED_GAME.text.start),
     waitUntilAbsent(QspLayer),
+  );
+});
+
+// The cfg names the stats panel (vars) with dir=4, the left dock. The control is the same game packed without
+// its qspgui.cfg: the default classic theme puts the stats in the bottom dock, so the dock tells the two apart.
+scenario('a qspgui.cfg moves panels into its docks', async (player) => {
+  const { text, dock } = GUI_CFG_GAME;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(GUI_CFG_GAME.path),
+    SeeGameStarted(text.start),
+    SeeStatsInDock(dock.cfg, text.stats),
+    SeeMainText(text.start), // the game still plays
+  );
+});
+
+scenario('without a qspgui.cfg the stats panel sits in the default classic dock', async (player) => {
+  const { text, dock } = GUI_CFG_GAME;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(GUI_CFG_GAME.controlPath),
+    SeeGameStarted(text.start),
+    SeeStatsInDock(dock.default, text.stats),
   );
 });

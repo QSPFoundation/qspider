@@ -1,4 +1,5 @@
 # start
+showstat 1
 *pl 'GUI CFG START'
 pl 'GUI CFG STATS'
 ---

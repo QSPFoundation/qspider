@@ -111,6 +111,11 @@ describe('buildFixtures', () => {
     expect(text(GUI_CFG_GAME.path, 'qspgui.cfg')).toContain('Panels=layout2|');
   });
 
+  it('packs the gui-cfg control without the qspgui.cfg', () => {
+    expect(GUI_CFG_GAME.controlPath).toBe(ARCHIVES.guiCfgControlZip.path);
+    expect(entries(GUI_CFG_GAME.controlPath)).toEqual(['game.cfg', 'gui-cfg-game.qsps']);
+  });
+
   it('packs the e2e game once per core theme variant, with distinct ids', () => {
     const [aero, custom] = CORE_THEME_VARIANTS;
     expect(entries(aero.e2eGamePath)).toEqual(['e2e-game.qsps', 'game.cfg']);

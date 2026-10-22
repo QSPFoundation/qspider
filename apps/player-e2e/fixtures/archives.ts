@@ -20,6 +20,8 @@ export const ARCHIVES = {
   missingAeroZip: { path: out('missing-aero.zip'), title: 'Missing aero theme' },
   missingClassicZip: { path: out('missing-classic.zip'), title: 'Missing classic theme' },
   guiCfgZip: { path: out('gui-cfg-game.zip'), title: 'GUI cfg game' },
+  /** The same game without its qspgui.cfg: the control for the cfg's layout. */
+  guiCfgControlZip: { path: out('gui-cfg-control.zip'), title: 'GUI cfg game' },
   /** The e2e game (fixtures/e2e-game) packed with a game.cfg that selects a theme. */
   e2eGameAeroZip: { path: out('e2e-game-aero.zip'), title: 'E2E game (aero)' },
   e2eGameCustomZip: { path: out('e2e-game-custom.zip'), title: 'E2E game (custom theme)' },

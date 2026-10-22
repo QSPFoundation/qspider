@@ -61,6 +61,13 @@ export const MISSING_THEME_GAME = {
 
 export const GUI_CFG_GAME = {
   path: ARCHIVES.guiCfgZip.path,
+  /** The same game packed without its qspgui.cfg. */
+  controlPath: ARCHIVES.guiCfgControlZip.path,
   title: 'GUI cfg game',
   text: { start: 'GUI CFG START', stats: 'GUI CFG STATS' },
+  /**
+   * Where the stats panel (`vars`) sits. The cfg has dir=4 (wxWidgets left) with dock_size(4,0,0)=300; the
+   * default classic theme puts it in the bottom dock (next to the actions).
+   */
+  dock: { cfg: 'left', default: 'bottom' },
 };

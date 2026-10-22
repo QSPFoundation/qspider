@@ -69,6 +69,7 @@ export async function buildFixtures(): Promise<void> {
   write(ARCHIVES.aeroZip.path, zipPack(join(SOURCES.aero, 'game.cfg')));
   write(ARCHIVES.themedZip.path, zipPack(join(SOURCES.themed, 'game.cfg'), THEME_FILES));
   write(ARCHIVES.guiCfgZip.path, zipPack(join(SOURCES.guiCfg, 'game.cfg'), ['qspgui.cfg']));
+  write(ARCHIVES.guiCfgControlZip.path, zipPack(join(SOURCES.guiCfg, 'game.cfg')));
   for (const [archive, cfg] of [
     [ARCHIVES.missingAeroZip, 'missing-aero.cfg'],
     [ARCHIVES.missingClassicZip, 'missing-classic.cfg'],
