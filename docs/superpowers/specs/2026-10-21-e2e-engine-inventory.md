@@ -35,7 +35,7 @@ Coverage refers to `apps/player-e2e/scenarios/core-flow.scenario.ts` (5 scenario
 | `&gt` / `\"` rewriting before parsing                                   | GS/utils.ts:13-22                          | —                                             |
 | `stats_changed` → stats panel                                           | :243                                       | ✅                                            |
 | `actions_changed` → actions; click                                      | :246; panels.ts:23-30                      | ✅ click                                      |
-| Action hover selection, `act:`-style numeric links, hotkeys 1-9 / space | actions.tsx; link.tsx:18; hotkeys.ts:32-53 | ◐ hover, hotkeys 1-9 / space; numeric links — |
+| Action hover selection, `act:`-style numeric links, hotkeys 1-9 / space | actions.tsx; link.tsx:18; hotkeys.ts:47-69 | ◐ hover, hotkeys 1-9 / space; numeric links — |
 | Action images                                                           | actions.tsx                                | —                                             |
 | `objects_changed` → objects; `selectObject`; images                     | :249; panels.ts:36                         | ✅                                            |
 | `panel_visibility` (show/hide VARS/ACTS/OBJS/INPUT)                     | :262                                       | ✅                                            |
@@ -44,15 +44,15 @@ Coverage refers to `apps/player-e2e/scenarios/core-flow.scenario.ts` (5 scenario
 
 ## C. Dialogs and blocking calls
 
-| Touch point                                                         | Where                 | E2E |
-| ------------------------------------------------------------------- | --------------------- | --- |
-| `msg` (pauses counter; several in a row)                            | :228; msg.tsx         | —   |
-| `input` (enter / cancel returns ''; several in a row)               | :222; input.tsx       | —   |
-| `menu` (select / close returns -1; separators; images; positioning) | :225; menu.tsx        | —   |
-| `view` open / close                                                 | :255; view.tsx        | —   |
-| `wait` (counter paused; click on wait lock ends it early)           | :302; wait-lock.tsx   | —   |
-| Esc ignored while msg / input / menu / wait / view open             | game-runner.tsx:27-46 | —   |
-| Hotkey pressed during msg / input (historic crash)                  | hotkeys.ts            | —   |
+| Touch point                                                         | Where                 | E2E                                                        |
+| ------------------------------------------------------------------- | --------------------- | ---------------------------------------------------------- |
+| `msg` (pauses counter; several in a row)                            | :228; msg.tsx         | —                                                          |
+| `input` (enter / cancel returns ''; several in a row)               | :222; input.tsx       | —                                                          |
+| `menu` (select / close returns -1; separators; images; positioning) | :225; menu.tsx        | —                                                          |
+| `view` open / close                                                 | :255; view.tsx        | —                                                          |
+| `wait` (counter paused; click on wait lock ends it early)           | :302; wait-lock.tsx   | —                                                          |
+| Esc ignored while msg / input / menu / wait / view open             | game-runner.tsx:27-33 | —                                                          |
+| Hotkey pressed during msg / input (historic crash)                  | hotkeys.ts            | ◐ (covered by "Ctrl+R is ignored while a message is open") |
 
 ## D. Game HTML and what it sends back
 
@@ -119,7 +119,7 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 | --------------------------------------------------------- | ----------------------------------------- | --- |
 | `play_file` (volume), `is_play`, `close_file` (one / all) | GS/qsp-api.ts:183-197; audio.ts; sound.ts | —   |
 | Replaying a sound already playing                         | audio.ts                                  | —   |
-| Global mute / volume (hotkeys, widgets)                   | audio.ts:45-62; hotkeys.ts:80-99          | —   |
+| Global mute / volume (hotkeys, widgets)                   | audio.ts:45-62; hotkeys.ts:105-124        | —   |
 | Sound from archive; desktop via XHR shim                  | setup.ts                                  | —   |
 | Sounds stopped on game stop                               | current-game.ts:242                       | —   |
 
@@ -130,9 +130,9 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 | `savegame` / `opengame` without path → saves panel, slot save / load                      | qsp-api.ts:276-301; save.ts:30-84, 127-157        | ✅  |
 | Several slots, clear slot                                                                 | save.ts:30-98, 127-157                            | ✅  |
 | `savegame "name"` / `opengame "name"` (named saves)                                       | save.ts:44-56, 72-84                              | ✅  |
-| Quicksave / quickload (F5 / F9, pause-screen command)                                     | save.ts:100-123; hotkeys.ts:56-57                 | ✅  |
-| Ctrl+S / Ctrl+O                                                                           | hotkeys.ts:58-79                                  | ✅  |
-| `NOSAVE`: blocks the player's saves (quicksave, Ctrl+S, Esc → save); Esc still opens load | save.ts:101; hotkeys.ts:63; game-runner.tsx:40-43 | ✅  |
+| Quicksave / quickload (F5 / F9, pause-screen command)                                     | save.ts:100-123; hotkeys.ts:81-82                 | ✅  |
+| Ctrl+S / Ctrl+O                                                                           | hotkeys.ts:83-104                                 | ✅  |
+| `NOSAVE`: blocks the player's saves (quicksave, Ctrl+S, Esc → save); Esc still opens load | save.ts:101; hotkeys.ts:88; game-runner.tsx:28-31 | ✅  |
 | Cancelling the saves panel resumes the engine                                             | pause-screen.ts:29-41                             | ✅  |
 | Saves survive app restart                                                                 | —                                                 | ✅  |
 
@@ -142,21 +142,21 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | Counter loop (`execCounter`), `SETTIMER`                                            | counter.ts:57-77; qsp-api.ts:198                                     | ✅ ticks asserted                                                                             |
 | Counter paused by msg / input / wait / pause screen / open_game                     | counter.ts:7-56 (reasons, `withCounterPaused`)                       | ◐ msg, input, menu, pause screen; wait, open_game — (a `view` does not pause it, see defects) |
-| Restart: Ctrl+R, pause-screen command, `qspider_restart`; regions / layers reloaded | current-game.ts:284-295; hotkeys.ts:70-78; qspider-commands.ts:41-50 | ✅ (regions / layers: behaviour only, see note)                                               |
+| Restart: Ctrl+R, pause-screen command, `qspider_restart`; regions / layers reloaded | current-game.ts:284-295; hotkeys.ts:70-80; qspider-commands.ts:41-53 | ✅ (regions / layers: behaviour only, see note)                                               |
 | Quit to shelf (pending dialogs resolved, sounds cleared)                            | current-game.ts:209-253                                              | ✅                                                                                            |
 | Pause screen open / close via Esc                                                   | game-runner.tsx                                                      | ✅                                                                                            |
-| Custom hotkeys from `game.cfg` (`execLoc`)                                          | hotkeys.ts:137-163                                                   | ✅                                                                                            |
+| Custom hotkeys from `game.cfg` (`execLoc`)                                          | hotkeys.ts:156-164                                                   | ✅                                                                                            |
 
 Note (§J): restarting resets regions and layers. The scenario `restart resets regions and layers` checks only that behaviour: the region is empty and the layer gone after a restart. It does not tell `reloadLayers` from the layer re-reading the engine on mount, so the layer reset stays behaviour-only until 2f's theme-layout layer.
 
 ## K. System commands (`qspider.*` via `system_cmd`)
 
-| Touch point                                                                                                   | Where                         | E2E                                                            |
-| ------------------------------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------- |
-| `action:` (`restart`, `quit`), `event:` (`qspider-event`), `update_region:`, `update_layer(s)`, `fullscreen:` | GS/qspider-commands.ts:40-113 | ✅ (`fullscreen:` on desktop: no error and the game continues) |
-| `scroll_region:`, `action:` other than restart / quit                                                         | qspider-commands.ts:41-93     | —                                                              |
-| `quit`                                                                                                        | qspider-commands.ts:113       | ✅                                                             |
-| `change_theme:`                                                                                               | qspider-commands.ts:72-80     | — (moved to 2f)                                                |
+| Touch point                                                                                                        | Where                                | E2E                                                            |
+| ------------------------------------------------------------------------------------------------------------------ | ------------------------------------ | -------------------------------------------------------------- |
+| `action:` (`restart`, `quit`), `event:` (`qspider-event`), `update_region:`, `update_layer:`, `fullscreen:`        | GS/qspider-commands.ts:40-118        | ✅ (`fullscreen:` on desktop: no error and the game continues) |
+| `scroll_region:`, `action:` other than restart / quit                                                              | qspider-commands.ts:41-96            | —                                                              |
+| `update_layers` (`qspider_show_only_layer`), bare `quit` (the fixture's `qspider_quit` goes through `action:quit`) | qspider-commands.ts:101-109, 116-118 | —                                                              |
+| `change_theme:`                                                                                                    | qspider-commands.ts:75-83            | — (moved to 2f)                                                |
 
 Note: `change_theme` moved to 2f (Themes and layout); 2e does not cover it. 2e covers the other `qspider.*` commands above.
 
@@ -310,10 +310,10 @@ Found in 2e.
 
 Fixed in 2e:
 
-15. **Restart left the game / counter paused** when the pause screen was closed: the restart went back in history out of the game, and the counter stayed paused (current-game.ts:284-295).
+15. **Restart left the game / counter paused** when the pause screen was not open: the restart went back in history out of the game, and the counter stayed paused (current-game.ts:284-295).
 16. **Counter pauses clobbered each other**: one boolean, so closing a dialog resumed a counter that another still held paused. It is now a set of pause reasons plus one token per `withCounterPaused` (counter.ts:7-56).
 17. **`qspider_restart` broke with a library at start**: the restart ran inside the engine call, and the new game's async library load re-entered the engine mid-call. The command now defers the restart to the next tick (qspider-commands.ts:41-50), and a restart no longer leaves the counter paused after loading a library.
-18. **Ctrl+R during a dialog** restarted the game under the open msg / input / menu and left the engine stuck inside the old call; it is now ignored while one is open (hotkeys.ts:70-78).
+18. **Ctrl+R during a dialog** restarted the game under the open msg / input / menu and left the engine stuck inside the old call; it is now ignored while one is open (hotkeys.ts:70-80).
 19. **`parseArgs` NaN**: a number after a string argument in `qspider_event` came out as NaN (qspider-commands.ts:8-38).
 
 Open (found in 2e, not fixed):
