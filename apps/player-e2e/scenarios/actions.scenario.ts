@@ -13,9 +13,9 @@ scenario('digit keys run the action at that position', async (player) => {
     ClickAction(ACTION.start.keys),
     SeeMainText(TEXT.keysRoom),
     PressActionHotkey(2),
-    SeeMainText(TEXT.keyTwo),
+    SeeMainText(TEXT.keyLog('2')),
     PressActionHotkey(3),
-    SeeMainText(TEXT.keyThree),
+    SeeMainText(TEXT.keyLog('23')),
   );
 });
 
@@ -25,8 +25,8 @@ scenario('a digit key beyond the action count does nothing', async (player) => {
     ClickAction(ACTION.start.keys),
     SeeMainText(TEXT.keysRoom),
     PressActionHotkey(9),
-    PressActionHotkey(1), // positive anchor: the game still takes input after the ignored key
-    SeeMainText(TEXT.keyOne),
+    PressActionHotkey(1), // the exact log "1" proves key 9 ran no action (it would have logged a digit first)
+    SeeMainText(TEXT.keyLog('1')),
   );
 });
 
@@ -47,8 +47,8 @@ scenario('space does nothing when there are several actions', async (player) => 
     ClickAction(ACTION.start.keys),
     SeeMainText(TEXT.keysRoom),
     PressSpace(),
-    PressActionHotkey(1), // KEY ONE exactly: a Space that had run an action would have changed the text
-    SeeMainText(TEXT.keyOne),
+    PressActionHotkey(1), // the exact log "1" proves Space ran no action (it would have logged a digit first)
+    SeeMainText(TEXT.keyLog('1')),
   );
 });
 

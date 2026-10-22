@@ -50,10 +50,11 @@ act 'Clear input': cmdclear
 ---
 
 # keys
+$keylog = ''
 *clr & *pl 'KEYS ROOM'
-act 'First': *clr & *pl 'KEY ONE'
-act 'Second': *clr & *pl 'KEY TWO'
-act 'Third': *clr & *pl 'KEY THREE'
+act 'First': $keylog += '1' & *clr & *pl 'LOG=' + $keylog
+act 'Second': $keylog += '2' & *clr & *pl 'LOG=' + $keylog
+act 'Third': $keylog += '3' & *clr & *pl 'LOG=' + $keylog
 act 'Single': gt 'single'
 ---
 

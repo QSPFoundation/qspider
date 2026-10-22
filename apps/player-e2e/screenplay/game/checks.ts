@@ -28,7 +28,7 @@ export const SeeActionNotSelected = (label: string): Task =>
   seeEventually(
     Action(label),
     (e) => Attribute.called('data-qsp-selected').of(e),
-    not(equals('')),
+    equals(null),
     `#actor sees the "${label}" action not selected`,
   );
 

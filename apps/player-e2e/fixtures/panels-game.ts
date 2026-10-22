@@ -101,9 +101,8 @@ export const PANELS_GAME = {
     /** Written after the player submitted the given text in the input line. */
     typed: (text: string): string => `TYPED ${text}`,
     keysRoom: 'KEYS ROOM',
-    keyOne: 'KEY ONE',
-    keyTwo: 'KEY TWO',
-    keyThree: 'KEY THREE',
+    /** The keys room appends the digit of each action run (First=1, Second=2, Third=3) to a log. */
+    keyLog: (digits: string): string => `LOG=${digits}`,
     singleRoom: 'SINGLE ROOM',
     /** Written by the only action of the single room (the Space key). */
     spaceRan: 'SPACE RAN',
