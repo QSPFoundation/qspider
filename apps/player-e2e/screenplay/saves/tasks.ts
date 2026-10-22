@@ -30,6 +30,10 @@ export const OpenSavesPanel = (): Task =>
     waitUntilPresent(SaveSlot(1)),
   );
 
+/** With the pause screen already open, its Saves button shows the saves panel. */
+export const ShowSavesPanel = (): Task =>
+  Task.where('#actor shows the saves panel', ClickWhenPresent(SavesButton), waitUntilPresent(SaveSlot(1)));
+
 /** In a saves panel opened for saving, saves to slot `index`; the panel closes. */
 export const SaveToSlot = (index: number): Task =>
   Task.where(`#actor saves to slot ${index}`, ClickWhenPresent(SlotSaveButton(index)), waitUntilAbsent(PauseScreen));
