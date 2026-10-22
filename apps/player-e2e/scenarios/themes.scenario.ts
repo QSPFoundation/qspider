@@ -4,7 +4,9 @@ import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
 import { QspLayer } from '../screenplay/content/elements';
 import { SeeMainText } from '../screenplay/game/checks';
-import { ClickAction, ReturnToShelf } from '../screenplay/game/tasks';
+import { ClickAction, PressEscape, ReturnToShelf } from '../screenplay/game/tasks';
+import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
+import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
@@ -118,5 +120,24 @@ scenario('switching to an unknown theme shows an error and keeps the theme', asy
     ClickAction(THEMED_GAME.action.toMissing),
     SeeErrorAlertText('Theme no-such is not registered'),
     SeeActiveTheme(THEME_ALIAS.custom), // unchanged: anchored on the alert having appeared
+  );
+});
+
+// The layer is theme-level (outside the main content), so it stays mounted across a restart and only
+// reloadLayers can clear it. A layer inside the main content re-reads the engine on mount and cannot show that
+// (see lifecycle.scenario.ts). Kept here: the fixture and its elements are the theme's.
+scenario('restart hides a theme-layout layer the game showed', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    ClickAction(THEMED_GAME.action.showLayer),
+    SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),
+    PressEscape(),
+    waitUntilPresent(PauseScreen),
+    ClickWhenPresent(RestartButton),
+    SeeMainText(THEMED_GAME.text.start),
+    waitUntilAbsent(QspLayer),
   );
 });
