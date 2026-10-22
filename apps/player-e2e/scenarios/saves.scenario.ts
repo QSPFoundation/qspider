@@ -143,8 +143,10 @@ scenario('loading from the panel opened by the game restores the slot', async (p
     ClickAction(ACTION.loadThenMark),
     SeeRequestedSaveCommand('load'),
     LoadFromSlot(1),
-    // Asserted: the final state is the restored save (restoreFromSlot calls loaded() before loadSave).
+    // Per the engine contract, loaded() is called after loadSave (restoreFromSlot). The engine shows the
+    // restored state and does not write the code after `opengame` (no AFTER LOAD PANEL), on both targets.
     SeeMainText(TEXT.counter(1)),
+    // 2 = restored 1 + 1 (not 3): the game state is the save, not the state before the load.
     ClickAction(ACTION.increment),
     SeeMainText(TEXT.counter(2)),
   );

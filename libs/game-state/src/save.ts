@@ -59,26 +59,28 @@ export async function restoreFromSlot(slot: number): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = await getStorage().getSaveDataBySlot(currentGame.id, slot);
+  // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
+  if (saveData) {
+    qspApi$.value?.loadSave(saveData);
+  }
   const loaded = saveLoadedCallback$.value;
   loaded?.();
   saveLoadedCallback$.set(null);
   requestedAction$.set(null);
-  if (saveData) {
-    qspApi$.value?.loadSave(saveData);
-  }
 }
 
 export async function restoreFromPath(path: string): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = await getStorage().getSaveDataByKey(currentGame.id, path);
+  // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
+  if (saveData) {
+    qspApi$.value?.loadSave(saveData);
+  }
   const loaded = saveLoadedCallback$.value;
   loaded?.();
   saveLoadedCallback$.set(null);
   requestedAction$.set(null);
-  if (saveData) {
-    qspApi$.value?.loadSave(saveData);
-  }
 }
 
 export async function clearSlot(slot: number): Promise<void> {

@@ -125,16 +125,16 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 
 ## I. Saves
 
-| Touch point                                                                               | Where                                            | E2E |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------ | --- |
-| `savegame` / `opengame` without path → saves panel, slot save / load                      | qsp-api.ts:276-301; save.ts:30-82, 125-155       | ✅  |
-| Several slots, clear slot                                                                 | save.ts:30-96, 125-155                           | ✅  |
-| `savegame "name"` / `opengame "name"` (named saves)                                       | save.ts:44-56, 71-82                             | ✅  |
-| Quicksave / quickload (F5 / F9, pause-screen command)                                     | save.ts:98-121; hotkeys.ts:56-57                 | ✅  |
-| Ctrl+S / Ctrl+O                                                                           | hotkeys.ts:58-79                                 | ✅  |
-| `NOSAVE`: blocks the player's saves (quicksave, Ctrl+S, Esc → save); Esc still opens load | save.ts:99; hotkeys.ts:63; game-runner.tsx:40-43 | ✅  |
-| Cancelling the saves panel resumes the engine                                             | pause-screen.ts:29-41                            | ✅  |
-| Saves survive app restart                                                                 | —                                                | ✅  |
+| Touch point                                                                               | Where                                             | E2E |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------- | --- |
+| `savegame` / `opengame` without path → saves panel, slot save / load                      | qsp-api.ts:276-301; save.ts:30-84, 127-157        | ✅  |
+| Several slots, clear slot                                                                 | save.ts:30-98, 127-157                            | ✅  |
+| `savegame "name"` / `opengame "name"` (named saves)                                       | save.ts:44-56, 72-84                              | ✅  |
+| Quicksave / quickload (F5 / F9, pause-screen command)                                     | save.ts:100-123; hotkeys.ts:56-57                 | ✅  |
+| Ctrl+S / Ctrl+O                                                                           | hotkeys.ts:58-79                                  | ✅  |
+| `NOSAVE`: blocks the player's saves (quicksave, Ctrl+S, Esc → save); Esc still opens load | save.ts:101; hotkeys.ts:63; game-runner.tsx:40-43 | ✅  |
+| Cancelling the saves panel resumes the engine                                             | pause-screen.ts:29-41                             | ✅  |
+| Saves survive app restart                                                                 | —                                                 | ✅  |
 
 ## J. Lifecycle and timing
 
@@ -296,5 +296,5 @@ _Pack: fixtures exercising settings, language and theme state._
 10. CP866 Cyrillic names in old zips likely mojibake.
 11. A missing `defaultTheme` in aero mode leaves the classic theme.
 12. Saved `dark` player theme probably ignored (player-theme.ts:6-11).
-13. Slot / path restore calls the engine's `loaded()` before `loadSave()` (save.ts:62-68). 2d probe: on both targets the final state is the restored save; code written after `opengame` is not visible afterwards.
+13. **Fixed in 2d** (confirmed against the engine contract): slot / path restore called the engine's `loaded()` before `loadSave()`, while the `@qsp/wasm-engine` Readme says the `load_save` callback is called after `api.loadSave`. `restoreFromSlot` / `restoreFromPath` now call `loadSave()` first, then `loaded()` (save.ts:58-84). Observable on both targets, before and after the fix: after `opengame` and a slot pick the main text is the restored one (`COUNTER=1`), the code written after `opengame` (`AFTER LOAD PANEL`) is not shown, and Increment gives `COUNTER=2` (restored 1 + 1). So the end state does not tell the two orders apart; eventual checks cannot prove the marker never flashed under the old order.
 14. Engine events with no handler (`close`, `refresh`, `sleep`?) — not checked against the engine typings.
