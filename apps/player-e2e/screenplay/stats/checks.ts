@@ -1,4 +1,4 @@
-import { Task } from '@serenity-js/core';
+import { Expectation, Task } from '@serenity-js/core';
 import { equals, includes, isGreaterThan } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { PANELS_GAME } from '../../fixtures/panels-game';
@@ -25,6 +25,26 @@ export const SeeStatsCountAbove = (n: number, pattern: RegExp = PANELS_GAME.text
     isGreaterThan(n),
     `#actor sees the stats count ${pattern.source} above ${n}`,
   );
+
+/**
+ * The count `pattern` captures (as in SeeStatsCountAbove) eventually rises by at least `by` above the first
+ * count this check reads: proof that the timer runs from now on, whatever it counted before (a count above a
+ * fixed number could have been reached before a pause). NaN (no match) never sets the baseline.
+ */
+export const SeeStatsCountRising = (by = 2, pattern: RegExp = PANELS_GAME.text.ticksPattern): Task => {
+  let baseline = Number.NaN;
+  const risesBy = Expectation.define('risesBy', `rise by ${by} above the first count read`, (count: number) => {
+    if (Number.isNaN(count)) return false;
+    if (Number.isNaN(baseline)) baseline = count;
+    return count >= baseline + by;
+  });
+  return seeEventually(
+    StatsContent,
+    (e) => Text.of(e).as((text) => Number(pattern.exec(text)?.[1] ?? Number.NaN)),
+    risesBy(),
+    `#actor sees the stats count ${pattern.source} rise by ${by}`,
+  );
+};
 
 /** The stats panel is gone. An absence check: check a settled anchor first (see README, "Reading and waiting"). */
 export const SeeNoStatsPanel = (): Task => Task.where('#actor sees no stats panel', waitUntilAbsent(StatsPanel));

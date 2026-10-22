@@ -5,7 +5,10 @@ import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
 import { ClickAction, OpenPanelsFixture, PressEscape, PressKey, PressRestartHotkey } from '../screenplay/game/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
-import { SeeStatsCountAbove } from '../screenplay/stats/checks';
+import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
+import { DismissMsg } from '../screenplay/msg/tasks';
+import { ChooseMenuItem } from '../screenplay/menu/tasks';
+import { SeeStatsCountAbove, SeeStatsCountRising } from '../screenplay/stats/checks';
 import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
 
@@ -77,4 +80,24 @@ scenario('restart resets regions and layers', async (player) => {
 
 scenario('a game.cfg hotkey runs its location', async (player) => {
   await player.attemptsTo(OpenPanelsFixture(), PressKey(PANELS_GAME.hotkey), SeeMainText(TEXT.hotkeyRan));
+});
+
+// A restart behind an open message used to render the start under it and leave the engine stuck inside the
+// old msg call (actions dead after OK). Ctrl+R is now ignored while a dialog is open.
+scenario('Ctrl+R is ignored while a message is open', async (player) => {
+  await player.attemptsTo(
+    OpenPanelsFixture(),
+    ClickAction(ACTION.start.counter),
+    SeeMainText(TEXT.counterRoom),
+    ClickAction(ACTION.counter.message),
+    SeeMsg(TEXT.counterMsg),
+    PressRestartHotkey(),
+    DismissMsg(),
+    SeeMsgGone(),
+    SeeMainText(TEXT.counterRoom),
+    ClickAction(ACTION.counter.menu),
+    ChooseMenuItem(TEXT.counterMenuItem),
+    SeeMainTextContaining(TEXT.counterMenuPicked),
+    SeeStatsCountRising(),
+  );
 });

@@ -2,7 +2,11 @@ import Mousetrap from 'mousetrap';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
 import { GameCommand, onGameCommand } from './current-game';
-import { actions$, canSelectAction, execSelectedAction, selectAction } from './panels';
+import { actions$, canSelectAction, execSelectedAction, selectAction, view$ } from './panels';
+import { input$ } from './input';
+import { menu$ } from './menu';
+import { msg$ } from './msg';
+import { wait$ } from './wait';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
 import create from 'xoid';
@@ -28,6 +32,17 @@ export type PrettyHotkeys =
       symbol: string;
     };
 
+/** A msg, input, menu, wait or modal view is open: the same dialogs the Escape handler (game-runner.tsx) waits for. */
+function isBlockingDialogOpen(): boolean {
+  return (
+    msg$.value.isOpen ||
+    input$.value.isOpen ||
+    menu$.value.isOpen ||
+    Boolean(wait$.value) ||
+    (view$.value.isOpen && view$.value.isModal)
+  );
+}
+
 export const globalHotKeys$ = create<GlobalHotKey[]>([
   { when_paused: false, description: 'Action #1', keys: '1', on_press: { type: 'action', index: 0 } },
   { when_paused: false, description: 'Action #2', keys: '2', on_press: { type: 'action', index: 1 } },
@@ -52,7 +67,17 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
       return false;
     },
   },
-  { when_paused: true, description: 'Restart', keys: 'mod+r', on_press: { type: 'game_action', action: 'restart' } },
+  {
+    when_paused: true,
+    keys: 'mod+r',
+    description: 'Restart',
+    on_press: (): boolean => {
+      // Ignored (but still kept from the browser's reload) while the engine waits on a dialog: restarting
+      // under it would leave the engine inside the old call, with the restarted game stuck.
+      if (!isBlockingDialogOpen()) onGameCommand('restart');
+      return false;
+    },
+  },
   { when_paused: false, description: 'Quicksave', keys: 'f5', on_press: { type: 'game_action', action: 'quicksave' } },
   { when_paused: false, description: 'Quickload', keys: 'f9', on_press: { type: 'game_action', action: 'quickload' } },
   {
