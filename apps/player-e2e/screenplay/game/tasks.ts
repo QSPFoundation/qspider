@@ -2,6 +2,7 @@ import { type Interaction, Task, Wait } from '@serenity-js/core';
 import { equals } from '@serenity-js/assertions';
 import { Key, Press } from '@serenity-js/web';
 import { E2E_GAME } from '../../fixtures/e2e-game';
+import { PANELS_GAME } from '../../fixtures/panels-game';
 import { SAVES_GAME } from '../../fixtures/saves-game';
 import { SeeGameStarted, SeeStartupFinished } from '../common/checks';
 import { PauseScreen, QuitButton } from '../pause/elements';
@@ -9,6 +10,7 @@ import { TEST_PACK } from '../../fixtures/test-pack';
 import { Shelf } from '../shelf/elements';
 import { OpenFromShelf } from '../shelf/tasks';
 import { LoadTestPack, OpenGameFile, StartPlayer } from '../support/operate-player';
+import { Hover } from '../support/hover';
 import { ClickWhenPresent, TextNow, waitUntilPresent } from '../support/presence';
 import { Action, MainText } from './elements';
 
@@ -67,6 +69,16 @@ export const OpenSavesFixture = (): Task =>
     ReachSavesCounter(0),
   );
 
+/** From a clean app: starts the player and opens the panels fixture game from a file, at its start location. */
+export const OpenPanelsFixture = (): Task =>
+  Task.where(
+    '#actor opens the panels fixture game',
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(PANELS_GAME.path),
+    SeeGameStarted(PANELS_GAME.text.start),
+  );
+
 /** In the saves fixture, from its start: goes to the room and increments the counter to `n`. */
 export const ReachSavesCounter = (n: number): Task =>
   ReachCounterWith(n, {
@@ -84,6 +96,12 @@ export const ReturnToShelf = (): Task =>
     ClickWhenPresent(QuitButton),
     waitUntilPresent(Shelf),
   );
+
+/** Moves the pointer over the game action labelled `label`, once the game shows it. */
+export const HoverAction = (label: string): Interaction => Hover(Action(label));
+
+/** Presses Space: runs the selected action, or the only one. */
+export const PressSpace = (): Interaction => Press.the(Key.Space);
 
 /** Presses Escape, whichever overlay is up. */
 export const PressEscape = (): Interaction => Press.the(Key.Escape);

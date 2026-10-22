@@ -18,3 +18,7 @@ export const ResumeButton = visible(
 export const PauseScreenContent = PageElement.located(By.css('[data-qsp="pause-screen-content"]')).describedAs(
   'pause screen content',
 );
+export const RestartButton = visible(
+  PageElements.located(By.css('[data-qsp-command="restart"]')).of(PauseScreen),
+  'restart button',
+);

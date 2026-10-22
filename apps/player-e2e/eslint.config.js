@@ -37,6 +37,12 @@ const NO_BY = {
   importNames: ['By'],
   message: 'Selectors live only in elements.ts (and support/).',
 };
+// In-page script runs only in support/page-script.ts, as named read-only probes (no arbitrary code).
+const NO_PAGE_SCRIPT = {
+  name: '@serenity-js/web',
+  importNames: ['ExecuteScript', 'LastScriptExecution'],
+  message: 'Page scripts live only in screenplay/support/page-script.ts; use its named probes and recorders.',
+};
 // Tasks may compose only the fail-fast guards in common/checks.ts (e.g. SeeGameStarted), not an area's checks.
 const NO_AREA_CHECKS = {
   regex: '(^|/)(?!common/)[^/]+/checks$',
@@ -86,34 +92,40 @@ const conventions = [
   {
     files: ['**/*.ts', '**/*.mts', '**/*.js'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT] }),
+      ...restrictImports({ paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT] }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT],
     },
   },
   {
     files: ['screenplay/**/*.ts'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
+      ...restrictImports({
+        paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
+        patterns: [TARGETS, NO_FRAMEWORKS],
+      }),
       'max-lines': ['error', 150],
     },
   },
   {
     files: ['screenplay/**/tasks.ts'],
     rules: restrictImports({
-      paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT],
+      paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
       patterns: [TARGETS, NO_FRAMEWORKS, NO_AREA_CHECKS],
     }),
   },
   {
     files: ['screenplay/**/elements.ts'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
+      ...restrictImports({ paths: [NO_ENSURE, NO_PAGE_SCRIPT, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, ...UNMARKED_SELECTORS],
     },
   },
   {
     files: ['screenplay/**/checks.ts'],
-    rules: restrictImports({ paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
+    rules: restrictImports({
+      paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
+      patterns: [TARGETS, NO_FRAMEWORKS],
+    }),
   },
   {
     files: ['screenplay/support/**/*.ts'],
@@ -130,7 +142,7 @@ const conventions = [
   {
     files: ['scenarios/**/*.ts'],
     rules: restrictImports({
-      paths: [NO_ENSURE, NO_BY, ...NO_IS_PRESENT],
+      paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
       patterns: [
         TARGETS,
         {
