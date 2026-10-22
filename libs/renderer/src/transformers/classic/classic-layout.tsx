@@ -121,7 +121,11 @@ export const QspCLDock: React.FC<
   }, props);
   const visibility = useAtom(visibility$);
   if (!visibility) return null;
-  return <qsp-cl-dock data-place={props.place}>{props.children}</qsp-cl-dock>;
+  return (
+    <qsp-cl-dock data-place={props.place} data-qsp-dock={props.place}>
+      {props.children}
+    </qsp-cl-dock>
+  );
 };
 
 export const QspCLPane: React.FC<{ proportion: number; children: React.ReactNode; visibility: string | null }> = (
