@@ -1,14 +1,10 @@
 import {
   currentGameEntry$,
-  input$,
+  isBlockingDialogOpen,
   isPauseScreenVisible$,
-  menu$,
-  msg$,
   openPauseScreen,
   qspApi$,
   requestedAction$,
-  view$,
-  wait$,
 } from '@qspider/game-state';
 import { throttle } from '@qspider/utils';
 import { useAtom } from '@xoid/react';
@@ -26,15 +22,7 @@ import { TouchPauseButton } from './touch-pause-button';
 
 const openPauseOnEscape = throttle((e: KeyboardEvent): void => {
   if (!currentGameEntry$.value) return;
-  if (
-    wait$.value ||
-    msg$.value.isOpen ||
-    input$.value.isOpen ||
-    menu$.value.isOpen ||
-    isPauseScreenVisible$.value ||
-    (view$.value.isOpen && view$.value.isModal)
-  )
-    return;
+  if (isBlockingDialogOpen() || isPauseScreenVisible$.value) return;
   e.preventDefault();
   e.stopPropagation();
   const nosave = qspApi$.value?.readVariable('NOSAVE');

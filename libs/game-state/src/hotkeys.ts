@@ -32,8 +32,8 @@ export type PrettyHotkeys =
       symbol: string;
     };
 
-/** A msg, input, menu, wait or modal view is open: the same dialogs the Escape handler (game-runner.tsx) waits for. */
-function isBlockingDialogOpen(): boolean {
+/** A msg, input, menu, wait or modal view is open: shared by the Restart hotkey and the Escape handler (game-runner.tsx). */
+export function isBlockingDialogOpen(): boolean {
   return (
     msg$.value.isOpen ||
     input$.value.isOpen ||

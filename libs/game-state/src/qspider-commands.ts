@@ -1,4 +1,4 @@
-import { GameCommand, onGameCommand, stopCurrentGame } from './current-game';
+import { currentGameEntry$, GameCommand, onGameCommand, stopCurrentGame } from './current-game';
 import { layers$, readLayerState, regions$, regionsScroll$ } from './panels';
 import { qspApi$ } from './qsp-api';
 import { currentTheme$, themeRegistry$ } from './themes';
@@ -43,8 +43,11 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
       // A restart from game code runs on the next tick, after the engine call that requested it has
       // returned: restarting inside it lets the new game's async library load re-enter the engine mid-call,
       // and the restart is lost. Code after `gs 'qspider_restart'` in the same action still runs first;
-      // the restart then discards its effects.
-      setTimeout(() => onGameCommand('restart'), 0);
+      // the restart then discards its effects. Skipped when the game was stopped meanwhile (a restart then
+      // a quit in the same action), so a stale engine is not restarted onto the shelf.
+      setTimeout(() => {
+        if (currentGameEntry$.value) onGameCommand('restart');
+      }, 0);
       return;
     }
     onGameCommand(action as GameCommand);
