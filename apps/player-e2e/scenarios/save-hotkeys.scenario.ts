@@ -10,7 +10,7 @@ import {
   PressSaveHotkey,
 } from '../screenplay/game/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
-import { SeeQuickSaveFilled, SeeRequestedSaveCommand } from '../screenplay/saves/checks';
+import { SeeQuickSaveFilled, SeeRequestedSaveCommand, SeeSlotFilled } from '../screenplay/saves/checks';
 import {
   CancelSavesPanel,
   LoadFromSlot,
@@ -149,5 +149,19 @@ scenario('NOSAVE: Escape opens the pause screen for loading only', async (player
     ShowSavesPanel(),
     LoadFromSlot(1),
     SeeMainText(TEXT.counter(1)),
+  );
+});
+
+scenario('cancelling a load request restores the normal saves panel', async (player) => {
+  await player.attemptsTo(
+    OpenSavesFixture(),
+    PressLoadHotkey(),
+    SeeRequestedSaveCommand('load'),
+    CancelSavesPanel(),
+    // The cancelled Ctrl+O must not leave the panel load-only: its Save button has to work.
+    OpenSavesPanel(),
+    SaveToSlot(1),
+    OpenSavesPanel(),
+    SeeSlotFilled(1),
   );
 });

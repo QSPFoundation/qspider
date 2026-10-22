@@ -1,7 +1,7 @@
 import { atom } from 'xoid';
 import history from 'history/browser';
 import { isPaused$ } from './counter';
-import { gameSavedCallback$, saveLoadedCallback$ } from './save';
+import { gameSavedCallback$, requestedAction$, saveLoadedCallback$ } from './save';
 import { playerUrl } from './init';
 
 export const isPauseScreenVisible$ = atom(false);
@@ -28,6 +28,8 @@ export function closePauseScreen(): void {
 
 export function onClosePauseScreen(): void {
   isPauseScreenVisible$.set(false);
+  // A cancelled Ctrl+O / NOSAVE-Escape request must not leave the next saves panel load-only.
+  requestedAction$.set(null);
   if (saveLoadedCallback$.value) {
     saveLoadedCallback$.value();
     saveLoadedCallback$.set(null);
