@@ -59,26 +59,24 @@ scenario('a missing defaultTheme in Aero mode falls back to Aero, with a notice'
   );
 });
 
-// The previous game is the themed one, not Aero: on desktop an Aero game followed by a classic one shows
-// an empty main text (see the 2f task 4 report), which this scenario is not about.
-scenario("a missing defaultTheme does not keep the previous game's theme", async (player) => {
-  await player.attemptsTo(
-    StartPlayer(),
-    SeeStartupFinished(),
-    OpenGameFile(THEMED_GAME.path),
-    SeeGameStarted(THEMED_GAME.text.start),
-    SeeActiveTheme(THEME_ALIAS.custom),
-    ReturnToShelf(),
-    OpenGameFile(MISSING_THEME_GAME.classicPath),
-    SeeGameStarted(MISSING_THEME_GAME.text.start),
-    SeeActiveTheme(THEME_ALIAS.classic),
-  );
-});
+scenario(
+  'after an Aero game, a classic game with a missing defaultTheme gets the classic theme and a notice',
+  async (player) => {
+    await player.attemptsTo(
+      StartPlayer(),
+      SeeStartupFinished(),
+      OpenGameFile(AERO_GAME.path),
+      SeeGameStarted(TEXT.start),
+      SeeActiveTheme(THEME_ALIAS.aero),
+      ReturnToShelf(),
+      OpenGameFile(MISSING_THEME_GAME.classicPath),
+      SeeElementText(NoticeToastElement, MISSING_NOTICE, '#actor sees the theme-not-found notice'),
+      SeeGameStarted(MISSING_THEME_GAME.text.start),
+      SeeActiveTheme(THEME_ALIAS.classic),
+    );
+  },
+);
 
-// ⚠ Currently RED on desktop on a machine whose GDK_SCALE=2 leaks into the run (green on web): the Xvfb
-// screen is then 320x240 logical, the Aero game's resize clamps the window to 319x239, quitting cannot
-// restore it, and the classic layout clips the main text. The fix is pending a maintainer decision; see
-// .superpowers/sdd/2026-10-22-e2e-2f-themes/aero-blank-report.md. Do not merge while it is red.
 scenario('a classic game after an Aero game is shown', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
