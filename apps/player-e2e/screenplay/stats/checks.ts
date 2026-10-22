@@ -2,6 +2,7 @@ import { Expectation, Task } from '@serenity-js/core';
 import { equals, includes, isGreaterThan } from '@serenity-js/assertions';
 import { Text } from '@serenity-js/web';
 import { PANELS_GAME } from '../../fixtures/panels-game';
+import { PageClockAdvanced } from '../support/page-clock';
 import { waitUntilAbsent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
 import { StatsContent, StatsPanel } from './elements';
@@ -43,6 +44,33 @@ export const SeeStatsCountRising = (by = 2, pattern: RegExp = PANELS_GAME.text.t
     (e) => Text.of(e).as((text) => Number(pattern.exec(text)?.[1] ?? Number.NaN)),
     risesBy(),
     `#actor sees the stats count ${pattern.source} rise by ${by}`,
+  );
+};
+
+/**
+ * The count `pattern` captures stays exactly where it is when first read, after `ms` on the page's clock: proof
+ * the timer did not run meanwhile (the caller picks ms as a few timer intervals). Counts only rise, so seeing
+ * the first reading again means no tick came. Use after a dialog is up, when no tick is in flight.
+ */
+export const SeeStatsCountStill = (ms: number, pattern: RegExp = PANELS_GAME.text.ticksPattern): Task => {
+  let baseline = Number.NaN;
+  const read = (e: Parameters<typeof Text.of>[0]) =>
+    Text.of(e).as((text) => Number(pattern.exec(text)?.[1] ?? Number.NaN));
+  const first = Expectation.define('isFirstRead', 'be read', (count: number) => {
+    if (Number.isNaN(count)) return false;
+    baseline = count;
+    return true;
+  });
+  const unchanged = Expectation.define(
+    'unchanged',
+    'still be the first count read',
+    (count: number) => count === baseline,
+  );
+  return Task.where(
+    `#actor sees the stats count ${pattern.source} not move for ${ms} ms`,
+    seeEventually(StatsContent, read, first(), `#actor reads the stats count ${pattern.source}`),
+    PageClockAdvanced(ms),
+    seeEventually(StatsContent, read, unchanged(), `#actor sees the stats count ${pattern.source} unchanged`),
   );
 };
 

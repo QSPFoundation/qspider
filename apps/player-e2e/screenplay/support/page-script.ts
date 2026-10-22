@@ -52,6 +52,10 @@ const PROBES = {
     if (!element) return null;
     return element.getAttribute('data-qsp') ?? element.tagName.toLowerCase();
   },
+  /** The page's clock: milliseconds since its time origin (read by PageClockAdvanced in page-clock.ts). */
+  pageClock: function (): number {
+    return performance.now();
+  },
 } as const;
 
 export type PageProbe = keyof typeof PROBES;
@@ -89,7 +93,7 @@ export const RecordedEvents = (type: string): QuestionAdapter<unknown[]> =>
   });
 
 /** One probe's current answer. */
-const ProbeResult = (name: PageProbe): QuestionAdapter<unknown> =>
+export const ProbeResult = (name: PageProbe): QuestionAdapter<unknown> =>
   scriptResult<unknown>(`the page probe ${name}`, PROBES[name]);
 
 /**
