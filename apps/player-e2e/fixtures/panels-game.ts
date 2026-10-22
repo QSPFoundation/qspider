@@ -10,6 +10,8 @@
 // - `addobj 'Name', 'image'` adds an object with an image; `showstat` / `showobjs` / `showacts` /
 //   `showinput` take 0 or 1.
 // - Every location has at most 8 actions.
+// - The start location runs `inclib 'qspider'`: the qspider_* locations (event, region, layer)
+//   live in the player's qspider module, which a game must include before calling them.
 import { ARCHIVES } from './archives';
 
 export const PANELS_GAME = {
