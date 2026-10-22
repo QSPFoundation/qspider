@@ -23,5 +23,14 @@ export const SeeActionSelected = (label: string): Task =>
     `#actor sees the "${label}" action selected`,
   );
 
+/** The action `label` is not the selected one: `data-qsp-selected` is absent (null on both targets). Check a selected anchor first. */
+export const SeeActionNotSelected = (label: string): Task =>
+  seeEventually(
+    Action(label),
+    (e) => Attribute.called('data-qsp-selected').of(e),
+    not(equals('')),
+    `#actor sees the "${label}" action not selected`,
+  );
+
 /** The actions panel is gone. An absence check: check a settled anchor first. */
 export const SeeNoActionsPanel = (): Task => Task.where('#actor sees no actions panel', waitUntilAbsent(ActionsPanel));
