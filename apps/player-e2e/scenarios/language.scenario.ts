@@ -4,7 +4,7 @@ import { SeeGameStarted, SeeNoticeContaining, SeeStartupFinished } from '../scre
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeePauseLanguage, SeePreferencesLabel } from '../screenplay/pause/checks';
 import { OpenPreferences, SwitchPauseLanguage } from '../screenplay/pause/tasks';
-import { SeeRunLinkText, SeeShelfIncludes, SeeShelfLanguage } from '../screenplay/shelf/checks';
+import { SeeRunLinkText, SeeShelfIncludes, SeeShelfLanguage, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { SwitchShelfLanguage } from '../screenplay/shelf/tasks';
 import { OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
@@ -26,6 +26,7 @@ scenario('switching the language re-renders the player and persists', async (pla
     SwitchShelfLanguage('ru-RU'),
     SeeShelfLanguage('ru-RU'),
     SeeRunLinkText(TITLE, RUN('ru-RU')),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeStartupFinished(),
     SeeShelfIncludes(TITLE),
@@ -58,6 +59,7 @@ scenario.desktopOnly('the launch notice uses the saved language', async (player)
     SeeStartupFinished(),
     SwitchShelfLanguage('ru-RU'),
     SeeShelfLanguage('ru-RU'),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeNoticeContaining(pluralTranslation('ru-RU', '{{ count }} games added to shelf', TEST_PACK.titles.length)),
   );

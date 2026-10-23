@@ -6,8 +6,10 @@ const LOCALES_DIR = fileURLToPath(new URL('../../../../public/locales/', import.
 function bundle(lng: string, ns: string): Record<string, string> {
   try {
     return JSON.parse(readFileSync(`${LOCALES_DIR}${lng}/${ns}.json`, 'utf8')) as Record<string, string>;
-  } catch {
-    return {};
+  } catch (error) {
+    // A language without a bundle in this namespace falls back; anything else (bad JSON, permissions) is a real fault.
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return {};
+    throw error;
   }
 }
 

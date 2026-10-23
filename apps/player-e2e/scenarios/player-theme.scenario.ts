@@ -1,5 +1,5 @@
 import { SeeStartupFinished } from '../screenplay/common/checks';
-import { CurrentPlayerTheme, SeePlayerTheme } from '../screenplay/shelf/checks';
+import { CurrentPlayerTheme, SeePlayerTheme, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { ToggleShelfTheme } from '../screenplay/shelf/tasks';
 import { EmulateColorScheme, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
@@ -13,11 +13,13 @@ scenario('the chosen player theme persists across a restart', async (player) => 
   await player.attemptsTo(
     ToggleShelfTheme(),
     SeePlayerTheme(chosen),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeStartupFinished(),
     SeePlayerTheme(chosen),
     ToggleShelfTheme(),
     SeePlayerTheme(initial),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeStartupFinished(),
     SeePlayerTheme(initial),
@@ -32,6 +34,7 @@ scenario.webOnly('an untouched player theme follows the OS colour scheme at ever
     SeeStartupFinished(),
     SeePlayerTheme('dark'),
     EmulateColorScheme('light'),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeStartupFinished(),
     SeePlayerTheme('light'),

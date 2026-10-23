@@ -14,7 +14,7 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
-import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles } from '../screenplay/shelf/checks';
+import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import {
   DropGameFile,
   OpenGameFile,
@@ -37,6 +37,10 @@ scenario.webOnly('importing a game again by URL replaces its shelf entry', async
   await player.attemptsTo(
     OpenGameUrl(served(basename(v1.path))),
     SeeGameStarted(v1.startText),
+    // The v1 entry is shelved and written before the page is reloaded with v2 (else v2 may race the v1 write).
+    ReturnToShelf(),
+    SeeShelfIncludes(v1.title),
+    SeeShelfWritesSettled(),
     OpenGameUrl(served(basename(v2.path))), // the same game id, another title and start text
     SeeGameStarted(v2.startText),
     ReturnToShelf(),
