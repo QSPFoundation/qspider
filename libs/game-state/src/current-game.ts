@@ -141,7 +141,10 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     if (descriptor?.resources?.icon) {
       windowManager.setIcon(baseUrl$.value, descriptor.resources.icon);
     }
-    loadAdditionalResources(descriptor?.resources);
+    // The game's styles, scripts and fonts are in before the engine runs it, so its first text is styled and
+    // its scripts hear its first events. A resource that fails is named in a notice; the game starts anyway.
+    const failedResources = await loadAdditionalResources(descriptor?.resources);
+    if (failedResources.length > 0) showNotice(`Failed to load game resources: ${failedResources.join(', ')}`);
     if (descriptor?.themes) {
       await registerThemes(descriptor.themes);
     }
