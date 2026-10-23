@@ -14,7 +14,7 @@ import {
 import { SeeShelfIncludes } from '../screenplay/shelf/checks';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
-import { SeeAudioState, SeeSoundState } from '../screenplay/support/sound-state';
+import { SeeAudioState, SeeSoundState, SeeSoundWebAudio } from '../screenplay/support/sound-state';
 
 // Sounds of the resources game. Each sound line is `str(ISPLAY(...))` written in the SAME action right after the
 // statement, so it shows what the game itself sees; the probe shows what Howler really does. The wavs last 20 s,
@@ -104,5 +104,21 @@ scenario('sounds stop when the game stops', async (player) => {
     ReturnToShelf(),
     SeeShelfIncludes(ARCHIVES.resourcesZip.title),
     SeeSoundState('a.wav', null),
+  );
+});
+
+// A sound at an absolute URL is fetched by the page itself (Web Audio). When the player puts the game base in
+// front of it the fetch fails and Howler falls back to an HTML5 Audio element, which still reports `playing`.
+scenario('a sound at an absolute http URL', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(RESOURCES_GAME.zipPath),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTIONS.start.toMedia),
+    SeeMainTextContaining(TEXT.media),
+    ClickAction(ACTIONS.media.playExternal),
+    SeeSoundState('ext.wav', PLAYING(1)),
+    SeeSoundWebAudio('ext.wav', true),
   );
 });

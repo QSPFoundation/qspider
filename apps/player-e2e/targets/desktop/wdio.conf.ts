@@ -13,6 +13,8 @@ import { SevereServiceError } from 'webdriverio';
 import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
 import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { TEST_PACK } from '../../fixtures/test-pack';
+import type { Server } from 'node:http';
+import { startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { buildFixtures } from '../../fixtures/build-fixtures';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
@@ -38,6 +40,8 @@ process.env['QSPIDER_E2E_TARGET'] = 'desktop';
 // Within a worker, fresh-app.ts ends the app, empties the dirs and starts a new session per test.
 let tauriDriver: ChildProcess | undefined;
 let runDir: string | undefined;
+/** Serves the files games name by an absolute http URL (fixtures/asset-server.ts); lives for the whole run. */
+let assetServer: Server | undefined;
 
 /** Stops tauri-driver; resolves after it exits so its log is complete. */
 function killDriver(): Promise<void> {
@@ -198,6 +202,12 @@ export const config: WebdriverIOConfig = {
     mkdirSync(join(artifactsDir, 'wdio-logs'), { recursive: true });
 
     await buildFixtures();
+    assetServer = await startAssetServer();
+  },
+
+  async onComplete() {
+    if (assetServer) await stopAssetServer(assetServer);
+    assetServer = undefined;
   },
 
   // A fresh tauri-driver per worker (see the note by `let tauriDriver`). maxInstances is 1, so workers

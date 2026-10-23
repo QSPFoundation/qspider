@@ -227,6 +227,8 @@ describe('buildFixtures', () => {
         expect(src.replaceAll('\\', '/').split('?')[0].toLowerCase(), qa).toBe(file.toLowerCase());
       }
       expect(game).toContain(`'${RESOURCES_GAME.dataImage}'`);
+      expect(game).toContain(`$BACKIMAGE = '${RESOURCES_GAME.externalImage}'`);
+      expect(game).toContain(`play '${RESOURCES_GAME.externalSound}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.sound.backslashB}'`);
     });
 

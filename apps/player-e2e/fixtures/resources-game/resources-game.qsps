@@ -25,6 +25,8 @@ act 'Menu image':
 end
 act 'Backimage data': $BACKIMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
 act 'Backimage backslash': $BACKIMAGE = 'Img\Sub\Back.png'
+act 'Backimage external': $BACKIMAGE = 'http://127.0.0.1:47631/ext.png'
+act 'Play external': play 'http://127.0.0.1:47631/ext.wav'
 act 'Back': gt 'start'
 ---
 

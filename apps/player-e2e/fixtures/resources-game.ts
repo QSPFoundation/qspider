@@ -6,6 +6,7 @@
 // only variant where case and backslashes can fail). Keep this module free of test-framework imports:
 // both runners load it.
 import { ARCHIVES } from './archives';
+import { ASSET_SERVER, assetUrl } from './asset-server';
 
 export const RESOURCES_GAME = {
   zipPath: ARCHIVES.resourcesZip.path,
@@ -31,6 +32,8 @@ export const RESOURCES_GAME = {
       menuImage: 'Menu image',
       backimageData: 'Backimage data',
       backimageBackslash: 'Backimage backslash',
+      backimageExternal: 'Backimage external',
+      playExternal: 'Play external',
       back: 'Back',
     },
     resources: { back: 'Back' },
@@ -83,6 +86,12 @@ export const RESOURCES_GAME = {
    */
   dataImage:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+  /**
+   * Absolute http URLs the game spells (`$BACKIMAGE`, `PLAY`), served by fixtures/asset-server.ts on a fixed port.
+   * Keep them in sync with the game (guarded in build-fixtures.spec.ts).
+   */
+  externalImage: assetUrl(ASSET_SERVER.paths.image),
+  externalSound: assetUrl(ASSET_SERVER.paths.sound),
   /** Objects/actions: `img[data-qsp="action-image"]`, `[data-qsp="object-image"]`; the object's label. */
   objectLabel: 'RES OBJECT',
   /**

@@ -1,4 +1,4 @@
-import { endsWith } from '@serenity-js/assertions';
+import { endsWith, equals } from '@serenity-js/assertions';
 import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from '../fixtures/resources-game';
 import { SeeGameStarted, SeeNoticeContaining, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainTextContaining } from '../screenplay/game/checks';
@@ -45,6 +45,11 @@ scenario('game images load from every kind of path (archive)', async (player) =>
     // A custom property keeps its text, so a first-only backslash replace shows as `Img/Sub\Back.png`.
     ClickAction(ACTIONS.media.backimageBackslash),
     SeeCssValue({ root: true }, '--background-image', endsWith(`${FILES.backslash}")`)),
+    // Absolute and data: URLs are used as they are (no game base in front).
+    ClickAction(ACTIONS.media.backimageData),
+    SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.dataImage}")`)),
+    ClickAction(ACTIONS.media.backimageExternal),
+    SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.externalImage}")`)),
   );
 });
 
