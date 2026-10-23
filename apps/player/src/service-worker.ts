@@ -46,9 +46,11 @@ const MIME_TYPES: Record<string, string> = {
   otf: 'font/otf',
 };
 
-function contentTypeOf(path: string): string {
-  const extension = path.slice(path.lastIndexOf('.') + 1).toLowerCase();
-  return MIME_TYPES[extension] ?? 'application/octet-stream';
+/** The Content-Type of a known file extension; unknown ones get none (the browser decides, as before). */
+function contentTypeOf(path: string): string | undefined {
+  const name = path.slice(path.lastIndexOf('/') + 1);
+  const dot = name.lastIndexOf('.');
+  return dot === -1 ? undefined : MIME_TYPES[name.slice(dot + 1).toLowerCase()];
 }
 
 class QspiderStrategy extends Strategy {
@@ -65,7 +67,8 @@ class QspiderStrategy extends Strategy {
           const text = decoder.decode(data);
           return new Response(text);
         }
-        return new Response(data, { headers: { 'Content-Type': contentTypeOf(path) } });
+        const contentType = contentTypeOf(path);
+        return new Response(data, contentType ? { headers: { 'Content-Type': contentType } } : undefined);
       } else {
         return new Response(null, { status: 404 });
       }
