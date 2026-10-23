@@ -9,6 +9,7 @@ export const QspiderThemeSwitch: React.FC = () => {
     <Tooltip content={t('Toggle theme') ?? ''}>
       <button
         className="q-ghost-button"
+        data-qa="theme-switch"
         aria-label={t('toggle a light and dark color scheme') ?? ''}
         onClick={toggleTheme}
       >

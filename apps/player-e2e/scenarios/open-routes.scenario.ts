@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { TEST_PACK } from '../fixtures/test-pack';
 import { ARCHIVES } from '../fixtures/archives';
 import { CYRILLIC_GAME } from '../fixtures/cyrillic-game';
@@ -13,8 +14,9 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
-import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
+import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import {
+  DelayRequests,
   DropGameFile,
   OpenGameFile,
   OpenGameUrl,
@@ -29,6 +31,35 @@ const served = (file: string): string => `/${URL_GAME.servedDir}/${file}`;
 
 scenario.webOnly('importing a game by URL starts it', async (player) => {
   await player.attemptsTo(OpenGameUrl(served(URL_GAME.valid.file)), SeeGameStarted(URL_GAME.valid.startText));
+});
+
+scenario.webOnly('importing a game again by URL replaces its shelf entry', async (player) => {
+  const { reimportV1Zip: v1, reimportV2Zip: v2 } = ARCHIVES;
+  await player.attemptsTo(
+    OpenGameUrl(served(basename(v1.path))),
+    SeeGameStarted(v1.startText),
+    // The v1 entry is shelved and written before the page is reloaded with v2 (else v2 may race the v1 write).
+    ReturnToShelf(),
+    SeeShelfIncludes(v1.title),
+    SeeShelfWritesSettled(),
+    OpenGameUrl(served(basename(v2.path))), // the same game id, another title and start text
+    SeeGameStarted(v2.startText),
+    ReturnToShelf(),
+    SeeShelfIncludes(v2.title),
+    SeeShelfLacks(v1.title),
+  );
+});
+
+scenario.webOnly('a first-visit zip link waits for the service worker', async (player) => {
+  // An imported zip's files are served from IndexedDB by the service worker (/qspider-files/). On a first
+  // visit the worker may not control the page yet when the game starts; the late worker script makes that
+  // window wide, so the game must wait for the worker instead of fetching its files from the server.
+  const { reimportV1Zip: v1 } = ARCHIVES;
+  await player.attemptsTo(
+    DelayRequests('/service-worker.js', 4000),
+    OpenGameUrl(served(basename(v1.path))),
+    SeeGameStarted(v1.startText),
+  );
 });
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {

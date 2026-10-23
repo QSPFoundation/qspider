@@ -1,7 +1,7 @@
-import { type Interaction, Task } from '@serenity-js/core';
-import { Key, Press } from '@serenity-js/web';
+import { Interaction, Task } from '@serenity-js/core';
+import { Key, Press, Select } from '@serenity-js/web';
 import { ClickWhenPresent, waitUntilPresent } from '../support/presence';
-import { PauseScreen, PreferencesButton, VolumeSlider } from './elements';
+import { PauseLocaleSelect, PauseScreen, PreferencesButton, VolumeSlider } from './elements';
 
 /** Escape opens the pause screen; its Preferences button shows the volume slider. */
 export const OpenPreferences = (): Task =>
@@ -11,6 +11,12 @@ export const OpenPreferences = (): Task =>
     waitUntilPresent(PauseScreen),
     ClickWhenPresent(PreferencesButton),
     waitUntilPresent(VolumeSlider),
+  );
+
+/** Picks language `code` in the pause screen's language select (open the Preferences panel first). */
+export const SwitchPauseLanguage = (code: string): Interaction =>
+  Interaction.where(`#actor switches the pause language to ${code}`, (actor) =>
+    Select.value(code).from(PauseLocaleSelect).performAs(actor),
   );
 
 // Pause screen only: these hotkeys are not active while the game runs.

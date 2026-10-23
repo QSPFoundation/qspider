@@ -1,9 +1,9 @@
 import { Task } from '@serenity-js/core';
-import { contain, equals } from '@serenity-js/assertions';
-import { Text } from '@serenity-js/web';
+import { contain, equals, not } from '@serenity-js/assertions';
+import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { EmptyShelfNotice, Shelf, ShelfTitles } from './elements';
+import { EmptyShelfNotice, PlayerBody, RunLink, Shelf, ShelfLocaleSelect, ShelfTitles } from './elements';
 
 /** The shelf eventually lists exactly `titles`, in order. `[]`: the shelf shows its empty notice. */
 export const SeeShelfTitles = (titles: string[]): Task => {
@@ -24,3 +24,54 @@ export const SeeShelfTitles = (titles: string[]): Task => {
 /** The shelf eventually lists a game titled `title`, among any others. */
 export const SeeShelfIncludes = (title: string): Task =>
   seeEventually(Shelf, () => ShelfTitles.eachMappedTo(Text), contain(title), `#actor sees "${title}" on the shelf`);
+
+/** The shelf eventually lists no game titled `title`. Needs a settled anchor first (a positive shelf state). */
+export const SeeShelfLacks = (title: string): Task =>
+  seeEventually(
+    Shelf,
+    () => ShelfTitles.eachMappedTo(Text),
+    not(contain(title)),
+    `#actor sees "${title}" gone from the shelf`,
+  );
+
+/**
+ * Every shelf change has reached storage (the shelf's non-visible pending-writes counter is 0). The
+ * shelf changes optimistically, so its cards prove nothing about storage: check this before RestartPlayer.
+ */
+export const SeeShelfWritesSettled = (): Task =>
+  seeEventually(
+    Shelf,
+    (e) => Attribute.called('data-pending-writes').of(e),
+    equals('0'),
+    '#actor sees the shelf changes written to storage',
+  );
+
+/** The shelf language selector eventually shows language `code`. */
+export const SeeShelfLanguage = (code: string): Task =>
+  seeEventually(
+    ShelfLocaleSelect,
+    (e) => Attribute.called('data-value').of(e),
+    equals(code),
+    `#actor sees the shelf language selector on ${code}`,
+  );
+
+/** The run link of the card titled `title` eventually reads `text`. */
+export const SeeRunLinkText = (title: string, text: string): Task =>
+  seeEventually(
+    RunLink(title),
+    (e) => Text.of(e),
+    equals(text),
+    `#actor sees the run link of "${title}" read "${text}"`,
+  );
+
+/** The player body eventually carries theme `theme` (`light` or `dark`). */
+export const SeePlayerTheme = (theme: 'light' | 'dark'): Task =>
+  seeEventually(
+    PlayerBody,
+    (e) => Attribute.called('data-player-theme').of(e),
+    equals(theme),
+    `#actor sees the player theme ${theme}`,
+  );
+
+/** The theme the player body carries now (`light` or `dark`); a one-shot read, so settle startup first. */
+export const CurrentPlayerTheme = () => Attribute.called('data-player-theme').of(PlayerBody);

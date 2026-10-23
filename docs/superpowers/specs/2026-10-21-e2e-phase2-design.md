@@ -31,7 +31,7 @@ The player is only trustworthy where it has been run against the real QSP engine
 ## Decisions made (maintainer-approved)
 
 - **Scope resolved after builder-check (2026-10-21):**
-  - **2i (standalone builds) moves to Phase 3.** No standalone E2E target exists (no `targets/standalone/`, no startup marker in the standalone app); it is new target infrastructure, and the `2026-10-20` design already scoped standalone to Phase 3. Phase 2 is **2a–2h**.
+  - **2i (standalone builds) moves to Phase 3.** No standalone E2E target exists (no `targets/standalone/`, no startup marker in the standalone app); it is new target infrastructure, and the `2026-10-20` design already scoped standalone to Phase 3. Phase 2 is **2a–2h**, and all of it is done (2h shipped last).
   - **Across-restart persistence (2d, 2h) is in**, and needs a new restart helper that **keeps** the private data dir (the existing one wipes it before every scenario). The new variant stays fully isolated — private data/home dirs, never the real session.
   - **Catalog-from-network (2h) is dropped.** It fights the offline/isolated, no-flake anti-goals; revisit only if a local fixture catalog is ever wanted.
   - **The five visible-behaviour ⚠ fixes are approved to fix in their batch** (flagged in each PR): `<form qsp-on:submit>` submitting (2c), `.7z` drop accepted (2a), missing-`defaultTheme` Aero fallback (2f), failed `?game=` closes the loader with an error (2a), `qsp-bind` input escaped (2c). Plain resource-loading bug fixes (backslash paths, desktop case fallback) are fixed inline without a flag.

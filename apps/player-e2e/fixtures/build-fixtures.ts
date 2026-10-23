@@ -162,6 +162,14 @@ export async function buildFixtures(): Promise<void> {
     zipWithConfig(customConfig, [e2eGame, ...THEME_FILES.map((f): [string, string] => [SOURCES.themed, f])]),
   );
 
+  for (const [archive, v] of [
+    [ARCHIVES.reimportV1Zip, 'v1'],
+    [ARCHIVES.reimportV2Zip, 'v2'],
+  ] as const) {
+    const config = readFileSync(join(SOURCES.reimport, `${v}.cfg`), 'utf8');
+    write(archive.path, zipWithConfig(config, [[SOURCES.reimport, `reimport-${v}.qsps`]]));
+  }
+
   const singleSource = readFileSync(join(SOURCES.single, 'single.qsps'), 'utf8');
   write(ARCHIVES.qspBinary.path, writeQsp(readQsps(singleSource)));
 

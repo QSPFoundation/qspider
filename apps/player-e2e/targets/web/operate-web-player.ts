@@ -44,10 +44,10 @@ export class OperateWebPlayer extends OperatePlayer {
 
   async delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void> {
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
-    // The server answers late: the route holds the request for `ms` before it goes on to the network.
-    await (
-      await page.nativePage()
-    ).route(
+    // The server answers late: the route holds the request for `ms` before it goes on to the network. It is
+    // routed on the browser context, not the page: a page route never sees the service worker's own requests
+    // (its script, and what it fetches from the network).
+    await (await page.nativePage()).context().route(
       (url) => url.pathname.endsWith(pathSuffix),
       async (route) => {
         await new Promise((resolve) => setTimeout(resolve, ms));
@@ -82,5 +82,10 @@ export class OperateWebPlayer extends OperatePlayer {
 
   async proxiedUrls(): Promise<string[]> {
     return [...this.proxied];
+  }
+
+  async emulateColorScheme(actor: UsesAbilities & AnswersQuestions, scheme: 'light' | 'dark'): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    await (await page.nativePage()).emulateMedia({ colorScheme: scheme });
   }
 }

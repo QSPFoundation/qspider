@@ -14,6 +14,7 @@ import {
 } from '../screenplay/game/tasks';
 import { SeeQuickSaveFilled, SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFilled } from '../screenplay/saves/checks';
 import { CancelSavesPanel, ClearSlot, LoadFromSlot, OpenSavesPanel, SaveToSlot } from '../screenplay/saves/tasks';
+import { SeeShelfIncludes, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { LoadTestPack, OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
@@ -195,6 +196,9 @@ scenario('saves survive a restart of the player', async (player) => {
     OpenSavesPanel(),
     SeeQuickSaveFilled(),
     CancelSavesPanel(),
+    ReturnToShelf(),
+    SeeShelfIncludes(SAVES_GAME.title),
+    SeeShelfWritesSettled(),
     RestartPlayer(),
     SeeStartupFinished(),
     OpenFromShelf(SAVES_GAME.title),
