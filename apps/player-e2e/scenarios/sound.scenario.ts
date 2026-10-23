@@ -67,13 +67,11 @@ scenario('a sound path with backslashes', async (player) => {
   await player.attemptsTo(
     ...OpenSoundLocation,
     ClickAction(ACTIONS.sound.playBackslash),
-    SeeMainTextContaining(`${LINES.backslash}1`),
+    SeeMainTextContaining(`${LINES.backslash}1 F=1`),
     SeeSoundState('b.wav', PLAYING(1)),
-    // The same file spelled with a forward slash is the same sound.
-    ClickAction(ACTIONS.sound.isPlayingForwardB),
-    SeeMainTextContaining(`${LINES.isForwardB}1`),
-    ClickAction(ACTIONS.sound.closeForwardB),
-    SeeMainTextContaining(`${LINES.closeForwardB}0`),
+    // The same file spelled with a forward slash is the same sound (ISPLAY F=1); closing it stops both spellings.
+    ClickAction(ACTIONS.sound.closeBackslash),
+    SeeMainTextContaining(`${LINES.closeBackslashB}0 F=0`),
     SeeSoundState('b.wav', STOPPED(1)),
   );
 });
