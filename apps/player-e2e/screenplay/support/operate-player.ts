@@ -32,7 +32,8 @@ export abstract class OperatePlayer extends Ability {
   abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
   /**
    * From now on, answers requests whose path ends with `pathSuffix` only after `ms` milliseconds (web only: the
-   * browser's own network, which a request served by the player's service worker never reaches).
+   * browser's own network, which a request served by the player's service worker never reaches). It covers the
+   * service worker's own network requests too, its script included.
    */
   abstract delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void>;
   /**

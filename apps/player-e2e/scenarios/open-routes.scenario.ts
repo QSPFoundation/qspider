@@ -16,6 +16,7 @@ import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import {
+  DelayRequests,
   DropGameFile,
   OpenGameFile,
   OpenGameUrl,
@@ -46,6 +47,18 @@ scenario.webOnly('importing a game again by URL replaces its shelf entry', async
     ReturnToShelf(),
     SeeShelfIncludes(v2.title),
     SeeShelfLacks(v1.title),
+  );
+});
+
+scenario.webOnly('a first-visit zip link waits for the service worker', async (player) => {
+  // An imported zip's files are served from IndexedDB by the service worker (/qspider-files/). On a first
+  // visit the worker may not control the page yet when the game starts; the late worker script makes that
+  // window wide, so the game must wait for the worker instead of fetching its files from the server.
+  const { reimportV1Zip: v1 } = ARCHIVES;
+  await player.attemptsTo(
+    DelayRequests('/service-worker.js', 4000),
+    OpenGameUrl(served(basename(v1.path))),
+    SeeGameStarted(v1.startText),
   );
 });
 
