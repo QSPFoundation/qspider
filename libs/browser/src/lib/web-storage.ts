@@ -26,9 +26,10 @@ export class WebStorage implements Storage {
     await this.db.games.update(id, data);
   }
   async removeGame(id: string): Promise<void> {
-    await this.db.transaction('rw', this.db.games, this.db.gameResources, async () => {
+    await this.db.transaction('rw', this.db.games, this.db.gameResources, this.db.gameSaves, async () => {
       await this.db.games.delete(id);
       await this.db.gameResources.where('game_id').equals(id).delete();
+      await this.db.gameSaves.where('game_id').equals(id).delete();
     });
   }
 
