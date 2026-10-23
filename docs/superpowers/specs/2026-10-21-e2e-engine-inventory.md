@@ -392,3 +392,7 @@ Open (found in 2h, not fixed):
 51. Desktop has no single-instance guard: a second launch opens a second process writing the same storage.
 52. A same-id URL overwrite may drop a catalog entry's `meta.source_id`, so the catalog update check then re-imports.
 53. Residual of the shelf-write race: the UI stays optimistic, so a real user who reloads while a shelf write is in flight can still lose it. The E2E waits for `data-pending-writes`; the player does not.
+
+Fixed in 2h (found by CI, player-visible, approved by the maintainer):
+
+54. **A first-visit `?game=` zip could fail with "Game not loaded! Error code: 16"**: an imported archive's files are under `/qspider-files/`, which only the service worker serves (from IndexedDB). The worker is registered after the first render, so on a first visit the game could start before it controlled the page; its files then reached the server, whose SPA fallback answers with the app's HTML. `runGame` now waits, before it fetches any game file, until a service worker controls the page (`whenGameFilesReady`, libs/browser/src/lib/game-files.ts: `ready` plus `controllerchange`, at most 10 s, then a clear error). Plain-URL games and desktop (qsp://, a no-op) are unaffected. Covered by `a first-visit zip link waits for the service worker` (web only), which holds the worker script back with `DelayRequests`.
