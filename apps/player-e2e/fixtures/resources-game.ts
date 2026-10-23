@@ -139,7 +139,11 @@ export const RESOURCES_GAME = {
   sound: {
     a: 'snd/a.wav',
     b: 'snd/b.wav',
-    /** b.wav is played as `snd\b.wav`; `Play backslash` and `Close backslash` also write ISPLAY of the forward spelling (` F=`). The engine only hands CLOSE to the player for the exact spelling PLAY used, so a CLOSE in the other spelling never arrives. */
+    /**
+     * b.wav is played as `snd\b.wav`; `Play backslash` and `Close backslash` also write ISPLAY of the forward
+     * spelling (` F=`). The engine only hands CLOSE to the player for the exact spelling PLAY used, so a CLOSE in
+     * the other spelling never arrives.
+     */
     backslashB: 'snd\\b.wav',
     lines: {
       play: 'SND PLAY A=',

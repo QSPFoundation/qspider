@@ -1,3 +1,4 @@
+import { ARCHIVES } from '../fixtures/archives';
 import { RESOURCES_GAME } from '../fixtures/resources-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainTextContaining } from '../screenplay/game/checks';
@@ -14,7 +15,6 @@ import { SeeShelfIncludes } from '../screenplay/shelf/checks';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeAudioState, SeeSoundState } from '../screenplay/support/sound-state';
-import { ARCHIVES } from '../fixtures/archives';
 
 // Sounds of the resources game. Each sound line is `str(ISPLAY(...))` written in the SAME action right after the
 // statement, so it shows what the game itself sees; the probe shows what Howler really does. The wavs last 20 s,
