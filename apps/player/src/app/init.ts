@@ -45,9 +45,7 @@ export async function init(): Promise<void> {
     try {
       const imported = await importUrl(toImport);
       for (const entry of imported) {
-        if (!games$.value[entry.id]) {
-          games$.actions.add(entry.id, entry);
-        }
+        games$.actions.add(entry.id, entry);
       }
       toRun = imported[0].id;
     } catch {
