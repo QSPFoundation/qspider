@@ -14,7 +14,43 @@ sw.addEventListener('install', () => {
   sw.skipWaiting();
 });
 
-const regexp = /\/qspider-files\/(.*?)\/(.*)/i;
+// The path stops at `?` or `#`: a game may write `img.png?v=2`, which names the file `img.png`.
+const regexp = /\/qspider-files\/(.*?)\/([^?#]*)/i;
+
+const MIME_TYPES: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  bmp: 'image/bmp',
+  ico: 'image/x-icon',
+  css: 'text/css',
+  js: 'text/javascript',
+  html: 'text/html',
+  htm: 'text/html',
+  json: 'application/json',
+  xml: 'application/xml',
+  txt: 'text/plain',
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  ogg: 'audio/ogg',
+  mid: 'audio/midi',
+  midi: 'audio/midi',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  woff: 'font/woff',
+  woff2: 'font/woff2',
+  ttf: 'font/ttf',
+  otf: 'font/otf',
+};
+
+function contentTypeOf(path: string): string {
+  const extension = path.slice(path.lastIndexOf('.') + 1).toLowerCase();
+  return MIME_TYPES[extension] ?? 'application/octet-stream';
+}
+
 class QspiderStrategy extends Strategy {
   protected async _handle(request: Request, handler: StrategyHandler): Promise<Response | undefined> {
     const matches = request.url.match(regexp);
@@ -29,7 +65,7 @@ class QspiderStrategy extends Strategy {
           const text = decoder.decode(data);
           return new Response(text);
         }
-        return new Response(data);
+        return new Response(data, { headers: { 'Content-Type': contentTypeOf(path) } });
       } else {
         return new Response(null, { status: 404 });
       }
