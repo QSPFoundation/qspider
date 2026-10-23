@@ -3,7 +3,7 @@ import { contain, equals, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { EmptyShelfNotice, Shelf, ShelfTitles } from './elements';
+import { EmptyShelfNotice, RunLink, Shelf, ShelfLocaleSelect, ShelfTitles } from './elements';
 
 /** The shelf eventually lists exactly `titles`, in order. `[]`: the shelf shows its empty notice. */
 export const SeeShelfTitles = (titles: string[]): Task => {
@@ -44,4 +44,22 @@ export const SeeShelfWritesSettled = (): Task =>
     (e) => Attribute.called('data-pending-writes').of(e),
     equals('0'),
     '#actor sees the shelf changes written to storage',
+  );
+
+/** The shelf language selector eventually shows language `code`. */
+export const SeeShelfLanguage = (code: string): Task =>
+  seeEventually(
+    ShelfLocaleSelect,
+    (e) => Attribute.called('data-value').of(e),
+    equals(code),
+    `#actor sees the shelf language selector on ${code}`,
+  );
+
+/** The run link of the card titled `title` eventually reads `text`. */
+export const SeeRunLinkText = (title: string, text: string): Task =>
+  seeEventually(
+    RunLink(title),
+    (e) => Text.of(e),
+    equals(text),
+    `#actor sees the run link of "${title}" read "${text}"`,
   );

@@ -1,4 +1,4 @@
-import { By, PageElement, PageElements, Text } from '@serenity-js/web';
+import { Attribute, By, PageElement, PageElements, Text } from '@serenity-js/web';
 import { equals } from '@serenity-js/assertions';
 
 export const Shelf = PageElement.located(By.css('[data-qa="game-shelf"]')).describedAs('game shelf');
@@ -37,3 +37,10 @@ export const ThemeSwitch = PageElement.located(By.css('[data-qa="theme-switch"]'
 
 /** The page body; `data-player-theme` is the player's current theme, `light` or `dark`. */
 export const PlayerBody = PageElement.located(By.css('[data-qa="player-body"]')).describedAs('player theme marker');
+
+/** The option of the shelf language selector for language `code` (rendered only while the selector is open). */
+export const LocaleOption = (code: string) =>
+  PageElements.located(By.css('[data-qa="locale-select-option"]'))
+    .where(Attribute.called('data-value'), equals(code))
+    .first()
+    .describedAs(`language option ${code}`);
