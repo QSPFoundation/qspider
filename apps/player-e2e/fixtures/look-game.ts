@@ -37,7 +37,7 @@ export const LOOK_GAME = {
       keepView: 'Keep view',
     },
     formats: { setFormats: 'Set formats', pic: 'Pic', msg: 'Msg', input: 'Input', menu: 'Menu' },
-    effects: { slowFade: 'Slow fade', quickSlide: 'Quick slide', seqFade: 'Seq fade' },
+    effects: { slowFade: 'Slow fade', quickSlide: 'Quick slide', seqFade: 'Seq fade', arrive: 'Arrive' },
   },
   /** Dialog texts and menu items. */
   dialog: {

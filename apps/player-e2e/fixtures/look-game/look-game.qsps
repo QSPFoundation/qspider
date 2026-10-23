@@ -144,19 +144,19 @@ end
 ---
 
 # effects
+! The variables are set in one click and the jump is a second one: a game that sets NEWLOC_EFFECT and
+! jumps in the same click gets no effect for that jump (the variable reaches the theme after the new-location hash).
 *pl 'LOOK EFFECTS'
 act 'Slow fade':
   $NEWLOC_EFFECT = 'fade' & NEWLOC_EFFECT_TIME = 60000
-  gt 'arrive'
 end
 act 'Quick slide':
   $NEWLOC_EFFECT = 'l_slide' & NEWLOC_EFFECT_TIME = 300
-  gt 'arrive'
 end
 act 'Seq fade':
   $NEWLOC_EFFECT = 'fade' & NEWLOC_EFFECT_TIME = 300 & NEWLOC_EFFECT_SEQ = 1
-  gt 'arrive'
 end
+act 'Arrive': gt 'arrive'
 ---
 
 # arrive

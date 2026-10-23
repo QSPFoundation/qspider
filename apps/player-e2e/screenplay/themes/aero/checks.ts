@@ -1,11 +1,11 @@
-import { Task } from '@serenity-js/core';
+import { Expectation, Task } from '@serenity-js/core';
 import { endsWith, equals, includes, matches, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { MainText } from '../../game/elements';
 import { Menu } from '../../menu/elements';
 import { waitUntilAbsent, waitUntilPresent } from '../../support/presence';
 import { seeEventually } from '../../support/see-eventually';
-import { SeeCssValues } from '../../support/page-script';
+import { SeeCssValue, SeeCssValues } from '../../support/page-script';
 import { ObjectsPanel } from '../../objects/elements';
 import { ActionImage, AeroMenuItems, AeroObjects, Overlay } from './elements';
 
@@ -64,3 +64,12 @@ export const SeeAeroMenuItems = (labels: string[]): Task =>
     equals(labels),
     `#actor sees the menu items ${labels.join(', ')}`,
   );
+
+/** A computed opacity that is a number in [0, 1): the element is mid-fade, not at rest. */
+const isFading = Expectation.define<string>('isFading', 'is mid-fade (opacity below 1)', (actual) => {
+  const opacity = Number(actual);
+  return actual.trim() !== '' && opacity >= 0 && opacity < 1;
+});
+
+/** The new-location effect wrapper is mid-animation. Only deterministic with a long effect time (the 60 s fade). */
+export const SeeNewlocEffectInFlight = (): Task => SeeCssValue({ qsp: 'newloc-effect' }, 'opacity', isFading());
