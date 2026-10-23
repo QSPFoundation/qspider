@@ -65,7 +65,7 @@ apps/player-e2e/
 
 `targets/desktop/wdio.conf.ts` starts one `tauri-driver` per run, with its own temporary `XDG_DATA_HOME`/`XDG_CONFIG_HOME`/`XDG_CACHE_HOME`. Before each scenario, `targets/desktop/fresh-app.ts` (called by the desktop scenario shim) ends the WebDriver session, waits (via `/proc`) until the app and its WebKit processes have exited, empties those dirs and starts a new session; `tauri-driver` then launches a new app process with the pack's `game.cfg` as its argument. This relies on XDG dirs and `/proc`, so it is Linux-only; on other platforms every scenario fails at its start, in the restart that runs inside each test (`targets/desktop/scenario.ts`).
 
-The asset server (above) is started by `wdio.conf.ts` inside this private session and binds loopback only, so it needs no network access beyond the machine. The session also removes `PULSE_SERVER` and `PIPEWIRE_REMOTE`, so the app never reaches the real audio server: the desktop sound scenarios assert Howler's state, not what is heard.
+The asset server (above) is started by `wdio.conf.ts` inside this private session and binds loopback only, so it needs no network access beyond the machine. The session also drops the PulseAudio and PipeWire routes (`PULSE_SERVER`, `PIPEWIRE_REMOTE`, and `XDG_RUNTIME_DIR` is private). Direct ALSA access is not blocked, so the desktop sound scenarios assert Howler's state, not what is heard.
 
 `restartAppKeepingData()` (same file) is the same restart without emptying the dirs: the same isolation, the run's private dirs only, with the app data kept. It is for persistence scenarios (`RestartPlayer()`, below).
 
