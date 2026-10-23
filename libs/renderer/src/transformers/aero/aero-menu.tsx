@@ -29,6 +29,7 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
       <DropdownMenu.Trigger asChild>
         <div
           data-menu-trigger
+          data-qsp="menu-anchor"
           style={{
             position: 'absolute',
             left,

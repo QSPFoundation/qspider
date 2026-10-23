@@ -22,6 +22,9 @@ export const ARCHIVES = {
   guiCfgZip: { path: out('gui-cfg-game.zip'), title: 'GUI cfg game' },
   /** The same game without its qspgui.cfg: the control for the cfg's layout. */
   guiCfgControlZip: { path: out('gui-cfg-control.zip'), title: 'GUI cfg game' },
+  /** The look-variable game (fixtures/look-game) in Aero and in classic mode, with its generated PNGs. */
+  lookAeroZip: { path: out('look-aero.zip'), title: 'Look game (aero)' },
+  lookClassicZip: { path: out('look-classic.zip'), title: 'Look game (classic)' },
   /** The e2e game (fixtures/e2e-game) packed with a game.cfg that selects a theme. */
   e2eGameAeroZip: { path: out('e2e-game-aero.zip'), title: 'E2E game (aero)' },
   e2eGameCustomZip: { path: out('e2e-game-custom.zip'), title: 'E2E game (custom theme)' },
@@ -40,5 +43,6 @@ export const SOURCES = {
   themed: fileURLToPath(new URL('./themed-game/', import.meta.url)),
   missingTheme: fileURLToPath(new URL('./missing-theme/', import.meta.url)),
   guiCfg: fileURLToPath(new URL('./gui-cfg-game/', import.meta.url)),
+  look: fileURLToPath(new URL('./look-game/', import.meta.url)),
   e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;

@@ -35,6 +35,9 @@ export const THEMED_GAME = {
   theme: {
     chromeMark: 'e2e-theme-chrome',
     chrome: 'E2E THEME',
+    /** The custom property e2e-theme.css sets on the chrome: proves the css-link file was applied. */
+    cssProperty: '--e2e-theme-css',
+    cssMark: 'LOADED',
     scriptMark: 'e2e-theme-script',
     script: 'THEME SCRIPT RAN',
     /** The theme-level qsp-layer (outside the main content, so it survives a restart) and its text. */
@@ -64,10 +67,63 @@ export const GUI_CFG_GAME = {
   /** The same game packed without its qspgui.cfg. */
   controlPath: ARCHIVES.guiCfgControlZip.path,
   title: 'GUI cfg game',
-  text: { start: 'GUI CFG START', stats: 'GUI CFG STATS' },
+  text: { start: 'GUI CFG START', stats: 'GUI CFG STATS', lookSet: 'GUI CFG LOOK SET' },
+  actions: { setLook: 'Set look' },
   /**
    * Where the stats panel (`vars`) sits. The cfg has dir=4 (wxWidgets left) with dock_size(4,0,0)=300; the
    * default classic theme puts it in the bottom dock (next to the actions).
    */
   dock: { cfg: 'left', default: 'bottom' },
+  /**
+   * What the 'Set look' action makes the game set (FCOLOR, BCOLOR, FSIZE; LCOLOR stays unset). The game wins
+   * over the cfg for what it sets non-zero, so the link colour stays the cfg one. Colours go through
+   * convertColor with alpha: `rgba(r,g,b,1)`.
+   */
+  gameSet: {
+    '--color': 'rgba(17,34,51,1)',
+    '--background-color': 'rgba(200,220,240,1)',
+    '--font-size': '20pt',
+  } as Record<string, string>,
+  /**
+   * The qspgui.cfg colours and font, as the classic theme should apply them. They are derived from the code,
+   * not from a run. QspCLDefaults (classic-layout.tsx) writes them as `--cl-*` with `convertColor(x, false)`:
+   * the cfg int is 0xBBGGRR (blue, green, red; no alpha byte), written as `rgb(red,green,blue)`:
+   *  - BackColor 0x203040 = 2109504 -> `rgb(64,48,32)`
+   *  - FontColor 0x00A0F0 = 41200   -> `rgb(240,160,0)`
+   *  - LinkColor 0x10C020 = 1097760 -> `rgb(32,192,16)`
+   *  - FontSize 17 -> `17pt`, FontName -> as it is.
+   * public/themes/classic.css maps `--color: var(--code-color, var(--cl-color, <default>))` and so on, and
+   * classic.html leaves the `--code-*` ones unset until the game sets them, so these are the values the root
+   * computes for the unprefixed names. The derived ones come from QspCLDefaults: BackColor rgb(64,48,32) has
+   * yiq 51 -> contrast `white`; invertColor gives `#BFCFDF` (rgb(191,207,223), yiq 204) -> its contrast
+   * `black`; --border-color is the background contrast.
+   */
+  consumed: {
+    '--color': 'rgb(240,160,0)',
+    '--background-color': 'rgb(64,48,32)',
+    '--background-color-contrast': 'white',
+    '--background-color-inverted': '#BFCFDF',
+    '--background-color-inverted-contrast': 'black',
+    '--border-color': 'white',
+    '--link-color': 'rgb(32,192,16)',
+    '--font-size': '17pt',
+    '--font-name': 'Segoe UI',
+  } as Record<string, string>,
+};
+
+/**
+ * The classic look of a game that sets no colours or font and has no qspgui.cfg. Derived from the code:
+ * the classic.css defaults (#000000, #0000ff, #e0e0e0, 12pt), the contrast from getContrastColor('#e0e0e0')
+ * (yiq 224 -> black), the inverted from invertColor (#1f1f1f), its contrast (yiq 31 -> white), and
+ * --border-color is the background contrast. All as authored, the names the classic.css maps.
+ */
+export const CLASSIC_DEFAULT_LOOK: Record<string, string> = {
+  '--color': '#000000',
+  '--link-color': '#0000ff',
+  '--background-color': '#e0e0e0',
+  '--background-color-contrast': 'black',
+  '--background-color-inverted': '#1f1f1f',
+  '--background-color-inverted-contrast': 'white',
+  '--border-color': 'black',
+  '--font-size': '12pt',
 };

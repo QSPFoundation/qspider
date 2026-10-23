@@ -1,7 +1,7 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { atom } from 'xoid';
 import { clearAdditionalResources, loadAdditionalResources } from './resources';
-import { qspApi$ } from './qsp-api';
+import { openGameSource, qspApi$ } from './qsp-api';
 import {
   AERO_THEME,
   CLASSIC_THEME,
@@ -168,7 +168,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
     // A clean slate for the new game: no pause reason left over from the previous one.
     resetCounterPauses();
-    qspApi$.value?.openGame(gameSource, true);
+    if (qspApi$.value) openGameSource(qspApi$.value, gameSource, true);
     qspApi$.value?.restartGame();
     currentGameEntry$.set(entry);
     if (descriptor) currentGame$.set(descriptor);

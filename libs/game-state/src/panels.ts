@@ -6,6 +6,8 @@ export const mainContent$ = atom('');
 export const nextMainContent$ = atom('');
 export const isNewLoc$ = atom(false);
 export const newLocHash$ = atom('');
+/** The new-location effect variables as the game left them at the jump. The engine reports watched variables a tick after main_changed. */
+export const newLocEffect$ = atom({ effect: '', time: 500, seq: false });
 export const mainScroll$ = atom(0);
 
 export const isStatsVisible$ = atom(false);

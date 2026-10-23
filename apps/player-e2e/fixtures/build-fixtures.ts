@@ -6,7 +6,9 @@ import { parse } from '@iarna/toml';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { zipSync, type Zippable } from 'fflate';
 import SevenZip from '7z-wasm';
+import { deflateSync, crc32 } from 'node:zlib';
 import { ARCHIVES, SOURCES } from './archives';
+import { LOOK_IMAGES } from './look-game';
 import { TEST_PACK } from './test-pack';
 
 const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
@@ -27,6 +29,32 @@ function zipWithConfig(cfg: string, files: [folder: string, name: string][]): Ui
   const entries: Record<string, Uint8Array> = { 'game.cfg': new TextEncoder().encode(cfg) };
   for (const [folder, name] of files) entries[name] = readFileSync(join(folder, name));
   return zipSync(entries as Zippable);
+}
+
+/** A fully transparent RGBA PNG of exactly the given natural size (it may cover the UI without hiding it). */
+export function transparentPng(width: number, height: number): Uint8Array {
+  const chunk = (type: string, data: Uint8Array): Buffer => {
+    const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+    const length = Buffer.alloc(4);
+    length.writeUInt32BE(data.length);
+    const checksum = Buffer.alloc(4);
+    checksum.writeUInt32BE(crc32(body));
+    return Buffer.concat([length, body, checksum]);
+  };
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(width, 0);
+  header.writeUInt32BE(height, 4);
+  header.set([8, 6, 0, 0, 0], 8); // 8 bit, RGBA, deflate, no filter method, no interlace
+  const row = Buffer.concat([Buffer.from([0]), Buffer.alloc(width * 4)]); // filter 0, every pixel transparent black
+  const pixels = Buffer.concat(Array.from({ length: height }, () => row));
+  return new Uint8Array(
+    Buffer.concat([
+      Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+      chunk('IHDR', header),
+      chunk('IDAT', deflateSync(pixels)),
+      chunk('IEND', Buffer.alloc(0)),
+    ]),
+  );
 }
 
 /** game.cfg text for the e2e game with the given theme settings. */
@@ -76,6 +104,20 @@ export async function buildFixtures(): Promise<void> {
   ] as const) {
     const config = readFileSync(join(SOURCES.missingTheme, cfg), 'utf8');
     write(archive.path, zipWithConfig(config, [[SOURCES.missingTheme, 'missing-theme.qsps']]));
+  }
+  const lookImages = Object.fromEntries(
+    Object.entries(LOOK_IMAGES).map(([name, [w, h]]) => [name, transparentPng(w, h)]),
+  );
+  for (const [archive, cfg] of [
+    [ARCHIVES.lookAeroZip, 'game-aero.cfg'],
+    [ARCHIVES.lookClassicZip, 'game-classic.cfg'],
+  ] as const) {
+    const entries = {
+      'game.cfg': readFileSync(join(SOURCES.look, cfg)),
+      'look-game.qsps': readFileSync(join(SOURCES.look, 'look-game.qsps')),
+      ...lookImages,
+    };
+    write(archive.path, zipSync(entries as Zippable));
   }
   const e2eGame: [string, string] = [SOURCES.e2eGame, 'e2e-game.qsps'];
   const aeroConfig = e2eGameConfig('e2e-game-aero', ARCHIVES.e2eGameAeroZip.title, ['mode = "aero"']);

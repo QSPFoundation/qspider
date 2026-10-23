@@ -9,6 +9,7 @@ import {
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
   defaultClassicTheme$,
+  gameOpenEpoch$,
   hasBrowserTranslation$,
   IMAGE_PLACEHOLDER,
   input$,
@@ -113,11 +114,19 @@ export const menuWithParsedName$ = atom((get) => {
 
 function createVariableAtom(name: string, defaultValue?: string): Atom<string> {
   const atom$ = atom(defaultValue ?? '');
-  qspApi$.watch((api) => {
-    api?.watchVariable(name, (value) => {
-      atom$.set((value as unknown as string) || defaultValue || '');
+  const initial = defaultValue ?? '';
+  let unwatch: (() => void) | undefined;
+  // A new game wipes the engine's watchers: subscribe again after each open (the immediate callback
+  // applies the new game's value, or the default).
+  const subscribe = (): void => {
+    unwatch?.();
+    unwatch = undefined;
+    unwatch = qspApi$.value?.watchVariable(name, (value) => {
+      atom$.set((value as unknown as string) || initial);
     });
-  });
+  };
+  qspApi$.watch(subscribe);
+  gameOpenEpoch$.watch(subscribe);
   return atom$;
 }
 

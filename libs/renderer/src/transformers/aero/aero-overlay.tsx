@@ -12,7 +12,7 @@ export const AeroOverlay: React.FC = forwardRef(() => {
   if (isShadeDisabled) return null;
   return (
     <Overlay forceMount asChild>
-      <animated.div style={style} className="qsp-overlay"></animated.div>
+      <animated.div data-qsp="overlay" style={style} className="qsp-overlay"></animated.div>
     </Overlay>
   );
 });

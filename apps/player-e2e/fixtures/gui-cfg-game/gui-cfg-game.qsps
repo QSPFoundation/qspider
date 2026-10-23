@@ -2,4 +2,13 @@
 showstat 1
 *pl 'GUI CFG START'
 pl 'GUI CFG STATS'
+act 'Set look':
+	! Explicit integers: 0xFF is the alpha byte, then blue, green, red (as in look-game).
+	! 0xFF332211 = rgb(17,34,51)
+	FCOLOR = -13426159
+	! 0xFFF0DCC8 = rgb(200,220,240)
+	BCOLOR = -992056
+	FSIZE = 20
+	*pl 'GUI CFG LOOK SET'
+end
 ---

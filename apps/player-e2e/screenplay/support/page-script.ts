@@ -1,16 +1,8 @@
-import {
-  d,
-  type Expectation,
-  ExpectationMet,
-  Interaction,
-  Question,
-  type QuestionAdapter,
-  Task,
-} from '@serenity-js/core';
-import { containAtLeastOneItemThat, Ensure, equals } from '@serenity-js/assertions';
+import { describeNames } from './describe-names';
+import { type Expectation, Interaction, Question, type QuestionAdapter, Task } from '@serenity-js/core';
+import { containAtLeastOneItemThat, equals } from '@serenity-js/assertions';
 import { ExecuteScript, LastScriptExecution } from '@serenity-js/web';
-import { pollUntil } from './polling';
-import { reportTimedOutCheck } from './timeout-report';
+import { NotRecordingError, seeScriptEventually } from './see-script-eventually';
 
 // The one place that runs script in the page. Every script here only reads page state (or, for the
 // recorder, writes its own store): scenarios pick a named probe and cannot pass code of their own.
@@ -41,8 +33,15 @@ function readRecorded(type: string): unknown[] | { notRecording: true } {
   return page.__e2eEvents?.[type] ?? { notRecording: true };
 }
 
-/** Thrown at once (not polled) when the page has no recorder for the event type. */
-class NotRecordingError extends Error {}
+/** Computed values of `names` on the target element, or null when it is absent. */
+function styleValues(kind: string, value: string, names: string[]): Record<string, string> | null {
+  if (!/^[a-z0-9-]+$/.test(value)) throw new Error(`invalid style target "${value}"`);
+  const selector = kind === 'root' ? 'qsp-game-root' : `[data-${kind}="${value}"]`;
+  const element = document.querySelector(selector);
+  if (!element) return null;
+  const style = getComputedStyle(element);
+  return Object.fromEntries(names.map((name) => [name, style.getPropertyValue(name).trim()]));
+}
 
 /** The read-only probes a scenario may check, by name. */
 const PROBES = {
@@ -72,6 +71,20 @@ const scriptResult = <R>(description: string, script: (...args: never[]) => R, .
     return (await actor.answer(LastScriptExecution.result<R | undefined>())) ?? null;
   });
 
+/** Where a style probe reads: the game root, or the first element with this data-qsp / data-qa value. */
+export type StyleTarget = { root: true } | { qsp: string } | { qa: string };
+
+/**
+ * Computed values of `names` on the target (trimmed); null when the target is absent. Read-only and
+ * safe: no code is passed, the marker is regex-validated before it builds a selector, and names go
+ * only to getPropertyValue.
+ */
+export const CssValues = (target: StyleTarget, names: string[]): QuestionAdapter<Record<string, string> | null> => {
+  const [kind, value] = 'root' in target ? ['root', 'root'] : Object.entries(target)[0]!;
+  const label = `the computed ${describeNames(names)} of ${JSON.stringify(target)}`;
+  return scriptResult(label, styleValues, kind, value, names);
+};
+
 /**
  * Starts a fresh recording of window events of `type`: each event's `detail` is kept in the page until
  * it unloads. The first call on a page load installs the one listener; every call (including the first)
@@ -96,27 +109,6 @@ export const RecordedEvents = (type: string): QuestionAdapter<unknown[]> =>
 export const ProbeResult = (name: PageProbe): QuestionAdapter<unknown> =>
   scriptResult<unknown>(`the page probe ${name}`, PROBES[name]);
 
-/**
- * Like seeEventually, for a page-script question: polls until `actual` meets `expectation` (a script
- * error means "not yet", except NotRecordingError, which fails at once); on timeout one strict
- * Ensure.that reports Expected/Received.
- */
-function seeScriptEventually<T>(actual: QuestionAdapter<T>, expectation: Expectation<T>, description: string): Task {
-  const check = Interaction.where(d`#actor waits until ${actual} does ${expectation}`, async (actor) => {
-    const { met, lastError } = await pollUntil(
-      actor,
-      d`whether ${actual} does ${expectation}`,
-      async (a) => (await a.answer(expectation.isMetFor(actual))) instanceof ExpectationMet,
-      (error) => !(error instanceof NotRecordingError),
-    );
-    if (met) return;
-    await reportTimedOutCheck(lastError, 'script', d`run ${actual}`, () =>
-      Ensure.that(actual, expectation).performAs(actor),
-    );
-  });
-  return Task.where(description, check);
-}
-
 /** Some `type` event recorded since RecordWindowEvents has a `detail` deep-equal to `expected`. */
 export const SeeRecordedEvent = (type: string, expected: unknown): Task =>
   seeScriptEventually(
@@ -135,4 +127,23 @@ export const SeePageProbe = (name: PageProbe, expected: unknown): Task =>
     ProbeResult(name),
     equals(expected),
     `#actor sees page probe ${name} = ${JSON.stringify(expected)}`,
+  );
+
+/** Eventually every name in `expected` reads exactly its value (an absent target never matches). */
+export const SeeCssValues = (target: StyleTarget, expected: Record<string, string>): Task =>
+  seeScriptEventually(
+    CssValues(target, Object.keys(expected)),
+    equals(expected),
+    `#actor sees ${describeNames(Object.keys(expected))} on ${JSON.stringify(target)}`,
+  );
+
+/** Eventually the one value meets `expectation` (e.g. endsWith). */
+export const SeeCssValue = (target: StyleTarget, name: string, expectation: Expectation<string>): Task =>
+  seeScriptEventually(
+    Question.about(
+      `the computed ${name}`,
+      async (actor) => (await actor.answer(CssValues(target, [name])))?.[name] ?? '',
+    ),
+    expectation,
+    `#actor sees ${name} on ${JSON.stringify(target)} meet ${expectation}`,
   );

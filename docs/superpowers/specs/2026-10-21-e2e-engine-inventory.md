@@ -81,37 +81,37 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 
 ## E. Layout driven by engine variables
 
-| Touch point                                                                                                                  | Where                                         | E2E                                                                                      |
-| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Classic CSS vars: `FSIZE`, `$FNAME`, `FCOLOR`, `LCOLOR`, `BCOLOR`, `$BACKIMAGE`, `$TOPIMAGE`                                 | public/themes/classic.html; css-variables.tsx | —                                                                                        |
-| Aero vars: `*_BACKIMAGE`, X/Y/W/H, `MSG_X/Y`, `INPUT_X/Y`, `MENU_X/Y`, `FIXED_SIZE_MENU`, `DISABLESHADE`, `ALWAYS_SHOW_VIEW` | aero.html; aero transformers                  | —                                                                                        |
-| Aero `*_FORMAT` (`$MAIN_FORMAT`, `$ACTION_FORMAT`, …)                                                                        | R/render-state.ts:124-235                     | —                                                                                        |
-| Aero new-location effects (`$NEWLOC_EFFECT`, …)                                                                              | aero-newloc-effect.tsx                        | —                                                                                        |
-| `qspgui.cfg` classic layout (docks, panes, colours, font)                                                                    | GS/qsp-gui-cfg.ts; classic-layout.tsx         | ◐ docks (stats panel in the cfg's dock vs the default one); panes, colours, font are 2f′ |
-| Aero window size (`config.xml` UTF-16 / `game.cfg aero`)                                                                     | current-game.ts:94-134                        | — (see defect 28)                                                                        |
+| Touch point                                                                                                                  | Where                                         | E2E                                                                                                                                                                                                                                                                                                                                      |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Classic CSS vars: `FSIZE`, `$FNAME`, `FCOLOR`, `LCOLOR`, `BCOLOR`, `$BACKIMAGE`, `$TOPIMAGE`                                 | public/themes/classic.html; css-variables.tsx | ✅ `the classic theme maps every look variable` (`look-vars.scenario.ts`)                                                                                                                                                                                                                                                                |
+| Aero vars: `*_BACKIMAGE`, X/Y/W/H, `MSG_X/Y`, `INPUT_X/Y`, `MENU_X/Y`, `FIXED_SIZE_MENU`, `DISABLESHADE`, `ALWAYS_SHOW_VIEW` | aero.html; aero transformers                  | ✅ `the Aero theme maps every look variable` (`look-vars.scenario.ts`; includes that the look variables reach the dialog portal); `DISABLESHADE removes the dialog shade`, `MSG, INPUT and MENU positions place the dialogs`, `FIXED_SIZE_MENU fixes the menu size`, `ALWAYS_SHOW_VIEW keeps the view open` (`look-dialogs.scenario.ts`) |
+| Aero `*_FORMAT` (`$MAIN_FORMAT`, `$ACTION_FORMAT`, …)                                                                        | R/render-state.ts:124-235                     | ✅ `Aero format variables wrap the panels` (`look-vars.scenario.ts`; the in-game `open_game` re-subscription path is not covered, defect 33)                                                                                                                                                                                             |
+| Aero new-location effects (`$NEWLOC_EFFECT`, …)                                                                              | aero-newloc-effect.tsx                        | ✅ `a new-location effect animates the change`, `fast and sequential effects still deliver the new location` (`look-effects.scenario.ts`)                                                                                                                                                                                                |
+| `qspgui.cfg` classic layout (docks, panes, colours, font)                                                                    | GS/qsp-gui-cfg.ts; classic-layout.tsx         | ✅ docks (`themes.scenario.ts`); panes — not covered (parked, not in 2f′); colours and font: `qspgui.cfg colours and font apply to the classic layout`, `a classic game without qspgui.cfg keeps the default look` (`look-vars.scenario.ts`); `UseFontSize` is not supported (defect 32)                                                 |
+| Aero window size (`config.xml` UTF-16 / `game.cfg aero`)                                                                     | current-game.ts:94-134                        | — (see defect 28)                                                                                                                                                                                                                                                                                                                        |
 
 ## F. Themes
 
-| Touch point                                                  | Where                                      | E2E                                                                                                                                                                                                            |
-| ------------------------------------------------------------ | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Built-in classic theme                                       | GS/themes.ts                               | ✅ implicit                                                                                                                                                                                                    |
-| Aero mode (`game.cfg mode`)                                  | current-game.ts:51,83-134                  | ✅ (an Aero game plays: msg, next location; `themes.scenario.ts`)                                                                                                                                              |
-| Game-provided themes, `defaultTheme`, missing theme → notice | current-game.ts:145-161                    | ✅ (theme html / css / js loaded and run; missing `defaultTheme` falls back to Aero or classic with a notice; core flows under aero and custom, web only)                                                      |
-| `qspider.change_theme:` at runtime, unknown name             | qspider-commands.ts:75-83                  | ✅ (switch to classic and back keeps the game playing; unknown name shows the error and keeps the theme)                                                                                                       |
-| Theme `css-link` / `script-link`, translations               | themes.ts; css-links.tsx; script-links.tsx | ◐ script-link runs (the theme's js writes its marker); the css-link effect and look variables are 2f′; translations: —; `data-qsp-theme` on `qsp-game-root` (game-runner.tsx:43-47) is the active-theme marker |
+| Touch point                                                  | Where                                      | E2E                                                                                                                                                                                                                                                               |
+| ------------------------------------------------------------ | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Built-in classic theme                                       | GS/themes.ts                               | ✅ implicit                                                                                                                                                                                                                                                       |
+| Aero mode (`game.cfg mode`)                                  | current-game.ts:51,83-134                  | ✅ (an Aero game plays: msg, next location; `themes.scenario.ts`)                                                                                                                                                                                                 |
+| Game-provided themes, `defaultTheme`, missing theme → notice | current-game.ts:145-161                    | ✅ (theme html / css / js loaded and run; missing `defaultTheme` falls back to Aero or classic with a notice; core flows under aero and custom, web only)                                                                                                         |
+| `qspider.change_theme:` at runtime, unknown name             | qspider-commands.ts:75-83                  | ✅ (switch to classic and back keeps the game playing; unknown name shows the error and keeps the theme)                                                                                                                                                          |
+| Theme `css-link` / `script-link`, translations               | themes.ts; css-links.tsx; script-links.tsx | ✅ script-link runs (the theme's js writes its marker); css-link takes effect (its rule sets `--e2e-theme-css` on the chrome); look variables: section E; translations: —; `data-qsp-theme` on `qsp-game-root` (game-runner.tsx:43-47) is the active-theme marker |
 
 ## G. Resources and paths
 
-| Touch point                                                        | Where                                               | E2E |
-| ------------------------------------------------------------------ | --------------------------------------------------- | --- |
-| `<img src>` in game HTML                                           | html/img.tsx                                        | —   |
-| Images via CSS vars (`$BACKIMAGE`, aero images), natural-size vars | css-variables.tsx:28-63                             | —   |
-| Action / object / menu images                                      | GS/utils.ts:24-37                                   | —   |
-| View image                                                         | view.tsx                                            | —   |
-| `game.cfg` resources: fonts, styles, scripts (removed on stop)     | GS/resources.ts                                     | —   |
-| Backslash paths (`img\a.png`), spaces, Cyrillic, wrong case        | img.tsx:7; css-variables.tsx:63; game_uri.rs        | —   |
-| Resources from inside an archive                                   | service-worker.ts; desktop XHR shim setup.ts:69-104 | —   |
-| Web CORS proxy fallback                                            | libs/browser data-fetcher.ts                        | —   |
+| Touch point                                                        | Where                                               | E2E                                                                                                                       |
+| ------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `<img src>` in game HTML                                           | html/img.tsx                                        | —                                                                                                                         |
+| Images via CSS vars (`$BACKIMAGE`, aero images), natural-size vars | css-variables.tsx:28-63                             | ✅ resource suffixes and `-w` / `-h` in the look tables (`look-vars.scenario.ts`); backslash / absolute paths not covered |
+| Action / object / menu images                                      | GS/utils.ts:24-37                                   | ◐ action image (`Aero format variables wrap the panels`, `look-vars.scenario.ts`); object / menu images not covered       |
+| View image                                                         | view.tsx                                            | —                                                                                                                         |
+| `game.cfg` resources: fonts, styles, scripts (removed on stop)     | GS/resources.ts                                     | —                                                                                                                         |
+| Backslash paths (`img\a.png`), spaces, Cyrillic, wrong case        | img.tsx:7; css-variables.tsx:63; game_uri.rs        | —                                                                                                                         |
+| Resources from inside an archive                                   | service-worker.ts; desktop XHR shim setup.ts:69-104 | —                                                                                                                         |
+| Web CORS proxy fallback                                            | libs/browser data-fetcher.ts                        | —                                                                                                                         |
 
 ## H. Sound
 
@@ -246,9 +246,9 @@ _Pack: extend fixtures with stats, objects, a command-line prompt, SETTIMER, pan
 - Game-provided theme via `defaultTheme`; `forEachTheme` dimension
 - Missing `defaultTheme` → notice; falls back to the mode's theme
 - Runtime `change_theme`
-- Classic `qspgui.cfg` layout (docks only; panes are 2f′)
+- Classic `qspgui.cfg` layout (docks only; panes are not covered: parked, not in 2f′)
 
-### 2f′. Aero/classic variables that change how the game looks (§E)
+### 2f′. Aero/classic variables that change how the game looks (§E) — done
 
 How these surface, and so how they're asserted:
 
@@ -335,3 +335,17 @@ Open (found in 2f, parked by the maintainer):
 28. The pre-game window size is not restored on quit, and the classic layout collapses in a very small window (from the desktop investigation).
 
 Harness finding in 2f (fixed): the host's `GDK_SCALE` leaked into the private desktop session and collapsed the app's layout; the session now removes `GDK_SCALE`, `GDK_DPI_SCALE`, `QT_SCALE_FACTOR`, `QT_AUTO_SCREEN_SCALE_FACTOR`, `GTK_THEME` and `XCURSOR_SIZE` (`targets/desktop/run-desktop-e2e.mjs`).
+
+Fixed in 2f′ (player-visible, approved by the maintainer):
+
+29. **Classic theme ignored `qspgui.cfg` BackColor / FontColor / LinkColor / FontSize**: the defaults in classic.html shadowed the `--cl-*` fallback. The defaults moved to classic.css, and a unit variable with no value and no default now writes nothing (css-variables.tsx).
+30. **Aero `$*_FORMAT` never applied to a game opened after startup**: the engine's `openGame(src, true)` runs `_cleanup()`, which wiped the module-level watchers (render-state.ts `createVariableAtom`). Fixed by re-subscribing on `gameOpenEpoch$` / `openGameSource`.
+31. **Aero new-location effects were skipped when `$NEWLOC_EFFECT` / `NEWLOC_EFFECT_TIME` / `NEWLOC_EFFECT_SEQ` are set in the same action as the jump**: the engine emits `main_changed` synchronously and the watched variables a tick later (`setTimeout 0`). The effect is now read synchronously at `main_changed` via `newLocEffect$`.
+
+Open (found in 2f′):
+
+32. `qspgui.cfg` `UseFontSize=1` ("Always use selected font size": the cfg size overrides `FSIZE`; QSPFoundation/qspgui frame.cpp:397, label :573) is ignored by qSpider. Parked by the maintainer.
+33. The hooks `useQspVariable` / `useQspExpression` lose their watchers after an in-game `open_game` (the engine `_cleanup`) unless their deps change. `gameOpenEpoch$` makes the fix easy (add it to the deps). The in-game `open_game` re-subscription path of defect 30 has no E2E coverage either.
+34. `convertColor` (libs/utils/src/colors.ts) treats an alpha byte of 1 as fully opaque (`alpha === 1 ? 1 : alpha / 255`). Unexercised: QSP `RGB()` yields alpha 0xFF, so normal games are unaffected.
+35. For 2g: `prepareUrl` in css-variables.tsx replaces only the first backslash (`url.replace('\\', '/')`); same family as defect 6.
+36. Tooling: the root lint-staged ESLint config does not know the react-hooks rules and does not enforce the `max-lines` that `nx lint` enforces (a commit hit it, and a disable comment had to be removed). Noted only.
