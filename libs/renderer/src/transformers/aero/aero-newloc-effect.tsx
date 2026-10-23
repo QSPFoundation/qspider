@@ -1,13 +1,12 @@
-import { mainContent$, newLocHash$, nextMainContent$, useQspVariable } from '@qspider/game-state';
+import { mainContent$, newLocEffect$, newLocHash$, nextMainContent$ } from '@qspider/game-state';
 import { AERO_EFFECTS } from './aero-effects';
 import { useAtom } from '@xoid/react';
 import { TransitionFn, animated, useTransition } from '@react-spring/web';
 import { ReactNode, useEffect } from 'react';
 
 export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const effect = useQspVariable('$NEWLOC_EFFECT', '', 0, '');
-  let duration = useQspVariable('NEWLOC_EFFECT_TIME', '', 0, 500);
-  const isSequential = Boolean(useQspVariable('NEWLOC_EFFECT_SEQ', '', 0, 0));
+  const { effect, time, seq: isSequential } = useAtom(newLocEffect$);
+  let duration = time;
   const effectConfig = AERO_EFFECTS[effect] ?? {};
   if (effectConfig.enter && Array.isArray(effectConfig.enter)) {
     duration /= effectConfig.enter.length;
@@ -40,8 +39,7 @@ export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }
     if (!effect || !isSequential) {
       mainContent$.set(nextMainContent$.value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effect, newLocHash]);
+  }, [effect, isSequential, newLocHash]);
 
   if (!effect) return children;
 

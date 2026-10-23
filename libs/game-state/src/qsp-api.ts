@@ -22,6 +22,7 @@ import {
   isObjsVisible$,
   isStatsVisible$,
   mainContent$,
+  newLocEffect$,
   newLocHash$,
   nextMainContent$,
   objects$,
@@ -246,6 +247,11 @@ qspApi$.subscribe((api) => {
     isNewLoc$.set(isNewLoc);
     nextMainContent$.set(nextMain);
     if (isNewLoc) {
+      newLocEffect$.set({
+        effect: String(api.readVariable('$NEWLOC_EFFECT') || ''),
+        time: Number(api.readVariable('NEWLOC_EFFECT_TIME')) || 500,
+        seq: Boolean(Number(api.readVariable('NEWLOC_EFFECT_SEQ'))),
+      });
       newLocHash$.set(String(hashString(nextMainContent$.value)));
     } else {
       mainContent$.set(nextMain);
