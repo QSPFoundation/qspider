@@ -28,17 +28,29 @@ export function goToGame(id: string): void {
 
 export const currentMode$ = atom('shelf');
 
+/**
+ * Storage writes of games$ actions still in flight. The UI stays optimistic (it does not wait for
+ * them); this counter lets a caller that must not unload the page yet (e.g. e2e before a restart)
+ * see when they have settled.
+ */
+export const pendingWrites$ = atom(0);
+
+function tracked(write: Promise<void>): void {
+  pendingWrites$.update((n) => n + 1);
+  write.catch(console.error).finally(() => pendingWrites$.update((n) => n - 1));
+}
+
 export const games$ = atom<Record<string, GameShelfEntry>, GamesActions>({}, (atom) => {
   return {
     add(id: string, data: GameShelfEntry): void {
-      getStorage().addGame(id, data).catch(console.error);
+      tracked(getStorage().addGame(id, data));
       atom.update((s) => ({
         ...s,
         [id]: data,
       }));
     },
     update(id: string, data: Partial<GameShelfEntry>): void {
-      getStorage().updateGame(id, data).catch(console.error);
+      tracked(getStorage().updateGame(id, data));
       atom.update((s) => ({
         ...s,
         [id]: {
@@ -48,7 +60,7 @@ export const games$ = atom<Record<string, GameShelfEntry>, GamesActions>({}, (at
       }));
     },
     remove(id): void {
-      getStorage().removeGame(id).catch(console.error);
+      tracked(getStorage().removeGame(id));
       atom.update((s) => {
         const { [id]: _, ...rest } = s;
         return rest;

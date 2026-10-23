@@ -1,6 +1,6 @@
 import { Task } from '@serenity-js/core';
-import { contain, equals } from '@serenity-js/assertions';
-import { Text } from '@serenity-js/web';
+import { contain, equals, not } from '@serenity-js/assertions';
+import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
 import { EmptyShelfNotice, Shelf, ShelfTitles } from './elements';
@@ -24,3 +24,24 @@ export const SeeShelfTitles = (titles: string[]): Task => {
 /** The shelf eventually lists a game titled `title`, among any others. */
 export const SeeShelfIncludes = (title: string): Task =>
   seeEventually(Shelf, () => ShelfTitles.eachMappedTo(Text), contain(title), `#actor sees "${title}" on the shelf`);
+
+/** The shelf eventually lists no game titled `title`. Needs a settled anchor first (a positive shelf state). */
+export const SeeShelfLacks = (title: string): Task =>
+  seeEventually(
+    Shelf,
+    () => ShelfTitles.eachMappedTo(Text),
+    not(contain(title)),
+    `#actor sees "${title}" gone from the shelf`,
+  );
+
+/**
+ * Every shelf change has reached storage (the shelf's non-visible pending-writes counter is 0). The
+ * shelf changes optimistically, so its cards prove nothing about storage: check this before RestartPlayer.
+ */
+export const SeeShelfWritesSettled = (): Task =>
+  seeEventually(
+    Shelf,
+    (e) => Attribute.called('data-pending-writes').of(e),
+    equals('0'),
+    '#actor sees the shelf changes written to storage',
+  );
