@@ -57,7 +57,7 @@ scenario('the look variables reach the dialog portal', async (player) => {
 });
 
 // The original player lets the game's colours win and falls back to the qspgui.cfg ones. The classic theme
-// must therefore leave the --code-* variables unset when the game sets nothing.
+// must therefore leave the --code-* variables unset when the game sets nothing, and let them win when it does.
 scenario('qspgui.cfg colours and font apply to the classic layout', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
@@ -66,6 +66,10 @@ scenario('qspgui.cfg colours and font apply to the classic layout', async (playe
     SeeGameStarted(GUI_CFG_GAME.text.start),
     SeeStatsInDock(GUI_CFG_GAME.dock.cfg, GUI_CFG_GAME.text.stats),
     SeeCssValues({ root: true }, GUI_CFG_GAME.consumed),
+    // What the game sets wins over the cfg; what it leaves unset (the link colour) stays the cfg one.
+    ClickAction(GUI_CFG_GAME.actions.setLook),
+    SeeMainTextContaining(GUI_CFG_GAME.text.lookSet),
+    SeeCssValues({ root: true }, { ...GUI_CFG_GAME.gameSet, '--link-color': GUI_CFG_GAME.consumed['--link-color']! }),
   );
 });
 

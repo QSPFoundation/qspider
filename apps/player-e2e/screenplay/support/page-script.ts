@@ -73,6 +73,10 @@ const scriptResult = <R>(description: string, script: (...args: never[]) => R, .
 /** Where a style probe reads: the game root, or the first element with this data-qsp / data-qa value. */
 export type StyleTarget = { root: true } | { qsp: string } | { qa: string };
 
+/** A short step title: the count and the first names (the failure detail comes from the Ensure on timeout). */
+const describeNames = (names: string[]): string =>
+  `${names.length} values (${names.slice(0, 2).join(', ')}${names.length > 2 ? ', ...' : ''})`;
+
 /**
  * Computed values of `names` on the target (trimmed); null when the target is absent. Read-only and
  * safe: no code is passed, the marker is regex-validated before it builds a selector, and names go
@@ -80,7 +84,13 @@ export type StyleTarget = { root: true } | { qsp: string } | { qa: string };
  */
 export const CssValues = (target: StyleTarget, names: string[]): QuestionAdapter<Record<string, string> | null> => {
   const [kind, value] = 'root' in target ? ['root', 'root'] : Object.entries(target)[0]!;
-  return scriptResult(`the computed ${names.join(', ')} of ${JSON.stringify(target)}`, styleValues, kind, value, names);
+  return scriptResult(
+    `the computed ${describeNames(names)} of ${JSON.stringify(target)}`,
+    styleValues,
+    kind,
+    value,
+    names,
+  );
 };
 
 /**
@@ -132,7 +142,7 @@ export const SeeCssValues = (target: StyleTarget, expected: Record<string, strin
   seeScriptEventually(
     CssValues(target, Object.keys(expected)),
     equals(expected),
-    `#actor sees ${JSON.stringify(expected)} on ${JSON.stringify(target)}`,
+    `#actor sees ${describeNames(Object.keys(expected))} on ${JSON.stringify(target)}`,
   );
 
 /** Eventually the one value meets `expectation` (e.g. endsWith). */

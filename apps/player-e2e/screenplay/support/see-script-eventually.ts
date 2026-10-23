@@ -16,7 +16,9 @@ export function seeScriptEventually<T>(
   expectation: Expectation<T>,
   description: string,
 ): Task {
-  const check = Interaction.where(d`#actor waits until ${actual} does ${expectation}`, async (actor) => {
+  // The step title omits the expectation: it can list many values and overflow a report file name (the
+  // failure detail below still carries Expected/Received).
+  const check = Interaction.where(d`#actor waits until ${actual} meets its expectation`, async (actor) => {
     const { met, lastError } = await pollUntil(
       actor,
       d`whether ${actual} does ${expectation}`,
