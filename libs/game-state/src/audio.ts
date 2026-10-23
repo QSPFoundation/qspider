@@ -63,5 +63,5 @@ volume$.watch((volume) => {
 });
 
 function getFileKey(path: string): string {
-  return cleanPath(path).replace(/\//g, '__').toUpperCase();
+  return cleanPath(path).toUpperCase();
 }
