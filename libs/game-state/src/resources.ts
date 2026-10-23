@@ -59,22 +59,34 @@ function loadScript(script: string): Promise<string | null> {
 
 /** The faces this module added to document.fonts, removed again when the game stops. */
 const addedFonts: FontFace[] = [];
+/** Bumped when the game's resources are cleared: a face that finishes loading later belongs to a past game. */
+let generation = 0;
 
 /**
  * Each face is built and loaded explicitly: an @font-face rule in a <style> is not reliably registered when
  * document.fonts.load() runs (WebKit then resolves without loading it, and the game would start without its font).
+ * A bad descriptor (the FontFace constructor throws) or a late load only fails that font; it never rejects.
  */
 function loadFonts(fonts: [string, string, string, string][]): Promise<string | null>[] {
   return fonts.map(([name, path, weight, style]) => {
-    const face = new FontFace(name, `url("${path}")`, {
-      style: style || 'normal',
-      weight: weight || 'normal',
-      display: 'block',
-    });
+    let face: FontFace;
+    try {
+      face = new FontFace(name, `url("${path}")`, {
+        style: style || 'normal',
+        weight: weight || 'normal',
+        display: 'block',
+      });
+    } catch {
+      return Promise.resolve(path);
+    }
+    const startedIn = generation;
+    let settled = false;
     const request = face.load().then(
       () => {
-        document.fonts.add(face);
-        addedFonts.push(face);
+        if (!settled && startedIn === generation) {
+          document.fonts.add(face);
+          addedFonts.push(face);
+        }
         return null;
       },
       () => path,
@@ -83,11 +95,15 @@ function loadFonts(fonts: [string, string, string, string][]): Promise<string | 
     const timeout = new Promise<string>((resolve) => {
       timer = setTimeout(() => resolve(path), RESOURCE_TIMEOUT_MS);
     });
-    return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
+    return Promise.race([request, timeout]).finally(() => {
+      settled = true;
+      clearTimeout(timer);
+    });
   });
 }
 
 export function clearAdditionalResources(): void {
   document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
+  generation++;
   for (const face of addedFonts.splice(0)) document.fonts.delete(face);
 }
