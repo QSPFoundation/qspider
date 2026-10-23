@@ -203,7 +203,7 @@ describe('buildFixtures', () => {
     it('names every asset it uses, and each exists in the zip and in the plain folder with the intended case', () => {
       const zipped = zipFiles(RESOURCES_GAME.zipPath);
       const refs = referencedAssets().filter((ref) => ref !== wrongCase);
-      expect(refs.length).toBe(16);
+      expect(refs.length).toBe(17);
       for (const ref of refs) {
         expect(ref in zipped, `zip: ${ref}`).toBe(true);
         expect(existsSync(join(folder, ref)), `folder: ${ref}`).toBe(true);
