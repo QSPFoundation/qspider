@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
 /// Parses `qsp://localhost/<uuid>/<path>` or `https://qsp.localhost/<uuid>/<path>`.
@@ -6,15 +6,49 @@ use uuid::Uuid;
 pub fn parse_game_uri(uri: &str) -> Option<(Uuid, String)> {
   let after_scheme = uri.split_once("://")?.1;
   let after_host = after_scheme.split_once('/')?.1;
+  // `?query` and `#fragment` are not part of the file name (an encoded `%3F` still is: it is decoded below).
+  let after_host = after_host.split(['?', '#']).next()?;
   let decoded = urlencoding::decode(after_host).ok()?;
   let (uuid_str, rel) = decoded.split_once('/')?;
   let uuid = Uuid::parse_str(uuid_str).ok()?;
   Some((uuid, rel.to_string()))
 }
 
-/// Reads a game file, retrying once with a lowercased relative path.
+/// Reads a game file: the exact path, else the whole path lowercased (one read; archive imports store
+/// lowercase), else the path matched case-insensitively one segment at a time (so `img/sub/CASE.png`
+/// finds `Img/Sub/Case.png`). `..` segments are passed through unchanged.
 pub fn read_game_file(root: &Path, rel: &str) -> std::io::Result<Vec<u8>> {
-  std::fs::read(root.join(rel)).or_else(|_| std::fs::read(root.join(rel.to_lowercase())))
+  std::fs::read(root.join(rel))
+    .or_else(|_| std::fs::read(root.join(rel.to_lowercase())))
+    .or_else(|error| match find_ignoring_case(root, rel) {
+      Some(path) => std::fs::read(path),
+      None => Err(error),
+    })
+}
+
+/// Greedy: each segment takes the exact entry if there is one, else the first entry whose lowercase name
+/// matches. Siblings that differ only in case (`A.png` and `a.png`) are therefore not told apart beyond
+/// the exact match, and a case-variant directory is not backtracked if it lacks the file.
+fn find_ignoring_case(root: &Path, rel: &str) -> Option<PathBuf> {
+  let mut current = root.to_path_buf();
+  for segment in rel.split('/') {
+    if segment.is_empty() || segment == "." || segment == ".." {
+      current.push(segment);
+      continue;
+    }
+    let exact = current.join(segment);
+    if exact.exists() {
+      current = exact;
+      continue;
+    }
+    let wanted = segment.to_lowercase();
+    let found = std::fs::read_dir(&current)
+      .ok()?
+      .filter_map(Result::ok)
+      .find(|entry| entry.file_name().to_string_lossy().to_lowercase() == wanted)?;
+    current.push(found.file_name());
+  }
+  Some(current)
 }
 
 #[cfg(test)]
@@ -57,12 +91,40 @@ mod tests {
   fn rejects_no_scheme() {
     assert!(parse_game_uri("garbage").is_none());
   }
-  #[test]
-  fn reads_with_lowercase_fallback() {
+  fn temp_game() -> std::path::PathBuf {
     let dir = std::env::temp_dir().join(format!("qsp-test-{}", uuid::Uuid::new_v4()));
-    std::fs::create_dir_all(dir.join("img")).unwrap();
-    std::fs::write(dir.join("img/pic.png"), b"x").unwrap();
-    assert_eq!(read_game_file(&dir, "IMG/Pic.PNG").unwrap(), b"x");
+    std::fs::create_dir_all(dir.join("Img/Sub")).unwrap();
+    std::fs::write(dir.join("Img/Sub/Case.png"), b"mixed").unwrap();
+    std::fs::write(dir.join("Img/Pic.png"), b"pic").unwrap();
+    dir
+  }
+  #[test]
+  fn reads_an_exact_path() {
+    let dir = temp_game();
+    assert_eq!(read_game_file(&dir, "Img/Sub/Case.png").unwrap(), b"mixed");
+  }
+  #[test]
+  fn reads_with_case_matched_per_segment() {
+    let dir = temp_game();
+    assert_eq!(read_game_file(&dir, "img/sub/CASE.png").unwrap(), b"mixed");
+    assert_eq!(read_game_file(&dir, "IMG/Pic.PNG").unwrap(), b"pic");
+  }
+  #[test]
+  fn reports_a_missing_file() {
+    let dir = temp_game();
     assert!(read_game_file(&dir, "missing.png").is_err());
+    assert!(read_game_file(&dir, "img/nope/case.png").is_err());
+  }
+  #[test]
+  fn strips_query_and_fragment() {
+    let (_, p) = parse_game_uri(&format!("qsp://localhost/{ID}/Img/Sub/Query.png?v=2")).unwrap();
+    assert_eq!(p, "Img/Sub/Query.png");
+    let (_, p) = parse_game_uri(&format!("qsp://localhost/{ID}/a b.png#frag")).unwrap();
+    assert_eq!(p, "a b.png");
+  }
+  #[test]
+  fn keeps_an_encoded_question_mark_in_the_name() {
+    let (_, p) = parse_game_uri(&format!("qsp://localhost/{ID}/what%3F.png")).unwrap();
+    assert_eq!(p, "what?.png");
   }
 }

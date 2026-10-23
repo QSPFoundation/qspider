@@ -5,6 +5,8 @@ import { OperatePlayer } from '../../screenplay/support/operate-player';
 
 /** The web player: a page at the app root; files open through the shelf's Open game file input. */
 export class OperateWebPlayer extends OperatePlayer {
+  private readonly proxied: string[] = [];
+
   async startPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void> {
     const page = await BrowseTheWebWithPlaywright.as(actor).currentPage();
     await page.navigateTo('/');
@@ -38,5 +40,47 @@ export class OperateWebPlayer extends OperatePlayer {
     // Serenity's web API has no file upload, so this uses the native Playwright page.
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
     await (await page.nativePage()).locator('#openGame').setInputFiles(path);
+  }
+
+  async delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    // The server answers late: the route holds the request for `ms` before it goes on to the network.
+    await (
+      await page.nativePage()
+    ).route(
+      (url) => url.pathname.endsWith(pathSuffix),
+      async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, ms));
+        await route.continue().catch(() => undefined); // the page may have gone by then
+      },
+    );
+  }
+
+  async routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    const native = await page.nativePage();
+    const playerOrigin = new URL((await page.url()).href).origin;
+    await native.route(
+      (url) => url.origin === origin,
+      (route) => route.abort('failed'),
+    );
+    await native.route('https://proxy.qspider.xyz/**', async (route) => {
+      // The tail is btoa(encodeURI(original url)), see libs/utils/src/fetch.ts.
+      const original = decodeURI(atob(new URL(route.request().url()).pathname.slice(1)));
+      this.proxied.push(original);
+      const target = new URL(original);
+      // The fake origin's files are the player's own served fixtures, at the same path.
+      const served =
+        target.origin === origin ? await native.request.get(new URL(target.pathname, playerOrigin).href) : undefined;
+      await route.fulfill({
+        status: served?.status() ?? 404,
+        headers: { 'access-control-allow-origin': '*' },
+        body: served ? await served.body() : '',
+      });
+    });
+  }
+
+  async proxiedUrls(): Promise<string[]> {
+    return [...this.proxied];
   }
 }

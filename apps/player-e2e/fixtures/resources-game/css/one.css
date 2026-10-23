@@ -1,0 +1,10 @@
+:root {
+  --e2e-one: ONE;
+  --e2e-both: one;
+}
+[data-qa='res-styled'] {
+  --e2e-element: styled;
+}
+[data-qa='res-font'] {
+  font-family: 'E2eFont', monospace;
+}

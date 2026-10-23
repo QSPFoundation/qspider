@@ -13,7 +13,7 @@ export const QspVolumeSlider: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   return (
     <Slider.Root
       className="qsp-volume-root"
-      defaultValue={[volume]}
+      value={[volume]}
       max={100}
       step={1}
       style={style}
@@ -23,7 +23,11 @@ export const QspVolumeSlider: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
       <Slider.Track className="qsp-volume-slider-track">
         <Slider.Range className="qsp-volume-slider-range" />
       </Slider.Track>
-      <Slider.Thumb className="qsp-volume-slider-thumb" aria-label={t('Volume') || undefined} />
+      <Slider.Thumb
+        className="qsp-volume-slider-thumb"
+        data-qsp="volume-slider"
+        aria-label={t('Volume') || undefined}
+      />
     </Slider.Root>
   );
 };

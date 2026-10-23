@@ -30,6 +30,19 @@ export abstract class OperatePlayer extends Ability {
   abstract restartPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void>;
   /** Opens the player with the game `url` in its `?game=` parameter (web only). A path like `/x/y.qsps` is served by the player's own origin. */
   abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
+  /**
+   * From now on, answers requests whose path ends with `pathSuffix` only after `ms` milliseconds (web only: the
+   * browser's own network, which a request served by the player's service worker never reaches).
+   */
+  abstract delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void>;
+  /**
+   * From now on, requests to `origin` fail in the browser (a CORS or network failure), and the CORS proxy
+   * (https://proxy.qspider.xyz/) answers with the player's own `/path` for the original URL it is asked for (web only).
+   * Call it after startPlayer. Every URL the proxy is asked for is recorded; read it with proxiedUrls.
+   */
+  abstract routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
+  /** The original URLs the CORS proxy was asked for since routeThroughProxy (web only). */
+  abstract proxiedUrls(actor: UsesAbilities & AnswersQuestions): Promise<string[]>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -44,6 +57,16 @@ export const LoadTestPack = (): Interaction =>
 export const OpenGameUrl = (url: string): Interaction =>
   Interaction.where(`#actor opens the player with game url ${url}`, (actor) =>
     OperatePlayer.as(actor).openGameUrl(actor, url),
+  );
+
+export const DelayRequests = (pathSuffix: string, ms: number): Interaction =>
+  Interaction.where(`#actor makes requests ending with ${pathSuffix} take ${ms} ms`, (actor) =>
+    OperatePlayer.as(actor).delayRequests(actor, pathSuffix, ms),
+  );
+
+export const RouteThroughProxy = (origin: string): Interaction =>
+  Interaction.where(`#actor makes ${origin} unreachable, except through the CORS proxy`, (actor) =>
+    OperatePlayer.as(actor).routeThroughProxy(actor, origin),
   );
 
 export const DropGameFile = (path: string): Interaction =>

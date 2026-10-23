@@ -1,5 +1,5 @@
 import { CssVarDefinition, baseUrl$, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
-import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
+import { cleanPath, convertColor, getContrastColor, invertColor, isExternalUrl } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
 import { atom } from 'xoid';
 
@@ -56,10 +56,12 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
 function prepareUrl(url: string): string {
   if (url.startsWith('qspider:')) {
     url = url.replace('qspider:', initialBaseUrl$.value);
+  } else if (isExternalUrl(url)) {
+    return url;
   } else {
     url = baseUrl$.value + url;
   }
-  return url.replace('\\', '/');
+  return cleanPath(url);
 }
 
 export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ definition }) => {

@@ -63,7 +63,7 @@ export type PageProbe = keyof typeof PROBES;
  * Runs `script` with `args` in the page and answers its result. A script's null reads as undefined on
  * desktop (WebdriverIO), so an absent result answers null on both targets.
  */
-const scriptResult = <R>(description: string, script: (...args: never[]) => R, ...args: unknown[]) =>
+export const scriptResult = <R>(description: string, script: (...args: never[]) => R, ...args: unknown[]) =>
   Question.about<R | null>(description, async (actor) => {
     await ExecuteScript.sync(script)
       .withArguments(...args)

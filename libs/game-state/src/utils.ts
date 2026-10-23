@@ -40,9 +40,6 @@ export const clamp = function (value: number, min: number, max: number): number 
   return Math.min(Math.max(value, min), max);
 };
 
-export function isExternalPath(path: string): boolean {
-  return /^[a-z]+:/i.test(path);
-}
 export function isHashPath(path: string): boolean {
   return path.startsWith('#');
 }

@@ -196,7 +196,7 @@ qspApi$.subscribe((api) => {
     result(sounds$.actions.isPlaying(path));
   });
   api.on('play_file', (path, volume, ready) => {
-    sounds$.actions.play(path, volume);
+    sounds$.actions.play(cleanPath(path), volume);
     ready();
   });
   api.on('close_file', (path, ready) => {
@@ -271,7 +271,7 @@ qspApi$.subscribe((api) => {
   });
   api.on('view', (path) => {
     if (path) {
-      view$.actions.open(path);
+      view$.actions.open(cleanPath(path));
     } else {
       view$.actions.close();
     }

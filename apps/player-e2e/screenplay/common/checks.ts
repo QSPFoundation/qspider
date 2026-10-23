@@ -57,6 +57,10 @@ export const SeeErrorAlertText = (text: string): Task =>
 export const SeeNoticeShown = (): Task =>
   seeEventually(NoticeToastElement, (e) => PresenceOf(e), equals(true), '#actor sees the notice toast');
 
+/** The notice toast is showing a message containing `text`. */
+export const SeeNoticeContaining = (text: string): Task =>
+  seeEventually(NoticeToastElement, (e) => Text.of(e), includes(text), `#actor sees a notice toast reading "${text}"`);
+
 /** Waits for any notice toast to close (it closes itself), so a later SeeNoticeShown is about a new notice. */
 export const WaitNoticeGone = (): Task =>
   Task.where('#actor waits for the notice toast to close', waitUntilAbsent(NoticeToastElement));

@@ -1,6 +1,7 @@
 import { Howler } from 'howler';
 import { normalizeVolume, Sound } from './sound';
 import { atom } from 'xoid';
+import { cleanPath } from '@qspider/utils';
 import { clamp } from './utils';
 
 const VOLUME_STEP = 10;
@@ -62,5 +63,5 @@ volume$.watch((volume) => {
 });
 
 function getFileKey(path: string): string {
-  return path.replace('/', '__').toUpperCase();
+  return cleanPath(path).toUpperCase();
 }

@@ -1,5 +1,6 @@
 import { fetchBinaryContent } from './data-fetcher';
 import { baseUrl$ } from '@qspider/game-state';
+import { isExternalUrl } from '@qspider/utils';
 import { platform } from '@tauri-apps/plugin-os';
 import { isGameUrl } from './game-url';
 
@@ -73,7 +74,7 @@ export function setupEnv() {
       user: string | null | undefined = undefined,
       password: string | null | undefined = undefined,
     ): void {
-      if (shouldShimXhr(baseUrl$.value)) {
+      if (shouldShimXhr(baseUrl$.value) && (!isExternalUrl(url) || isGameUrl(url))) {
         this.url = url;
         this.is_replacing = true;
       } else {
