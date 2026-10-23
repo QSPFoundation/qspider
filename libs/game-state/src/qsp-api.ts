@@ -271,7 +271,7 @@ qspApi$.subscribe((api) => {
   });
   api.on('view', (path) => {
     if (path) {
-      view$.actions.open(path);
+      view$.actions.open(cleanPath(path));
     } else {
       view$.actions.close();
     }
