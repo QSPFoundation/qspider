@@ -2,7 +2,7 @@
 // the web player imports through its Open game input, see OperateWebPlayer.loadTestPack) and the
 // open-route archives. Also copies the URL-import games into the served build.
 import { copyFileSync, cpSync, mkdirSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { ARCHIVES } from '../../fixtures/archives';
@@ -18,6 +18,9 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   const dir = join(SERVED_ROOT, URL_GAME.servedDir);
   mkdirSync(dir, { recursive: true });
   for (const { source, file } of [URL_GAME.valid, URL_GAME.invalid]) copyFileSync(source, join(dir, file));
+  // The re-import pair, served so the URL route can import both versions.
+  for (const { path } of [ARCHIVES.reimportV1Zip, ARCHIVES.reimportV2Zip])
+    copyFileSync(path, join(dir, basename(path)));
   // The resources game as a plain folder (real case), for the plain-URL route.
   cpSync(dirname(ARCHIVES.resourcesFolder.path), join(SERVED_ROOT, RESOURCES_GAME.servedDir), { recursive: true });
   const assetServer = await startAssetServer();

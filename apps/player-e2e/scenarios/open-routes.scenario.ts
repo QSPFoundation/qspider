@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import { TEST_PACK } from '../fixtures/test-pack';
 import { ARCHIVES } from '../fixtures/archives';
 import { CYRILLIC_GAME } from '../fixtures/cyrillic-game';
@@ -13,7 +14,7 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
-import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
+import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles } from '../screenplay/shelf/checks';
 import {
   DropGameFile,
   OpenGameFile,
@@ -29,6 +30,19 @@ const served = (file: string): string => `/${URL_GAME.servedDir}/${file}`;
 
 scenario.webOnly('importing a game by URL starts it', async (player) => {
   await player.attemptsTo(OpenGameUrl(served(URL_GAME.valid.file)), SeeGameStarted(URL_GAME.valid.startText));
+});
+
+scenario.webOnly('importing a game again by URL replaces its shelf entry', async (player) => {
+  const { reimportV1Zip: v1, reimportV2Zip: v2 } = ARCHIVES;
+  await player.attemptsTo(
+    OpenGameUrl(served(basename(v1.path))),
+    SeeGameStarted(v1.startText),
+    OpenGameUrl(served(basename(v2.path))), // the same game id, another title and start text
+    SeeGameStarted(v2.startText),
+    ReturnToShelf(),
+    SeeShelfIncludes(v2.title),
+    SeeShelfLacks(v1.title),
+  );
 });
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {

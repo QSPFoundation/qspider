@@ -32,6 +32,9 @@ export const ARCHIVES = {
   resourcesZip: { path: out('resources-game.zip'), title: 'Resources game' },
   resourcesMissingZip: { path: out('resources-missing.zip'), title: 'Resources game (missing)' },
   resourcesFolder: { path: out('resources-game/resources-game.qsps'), title: 'Resources game' },
+  /** Two versions of one game: the same game.cfg id, a different title and start text. */
+  reimportV1Zip: { path: out('reimport-v1.zip'), title: 'Reimport game (v1)', startText: 'REIMPORT V1 START' },
+  reimportV2Zip: { path: out('reimport-v2.zip'), title: 'Reimport game (v2)', startText: 'REIMPORT V2 START' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -49,5 +52,6 @@ export const SOURCES = {
   guiCfg: fileURLToPath(new URL('./gui-cfg-game/', import.meta.url)),
   look: fileURLToPath(new URL('./look-game/', import.meta.url)),
   resources: fileURLToPath(new URL('./resources-game/', import.meta.url)),
+  reimport: fileURLToPath(new URL('./reimport-game/', import.meta.url)),
   e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;

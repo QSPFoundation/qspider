@@ -11,6 +11,7 @@ import { scenario } from '../screenplay/support/scenario';
 
 const REMOVED = ARCHIVES.singleZip;
 const KEPT = ARCHIVES.qspBinary;
+const { reimportV1Zip: V1, reimportV2Zip: V2 } = ARCHIVES;
 const { action: ACTION, text: TEXT } = SAVES_GAME;
 
 scenario('a removed game stays removed and an added game stays after a restart', async (player) => {
@@ -57,5 +58,21 @@ scenario('a removed game comes back without its old saves', async (player) => {
     OpenSavesPanel(),
     SeeSlotFilled(2), // settled: one loadSaveList sets all slots
     SeeSlotEmpty(1),
+  );
+});
+
+scenario('re-importing a game replaces its shelf entry', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(V1.path),
+    SeeGameStarted(V1.startText),
+    ReturnToShelf(),
+    SeeShelfIncludes(V1.title),
+    OpenGameFile(V2.path), // the same game id, another title and start text
+    SeeGameStarted(V2.startText),
+    ReturnToShelf(),
+    SeeShelfIncludes(V2.title),
+    SeeShelfLacks(V1.title),
   );
 });
