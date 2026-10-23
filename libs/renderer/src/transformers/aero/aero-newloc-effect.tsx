@@ -46,7 +46,7 @@ export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }
   if (!effect) return children;
 
   return transformation((style, item) => (
-    <animated.div key={item} style={style}>
+    <animated.div key={item} data-qsp="newloc-effect" style={style}>
       {children}
     </animated.div>
   ));
