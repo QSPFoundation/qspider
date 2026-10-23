@@ -21,7 +21,7 @@ import {
 } from './pause-screen';
 import { loadSaveList, quickLoad, quickSave } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
-import { fetchBinaryContent, fetchTextContent, windowManager } from '@qspider/env';
+import { fetchBinaryContent, fetchTextContent, whenGameFilesReady, windowManager } from '@qspider/env';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
 import {
@@ -58,6 +58,8 @@ export const baseUrl$ = atom('');
 export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');
   try {
+    // Before any of the game's files is fetched (its config, source, resources, images and sounds).
+    await whenGameFilesReady(entry.loadConfig.url);
     baseUrl$.set(entry.loadConfig.url);
 
     let descriptor: GameDescriptor = entry.loadConfig.descriptor || {
