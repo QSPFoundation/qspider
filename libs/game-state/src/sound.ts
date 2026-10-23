@@ -73,7 +73,14 @@ export class Sound {
         this._state = SoundState.Paused;
       },
       onstop: (): void => {
-        if (!this.isScheduled) this._state = SoundState.Played;
+        if (this._state === SoundState.LoadingError || this._state === SoundState.PlayError) return;
+        if (!this.isScheduled) {
+          this._state = SoundState.Played;
+        } else if (!this.howl.playing()) {
+          // The game's latest request was PLAY, but a queued stop (a suspended audio context runs queued calls
+          // on resume) killed it: play again rather than report a silent sound as playing.
+          this.howl.play();
+        }
       },
       onunlock: (): void => {
         if (this.isScheduled && this._state === SoundState.Playing && !this.howl.playing()) {
