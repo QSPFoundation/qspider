@@ -227,3 +227,9 @@ export function splitLookTable(table: Record<string, string>): {
   for (const [name, expected] of Object.entries(table)) (isLookSuffixRow(expected) ? suffix : exact)[name] = expected;
   return { exact, suffix };
 }
+
+/** A few Aero defaults (public/themes/aero.html default-value attributes), the settled anchor before `Set vars`. */
+export const AERO_DEFAULTS_SUBSET: Record<string, string> = {
+  '--color': '#000000',
+  '--font-size': '12px',
+};
