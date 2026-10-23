@@ -14,15 +14,21 @@ pub fn parse_game_uri(uri: &str) -> Option<(Uuid, String)> {
   Some((uuid, rel.to_string()))
 }
 
-/// Reads a game file: the exact path, else the path matched case-insensitively one segment at a time
-/// (so `img/sub/CASE.png` finds `Img/Sub/Case.png`). `..` segments are passed through unchanged.
+/// Reads a game file: the exact path, else the whole path lowercased (one read; archive imports store
+/// lowercase), else the path matched case-insensitively one segment at a time (so `img/sub/CASE.png`
+/// finds `Img/Sub/Case.png`). `..` segments are passed through unchanged.
 pub fn read_game_file(root: &Path, rel: &str) -> std::io::Result<Vec<u8>> {
-  std::fs::read(root.join(rel)).or_else(|error| match find_ignoring_case(root, rel) {
-    Some(path) => std::fs::read(path),
-    None => Err(error),
-  })
+  std::fs::read(root.join(rel))
+    .or_else(|_| std::fs::read(root.join(rel.to_lowercase())))
+    .or_else(|error| match find_ignoring_case(root, rel) {
+      Some(path) => std::fs::read(path),
+      None => Err(error),
+    })
 }
 
+/// Greedy: each segment takes the exact entry if there is one, else the first entry whose lowercase name
+/// matches. Siblings that differ only in case (`A.png` and `a.png`) are therefore not told apart beyond
+/// the exact match, and a case-variant directory is not backtracked if it lacks the file.
 fn find_ignoring_case(root: &Path, rel: &str) -> Option<PathBuf> {
   let mut current = root.to_path_buf();
   for segment in rel.split('/') {
