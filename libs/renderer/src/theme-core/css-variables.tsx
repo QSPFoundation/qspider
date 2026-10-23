@@ -81,8 +81,8 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
       }
     }
   } else if (definition.type === 'unit') {
-    const preparedValue = `${value || definition.defaultValue}${definition.unit || ''}`;
-    rules.push(`${definition.name}: ${preparedValue}`);
+    const unitValue = value || definition.defaultValue;
+    if (unitValue) rules.push(`${definition.name}: ${unitValue}${definition.unit || ''}`);
   } else if (definition.type === 'resource') {
     if (!value && !definition.defaultValue) return null;
     return (

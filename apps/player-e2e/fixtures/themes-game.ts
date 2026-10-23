@@ -94,7 +94,7 @@ export const GUI_CFG_GAME = {
 /**
  * The classic look of a game that sets no colours or font and has no qspgui.cfg. Derived from the code:
  * classic.html defaults (#000000, #0000ff, #e0e0e0, 12pt), the contrast from getContrastColor('#e0e0e0')
- * (yiq 224 -> black), the inverted from invertColor (#1F1F1F, Color.hex() is upper-case), its contrast (yiq 31 -> white), and
+ * (yiq 224 -> black), the inverted from invertColor (#1F1F1F; classic.css now spells it lower-case, same colour), its contrast (yiq 31 -> white), and
  * --border-color is the background contrast. All as authored, the names the classic.css maps.
  */
 export const CLASSIC_DEFAULT_LOOK: Record<string, string> = {
@@ -102,7 +102,7 @@ export const CLASSIC_DEFAULT_LOOK: Record<string, string> = {
   '--link-color': '#0000ff',
   '--background-color': '#e0e0e0',
   '--background-color-contrast': 'black',
-  '--background-color-inverted': '#1F1F1F',
+  '--background-color-inverted': '#1f1f1f',
   '--background-color-inverted-contrast': 'white',
   '--border-color': 'black',
   '--font-size': '12pt',
