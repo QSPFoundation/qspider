@@ -6,9 +6,13 @@ export interface SelectOption {
   value: string;
 }
 
-const SelectItem: React.FC<{ children: React.ReactNode; value: string }> = ({ children, ...props }) => {
+const SelectItem: React.FC<{ children: React.ReactNode; value: string; qa?: string }> = ({
+  children,
+  qa,
+  ...props
+}) => {
   return (
-    <RadixSelect.Item className="q-select-item" {...props}>
+    <RadixSelect.Item className="q-select-item" data-qa={qa} data-value={qa ? props.value : undefined} {...props}>
       <RadixSelect.ItemText>{children}</RadixSelect.ItemText>
       <RadixSelect.ItemIndicator className="q-select-item-indicator">
         <CheckIcon />
@@ -23,7 +27,7 @@ export const Select: React.FC<{
   label: string;
   value: string | undefined;
   name?: string;
-  /** Hooks for e2e: `data-qa` on the trigger, which also carries the current `data-value`. */
+  /** Hooks for e2e: `data-qa` on the trigger, which also carries the current `data-value`; the options get `<qa>-option` with their own `data-value`. */
   qa?: string;
   onValueChange: (value: string) => void;
 }> = ({ options, placeholder, label, value, name, qa, onValueChange }) => {
@@ -42,7 +46,7 @@ export const Select: React.FC<{
           </RadixSelect.ScrollUpButton>
           <RadixSelect.Viewport className="SelectViewport">
             {options.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem key={option.value} value={option.value} qa={qa ? `${qa}-option` : undefined}>
                 {option.label}
               </SelectItem>
             ))}
