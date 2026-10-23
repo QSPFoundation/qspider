@@ -20,3 +20,16 @@ export function translation(lng: string, key: string): string {
   if (value === undefined) throw new Error(`No translation of "${key}" in ${lng} or en`);
   return value;
 }
+
+/**
+ * The player's translation of the plural key `key` in `lng` for `count`, interpolated like i18next does:
+ * the `_<category>` variant of the key (category from Intl.PluralRules, as i18next uses), else the bare key,
+ * with `{{ count }}` replaced. Falls back to `en` like `translation`.
+ */
+export function pluralTranslation(lng: string, key: string, count: number): string {
+  const category = new Intl.PluralRules(lng).select(count);
+  const pick = (code: string) => bundle(code, 'translation')[`${key}_${category}`] ?? bundle(code, 'translation')[key];
+  const value = pick(lng) ?? pick('en');
+  if (value === undefined) throw new Error(`No translation of "${key}" in ${lng} or en`);
+  return value.replace(/\{\{\s*count\s*\}\}/g, String(count));
+}
