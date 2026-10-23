@@ -165,7 +165,14 @@ Elements use only the theme contract, so they are the same under every theme. Th
 - `SeeActiveTheme(alias)` (`common/checks.ts`) reads the `data-qsp-theme` marker the renderer puts on `qsp-game-root` (`THEME_ALIAS`: `qspider:classic`, `qspider:aero`, `e2e-custom`).
 - UI a theme renders outside the `qsp-*` vocabulary gets elements under `screenplay/themes/<theme>/` (`e2e-custom` exists: the theme's chrome and script marker).
 - The classic layout's docks carry `data-qsp-dock` (`top`, `left`, `center`, `right`, `bottom`); their elements and checks are `screenplay/classic/` (`SeeStatsInDock`).
-- `themes.scenario.ts` covers theme features: Aero mode, a game-provided theme with its files, the missing-`defaultTheme` fallback and notice, runtime `change_theme` (and its unknown-name error), a theme-level layer cleared by restart, and the `qspgui.cfg` docks against a control without it.
+- `themes.scenario.ts` covers theme features: Aero mode, a game-provided theme with its files, the missing-`defaultTheme` fallback and notice, runtime `change_theme` (and its unknown-name error), a theme-level layer cleared by restart, and the `qspgui.cfg` docks against a control without it. The css-link check reads a custom property the theme's css sets on its chrome.
+- The look variables (Aero and classic) are theme features too, so they also run once per target:
+  - `look-vars.scenario.ts`: the Aero and classic mapping tables, the dialog portal, `qspgui.cfg` colours and font (and that the game beats the cfg), a cfg-less game's default look, Aero `$*_FORMAT` wrappers and that they do not leak.
+  - `look-dialogs.scenario.ts`: `DISABLESHADE`, the `MSG` / `INPUT` / `MENU` positions, `FIXED_SIZE_MENU`, `ALWAYS_SHOW_VIEW`.
+  - `look-effects.scenario.ts`: a slow fade is in flight; a quick slide and a sequential fade still deliver the new location.
+  - The mapping tables must cover every variable the themes read: `build-fixtures.spec.ts` parses `aero.html` and `classic.html` and fails when a variable has no table row.
+  - Fixtures: `look-game` (an Aero and a classic zip; markers only through `fixtures/look-game.ts`) and `gui-cfg-game` (the cfg colours, plus a 'Set look' action).
+  - Values are read with `SeeCssValues` (`screenplay/support/page-script.ts`), a read-only named probe: no code is passed in, a target marker is regex-validated, and property names go only to `getPropertyValue`. Custom properties come back as authored (trimmed).
 
 The matrix: the core flows run under aero and custom on web only (`webOnly`; they show as skipped on desktop). Desktop runs each theme-feature scenario once, in `themes.scenario.ts`. The desktop-specific risk is theme files loaded through the Tauri protocol and Aero under WebKit, not the markup contract, which is the same code on both targets. Rationale: `docs/superpowers/specs/2026-10-20-e2e-conventions-design.md`.
 
