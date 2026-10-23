@@ -33,7 +33,7 @@ export const Select: React.FC<{
 }> = ({ options, placeholder, label, value, name, qa, onValueChange }) => {
   return (
     <RadixSelect.Root value={value} onValueChange={onValueChange} name={name}>
-      <RadixSelect.Trigger className="q-select" aria-label={label} data-qa={qa} data-value={value}>
+      <RadixSelect.Trigger className="q-select" aria-label={label} data-qa={qa} data-value={qa ? value : undefined}>
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className="q-select-icon">
           <ChevronDownIcon />
