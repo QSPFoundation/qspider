@@ -13,7 +13,7 @@ export const QspVolumeSlider: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   return (
     <Slider.Root
       className="qsp-volume-root"
-      defaultValue={[volume]}
+      value={[volume]}
       max={100}
       step={1}
       style={style}
