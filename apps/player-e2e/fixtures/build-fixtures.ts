@@ -10,7 +10,7 @@ import { deflateSync, crc32 } from 'node:zlib';
 import { ARCHIVES, SOURCES } from './archives';
 import { LOOK_IMAGES } from './look-game';
 import { quietWav, squareFont } from './resource-assets';
-import { RESOURCES_GAME, RESOURCES_IMAGES } from './resources-game';
+import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from './resources-game';
 import { TEST_PACK } from './test-pack';
 
 const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
@@ -90,6 +90,10 @@ function resourcesFiles(): Record<string, Uint8Array> {
   for (const name of [...RESOURCES_GAME.cfg.styles, ...RESOURCES_GAME.cfg.scripts])
     files[name] = readFileSync(join(SOURCES.resources, name));
   for (const [name, [w, h]] of Object.entries(RESOURCES_IMAGES)) files[name] = transparentPng(w, h);
+  for (const [name, [w, h]] of Object.entries(RESOURCES_SVGS))
+    files[name] = Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="#08c"/></svg>`,
+    );
   files[RESOURCES_GAME.sound.a] = quietWav(RESOURCES_GAME.sound.seconds, 440);
   files[RESOURCES_GAME.sound.b] = quietWav(RESOURCES_GAME.sound.seconds, 330);
   files[RESOURCES_GAME.cfg.font.path] = squareFont();

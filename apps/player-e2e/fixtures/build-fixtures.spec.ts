@@ -10,7 +10,7 @@ import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
 import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
 import { PANELS_GAME } from './panels-game';
-import { RESOURCES_GAME, RESOURCES_IMAGES } from './resources-game';
+import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from './resources-game';
 import { SAVES_GAME } from './saves-game';
 import { AERO_GAME, CORE_THEME_VARIANTS, GUI_CFG_GAME, MISSING_THEME_GAME, THEMED_GAME } from './themes-game';
 
@@ -238,6 +238,10 @@ describe('buildFixtures', () => {
       for (const [name, [width, height]] of Object.entries(RESOURCES_IMAGES)) {
         const png = new DataView(zipped[name].buffer, zipped[name].byteOffset, zipped[name].byteLength);
         expect([png.getUint32(0), png.getUint32(16), png.getUint32(20)], name).toEqual([0x89504e47, width, height]);
+      }
+      for (const [name, [width, height]] of Object.entries(RESOURCES_SVGS)) {
+        const svg = Buffer.from(zipped[name]).toString('utf8');
+        expect(svg, name).toContain(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`);
       }
       const sizes = Object.values(RESOURCES_IMAGES).map(([w]) => w);
       expect(new Set(sizes).size).toBe(sizes.length);

@@ -59,6 +59,8 @@ export const RESOURCES_GAME = {
     /** Wrong case on purpose (`img/sub/CASE.png` for `Img/Sub/Case.png`): the only reference that is not byte-exact. */
     wrongCase: { qa: 'res-img-case', src: 'img/sub/CASE.png', file: 'Img/Sub/Case.png' },
     query: { qa: 'res-img-query', src: 'Img/Sub/Query.png?v=2', file: 'Img/Sub/Query.png' },
+    /** A vector picture: browsers do not sniff SVG, so it only renders when served with an image Content-Type. */
+    svg: { qa: 'res-img-svg', src: 'Img/Vector.svg', file: 'Img/Vector.svg' },
   },
   /** Natural sizes (width, height) tell the files apart: every image is a different size. */
   files: {
@@ -72,6 +74,7 @@ export const RESOURCES_GAME = {
     object: 'Img/Obj.png',
     view: 'Img/View.png',
     menu: 'Img/Menu.png',
+    svg: 'Img/Vector.svg',
   },
   /**
    * The $BACKIMAGE `data:` action: a 1x1 PNG. (RED today, see the 2g plan.) The game spells the same URI;
@@ -165,4 +168,9 @@ export const RESOURCES_IMAGES: Record<string, readonly [width: number, height: n
   [RESOURCES_GAME.files.object]: [10, 2],
   [RESOURCES_GAME.files.view]: [11, 2],
   [RESOURCES_GAME.files.menu]: [12, 2],
+};
+
+/** The generated SVGs: path, natural width and height (the file states both). */
+export const RESOURCES_SVGS: Record<string, readonly [width: number, height: number]> = {
+  [RESOURCES_GAME.files.svg]: [13, 2],
 };
