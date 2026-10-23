@@ -1,3 +1,4 @@
+import { describeNames } from './describe-names';
 import { type Expectation, Interaction, Question, type QuestionAdapter, Task } from '@serenity-js/core';
 import { containAtLeastOneItemThat, equals } from '@serenity-js/assertions';
 import { ExecuteScript, LastScriptExecution } from '@serenity-js/web';
@@ -73,10 +74,6 @@ const scriptResult = <R>(description: string, script: (...args: never[]) => R, .
 /** Where a style probe reads: the game root, or the first element with this data-qsp / data-qa value. */
 export type StyleTarget = { root: true } | { qsp: string } | { qa: string };
 
-/** A short step title: the count and the first names (the failure detail comes from the Ensure on timeout). */
-const describeNames = (names: string[]): string =>
-  `${names.length} values (${names.slice(0, 2).join(', ')}${names.length > 2 ? ', ...' : ''})`;
-
 /**
  * Computed values of `names` on the target (trimmed); null when the target is absent. Read-only and
  * safe: no code is passed, the marker is regex-validated before it builds a selector, and names go
@@ -84,13 +81,8 @@ const describeNames = (names: string[]): string =>
  */
 export const CssValues = (target: StyleTarget, names: string[]): QuestionAdapter<Record<string, string> | null> => {
   const [kind, value] = 'root' in target ? ['root', 'root'] : Object.entries(target)[0]!;
-  return scriptResult(
-    `the computed ${describeNames(names)} of ${JSON.stringify(target)}`,
-    styleValues,
-    kind,
-    value,
-    names,
-  );
+  const label = `the computed ${describeNames(names)} of ${JSON.stringify(target)}`;
+  return scriptResult(label, styleValues, kind, value, names);
 };
 
 /**
