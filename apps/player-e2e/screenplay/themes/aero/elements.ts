@@ -10,9 +10,11 @@ export const Overlay = PageElement.located(By.css('[data-qsp="overlay"]')).descr
 /** The invisible div the Aero menu is positioned from (its left/top come from MENU_X/MENU_Y). */
 export const MenuAnchor = PageElement.located(By.css('[data-qsp="menu-anchor"]')).describedAs('menu anchor');
 
-/** The <img> that an action format writes with %IMAGE%, inside the action labelled `label`. */
+/** The <img> that the look fixture's action format writes with %IMAGE% (its own data-qa, LOOK_GAME.actionImageMark), inside the action labelled `label`. */
 export const ActionImage = (label: string) =>
-  PageElement.located(By.tagName('img')).of(Action(label)).describedAs(`image of the "${label}" action`);
+  PageElement.located(By.css('[data-qa="look-act-img"]'))
+    .of(Action(label))
+    .describedAs(`image of the "${label}" action`);
 
 /** Aero lists objects and menu items as formatted markup, with no name element: their own text is the whole label. */
 export const AeroObjects = PageElements.located(By.css('[data-qsp="object"]')).of(ObjectsPanel).describedAs('objects');

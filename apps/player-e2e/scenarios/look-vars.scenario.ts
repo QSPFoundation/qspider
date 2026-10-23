@@ -1,4 +1,4 @@
-import { CLASSIC_DEFAULT_LOOK, GUI_CFG_GAME } from '../fixtures/themes-game';
+import { AERO_GAME, CLASSIC_DEFAULT_LOOK, GUI_CFG_GAME } from '../fixtures/themes-game';
 import { SeeStatsInDock } from '../screenplay/classic/checks';
 import { AERO_DEFAULTS_SUBSET, LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME } from '../fixtures/look-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
@@ -6,7 +6,6 @@ import { AeroMenuItem } from '../screenplay/themes/aero/elements';
 import { SeeActionImage, SeeAeroMenuItems, SeeAeroObjects } from '../screenplay/themes/aero/checks';
 import { SeeInput, SeeInputGone } from '../screenplay/input/checks';
 import { SeeMainTextContaining } from '../screenplay/game/checks';
-import { AERO_GAME } from '../fixtures/themes-game';
 import { ClickAction, HoverAction, ReturnToShelf } from '../screenplay/game/tasks';
 import { Action } from '../screenplay/game/elements';
 import { ClickWhenPresent, waitUntilPresent } from '../screenplay/support/presence';

@@ -116,12 +116,11 @@ function createVariableAtom(name: string, defaultValue?: string): Atom<string> {
   const atom$ = atom(defaultValue ?? '');
   const initial = defaultValue ?? '';
   let unwatch: (() => void) | undefined;
-  // A new game wipes the engine's watchers: subscribe again after each open, and start from the default,
-  // so a format of the previous game does not outlive it.
+  // A new game wipes the engine's watchers: subscribe again after each open (the immediate callback
+  // applies the new game's value, or the default).
   const subscribe = (): void => {
     unwatch?.();
     unwatch = undefined;
-    atom$.set(initial);
     unwatch = qspApi$.value?.watchVariable(name, (value) => {
       atom$.set((value as unknown as string) || initial);
     });

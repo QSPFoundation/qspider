@@ -65,6 +65,8 @@ export const LOOK_GAME = {
   place: { msg: [111, 112], input: [121, 122], menu: [131, 132] },
   /** Image used by `view` and `act 'Pic'`. */
   images: { view: 'look/msg.png', action: 'look/act.png' },
+  /** `data-qa` of the <img> that the action formats write with %IMAGE%. */
+  actionImageMark: 'look-act-img',
 } as const;
 
 /**
