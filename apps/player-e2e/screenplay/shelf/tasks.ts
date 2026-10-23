@@ -1,6 +1,6 @@
 import { Task } from '@serenity-js/core';
 import { ClickWhenPresent } from '../support/presence';
-import { LocaleOption, RemoveButton, RunLink, ShelfLocaleSelect } from './elements';
+import { LocaleOption, RemoveButton, RunLink, ShelfLocaleSelect, ThemeSwitch } from './elements';
 
 /** Runs the game titled `title` from its shelf card. */
 export const OpenFromShelf = (title: string): Task =>
@@ -17,3 +17,7 @@ export const SwitchShelfLanguage = (code: string): Task =>
     ClickWhenPresent(ShelfLocaleSelect),
     ClickWhenPresent(LocaleOption(code)),
   );
+
+/** Clicks the shelf's theme switch once. */
+export const ToggleShelfTheme = (): Task =>
+  Task.where('#actor toggles the player theme', ClickWhenPresent(ThemeSwitch));

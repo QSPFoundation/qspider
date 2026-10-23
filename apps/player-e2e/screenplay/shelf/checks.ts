@@ -3,7 +3,7 @@ import { contain, equals, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { EmptyShelfNotice, RunLink, Shelf, ShelfLocaleSelect, ShelfTitles } from './elements';
+import { EmptyShelfNotice, PlayerBody, RunLink, Shelf, ShelfLocaleSelect, ShelfTitles } from './elements';
 
 /** The shelf eventually lists exactly `titles`, in order. `[]`: the shelf shows its empty notice. */
 export const SeeShelfTitles = (titles: string[]): Task => {
@@ -62,4 +62,13 @@ export const SeeRunLinkText = (title: string, text: string): Task =>
     (e) => Text.of(e),
     equals(text),
     `#actor sees the run link of "${title}" read "${text}"`,
+  );
+
+/** The player body eventually carries theme `theme` (`light` or `dark`). */
+export const SeePlayerTheme = (theme: 'light' | 'dark'): Task =>
+  seeEventually(
+    PlayerBody,
+    (e) => Attribute.called('data-player-theme').of(e),
+    equals(theme),
+    `#actor sees the player theme ${theme}`,
   );
