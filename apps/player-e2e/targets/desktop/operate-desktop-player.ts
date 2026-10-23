@@ -40,6 +40,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
     throw new Error('proxiedUrls is not supported on desktop');
   }
 
+  async emulateColorScheme(_actor: UsesAbilities & AnswersQuestions, _scheme: 'light' | 'dark'): Promise<void> {
+    throw new Error('emulateColorScheme is not supported on desktop');
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);

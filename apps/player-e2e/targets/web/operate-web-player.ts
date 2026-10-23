@@ -83,4 +83,9 @@ export class OperateWebPlayer extends OperatePlayer {
   async proxiedUrls(): Promise<string[]> {
     return [...this.proxied];
   }
+
+  async emulateColorScheme(actor: UsesAbilities & AnswersQuestions, scheme: 'light' | 'dark'): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    await (await page.nativePage()).emulateMedia({ colorScheme: scheme });
+  }
 }

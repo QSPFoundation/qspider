@@ -43,6 +43,11 @@ export abstract class OperatePlayer extends Ability {
   abstract routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
   /** The original URLs the CORS proxy was asked for since routeThroughProxy (web only). */
   abstract proxiedUrls(actor: UsesAbilities & AnswersQuestions): Promise<string[]>;
+  /**
+   * From now on, the browser reports `scheme` as the OS colour scheme (web only: Playwright's emulateMedia, which
+   * holds across reloads of the page). Call it before startPlayer or restartPlayer to set what the player starts with.
+   */
+  abstract emulateColorScheme(actor: UsesAbilities & AnswersQuestions, scheme: 'light' | 'dark'): Promise<void>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -67,6 +72,11 @@ export const DelayRequests = (pathSuffix: string, ms: number): Interaction =>
 export const RouteThroughProxy = (origin: string): Interaction =>
   Interaction.where(`#actor makes ${origin} unreachable, except through the CORS proxy`, (actor) =>
     OperatePlayer.as(actor).routeThroughProxy(actor, origin),
+  );
+
+export const EmulateColorScheme = (scheme: 'light' | 'dark'): Interaction =>
+  Interaction.where(`#actor makes the OS colour scheme ${scheme}`, (actor) =>
+    OperatePlayer.as(actor).emulateColorScheme(actor, scheme),
   );
 
 export const DropGameFile = (path: string): Interaction =>
