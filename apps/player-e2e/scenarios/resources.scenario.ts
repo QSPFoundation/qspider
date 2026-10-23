@@ -15,6 +15,7 @@ import { DelayRequests, OpenGameFile, OpenGameUrl, StartPlayer } from '../screen
 import { SeeCssValue, SeeCssValues } from '../screenplay/support/page-script';
 import { SeeImageLoaded } from '../screenplay/support/image-loaded';
 import { scenario } from '../screenplay/support/scenario';
+import { SeeSoundState, SeeSoundWebAudio } from '../screenplay/support/sound-state';
 
 const { text: TEXT, actions: ACTIONS, images: IMAGES, files: FILES } = RESOURCES_GAME;
 const width = (file: string): number => (RESOURCES_IMAGES[file] ?? RESOURCES_SVGS[file])![0];
@@ -50,6 +51,14 @@ scenario('game images load from every kind of path (archive)', async (player) =>
     SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.dataImage}")`)),
     ClickAction(ACTIONS.media.backimageExternal),
     SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.externalImage}")`)),
+    // A sound at an absolute URL is fetched by the page itself (Web Audio). With the game base in front of it the
+    // fetch fails and Howler falls back to an HTML5 Audio element, which still reports `playing`.
+    ClickAction(ACTIONS.media.playExternal),
+    SeeSoundState('ext.wav', { playing: true, volume: 1 }),
+    SeeSoundWebAudio('ext.wav', true),
+    // A game script's XMLHttpRequest to an absolute URL is a real request: the shim would answer it empty.
+    ClickAction(ACTIONS.media.fetchText),
+    SeeResourceMark(RESOURCES_GAME.marks.xhr, RESOURCES_GAME.externalText.text),
   );
 });
 

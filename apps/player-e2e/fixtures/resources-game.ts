@@ -34,6 +34,7 @@ export const RESOURCES_GAME = {
       backimageBackslash: 'Backimage backslash',
       backimageExternal: 'Backimage external',
       playExternal: 'Play external',
+      fetchText: 'Fetch text',
       back: 'Back',
     },
     resources: { back: 'Back' },
@@ -81,7 +82,7 @@ export const RESOURCES_GAME = {
     svg: 'Img/Vector.svg',
   },
   /**
-   * The $BACKIMAGE `data:` action: a 1x1 PNG. (RED today, see the 2g plan.) The game spells the same URI;
+   * The $BACKIMAGE `data:` action: a 1x1 PNG. The game spells the same URI;
    * keep both in sync (guarded in build-fixtures.spec.ts).
    */
   dataImage:
@@ -92,6 +93,8 @@ export const RESOURCES_GAME = {
    */
   externalImage: assetUrl(ASSET_SERVER.paths.image),
   externalSound: assetUrl(ASSET_SERVER.paths.sound),
+  /** Script one reads this URL with XMLHttpRequest (spelled in js/one.js) and writes `text` into the `xhr` mark. */
+  externalText: { url: assetUrl(ASSET_SERVER.paths.text), text: ASSET_SERVER.text },
   /** Objects/actions: `img[data-qsp="action-image"]`, `[data-qsp="object-image"]`; the object's label. */
   objectLabel: 'RES OBJECT',
   /**
@@ -128,6 +131,8 @@ export const RESOURCES_GAME = {
     order: 'res-order',
     /** Script two: `RES FONT LOADED` once a FontFace named E2eFont has status `loaded`, else `RES FONT NOT LOADED`. */
     fontStatus: 'res-font-status',
+    /** Script one, on `res_xhr`: the responseText of an XMLHttpRequest to an absolute http URL. */
+    xhr: 'res-xhr',
   },
   scriptText: {
     startSeen: 'RES SCRIPT SAW START',

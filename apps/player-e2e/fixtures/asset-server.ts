@@ -1,9 +1,10 @@
 // A tiny static server for the files a game names by an absolute http URL (`$BACKIMAGE = 'http://...'`, `PLAY
-// 'http://...'`). Started once per run by the web global setup and by the desktop wdio config (inside the
-// runner's private session), stopped with the run. It binds 127.0.0.1 only and answers every request with
-// `Access-Control-Allow-Origin: *`: a game's sound is fetched by XHR from another origin (the page, or
-// `qsp://localhost` on desktop). The port is fixed because the fixture game's text spells the URL; a busy port
-// fails the run loudly. Keep this module free of test-framework imports: both runners load it.
+// 'http://...'`, a game script's XHR). Started once per run by the web global setup and by the desktop wdio
+// config (inside the runner's private session), stopped with the run. It binds 127.0.0.1 only and answers every
+// request with `Access-Control-Allow-Origin: *`: the files are fetched by XHR from another origin (the page, or
+// `qsp://localhost` on desktop). The port is fixed because the fixture game spells the URL. A busy port fails
+// the run loudly: the web global setup throws, and the desktop config wraps the error in a SevereServiceError
+// (WDIO ignores any other error from onPrepare). Keep this module free of test-framework imports: both runners load it.
 import { createServer, type Server } from 'node:http';
 import { quietWav } from './resource-assets';
 
@@ -11,7 +12,9 @@ export const ASSET_SERVER = {
   host: '127.0.0.1',
   port: 47631,
   /** The URLs the resources game spells (guarded in build-fixtures.spec.ts). */
-  paths: { image: '/ext.png', sound: '/ext.wav' },
+  paths: { image: '/ext.png', sound: '/ext.wav', text: '/ext.txt' },
+  /** The body of `paths.text`: what the game script's XHR must read back. */
+  text: 'XHR EXTERNAL TEXT',
   /** Seconds of the wav: long enough that nothing ends by itself during a scenario. */
   soundSeconds: 20,
 } as const;
@@ -31,6 +34,7 @@ export function startAssetServer(): Promise<Server> {
   const files: Record<string, [type: string, body: Uint8Array]> = {
     [ASSET_SERVER.paths.image]: ['image/png', PNG_1X1],
     [ASSET_SERVER.paths.sound]: ['audio/wav', quietWav(ASSET_SERVER.soundSeconds, 440)],
+    [ASSET_SERVER.paths.text]: ['text/plain', Buffer.from(ASSET_SERVER.text)],
   };
   const server = createServer((request, response) => {
     const file = files[new URL(request.url ?? '/', 'http://x').pathname];

@@ -14,7 +14,7 @@ import type { WebdriverIOConfig } from '@serenity-js/webdriverio';
 import { INTERACTION_TIMEOUT } from '../../screenplay/support/timeouts';
 import { TEST_PACK } from '../../fixtures/test-pack';
 import type { Server } from 'node:http';
-import { startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
+import { ASSET_SERVER, startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { buildFixtures } from '../../fixtures/build-fixtures';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
@@ -202,7 +202,12 @@ export const config: WebdriverIOConfig = {
     mkdirSync(join(artifactsDir, 'wdio-logs'), { recursive: true });
 
     await buildFixtures();
-    assetServer = await startAssetServer();
+    try {
+      assetServer = await startAssetServer();
+    } catch (error) {
+      // WDIO ignores any other error from onPrepare; a busy port must stop the run.
+      throw new SevereServiceError(`asset server on ${ASSET_SERVER.host}:${ASSET_SERVER.port}: ${String(error)}`);
+    }
   },
 
   async onComplete() {

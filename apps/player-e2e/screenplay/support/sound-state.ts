@@ -1,5 +1,5 @@
 import { equals } from '@serenity-js/assertions';
-import { type QuestionAdapter, Task } from '@serenity-js/core';
+import { type QuestionAdapter, Question, Task } from '@serenity-js/core';
 import { scriptResult } from './page-script';
 import { seeScriptEventually } from './see-script-eventually';
 
@@ -10,8 +10,13 @@ import { seeScriptEventually } from './see-script-eventually';
 type Howl = { _src?: string | string[]; _webAudio?: boolean; playing(): boolean; volume(): number };
 type HowlerGlobal = { _howls?: Howl[]; _muted?: boolean; _volume?: number };
 
-/** `playing` and `volume` of the first Howl whose source ends with `srcSuffix`, or null when there is none. */
-function soundState(srcSuffix: string): { playing: boolean; volume: number } | null {
+/**
+ * `playing`, `volume` and `webAudio` of the first Howl whose source ends with `srcSuffix` (also matched against
+ * the decoded source), or null when there is none. `webAudio` is true when Howler fetched and decoded the bytes
+ * itself, false when it fell back to an HTML5 Audio element (its fetch failed): `playing` reads true in both
+ * cases, so only `webAudio` tells a failed fetch apart. One function answers both, so they cannot disagree.
+ */
+function howlState(srcSuffix: string): { playing: boolean; volume: number; webAudio: boolean } | null {
   if (!/^[\p{L}\p{N}_./ -]+$/u.test(srcSuffix)) throw new Error(`invalid sound source "${srcSuffix}"`);
   const howler = (window as unknown as { Howler?: HowlerGlobal }).Howler;
   for (const howl of howler?._howls ?? []) {
@@ -19,22 +24,7 @@ function soundState(srcSuffix: string): { playing: boolean; volume: number } | n
     // The source is the URL Howler loads (percent-encoded), so a suffix also matches in decoded form.
     if (typeof source !== 'string') continue;
     if (source.endsWith(srcSuffix) || decodeURIComponent(source).endsWith(srcSuffix))
-      return { playing: howl.playing(), volume: howl.volume() };
-  }
-  return null;
-}
-
-/**
- * True when the first Howl whose source ends with `srcSuffix` decodes through Web Audio (it fetched the bytes
- * itself), false when Howler fell back to an HTML5 Audio element (its fetch failed), null when there is none.
- * `playing` reads true in both cases, so only this tells a failed fetch apart.
- */
-function soundWebAudio(srcSuffix: string): boolean | null {
-  if (!/^[\p{L}\p{N}_./ -]+$/u.test(srcSuffix)) throw new Error(`invalid sound source "${srcSuffix}"`);
-  const howler = (window as unknown as { Howler?: HowlerGlobal }).Howler;
-  for (const howl of howler?._howls ?? []) {
-    const source = Array.isArray(howl._src) ? howl._src[0] : howl._src;
-    if (typeof source === 'string' && source.endsWith(srcSuffix)) return howl._webAudio === true;
+      return { playing: howl.playing(), volume: howl.volume(), webAudio: howl._webAudio === true };
   }
   return null;
 }
@@ -50,7 +40,10 @@ export type AudioStateValue = { muted: boolean; volume: number };
 
 /** The state of the sound whose source ends with `srcSuffix`; null when the game has not created one. */
 export const SoundState = (srcSuffix: string): QuestionAdapter<SoundStateValue | null> =>
-  scriptResult(`the sound state of ${srcSuffix}`, soundState, srcSuffix);
+  Question.about(`the sound state of ${srcSuffix}`, async (actor) => {
+    const state = await actor.answer(scriptResult(`the sound state of ${srcSuffix}`, howlState, srcSuffix));
+    return state && { playing: state.playing, volume: state.volume };
+  });
 
 /** The master mute and volume. */
 export const AudioState = (): QuestionAdapter<AudioStateValue | null> =>
@@ -71,7 +64,10 @@ export const SeeAudioState = (expected: AudioStateValue): Task =>
 /** Eventually the sound whose source ends with `srcSuffix` is (`true`) or is not (`false`) decoded through Web Audio. */
 export const SeeSoundWebAudio = (srcSuffix: string, expected: boolean): Task =>
   seeScriptEventually(
-    scriptResult(`whether ${srcSuffix} uses Web Audio`, soundWebAudio, srcSuffix),
+    Question.about(`whether ${srcSuffix} uses Web Audio`, async (actor) => {
+      const state = await actor.answer(scriptResult(`whether ${srcSuffix} uses Web Audio`, howlState, srcSuffix));
+      return state && state.webAudio;
+    }),
     equals(expected),
     `#actor sees the sound ${srcSuffix} ${expected ? 'using' : 'not using'} Web Audio`,
   );
