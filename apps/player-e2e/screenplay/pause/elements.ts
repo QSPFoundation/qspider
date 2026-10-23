@@ -30,3 +30,8 @@ export const PreferencesButton = visible(
 );
 /** The volume slider's thumb (role slider): `aria-valuenow` is the volume, 0-100. */
 export const VolumeSlider = PageElement.located(By.css('[data-qsp="volume-slider"]')).describedAs('volume slider');
+
+/** The pause screen's native language select (`qsp-locale-select`): its value is the current language code. */
+export const PauseLocaleSelect = PageElement.located(By.css('[data-qsp="locale-select"]'))
+  .of(PauseScreen)
+  .describedAs('pause language select');

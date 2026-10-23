@@ -23,11 +23,13 @@ export const Select: React.FC<{
   label: string;
   value: string | undefined;
   name?: string;
+  /** Hooks for e2e: `data-qa` on the trigger, which also carries the current `data-value`. */
+  qa?: string;
   onValueChange: (value: string) => void;
-}> = ({ options, placeholder, label, value, name, onValueChange }) => {
+}> = ({ options, placeholder, label, value, name, qa, onValueChange }) => {
   return (
     <RadixSelect.Root value={value} onValueChange={onValueChange} name={name}>
-      <RadixSelect.Trigger className="q-select" aria-label={label}>
+      <RadixSelect.Trigger className="q-select" aria-label={label} data-qa={qa} data-value={value}>
         <RadixSelect.Value placeholder={placeholder} />
         <RadixSelect.Icon className="q-select-icon">
           <ChevronDownIcon />

@@ -39,6 +39,7 @@ export const GameCard: React.FC<{ game: GameShelfEntry }> = (props) => {
             type="button"
             className="q-ghost-button q-remove-game-button"
             title="Remove from Game Shelf"
+            data-qa="game-remove"
             onClick={removeGame}
           >
             <Cross1Icon />
