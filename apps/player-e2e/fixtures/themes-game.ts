@@ -35,6 +35,9 @@ export const THEMED_GAME = {
   theme: {
     chromeMark: 'e2e-theme-chrome',
     chrome: 'E2E THEME',
+    /** The custom property e2e-theme.css sets on the chrome: proves the css-link file was applied. */
+    cssProperty: '--e2e-theme-css',
+    cssMark: 'LOADED',
     scriptMark: 'e2e-theme-script',
     script: 'THEME SCRIPT RAN',
     /** The theme-level qsp-layer (outside the main content, so it survives a restart) and its text. */

@@ -1,3 +1,4 @@
 .e2e-theme-chrome {
   font-weight: bold;
+  --e2e-theme-css: LOADED;
 }
