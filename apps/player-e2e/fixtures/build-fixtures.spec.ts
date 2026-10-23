@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { readQsp } from '@qsp/converters';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { ARCHIVES } from './archives';
@@ -6,6 +7,7 @@ import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
 import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
+import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
 import { PANELS_GAME } from './panels-game';
 import { SAVES_GAME } from './saves-game';
 import { AERO_GAME, CORE_THEME_VARIANTS, GUI_CFG_GAME, MISSING_THEME_GAME, THEMED_GAME } from './themes-game';
@@ -126,5 +128,56 @@ describe('buildFixtures', () => {
     expect(text(custom.e2eGamePath, 'game.cfg')).toContain('themes = ["e2e-theme.html"]');
     const ids = [aero, custom].map((v) => /id = "(.*)"/.exec(text(v.e2eGamePath, 'game.cfg'))?.[1]);
     expect(new Set([...ids, 'e2e-game', 'e2e-second-game']).size).toBe(4);
+  });
+
+  it('packs the look game once per theme mode, with every generated PNG at its natural size', () => {
+    expect(LOOK_GAME.aeroPath).toBe(ARCHIVES.lookAeroZip.path);
+    expect(LOOK_GAME.classicPath).toBe(ARCHIVES.lookClassicZip.path);
+    const expected = ['game.cfg', 'look-game.qsps', ...Object.keys(LOOK_IMAGES)].sort();
+    expect(entries(LOOK_GAME.aeroPath)).toEqual(expected);
+    expect(entries(LOOK_GAME.classicPath)).toEqual(expected);
+    expect(text(LOOK_GAME.aeroPath, 'game.cfg')).toContain('mode = "aero"');
+    expect(text(LOOK_GAME.classicPath, 'game.cfg')).not.toContain('mode =');
+    const files = unzipSync(bytes(LOOK_GAME.aeroPath));
+    for (const [name, [width, height]] of Object.entries(LOOK_IMAGES)) {
+      const png = new DataView(files[name].buffer, files[name].byteOffset, files[name].byteLength);
+      expect(png.getUint32(0), name).toBe(0x89504e47);
+      expect([png.getUint32(16), png.getUint32(20)], name).toEqual([width, height]);
+    }
+  });
+
+  describe('look tables', () => {
+    const themeFile = (name: string): string =>
+      readFileSync(fileURLToPath(new URL(`../../../public/themes/${name}.html`, import.meta.url)), 'utf8');
+
+    /** Names a theme declares with `qsp-css-variable`, plus the ones css-variables.tsx derives from the attributes. */
+    function declaredNames(html: string): string[] {
+      const names: string[] = [];
+      for (const [, attributes] of html.matchAll(/<qsp-css-variable\b([^>]*)>/g)) {
+        const name = /\bname="([^"]*)"/.exec(attributes)?.[1];
+        if (!name) throw new Error(`qsp-css-variable without a name: ${attributes}`);
+        const flags = attributes.replace(/"[^"]*"/g, '""'); // attribute names only, not values
+        const has = (attribute: string): boolean => new RegExp(`\\b${attribute}\\b`).test(flags);
+        const type = /\btype="([^"]*)"/.exec(attributes)?.[1];
+        names.push(name);
+        if (type === 'color') {
+          if (has('with-contrast')) names.push(`${name}-contrast`);
+          if (has('with-inverted')) {
+            names.push(`${name}-inverted`);
+            if (has('with-contrast')) names.push(`${name}-inverted-contrast`);
+          }
+        }
+        if (type === 'resource' && has('with-size')) names.push(`${name}-w`, `${name}-h`);
+      }
+      return names;
+    }
+
+    it('LOOK_AERO_TABLE has exactly the variables aero.html declares and derives', () => {
+      expect(Object.keys(LOOK_AERO_TABLE).sort()).toEqual(declaredNames(themeFile('aero')).sort());
+    });
+
+    it('LOOK_CLASSIC_TABLE has exactly the variables classic.html declares and derives', () => {
+      expect(Object.keys(LOOK_CLASSIC_TABLE).sort()).toEqual(declaredNames(themeFile('classic')).sort());
+    });
   });
 });

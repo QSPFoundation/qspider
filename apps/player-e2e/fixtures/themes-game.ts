@@ -70,4 +70,23 @@ export const GUI_CFG_GAME = {
    * default classic theme puts it in the bottom dock (next to the actions).
    */
   dock: { cfg: 'left', default: 'bottom' },
+  /**
+   * The qspgui.cfg colours and font, as the classic theme should apply them. They are derived from the code,
+   * not from a run. QspCLDefaults (classic-layout.tsx) writes them as `--cl-*` with `convertColor(x, false)`:
+   * the cfg int is 0xBBGGRR (blue, green, red; no alpha byte), written as `rgb(red,green,blue)`:
+   *  - BackColor 0x203040 = 2109504 -> `rgb(64,48,32)`
+   *  - FontColor 0x00A0F0 = 41200   -> `rgb(240,160,0)`
+   *  - LinkColor 0x10C020 = 1097760 -> `rgb(32,192,16)`
+   *  - FontSize 17 -> `17pt`, FontName -> as it is.
+   * public/themes/classic.css then maps `--color: var(--code-color, var(--cl-color))` and so on, so these
+   * are the values the root should compute for the unprefixed names. (classic.html still defaults the
+   * `--code-*` ones, which shadow them: what SHOULD apply, not what applies today.)
+   */
+  consumed: {
+    '--color': 'rgb(240,160,0)',
+    '--background-color': 'rgb(64,48,32)',
+    '--link-color': 'rgb(32,192,16)',
+    '--font-size': '17pt',
+    '--font-name': 'Segoe UI',
+  } as Record<string, string>,
 };

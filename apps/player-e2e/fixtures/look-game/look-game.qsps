@@ -1,0 +1,164 @@
+# start
+*pl 'LOOK START'
+act 'Set vars':
+  gs 'set_all'
+  *pl 'LOOK VARS SET'
+end
+act 'To dialogs': gt 'dialogs'
+act 'To formats': gt 'formats'
+act 'To effects': gt 'effects'
+---
+
+# set_all
+! Every look variable of the Aero and the classic theme, one assignment each.
+! The expected CSS values are the tables in look-game.ts (same order, same numbers).
+! Colours are explicit integers: 0xFF is the alpha byte, then blue, green, red.
+! They equal RGB(r,g,b) of this engine, but are spelled out so the contract is visible.
+FSIZE = 17
+$FNAME = 'Courier New'
+! 0xFF332211 = rgb(17,34,51)
+FCOLOR = -13426159
+! 0xFF665544 = rgb(68,85,102)
+LCOLOR = -10070716
+! 0xFFF0DCC8 = rgb(200,220,240)
+BCOLOR = -992056
+$UP_ARROW_IMAGE = 'look/back.png'
+$DOWN_ARROW_IMAGE = 'look/down.png'
+$BACKIMAGE = 'look/back.png'
+$TOPIMAGE = 'look/top.png'
+STATDESC_X = 597
+STATDESC_Y = 398
+STATDESC_W = 203
+STATDESC_H = 204
+$STATDESC_BACKIMAGE = 'look/statdesc.png'
+MAINDESC_X = 9
+MAINDESC_Y = 10
+MAINDESC_W = 596
+MAINDESC_H = 397
+$MAINDESC_BACKIMAGE = 'look/maindesc.png'
+ACTIONS_X = 13
+ACTIONS_Y = 406
+ACTIONS_W = 600
+ACTIONS_H = 181
+$ACTIONS_BACKIMAGE = 'look/actions.png'
+OBJECTS_X = 609
+OBJECTS_Y = 18
+OBJECTS_W = 215
+OBJECTS_H = 405
+$OBJECTS_BACKIMAGE = 'look/objects.png'
+USERINPUT_X = 21
+USERINPUT_Y = 586
+USERINPUT_W = 608
+USERINPUT_H = 48
+VIEW_X = 271
+VIEW_Y = 172
+VIEW_W = 323
+VIEW_H = 324
+$MSG_BACKIMAGE = 'look/msg.png'
+MSG_TEXT_X = 29
+MSG_TEXT_Y = 30
+MSG_TEXT_W = 419
+MSG_TEXT_H = 259
+MSG_OK_X = 215
+MSG_OK_Y = 269
+$MSG_OK_IMAGE = 'look/msg-ok.png'
+$INPUT_BACKIMAGE = 'look/input-back.png'
+INPUT_TEXT_X = 35
+INPUT_TEXT_Y = 36
+INPUT_TEXT_W = 425
+INPUT_TEXT_H = 265
+INPUT_BAR_X = 39
+INPUT_BAR_Y = 274
+INPUT_BAR_W = 349
+INPUT_BAR_H = 66
+INPUT_OK_X = 363
+INPUT_OK_Y = 279
+$INPUT_OK_IMAGE = 'look/input-ok.png'
+$INPUT_CANCEL_IMAGE = 'look/input-cancel.png'
+INPUT_CANCEL_X = 403
+INPUT_CANCEL_Y = 281
+MENU_PADDING = 47
+MENU_BORDER = 45
+! 0xFF0080FF = rgb(255,128,0)
+MENU_BORDER_COLOR = -16744193
+$MENU_BACKIMAGE = 'look/menu-back.png'
+MENU_LIST_X = 49
+MENU_LIST_Y = 50
+MENU_LIST_W = 200
+MENU_LIST_H = 171
+DISABLESHADE = 1
+HIDE_SCROLL_ARROWS = 1
+---
+
+# dialogs
+*pl 'LOOK DIALOGS'
+act 'Msg': msg 'LOOK MSG'
+act 'Input': $r = input('LOOK INPUT')
+act 'Menu':
+  $look_menu[0] = 'LOOK MENU ONE:menu_pick:'
+  $look_menu[1] = 'LOOK MENU TWO:menu_pick:'
+  menu '$look_menu'
+end
+act 'View': view 'look/msg.png'
+act 'No shade': DISABLESHADE = 1
+act 'Place':
+  MSG_X = 111 & MSG_Y = 112
+  INPUT_X = 121 & INPUT_Y = 122
+  MENU_X = 131 & MENU_Y = 132
+end
+act 'Fixed menu': FIXED_SIZE_MENU = 1
+act 'Keep view':
+  ALWAYS_SHOW_VIEW = 1
+  *pl 'LOOK LOG'
+end
+---
+
+# menu_pick
+*pl 'LOOK MENU PICKED'
+---
+
+# formats
+*pl 'LOOK FORMATS'
+pl 'LOOK FORMATS STATS'
+act 'Set formats':
+  $MAIN_FORMAT = 'MAINFMT[%TEXT%]'
+  $STATS_FORMAT = 'STATSFMT[%TEXT%]'
+  $MSG_FORMAT = 'MSGFMT[%TEXT%]'
+  $INPUT_FORMAT = 'INPUTFMT[%TEXT%]'
+  $ACTION_FORMAT = 'ACTFMT[<img src="%IMAGE%"/>%TEXT%]'
+  $SEL_ACTION_FORMAT = 'SELACTFMT[<img src="%IMAGE%"/>%TEXT%]'
+  $OBJECT_FORMAT = 'OBJFMT[%TEXT%]'
+  $MENU_FORMAT = 'MENUFMT[%TEXT%]'
+  $SEL_MENU_FORMAT = 'SELMENUFMT[%TEXT%]'
+  addobj 'LOOK OBJECT'
+  gt 'formats'
+end
+act 'Pic', 'look/act.png': *pl 'LOOK PIC'
+act 'Msg': msg 'LOOK FMT MSG'
+act 'Input': $r = input('LOOK FMT INPUT')
+act 'Menu':
+  $look_fmt_menu[0] = 'LOOK FMT ONE:menu_pick:'
+  $look_fmt_menu[1] = 'LOOK FMT TWO:menu_pick:'
+  menu '$look_fmt_menu'
+end
+---
+
+# effects
+*pl 'LOOK EFFECTS'
+act 'Slow fade':
+  $NEWLOC_EFFECT = 'fade' & NEWLOC_EFFECT_TIME = 60000
+  gt 'arrive'
+end
+act 'Quick slide':
+  $NEWLOC_EFFECT = 'l_slide' & NEWLOC_EFFECT_TIME = 300
+  gt 'arrive'
+end
+act 'Seq fade':
+  $NEWLOC_EFFECT = 'fade' & NEWLOC_EFFECT_TIME = 300 & NEWLOC_EFFECT_SEQ = 1
+  gt 'arrive'
+end
+---
+
+# arrive
+*pl 'LOOK ARRIVED'
+---
