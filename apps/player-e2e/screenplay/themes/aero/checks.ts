@@ -1,12 +1,13 @@
 import { Task } from '@serenity-js/core';
-import { includes, matches, not } from '@serenity-js/assertions';
+import { endsWith, equals, includes, matches, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { MainText } from '../../game/elements';
 import { Menu } from '../../menu/elements';
 import { waitUntilAbsent, waitUntilPresent } from '../../support/presence';
 import { seeEventually } from '../../support/see-eventually';
 import { SeeCssValues } from '../../support/page-script';
-import { Overlay } from './elements';
+import { ObjectsPanel } from '../../objects/elements';
+import { ActionImage, AeroMenuItems, AeroObjects, Overlay } from './elements';
 
 const FIXED_MENU_CLASS = 'aero-fixed-menu';
 
@@ -35,4 +36,31 @@ export const SeeMainTextTwice = (text: string): Task =>
     (e) => Text.of(e),
     matches(new RegExp(`${text}[\\s\\S]*${text}`)),
     `#actor sees main text with "${text}" twice`,
+  );
+
+/** The action `label` shows an image whose src ends with `file` (the action format's %IMAGE%). */
+export const SeeActionImage = (label: string, file: string): Task =>
+  seeEventually(
+    ActionImage(label),
+    (e) => Attribute.called('src').of(e),
+    endsWith(file),
+    `#actor sees the "${label}" action with image "${file}"`,
+  );
+
+/** The objects panel lists exactly `labels` (each object's whole text, format included). */
+export const SeeAeroObjects = (labels: string[]): Task =>
+  seeEventually(
+    ObjectsPanel,
+    () => AeroObjects.eachMappedTo(Text),
+    equals(labels),
+    `#actor sees the objects ${labels.join(', ')}`,
+  );
+
+/** The open menu lists exactly `labels` (each item's whole text, format included). */
+export const SeeAeroMenuItems = (labels: string[]): Task =>
+  seeEventually(
+    Menu,
+    () => AeroMenuItems.eachMappedTo(Text),
+    equals(labels),
+    `#actor sees the menu items ${labels.join(', ')}`,
   );
