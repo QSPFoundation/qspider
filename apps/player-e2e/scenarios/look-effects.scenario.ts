@@ -8,7 +8,7 @@ import { scenario } from '../screenplay/support/scenario';
 
 const { text: TEXT, actions: ACTIONS } = LOOK_GAME;
 
-// The click that sets the effect variables and the click that jumps are separate (see the fixture).
+// Each action sets the effect variables and jumps in the same click.
 scenario('a new-location effect animates the change', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
@@ -18,7 +18,6 @@ scenario('a new-location effect animates the change', async (player) => {
     ClickAction(ACTIONS.start.toEffects),
     SeeMainTextContaining(TEXT.effects),
     ClickAction(ACTIONS.effects.slowFade),
-    ClickAction(ACTIONS.effects.arrive),
     // The 60 s fade keeps the wrapper mid-animation for the whole scenario. Its content is not asserted here:
     // at opacity ~0 WebDriver reports it as not displayed. The fast scenarios below prove the content arrives.
     SeeNewlocEffectInFlight(),
@@ -38,7 +37,6 @@ for (const [title, effect] of [
       ClickAction(ACTIONS.start.toEffects),
       SeeMainTextContaining(TEXT.effects),
       ClickAction(effect),
-      ClickAction(ACTIONS.effects.arrive),
       SeeMainTextContaining(TEXT.arrived),
     );
   });
