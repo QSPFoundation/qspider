@@ -30,6 +30,11 @@ export abstract class OperatePlayer extends Ability {
   abstract restartPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void>;
   /** Opens the player with the game `url` in its `?game=` parameter (web only). A path like `/x/y.qsps` is served by the player's own origin. */
   abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
+  /**
+   * From now on, answers requests whose path ends with `pathSuffix` only after `ms` milliseconds (web only: the
+   * browser's own network, which a request served by the player's service worker never reaches).
+   */
+  abstract delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -44,6 +49,11 @@ export const LoadTestPack = (): Interaction =>
 export const OpenGameUrl = (url: string): Interaction =>
   Interaction.where(`#actor opens the player with game url ${url}`, (actor) =>
     OperatePlayer.as(actor).openGameUrl(actor, url),
+  );
+
+export const DelayRequests = (pathSuffix: string, ms: number): Interaction =>
+  Interaction.where(`#actor makes requests ending with ${pathSuffix} take ${ms} ms`, (actor) =>
+    OperatePlayer.as(actor).delayRequests(actor, pathSuffix, ms),
   );
 
 export const DropGameFile = (path: string): Interaction =>

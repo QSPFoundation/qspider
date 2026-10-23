@@ -28,6 +28,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
     throw new Error('openGameUrl is not supported on desktop');
   }
 
+  async delayRequests(_actor: UsesAbilities & AnswersQuestions, _pathSuffix: string, _ms: number): Promise<void> {
+    throw new Error('delayRequests is not supported on desktop');
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);

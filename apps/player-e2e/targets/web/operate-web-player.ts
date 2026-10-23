@@ -39,4 +39,18 @@ export class OperateWebPlayer extends OperatePlayer {
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
     await (await page.nativePage()).locator('#openGame').setInputFiles(path);
   }
+
+  async delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    // The server answers late: the route holds the request for `ms` before it goes on to the network.
+    await (
+      await page.nativePage()
+    ).route(
+      (url) => url.pathname.endsWith(pathSuffix),
+      async (route) => {
+        await new Promise((resolve) => setTimeout(resolve, ms));
+        await route.continue().catch(() => undefined); // the page may have gone by then
+      },
+    );
+  }
 }
