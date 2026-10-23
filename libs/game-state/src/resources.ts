@@ -57,27 +57,26 @@ function loadScript(script: string): Promise<string | null> {
   return loaded;
 }
 
+/** The faces this module added to document.fonts, removed again when the game stops. */
+const addedFonts: FontFace[] = [];
+
+/**
+ * Each face is built and loaded explicitly: an @font-face rule in a <style> is not reliably registered when
+ * document.fonts.load() runs (WebKit then resolves without loading it, and the game would start without its font).
+ */
 function loadFonts(fonts: [string, string, string, string][]): Promise<string | null>[] {
-  const css = [];
-  for (const [name, path, weight, style] of fonts) {
-    css.push(`
-    @font-face {
-      font-family: "${name}";
-      src: url("${path}");
-      font-display: block;
-      font-style: ${style || 'normal'};
-      font-weight: ${weight || 'normal'};
-    }
-  `);
-  }
-  const gameStyle = document.createElement('style');
-  gameStyle.innerText = css.join('\n');
-  gameStyle.dataset['qspiderResource'] = 'style';
-  document.head.appendChild(gameStyle);
-  // A face downloads when something uses it, so ask for each one.
   return fonts.map(([name, path, weight, style]) => {
-    const request = document.fonts.load(`${style || 'normal'} ${weight || 'normal'} 1em "${name}"`).then(
-      () => null,
+    const face = new FontFace(name, `url("${path}")`, {
+      style: style || 'normal',
+      weight: weight || 'normal',
+      display: 'block',
+    });
+    const request = face.load().then(
+      () => {
+        document.fonts.add(face);
+        addedFonts.push(face);
+        return null;
+      },
       () => path,
     );
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -90,4 +89,5 @@ function loadFonts(fonts: [string, string, string, string][]): Promise<string | 
 
 export function clearAdditionalResources(): void {
   document.querySelectorAll('[data-qspider-resource]').forEach((el) => el.remove());
+  for (const face of addedFonts.splice(0)) document.fonts.delete(face);
 }
