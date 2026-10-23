@@ -29,7 +29,7 @@ export function translation(lng: string, key: string): string {
 export function pluralTranslation(lng: string, key: string, count: number): string {
   const category = new Intl.PluralRules(lng).select(count);
   const pick = (code: string) => bundle(code, 'translation')[`${key}_${category}`] ?? bundle(code, 'translation')[key];
-  const value = pick(lng) ?? pick('en');
+  const value = pick(lng) ?? pick('en'); // en has no plural variants: the bare key
   if (value === undefined) throw new Error(`No translation of "${key}" in ${lng} or en`);
   return value.replace(/\{\{\s*count\s*\}\}/g, String(count));
 }

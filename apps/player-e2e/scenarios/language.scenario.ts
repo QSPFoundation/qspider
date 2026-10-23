@@ -1,4 +1,5 @@
 import { ARCHIVES } from '../fixtures/archives';
+import { TEST_PACK } from '../fixtures/test-pack';
 import { SeeGameStarted, SeeNoticeContaining, SeeStartupFinished } from '../screenplay/common/checks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeePauseLanguage, SeePreferencesLabel } from '../screenplay/pause/checks';
@@ -7,7 +8,6 @@ import { SeeRunLinkText, SeeShelfIncludes, SeeShelfLanguage } from '../screenpla
 import { SwitchShelfLanguage } from '../screenplay/shelf/tasks';
 import { OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
-import { TEST_PACK } from '../fixtures/test-pack';
 import { pluralTranslation, translation } from '../screenplay/support/translations';
 
 const { title: TITLE, path: PATH, startText: START } = ARCHIVES.singleZip;
