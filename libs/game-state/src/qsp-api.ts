@@ -47,6 +47,17 @@ import { checkCondition } from './conditions';
 
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
+/**
+ * Counts the games opened as new. Opening a new game wipes the engine's variable watchers, so every
+ * module-level watcher must subscribe again when this changes.
+ */
+export const gameOpenEpoch$ = atom(0);
+
+/** Opens a game in the engine; a new game wipes its variable watchers, which `gameOpenEpoch$` announces. */
+export function openGameSource(api: QspAPI, source: ArrayBuffer, isNewGame: boolean): void {
+  api.openGame(source, isNewGame);
+  if (isNewGame) gameOpenEpoch$.update((n) => n + 1);
+}
 export const qspError$ = atom<QspErrorData | null>(null);
 export const qspiderModule$ = atom(writeQsp(readQsps(qspiderModuleContent)));
 
@@ -215,7 +226,7 @@ qspApi$.subscribe((api) => {
         const path = cleanPath(file);
         baseUrl$.update((url) => url + path.slice(0, path.lastIndexOf('/') + 1));
       }
-      api.openGame(gameSource, isNewGame);
+      openGameSource(api, gameSource, isNewGame);
       onOpened();
     });
   });
