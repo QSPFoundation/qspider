@@ -172,14 +172,14 @@ Note: `change_theme` is covered in 2f (Themes and layout), not 2e. 2e covers the
 
 Not engine calls, but integrations with something external, so E2E as well. Not yet inventoried at file:line level.
 
-| Touch point                                                                                                      | E2E                                |
-| ---------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| Shelf: add, remove, re-import overwrites; persistence across app restart (IndexedDB / Tauri storage)             | ◐ add + reopen; remove / restart — |
-| Saves persistence across restart                                                                                 | —                                  |
-| Player settings: change takes effect, persists across restart                                                    | —                                  |
-| Language switch: translations loaded at runtime, UI re-rendered; launch notice language before translations load | —                                  |
-| Player light / dark theme persistence                                                                            | —                                  |
-| Catalog: add game from catalog (network) — dropped from Phase 2 (offline/isolated)                               | —                                  |
+| Touch point                                                                                                      | E2E                                                                                                                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shelf: add, remove, re-import overwrites; persistence across app restart (IndexedDB / Tauri storage)             | ✅ (2h, `shelf.scenario.ts`: `a removed game stays removed and an added game stays after a restart`, `re-importing a game replaces its shelf entry`; `open-routes.scenario.ts`: `importing a game again by URL replaces its shelf entry`) |
+| Saves persistence across restart                                                                                 | ✅ (2d; 2h: `a removed game comes back without its old saves`)                                                                                                                                                                            |
+| Player settings: change takes effect, persists across restart                                                    | ✅ language and theme (2h); Preferences volume / mute are not persisted: a feature gap (B2), not a defect                                                                                                                                 |
+| Language switch: translations loaded at runtime, UI re-rendered; launch notice language before translations load | ✅ (2h, `language.scenario.ts`: `switching the language re-renders the player and persists`, `the pause-screen language select switches the language`, `the launch notice uses the saved language` (desktop only))                        |
+| Player light / dark theme persistence                                                                            | ✅ (2h, `player-theme.scenario.ts`: `the chosen player theme persists across a restart`)                                                                                                                                                  |
+| Catalog: add game from catalog (network) — dropped from Phase 2 (offline/isolated)                               | —                                                                                                                                                                                                                                         |
 
 ## Proposed Phase 2 scenarios
 
@@ -286,7 +286,7 @@ Found and decided in 2g (defect numbers below):
 - Fixed, player-visible (approved by the maintainer): absolute and `data:` URLs pass through; `game.cfg` resources load before the game starts, scripts in declared order, a failed one shows a notice and the game still starts (15 s per resource); `ISPLAY` reflects `PLAY` / `CLOSE` in the same action; the volume slider follows the volume.
 - Harness added: probes `SoundState` / `SeeSoundWebAudio`, `ImageLoaded`, the game-resource count; web-only `DelayRequests` and `RouteThroughProxy`; a test asset server on 127.0.0.1:47631; fixture `resources-game`. See `apps/player-e2e/README.md`.
 
-### 2h. Player-side integrations (§M)
+### 2h. Player-side integrations (§M) — done
 
 _Pack: fixtures exercising settings, language and theme state._
 
@@ -294,6 +294,14 @@ _Pack: fixtures exercising settings, language and theme state._
 - Settings change takes effect and persists across restart
 - Language switch re-renders the UI ⚠ launch notice English before translations load
 - Light / dark player theme persists
+
+Phase 2 is complete: 2a–2h are done. 2i (standalone builds) moved to Phase 3.
+
+Found and decided in 2h:
+
+- Fixed, player-visible (approved by the maintainer): defect 12 (a saved player theme is kept at startup; the OS preference applies only when nothing is saved); B1, web `removeGame` also deletes the game's saves (desktop already did); B4, a web `?game=` / `?config=` import of an existing id overwrites it like file / drop import (the guard in `apps/player/src/app/init.ts` is removed); the shelf-write race, where a reload right after a shelf change could lose the IndexedDB write (the navigation aborts the in-flight, fire-and-forget transaction). `games$` actions now track their storage writes and expose a non-visible pending-writes counter (`data-pending-writes` on `[data-qa="game-shelf"]`); scenarios wait for it before restarting.
+- Not reproduced: B3, the desktop multi-game launch notice in the saved language. The toast showed the ru-RU plural correctly, so `the launch notice uses the saved language` stays as a regression guard. Oddity, unexplained: with an English-fixed translator the toast was absent rather than English.
+- Feature gap, not a defect: B2, Preferences volume / mute are not persisted across restarts.
 
 ## Suspected defects found while reading (unverified by running, unless marked)
 
@@ -308,7 +316,7 @@ _Pack: fixtures exercising settings, language and theme state._
 9. **Fixed in 2g**: the service worker sent no Content-Type (SVG / fonts could fail) and captured `?query` into the path. It now strips `?query` / `#` and sets Content-Type for known extensions only (no header for unknown ones). The desktop protocol strips them too.
 10. CP866 Cyrillic names in old zips likely mojibake. Still parked (2a).
 11. **Fixed in 2f**: a missing `defaultTheme` in aero mode left the classic theme. It now falls back to Aero (classic in classic mode) and shows the notice (current-game.ts:152-155).
-12. Saved `dark` player theme probably ignored (player-theme.ts:6-11).
+12. **Fixed in 2h** (player-visible, approved by the maintainer): a saved `dark` player theme was ignored at startup (player-theme.ts:6-11). A saved theme is now kept; the OS preference applies only when nothing is saved.
 13. **Fixed in 2d** (confirmed against the engine contract): slot / path restore called the engine's `loaded()` before `loadSave()`, while the `@qsp/wasm-engine` Readme says the `load_save` callback is called after `api.loadSave`. `restoreFromSlot` / `restoreFromPath` now call `loadSave()` first, then `loaded()` (save.ts:58-84). Observable on both targets, before and after the fix: after `opengame` and a slot pick the main text is the restored one (`COUNTER=1`), the code written after `opengame` (`AFTER LOAD PANEL`) is not shown, and Increment gives `COUNTER=2` (restored 1 + 1). That end state is the same under both orders. The regression test `loading from the panel opened by the game does not run the code after opengame` tells them apart: with `loaded()` first, the `msg` after `opengame` (outside the save) opened over the restored text and blocked the game; with the fix it never opens.
 14. Engine events with no handler (`close`, `refresh`, `sleep`?) — not checked against the engine typings.
 
@@ -373,3 +381,14 @@ Open (found in 2g):
 43. Games loaded through the web CORS proxy: only text / binary fetches (`game.cfg`, entry, includes, themes) use the proxy. DOM resources (`<img>`, css `url()`, `@font-face`, Howler) resolve through `<base href>` to the unreachable origin and fail. Parked by the maintainer.
 44. The web service worker decodes with `decodeURI`, the desktop protocol decodes fully, so encoded `%3F` / `%23` differ between targets.
 45. The `game.cfg` font-failure path has no E2E row (only a missing script and a missing style).
+
+Open (found in 2h, not fixed):
+
+46. B6: desktop `TauriStorage` `hasSave*` / `clear*` throw when a game has no saves entry. Latent, no caller.
+47. B7: desktop `flushStorageData` is not serialised: back-to-back writes followed by a quick quit could lose the last write.
+48. B8: a desktop game whose `local_path` vanished is silently dropped from the shelf at startup.
+49. B9: the shelf locale selector value may not match a fallback language such as `en` (unsure).
+50. B10: the remove button's tooltip is an untranslated English string.
+51. Desktop has no single-instance guard: a second launch opens a second process writing the same storage.
+52. A same-id URL overwrite may drop a catalog entry's `meta.source_id`, so the catalog update check then re-imports.
+53. Residual of the shelf-write race: the UI stays optimistic, so a real user who reloads while a shelf write is in flight can still lose it. The E2E waits for `data-pending-writes`; the player does not.
