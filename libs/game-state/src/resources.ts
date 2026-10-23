@@ -1,6 +1,10 @@
 import { GameDescriptor } from '@qspider/contracts';
 
-/** A resource that never reports back must not hold the game back forever. */
+/**
+ * A resource that never reports back must not hold the game back forever. Scripts run in their listed order
+ * (async=false), so a stalled script also delays the scripts after it: they still run, late (after it settles or
+ * fails).
+ */
 const RESOURCE_TIMEOUT_MS = 15_000;
 
 /**
@@ -76,8 +80,11 @@ function loadFonts(fonts: [string, string, string, string][]): Promise<string | 
       () => null,
       () => path,
     );
-    const timeout = new Promise<string>((resolve) => setTimeout(() => resolve(path), RESOURCE_TIMEOUT_MS));
-    return Promise.race([request, timeout]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<string>((resolve) => {
+      timer = setTimeout(() => resolve(path), RESOURCE_TIMEOUT_MS);
+    });
+    return Promise.race([request, timeout]).finally(() => clearTimeout(timer));
   });
 }
 
