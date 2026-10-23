@@ -38,12 +38,12 @@ export const LOOK_GAME = {
     },
     formats: { setFormats: 'Set formats', pic: 'Pic', msg: 'Msg', input: 'Input', menu: 'Menu' },
     effects: { slowFade: 'Slow fade', quickSlide: 'Quick slide', seqFade: 'Seq fade' },
+    arrive: { back: 'Back' },
   },
   /** Dialog texts and menu items. */
   dialog: {
     msg: 'LOOK MSG',
     input: 'LOOK INPUT',
-    menuItems: ['LOOK MENU ONE', 'LOOK MENU TWO'],
     /** The same dialogs opened from the formats location. */
     formatsMsg: 'LOOK FMT MSG',
     formatsInput: 'LOOK FMT INPUT',
@@ -63,8 +63,8 @@ export const LOOK_GAME = {
   },
   /** Placement values of the dialogs' `Place` action (MSG_X, MSG_Y, INPUT_X, ...). */
   place: { msg: [111, 112], input: [121, 122], menu: [131, 132] },
-  /** Image used by `view` and `act 'Pic'`. */
-  images: { view: 'look/msg.png', action: 'look/act.png' },
+  /** Image used by `act 'Pic'`. */
+  images: { action: 'look/act.png' },
   /** `data-qa` of the <img> that the action formats write with %IMAGE%. */
   actionImageMark: 'look-act-img',
 } as const;

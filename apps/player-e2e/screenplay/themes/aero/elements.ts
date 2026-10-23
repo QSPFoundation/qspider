@@ -1,5 +1,6 @@
 import { By, PageElement, PageElements, Text } from '@serenity-js/web';
 import { equals } from '@serenity-js/assertions';
+import { LOOK_GAME } from '../../../fixtures/look-game';
 import { Action } from '../../game/elements';
 import { Menu } from '../../menu/elements';
 import { ObjectsPanel } from '../../objects/elements';
@@ -7,12 +8,9 @@ import { ObjectsPanel } from '../../objects/elements';
 /** The shade behind an Aero dialog (absent while DISABLESHADE is set). */
 export const Overlay = PageElement.located(By.css('[data-qsp="overlay"]')).describedAs('dialog shade');
 
-/** The invisible div the Aero menu is positioned from (its left/top come from MENU_X/MENU_Y). */
-export const MenuAnchor = PageElement.located(By.css('[data-qsp="menu-anchor"]')).describedAs('menu anchor');
-
-/** The <img> that the look fixture's action format writes with %IMAGE% (its own data-qa, LOOK_GAME.actionImageMark), inside the action labelled `label`. */
+/** The look fixture's action-format <img> (written with %IMAGE%) inside the action labelled `label`. */
 export const ActionImage = (label: string) =>
-  PageElement.located(By.css('[data-qa="look-act-img"]'))
+  PageElement.located(By.css(`[data-qa="${LOOK_GAME.actionImageMark}"]`))
     .of(Action(label))
     .describedAs(`image of the "${label}" action`);
 

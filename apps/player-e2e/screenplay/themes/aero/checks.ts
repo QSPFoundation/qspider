@@ -30,13 +30,15 @@ export const SeeMenuFixed = (fixed: boolean): Task =>
   );
 
 /** The main text holds `text` at least twice (the second write is the proof that a later click went through). */
-export const SeeMainTextTwice = (text: string): Task =>
-  seeEventually(
+export const SeeMainTextTwice = (text: string): Task => {
+  const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return seeEventually(
     MainText,
     (e) => Text.of(e),
-    matches(new RegExp(`${text}[\\s\\S]*${text}`)),
+    matches(new RegExp(`${escaped}[\\s\\S]*${escaped}`)),
     `#actor sees main text with "${text}" twice`,
   );
+};
 
 /** The action `label` shows an image whose src ends with `file` (the action format's %IMAGE%). */
 export const SeeActionImage = (label: string, file: string): Task =>

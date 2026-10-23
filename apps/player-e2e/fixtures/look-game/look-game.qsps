@@ -161,4 +161,5 @@ end
 
 # arrive
 *pl 'LOOK ARRIVED'
+act 'Back': gt 'effects'
 ---

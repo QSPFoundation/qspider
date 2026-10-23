@@ -1,22 +1,22 @@
+import { AERO_DEFAULTS_SUBSET, LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME } from '../fixtures/look-game';
 import { AERO_GAME, CLASSIC_DEFAULT_LOOK, GUI_CFG_GAME } from '../fixtures/themes-game';
 import { SeeStatsInDock } from '../screenplay/classic/checks';
-import { AERO_DEFAULTS_SUBSET, LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME } from '../fixtures/look-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { AeroMenuItem } from '../screenplay/themes/aero/elements';
-import { SeeActionImage, SeeAeroMenuItems, SeeAeroObjects } from '../screenplay/themes/aero/checks';
-import { SeeInput, SeeInputGone } from '../screenplay/input/checks';
 import { SeeMainTextContaining } from '../screenplay/game/checks';
-import { ClickAction, HoverAction, ReturnToShelf } from '../screenplay/game/tasks';
 import { Action } from '../screenplay/game/elements';
-import { ClickWhenPresent, waitUntilPresent } from '../screenplay/support/presence';
-import { SeeStatsContaining } from '../screenplay/stats/checks';
+import { ClickAction, HoverAction, ReturnToShelf } from '../screenplay/game/tasks';
+import { SeeInput, SeeInputGone } from '../screenplay/input/checks';
+import { CancelInput } from '../screenplay/input/tasks';
 import { SeeLookTable } from '../screenplay/look/checks';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
-import { CancelInput } from '../screenplay/input/tasks';
+import { SeeStatsContaining } from '../screenplay/stats/checks';
+import { SeeActionImage, SeeAeroMenuItems, SeeAeroObjects } from '../screenplay/themes/aero/checks';
+import { AeroMenuItem } from '../screenplay/themes/aero/elements';
 import { Hover } from '../screenplay/support/hover';
 import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
 import { SeeCssValues } from '../screenplay/support/page-script';
+import { ClickWhenPresent, waitUntilPresent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
 
 const { text: TEXT, actions: ACTIONS } = LOOK_GAME;
@@ -31,6 +31,15 @@ scenario('the Aero theme maps every look variable', async (player) => {
     ClickAction(ACTIONS.start.setVars),
     SeeMainTextContaining(TEXT.varsSet),
     SeeLookTable({ root: true }, LOOK_AERO_TABLE),
+    // The dialog portal sits outside the app root but gets the variables too.
+    ClickAction(ACTIONS.start.toDialogs),
+    SeeMainTextContaining(TEXT.dialogs),
+    ClickAction(ACTIONS.dialogs.msg),
+    SeeMsg(LOOK_GAME.dialog.msg),
+    SeeCssValues(
+      { qsp: 'msg' },
+      { '--color': LOOK_AERO_TABLE['--color']!, '--font-size': LOOK_AERO_TABLE['--font-size']! },
+    ),
   );
 });
 
@@ -43,25 +52,6 @@ scenario('the classic theme maps every look variable', async (player) => {
     ClickAction(ACTIONS.start.setVars),
     SeeMainTextContaining(TEXT.varsSet),
     SeeLookTable({ root: true }, LOOK_CLASSIC_TABLE),
-  );
-});
-
-scenario('the look variables reach the dialog portal', async (player) => {
-  await player.attemptsTo(
-    StartPlayer(),
-    SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.aeroPath),
-    SeeGameStarted(TEXT.start),
-    ClickAction(ACTIONS.start.setVars),
-    SeeMainTextContaining(TEXT.varsSet),
-    ClickAction(ACTIONS.start.toDialogs),
-    SeeMainTextContaining(TEXT.dialogs),
-    ClickAction(ACTIONS.dialogs.msg),
-    SeeMsg(LOOK_GAME.dialog.msg),
-    SeeCssValues(
-      { qsp: 'msg' },
-      { '--color': LOOK_AERO_TABLE['--color']!, '--font-size': LOOK_AERO_TABLE['--font-size']! },
-    ),
   );
 });
 
