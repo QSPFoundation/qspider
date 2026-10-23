@@ -193,15 +193,15 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('is_play', (path, result) => {
-    result(sounds$.actions.isPlaying(path));
+    result(sounds$.actions.isPlaying(cleanPath(path)));
   });
   api.on('play_file', (path, volume, ready) => {
-    sounds$.actions.play(path, volume);
+    sounds$.actions.play(cleanPath(path), volume);
     ready();
   });
   api.on('close_file', (path, ready) => {
     if (path) {
-      sounds$.actions.close(path);
+      sounds$.actions.close(cleanPath(path));
     } else {
       sounds$.actions.closeAll();
     }
