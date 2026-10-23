@@ -14,7 +14,14 @@ import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfTitles } from '../screenplay/shelf/checks';
-import { DropGameFile, OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
+import {
+  DropGameFile,
+  OpenGameFile,
+  OpenGameUrl,
+  RouteThroughProxy,
+  StartPlayer,
+} from '../screenplay/support/operate-player';
+import { SeeProxied } from '../screenplay/support/proxy';
 import { scenario } from '../screenplay/support/scenario';
 
 /** Path of a fixture served by the player's own origin (see global-setup.ts). */
@@ -26,6 +33,18 @@ scenario.webOnly('importing a game by URL starts it', async (player) => {
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {
   await player.attemptsTo(OpenGameUrl(served(URL_GAME.invalid.file)), SeeStartupFinished(), SeeErrorShown());
+});
+
+scenario.webOnly('a game URL the browser cannot fetch loads through the CORS proxy', async (player) => {
+  const origin = 'https://e2e-cors.invalid';
+  const url = `${origin}${served(URL_GAME.valid.file)}`;
+  await player.attemptsTo(
+    StartPlayer(),
+    RouteThroughProxy(origin),
+    OpenGameUrl(url),
+    SeeGameStarted(URL_GAME.valid.startText),
+    SeeProxied(url),
+  );
 });
 
 const opensArchive = (name: string, archive: { path: string; title: string; startText: string }) =>

@@ -35,6 +35,14 @@ export abstract class OperatePlayer extends Ability {
    * browser's own network, which a request served by the player's service worker never reaches).
    */
   abstract delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void>;
+  /**
+   * From now on, requests to `origin` fail in the browser (a CORS or network failure), and the CORS proxy
+   * (https://proxy.qspider.xyz/) answers with the player's own `/path` for the original URL it is asked for (web only).
+   * Every URL the proxy is asked for is recorded; read it with proxiedUrls.
+   */
+  abstract routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
+  /** The original URLs the CORS proxy was asked for since routeThroughProxy (web only). */
+  abstract proxiedUrls(actor: UsesAbilities & AnswersQuestions): Promise<string[]>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -54,6 +62,11 @@ export const OpenGameUrl = (url: string): Interaction =>
 export const DelayRequests = (pathSuffix: string, ms: number): Interaction =>
   Interaction.where(`#actor makes requests ending with ${pathSuffix} take ${ms} ms`, (actor) =>
     OperatePlayer.as(actor).delayRequests(actor, pathSuffix, ms),
+  );
+
+export const RouteThroughProxy = (origin: string): Interaction =>
+  Interaction.where(`#actor makes ${origin} unreachable, except through the CORS proxy`, (actor) =>
+    OperatePlayer.as(actor).routeThroughProxy(actor, origin),
   );
 
 export const DropGameFile = (path: string): Interaction =>

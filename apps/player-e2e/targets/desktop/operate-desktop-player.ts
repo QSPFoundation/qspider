@@ -32,6 +32,14 @@ export class OperateDesktopPlayer extends OperatePlayer {
     throw new Error('delayRequests is not supported on desktop');
   }
 
+  async routeThroughProxy(_actor: UsesAbilities & AnswersQuestions, _origin: string): Promise<void> {
+    throw new Error('routeThroughProxy is not supported on desktop');
+  }
+
+  async proxiedUrls(_actor: UsesAbilities & AnswersQuestions): Promise<string[]> {
+    throw new Error('proxiedUrls is not supported on desktop');
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);

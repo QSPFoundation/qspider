@@ -53,4 +53,34 @@ export class OperateWebPlayer extends OperatePlayer {
       },
     );
   }
+
+  private readonly proxied: string[] = [];
+
+  async routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    const native = await page.nativePage();
+    const playerOrigin = new URL((await page.url()).href).origin;
+    await native.route(
+      (url) => url.origin === origin,
+      (route) => route.abort('failed'),
+    );
+    await native.route('https://proxy.qspider.xyz/**', async (route) => {
+      // The tail is btoa(encodeURI(original url)), see libs/utils/src/fetch.ts.
+      const original = decodeURI(atob(new URL(route.request().url()).pathname.slice(1)));
+      this.proxied.push(original);
+      const target = new URL(original);
+      // The fake origin's files are the player's own served fixtures, at the same path.
+      const served =
+        target.origin === origin ? await native.request.get(new URL(target.pathname, playerOrigin).href) : undefined;
+      await route.fulfill({
+        status: served?.status() ?? 404,
+        headers: { 'access-control-allow-origin': '*' },
+        body: served ? await served.body() : '',
+      });
+    });
+  }
+
+  async proxiedUrls(): Promise<string[]> {
+    return [...this.proxied];
+  }
 }
