@@ -66,7 +66,7 @@ export const SeeAeroMenuItems = (labels: string[]): Task =>
   );
 
 /** A computed opacity that is a number in [0, 1): the element is mid-fade, not at rest. */
-const isFading = Expectation.define<string>('isFading', 'is mid-fade (opacity below 1)', (actual) => {
+const isFading = Expectation.define<string, []>('isFading', 'is mid-fade (opacity below 1)', (actual) => {
   const opacity = Number(actual);
   return actual.trim() !== '' && opacity >= 0 && opacity < 1;
 });
