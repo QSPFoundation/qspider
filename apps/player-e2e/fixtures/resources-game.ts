@@ -123,9 +123,7 @@ export const RESOURCES_GAME = {
     startSeen: 'res-start-seen',
     /**
      * Script one writes both on `res_start` too: `startReady` the value of `--e2e-one` at that moment (the style was
-     * applied before the start); `startFont` whether the E2eFont face had status `loaded` (no load requested). The
-     * font one is asserted on web only: WebKit's `document.fonts.load()` without a text leaves the face `unloaded`
-     * (desktop), so the font is not loaded at the start there.
+     * applied before the start); `startFont` whether the E2eFont face had status `loaded` (no load requested).
      */
     startReady: 'res-start-ready',
     startFont: 'res-start-font',

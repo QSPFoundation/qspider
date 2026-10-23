@@ -79,7 +79,8 @@ const { marks: MARKS, scriptText: SCRIPT, css: CSS, cfg: CFG } = RESOURCES_GAME;
 /** The first start already saw script one; the resources location then shows styles, order and the font. */
 const SEE_RESOURCES_APPLIED: Task[] = [
   SeeResourceMark(MARKS.startSeen, SCRIPT.startSeen),
-  // At the start the style was already applied.
+  // At the start the style was already applied and the font loaded.
+  SeeResourceMark(MARKS.startFont, SCRIPT.startFont),
   SeeResourceMark(MARKS.startReady, SCRIPT.startReady),
   ClickAction(ACTIONS.start.toResources),
   SeeMainTextContaining(TEXT.resources),
@@ -114,8 +115,6 @@ scenario.webOnly(TITLE, async (player) => {
     DelayRequests('/fonts/e2e.ttf', 2500),
     OpenGameUrl(`/${RESOURCES_GAME.servedDir}/resources-game.qsps`),
     SeeGameStarted(TEXT.start),
-    // The font is loaded at the start (web only: on desktop WebKit it is still unloaded, see resources-game.ts).
-    SeeResourceMark(MARKS.startFont, SCRIPT.startFont),
     ...SEE_RESOURCES_APPLIED,
   );
 });
@@ -126,8 +125,8 @@ scenario('game.cfg resources are removed when the game stops', async (player) =>
     SeeStartupFinished(),
     OpenGameFile(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
-    // 2 styles + 2 scripts + 1 font style.
-    SeeGameResourceCount(CFG.styles.length + CFG.scripts.length + 1),
+    // 2 styles + 2 scripts (the font is a FontFace in document.fonts, not an element).
+    SeeGameResourceCount(CFG.styles.length + CFG.scripts.length),
     ReturnToShelf(),
     SeeShelfIncludes(ARCHIVES.resourcesZip.title),
     SeeGameResourceCount(0),
