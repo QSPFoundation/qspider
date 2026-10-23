@@ -8,12 +8,10 @@ function markTheme(theme: PlayerTheme): void {
   document.body.setAttribute('data-player-theme', theme);
 }
 export function initTheme(): void {
-  let saved: PlayerTheme | null = localStorage.getItem('qspider-theme') as PlayerTheme;
-  if (!saved && window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-    saved = 'dark';
-  } else {
-    saved = 'light';
-  }
+  const stored = localStorage.getItem('qspider-theme');
+  const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  // A saved choice wins; the OS preference only applies when nothing is saved.
+  const saved: PlayerTheme = stored === 'dark' || stored === 'light' ? stored : prefersDark ? 'dark' : 'light';
   playerTheme$.set(saved);
   markTheme(saved); // set() to the unchanged value does not notify the subscriber
 }
