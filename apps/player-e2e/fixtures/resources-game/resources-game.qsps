@@ -69,5 +69,10 @@ act 'Play backslash':
   play 'snd\b.wav'
   *pl 'SND BACKSLASH B=' + str(isplay('snd\b.wav'))
 end
+act 'Is playing forward b': *pl 'SND ISB B=' + str(isplay('snd/b.wav'))
+act 'Close forward b':
+  close 'snd/b.wav'
+  *pl 'SND CLOSEB B=' + str(isplay('snd/b.wav'))
+end
 act 'Back': gt 'start'
 ---

@@ -42,6 +42,8 @@ export const RESOURCES_GAME = {
       playTwo: 'Play two',
       closeAll: 'Close all',
       playBackslash: 'Play backslash',
+      isPlayingForwardB: 'Is playing forward b',
+      closeForwardB: 'Close forward b',
       back: 'Back',
     },
   },
@@ -138,7 +140,7 @@ export const RESOURCES_GAME = {
   sound: {
     a: 'snd/a.wav',
     b: 'snd/b.wav',
-    /** b.wav is played as `snd\b.wav`. */
+    /** b.wav is played as `snd\b.wav`; the `forward b` actions ask for it as `snd/b.wav`. */
     backslashB: 'snd\\b.wav',
     lines: {
       play: 'SND PLAY A=',
@@ -148,6 +150,8 @@ export const RESOURCES_GAME = {
       playTwo: 'SND TWO A=',
       closeAll: 'SND CLOSEALL A=',
       backslash: 'SND BACKSLASH B=',
+      isForwardB: 'SND ISB B=',
+      closeForwardB: 'SND CLOSEB B=',
     },
     /** Volumes the `Play` / `Play again` actions pass. */
     volume: { play: 50, playAgain: 80 },
