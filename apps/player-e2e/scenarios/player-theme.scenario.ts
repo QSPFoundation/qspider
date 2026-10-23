@@ -1,22 +1,25 @@
 import { SeeStartupFinished } from '../screenplay/common/checks';
-import { SeePlayerTheme } from '../screenplay/shelf/checks';
+import { CurrentPlayerTheme, SeePlayerTheme } from '../screenplay/shelf/checks';
 import { ToggleShelfTheme } from '../screenplay/shelf/tasks';
 import { RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
-// Toggles explicitly before the restart, so the scenario does not depend on the OS colour scheme
-// (the headless browser starts light).
-scenario('the dark player theme persists across a restart', async (player) => {
+// The theme the player starts with depends on the OS colour scheme, so the scenario reads it first
+// and only ever asserts relative to it: the chosen theme is the opposite of the initial one.
+scenario('the chosen player theme persists across a restart', async (player) => {
+  await player.attemptsTo(StartPlayer(), SeeStartupFinished());
+  const initial = (await player.answer(CurrentPlayerTheme())) === 'dark' ? 'dark' : 'light';
+  const chosen = initial === 'dark' ? 'light' : 'dark';
   await player.attemptsTo(
-    StartPlayer(),
-    SeeStartupFinished(),
-    SeePlayerTheme('light'),
     ToggleShelfTheme(),
-    SeePlayerTheme('dark'),
+    SeePlayerTheme(chosen),
     RestartPlayer(),
     SeeStartupFinished(),
-    SeePlayerTheme('dark'),
+    SeePlayerTheme(chosen),
     ToggleShelfTheme(),
-    SeePlayerTheme('light'),
+    SeePlayerTheme(initial),
+    RestartPlayer(),
+    SeeStartupFinished(),
+    SeePlayerTheme(initial),
   );
 });

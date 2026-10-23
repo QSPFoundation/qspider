@@ -72,3 +72,6 @@ export const SeePlayerTheme = (theme: 'light' | 'dark'): Task =>
     equals(theme),
     `#actor sees the player theme ${theme}`,
   );
+
+/** The theme the player body carries now (`light` or `dark`); a one-shot read, so settle startup first. */
+export const CurrentPlayerTheme = () => Attribute.called('data-player-theme').of(PlayerBody);
