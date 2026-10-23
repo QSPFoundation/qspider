@@ -17,6 +17,8 @@ export function initTheme(): void {
 }
 export function toggleTheme(): void {
   playerTheme$.update((theme) => (theme === 'dark' ? 'light' : 'dark'));
+  // Saved only here: until the player picks a theme, every launch follows the OS preference.
+  localStorage.setItem('qspider-theme', playerTheme$.value);
 }
 
 playerTheme$.subscribe((theme) => {
@@ -26,5 +28,4 @@ playerTheme$.subscribe((theme) => {
   } else {
     document.body.classList.remove('dark-theme');
   }
-  localStorage.setItem('qspider-theme', theme);
 });
