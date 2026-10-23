@@ -9,6 +9,8 @@ import SevenZip from '7z-wasm';
 import { deflateSync, crc32 } from 'node:zlib';
 import { ARCHIVES, SOURCES } from './archives';
 import { LOOK_IMAGES } from './look-game';
+import { quietWav, squareFont } from './resource-assets';
+import { RESOURCES_GAME, RESOURCES_IMAGES } from './resources-game';
 import { TEST_PACK } from './test-pack';
 
 const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
@@ -80,6 +82,20 @@ async function sevenZipPack(files: Record<string, Uint8Array>): Promise<Uint8Arr
   return sevenZip.FS.readFile('out.7z');
 }
 
+/** Files of the resources game by path: authored text files plus the generated PNGs, WAVs and font. */
+function resourcesFiles(): Record<string, Uint8Array> {
+  const files: Record<string, Uint8Array> = {
+    'resources-game.qsps': readFileSync(join(SOURCES.resources, 'resources-game.qsps')),
+  };
+  for (const name of [...RESOURCES_GAME.cfg.styles, ...RESOURCES_GAME.cfg.scripts])
+    files[name] = readFileSync(join(SOURCES.resources, name));
+  for (const [name, [w, h]] of Object.entries(RESOURCES_IMAGES)) files[name] = transparentPng(w, h);
+  files[RESOURCES_GAME.sound.a] = quietWav(RESOURCES_GAME.sound.seconds, 440);
+  files[RESOURCES_GAME.sound.b] = quietWav(RESOURCES_GAME.sound.seconds, 330);
+  files[RESOURCES_GAME.cfg.font.path] = squareFont();
+  return files;
+}
+
 /** Writes every ARCHIVES fixture. Idempotent: outputs are overwritten. */
 export async function buildFixtures(): Promise<void> {
   // The test pack itself, imported by the web player through its Open game input.
@@ -119,6 +135,17 @@ export async function buildFixtures(): Promise<void> {
     };
     write(archive.path, zipSync(entries as Zippable));
   }
+  const resources = resourcesFiles();
+  for (const [archive, cfg] of [
+    [ARCHIVES.resourcesZip, 'game.cfg'],
+    [ARCHIVES.resourcesMissingZip, 'game-missing.cfg'],
+  ] as const) {
+    write(archive.path, zipSync({ 'game.cfg': readFileSync(join(SOURCES.resources, cfg)), ...resources } as Zippable));
+  }
+  // The plain folder keeps the real case on disk (the archives are lowercased by the players).
+  const folder = dirname(ARCHIVES.resourcesFolder.path);
+  write(join(folder, 'game.cfg'), readFileSync(join(SOURCES.resources, 'game.cfg')));
+  for (const [name, data] of Object.entries(resources)) write(join(folder, name), data);
   const e2eGame: [string, string] = [SOURCES.e2eGame, 'e2e-game.qsps'];
   const aeroConfig = e2eGameConfig('e2e-game-aero', ARCHIVES.e2eGameAeroZip.title, ['mode = "aero"']);
   write(ARCHIVES.e2eGameAeroZip.path, zipWithConfig(aeroConfig, [e2eGame]));

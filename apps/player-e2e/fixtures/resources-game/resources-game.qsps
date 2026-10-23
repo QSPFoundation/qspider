@@ -1,0 +1,72 @@
+# start
+*pl 'RES START'
+exec 'qspider.event:res_start'
+*pl '<img data-qa="res-img-forward" src="Img/Sub/Mixed.png">'
+*pl '<img data-qa="res-img-backslash" src="Img\Sub\Back.png">'
+*pl '<img data-qa="res-img-space" src="Img/With Space/Pic One.png">'
+*pl '<img data-qa="res-img-cyrillic" src="Img/Папка/Рис.png">'
+*pl '<img data-qa="res-img-case" src="img/sub/CASE.png">'
+*pl '<img data-qa="res-img-query" src="Img/Sub/Query.png?v=2">'
+if countobj = 0: addobj 'RES OBJECT', 'Img/Obj.png'
+act 'Act image', 'Img/Act.png': *pl 'RES ACTION CLICKED'
+act 'To media': gt 'media'
+act 'To resources': gt 'resources'
+act 'To sound': gt 'sound'
+---
+
+# media
+*clr
+*pl 'RES MEDIA'
+act 'View backslash': view 'Img\View.png'
+act 'Menu image':
+  $res_menu[0] = 'RES MENU ONE:menu_pick:Img/Menu.png'
+  menu '$res_menu'
+end
+act 'Backimage data': $BACKIMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+act 'Backimage backslash': $BACKIMAGE = 'Img\Sub\Back.png'
+act 'Back': gt 'start'
+---
+
+# menu_pick
+*pl 'RES MENU PICKED'
+---
+
+# resources
+*clr
+*pl 'RES RESOURCES'
+*pl '<span data-qa="res-styled">RES STYLED</span>'
+*pl '<span data-qa="res-font">A</span>'
+exec 'qspider.event:res_show'
+act 'Back': gt 'start'
+---
+
+# sound
+*clr
+*pl 'SND READY'
+act 'Play':
+  play 'snd/a.wav', 50
+  *pl 'SND PLAY A=' + str(isplay('snd/a.wav'))
+end
+act 'Play again':
+  play 'snd/a.wav', 80
+  *pl 'SND AGAIN A=' + str(isplay('snd/a.wav'))
+end
+act 'Is playing': *pl 'SND IS A=' + str(isplay('snd/a.wav'))
+act 'Close':
+  close 'snd/a.wav'
+  *pl 'SND CLOSE A=' + str(isplay('snd/a.wav'))
+end
+act 'Play two':
+  play 'snd/a.wav' & play 'snd/b.wav'
+  *pl 'SND TWO A=' + str(isplay('snd/a.wav')) + ' B=' + str(isplay('snd/b.wav'))
+end
+act 'Close all':
+  close all
+  *pl 'SND CLOSEALL A=' + str(isplay('snd/a.wav')) + ' B=' + str(isplay('snd/b.wav'))
+end
+act 'Play backslash':
+  play 'snd\b.wav'
+  *pl 'SND BACKSLASH B=' + str(isplay('snd\b.wav'))
+end
+act 'Back': gt 'start'
+---

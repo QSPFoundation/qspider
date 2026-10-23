@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { readQsp } from '@qsp/converters';
 import { beforeAll, describe, expect, it } from 'vitest';
@@ -9,6 +10,7 @@ import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
 import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
 import { PANELS_GAME } from './panels-game';
+import { RESOURCES_GAME, RESOURCES_IMAGES } from './resources-game';
 import { SAVES_GAME } from './saves-game';
 import { AERO_GAME, CORE_THEME_VARIANTS, GUI_CFG_GAME, MISSING_THEME_GAME, THEMED_GAME } from './themes-game';
 
@@ -178,6 +180,98 @@ describe('buildFixtures', () => {
 
     it('LOOK_CLASSIC_TABLE has exactly the variables classic.html declares and derives', () => {
       expect(Object.keys(LOOK_CLASSIC_TABLE).sort()).toEqual(declaredNames(themeFile('classic')).sort());
+    });
+  });
+
+  describe('resources game', () => {
+    const source = (name: string): string =>
+      readFileSync(fileURLToPath(new URL(`./resources-game/${name}`, import.meta.url)), 'utf8');
+    const folder = dirname(RESOURCES_GAME.folderGamePath);
+    const zipFiles = (path: string): Record<string, Uint8Array> => unzipSync(bytes(path));
+    const wrongCase = RESOURCES_GAME.images.wrongCase.src;
+
+    /** Every asset path the game, the styles and the cfg name, normalised like the player does (`\\` to `/`, no query). */
+    function referencedAssets(): string[] {
+      const sources = [source('resources-game.qsps'), source('game.cfg'), source('css/one.css'), source('css/Two.css')];
+      const found = new Set<string>();
+      for (const text of sources)
+        for (const [, ref] of text.matchAll(/['":]((?:[Ii]mg|snd|css|js|fonts)[\\/][^'"?<>]*)/g))
+          found.add(ref.replaceAll('\\', '/'));
+      return [...found];
+    }
+
+    it('names every asset it uses, and each exists in the zip and in the plain folder with the intended case', () => {
+      const zipped = zipFiles(RESOURCES_GAME.zipPath);
+      const refs = referencedAssets().filter((ref) => ref !== wrongCase);
+      expect(refs.length).toBe(16);
+      for (const ref of refs) {
+        expect(ref in zipped, `zip: ${ref}`).toBe(true);
+        expect(existsSync(join(folder, ref)), `folder: ${ref}`).toBe(true);
+      }
+    });
+
+    it('has the wrong-case reference only as a case-insensitive match', () => {
+      const zipped = zipFiles(RESOURCES_GAME.zipPath);
+      const real = RESOURCES_GAME.images.wrongCase.file;
+      expect(wrongCase).not.toBe(real);
+      expect(wrongCase.toLowerCase()).toBe(real.toLowerCase());
+      expect(wrongCase in zipped).toBe(false);
+      expect(real in zipped).toBe(true);
+      expect(existsSync(join(folder, wrongCase))).toBe(false);
+    });
+
+    it('spells every authored image in the game as the constants say', () => {
+      const game = source('resources-game.qsps');
+      for (const { qa, src, file } of Object.values(RESOURCES_GAME.images)) {
+        expect(game, qa).toContain(`<img data-qa="${qa}" src="${src}">`);
+        expect(src.replaceAll('\\', '/').split('?')[0].toLowerCase(), qa).toBe(file.toLowerCase());
+      }
+      expect(game).toContain(`'${RESOURCES_GAME.dataImage}'`);
+      expect(game).toContain(`play '${RESOURCES_GAME.sound.backslashB}'`);
+    });
+
+    it('packs the archive with the cfg, the game, every generated asset at its size, and the zip entries in UTF-8', () => {
+      const zipped = zipFiles(RESOURCES_GAME.zipPath);
+      expect(startsWith(RESOURCES_GAME.zipPath, [0x50, 0x4b, 0x03, 0x04])).toBe(true);
+      expect(text(RESOURCES_GAME.zipPath, 'game.cfg')).toContain('scripts = ["js/one.js", "js/Two.js"]');
+      expect(Object.keys(zipped)).toContain(RESOURCES_GAME.files.cyrillic);
+      for (const [name, [width, height]] of Object.entries(RESOURCES_IMAGES)) {
+        const png = new DataView(zipped[name].buffer, zipped[name].byteOffset, zipped[name].byteLength);
+        expect([png.getUint32(0), png.getUint32(16), png.getUint32(20)], name).toEqual([0x89504e47, width, height]);
+      }
+      const sizes = Object.values(RESOURCES_IMAGES).map(([w]) => w);
+      expect(new Set(sizes).size).toBe(sizes.length);
+    });
+
+    it('generates two distinct RIFF WAVs of the stated length and a TrueType font', () => {
+      const zipped = zipFiles(RESOURCES_GAME.zipPath);
+      for (const name of [RESOURCES_GAME.sound.a, RESOURCES_GAME.sound.b]) {
+        const wav = Buffer.from(zipped[name]);
+        expect([wav.toString('ascii', 0, 4), wav.toString('ascii', 8, 12), wav.readUInt32LE(24)], name).toEqual([
+          'RIFF',
+          'WAVE',
+          8000,
+        ]);
+        expect(wav.length, name).toBe(44 + 8000 * RESOURCES_GAME.sound.seconds);
+      }
+      expect(
+        Buffer.compare(Buffer.from(zipped[RESOURCES_GAME.sound.a]), Buffer.from(zipped[RESOURCES_GAME.sound.b])),
+      ).not.toBe(0);
+      const font = Buffer.from(zipped[RESOURCES_GAME.cfg.font.path]);
+      expect(font.readUInt32BE(0)).toBe(0x00010000);
+      expect(font.length).toBeLessThan(2048);
+    });
+
+    it('packs the missing variant with a script and a style that are not in the archive', () => {
+      const zipped = zipFiles(RESOURCES_GAME.zipPath);
+      const entriesOf = Object.keys(zipFiles(RESOURCES_GAME.missingZipPath));
+      const cfg = text(RESOURCES_GAME.missingZipPath, 'game.cfg');
+      expect(cfg).toContain(`"${RESOURCES_GAME.cfg.missingScript}"`);
+      expect(cfg).toContain(`"${RESOURCES_GAME.cfg.missingStyle}"`);
+      expect(entriesOf).not.toContain(RESOURCES_GAME.cfg.missingScript);
+      expect(entriesOf).not.toContain(RESOURCES_GAME.cfg.missingStyle);
+      expect(entriesOf.sort()).toEqual(Object.keys(zipped).sort());
+      expect(RESOURCES_GAME.folderGamePath).toBe(ARCHIVES.resourcesFolder.path);
     });
   });
 });

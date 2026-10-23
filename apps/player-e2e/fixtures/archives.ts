@@ -28,6 +28,10 @@ export const ARCHIVES = {
   /** The e2e game (fixtures/e2e-game) packed with a game.cfg that selects a theme. */
   e2eGameAeroZip: { path: out('e2e-game-aero.zip'), title: 'E2E game (aero)' },
   e2eGameCustomZip: { path: out('e2e-game-custom.zip'), title: 'E2E game (custom theme)' },
+  /** The resources game (fixtures/resources-game): the archive, its 404 variant, and the plain folder's .qsps. */
+  resourcesZip: { path: out('resources-game.zip'), title: 'Resources game' },
+  resourcesMissingZip: { path: out('resources-missing.zip'), title: 'Resources game (missing)' },
+  resourcesFolder: { path: out('resources-game/resources-game.qsps'), title: 'Resources game' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -44,5 +48,6 @@ export const SOURCES = {
   missingTheme: fileURLToPath(new URL('./missing-theme/', import.meta.url)),
   guiCfg: fileURLToPath(new URL('./gui-cfg-game/', import.meta.url)),
   look: fileURLToPath(new URL('./look-game/', import.meta.url)),
+  resources: fileURLToPath(new URL('./resources-game/', import.meta.url)),
   e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;
