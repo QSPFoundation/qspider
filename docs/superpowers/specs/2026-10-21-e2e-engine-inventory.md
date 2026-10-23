@@ -102,26 +102,26 @@ No engine involved, so these go to unit tests in `libs/html-renderer` / `libs/re
 
 ## G. Resources and paths
 
-| Touch point                                                        | Where                                               | E2E                                                                                                                       |
-| ------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `<img src>` in game HTML                                           | html/img.tsx                                        | —                                                                                                                         |
-| Images via CSS vars (`$BACKIMAGE`, aero images), natural-size vars | css-variables.tsx:28-63                             | ✅ resource suffixes and `-w` / `-h` in the look tables (`look-vars.scenario.ts`); backslash / absolute paths not covered |
-| Action / object / menu images                                      | GS/utils.ts:24-37                                   | ◐ action image (`Aero format variables wrap the panels`, `look-vars.scenario.ts`); object / menu images not covered       |
-| View image                                                         | view.tsx                                            | —                                                                                                                         |
-| `game.cfg` resources: fonts, styles, scripts (removed on stop)     | GS/resources.ts                                     | —                                                                                                                         |
-| Backslash paths (`img\a.png`), spaces, Cyrillic, wrong case        | img.tsx:7; css-variables.tsx:63; game_uri.rs        | —                                                                                                                         |
-| Resources from inside an archive                                   | service-worker.ts; desktop XHR shim setup.ts:69-104 | —                                                                                                                         |
-| Web CORS proxy fallback                                            | libs/browser data-fetcher.ts                        | —                                                                                                                         |
+| Touch point                                                        | Where                                               | E2E                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `<img src>` in game HTML                                           | html/img.tsx                                        | ✅ `game images load from every kind of path (archive)`, `resources.scenario.ts` (plain, backslash, spaces, Cyrillic, wrong case, `?query`, absolute and `data:` URLs; the probe is the picture's natural width)                                                                                 |
+| Images via CSS vars (`$BACKIMAGE`, aero images), natural-size vars | css-variables.tsx:28-63                             | ✅ resource suffixes and `-w` / `-h` in the look tables (`look-vars.scenario.ts`); backslash, absolute and `data:` paths in the same resources scenario                                                                                                                                          |
+| Action / object / menu images                                      | GS/utils.ts:24-37                                   | ✅ action image (`look-vars.scenario.ts`); object and menu images in the resources scenario                                                                                                                                                                                                      |
+| View image                                                         | view.tsx                                            | ✅ resources scenario (backslash path)                                                                                                                                                                                                                                                           |
+| `game.cfg` resources: fonts, styles, scripts (removed on stop)     | GS/resources.ts                                     | ✅ `game.cfg resources load before the game starts, in order` (plus a web-only variant from a plain URL with script one delayed), `game.cfg resources are removed when the game stops`, `a missing game.cfg resource shows a notice and the game still starts`; the font-failure path has no row |
+| Backslash paths (`img\a.png`), spaces, Cyrillic, wrong case        | img.tsx:7; css-variables.tsx:63; game_uri.rs        | ✅ `game images load from every kind of path (archive)` and, on desktop, `game images load from a plain folder` (wrong case on the web plain-URL route is a case-sensitive server and is not asserted)                                                                                           |
+| Resources from inside an archive                                   | service-worker.ts; desktop XHR shim setup.ts:69-104 | ✅ the archive scenarios above (web: service worker; desktop: protocol); a game script's XHR to an absolute URL, in the same game                                                                                                                                                                |
+| Web CORS proxy fallback                                            | libs/browser data-fetcher.ts                        | ✅ web only: `a game URL the browser cannot fetch loads through the CORS proxy`, `open-routes.scenario.ts` (text/binary fetches only; DOM resources do not use the proxy, defect 43)                                                                                                             |
 
 ## H. Sound
 
-| Touch point                                               | Where                                     | E2E |
-| --------------------------------------------------------- | ----------------------------------------- | --- |
-| `play_file` (volume), `is_play`, `close_file` (one / all) | GS/qsp-api.ts:183-197; audio.ts; sound.ts | —   |
-| Replaying a sound already playing                         | audio.ts                                  | —   |
-| Global mute / volume (hotkeys, widgets)                   | audio.ts:45-62; hotkeys.ts:105-124        | —   |
-| Sound from archive; desktop via XHR shim                  | setup.ts                                  | —   |
-| Sounds stopped on game stop                               | current-game.ts:242                       | —   |
+| Touch point                                               | Where                                     | E2E                                                                                                                                            |
+| --------------------------------------------------------- | ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `play_file` (volume), `is_play`, `close_file` (one / all) | GS/qsp-api.ts:183-197; audio.ts; sound.ts | ✅ `PLAY, replay, ISPLAY and CLOSE`, `sound.scenario.ts` (ISPLAY text in the same action plus the Howl probe; `a sound path with backslashes`) |
+| Replaying a sound already playing                         | audio.ts                                  | ✅ same scenario                                                                                                                               |
+| Global mute / volume (hotkeys, widgets)                   | audio.ts:45-62; hotkeys.ts:105-124        | ✅ `mute and volume from the pause screen hotkeys` (master state probe; the volume slider follows the volume)                                  |
+| Sound from archive; desktop via XHR shim                  | setup.ts                                  | ✅ every sound scenario opens the resources game from its archive; the absolute-URL sound is in `resources.scenario.ts`                        |
+| Sounds stopped on game stop                               | current-game.ts:242                       | ✅ `sounds stop when the game stops`                                                                                                           |
 
 ## I. Saves
 
@@ -270,7 +270,7 @@ Assertion method (decided, see the design doc "Decisions made"):
 - Reading a CSS custom property runs JS in the page (`page.evaluate` / `browser.execute`) — added as a reusable check, the first that reads computed style rather than text/attributes.
 - The shade overlay and other class-only Aero elements get `data-qsp` hooks (small `libs/renderer` change) so they're located per the README convention.
 
-### 2g. Resources, paths, sound (§G, §H)
+### 2g. Resources, paths, sound (§G, §H) — done
 
 - Images: `<img src>`, backslash path, `$BACKIMAGE` ⚠ backslash/absolute handling
 - Action / object / menu images; view image
@@ -279,6 +279,12 @@ Assertion method (decided, see the design doc "Decisions made"):
 - Case-insensitive path reference ⚠ desktop case fallback
 - Sound: `play_file`, `is_play`, `close_file`, mute / volume, from archive — Pack: a game with audio
 - Web CORS proxy fallback
+
+Found and decided in 2g (defect numbers below):
+
+- Fixed plain: every backslash in game-HTML `<img>`, CSS-variable paths, the view path and sound paths / keys (one key owner, `getFileKey`); `?query` / `#` stripped by the web service worker and the desktop protocol; the service worker sets Content-Type for known extensions only; the desktop lookup is exact, then whole-path lowercase, then per-segment case-insensitive.
+- Fixed, player-visible (approved by the maintainer): absolute and `data:` URLs pass through; `game.cfg` resources load before the game starts, scripts in declared order, a failed one shows a notice and the game still starts (15 s per resource); `ISPLAY` reflects `PLAY` / `CLOSE` in the same action; the volume slider follows the volume.
+- Harness added: probes `SoundState` / `SeeSoundWebAudio`, `ImageLoaded`, the game-resource count; web-only `DelayRequests` and `RouteThroughProxy`; a test asset server on 127.0.0.1:47631; fixture `resources-game`. See `apps/player-e2e/README.md`.
 
 ### 2h. Player-side integrations (§M)
 
@@ -296,11 +302,11 @@ _Pack: fixtures exercising settings, language and theme state._
 3. `qsp-bind` writes raw input into QSP code (quotes break it; code injection).
 4. `face` → `fontFace` (not CSS), so `<font face>` is ignored.
 5. Inline style values containing `:` (`url(http://…)`, `data:`) are truncated.
-6. Backslash paths: only the first `\` replaced for images / CSS vars; view and sound paths not cleaned.
-7. Absolute `$BACKIMAGE` (`http…`) gets the game base prefixed.
-8. Desktop case fallback only tries the fully lowercased path; remote / standalone web have none.
-9. Service worker sends no Content-Type (SVG / fonts may fail); `?query` captured into the path.
-10. CP866 Cyrillic names in old zips likely mojibake.
+6. **Fixed in 2g**: backslash paths: only the first `\` was replaced for images / CSS vars; view and sound paths were not cleaned. Every backslash is now normalised in game-HTML `<img>`, CSS-variable paths, the view path and sound paths / keys.
+7. **Fixed in 2g** (player-visible, approved by the maintainer): absolute `$BACKIMAGE` (`http…`) got the game base prefixed. Absolute and `data:` URLs now pass through (`prepareUrl`); the desktop XHR shim forwards external URLs to the real XHR and `readBytes` does not prefix them. The shared `isExternalUrl` needs at least 2 characters before `:`, so `C:\` stays relative.
+8. **Fixed in 2g**: desktop case fallback only tried the fully lowercased path. The lookup is now exact, then whole-path lowercase (fast path), then per-segment case-insensitive (greedy, no backtracking when case-variant siblings exist). Remote / standalone web have none (a case-sensitive server).
+9. **Fixed in 2g**: the service worker sent no Content-Type (SVG / fonts could fail) and captured `?query` into the path. It now strips `?query` / `#` and sets Content-Type for known extensions only (no header for unknown ones). The desktop protocol strips them too.
+10. CP866 Cyrillic names in old zips likely mojibake. Still parked (2a).
 11. **Fixed in 2f**: a missing `defaultTheme` in aero mode left the classic theme. It now falls back to Aero (classic in classic mode) and shows the notice (current-game.ts:152-155).
 12. Saved `dark` player theme probably ignored (player-theme.ts:6-11).
 13. **Fixed in 2d** (confirmed against the engine contract): slot / path restore called the engine's `loaded()` before `loadSave()`, while the `@qsp/wasm-engine` Readme says the `load_save` callback is called after `api.loadSave`. `restoreFromSlot` / `restoreFromPath` now call `loadSave()` first, then `loaded()` (save.ts:58-84). Observable on both targets, before and after the fix: after `opengame` and a slot pick the main text is the restored one (`COUNTER=1`), the code written after `opengame` (`AFTER LOAD PANEL`) is not shown, and Increment gives `COUNTER=2` (restored 1 + 1). That end state is the same under both orders. The regression test `loading from the panel opened by the game does not run the code after opengame` tells them apart: with `loaded()` first, the `msg` after `opengame` (outside the save) opened over the restored text and blocked the game; with the fix it never opens.
@@ -347,5 +353,23 @@ Open (found in 2f′):
 32. `qspgui.cfg` `UseFontSize=1` ("Always use selected font size": the cfg size overrides `FSIZE`; QSPFoundation/qspgui frame.cpp:397, label :573) is ignored by qSpider. Parked by the maintainer.
 33. The hooks `useQspVariable` / `useQspExpression` lose their watchers after an in-game `open_game` (the engine `_cleanup`) unless their deps change. `gameOpenEpoch$` makes the fix easy (add it to the deps). The in-game `open_game` re-subscription path of defect 30 has no E2E coverage either.
 34. `convertColor` (libs/utils/src/colors.ts) treats an alpha byte of 1 as fully opaque (`alpha === 1 ? 1 : alpha / 255`). Unexercised: QSP `RGB()` yields alpha 0xFF, so normal games are unaffected.
-35. For 2g: `prepareUrl` in css-variables.tsx replaces only the first backslash (`url.replace('\\', '/')`); same family as defect 6.
+35. **Fixed in 2g**: `prepareUrl` in css-variables.tsx replaced only the first backslash (`url.replace('\\', '/')`); same family as defect 6.
 36. Tooling: the root lint-staged ESLint config does not know the react-hooks rules and does not enforce the `max-lines` that `nx lint` enforces (a commit hit it, and a disable comment had to be removed). Noted only.
+
+Fixed in 2g: defects 6, 7, 8, 9 and 35 (above), plus the player-visible changes that were not numbered defects:
+
+- `game.cfg` resources (fonts, styles, scripts) are loaded before the game starts, scripts in declared order (`async = false`). A failed resource shows the notice "Failed to load game resources: …" and the game still starts; each resource has a 15 s timeout.
+- `ISPLAY` reflects `PLAY` / `CLOSE` within the same action: Howler emits its events through `setTimeout`, so the state is now set synchronously and stale callbacks are guarded (including a stop queued during `autoResume`).
+- The volume slider is controlled and follows the volume.
+
+Open (found in 2g):
+
+37. `normalizeVolume(1)` gives 100 %, not 1 %. Parked by the maintainer.
+38. Security, with the sanitizer carve-out of defect 1 (Tauri reach): `game_uri.rs` passes `..` in relative paths, and the `read_resource` IPC takes a raw URL.
+39. `runGame` cannot be cancelled: the shelf route stops a running game only if `currentGameEntry$` is set, and that happens at the end of `runGame`. A desktop drop during loading races two `runGame` calls. Pre-existing, widened by the resource await.
+40. Notices share one slot: a later theme notice overwrites the resource notice.
+41. Upstream `@qsp/wasm-engine`: after `PLAY 'snd\b.wav'` the engine never delivers `CLOSE 'snd/b.wav'` (the other spelling) to the player. Game-visible, not fixable in the player.
+42. `PLAY` while Howler's audio context is locked allocates extra sound ids, so the sound starts twice on resume. Pre-existing.
+43. Games loaded through the web CORS proxy: only text / binary fetches (`game.cfg`, entry, includes, themes) use the proxy. DOM resources (`<img>`, css `url()`, `@font-face`, Howler) resolve through `<base href>` to the unreachable origin and fail. Parked by the maintainer.
+44. The web service worker decodes with `decodeURI`, the desktop protocol decodes fully, so encoded `%3F` / `%23` differ between targets.
+45. The `game.cfg` font-failure path has no E2E row (only a missing script and a missing style).
