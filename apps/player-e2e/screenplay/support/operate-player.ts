@@ -38,7 +38,7 @@ export abstract class OperatePlayer extends Ability {
   /**
    * From now on, requests to `origin` fail in the browser (a CORS or network failure), and the CORS proxy
    * (https://proxy.qspider.xyz/) answers with the player's own `/path` for the original URL it is asked for (web only).
-   * Every URL the proxy is asked for is recorded; read it with proxiedUrls.
+   * Call it after startPlayer. Every URL the proxy is asked for is recorded; read it with proxiedUrls.
    */
   abstract routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
   /** The original URLs the CORS proxy was asked for since routeThroughProxy (web only). */

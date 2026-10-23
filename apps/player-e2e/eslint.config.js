@@ -45,6 +45,12 @@ const NO_PAGE_SCRIPT = {
   importNames: ['ExecuteScript', 'LastScriptExecution'],
   message: PAGE_SCRIPT_MESSAGE,
 };
+// scriptResult runs any function in the page, so only the probe files in screenplay/support/ may import it.
+const NO_SCRIPT_RESULT = {
+  group: ['**/page-script'],
+  importNames: ['scriptResult'],
+  message: 'scriptResult runs arbitrary page code: only the probe files in screenplay/support/ may import it.',
+};
 const NO_EXECUTE_SCRIPT_CALL = {
   selector: "CallExpression[callee.property.name='executeScript']",
   message: PAGE_SCRIPT_MESSAGE,
@@ -98,7 +104,7 @@ const conventions = [
   {
     files: ['**/*.ts', '**/*.mts', '**/*.js'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT] }),
+      ...restrictImports({ paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT], patterns: [NO_SCRIPT_RESULT] }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, NO_EXECUTE_SCRIPT_CALL],
     },
   },
@@ -107,7 +113,7 @@ const conventions = [
     rules: {
       ...restrictImports({
         paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
-        patterns: [TARGETS, NO_FRAMEWORKS],
+        patterns: [TARGETS, NO_FRAMEWORKS, NO_SCRIPT_RESULT],
       }),
       'max-lines': ['error', 150],
     },
@@ -116,13 +122,16 @@ const conventions = [
     files: ['screenplay/**/tasks.ts'],
     rules: restrictImports({
       paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
-      patterns: [TARGETS, NO_FRAMEWORKS, NO_AREA_CHECKS],
+      patterns: [TARGETS, NO_FRAMEWORKS, NO_AREA_CHECKS, NO_SCRIPT_RESULT],
     }),
   },
   {
     files: ['screenplay/**/elements.ts'],
     rules: {
-      ...restrictImports({ paths: [NO_ENSURE, NO_PAGE_SCRIPT, ...NO_IS_PRESENT], patterns: [TARGETS, NO_FRAMEWORKS] }),
+      ...restrictImports({
+        paths: [NO_ENSURE, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
+        patterns: [TARGETS, NO_FRAMEWORKS, NO_SCRIPT_RESULT],
+      }),
       'no-restricted-syntax': ['error', NO_SLEEP, NO_DYNAMIC_IMPORT, NO_EXECUTE_SCRIPT_CALL, ...UNMARKED_SELECTORS],
     },
   },
@@ -130,7 +139,7 @@ const conventions = [
     files: ['screenplay/**/checks.ts'],
     rules: restrictImports({
       paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
-      patterns: [TARGETS, NO_FRAMEWORKS],
+      patterns: [TARGETS, NO_FRAMEWORKS, NO_SCRIPT_RESULT],
     }),
   },
   {
@@ -159,6 +168,7 @@ const conventions = [
       paths: [NO_ENSURE, NO_BY, NO_PAGE_SCRIPT, ...NO_IS_PRESENT],
       patterns: [
         TARGETS,
+        NO_SCRIPT_RESULT,
         {
           group: [...FRAMEWORKS, '@serenity-js/playwright*', '@serenity-js/webdriverio', '@serenity-js/web'],
           message: 'Scenarios use only tasks, checks and constants from screenplay/ and fixtures/.',

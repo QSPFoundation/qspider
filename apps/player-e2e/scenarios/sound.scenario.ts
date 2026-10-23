@@ -42,7 +42,7 @@ scenario('PLAY, replay, ISPLAY and CLOSE', async (player) => {
     ClickAction(ACTIONS.sound.play),
     SeeMainTextContaining(`${LINES.play}1`),
     SeeSoundState('a.wav', PLAYING(0.5)),
-    // A second PLAY only changes the volume: the same sound keeps playing.
+    // A second PLAY only changes the volume: the same sound stays playing.
     ClickAction(ACTIONS.sound.playAgain),
     SeeMainTextContaining(`${LINES.playAgain}1`),
     SeeSoundState('a.wav', PLAYING(0.8)),

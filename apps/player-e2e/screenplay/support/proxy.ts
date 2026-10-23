@@ -6,6 +6,6 @@ const ProxiedUrls = Question.about<string[]>('the URLs the CORS proxy was asked 
   OperatePlayer.as(actor).proxiedUrls(actor),
 );
 
-/** The CORS proxy was asked for exactly this original URL (web only). */
+/** The CORS proxy was asked for this original URL (the list contains it) (web only). */
 export const SeeProxied = (url: string) =>
   Task.where(`#actor sees the CORS proxy asked for ${url}`, Wait.until(ProxiedUrls, contain(url)));

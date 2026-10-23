@@ -29,10 +29,11 @@ function howlState(srcSuffix: string): { playing: boolean; volume: number; webAu
   return null;
 }
 
-/** The master state of all sounds: Howler.mute() and Howler.volume(). */
-function audioState(): { muted: boolean; volume: number } {
+/** The master state of all sounds: Howler.mute() and Howler.volume(); null when window.Howler is missing. */
+function audioState(): { muted: boolean; volume: number } | null {
   const howler = (window as unknown as { Howler?: HowlerGlobal }).Howler;
-  return { muted: howler?._muted ?? false, volume: howler?._volume ?? 1 };
+  if (!howler) return null;
+  return { muted: howler._muted ?? false, volume: howler._volume ?? 1 };
 }
 
 export type SoundStateValue = { playing: boolean; volume: number };
@@ -45,7 +46,7 @@ export const SoundState = (srcSuffix: string): QuestionAdapter<SoundStateValue |
     return state && { playing: state.playing, volume: state.volume };
   });
 
-/** The master mute and volume. */
+/** The master mute and volume; null when Howler is not loaded yet. */
 export const AudioState = (): QuestionAdapter<AudioStateValue | null> =>
   scriptResult('the master audio state', audioState);
 

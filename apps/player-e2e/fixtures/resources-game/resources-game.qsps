@@ -28,7 +28,6 @@ act 'Backimage backslash': $BACKIMAGE = 'Img\Sub\Back.png'
 act 'Backimage external': $BACKIMAGE = 'http://127.0.0.1:47631/ext.png'
 act 'Play external': play 'http://127.0.0.1:47631/ext.wav'
 act 'Fetch text': exec 'qspider.event:res_xhr'
-act 'Back': gt 'start'
 ---
 
 # menu_pick
@@ -41,7 +40,6 @@ act 'Back': gt 'start'
 *pl '<span data-qa="res-styled">RES STYLED</span>'
 *pl '<span data-qa="res-font">A</span>'
 exec 'qspider.event:res_show'
-act 'Back': gt 'start'
 ---
 
 # sound
@@ -76,5 +74,4 @@ act 'Close backslash':
   close 'snd\b.wav'
   *pl 'SND CLOSEB B=' + str(isplay('snd\b.wav')) + ' F=' + str(isplay('snd/b.wav'))
 end
-act 'Back': gt 'start'
 ---

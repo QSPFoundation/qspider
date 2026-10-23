@@ -35,9 +35,7 @@ export const RESOURCES_GAME = {
       backimageExternal: 'Backimage external',
       playExternal: 'Play external',
       fetchText: 'Fetch text',
-      back: 'Back',
     },
-    resources: { back: 'Back' },
     sound: {
       play: 'Play',
       playAgain: 'Play again',
@@ -47,7 +45,6 @@ export const RESOURCES_GAME = {
       closeAll: 'Close all',
       playBackslash: 'Play backslash',
       closeBackslash: 'Close backslash',
-      back: 'Back',
     },
   },
   /** The menu item the `Menu image` action opens (its image is `files.menu`). */
@@ -124,6 +121,14 @@ export const RESOURCES_GAME = {
      * A game that started before the scripts loaded never shows it (its listener came too late).
      */
     startSeen: 'res-start-seen',
+    /**
+     * Script one writes both on `res_start` too: `startReady` the value of `--e2e-one` at that moment (the style was
+     * applied before the start); `startFont` whether the E2eFont face had status `loaded` (no load requested). The
+     * font one is asserted on web only: WebKit's `document.fonts.load()` without a text leaves the face `unloaded`
+     * (desktop), so the font is not loaded at the start there.
+     */
+    startReady: 'res-start-ready',
+    startFont: 'res-start-font',
     /** Scripts one / two, on `res_show` (fired when the `resources` location opens). */
     scriptOne: 'res-script-one',
     scriptTwo: 'res-script-two',
@@ -136,6 +141,8 @@ export const RESOURCES_GAME = {
   },
   scriptText: {
     startSeen: 'RES SCRIPT SAW START',
+    startReady: 'RES START ONE=ONE',
+    startFont: 'RES START FONT=true',
     one: 'RES SCRIPT ONE',
     two: 'RES SCRIPT TWO',
     order: 'RES ORDER one,two',

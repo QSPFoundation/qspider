@@ -5,6 +5,8 @@ import { OperatePlayer } from '../../screenplay/support/operate-player';
 
 /** The web player: a page at the app root; files open through the shelf's Open game file input. */
 export class OperateWebPlayer extends OperatePlayer {
+  private readonly proxied: string[] = [];
+
   async startPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void> {
     const page = await BrowseTheWebWithPlaywright.as(actor).currentPage();
     await page.navigateTo('/');
@@ -53,8 +55,6 @@ export class OperateWebPlayer extends OperatePlayer {
       },
     );
   }
-
-  private readonly proxied: string[] = [];
 
   async routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void> {
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;

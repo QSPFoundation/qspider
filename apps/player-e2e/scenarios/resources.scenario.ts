@@ -79,6 +79,8 @@ const { marks: MARKS, scriptText: SCRIPT, css: CSS, cfg: CFG } = RESOURCES_GAME;
 /** The first start already saw script one; the resources location then shows styles, order and the font. */
 const SEE_RESOURCES_APPLIED: Task[] = [
   SeeResourceMark(MARKS.startSeen, SCRIPT.startSeen),
+  // At the start the style was already applied.
+  SeeResourceMark(MARKS.startReady, SCRIPT.startReady),
   ClickAction(ACTIONS.start.toResources),
   SeeMainTextContaining(TEXT.resources),
   SeeResourceMark(MARKS.scriptOne, SCRIPT.one),
@@ -102,13 +104,18 @@ scenario(TITLE, async (player) => {
 });
 
 // The same game served from a plain URL, where the browser's own network fetches the scripts: script one is
-// held back, so it arrives long after script two and after the engine could have started the game.
+// held back, so it arrives long after script two and after the engine could have started the game; the first style
+// and the font are held back too, so a start that did not wait for them sees no style and an unusable font.
 scenario.webOnly(TITLE, async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     DelayRequests('/js/one.js', 2500),
+    DelayRequests('/css/one.css', 2500),
+    DelayRequests('/fonts/e2e.ttf', 2500),
     OpenGameUrl(`/${RESOURCES_GAME.servedDir}/resources-game.qsps`),
     SeeGameStarted(TEXT.start),
+    // The font is loaded at the start (web only: on desktop WebKit it is still unloaded, see resources-game.ts).
+    SeeResourceMark(MARKS.startFont, SCRIPT.startFont),
     ...SEE_RESOURCES_APPLIED,
   );
 });
@@ -136,9 +143,9 @@ scenario('a missing game.cfg resource shows a notice and the game still starts',
     StartPlayer(),
     SeeStartupFinished(),
     OpenGameFile(RESOURCES_GAME.missingZipPath),
+    // One notice names both (styles first, joined by ', '); it hides after 3 s, so check it before anything slow.
+    SeeNoticeContaining(`${CFG.missingStyle}, ${CFG.missingScript}`),
     SeeGameStarted(TEXT.start),
-    SeeNoticeContaining(CFG.missingScript),
-    SeeNoticeContaining(CFG.missingStyle),
     ...SEE_RESOURCES_APPLIED,
   );
 });
