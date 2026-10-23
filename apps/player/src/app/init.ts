@@ -45,6 +45,7 @@ export async function init(): Promise<void> {
     try {
       const imported = await importUrl(toImport);
       for (const entry of imported) {
+        // A URL import overwrites the shelf entry of the same id on every load (e2e defect 52 depends on it).
         games$.actions.add(entry.id, entry);
       }
       toRun = imported[0].id;
