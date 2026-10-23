@@ -74,7 +74,7 @@ export function setupEnv() {
       user: string | null | undefined = undefined,
       password: string | null | undefined = undefined,
     ): void {
-      if (shouldShimXhr(baseUrl$.value) && !isExternalUrl(url)) {
+      if (shouldShimXhr(baseUrl$.value) && (!isExternalUrl(url) || isGameUrl(url))) {
         this.url = url;
         this.is_replacing = true;
       } else {
