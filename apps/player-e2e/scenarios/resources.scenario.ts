@@ -1,13 +1,18 @@
 import { endsWith } from '@serenity-js/assertions';
 import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from '../fixtures/resources-game';
-import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
+import { SeeGameStarted, SeeNoticeContaining, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainTextContaining } from '../screenplay/game/checks';
-import { ClickAction } from '../screenplay/game/tasks';
+import { ClickAction, ReturnToShelf } from '../screenplay/game/tasks';
+import { SeeShelfIncludes } from '../screenplay/shelf/checks';
+import { SeeResourceMark } from '../screenplay/resources/checks';
+import { SeeGameResourceCount } from '../screenplay/support/game-resources';
+import { ARCHIVES } from '../fixtures/archives';
+import type { Task } from '@serenity-js/core';
 import { SeeMenu } from '../screenplay/menu/checks';
 import { CancelMenu } from '../screenplay/menu/tasks';
 import { CloseView } from '../screenplay/view/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
-import { SeeCssValue } from '../screenplay/support/page-script';
+import { DelayRequests, OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
+import { SeeCssValue, SeeCssValues } from '../screenplay/support/page-script';
 import { SeeImageLoaded } from '../screenplay/support/image-loaded';
 import { scenario } from '../screenplay/support/scenario';
 
@@ -50,5 +55,76 @@ scenario.desktopOnly('game images load from a plain folder', async (player) => {
     OpenGameFile(RESOURCES_GAME.folderGamePath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
+  );
+});
+
+// game.cfg resources: styles, scripts and the font are in place before the game's first text, scripts keep their
+// order, a failed one is reported, and the game's own resources go with it.
+const { marks: MARKS, scriptText: SCRIPT, css: CSS, cfg: CFG } = RESOURCES_GAME;
+
+/** The first start already saw script one; the resources location then shows styles, order and the font. */
+const SEE_RESOURCES_APPLIED: Task[] = [
+  SeeResourceMark(MARKS.startSeen, SCRIPT.startSeen),
+  ClickAction(ACTIONS.start.toResources),
+  SeeMainTextContaining(TEXT.resources),
+  SeeResourceMark(MARKS.scriptOne, SCRIPT.one),
+  SeeResourceMark(MARKS.scriptTwo, SCRIPT.two),
+  SeeResourceMark(MARKS.order, SCRIPT.order),
+  SeeResourceMark(MARKS.fontStatus, SCRIPT.fontLoaded),
+  SeeCssValues({ root: true }, CSS.root),
+  SeeCssValues({ qa: MARKS.styled }, CSS.element),
+];
+
+const TITLE = 'game.cfg resources load before the game starts, in order';
+
+scenario(TITLE, async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(RESOURCES_GAME.zipPath),
+    SeeGameStarted(TEXT.start),
+    ...SEE_RESOURCES_APPLIED,
+  );
+});
+
+// The same game served from a plain URL, where the browser's own network fetches the scripts: script one is
+// held back, so it arrives long after script two and after the engine could have started the game.
+scenario.webOnly(TITLE, async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    DelayRequests('/js/one.js', 2500),
+    OpenGameUrl(`/${RESOURCES_GAME.servedDir}/resources-game.qsps`),
+    SeeGameStarted(TEXT.start),
+    ...SEE_RESOURCES_APPLIED,
+  );
+});
+
+scenario('game.cfg resources are removed when the game stops', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(RESOURCES_GAME.zipPath),
+    SeeGameStarted(TEXT.start),
+    // 2 styles + 2 scripts + 1 font style.
+    SeeGameResourceCount(CFG.styles.length + CFG.scripts.length + 1),
+    ReturnToShelf(),
+    SeeShelfIncludes(ARCHIVES.resourcesZip.title),
+    SeeGameResourceCount(0),
+    OpenGameFile(ARCHIVES.singleZip.path),
+    SeeGameStarted(ARCHIVES.singleZip.startText),
+    SeeCssValues({ root: true }, { '--e2e-one': '' }),
+    SeeGameResourceCount(0),
+  );
+});
+
+scenario('a missing game.cfg resource shows a notice and the game still starts', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    OpenGameFile(RESOURCES_GAME.missingZipPath),
+    SeeGameStarted(TEXT.start),
+    SeeNoticeContaining(CFG.missingScript),
+    SeeNoticeContaining(CFG.missingStyle),
+    ...SEE_RESOURCES_APPLIED,
   );
 });
