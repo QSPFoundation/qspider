@@ -38,35 +38,43 @@ describe('data-fetcher', () => {
     expect(invoke).toHaveBeenCalledWith('read_resource', { url: 'qsp://localhost/abc/a.txt' });
   });
 
-  it('uses fetch for bundled standalone files', async () => {
-    fetchMock.mockResolvedValue(okResponse([1, 2]));
-    const result = await fetchBinaryContent('tauri://localhost/game/', 'game.cfg');
-    expect(invoke).not.toHaveBeenCalled();
-    expect(fetch).toHaveBeenCalledWith('tauri://localhost/game/game.cfg');
-    expect(new Uint8Array(result)).toEqual(new Uint8Array([1, 2]));
+  it.each(['tauri://localhost/game/', 'http://tauri.localhost/game/', 'https://tauri.localhost/game/'])(
+    'reads bundled app files (%s) through read_app_asset, not fetch',
+    async (base) => {
+      invokeMock.mockResolvedValue(toBuffer([1, 2]));
+      const result = await fetchBinaryContent(base, 'game.cfg');
+      expect(invoke).toHaveBeenCalledWith('read_app_asset', { url: `${base}game.cfg` });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(new Uint8Array(result)).toEqual(new Uint8Array([1, 2]));
+    },
+  );
+
+  it('rejects a missing bundled app file', async () => {
+    invokeMock.mockRejectedValue('file not found: game/missing.cfg');
+    await expect(fetchTextContent('tauri://localhost/game/', 'missing.cfg')).rejects.toThrow(
+      'tauri://localhost/game/missing.cfg',
+    );
   });
 
-  it('decodes utf-16le with BOM on both paths', async () => {
+  it('decodes utf-16le with BOM on every path', async () => {
     invokeMock.mockResolvedValue(toBuffer(HI_UTF16));
     fetchMock.mockResolvedValue(okResponse(HI_UTF16));
     expect(await fetchTextContent('qsp://localhost/abc/', 'game.cfg')).toBe('hi');
     expect(await fetchTextContent('tauri://localhost/game/', 'game.cfg')).toBe('hi');
+    expect(await fetchTextContent('https://example.com/game/', 'game.cfg')).toBe('hi');
   });
 
-  it('rejects on non-ok responses', async () => {
-    fetchMock.mockResolvedValue({ ok: false, status: 404, headers: new Headers() });
-    await expect(fetchBinaryContent('tauri://localhost/game/', 'missing.bin')).rejects.toThrow(
-      'tauri://localhost/game/missing.bin',
-    );
-  });
-
-  it('rejects when the asset server falls back to html for a non-html path', async () => {
-    fetchMock.mockResolvedValue(okResponse([0x3c], 'text/html'));
-    await expect(fetchTextContent('tauri://localhost/game/', 'a.xml')).rejects.toThrow('tauri://localhost/game/a.xml');
-  });
-
-  it('accepts html content for html paths', async () => {
+  it('uses fetch for external urls', async () => {
     fetchMock.mockResolvedValue(okResponse([0x68, 0x69], 'text/html'));
-    expect(await fetchTextContent('tauri://localhost/game/', 'page.html')).toBe('hi');
+    expect(await fetchTextContent('https://example.com/game/', 'game.cfg')).toBe('hi');
+    expect(fetch).toHaveBeenCalledWith('https://example.com/game/game.cfg');
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it('rejects on non-ok responses from external urls', async () => {
+    fetchMock.mockResolvedValue({ ok: false, status: 404, headers: new Headers() });
+    await expect(fetchBinaryContent('https://example.com/game/', 'missing.bin')).rejects.toThrow(
+      'https://example.com/game/missing.bin',
+    );
   });
 });
