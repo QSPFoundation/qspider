@@ -20,6 +20,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+# UTF-8 on the console streams, so a message with a non-ASCII path (the Cyrillic fixture) reaches Node intact.
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
 $PollMs = 100
 
 function Fail([string]$Message) {
@@ -55,14 +57,23 @@ try {
     return $false
   }
 
-  # The app's dialog: a top-level #32770 window of an app process, or one UIA shows under the app's
-  # main window (the dialog is owned by it). Children only: a full-tree search of the desktop is slow.
+  # The app's file dialog: a #32770 window of an app process, top-level or one UIA shows under the
+  # app's main window (the dialog is owned by it), that holds the file name field (AutomationId 1148),
+  # so a message box or another #32770 of the app never counts. Children only for the windows: a
+  # full-tree search of the desktop is slow. $script:sawDialog records a #32770 without the field.
+  $script:sawDialog = $false
   function Find-Dialog {
     foreach ($window in $A::RootElement.FindAll($Scope::Children, $ofApp)) {
       try {
-        if ($window.Current.ClassName -eq '#32770') { return $window }
-        $owned = $window.FindFirst($Scope::Children, $isDialog)
-        if ($null -ne $owned -and $pids -contains $owned.Current.ProcessId) { return $owned }
+        $candidates = @()
+        if ($window.Current.ClassName -eq '#32770') { $candidates += $window }
+        foreach ($owned in $window.FindAll($Scope::Children, $isDialog)) {
+          if ($pids -contains $owned.Current.ProcessId) { $candidates += $owned }
+        }
+        foreach ($candidate in $candidates) {
+          $script:sawDialog = $true
+          if ($null -ne $candidate.FindFirst($Scope::Descendants, $fileNameField)) { return $candidate }
+        }
       } catch {
         if (-not (Test-Gone $_)) { throw } # else the window closed while it was being read
       }
@@ -99,7 +110,7 @@ try {
       if ($null -ne $value) { break }
     }
     if ([DateTime]::UtcNow -gt $deadline) {
-      if ($null -eq $dialog) { Fail 'dialog not found' }
+      if ($null -eq $dialog -and -not $script:sawDialog) { Fail 'dialog not found' }
       Fail 'file name field not found'
     }
     Start-Sleep -Milliseconds $PollMs # poll interval

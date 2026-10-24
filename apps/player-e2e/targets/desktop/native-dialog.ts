@@ -30,11 +30,12 @@ function driverCommand(path: string): [string, string[]] {
   const appPids = desktopPlatform()
     .appProcesses(driverPid())
     .map((p) => p.pid);
-  if (appPids.length === 0) throw new Error('Native file dialog: no app process runs under tauri-driver');
+  if (appPids.length === 0) throw new Error('no app process runs under tauri-driver');
   return [
     'powershell',
     [
       '-NoProfile',
+      '-NonInteractive',
       '-ExecutionPolicy',
       'Bypass',
       '-File',
@@ -49,22 +50,33 @@ function driverCommand(path: string): [string, string[]] {
   ];
 }
 
+/**
+ * The driver's failure, from its stderr. A driver's own failure is one line (dialog.py's fail,
+ * dialog.ps1's Fail). Otherwise on Linux the last line is kept (a Python traceback ends with the
+ * error); on Windows a PowerShell error record (e.g. a parse error) starts with its message and
+ * carries a FullyQualifiedErrorId, so those two are kept.
+ */
+export function driverFailure(stderr: string, platform: NodeJS.Platform): string {
+  const lines = stderr
+    .replace(/^\uFEFF/, '') // the BOM a UTF-8 console stream may start with
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line !== '');
+  if (lines.length <= 1 || platform !== 'win32') return lines.pop() ?? '';
+  const id = lines.map((line) => /FullyQualifiedErrorId\s*:\s*(.+)$/.exec(line)?.[1]).find(Boolean);
+  return id ? `${lines[0]} (${id})` : lines[0];
+}
+
 /** Chooses `path` in the open native file dialog and confirms; fails with the dialog driver's message. */
 export async function pickFileInNativeDialog(path: string): Promise<void> {
-  const [command, args] = driverCommand(path);
   try {
+    const [command, args] = driverCommand(path);
     // A hung accessibility call is cut off after both waits (KILL_AFTER_MS).
     await run(command, args, { timeout: KILL_AFTER_MS, windowsHide: true });
   } catch (error) {
     const { stderr, killed } = error as { stderr?: unknown; killed?: boolean };
     if (killed) throw new Error(`Native file dialog: the driver did not finish within ${KILL_AFTER_MS / 1000}s`);
-    throw new Error(
-      `Native file dialog: ${
-        String(stderr ?? '')
-          .trim()
-          .split('\n')
-          .pop() || String(error)
-      }`,
-    );
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Native file dialog: ${driverFailure(String(stderr ?? ''), process.platform) || message}`);
   }
 }
