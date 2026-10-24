@@ -37,6 +37,11 @@
     {
       "matchManagers": ["github-actions"],
       "groupName": "github actions"
+    },
+    {
+      "description": "pnpm is pinned both in package.json packageManager and in the workflows' pnpm/action-setup version; bump both in one PR",
+      "matchPackageNames": ["pnpm"],
+      "groupName": "pnpm"
     }
   ]
 }
