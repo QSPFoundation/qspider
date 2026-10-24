@@ -18,6 +18,7 @@
     "targets/desktop/prereqs.spec.ts",
     "targets/desktop/private-session.ts",
     "targets/desktop/private-session.spec.ts",
+    "targets/desktop/platform/**/*.ts",
     "*.config.mts"
   ]
 }

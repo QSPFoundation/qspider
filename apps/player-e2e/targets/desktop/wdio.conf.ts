@@ -16,7 +16,8 @@ import { TEST_PACK } from '../../fixtures/test-pack';
 import type { Server } from 'node:http';
 import { ASSET_SERVER, startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { buildFixtures } from '../../fixtures/build-fixtures';
-import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
+import { desktopPlatform } from './platform';
+import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './platform/env';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
 
@@ -32,7 +33,7 @@ const DRIVER_PORT = 4444;
 process.env['QSPIDER_E2E_TARGET'] = 'desktop';
 
 // One tauri-driver PER spec-file worker (spawned in beforeSession, stopped in afterSession), each with
-// its own XDG dirs. A single driver shared across workers intermittently lost the second worker's
+// its own app data dirs (platform/). A single driver shared across workers intermittently lost the second worker's
 // session-creation handshake (tauri-driver logged hyper::Error(IncompleteMessage)) and orphaned the
 // app processes, which then poisoned later scenarios; a fresh driver per worker isolates that.
 // Within a worker, fresh-app.ts ends the app, empties the dirs and starts a new session per test.
@@ -48,7 +49,7 @@ function killDriver(): Promise<void> {
   if (!driver || driver.exitCode !== null) return Promise.resolve();
   return new Promise((resolve) => {
     driver.once('exit', () => resolve());
-    driver.kill();
+    desktopPlatform().stopDriver(driver);
   });
 }
 
@@ -117,25 +118,31 @@ function waitForPortFree(port: number, timeoutMs: number): Promise<void> {
   });
 }
 
-/** Spawns a fresh tauri-driver with its own XDG dirs for one worker, and exposes it to fresh-app.ts. */
+/**
+ * Spawns a fresh tauri-driver for one worker, with empty app data dirs (Linux: new XDG dirs under the
+ * worker's temp dir; Windows: the app's own dirs, emptied), and exposes it to fresh-app.ts.
+ */
 async function startDriver(): Promise<void> {
+  const platform = desktopPlatform();
   await waitForPortFree(DRIVER_PORT, 10_000);
   runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
-  const xdg = {
-    XDG_DATA_HOME: join(runDir, 'data'),
-    XDG_CONFIG_HOME: join(runDir, 'config'),
-    XDG_CACHE_HOME: join(runDir, 'cache'),
-  };
-  Object.values(xdg).forEach((dir) => mkdirSync(dir));
+  const driverEnv = platform.driverEnv(runDir);
+  const dataDirs = platform.appDataDirs(runDir);
+  for (const dir of dataDirs) {
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir);
+  }
   const log = createWriteStream(join(runDir, 'tauri-driver.log'));
-  tauriDriver = spawn('tauri-driver', ['--port', String(DRIVER_PORT)], {
-    env: { ...process.env, ...xdg },
+  tauriDriver = spawn('tauri-driver', platform.driverArgs(DRIVER_PORT), {
+    env: { ...process.env, ...driverEnv },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   tauriDriver.stdout?.pipe(log);
   tauriDriver.stderr?.pipe(log);
   // Covers an aborted worker; afterSession is the normal teardown.
-  process.once('exit', () => tauriDriver?.kill());
+  process.once('exit', () => {
+    if (tauriDriver) platform.stopDriver(tauriDriver);
+  });
   await waitForPort(DRIVER_PORT, 10_000);
   // If our driver died (e.g. failed to bind), the port answer came from someone else.
   if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
@@ -145,7 +152,7 @@ async function startDriver(): Promise<void> {
   }
   // Read by fresh-app.ts in this same worker process.
   process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
-  process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
+  process.env[ENV_APP_DATA_DIRS] = JSON.stringify(dataDirs);
 }
 
 /** What differs between the desktop targets: the app under test and where the run's artifacts go. */
@@ -228,7 +235,6 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
   // A fresh tauri-driver per worker (see the note by `let tauriDriver`). maxInstances is 1, so workers
   // run serially and only one driver holds DRIVER_PORT at a time.
   async beforeSession() {
-    if (process.platform !== 'linux') return;
     await startDriver();
   },
 
