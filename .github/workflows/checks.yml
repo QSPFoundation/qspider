@@ -118,12 +118,20 @@ jobs:
       run: ${{ needs.changes.outputs.desktop == 'true' }}
 
   # TEMPORARY (3c CI rounds): workflow_dispatch needs the workflow on the default branch, so the Windows
-  # spec under development runs from here. Task 5 replaces this with the sharded, required wiring.
+  # suites under development run from here. Task 5 replaces this with the sharded, required wiring.
   e2e-desktop-windows-dev:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { suite: main, shard: 1/3 }
+          - { suite: main, shard: 2/3 }
+          - { suite: main, shard: 3/3 }
+          - { suite: standalone, shard: '' }
     uses: ./.github/workflows/e2e-desktop-windows.yml
     with:
-      suite: main
-      spec: apps/player-e2e/scenarios/core-flow.scenario.ts
+      suite: ${{ matrix.suite }}
+      shard: ${{ matrix.shard }}
 
   e2e-web:
     runs-on: ubuntu-24.04
