@@ -198,8 +198,10 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
   // The per-scenario app relaunch (deleteSession+reloadSession) intermittently hangs (~5-10%/run) in
   // wry/WebKitWebDriver's session handling — independent of our code. A failed spec is retried in a
   // brand-new worker with its own fresh tauri-driver (beforeSession), so no orphaned state carries over;
-  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec.
-  specFileRetries: 2,
+  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec. That hang (#167) is Linux-only
+  // (WebKitWebDriver); Windows needed no retry (run 40105883229), so it gets none: a Windows retry needs its
+  // own documented cause, and a Windows flake stays visible instead of absorbed.
+  specFileRetries: process.platform === 'win32' ? 0 : 2,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },

@@ -1,5 +1,7 @@
 import { equals } from '@serenity-js/assertions';
 import { Expectation, type QuestionAdapter, Question, Task } from '@serenity-js/core';
+import { scriptResult } from './page-script';
+import { seeScriptEventually } from './see-script-eventually';
 
 /** `webAudio` equals what the page allows (`expected`); null (no such sound) never matches. */
 const isWebAudioAsExpected = Expectation.define<{ webAudio: boolean; expected: boolean } | null, []>(
@@ -7,8 +9,6 @@ const isWebAudioAsExpected = Expectation.define<{ webAudio: boolean; expected: b
   'use Web Audio as the page allows',
   (actual) => actual !== null && actual.webAudio === actual.expected,
 );
-import { scriptResult } from './page-script';
-import { seeScriptEventually } from './see-script-eventually';
 
 // Read-only sound probes over Howler's global registry (window.Howler). Like the probes in
 // page-script.ts, these functions are serialised into the page, so they are self-contained and return

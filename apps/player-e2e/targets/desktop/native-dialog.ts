@@ -26,7 +26,7 @@ const STARTUP_MAX_MS = 20_000;
 const DRIVE_MAX_MS = (1.5 * DIALOG_WAIT_S + 2) * 1000;
 
 /** The line dialog.ps1 prints on stdout once UI Automation and its Win32 helpers are loaded. */
-export const READY_LINE = 'READY';
+const READY_LINE = 'READY';
 
 /** Whether `stdout` holds READY_LINE as a complete line (a leading UTF-8 BOM and a trailing CR are ignored). */
 export function hasReadyLine(stdout: string): boolean {

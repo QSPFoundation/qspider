@@ -9,7 +9,7 @@ import { pickFileInNativeDialog } from './native-dialog';
 import { desktopPlatform } from './platform';
 
 /**
- * The desktop player: tauri-driver launches the app with the test pack's game.cfg as its argument
+ * The desktop player: tauri-driver launches the app with the test pack's game.cfg as `--file=<game.cfg>`
  * (wdio.conf.ts), so it starts on the shelf with the pack loaded. Game files open through the
  * native Open game dialog, driven through AT-SPI or UI Automation (native-dialog.ts); setup loads use the drop route.
  */
