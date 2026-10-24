@@ -207,7 +207,7 @@ The matrix: the core flows run under aero and custom on web only (`webOnly`; the
 - `pnpm nx test player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), and the private-session guard (`targets/desktop/private-session.ts`).
 - `pnpm check` runs those unit tests, then `e2e:web` and `e2e:standalone-web` as its last steps; `pnpm check:full` adds `e2e:desktop` and `e2e:standalone-desktop`.
 - `pnpm e2e:standalone-web` - `nx run player-e2e:e2e-standalone-web` (stage, build, serve, Playwright; see "Standalone").
-- `pnpm e2e:standalone-desktop` - the desktop prerequisite check, then `nx run player-e2e:e2e-standalone-desktop`.
+- `pnpm e2e:standalone-desktop` - the desktop prerequisite check, then `nx run player-e2e:e2e-standalone-desktop`. It passes no extra arguments to wdio. To run part of the suite, build once with `pnpm nx run player-e2e:build-desktop-standalone-e2e`, then `node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs --standalone --spec …`. That uses the standalone binary as last built: rebuild after any change outside `apps/player-e2e`.
 
 ## Standalone
 
@@ -287,7 +287,8 @@ All under `apps/player-e2e/artifacts/`:
 
 Workflows: `.github/workflows/checks.yml` (every PR) and `.github/workflows/desktop-build.yml` (build-only on Windows and macOS; path-filtered). Branch protection, by the names GitHub shows in the checks list:
 
-- Required checks on `main` (ruleset "main"): `frame`, `rust`, `e2e-web`, `e2e-desktop`, `e2e-standalone-web`, `e2e-standalone-desktop`.
+- Required checks on `main` (ruleset "main"): `frame`, `rust`, `e2e-web`, `e2e-desktop`.
 - `rust` (fmt, clippy, cargo test) runs on a PR only when `src-tauri/`, `checks.yml` or `package.json` changed. The `changes` job decides, and a job skipped by its `if:` counts as passing. On `main` it always runs. Rust compile errors are still caught on every PR, because `e2e-desktop` and `e2e-standalone-desktop` build the Tauri app.
 - The Tauri build dependencies are restored from an apt cache shared by `rust`, `e2e-desktop` and `e2e-standalone-desktop`. To invalidate it, bump `APT_CACHE_VERSION` in `checks.yml`. The packages that need post-install setup (WebDriver, Xvfb, dbus, AT-SPI) are installed with plain apt, with a timeout and retries.
+- Not yet required: `e2e-standalone-web` and `e2e-standalone-desktop`. They run on every PR; the maintainer still has to add them to the "main" ruleset.
 - Not required: `build-desktop (…)` (the `desktop-build.yml` matrix jobs). The workflow is path-filtered, so a required check would block PRs where it never runs.

@@ -32,10 +32,10 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 - `pnpm check:rust` - Rust fmt, clippy and tests for `src-tauri`
 - `pnpm e2e:web` - Web E2E (Playwright); needs `CHROME_BIN=/usr/bin/chromium` or `pnpm exec playwright install chromium`
 - `pnpm e2e:standalone-web` - Standalone web E2E (Playwright, port 4310); same browser requirement as `e2e:web`
-- `pnpm e2e:standalone-desktop` - Standalone desktop E2E (own Tauri debug build in `target/e2e-standalone`); same requirements as `e2e:desktop`
 - `pnpm e2e:desktop` - Desktop E2E (WebdriverIO + tauri-driver); needs `tauri-driver` on PATH (`~/.cargo/bin`), `WebKitWebDriver` and Rust
-- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web E2E (no desktop E2E)
-- `pnpm check:full` - `pnpm check` plus desktop E2E
+- `pnpm e2e:standalone-desktop` - Standalone desktop E2E (own Tauri debug build in `target/e2e-standalone`); same requirements as `e2e:desktop`
+- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web and standalone web E2E (no desktop E2E)
+- `pnpm check:full` - `pnpm check` plus desktop and standalone desktop E2E
 
 Before declaring work done, run `pnpm check:full` and report its result. `pnpm check` is the fast subset (no desktop E2E). All of it must pass; any failure is a regression to fix or report, never to hide or skip. Setup details: `apps/player-e2e/README.md`.
 
