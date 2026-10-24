@@ -24,16 +24,22 @@ import { fileURLToPath, URL } from 'node:url';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const a11yBus = fileURLToPath(new URL('./atspi/with-a11y-bus.sh', import.meta.url));
-// `--standalone` (first argument) runs the standalone target's config (wdio.standalone.conf.ts) instead.
-const standalone = process.argv[2] === '--standalone';
+// `--standalone` (anywhere in the arguments) runs the standalone target's config (wdio.standalone.conf.ts)
+// instead; the flag is not passed on to wdio.
+const standalone = process.argv.slice(2).includes('--standalone');
+const wdioArgs = process.argv.slice(2).filter((arg) => arg !== '--standalone');
 const wdioConfig = `apps/player-e2e/targets/desktop/${standalone ? 'wdio.standalone.conf.ts' : 'wdio.conf.ts'}`;
-const wdio = ['wdio', 'run', wdioConfig, ...process.argv.slice(standalone ? 3 : 2)];
+const wdio = ['wdio', 'run', wdioConfig, ...wdioArgs];
 /** How long the process group gets to exit after TERM before it is KILLed. */
 const GROUP_EXIT_TIMEOUT_MS = 30_000;
 
 const env = { ...process.env };
 // Find the workspace's wdio even when not started through a pnpm script.
 env.PATH = [join(workspaceRoot, 'node_modules/.bin'), env.PATH].join(delimiter);
+// The standalone run keeps its artifacts apart, the AT-SPI daemon log included.
+if (standalone && !env.QSPIDER_A11Y_LOG) {
+  env.QSPIDER_A11Y_LOG = join(workspaceRoot, 'apps/player-e2e/artifacts/desktop-standalone/a11y-bus.log');
+}
 
 let command = wdio;
 let privateDir;
