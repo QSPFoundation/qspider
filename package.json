@@ -15,7 +15,7 @@
     "prebuild": "rimraf ./dist",
     "build": "nx build --prod",
     "build:standalone": "nx build player-standalone --prod",
-    "build:standalone-desktop": "nx run player-standalone:build:desktop --prod",
+    "build:standalone-desktop": "nx run player-standalone:build:desktop",
     "build:desktop": "nx build player-desktop --prod --emptyOutDir",
     "build:docs": "nx build docs --prod",
     "test": "nx run-many --all --target=test",
