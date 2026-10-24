@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { appTree, assertHostSessionAllowed, parseCimProcesses, windowsAppDataDirs } from './windows';
+import {
+  appTree,
+  assertHostSessionAllowed,
+  parseCimProcesses,
+  windowsAppDataDirs,
+  windowsWebviewOptions,
+} from './windows';
 
 const cim = (pid: number, ppid: number, created: string | null | { value: string }): object => ({
   ProcessId: pid,
@@ -103,5 +109,17 @@ describe('assertHostSessionAllowed', () => {
   it('allows CI and an explicit host session', () => {
     expect(() => assertHostSessionAllowed({ CI: 'true' })).not.toThrow();
     expect(() => assertHostSessionAllowed({ QSPIDER_E2E_HOST_SESSION: '1' })).not.toThrow();
+  });
+});
+
+describe('windowsWebviewOptions', () => {
+  it("pins the user data folder to the app's Local app data dir", () => {
+    expect(windowsWebviewOptions('org.qsp.qspider', { LOCALAPPDATA: 'C:\\Users\\ci\\AppData\\Local' })).toEqual({
+      userDataFolder: 'C:\\Users\\ci\\AppData\\Local\\org.qsp.qspider',
+    });
+  });
+  it('fails when LOCALAPPDATA is missing or relative', () => {
+    expect(() => windowsWebviewOptions('org.qsp.qspider', {})).toThrow(/LOCALAPPDATA/);
+    expect(() => windowsWebviewOptions('org.qsp.qspider', { LOCALAPPDATA: 'AppData' })).toThrow(/absolute/);
   });
 });

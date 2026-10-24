@@ -50,6 +50,19 @@ export function windowsAppDataDirs(env: Env): string[] {
   return APP_IDENTIFIERS.flatMap((id) => [win32.join(roaming, id), win32.join(local, id)]);
 }
 
+/**
+ * The WebView2 options for an app's sessions: its user data folder pinned to where the real app keeps it
+ * (%LOCALAPPDATA%\<identifier>, which WebView2 extends with EBWebView). Without it msedgedriver gives every
+ * session a new temp folder (C:\Windows\SystemTemp\scoped_dir<n>\EBWebView) and deletes it with the session,
+ * so web storage (the player theme, the language) never survives a restart. Inside the app data dirs, so a
+ * fresh scenario empties it and a restart keeping data keeps it, as on Linux.
+ */
+export function windowsWebviewOptions(identifier: string, env: Env): { userDataFolder: string } {
+  const local = env['LOCALAPPDATA'];
+  if (!local || !win32.isAbsolute(local)) throw new Error(`LOCALAPPDATA (${local}) must be an absolute path`);
+  return { userDataFolder: win32.join(local, identifier) };
+}
+
 interface CimProcess {
   ProcessId?: unknown;
   ParentProcessId?: unknown;

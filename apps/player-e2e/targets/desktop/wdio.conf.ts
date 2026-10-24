@@ -19,6 +19,7 @@ import { ASSET_SERVER, startAssetServer, stopAssetServer } from '../../fixtures/
 import { buildFixtures } from '../../fixtures/build-fixtures';
 import { desktopPlatform } from './platform';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID, ENV_DRIVER_START_ERROR } from './platform/env';
+import { windowsWebviewOptions } from './platform/windows';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
@@ -165,6 +166,8 @@ export interface DesktopTarget {
   application: string;
   /** Its command-line arguments. */
   args: string[];
+  /** Its bundle identifier (tauri.conf.json): names its app data dirs. */
+  identifier: string;
   /** Emptied at the start of a run; screenshots, page sources, wdio and driver logs go here. */
   artifactsDir: string;
 }
@@ -173,7 +176,7 @@ export interface DesktopTarget {
  * The desktop WebdriverIO config for one app: the private-session guard, a fresh tauri-driver per
  * worker, retries, artifacts. Target configs spread it and set their own specs.
  */
-export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget): WebdriverIOConfig => ({
+export const desktopConfig = ({ application, args, identifier, artifactsDir }: DesktopTarget): WebdriverIOConfig => ({
   runner: 'local',
   maxInstances: 1,
   hostname: '127.0.0.1',
@@ -182,7 +185,11 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
     {
       // tauri-driver's WebKitWebDriver/msedgedriver speak WebDriver classic only.
       'wdio:enforceWebDriverClassic': true,
-      'tauri:options': { application, args },
+      // Windows: msedgedriver would give each session a throwaway WebView2 user data folder (windowsWebviewOptions).
+      'tauri:options':
+        process.platform === 'win32'
+          ? { application, args, webviewOptions: windowsWebviewOptions(identifier, process.env) }
+          : { application, args },
     } as WebdriverIO.Capabilities,
   ],
   logLevel: 'warn',
@@ -283,6 +290,7 @@ export const config: WebdriverIOConfig = {
     // reaches the app as `--d:\...\game.cfg` (lowercased), which the CLI plugin rejects and the app stays
     // on its loader. A `--name=value` switch passes with its value intact; WebKitWebDriver passes it as is.
     args: [`--file=${TEST_PACK.configPath}`],
+    identifier: 'org.qsp.qspider',
     artifactsDir: fileURLToPath(new URL('../../artifacts/desktop', import.meta.url)),
   }),
   specs: ['../../scenarios/**/*.scenario.ts'],
