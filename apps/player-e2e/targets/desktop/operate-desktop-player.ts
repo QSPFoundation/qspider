@@ -2,7 +2,7 @@ import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@seren
 import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
 import { ClickWhenPresent } from '../../screenplay/support/presence';
-import { appRunning, restartAppKeepingData } from './fresh-app';
+import { appRunning, expectAppExit, restartAppKeepingData } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
 
 /**
@@ -46,6 +46,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
 
   async appRunning(_actor: UsesAbilities & AnswersQuestions): Promise<boolean> {
     return appRunning();
+  }
+
+  async expectAppExit(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
+    expectAppExit();
   }
 
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {

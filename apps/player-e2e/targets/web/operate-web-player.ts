@@ -92,4 +92,8 @@ export class OperateWebPlayer extends OperatePlayer {
   async appRunning(_actor: UsesAbilities & AnswersQuestions): Promise<boolean> {
     throw new Error('appRunning is not supported on web');
   }
+
+  async expectAppExit(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
+    throw new Error('expectAppExit is not supported on web');
+  }
 }

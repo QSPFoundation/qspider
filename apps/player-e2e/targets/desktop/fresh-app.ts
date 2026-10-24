@@ -75,24 +75,37 @@ function requireEnv(name: string): string {
   return value;
 }
 
-/** Whether an app process (or one of its WebKit processes) is running under the run's tauri-driver. */
+/**
+ * Whether an app process (or one of its WebKit processes) is running under the run's tauri-driver.
+ * Reads /proc, so Linux only: PR 3 (Windows) must replace it.
+ */
 export function appRunning(): boolean {
   return appProcesses(Number(requireEnv(ENV_DRIVER_PID))).length > 0;
 }
 
 /**
- * The app processes this worker's last restart launched (empty before it: the first restart finds
- * the app of the session WDIO started). With none running, tells an app that exited during the
- * previous scenario (some known) apart from one that never launched (none known).
+ * Set by expectAppExit when a scenario makes the app exit on purpose (a game that quits); consumed
+ * by the next restart. Only while it is set may the actor's discard (cast.ts) and the next restart
+ * find no app running; otherwise a missing app is a failure (a crash).
  */
-let lastKnownApp: Proc[] = [];
+let appExitExpected = false;
+
+/** The app is about to exit on purpose: the scenario's end and the next restart tolerate a missing app. */
+export function expectAppExit(): void {
+  appExitExpected = true;
+}
+
+/** Whether the app exited after expectAppExit: nothing is left to discard (cast.ts). */
+export function appExitedAsExpected(): boolean {
+  return appExitExpected && !appRunning();
+}
 
 /**
  * Ends the running app and waits until it and its WebKit processes have exited (so nothing still
- * writes app data). An app that already exited during the previous scenario (a game that quit)
- * only has its dead session ended. Then, when `wipeData`, empties the run's private app data dirs
- * (from ENV_APP_DATA_DIRS, never anything else). Then starts a new session: tauri-driver launches a
- * new app process, which opens the test pack from its CLI argument.
+ * writes app data). An app that already exited after expectAppExit (a game that quit) only has its
+ * dead session ended; with no exit expected, a missing app fails. Then, when `wipeData`, empties
+ * the run's private app data dirs (from ENV_APP_DATA_DIRS, never anything else). Then starts a new
+ * session: tauri-driver launches a new app process, which opens the test pack from its CLI argument.
  */
 async function restartApp(wipeData: boolean): Promise<void> {
   if (process.platform !== 'linux') {
@@ -102,23 +115,21 @@ async function restartApp(wipeData: boolean): Promise<void> {
   const driverPid = Number(requireEnv(ENV_DRIVER_PID));
   const dataDirs = JSON.parse(requireEnv(ENV_APP_DATA_DIRS)) as string[];
 
+  const exitExpected = appExitExpected;
+  appExitExpected = false;
   const running = appProcesses(driverPid);
-  if (running.length === 0 && lastKnownApp.length === 0) {
-    throw new Error(`No app process found under tauri-driver (pid ${driverPid})`);
-  }
-  // None running but some known: the app exited during the previous scenario (a game that quit).
-  const ending = running.length > 0 ? running : lastKnownApp;
-  lastKnownApp = [];
   if (running.length > 0) {
     await browser.deleteSession();
-  } else {
-    console.warn(`Restart: the previous app (pids ${ending.map((p) => p.pid).join(', ')}) had already exited`);
+    await waitForExit(running);
+  } else if (exitExpected) {
+    console.warn('Restart: the previous app had already exited, as the previous scenario expected');
     // Its session outlived the app; WebKitWebDriver may answer the delete with an error about that.
     await browser.deleteSession().catch((error: unknown) => {
       console.warn(`Ended the session of an app that had already exited: ${String(error)}`);
     });
+  } else {
+    throw new Error(`No app process found under tauri-driver (pid ${driverPid})`);
   }
-  await waitForExit(ending);
 
   if (wipeData) {
     for (const dir of dataDirs) {
@@ -127,7 +138,6 @@ async function restartApp(wipeData: boolean): Promise<void> {
     }
   }
   await browser.reloadSession();
-  lastKnownApp = appProcesses(driverPid);
 }
 
 /** A new app process with empty app data: the start of every scenario. */

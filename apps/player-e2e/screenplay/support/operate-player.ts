@@ -51,6 +51,11 @@ export abstract class OperatePlayer extends Ability {
   abstract emulateColorScheme(actor: UsesAbilities & AnswersQuestions, scheme: 'light' | 'dark'): Promise<void>;
   /** Whether the app process is still running (desktop only): false once the app has exited. */
   abstract appRunning(actor: UsesAbilities & AnswersQuestions): Promise<boolean>;
+  /**
+   * The app is about to exit on purpose (desktop only): the scenario's end and the next restart
+   * accept that no app is running. Without it, an app gone by then fails the run (a crash).
+   */
+  abstract expectAppExit(actor: UsesAbilities & AnswersQuestions): Promise<void>;
 }
 
 export const StartPlayer = (): Interaction =>
@@ -81,6 +86,9 @@ export const EmulateColorScheme = (scheme: 'light' | 'dark'): Interaction =>
   Interaction.where(`#actor makes the OS colour scheme ${scheme}`, (actor) =>
     OperatePlayer.as(actor).emulateColorScheme(actor, scheme),
   );
+
+export const ExpectAppExit = (): Interaction =>
+  Interaction.where('#actor expects the app to exit', (actor) => OperatePlayer.as(actor).expectAppExit(actor));
 
 export const DropGameFile = (path: string): Interaction =>
   Interaction.where(`#actor drops the game file ${path} on the player`, (actor) =>
