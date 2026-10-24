@@ -117,6 +117,14 @@ jobs:
     with:
       run: ${{ needs.changes.outputs.desktop == 'true' }}
 
+  # TEMPORARY (3c CI rounds): workflow_dispatch needs the workflow on the default branch, so the Windows
+  # spec under development runs from here. Task 5 replaces this with the sharded, required wiring.
+  e2e-desktop-windows-dev:
+    uses: ./.github/workflows/e2e-desktop-windows.yml
+    with:
+      suite: main
+      spec: apps/player-e2e/scenarios/core-flow.scenario.ts
+
   e2e-web:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
