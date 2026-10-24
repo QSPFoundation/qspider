@@ -1,8 +1,10 @@
 name: macOS launch smoke
 
 # Builds the E2E debug binaries of the main desktop player and the desktop standalone player on macOS and
-# checks that each one starts, opens its game and shows the start text (`pnpm smoke:desktop`,
-# apps/player-e2e/targets/smoke/run-smoke.mjs). No WebDriver: the app reports markers on stdout.
+# checks that each one starts, opens its game and reports the start text (`pnpm smoke:desktop`,
+# apps/player-e2e/targets/smoke/run-smoke.mjs). No WebDriver: the app reports markers on stdout, taken
+# from game state, not from the DOM; a render failure with correct state is covered by the Linux suites only.
+# The two smokes run as separate steps so one failure never hides the other's result.
 # Called by checks.yml (desktop-relevant PRs and main) and scheduled-desktop-build.yml (weekly).
 
 env:
@@ -52,11 +54,19 @@ jobs:
         with:
           workspaces: src-tauri
       # The runner refuses to run in a host session off Linux unless CI is set; GitHub Actions sets CI=true.
-      - name: Launch smoke (main player, then standalone)
+      - name: Launch smoke (main player)
         shell: bash
         run: |
           mkdir -p apps/player-e2e/artifacts/smoke
-          pnpm smoke:desktop 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos.log
+          set -o pipefail
+          pnpm nx run player-e2e:smoke-desktop --output-style=static 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos-main.log
+      - name: Launch smoke (standalone)
+        if: success() || failure()
+        shell: bash
+        run: |
+          mkdir -p apps/player-e2e/artifacts/smoke
+          set -o pipefail
+          pnpm nx run player-e2e:smoke-desktop-standalone --output-style=static 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos-standalone.log
       - uses: actions/upload-artifact@v4
         if: failure() || cancelled()
         with:

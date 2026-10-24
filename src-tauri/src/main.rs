@@ -123,6 +123,7 @@ fn main() {
     .plugin(tauri_plugin_window_state::Builder::default().build());
 
   // `e2e_mark` exists only in debug builds, which is what the E2E builds are (`tauri build --debug`).
+  // Keep both handler lists identical apart from `e2e::e2e_mark`.
   #[cfg(debug_assertions)]
   let builder = builder.invoke_handler(tauri::generate_handler![
     prepare_game_start,
