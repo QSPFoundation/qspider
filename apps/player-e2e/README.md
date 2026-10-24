@@ -157,7 +157,7 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 
 - `appRunning` (read by `SeeAppClosed()`, `screenplay/standalone/checks.ts`): desktop only, whether an app process still runs under `tauri-driver` (`appRunning()` in `targets/desktop/fresh-app.ts`); web throws. It proves a quit closed the app: a closed window can no longer answer the page. The next scenario's restart tolerates an app that already exited (its last known processes are gone), and still fails with "No app process found" when no app was ever launched. Click the quitting action with `ClickActionClosingTheApp(label)` (`screenplay/standalone/tasks.ts`): the app can exit before the click is answered, and only that ended-session error is accepted (`SeeAppClosed` then proves the app is gone). After such a scenario the desktop actor skips discarding its windows when no app runs (`targets/desktop/cast.ts`), since the session is dead.
 
-Windows later uses UI Automation for the native dialog, behind the same `openGameFile`: no scenario changes.
+On Windows the native dialog is driven through UI Automation (`uia/dialog.ps1`, below), behind the same `openGameFile`: no scenario changes.
 
 #### The native dialog (desktop)
 
@@ -166,6 +166,14 @@ The file chooser is a window outside the webview, so WebDriver cannot reach it. 
 - Clicking Open through AT-SPI does not confirm a path typed into the entry, so it is not used.
 - GTK's location entry autocompletes, and the first activation may only accept the completion. So the entry is activated until the dialog closes, at most 3 times, and before each activation its text must still be the requested path: a completion that changed it would open a different file, so that fails instead.
 - `xdotool` was considered and rejected as fragile: it depends on window focus, sends synthetic keystrokes that land wherever focus is, and depends on keyboard layout and language.
+
+On Windows, `native-dialog.ts` runs `uia/dialog.ps1` (`powershell -NoProfile -ExecutionPolicy Bypass -File dialog.ps1 -Path <file> -WaitSeconds 10 -AppPids <comma list>`) under the same rules: no keystrokes, no dependence on the UI language, the value read back before confirming, the dialog verified closed, the same 22s kill timeout and `Native file dialog: ...` failures. The app PIDs are the process tree under the worker's `tauri-driver` (`appProcesses`, `platform/windows.ts`), so only a dialog the app owns is touched.
+
+- The dialog (`IFileOpenDialog`, opened by Tauri's dialog plugin) is found as a window of class `#32770` in one of the app's processes, either top-level or under the app's main window (it is owned by it). It is polled for up to `-WaitSeconds`, together with its file name field.
+- The file name field is the combo box with AutomationId `1148`; its Edit takes the path through ValuePattern (or the combo box itself, when it exposes ValuePattern). The value is read back and must equal the path.
+- Open is the button with AutomationId `1`, pressed through InvokePattern. The dialog must then be gone within half of `-WaitSeconds` (so the run stays inside the kill timeout, PowerShell's start-up included).
+- Failures exit 1 with one line: `dialog not found`, `file name field not found`, `value not set (read back "<x>")`, `Open button not found`, `dialog still open after Open`, or the message of an unexpected exception.
+- SendKeys and other synthetic input were rejected for the same reasons as `xdotool`.
 
 ### Shelf, language and persistence
 
