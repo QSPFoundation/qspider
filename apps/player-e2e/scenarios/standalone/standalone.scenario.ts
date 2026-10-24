@@ -6,6 +6,7 @@ import { SeeMainText } from '../../screenplay/game/checks';
 import { ClickAction } from '../../screenplay/game/tasks';
 import { SeeResourceMark } from '../../screenplay/resources/checks';
 import { SeeAppClosed } from '../../screenplay/standalone/checks';
+import { ClickActionClosingTheApp } from '../../screenplay/standalone/tasks';
 import { SeeSlotEmpty, SeeSlotFilled } from '../../screenplay/saves/checks';
 import { CancelSavesPanel, ChooseSaveSlot } from '../../screenplay/saves/tasks';
 import { SeeThemeChrome, SeeThemeCssApplied, SeeThemeScriptRan } from '../../screenplay/themes/e2e-custom/checks';
@@ -24,7 +25,7 @@ scenario.desktopOnly('quitting the game closes the window', async (player) => {
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.goToRoom),
     SeeMainText(TEXT.room(0)),
-    ClickAction(ACTION.quit),
+    ClickActionClosingTheApp(ACTION.quit),
     SeeAppClosed(),
   );
 });
