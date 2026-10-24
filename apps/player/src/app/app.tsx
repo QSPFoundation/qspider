@@ -1,7 +1,7 @@
 import { ProvidedComponents } from '@qspider/contracts';
-import { ErrorAlert, NoticeToast, PlayerWithShelf, StartupMarker } from '@qspider/game-shelf';
+import { ErrorAlert, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
 import { baseInit$, componentsRegistry$ } from '@qspider/game-state';
-import { QspiderLoader, QspiderRoot } from '@qspider/renderer';
+import { QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
 import { Debugger } from '@qspider/debugger';
 import { useAtom } from '@xoid/react';
 import { Suspense } from 'react';
