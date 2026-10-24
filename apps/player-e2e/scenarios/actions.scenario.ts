@@ -8,6 +8,8 @@ import { scenario } from '../screenplay/support/scenario';
 const { action: ACTION, text: TEXT } = PANELS_GAME;
 
 scenario('digit keys run the action at that position', async (player) => {
+  // TEMPORARY (Task 5): fails this spec on Windows only, to see e2e-desktop-windows go red. Reverted next.
+  if (process.platform === 'win32') throw new Error('TEMPORARY: forced failure (aggregate discrimination)');
   await player.attemptsTo(
     OpenPanelsFixture(),
     ClickAction(ACTION.start.keys),
