@@ -1,5 +1,5 @@
 import { Interaction, Task } from '@serenity-js/core';
-import { Action } from '../game/elements';
+import { ActionInView } from '../game/tasks';
 import { isSessionEndedError } from '../support/element-errors';
 import { ExpectAppExit } from '../support/operate-player';
 import { ClickWhenPresent } from '../support/presence';
@@ -16,7 +16,7 @@ export const ClickActionClosingTheApp = (label: string): Task =>
     ExpectAppExit(),
     Interaction.where(`#actor clicks the "${label}" action`, async (actor) => {
       try {
-        await ClickWhenPresent(Action(label)).performAs(actor);
+        await ClickWhenPresent(...ActionInView(label)).performAs(actor);
       } catch (error) {
         if (!isSessionEndedError(error)) throw error;
       }

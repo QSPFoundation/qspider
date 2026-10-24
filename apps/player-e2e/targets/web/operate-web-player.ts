@@ -1,4 +1,6 @@
-import type { AnswersQuestions, UsesAbilities } from '@serenity-js/core';
+import type { Answerable, AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import type { PageElement } from '@serenity-js/web';
+import { ClickWhenPresent } from '../../screenplay/support/presence';
 import { BrowseTheWebWithPlaywright, type PlaywrightPage } from '@serenity-js/playwright';
 import { TEST_PACK } from '../../fixtures/test-pack';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
@@ -38,6 +40,14 @@ export class OperateWebPlayer extends OperatePlayer {
     await page.navigateTo('/');
     const origin = new URL((await page.url()).href).origin;
     await page.navigateTo(`/?game=${encodeURIComponent(new URL(url, origin).href)}`);
+  }
+
+  async clickMapArea(
+    actor: UsesAbilities & AnswersQuestions & PerformsActivities,
+    _area: Answerable<PageElement>,
+    image: Answerable<PageElement>,
+  ): Promise<void> {
+    await actor.attemptsTo(ClickWhenPresent(image));
   }
 
   async loadGame(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {

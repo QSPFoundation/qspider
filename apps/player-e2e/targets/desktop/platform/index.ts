@@ -31,6 +31,12 @@ export interface DesktopPlatform {
   checkRunAllowed(): void;
   /** The dirs that hold the app's data, emptied before the driver starts and between scenarios. */
   appDataDirs(runDir: string): string[];
+  /**
+   * What a click on an image-map <area> goes to, as this OS's WebDriver accepts it: WebKitWebDriver (Linux)
+   * answers "element not interactable" for the <area> and clicks the <img> under it; msedgedriver (Windows)
+   * rejects the <img> click ("element click intercepted": its hit test finds the <area>) and clicks the <area>.
+   */
+  readonly mapAreaClick: 'area' | 'image';
 }
 
 /** The platform this run is on; fails on one the desktop E2E does not support. */

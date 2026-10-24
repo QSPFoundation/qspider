@@ -81,5 +81,6 @@ export const linuxPlatform: DesktopPlatform = {
       );
     }
   },
+  mapAreaClick: 'image',
   appDataDirs: (runDir) => Object.values(xdgDirs(runDir)),
 };

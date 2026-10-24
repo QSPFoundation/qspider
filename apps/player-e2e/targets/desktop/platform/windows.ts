@@ -174,6 +174,7 @@ export const windowsPlatform: DesktopPlatform = {
     mkdirSync(dir);
   },
   checkRunAllowed: () => assertHostSessionAllowed(process.env),
+  mapAreaClick: 'area',
   appDataDirs: () => {
     assertHostSessionAllowed(process.env);
     return windowsAppDataDirs(process.env);

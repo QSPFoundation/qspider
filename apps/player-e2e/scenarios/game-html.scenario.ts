@@ -3,6 +3,7 @@ import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks'
 import { SeeContentText } from '../screenplay/content/checks';
 import {
   AreaImage,
+  AreaLink,
   BindField,
   ExecLink,
   FormField,
@@ -15,7 +16,7 @@ import { ClickContent, SubmitForm } from '../screenplay/content/tasks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { Hover, MoveAway } from '../screenplay/support/hover';
-import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
+import { ClickMapArea, LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { TypeInto } from '../screenplay/support/type-into';
 
@@ -63,7 +64,7 @@ scenario('an image-map area runs its exec code', async (player) => {
     LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.links),
-    ClickContent(AreaImage),
+    ClickMapArea(AreaLink, AreaImage),
     SeeMainText(TEXT.areaResult),
   );
 });

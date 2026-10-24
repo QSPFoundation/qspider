@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { driverDetails, driverFailure } from './native-dialog';
+import { driverDetails, driverFailure, hasReadyLine } from './native-dialog';
 
 describe('driverFailure', () => {
   it("keeps a driver's one-line failure as it is", () => {
@@ -49,5 +49,24 @@ describe('driverFailure', () => {
   it('returns an empty string for empty stderr', () => {
     expect(driverFailure('', 'win32')).toBe('');
     expect(driverFailure('\n', 'linux')).toBe('');
+  });
+});
+
+describe('hasReadyLine', () => {
+  it('sees the ready line once it is complete, after a BOM, with CRLF or LF', () => {
+    expect(hasReadyLine('READY\r\n')).toBe(true);
+    expect(hasReadyLine('\uFEFFREADY\r\n')).toBe(true);
+    expect(hasReadyLine('READY\n')).toBe(true);
+    expect(hasReadyLine('loading\r\nREADY\r\nmore')).toBe(true);
+  });
+  it('waits for the end of the line', () => {
+    expect(hasReadyLine('')).toBe(false);
+    expect(hasReadyLine('REA')).toBe(false);
+    expect(hasReadyLine('READY')).toBe(false);
+  });
+  it('takes only the exact line', () => {
+    expect(hasReadyLine('NOT READY\r\n')).toBe(false);
+    expect(hasReadyLine('READYING\n')).toBe(false);
+    expect(hasReadyLine('ready\n')).toBe(false);
   });
 });

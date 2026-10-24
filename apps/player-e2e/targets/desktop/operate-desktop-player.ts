@@ -1,10 +1,12 @@
-import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import type { Answerable, AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import type { PageElement } from '@serenity-js/web';
 import { StartupFinishedMarker } from '../../screenplay/common/elements';
 import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
 import { ClickWhenPresent, waitUntilPresent } from '../../screenplay/support/presence';
 import { appRunning, expectAppExit, restartAppKeepingData, restartAppKeepingDataWith } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
+import { desktopPlatform } from './platform';
 
 /**
  * The desktop player: tauri-driver launches the app with the test pack's game.cfg as its argument
@@ -61,6 +63,15 @@ export class OperateDesktopPlayer extends OperatePlayer {
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);
+  }
+
+  async clickMapArea(
+    actor: UsesAbilities & AnswersQuestions & PerformsActivities,
+    area: Answerable<PageElement>,
+    image: Answerable<PageElement>,
+  ): Promise<void> {
+    // The element this OS's WebDriver accepts the click on (platform/index.ts, mapAreaClick).
+    await actor.attemptsTo(ClickWhenPresent(desktopPlatform().mapAreaClick === 'area' ? area : image));
   }
 
   async loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {

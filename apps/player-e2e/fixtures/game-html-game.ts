@@ -34,7 +34,7 @@ export const GAME_HTML = {
     execLink: 'exec-link',
     numLink: 'num-link',
     areaLink: 'area-link',
-    /** The <img> the area is mapped onto: Playwright clicks it, as an <area> has no box. */
+    /** The <img> the area is mapped onto: what web and Linux desktop click (see ClickMapArea). */
     areaImage: 'area-image',
     onClick: 'on-click',
     onEnter: 'on-enter',

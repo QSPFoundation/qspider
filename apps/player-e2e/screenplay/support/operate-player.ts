@@ -1,5 +1,7 @@
+import type { PageElement } from '@serenity-js/web';
 import {
   Ability,
+  type Answerable,
   Interaction,
   type AnswersQuestions,
   type PerformsActivities,
@@ -27,6 +29,15 @@ export abstract class OperatePlayer extends Ability {
    * game input, as openGameFile; desktop: the drop route (dropGameFile), skipping the native dialog.
    */
   abstract loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
+  /**
+   * Clicks the image-map `area` mapped onto `image`, on the element the driver accepts: the <area> on Windows
+   * desktop (msedgedriver), the <img> under it on Linux desktop and web (README, "Target differences").
+   */
+  abstract clickMapArea(
+    actor: UsesAbilities & AnswersQuestions & PerformsActivities,
+    area: Answerable<PageElement>,
+    image: Answerable<PageElement>,
+  ): Promise<void>;
   /** Drops the game file at `path` on the player window (desktop only). */
   abstract dropGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void>;
   /**
@@ -112,10 +123,14 @@ export const DropGameFile = (path: string): Interaction =>
     OperatePlayer.as(actor).dropGameFile(actor, path),
   );
 
-/** Setup only: the game file at `path`, put into the player by the cheapest route (see OperatePlayer.loadGame). */
 export const LoadGame = (path: string): Interaction =>
   Interaction.where(`#actor loads the game file ${path}`, (actor) =>
     OperatePlayer.as(actor).loadGame(performer(actor), path),
+  );
+
+export const ClickMapArea = (area: Answerable<PageElement>, image: Answerable<PageElement>): Interaction =>
+  Interaction.where(`#actor clicks the image-map area`, (actor) =>
+    OperatePlayer.as(actor).clickMapArea(performer(actor), area, image),
   );
 
 export const OpenGameFile = (path: string): Interaction =>
@@ -129,7 +144,7 @@ export const OpenGameFile = (path: string): Interaction =>
  */
 function performer<A extends UsesAbilities & AnswersQuestions>(actor: A): A & PerformsActivities {
   if (typeof (actor as Partial<PerformsActivities>).attemptsTo !== 'function') {
-    throw new TypeError('OpenGameFile and LoadGame need an actor that performs activities');
+    throw new TypeError('this interaction needs an actor that performs activities');
   }
   return actor as A & PerformsActivities;
 }

@@ -4,22 +4,36 @@
 //   session and GTK on X11, which run-desktop-e2e.mjs provides (see README, "Desktop runs on Linux").
 // - Windows: the IFileOpenDialog through UI Automation, uia/dialog.ps1, limited to a dialog of the
 //   app's own processes (the tree under the worker's tauri-driver).
-import { execFile } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 import { desktopPlatform } from './platform';
 import { driverPid } from './platform/env';
 
-const run = promisify(execFile);
 const ATSPI_SCRIPT = fileURLToPath(new URL('./atspi/dialog.py', import.meta.url));
 const UIA_SCRIPT = fileURLToPath(new URL('./uia/dialog.ps1', import.meta.url));
 // How long a driver waits for the dialog (and its file field), and then for its next step (AT-SPI:
 // the location entry; UI Automation: the dialog closing, within half of it). A dialog that never
-// shows fails after 10s with the driver's message; a driver stuck in an accessibility call is killed
-// after both waits plus a margin (22s). Either way the open fails well inside the 45s scenario timeout
-// (the Open game click before it is quick when the button is there, and fails on its own otherwise).
+// shows fails after 10s with the driver's message; a driver stuck in an accessibility call is killed.
+// Either way the open fails well inside the 45s scenario timeout.
 const DIALOG_WAIT_S = 10;
+// Linux: the kill timer runs from the spawn, both waits plus a margin.
 const KILL_AFTER_MS = (2 * DIALOG_WAIT_S + 2) * 1000;
+// Windows: a cold PowerShell start plus Add-Type (UIAutomation, and C# it compiles) took most of a
+// spawn-based budget on a CI runner. dialog.ps1 prints READY_LINE on stdout once it is set up: the
+// start-up is bounded on its own, and the drive (the dialog wait, then half of it for the close) is
+// timed from that line.
+const STARTUP_MAX_MS = 20_000;
+const DRIVE_MAX_MS = (1.5 * DIALOG_WAIT_S + 2) * 1000;
+
+/** The line dialog.ps1 prints on stdout once UI Automation and its Win32 helpers are loaded. */
+export const READY_LINE = 'READY';
+
+/** Whether `stdout` holds READY_LINE as a complete line (a leading UTF-8 BOM and a trailing CR are ignored). */
+export function hasReadyLine(stdout: string): boolean {
+  const lines = stdout.replace(/^\uFEFF/, '').split('\n');
+  lines.pop(); // the last piece is not a complete line yet
+  return lines.some((line) => line.trim() === READY_LINE);
+}
 
 /** The driver command for this OS: [executable, args]. */
 function driverCommand(path: string): [string, string[]] {
@@ -80,15 +94,58 @@ export function driverDetails(stderr: string): string[] {
   return stderrLines(stderr).filter(isDetail);
 }
 
+/** A driver the harness stopped: `reason` says which bound it passed. */
+class DriverKilled extends Error {}
+
+/**
+ * Runs the driver. `readyGated` (Windows): the kill timer starts at READY_LINE, after a start-up bound of its
+ * own; otherwise it runs from the spawn. Rejects with DriverKilled when stopped, else with `{ stderr }` on a
+ * non-zero exit.
+ */
+function runDriver(command: string, args: string[], readyGated: boolean): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { windowsHide: true });
+    let stdout = '';
+    let stderr = '';
+    let killed: string | undefined;
+    const killAfter = (ms: number, reason: string) =>
+      setTimeout(() => {
+        killed = reason;
+        child.kill();
+      }, ms);
+    let timer = readyGated
+      ? killAfter(STARTUP_MAX_MS, `the driver did not get ready within ${STARTUP_MAX_MS / 1000}s`)
+      : killAfter(KILL_AFTER_MS, `the driver did not finish within ${KILL_AFTER_MS / 1000}s`);
+    let ready = !readyGated;
+    child.stdout.setEncoding('utf8').on('data', (chunk: string) => {
+      stdout += chunk;
+      if (ready || !hasReadyLine(stdout)) return;
+      ready = true;
+      clearTimeout(timer);
+      timer = killAfter(DRIVE_MAX_MS, `the driver did not finish within ${DRIVE_MAX_MS / 1000}s of getting ready`);
+    });
+    child.stderr.setEncoding('utf8').on('data', (chunk: string) => (stderr += chunk));
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on('close', (code) => {
+      clearTimeout(timer);
+      if (killed !== undefined) reject(new DriverKilled(killed));
+      else if (code === 0) resolve();
+      else reject(Object.assign(new Error(`${command} exited with code ${String(code)}`), { stderr }));
+    });
+  });
+}
+
 /** Chooses `path` in the open native file dialog and confirms; fails with the dialog driver's message. */
 export async function pickFileInNativeDialog(path: string): Promise<void> {
   try {
     const [command, args] = driverCommand(path);
-    // A hung accessibility call is cut off after both waits (KILL_AFTER_MS).
-    await run(command, args, { timeout: KILL_AFTER_MS, windowsHide: true });
+    await runDriver(command, args, process.platform === 'win32');
   } catch (error) {
-    const { stderr, killed } = error as { stderr?: unknown; killed?: boolean };
-    if (killed) throw new Error(`Native file dialog: the driver did not finish within ${KILL_AFTER_MS / 1000}s`);
+    if (error instanceof DriverKilled) throw new Error(`Native file dialog: ${error.message}`);
+    const { stderr } = error as { stderr?: unknown };
     const message = error instanceof Error ? error.message : String(error);
     const details = driverDetails(String(stderr ?? ''));
     const failure = driverFailure(String(stderr ?? ''), process.platform) || message;

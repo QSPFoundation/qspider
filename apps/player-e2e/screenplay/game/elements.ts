@@ -13,6 +13,9 @@ const isLabel = Expectation.define<string, [string]>(
   (actual, label) => normalize(actual) === label,
 );
 
+/** Every game action element (rendered or not, in view or not); for ScrollLabelledIntoView. */
+export const Actions = PageElements.located(By.css('[data-qsp="action"]')).describedAs('game actions');
+
 /** A game action, by the label the game gives it (in any theme; whitespace around the label is ignored). */
 export const Action = (label: string) =>
   visible(PageElements.located(By.css('[data-qsp="action"]')).where(Text, isLabel(label)), `"${label}" action`);

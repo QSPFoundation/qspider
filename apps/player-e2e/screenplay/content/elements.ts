@@ -10,10 +10,12 @@ export const ExecLink = ContentMark(GAME_HTML.marks.execLink);
 export const NumLink = ContentMark(GAME_HTML.marks.numLink);
 export const MarkupBold = ContentMark(GAME_HTML.marks.bold);
 
-/**
- * An <area> has no box (Playwright's scrollIntoView on it crashes the page), so the click goes to the
- * image it is mapped onto. No visible() filter: it reports this <img> as not visible although it renders.
- */
+/** The image map's <area>. No visible() filter: an <area> has no box of its own, so it never counts as visible. */
+export const AreaLink = PageElements.located(By.css(`[data-qa="${GAME_HTML.marks.areaLink}"]`))
+  .first()
+  .describedAs('image map area');
+
+/** The <img> the area is mapped onto. No visible() filter: Serenity reports it as not visible although it renders. */
 export const AreaImage = PageElements.located(By.css(`[data-qa="${GAME_HTML.marks.areaImage}"]`))
   .first()
   .describedAs('area image');

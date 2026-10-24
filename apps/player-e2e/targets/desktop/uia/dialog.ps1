@@ -12,6 +12,8 @@ process only, never by names or labels, so the UI language does not matter. Only
 -AppPids (the app under test, from native-dialog.ts) is touched, never another window on the host.
 
 Usage: dialog.ps1 -Path <file> -WaitSeconds <s> -AppPids <pid,pid,...>
+Prints READY on stdout once UI Automation and its Win32 helpers are loaded (native-dialog.ts starts
+its kill timer there).
 Exit 0 once the dialog has closed after Open; exit 1 otherwise, with one message line on stderr,
 then (when the dialog could not be driven) the UIA tree of the app's #32770 windows as lines
 starting with '|'. On failure every #32770 of the app is closed, so an open dialog does not keep
@@ -182,6 +184,9 @@ public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntP
   }
 
   $script:uiaReady = $true
+  # native-dialog.ts times the drive from this line (the start-up above has its own bound).
+  [Console]::Out.WriteLine('READY')
+  [Console]::Out.Flush()
 
   # The dialog and its file name field, polled within one deadline (no fixed sleeps beyond the poll interval).
   $deadline = [DateTime]::UtcNow.AddSeconds($WaitSeconds)
@@ -210,8 +215,8 @@ public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntP
     Fail "BM_CLICK failed (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))" -Dump
   }
 
-  # The dialog must close: one still open did not accept the path. Half the wait, so the whole run
-  # stays inside native-dialog.ts's kill timeout even with PowerShell's start-up.
+  # The dialog must close: one still open did not accept the path. Half the wait, so the drive stays
+  # inside native-dialog.ts's kill timeout, which runs from READY.
   $closeDeadline = [DateTime]::UtcNow.AddSeconds($WaitSeconds / 2)
   while ($null -ne (Find-Dialog)) {
     if ([DateTime]::UtcNow -gt $closeDeadline) { Fail 'dialog still open after Open' }
