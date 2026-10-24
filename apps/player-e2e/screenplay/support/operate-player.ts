@@ -49,6 +49,8 @@ export abstract class OperatePlayer extends Ability {
    * holds across reloads of the page). Call it before startPlayer or restartPlayer to set what the player starts with.
    */
   abstract emulateColorScheme(actor: UsesAbilities & AnswersQuestions, scheme: 'light' | 'dark'): Promise<void>;
+  /** Whether the app process is still running (desktop only): false once the app has exited. */
+  abstract appRunning(actor: UsesAbilities & AnswersQuestions): Promise<boolean>;
 }
 
 export const StartPlayer = (): Interaction =>

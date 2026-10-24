@@ -2,7 +2,7 @@ import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@seren
 import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
 import { ClickWhenPresent } from '../../screenplay/support/presence';
-import { restartAppKeepingData } from './fresh-app';
+import { appRunning, restartAppKeepingData } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
 
 /**
@@ -42,6 +42,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
 
   async emulateColorScheme(_actor: UsesAbilities & AnswersQuestions, _scheme: 'light' | 'dark'): Promise<void> {
     throw new Error('emulateColorScheme is not supported on desktop');
+  }
+
+  async appRunning(_actor: UsesAbilities & AnswersQuestions): Promise<boolean> {
+    return appRunning();
   }
 
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {

@@ -5,6 +5,7 @@ import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../../screen
 import { SeeMainText } from '../../screenplay/game/checks';
 import { ClickAction } from '../../screenplay/game/tasks';
 import { SeeResourceMark } from '../../screenplay/resources/checks';
+import { SeeAppClosed } from '../../screenplay/standalone/checks';
 import { SeeSlotEmpty, SeeSlotFilled } from '../../screenplay/saves/checks';
 import { CancelSavesPanel, ChooseSaveSlot } from '../../screenplay/saves/tasks';
 import { SeeThemeChrome, SeeThemeCssApplied, SeeThemeScriptRan } from '../../screenplay/themes/e2e-custom/checks';
@@ -14,6 +15,19 @@ import { scenario } from '../../screenplay/support/scenario';
 
 const { action: ACTION, text: TEXT, css: CSS, mark: MARK } = STANDALONE_GAME;
 const SAVE_SLOT = 1;
+
+// The game's quit (qspider_quit, the qspider.action:quit command) ends the game, and the standalone
+// player closes its window. Not last: the next scenario restarts after an app that already exited.
+scenario.desktopOnly('quitting the game closes the window', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.goToRoom),
+    SeeMainText(TEXT.room(0)),
+    ClickAction(ACTION.quit),
+    SeeAppClosed(),
+  );
+});
 
 // The bundled game.cfg lists two games; the exact start text fails if the second one started.
 scenario('the bundled game starts by itself', async (player) => {

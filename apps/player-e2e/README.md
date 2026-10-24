@@ -155,6 +155,8 @@ Never by visible text, CSS class, nesting or layout: themes and translations cha
 
 - `emulateColorScheme` (`EmulateColorScheme('light' | 'dark')`): web only (Playwright's `emulateMedia`, kept across page reloads); desktop throws, so use it only in `scenario.webOnly` variants. Call it before `StartPlayer()` / `RestartPlayer()` to set the OS colour scheme the player starts with.
 
+- `appRunning` (read by `SeeAppClosed()`, `screenplay/standalone/checks.ts`): desktop only, whether an app process still runs under `tauri-driver` (`appRunning()` in `targets/desktop/fresh-app.ts`); web throws. It proves a quit closed the app: a closed window can no longer answer the page. The next scenario's restart tolerates an app that already exited (its last known processes are gone), and still fails with "No app process found" when no app was ever launched.
+
 Windows later uses UI Automation for the native dialog, behind the same `openGameFile`: no scenario changes.
 
 #### The native dialog (desktop)

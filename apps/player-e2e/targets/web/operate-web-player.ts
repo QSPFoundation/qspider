@@ -88,4 +88,8 @@ export class OperateWebPlayer extends OperatePlayer {
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
     await (await page.nativePage()).emulateMedia({ colorScheme: scheme });
   }
+
+  async appRunning(_actor: UsesAbilities & AnswersQuestions): Promise<boolean> {
+    throw new Error('appRunning is not supported on web');
+  }
 }

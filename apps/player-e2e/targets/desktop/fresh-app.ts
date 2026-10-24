@@ -75,11 +75,24 @@ function requireEnv(name: string): string {
   return value;
 }
 
+/** Whether an app process (or one of its WebKit processes) is running under the run's tauri-driver. */
+export function appRunning(): boolean {
+  return appProcesses(Number(requireEnv(ENV_DRIVER_PID))).length > 0;
+}
+
+/**
+ * The app processes this worker's last restart launched (empty before it: the first restart finds
+ * the app of the session WDIO started). With none running, tells an app that exited during the
+ * previous scenario (some known) apart from one that never launched (none known).
+ */
+let lastKnownApp: Proc[] = [];
+
 /**
  * Ends the running app and waits until it and its WebKit processes have exited (so nothing still
- * writes app data). Then, when `wipeData`, empties the run's private app data dirs (from
- * ENV_APP_DATA_DIRS, never anything else). Then starts a new session: tauri-driver launches a new
- * app process, which opens the test pack from its CLI argument.
+ * writes app data). An app that already exited during the previous scenario (a game that quit)
+ * only has its dead session ended. Then, when `wipeData`, empties the run's private app data dirs
+ * (from ENV_APP_DATA_DIRS, never anything else). Then starts a new session: tauri-driver launches a
+ * new app process, which opens the test pack from its CLI argument.
  */
 async function restartApp(wipeData: boolean): Promise<void> {
   if (process.platform !== 'linux') {
@@ -90,9 +103,21 @@ async function restartApp(wipeData: boolean): Promise<void> {
   const dataDirs = JSON.parse(requireEnv(ENV_APP_DATA_DIRS)) as string[];
 
   const running = appProcesses(driverPid);
-  if (running.length === 0) throw new Error(`No app process found under tauri-driver (pid ${driverPid})`);
-  await browser.deleteSession();
-  await waitForExit(running);
+  if (running.length === 0 && lastKnownApp.length === 0) {
+    throw new Error(`No app process found under tauri-driver (pid ${driverPid})`);
+  }
+  // None running but some known: the app exited during the previous scenario (a game that quit).
+  const ending = running.length > 0 ? running : lastKnownApp;
+  lastKnownApp = [];
+  if (running.length > 0) {
+    await browser.deleteSession();
+  } else {
+    // Its session outlived the app; WebKitWebDriver may answer the delete with an error about that.
+    await browser.deleteSession().catch((error: unknown) => {
+      console.warn(`Ended the session of an app that had already exited: ${String(error)}`);
+    });
+  }
+  await waitForExit(ending);
 
   if (wipeData) {
     for (const dir of dataDirs) {
@@ -101,6 +126,7 @@ async function restartApp(wipeData: boolean): Promise<void> {
     }
   }
   await browser.reloadSession();
+  lastKnownApp = appProcesses(driverPid);
 }
 
 /** A new app process with empty app data: the start of every scenario. */
