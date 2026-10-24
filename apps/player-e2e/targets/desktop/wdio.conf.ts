@@ -144,9 +144,11 @@ async function startDriver(logPath: string): Promise<void> {
   } finally {
     closeSync(log); // the driver holds its own handle
   }
-  // Covers an aborted worker; afterSession is the normal teardown.
+  // Covers an aborted worker; afterSession is the normal teardown. Only a driver still running: the PID of
+  // one that already exited may belong to another process by now.
   process.once('exit', () => {
-    if (tauriDriver) platform.stopDriver(tauriDriver);
+    if (tauriDriver && tauriDriver.exitCode === null && tauriDriver.signalCode === null)
+      platform.stopDriver(tauriDriver);
   });
   await waitForPort(DRIVER_PORT, 10_000);
   // If our driver died (e.g. failed to bind), the port answer came from someone else.

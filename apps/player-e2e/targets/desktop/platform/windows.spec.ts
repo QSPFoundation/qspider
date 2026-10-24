@@ -104,10 +104,12 @@ describe('assertHostSessionAllowed', () => {
   it('throws on a developer machine: neither CI nor QSPIDER_E2E_HOST_SESSION=1', () => {
     expect(() => assertHostSessionAllowed({})).toThrow(/QSPIDER_E2E_HOST_SESSION=1/);
     expect(() => assertHostSessionAllowed({ CI: '' })).toThrow();
+    expect(() => assertHostSessionAllowed({ CI: 'false' })).toThrow();
     expect(() => assertHostSessionAllowed({ QSPIDER_E2E_HOST_SESSION: 'yes' })).toThrow();
   });
   it('allows CI and an explicit host session', () => {
     expect(() => assertHostSessionAllowed({ CI: 'true' })).not.toThrow();
+    expect(() => assertHostSessionAllowed({ CI: '1' })).not.toThrow();
     expect(() => assertHostSessionAllowed({ QSPIDER_E2E_HOST_SESSION: '1' })).not.toThrow();
   });
 });

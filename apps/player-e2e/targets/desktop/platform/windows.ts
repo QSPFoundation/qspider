@@ -29,9 +29,12 @@ export interface WinProc extends Proc {
   name?: string;
 }
 
-/** Fails unless this is CI (`CI` set) or the developer opted in with QSPIDER_E2E_HOST_SESSION=1. */
+/**
+ * Fails unless this is CI (`CI` is `true` or `1`; `CI=false` is a common developer setting) or the developer
+ * opted in with QSPIDER_E2E_HOST_SESSION=1.
+ */
 export function assertHostSessionAllowed(env: Env): void {
-  if (env['CI'] || env[ENV_HOST_SESSION] === '1') return;
+  if (env['CI'] === 'true' || env['CI'] === '1' || env[ENV_HOST_SESSION] === '1') return;
   throw new Error(
     'Refusing to run the Windows desktop E2E on a host session: the app writes and the run empties its real ' +
       `%APPDATA% and %LOCALAPPDATA% dirs (${APP_IDENTIFIERS.join(', ')}). It runs where CI is set; on a ` +
