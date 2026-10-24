@@ -12,9 +12,6 @@
     "automerge": true,
     "schedule": ["before 4am on monday"]
   },
-  "devcontainer": {
-    "managerFilePatterns": ["/^\\.devcontainer/[^/]+/devcontainer\\.json$/"]
-  },
   "packageRules": [
     {
       "description": "Patch/minor devDependencies merge themselves once the required checks pass (0.x excluded: minors there may break)",
