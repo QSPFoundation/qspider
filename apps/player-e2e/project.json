@@ -105,6 +105,9 @@
       "executor": "nx:run-commands",
       "cache": false,
       "dependsOn": ["build-desktop-e2e"],
+      "metadata": {
+        "description": "Launch smoke of the main desktop player. The game path and --expect-text come from fixtures/e2e-game.ts (E2E_GAME.path, E2E_GAME.text.start), the source of truth: keep them in step."
+      },
       "options": {
         "cwd": "{workspaceRoot}",
         "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/debug/qspider --file apps/player-e2e/fixtures/e2e-game/e2e-game.qsps --expect-text 'E2E START'"
@@ -114,6 +117,9 @@
       "executor": "nx:run-commands",
       "cache": false,
       "dependsOn": ["build-desktop-standalone-e2e"],
+      "metadata": {
+        "description": "Launch smoke of the desktop standalone player. --expect-text comes from fixtures/standalone-game.ts (STANDALONE_GAME.text.start), the source of truth: keep it in step."
+      },
       "options": {
         "cwd": "{workspaceRoot}",
         "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/e2e-standalone/debug/qspider --expect-text 'STANDALONE START'"

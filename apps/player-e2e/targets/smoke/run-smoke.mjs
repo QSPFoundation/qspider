@@ -1,5 +1,6 @@
 // Desktop launch smoke, no WebDriver:
 //   node run-smoke.mjs --app <binary> [--file <game>] --expect-text <text> [--timeout-ms N] [--alive-ms M]
+//                      [--host-session]
 // Launches an E2E build of a desktop app (VITE_QSPIDER_E2E=true, `tauri build --debug`), with <game> as its
 // first argument if given, and reads the markers it prints on stdout (libs/desktop/src/lib/e2e-marks.ts,
 // src-tauri/src/e2e.rs). Passes (exit 0) when, within N ms of the launch, it reports in this order
@@ -8,13 +9,15 @@
 //   QSPIDER_E2E_MARK main-text <text>      (<text>, trimmed, must equal --expect-text exactly)
 // and is still running M ms after the last one. A repeat of a marker already received is ignored; a marker
 // that arrives before the ones it follows fails the run. On failure (exit 1) it prints the reason, the
-// markers received and the last 50 lines of the app's output. The app is then stopped by its process group.
+// markers received and the last 50 lines of the app's output. The app is then stopped by its PID.
 //
 // On Linux the app runs only inside the desktop E2E's private session (targets/desktop/private-env.mjs):
 // started without QSPIDER_E2E_PRIVATE_SESSION, the runner re-executes itself under Xvfb and a private D-Bus,
 // with a stripped env and private XDG_* dirs (a temp dir, removed afterwards); started with it, it refuses
 // unless the session really is private (targets/desktop/private-session.ts). It never runs in the real session.
-// Other platforms run the app directly.
+// Other platforms run the app directly, with the host env and the user's real app data (e.g. macOS
+// ~/Library/Application Support), so there the runner refuses unless CI is set (a throwaway CI machine;
+// GitHub Actions sets CI=true) or --host-session says that is intended.
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { constants } from 'node:os';
@@ -42,12 +45,13 @@ const { values: options } = parseArgs({
     'expect-text': { type: 'string' },
     'timeout-ms': { type: 'string', default: '60000' },
     'alive-ms': { type: 'string', default: '5000' },
+    'host-session': { type: 'boolean', default: false },
   },
 });
 
 function usage(problem) {
   process.stderr.write(
-    `${problem}\nUsage: node run-smoke.mjs --app <binary> [--file <game>] --expect-text <text> [--timeout-ms N] [--alive-ms M]\n`,
+    `${problem}\nUsage: node run-smoke.mjs --app <binary> [--file <game>] --expect-text <text> [--timeout-ms N] [--alive-ms M] [--host-session]\n`,
   );
   process.exit(2);
 }
@@ -70,6 +74,12 @@ if (process.platform === 'linux' && process.env.QSPIDER_E2E_PRIVATE_SESSION !== 
       privateDir = undefined;
     },
   });
+} else if (process.platform !== 'linux' && !process.env.CI && !options['host-session']) {
+  process.stderr.write(
+    `Refusing to run the smoke in the host session: on ${process.platform} there is no private session, so the app ` +
+      'would use your real environment and app data. It is meant for CI (CI set); pass --host-session to run it here anyway.\n',
+  );
+  process.exit(1);
 } else {
   if (process.platform === 'linux') {
     const problem = privateSessionProblem(process.env, process.getuid?.() ?? -1);
@@ -95,12 +105,15 @@ async function smoke() {
   log(`launching ${[app, ...args].join(' ')}`);
   log(`expecting main-text "${expectText}" within ${timeoutMs}ms, then ${aliveMs}ms alive`);
 
-  const ownGroup = process.platform !== 'win32';
+  // On Linux the app stays in the private session's process group (run by private-env.mjs's runTree): the
+  // runner stops the app by its PID, and the outer runner then TERMs/KILLs the whole group, the app's helper
+  // processes (WebKit's) included, even if this inner runner was SIGKILLed. On macOS there is no outer
+  // group, so the app gets its own and is stopped as a group (a SIGKILLed runner would orphan it there).
+  const ownGroup = process.platform !== 'win32' && process.platform !== 'linux';
   const started = Date.now();
   const child = spawn(app, args, {
     cwd: workspaceRoot,
     stdio: ['ignore', 'pipe', 'pipe'],
-    // Its own process group, so stopping it reaches the app's helper processes (e.g. WebKit's) too.
     detached: ownGroup,
   });
 
@@ -130,6 +143,8 @@ async function smoke() {
 
   let timeout = setTimeout(() => fail(`timeout waiting for ${MARKERS[next]}`), timeoutMs);
   let liveness;
+  /** How the app exited ("code 0", "signal SIGSEGV"), once it has. */
+  let exited;
 
   function onMarker(line) {
     const rest = line.slice(MARK_PREFIX.length);
@@ -160,23 +175,30 @@ async function smoke() {
       }
       clearTimeout(timeout);
       timeout = undefined;
+      // Read after the app exited (draining its output): the exit handler fails the run.
+      if (exited) return;
       // The liveness window: an observation period, not a synchronisation sleep. Everything awaited has
       // already arrived; the app must simply not exit (crash) during these M ms after its first screen.
-      liveness = setTimeout(() => settle(undefined), aliveMs);
+      liveness = setTimeout(() => {
+        if (!exited) settle(undefined);
+      }, aliveMs);
     }
   }
 
   child.on('error', (error) => fail(`could not start the app: ${error.message}`));
   child.on('exit', (code, signal) => {
-    // Read what the app wrote before it exited, so its last markers are not lost (bounded: helper
-    // processes may keep the pipe open).
+    // Recorded at once, so neither the liveness window nor the timeout can settle the run any more.
+    exited = signal ? `signal ${signal}` : `code ${code}`;
+    clearTimeout(liveness);
+    clearTimeout(timeout);
+    // Only to name the right reason: read what the app wrote before it exited, so its last markers are not
+    // lost (bounded: helper processes may keep the pipe open).
     const drained = new Promise((done) => stdout.once('close', done));
     Promise.race([drained, delay(1_000)]).then(() => {
-      const how = signal ? `signal ${signal}` : `code ${code}`;
       fail(
         next < MARKERS.length
-          ? `app exited (${how}) before ${MARKERS[next]}`
-          : `app exited (${how}) during the liveness window`,
+          ? `app exited (${exited}) before ${MARKERS[next]}`
+          : `app exited (${exited}) during the liveness window`,
       );
     });
   });
@@ -204,25 +226,31 @@ async function smoke() {
   process.stderr.write(`${out.join('\n')}\n`);
   return 1;
 
-  /** Stops the app's process group (by its PID): TERM, then KILL if it is still there after a while. */
+  /** Stops the app by its PID (and its process group, where it has one): TERM, then KILL after a while. */
   async function stopApp() {
-    if (!ownGroup) {
-      if (child.exitCode === null && child.signalCode === null) child.kill();
-      return;
-    }
+    if (!child.pid) return;
+    const target = ownGroup ? -child.pid : child.pid;
     const alive = () => {
+      if (!ownGroup) return child.exitCode === null && child.signalCode === null;
       try {
-        process.kill(-child.pid, 0);
+        process.kill(target, 0);
         return true;
       } catch {
         return false;
       }
     };
-    if (!child.pid || !alive()) return;
-    process.kill(-child.pid, 'SIGTERM');
+    const signal = (name) => {
+      try {
+        process.kill(target, name);
+      } catch {
+        // already gone
+      }
+    };
+    if (!alive()) return;
+    signal('SIGTERM');
     const deadline = Date.now() + APP_EXIT_TIMEOUT_MS;
     while (alive() && Date.now() < deadline) await delay(100);
-    if (alive()) process.kill(-child.pid, 'SIGKILL');
+    if (alive()) signal('SIGKILL');
   }
 }
 
