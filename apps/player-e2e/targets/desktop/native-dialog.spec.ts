@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { driverFailure } from './native-dialog';
+import { driverDetails, driverFailure } from './native-dialog';
 
 describe('driverFailure', () => {
   it("keeps a driver's one-line failure as it is", () => {
@@ -31,6 +31,20 @@ describe('driverFailure', () => {
     expect(driverFailure('Traceback (most recent call last):\n  File "x"\nValueError: boom\n', 'linux')).toBe(
       'ValueError: boom',
     );
+  });
+  it("keeps the message apart from dialog.ps1's '|' detail lines", () => {
+    const stderr = [
+      'file name field not found',
+      '| #32770 candidates: 1',
+      "|   ControlType.ComboBox class='ComboBox' id='1148' name=''",
+      '',
+    ].join('\r\n');
+    expect(driverFailure(stderr, 'win32')).toBe('file name field not found');
+    expect(driverDetails(stderr)).toEqual([
+      '| #32770 candidates: 1',
+      "|   ControlType.ComboBox class='ComboBox' id='1148' name=''",
+    ]);
+    expect(driverDetails('dialog not found\r\n')).toEqual([]);
   });
   it('returns an empty string for empty stderr', () => {
     expect(driverFailure('', 'win32')).toBe('');

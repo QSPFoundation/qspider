@@ -10,7 +10,10 @@ never by names or labels, so the UI language does not matter. Only a dialog owne
 -AppPids (the app under test, from native-dialog.ts) is touched, never another window on the host.
 
 Usage: dialog.ps1 -Path <file> -WaitSeconds <s> -AppPids <pid,pid,...>
-Exit 0 once the dialog has closed after Open; exit 1 with one message line on stderr otherwise.
+Exit 0 once the dialog has closed after Open; exit 1 otherwise, with one message line on stderr,
+then (when the dialog or its field was not found) the UIA tree of the app's #32770 windows as lines
+starting with '|'. On failure every #32770 of the app is closed, so an open dialog does not keep
+the app alive after the session and poison the next scenario.
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Path,
@@ -23,9 +26,14 @@ $ErrorActionPreference = 'Stop'
 # UTF-8 on the console streams, so a message with a non-ASCII path (the Cyrillic fixture) reaches Node intact.
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 $PollMs = 100
+$script:uiaReady = $false
 
-function Fail([string]$Message) {
+function Fail([string]$Message, [switch]$Dump) {
   [Console]::Error.WriteLine($Message)
+  if ($script:uiaReady) {
+    if ($Dump) { try { Write-Tree } catch { [Console]::Error.WriteLine("| (dump failed: $($_.Exception.Message))") } }
+    try { Close-Dialogs } catch { [Console]::Error.WriteLine("| (close failed: $($_.Exception.Message))") }
+  }
   exit 1
 }
 
@@ -57,28 +65,79 @@ try {
     return $false
   }
 
-  # The app's file dialog: a #32770 window of an app process, top-level or one UIA shows under the
-  # app's main window (the dialog is owned by it), that holds the file name field (AutomationId 1148),
-  # so a message box or another #32770 of the app never counts. Children only for the windows: a
-  # full-tree search of the desktop is slow. $script:sawDialog records a #32770 without the field.
-  $script:sawDialog = $false
-  function Find-Dialog {
+  # The app's #32770 windows: top-level ones of an app process, and ones UIA shows under the app's
+  # main window (the dialog is owned by it). Children only: a full-tree search of the desktop is slow.
+  function Get-Candidates {
+    $candidates = @()
     foreach ($window in $A::RootElement.FindAll($Scope::Children, $ofApp)) {
       try {
-        $candidates = @()
         if ($window.Current.ClassName -eq '#32770') { $candidates += $window }
         foreach ($owned in $window.FindAll($Scope::Children, $isDialog)) {
           if ($pids -contains $owned.Current.ProcessId) { $candidates += $owned }
-        }
-        foreach ($candidate in $candidates) {
-          $script:sawDialog = $true
-          if ($null -ne $candidate.FindFirst($Scope::Descendants, $fileNameField)) { return $candidate }
         }
       } catch {
         if (-not (Test-Gone $_)) { throw } # else the window closed while it was being read
       }
     }
+    return $candidates
+  }
+
+  # The app's file dialog: a candidate that holds the file name field (AutomationId 1148), so a
+  # message box or another #32770 of the app never counts. $script:sawDialog records a #32770 without it.
+  $script:sawDialog = $false
+  function Find-Dialog {
+    foreach ($candidate in (Get-Candidates)) {
+      $script:sawDialog = $true
+      try {
+        if ($null -ne $candidate.FindFirst($Scope::Descendants, $fileNameField)) { return $candidate }
+      } catch {
+        if (-not (Test-Gone $_)) { throw }
+      }
+    }
     return $null
+  }
+
+  # On failure: close every #32770 of the app (WindowPattern.Close, else its Cancel button, id 2).
+  function Close-Dialogs {
+    foreach ($candidate in (Get-Candidates)) {
+      try {
+        $pattern = $null
+        if ($candidate.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$pattern)) {
+          ([System.Windows.Automation.WindowPattern]$pattern).Close()
+          continue
+        }
+        $cancel = $candidate.FindFirst($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '2')))
+        if ($null -ne $cancel -and $cancel.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern, [ref]$pattern)) {
+          ([System.Windows.Automation.InvokePattern]$pattern).Invoke()
+        }
+      } catch {
+        if (-not (Test-Gone $_)) { throw }
+      }
+    }
+  }
+
+  # On failure: the raw UIA tree of the app's top-level windows and #32770 windows, one '|' line per element.
+  function Write-Tree {
+    $walker = [System.Windows.Automation.TreeWalker]::RawViewWalker
+    $script:dumped = 0
+    function Write-Node($element, [int]$depth) {
+      if ($script:dumped -ge 400) { return }
+      $script:dumped++
+      $c = $element.Current
+      $name = [string]$c.Name
+      if ($name.Length -gt 60) { $name = $name.Substring(0, 60) + '...' }
+      [Console]::Error.WriteLine(('| ' + ('  ' * $depth) + "$($c.ControlType.ProgrammaticName) class='$($c.ClassName)' id='$($c.AutomationId)' name='$name' pid=$($c.ProcessId) control=$($c.IsControlElement) hwnd=$($c.NativeWindowHandle)"))
+      if ($depth -ge 8) { return }
+      for ($child = $walker.GetFirstChild($element); $null -ne $child; $child = $walker.GetNextSibling($child)) {
+        Write-Node $child ($depth + 1)
+      }
+    }
+    foreach ($window in $A::RootElement.FindAll($Scope::Children, $ofApp)) {
+      [Console]::Error.WriteLine("| app window class='$($window.Current.ClassName)' pid=$($window.Current.ProcessId)")
+    }
+    $candidates = @(Get-Candidates)
+    [Console]::Error.WriteLine("| #32770 candidates: $($candidates.Count)")
+    foreach ($candidate in $candidates) { Write-Node $candidate 0 }
   }
 
   # The file name combo box's Edit takes the value; a combo box that exposes ValuePattern itself also works.
@@ -99,6 +158,8 @@ try {
     return $null
   }
 
+  $script:uiaReady = $true
+
   # The dialog and its file name field, polled within one deadline (no fixed sleeps beyond the poll interval).
   $deadline = [DateTime]::UtcNow.AddSeconds($WaitSeconds)
   $dialog = $null
@@ -110,8 +171,8 @@ try {
       if ($null -ne $value) { break }
     }
     if ([DateTime]::UtcNow -gt $deadline) {
-      if ($null -eq $dialog -and -not $script:sawDialog) { Fail 'dialog not found' }
-      Fail 'file name field not found'
+      if ($null -eq $dialog -and -not $script:sawDialog) { Fail 'dialog not found' -Dump }
+      Fail 'file name field not found' -Dump
     }
     Start-Sleep -Milliseconds $PollMs # poll interval
   }
