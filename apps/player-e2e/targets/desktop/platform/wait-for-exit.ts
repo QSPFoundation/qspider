@@ -25,7 +25,12 @@ export async function pollUntilExited(
   const poll = () => new Promise((resolve) => setTimeout(resolve, intervalMs)); // poll interval, not a fixed wait
   for (;;) {
     const left = alive(procs);
-    if (left.length === 0) return;
+    if (left.length === 0) {
+      // A slow exit that still made it: logged, so a budget that gets tight shows before it fails.
+      const took = Date.now() - started;
+      if (took > timeoutMs / 2) console.warn(`App processes took ${took}ms to exit (budget ${timeoutMs}ms)`);
+      return;
+    }
     if (Date.now() > deadline) {
       const stuck = describe(left);
       // Logged at once, so it survives whatever stops the wait below.
