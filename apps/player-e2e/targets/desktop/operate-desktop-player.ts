@@ -2,7 +2,7 @@ import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@seren
 import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
 import { ClickWhenPresent } from '../../screenplay/support/presence';
-import { appRunning, expectAppExit, restartAppKeepingData } from './fresh-app';
+import { appRunning, expectAppExit, restartAppKeepingData, restartAppKeepingDataWith } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
 
 /**
@@ -18,6 +18,11 @@ export class OperateDesktopPlayer extends OperatePlayer {
   async restartPlayer(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
     // A new app process on the same private app data; it is launched with the pack again.
     await restartAppKeepingData();
+  }
+
+  async relaunchPlayerWith(_actor: UsesAbilities & AnswersQuestions, args: string[]): Promise<void> {
+    // A new app process on the same private app data, launched with `args` instead of the pack.
+    await restartAppKeepingDataWith(args);
   }
 
   async loadTestPack(_actor: UsesAbilities & AnswersQuestions): Promise<void> {

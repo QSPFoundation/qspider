@@ -8,11 +8,14 @@ export type ScenarioBody = (actor: Actor) => Promise<void>;
  *
  * When a step exists on one target only, split the scenario into `.webOnly` / `.desktopOnly`
  * variants with the same title. They show as skipped on the other target. Never branch inside a scenario.
+ * `.linuxDesktopOnly` runs on the desktop target on Linux only (skipped on Windows and on web), for a
+ * launch that msedgedriver cannot pass on Windows (a bare positional argument).
  */
 export interface ScenarioFn {
   (title: string, body: ScenarioBody): void;
   webOnly(title: string, body: ScenarioBody): void;
   desktopOnly(title: string, body: ScenarioBody): void;
+  linuxDesktopOnly(title: string, body: ScenarioBody): void;
 }
 
 const TARGETS = ['web', 'desktop'];

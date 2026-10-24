@@ -19,6 +19,10 @@ export class OperateWebPlayer extends OperatePlayer {
     await page.navigateTo('/');
   }
 
+  async relaunchPlayerWith(_actor: UsesAbilities & AnswersQuestions, _args: string[]): Promise<void> {
+    throw new Error('relaunchPlayerWith is not supported on web');
+  }
+
   async loadTestPack(actor: UsesAbilities & AnswersQuestions): Promise<void> {
     // The pack zip is built by global-setup.ts.
     await this.openGameFile(actor, TEST_PACK.zipPath);
