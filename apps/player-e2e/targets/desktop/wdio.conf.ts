@@ -153,6 +153,8 @@ async function startDriver(): Promise<void> {
 export const config: WebdriverIOConfig = {
   runner: 'local',
   specs: ['../../scenarios/**/*.scenario.ts'],
+  // The standalone scenarios run only against the standalone build.
+  exclude: ['../../scenarios/standalone/**'],
   maxInstances: 1,
   hostname: '127.0.0.1',
   port: DRIVER_PORT,

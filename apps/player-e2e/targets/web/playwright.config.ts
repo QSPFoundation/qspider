@@ -15,6 +15,8 @@ process.env['QSPIDER_E2E_TARGET'] = 'web';
 export default defineConfig<SerenityFixtures, SerenityWorkerFixtures>({
   testDir: '../../scenarios',
   testMatch: '**/*.scenario.ts',
+  // The standalone scenarios run only against the standalone build (playwright.standalone.config.ts).
+  testIgnore: 'standalone/**',
   // Zips the test pack (fixtures/) for OperateWebPlayer.loadTestPack.
   globalSetup: './global-setup.ts',
   retries: 0,

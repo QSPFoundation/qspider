@@ -23,6 +23,38 @@
         "command": "playwright test -c apps/player-e2e/targets/web/playwright.config.ts"
       }
     },
+    "stage-standalone": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "command": "node apps/player-e2e/targets/standalone/stage-public.ts"
+      }
+    },
+    "build-standalone-web-e2e": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["stage-standalone"],
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "parallel": false,
+        "commands": [
+          "nx run player-standalone:build:production --skip-nx-cache",
+          "node apps/player-e2e/targets/standalone/check-build.ts"
+        ],
+        "env": {
+          "QSPIDER_E2E_STANDALONE_PUBLIC_DIR": "dist/e2e/standalone-public"
+        }
+      }
+    },
+    "e2e-standalone-web": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-standalone-web-e2e"],
+      "options": {
+        "cwd": "{workspaceRoot}",
+        "command": "playwright test -c apps/player-e2e/targets/web/playwright.standalone.config.ts"
+      }
+    },
     "build-desktop-e2e": {
       "executor": "nx:run-commands",
       "options": {

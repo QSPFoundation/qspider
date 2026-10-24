@@ -1,0 +1,4 @@
+/* A game.cfg style of the standalone fixture: the scenario reads this custom property from the root. */
+:root {
+  --e2e-standalone: STANDALONE;
+}
