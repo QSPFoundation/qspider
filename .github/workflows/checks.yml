@@ -109,7 +109,7 @@ jobs:
       - run: mkdir -p dist/apps/player-desktop
       - run: pnpm check:rust
 
-  # macOS launch smoke (smoke-macos.yml). Not a required check yet; GitHub lists it as `smoke-macos / smoke`.
+  # macOS launch smoke (smoke-macos.yml). Required check, listed by GitHub as `smoke-macos / smoke`.
   # No `if:` here: the gate is the `run` input, so the check keeps that name when skipped (see smoke-macos.yml).
   smoke-macos:
     needs: changes
