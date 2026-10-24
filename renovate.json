@@ -1,0 +1,42 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommitTypeAll(chore)", "schedule:weekly"],
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "minimumReleaseAge": "3 days",
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true,
+    "schedule": ["before 4am on monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Patch/minor devDependencies merge themselves once the required checks pass (0.x excluded: minors there may break)",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "description": "Tauri JS packages and Rust crates must stay on matching versions",
+      "matchPackageNames": ["tauri", "tauri-build", "tauri-plugin-*", "@tauri-apps/**"],
+      "groupName": "tauri",
+      "automerge": false
+    },
+    {
+      "description": "Nx is upgraded with `nx migrate` (it rewrites code); Renovate only flags it on the Dependency Dashboard",
+      "matchPackageNames": ["nx", "@nx/**", "@nrwl/**"],
+      "groupName": "nx",
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    }
+  ]
+}
