@@ -3,8 +3,10 @@ Drives the qSpider desktop app's native Windows open dialog (IFileOpenDialog, op
 dialog plugin through rfd) with UI Automation.
 
 No keystrokes: SendKeys and synthetic input land wherever focus is and depend on the keyboard
-layout. The file name is set through the field's ValuePattern, read back, and the Open button is
-pressed through its InvokePattern. No UI text: the dialog, the field and the button are found by
+layout. UIA finds the dialog and its controls; the file name field and the Open button are classic
+Win32 controls, which UIA on the CI runner exposes only as Panes with no patterns (no client-side
+proxies), so they are driven through their window handles: WM_SETTEXT sets the file name (read back
+with WM_GETTEXT) and BM_CLICK presses Open. No UI text: the dialog, the field and the button are found by
 window class (#32770, Edit, Button), AutomationId (1148: file name combo box, 1: Open) and owning
 process only, never by names or labels, so the UI language does not matter. Only a dialog owned by one of
 -AppPids (the app under test, from native-dialog.ts) is touched, never another window on the host.
@@ -39,15 +41,34 @@ function Fail([string]$Message, [switch]$Dump) {
 
 try {
   Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
-  # The client-side proxies give Win32 controls (Edit, Button) their control types and patterns. Without
-  # them (as on windows-latest, where every Win32 control was a Pane with no ValuePattern) the field
-  # cannot be set; register them explicitly. A failure is kept for the dump, not fatal.
-  $script:proxies = 'registered'
-  try {
-    $providers = [Reflection.Assembly]::LoadWithPartialName('UIAutomationClientsideProviders')
-    if ($null -eq $providers) { throw 'assembly not found' }
-    [System.Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($providers.GetName())
-  } catch { $script:proxies = "not registered: $($_.Exception.Message)" }
+  # Window messages to the dialog's Win32 controls. With a timeout, so a hung dialog fails the run
+  # instead of blocking it; BM_CLICK is posted, since pressing Open ends the dialog's modal loop.
+  Add-Type -Namespace QspE2E -Name Win32 -MemberDefinition @'
+[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint msg, IntPtr wParam, string lParam, uint flags, uint timeout, out IntPtr result);
+[DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint msg, IntPtr wParam, System.Text.StringBuilder lParam, uint flags, uint timeout, out IntPtr result);
+[DllImport("user32.dll", SetLastError = true)]
+public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+'@
+  $WM_SETTEXT = 0x000C; $WM_GETTEXT = 0x000D; $BM_CLICK = 0x00F5
+  $SMTO_ABORTIFHUNG = 0x0002; $MessageTimeoutMs = 2000
+
+  function Set-WindowText([IntPtr]$hwnd, [string]$text) {
+    $result = [IntPtr]::Zero
+    if ([QspE2E.Win32]::SendMessageTimeout($hwnd, $WM_SETTEXT, [IntPtr]::Zero, $text, $SMTO_ABORTIFHUNG, $MessageTimeoutMs, [ref]$result) -eq [IntPtr]::Zero) {
+      throw "WM_SETTEXT failed (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
+  }
+
+  function Get-WindowText([IntPtr]$hwnd) {
+    $buffer = New-Object System.Text.StringBuilder 32768
+    $result = [IntPtr]::Zero
+    if ([QspE2E.Win32]::SendMessageTimeout($hwnd, $WM_GETTEXT, [IntPtr]$buffer.Capacity, $buffer, $SMTO_ABORTIFHUNG, $MessageTimeoutMs, [ref]$result) -eq [IntPtr]::Zero) {
+      throw "WM_GETTEXT failed (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))"
+    }
+    return $buffer.ToString()
+  }
 
   $A = [System.Windows.Automation.AutomationElement]
   $Scope = [System.Windows.Automation.TreeScope]
@@ -60,13 +81,12 @@ try {
   }
   $isDialog = New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, '#32770')
   $fileNameField = New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '1148')
-  # Id 1 with the Button control type, or the Button window class (no proxy: a Pane of class Button).
+  # The file name field (ComboBoxEx32 > ComboBox > Edit, all three id 1148) is the Edit window; Open is the Button window with id 1.
+  $fileNameEdit = New-Object System.Windows.Automation.AndCondition($fileNameField,
+    (New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, 'Edit')))
   $openButton = New-Object System.Windows.Automation.AndCondition(
     (New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '1')),
-    (New-Object System.Windows.Automation.OrCondition(
-      (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)),
-      (New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, 'Button'))
-    ))
+    (New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, 'Button'))
   )
 
   # PowerShell wraps an exception thrown by a .NET method in MethodInvocationException; look inside.
@@ -146,7 +166,6 @@ try {
         Write-Node $child ($depth + 1)
       }
     }
-    [Console]::Error.WriteLine("| client-side proxies: $script:proxies")
     foreach ($window in $A::RootElement.FindAll($Scope::Children, $ofApp)) {
       [Console]::Error.WriteLine("| app window class='$($window.Current.ClassName)' pid=$($window.Current.ProcessId)")
     }
@@ -155,20 +174,11 @@ try {
     foreach ($candidate in $candidates) { Write-Node $candidate 0 }
   }
 
-  # The file name field: ComboBoxEx32 > ComboBox > Edit, all three with AutomationId 1148. The Edit
-  # (by control type, or by window class when no proxy typed it) takes the value; a combo box that
-  # exposes ValuePattern itself also works.
-  function Get-FileNameValue($dialog) {
-    $fields = @($dialog.FindAll($Scope::Descendants, $fileNameField))
-    $edits = @($fields | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Edit -or $_.Current.ClassName -eq 'Edit' })
-    $candidates = $edits + @($fields | Where-Object { $edits -notcontains $_ })
-    foreach ($element in $candidates) {
-      $pattern = $null
-      if ($element.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$pattern)) {
-        return [System.Windows.Automation.ValuePattern]$pattern
-      }
-    }
-    return $null
+  # The window handle of a dialog control, or zero when the dialog has no such control (yet).
+  function Get-ControlHandle($dialog, $condition) {
+    $element = $dialog.FindFirst($Scope::Descendants, $condition)
+    if ($null -eq $element) { return [IntPtr]::Zero }
+    return [IntPtr]$element.Current.NativeWindowHandle
   }
 
   $script:uiaReady = $true
@@ -176,32 +186,29 @@ try {
   # The dialog and its file name field, polled within one deadline (no fixed sleeps beyond the poll interval).
   $deadline = [DateTime]::UtcNow.AddSeconds($WaitSeconds)
   $dialog = $null
-  $value = $null
+  $field = [IntPtr]::Zero
   while ($true) {
     if ($null -eq $dialog) { $dialog = Find-Dialog }
     if ($null -ne $dialog) {
-      try { $value = Get-FileNameValue $dialog } catch { if (Test-Gone $_) { $dialog = $null } else { throw } }
-      if ($null -ne $value) { break }
+      try { $field = Get-ControlHandle $dialog $fileNameEdit } catch { if (Test-Gone $_) { $dialog = $null } else { throw } }
+      if ($field -ne [IntPtr]::Zero) { break }
     }
     if ([DateTime]::UtcNow -gt $deadline) {
       if ($null -eq $dialog -and -not $script:sawDialog) { Fail 'dialog not found' -Dump }
-      if ($null -eq $dialog) { Fail 'file name field not found' -Dump }
-      Fail 'file name field has no ValuePattern' -Dump
+      Fail 'file name field not found' -Dump
     }
     Start-Sleep -Milliseconds $PollMs # poll interval
   }
 
-  $value.SetValue($Path)
-  $readBack = $value.Current.Value
+  Set-WindowText $field $Path
+  $readBack = Get-WindowText $field
   if ($readBack -ne $Path) { Fail "value not set (read back `"$readBack`")" }
 
-  $open = $dialog.FindFirst($Scope::Descendants, $openButton)
-  if ($null -eq $open) { Fail 'Open button not found' -Dump }
-  $invoke = $null
-  if (-not $open.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern, [ref]$invoke)) {
-    Fail 'Open button has no InvokePattern' -Dump
+  $open = Get-ControlHandle $dialog $openButton
+  if ($open -eq [IntPtr]::Zero) { Fail 'Open button not found' -Dump }
+  if (-not [QspE2E.Win32]::PostMessage($open, $BM_CLICK, [IntPtr]::Zero, [IntPtr]::Zero)) {
+    Fail "BM_CLICK failed (error $([Runtime.InteropServices.Marshal]::GetLastWin32Error()))" -Dump
   }
-  ([System.Windows.Automation.InvokePattern]$invoke).Invoke()
 
   # The dialog must close: one still open did not accept the path. Half the wait, so the whole run
   # stays inside native-dialog.ts's kill timeout even with PowerShell's start-up.
