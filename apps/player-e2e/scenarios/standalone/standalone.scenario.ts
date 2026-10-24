@@ -1,5 +1,6 @@
 // The standalone player (apps/player-standalone): it plays the game bundled in game/ next to its
-// index.html, with no shelf. Run only by the standalone targets (e2e-standalone-web).
+// index.html, with no shelf. Run only by the standalone targets (e2e-standalone-web and
+// e2e-standalone-desktop).
 import { STANDALONE_GAME } from '../../fixtures/standalone-game';
 import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../../screenplay/common/checks';
 import { SeeMainText } from '../../screenplay/game/checks';
