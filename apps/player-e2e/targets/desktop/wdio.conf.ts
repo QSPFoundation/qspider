@@ -21,13 +21,11 @@ import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs'
 import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
-const artifactsDir = fileURLToPath(new URL('../../artifacts/desktop', import.meta.url));
-// Binary name = Cargo package name (src-tauri/Cargo.toml).
-const application = join(
-  workspaceRoot,
-  'src-tauri/target/debug',
-  process.platform === 'win32' ? 'qspider.exe' : 'qspider',
-);
+
+/** The E2E debug binary in a Cargo target dir (relative to the workspace root). Name = Cargo package name (src-tauri/Cargo.toml). */
+export const desktopBinary = (targetDir: string): string =>
+  join(workspaceRoot, targetDir, 'debug', process.platform === 'win32' ? 'qspider.exe' : 'qspider');
+
 const DRIVER_PORT = 4444;
 
 // Read by screenplay/support/scenario.ts to pick this target's scenario shim.
@@ -150,11 +148,22 @@ async function startDriver(): Promise<void> {
   process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
 }
 
-export const config: WebdriverIOConfig = {
+/** What differs between the desktop targets: the app under test and where the run's artifacts go. */
+export interface DesktopTarget {
+  /** The app binary tauri-driver launches for every scenario. */
+  application: string;
+  /** Its command-line arguments. */
+  args: string[];
+  /** Emptied at the start of a run; screenshots, page sources, wdio and driver logs go here. */
+  artifactsDir: string;
+}
+
+/**
+ * The desktop WebdriverIO config for one app: the private-session guard, a fresh tauri-driver per
+ * worker, retries, artifacts. Target configs spread it and set their own specs.
+ */
+export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget): WebdriverIOConfig => ({
   runner: 'local',
-  specs: ['../../scenarios/**/*.scenario.ts'],
-  // The standalone scenarios run only against the standalone build.
-  exclude: ['../../scenarios/standalone/**'],
   maxInstances: 1,
   hostname: '127.0.0.1',
   port: DRIVER_PORT,
@@ -162,8 +171,7 @@ export const config: WebdriverIOConfig = {
     {
       // tauri-driver's WebKitWebDriver/msedgedriver speak WebDriver classic only.
       'wdio:enforceWebDriverClassic': true,
-      // The app starts with the test pack: all its games on the shelf, none started.
-      'tauri:options': { application, args: [TEST_PACK.configPath] },
+      'tauri:options': { application, args },
     } as WebdriverIO.Capabilities,
   ],
   logLevel: 'warn',
@@ -253,4 +261,17 @@ export const config: WebdriverIOConfig = {
       writeFileSync(`${base}.capture-error.txt`, String(err));
     }
   },
+});
+
+/** The main desktop player (src-tauri/target/debug, built by build-desktop-e2e) and every scenario but the standalone ones. */
+export const config: WebdriverIOConfig = {
+  ...desktopConfig({
+    application: desktopBinary('src-tauri/target'),
+    // The app starts with the test pack: all its games on the shelf, none started.
+    args: [TEST_PACK.configPath],
+    artifactsDir: fileURLToPath(new URL('../../artifacts/desktop', import.meta.url)),
+  }),
+  specs: ['../../scenarios/**/*.scenario.ts'],
+  // The standalone scenarios run only against the standalone build (wdio.standalone.conf.ts).
+  exclude: ['../../scenarios/standalone/**'],
 };
