@@ -24,15 +24,17 @@ concurrency:
 # Pinned image (not ubuntu-latest) so PR checks don't change under us when GitHub moves `latest`;
 # image drift is caught by scheduled-desktop-build.yml instead.
 jobs:
-  # Decides whether the Rust checks need to run. On pull requests `rust` runs only when Rust-relevant
-  # files changed; on main it always runs. A job skipped by its `if:` reports success, so `rust` stays
-  # a satisfiable required check. Rust compile errors are still caught on every PR by e2e-desktop,
-  # which builds the Tauri app.
+  # Decides whether the Rust checks and the macOS launch smoke need to run. On pull requests `rust` runs
+  # only when Rust-relevant files changed, and `smoke-macos` only when desktop-relevant files changed; on
+  # main both always run. A job skipped by its `if:` reports success, so `rust` stays a satisfiable
+  # required check. Rust compile errors are still caught on every PR by e2e-desktop, which builds the
+  # Tauri app.
   changes:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     outputs:
       rust: ${{ steps.diff.outputs.rust }}
+      desktop: ${{ steps.diff.outputs.desktop }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,6 +46,7 @@ jobs:
         run: |
           if [ "$EVENT" != "pull_request" ]; then
             echo "rust=true" >> "$GITHUB_OUTPUT"
+            echo "desktop=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           changed=$(git diff --name-only "$BASE"...HEAD)
@@ -52,6 +55,11 @@ jobs:
             echo "rust=true" >> "$GITHUB_OUTPUT"
           else
             echo "rust=false" >> "$GITHUB_OUTPUT"
+          fi
+          if echo "$changed" | grep -qE '^(src-tauri/|libs/desktop/|libs/tauri-storage/|apps/player-desktop/|apps/player-standalone/|package\.json$|pnpm-lock\.yaml$|\.github/workflows/smoke-macos\.yml$|\.github/workflows/checks\.yml$)'; then
+            echo "desktop=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "desktop=false" >> "$GITHUB_OUTPUT"
           fi
 
   frame:
@@ -100,6 +108,12 @@ jobs:
       # Tauri's build script requires frontendDist to exist
       - run: mkdir -p dist/apps/player-desktop
       - run: pnpm check:rust
+
+  # macOS launch smoke (smoke-macos.yml). Not a required check yet; GitHub lists it as `smoke-macos / smoke`.
+  smoke-macos:
+    needs: changes
+    if: needs.changes.outputs.desktop == 'true'
+    uses: ./.github/workflows/smoke-macos.yml
 
   e2e-web:
     runs-on: ubuntu-24.04

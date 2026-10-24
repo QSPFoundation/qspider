@@ -1,0 +1,50 @@
+name: macOS launch smoke
+
+# Builds the E2E debug binaries of the main desktop player and the desktop standalone player on macOS and
+# checks that each one starts, opens its game and shows the start text (`pnpm smoke:desktop`,
+# apps/player-e2e/targets/smoke/run-smoke.mjs). No WebDriver: the app reports markers on stdout.
+# Called by checks.yml (desktop-relevant PRs and main) and scheduled-desktop-build.yml (weekly).
+
+env:
+  HUSKY: 0
+  CYPRESS_INSTALL_BINARY: 0
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@stable
+      # `src-tauri -> target` also covers the standalone build's nested target dir (target/e2e-standalone):
+      # rust-cache caches the whole target dir and cleans nested target dirs recursively.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      # The runner refuses to run in a host session off Linux unless CI is set; GitHub Actions sets CI=true.
+      - name: Launch smoke (main player, then standalone)
+        shell: bash
+        run: |
+          mkdir -p apps/player-e2e/artifacts/smoke
+          pnpm smoke:desktop 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-macos-artifacts
+          path: apps/player-e2e/artifacts/smoke
+          if-no-files-found: ignore

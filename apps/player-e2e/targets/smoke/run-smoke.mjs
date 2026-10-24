@@ -9,7 +9,9 @@
 //   QSPIDER_E2E_MARK main-text <text>      (<text>, trimmed, must equal --expect-text exactly)
 // and is still running M ms after the last one. A repeat of a marker already received is ignored; a marker
 // that arrives before the ones it follows fails the run. On failure (exit 1) it prints the reason, the
-// markers received and the last 50 lines of the app's output. The app is then stopped by its PID.
+// markers received and the last 50 lines of the app's output. The app is then stopped: on Linux by its PID
+// (it stays in the private session's process group, which the outer runner stops afterwards), on macOS as
+// its own process group, on Windows by its PID.
 //
 // On Linux the app runs only inside the desktop E2E's private session (targets/desktop/private-env.mjs):
 // started without QSPIDER_E2E_PRIVATE_SESSION, the runner re-executes itself under Xvfb and a private D-Bus,
@@ -35,7 +37,7 @@ const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const MARK_PREFIX = 'QSPIDER_E2E_MARK ';
 const MARKERS = ['startup-finished', 'game-running', 'main-text'];
 const TAIL_LINES = 50;
-/** How long the app gets to exit after TERM before its group is KILLed. */
+/** How long the app gets to exit after TERM before it is KILLed (its own group on macOS, its PID on Linux/Windows). */
 const APP_EXIT_TIMEOUT_MS = 5_000;
 
 const { values: options } = parseArgs({
