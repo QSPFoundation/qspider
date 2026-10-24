@@ -59,7 +59,11 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "pnpm tauri build --debug --no-bundle",
+        "parallel": false,
+        "commands": [
+          "node apps/player-e2e/targets/desktop/webdriver-config.mjs src-tauri/tauri.conf.json dist/e2e/tauri.webdriver.json",
+          "pnpm tauri build --debug --no-bundle -c dist/e2e/tauri.webdriver.json"
+        ],
         "env": {
           "VITE_QSPIDER_E2E": "true"
         }
@@ -82,7 +86,8 @@
         "parallel": false,
         "commands": [
           "node tools/standalone-config/cli.mjs apps/player-e2e/fixtures/standalone/qspider.desktop.json --out dist/e2e/tauri.standalone-e2e.json",
-          "pnpm tauri build --debug --no-bundle -c dist/e2e/tauri.standalone-e2e.json",
+          "node apps/player-e2e/targets/desktop/webdriver-config.mjs dist/e2e/tauri.standalone-e2e.json dist/e2e/tauri.standalone-webdriver.json",
+          "pnpm tauri build --debug --no-bundle -c dist/e2e/tauri.standalone-e2e.json -c dist/e2e/tauri.standalone-webdriver.json",
           "node apps/player-e2e/targets/standalone/check-build.ts"
         ],
         "env": {
