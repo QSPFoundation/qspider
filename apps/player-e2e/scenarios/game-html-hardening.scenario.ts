@@ -6,18 +6,13 @@ import { ContentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
 import { SeeMainText, SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
 
 const { actions: ACTION, marks: MARK, text: TEXT } = GAME_HTML;
 
-const openGame = [
-  StartPlayer(),
-  SeeStartupFinished(),
-  OpenGameFile(GAME_HTML.path),
-  SeeGameStarted(TEXT.start),
-] as const;
+const openGame = [StartPlayer(), SeeStartupFinished(), LoadGame(GAME_HTML.path), SeeGameStarted(TEXT.start)] as const;
 
 scenario('an svg script in game text does not run', async (player) => {
   await player.attemptsTo(

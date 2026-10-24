@@ -21,6 +21,12 @@ export abstract class OperatePlayer extends Ability {
    * where that control is.
    */
   abstract openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
+  /**
+   * Puts the game file at `path` into the player as a scenario's setup: the cheapest route the target has, with
+   * the same import (and the same start-or-shelve decision) as opening it. Starts from the shelf. Web: the Open
+   * game input, as openGameFile; desktop: the drop route (dropGameFile), skipping the native dialog.
+   */
+  abstract loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
   /** Drops the game file at `path` on the player window (desktop only). */
   abstract dropGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void>;
   /**
@@ -106,6 +112,12 @@ export const DropGameFile = (path: string): Interaction =>
     OperatePlayer.as(actor).dropGameFile(actor, path),
   );
 
+/** Setup only: the game file at `path`, put into the player by the cheapest route (see OperatePlayer.loadGame). */
+export const LoadGame = (path: string): Interaction =>
+  Interaction.where(`#actor loads the game file ${path}`, (actor) =>
+    OperatePlayer.as(actor).loadGame(performer(actor), path),
+  );
+
 export const OpenGameFile = (path: string): Interaction =>
   Interaction.where(`#actor opens the game file ${path}`, (actor) =>
     OperatePlayer.as(actor).openGameFile(performer(actor), path),
@@ -117,7 +129,7 @@ export const OpenGameFile = (path: string): Interaction =>
  */
 function performer<A extends UsesAbilities & AnswersQuestions>(actor: A): A & PerformsActivities {
   if (typeof (actor as Partial<PerformsActivities>).attemptsTo !== 'function') {
-    throw new TypeError('OpenGameFile needs an actor that performs activities');
+    throw new TypeError('OpenGameFile and LoadGame need an actor that performs activities');
   }
   return actor as A & PerformsActivities;
 }

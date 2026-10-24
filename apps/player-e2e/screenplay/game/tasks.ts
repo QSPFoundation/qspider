@@ -9,7 +9,7 @@ import { PauseScreen, QuitButton } from '../pause/elements';
 import { TEST_PACK } from '../../fixtures/test-pack';
 import { Shelf } from '../shelf/elements';
 import { OpenFromShelf } from '../shelf/tasks';
-import { LoadTestPack, OpenGameFile, StartPlayer } from '../support/operate-player';
+import { LoadTestPack, LoadGame, StartPlayer } from '../support/operate-player';
 import { Hover } from '../support/hover';
 import { ClickWhenPresent, TextNow, waitUntilPresent } from '../support/presence';
 import { Action, MainText, ShowActionsLink } from './elements';
@@ -64,7 +64,7 @@ export const OpenSavesFixture = (): Task =>
     '#actor opens the saves fixture game',
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(SAVES_GAME.path),
+    LoadGame(SAVES_GAME.path),
     SeeGameStarted(SAVES_GAME.text.start),
     ReachSavesCounter(0),
   );
@@ -75,7 +75,7 @@ export const OpenPanelsFixture = (): Task =>
     '#actor opens the panels fixture game',
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(PANELS_GAME.path),
+    LoadGame(PANELS_GAME.path),
     SeeGameStarted(PANELS_GAME.text.start),
   );
 

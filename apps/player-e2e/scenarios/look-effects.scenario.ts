@@ -3,7 +3,7 @@ import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks'
 import { SeeMainTextContaining } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { SeeNewlocEffectInFlight } from '../screenplay/themes/aero/checks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 const { text: TEXT, actions: ACTIONS } = LOOK_GAME;
@@ -13,7 +13,7 @@ scenario('a new-location effect animates the change', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.aeroPath),
+    LoadGame(LOOK_GAME.aeroPath),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTIONS.start.toEffects),
     SeeMainTextContaining(TEXT.effects),
@@ -29,7 +29,7 @@ scenario('fast and sequential effects still deliver the new location', async (pl
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.aeroPath),
+    LoadGame(LOOK_GAME.aeroPath),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTIONS.start.toEffects),
     SeeMainTextContaining(TEXT.effects),

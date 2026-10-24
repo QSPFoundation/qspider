@@ -16,7 +16,7 @@ import { SeeQuickSaveFilled, SeeRequestedSaveCommand, SeeSlotEmpty, SeeSlotFille
 import { CancelSavesPanel, ClearSlot, LoadFromSlot, OpenSavesPanel, SaveToSlot } from '../screenplay/saves/tasks';
 import { SeeShelfIncludes, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
-import { LoadTestPack, OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadTestPack, LoadGame, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
 const { action: ACTION, text: TEXT } = SAVES_GAME;
@@ -158,7 +158,7 @@ scenario('loading from the panel opened by the game does not run the code after 
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(SAVES_GAME.path),
+    LoadGame(SAVES_GAME.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.goToMessageRoom),
     SeeMainText(TEXT.counter(0)),

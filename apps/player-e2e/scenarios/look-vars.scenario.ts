@@ -14,7 +14,7 @@ import { SeeStatsContaining } from '../screenplay/stats/checks';
 import { SeeActionImage, SeeAeroMenuItems, SeeAeroObjects } from '../screenplay/themes/aero/checks';
 import { AeroMenuItem } from '../screenplay/themes/aero/elements';
 import { Hover } from '../screenplay/support/hover';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { SeeCssValues } from '../screenplay/support/page-script';
 import { ClickWhenPresent, waitUntilPresent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
@@ -25,7 +25,7 @@ scenario('the Aero theme maps every look variable', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.aeroPath),
+    LoadGame(LOOK_GAME.aeroPath),
     SeeGameStarted(TEXT.start),
     SeeCssValues({ root: true }, AERO_DEFAULTS_SUBSET),
     ClickAction(ACTIONS.start.setVars),
@@ -47,7 +47,7 @@ scenario('the classic theme maps every look variable', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.classicPath),
+    LoadGame(LOOK_GAME.classicPath),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTIONS.start.setVars),
     SeeMainTextContaining(TEXT.varsSet),
@@ -61,7 +61,7 @@ scenario('qspgui.cfg colours and font apply to the classic layout', async (playe
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GUI_CFG_GAME.path),
+    LoadGame(GUI_CFG_GAME.path),
     SeeGameStarted(GUI_CFG_GAME.text.start),
     SeeStatsInDock(GUI_CFG_GAME.dock.cfg, GUI_CFG_GAME.text.stats),
     SeeCssValues({ root: true }, GUI_CFG_GAME.consumed),
@@ -76,7 +76,7 @@ scenario('a classic game without qspgui.cfg keeps the default look', async (play
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GUI_CFG_GAME.controlPath),
+    LoadGame(GUI_CFG_GAME.controlPath),
     SeeGameStarted(GUI_CFG_GAME.text.start),
     SeeStatsInDock(GUI_CFG_GAME.dock.default, GUI_CFG_GAME.text.stats),
     SeeCssValues({ root: true }, CLASSIC_DEFAULT_LOOK),
@@ -93,7 +93,7 @@ scenario('Aero format variables wrap the panels', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(LOOK_GAME.aeroPath),
+    LoadGame(LOOK_GAME.aeroPath),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTIONS.start.toFormats),
     SeeMainTextContaining(TEXT.formats),
@@ -124,7 +124,7 @@ scenario('Aero format variables wrap the panels', async (player) => {
     SeeActionImage(wrap(F.selectedAction, ACTIONS.formats.pic), LOOK_GAME.images.action),
     // The next game starts from the default formats: its main text and action labels are unwrapped.
     ReturnToShelf(),
-    OpenGameFile(AERO_GAME.path),
+    LoadGame(AERO_GAME.path),
     SeeGameStarted(AERO_GAME.text.start),
     waitUntilPresent(Action(AERO_GAME.action.next)),
   );

@@ -8,7 +8,7 @@ import { SeeMenu } from '../screenplay/menu/checks';
 import { CancelMenu } from '../screenplay/menu/tasks';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { SeeCssValues } from '../screenplay/support/page-script';
 import { scenario } from '../screenplay/support/scenario';
 import {
@@ -27,7 +27,7 @@ const { text: TEXT, actions: ACTIONS, dialog: DIALOG, place: PLACE } = LOOK_GAME
 const OpenDialogs = (): Activity[] => [
   StartPlayer(),
   SeeStartupFinished(),
-  OpenGameFile(LOOK_GAME.aeroPath),
+  LoadGame(LOOK_GAME.aeroPath),
   SeeGameStarted(TEXT.start),
   ClickAction(ACTIONS.start.toDialogs),
   SeeMainTextContaining(TEXT.dialogs),

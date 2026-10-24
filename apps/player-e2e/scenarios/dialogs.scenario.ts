@@ -8,7 +8,7 @@ import { SeeMenu, SeeMenuSeparator } from '../screenplay/menu/checks';
 import { CancelMenu, ChooseMenuItem } from '../screenplay/menu/tasks';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeView, SeeViewGone } from '../screenplay/view/checks';
 import { CloseView } from '../screenplay/view/tasks';
@@ -22,7 +22,7 @@ scenario('a message box shows text and resumes the game when dismissed', async (
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.message),
     SeeMsg(TEXT.message),
@@ -36,7 +36,7 @@ scenario('an input prompt returns the submitted text', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.input),
     SeeInput(TEXT.inputPrompt),
@@ -50,7 +50,7 @@ scenario('cancelling an input prompt returns empty text', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.input),
     CancelInput(),
@@ -63,7 +63,7 @@ scenario('selecting a menu item runs its location', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.menu),
     SeeMenu(),
@@ -77,7 +77,7 @@ scenario('selecting a menu item after the separator runs its location', async (p
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.menu),
     SeeMenu(),
@@ -90,7 +90,7 @@ scenario('cancelling a menu returns to the game', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.menu),
     SeeMenu(),
@@ -103,7 +103,7 @@ scenario('an image view opens and closes', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.showView),
     SeeView(),
@@ -116,7 +116,7 @@ scenario('a wait ends on its own', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.waitShort),
     SeeMainText(TEXT.afterShortWait),
@@ -127,7 +127,7 @@ scenario('clicking the wait lock ends the wait', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.waitLong),
     SeeWaiting(),

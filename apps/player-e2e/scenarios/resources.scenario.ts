@@ -11,7 +11,7 @@ import type { Task } from '@serenity-js/core';
 import { SeeMenu } from '../screenplay/menu/checks';
 import { CancelMenu } from '../screenplay/menu/tasks';
 import { CloseView } from '../screenplay/view/tasks';
-import { DelayRequests, OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
+import { DelayRequests, LoadGame, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
 import { SeeCssValue, SeeCssValues } from '../screenplay/support/page-script';
 import { SeeImageLoaded } from '../screenplay/support/image-loaded';
 import { scenario } from '../screenplay/support/scenario';
@@ -29,7 +29,7 @@ scenario('game images load from every kind of path (archive)', async (player) =>
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
     SeeImageLoaded({ qsp: 'action-image' }, width(FILES.action)),
@@ -66,7 +66,7 @@ scenario.desktopOnly('game images load from a plain folder', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.folderGamePath),
+    LoadGame(RESOURCES_GAME.folderGamePath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
   );
@@ -98,7 +98,7 @@ scenario(TITLE, async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     ...SEE_RESOURCES_APPLIED,
   );
@@ -123,14 +123,14 @@ scenario('game.cfg resources are removed when the game stops', async (player) =>
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     // 2 styles + 2 scripts (the font is a FontFace in document.fonts, not an element).
     SeeGameResourceCount(CFG.styles.length + CFG.scripts.length),
     ReturnToShelf(),
     SeeShelfIncludes(ARCHIVES.resourcesZip.title),
     SeeGameResourceCount(0),
-    OpenGameFile(ARCHIVES.singleZip.path),
+    LoadGame(ARCHIVES.singleZip.path),
     SeeGameStarted(ARCHIVES.singleZip.startText),
     SeeCssValues({ root: true }, { '--e2e-one': '' }),
     SeeGameResourceCount(0),
@@ -141,7 +141,7 @@ scenario('a missing game.cfg resource shows a notice and the game still starts',
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.missingZipPath),
+    LoadGame(RESOURCES_GAME.missingZipPath),
     // One notice names both (styles first, joined by ', '); it hides after 3 s, so check it before anything slow.
     SeeNoticeContaining(`${CFG.missingStyle}, ${CFG.missingScript}`),
     SeeGameStarted(TEXT.start),

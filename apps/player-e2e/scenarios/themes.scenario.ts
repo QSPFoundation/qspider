@@ -10,7 +10,7 @@ import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
 import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeThemeChrome, SeeThemeCssApplied, SeeThemeScriptRan } from '../screenplay/themes/e2e-custom/checks';
 
@@ -21,7 +21,7 @@ scenario('an Aero-mode game plays under the Aero theme', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(AERO_GAME.path),
+    LoadGame(AERO_GAME.path),
     SeeGameStarted(TEXT.start),
     SeeActiveTheme(THEME_ALIAS.aero),
     ClickAction(ACTION.showMessage),
@@ -38,7 +38,7 @@ scenario('a game-provided theme loads with its files', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(THEMED_GAME.path),
+    LoadGame(THEMED_GAME.path),
     SeeGameStarted(THEMED_GAME.text.start),
     SeeActiveTheme(THEME_ALIAS.custom),
     SeeThemeChrome(),
@@ -56,7 +56,7 @@ scenario('a missing defaultTheme in Aero mode falls back to Aero, with a notice'
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(MISSING_THEME_GAME.aeroPath),
+    LoadGame(MISSING_THEME_GAME.aeroPath),
     SeeElementText(NoticeToastElement, MISSING_NOTICE, '#actor sees the theme-not-found notice'),
     SeeGameStarted(MISSING_THEME_GAME.text.start),
     SeeActiveTheme(THEME_ALIAS.aero),
@@ -69,11 +69,11 @@ scenario(
     await player.attemptsTo(
       StartPlayer(),
       SeeStartupFinished(),
-      OpenGameFile(AERO_GAME.path),
+      LoadGame(AERO_GAME.path),
       SeeGameStarted(TEXT.start),
       SeeActiveTheme(THEME_ALIAS.aero),
       ReturnToShelf(),
-      OpenGameFile(MISSING_THEME_GAME.classicPath),
+      LoadGame(MISSING_THEME_GAME.classicPath),
       SeeElementText(NoticeToastElement, MISSING_NOTICE, '#actor sees the theme-not-found notice'),
       SeeGameStarted(MISSING_THEME_GAME.text.start),
       SeeActiveTheme(THEME_ALIAS.classic),
@@ -85,11 +85,11 @@ scenario('a classic game after an Aero game is shown', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(AERO_GAME.path),
+    LoadGame(AERO_GAME.path),
     SeeGameStarted(TEXT.start),
     SeeActiveTheme(THEME_ALIAS.aero),
     ReturnToShelf(),
-    OpenGameFile(MISSING_THEME_GAME.classicPath),
+    LoadGame(MISSING_THEME_GAME.classicPath),
     SeeActiveTheme(THEME_ALIAS.classic),
     SeeMainText(MISSING_THEME_GAME.text.start), // the main text is readable after an Aero game
   );
@@ -100,7 +100,7 @@ scenario('the game switches theme at runtime', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(THEMED_GAME.path),
+    LoadGame(THEMED_GAME.path),
     SeeGameStarted(THEMED_GAME.text.start),
     SeeActiveTheme(THEME_ALIAS.custom),
     ClickAction(action.toClassic),
@@ -116,7 +116,7 @@ scenario('switching to an unknown theme shows an error and keeps the theme', asy
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(THEMED_GAME.path),
+    LoadGame(THEMED_GAME.path),
     SeeGameStarted(THEMED_GAME.text.start),
     SeeActiveTheme(THEME_ALIAS.custom),
     ClickAction(THEMED_GAME.action.toMissing),
@@ -132,7 +132,7 @@ scenario('restart hides a theme-layout layer the game showed', async (player) =>
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(THEMED_GAME.path),
+    LoadGame(THEMED_GAME.path),
     SeeGameStarted(THEMED_GAME.text.start),
     ClickAction(THEMED_GAME.action.showLayer),
     SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),
@@ -151,7 +151,7 @@ scenario('a qspgui.cfg moves panels into its docks', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GUI_CFG_GAME.path),
+    LoadGame(GUI_CFG_GAME.path),
     SeeGameStarted(text.start),
     SeeStatsInDock(dock.cfg, text.stats),
     SeeMainText(text.start), // the game still plays
@@ -163,7 +163,7 @@ scenario('without a qspgui.cfg the stats panel sits in the default classic dock'
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GUI_CFG_GAME.controlPath),
+    LoadGame(GUI_CFG_GAME.controlPath),
     SeeGameStarted(text.start),
     SeeStatsInDock(dock.default, text.stats),
   );

@@ -40,6 +40,11 @@ export class OperateWebPlayer extends OperatePlayer {
     await page.navigateTo(`/?game=${encodeURIComponent(new URL(url, origin).href)}`);
   }
 
+  async loadGame(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
+    // The Open game input is already the cheapest route on web.
+    await this.openGameFile(actor, path);
+  }
+
   async openGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {
     // Serenity's web API has no file upload, so this uses the native Playwright page.
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;

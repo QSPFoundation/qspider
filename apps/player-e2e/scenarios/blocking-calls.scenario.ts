@@ -9,7 +9,7 @@ import { ChooseMenuItem } from '../screenplay/menu/tasks';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeWaiting } from '../screenplay/wait/checks';
 
@@ -28,7 +28,7 @@ for (const [name, action, seeOverlay] of OVERLAYS) {
     await player.attemptsTo(
       StartPlayer(),
       SeeStartupFinished(),
-      OpenGameFile(DIALOGS.path),
+      LoadGame(DIALOGS.path),
       SeeGameStarted(TEXT.start),
       ClickAction(action),
       seeOverlay(),
@@ -42,7 +42,7 @@ scenario('an action hotkey pressed over a message box leaves the game responsive
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.message),
     SeeMsg(TEXT.message),
@@ -56,7 +56,7 @@ scenario('an action hotkey pressed over a menu leaves the menu usable', async (p
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.menu),
     SeeMenu(),
@@ -73,7 +73,7 @@ scenario('an action hotkey is ignored over a message box opened from a menu item
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(DIALOGS.path),
+    LoadGame(DIALOGS.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.menu),
     SeeMenu(),
