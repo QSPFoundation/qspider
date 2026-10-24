@@ -80,7 +80,7 @@ public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntP
     New-Object System.Windows.Automation.OrCondition(, [System.Windows.Automation.Condition[]]$pidConditions)
   }
   $isDialog = New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, '#32770')
-  $fileNameField = New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '9148')
+  $fileNameField = New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '1148')
   # The file name field (ComboBoxEx32 > ComboBox > Edit, all three id 1148) is the Edit window; Open is the Button window with id 1.
   $fileNameEdit = New-Object System.Windows.Automation.AndCondition($fileNameField,
     (New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, 'Edit')))
