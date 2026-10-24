@@ -3,6 +3,7 @@ import { baseUrl$ } from '@qspider/game-state';
 import { isExternalUrl } from '@qspider/utils';
 import { platform } from '@tauri-apps/plugin-os';
 import { isGameUrl } from './game-url';
+import { startE2eMarks } from './e2e-marks';
 
 /** Windows serves game files over https://qsp.localhost, so only linux/macos need the XHR shim. */
 export function shouldShimXhr(baseUrl: string): boolean {
@@ -10,6 +11,11 @@ export function shouldShimXhr(baseUrl: string): boolean {
 }
 
 export function setupEnv() {
+  // E2E builds only (see updater.ts): release builds never set the flag, so this is dropped there.
+  if (import.meta.env.VITE_QSPIDER_E2E === 'true') {
+    startE2eMarks();
+  }
+
   const OriginalXMLHttpRequest = XMLHttpRequest;
 
   class XMLHttpRequestShim extends OriginalXMLHttpRequest {

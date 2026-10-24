@@ -34,6 +34,7 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 - `pnpm e2e:standalone-web` - Standalone web E2E (Playwright, port 4310); same browser requirement as `e2e:web`
 - `pnpm e2e:desktop` - Desktop E2E (WebdriverIO + tauri-driver); needs `tauri-driver` on PATH (`~/.cargo/bin`), `WebKitWebDriver` and Rust
 - `pnpm e2e:standalone-desktop` - Standalone desktop E2E (own Tauri debug build in `target/e2e-standalone`); same requirements as `e2e:desktop`
+- `pnpm smoke:desktop` - Desktop launch smoke of both desktop apps (no WebDriver; markers on stdout). On Linux it runs in the private session; on macOS/Windows it refuses unless `CI` is set (CI runs it on macOS); see `apps/player-e2e/README.md` "Launch smoke"
 - `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web and standalone web E2E (no desktop E2E)
 - `pnpm check:full` - `pnpm check` plus desktop and standalone desktop E2E
 
