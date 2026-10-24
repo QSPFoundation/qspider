@@ -10,7 +10,7 @@ export const ErrorAlerts = PageElements.located(By.css('[data-qa="error-alert"],
 
 /**
  * A hidden app-shell marker that appears once startup has fully run, including starting any game the
- * player was launched with (StartupMarker, libs/game-shelf). Present on the shelf and in a game.
+ * player was launched with (StartupMarker, libs/renderer). Present on the shelf and in a game.
  */
 export const StartupFinishedMarker = PageElement.located(By.css('[data-qa="startup-finished"]')).describedAs(
   'startup finished marker',

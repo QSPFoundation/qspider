@@ -1,4 +1,4 @@
-// Runs the desktop E2E (WebdriverIO + tauri-driver): `node run-desktop-e2e.mjs [wdio args...]`.
+// Runs the desktop E2E (WebdriverIO + tauri-driver): `node run-desktop-e2e.mjs [--standalone] [wdio args...]`.
 // On Linux the run is always headless and isolated from the developer's desktop session and home:
 //   xvfb-run -a -s '-screen 0 1280x1024x24'
 //                                    a virtual X display of a fixed size; everything below sees only its DISPLAY
@@ -11,7 +11,8 @@
 //     └ dbus-run-session --          a private session bus
 //       └ atspi/with-a11y-bus.sh     the AT-SPI accessibility bus + registry (the native file dialog
 //                                    is driven through AT-SPI); refuses to run outside this tree
-//         └ wdio run …/wdio.conf.ts  (sets its own per-run XDG_* dirs for tauri-driver and the app)
+//         └ wdio run …/wdio.conf.ts  (wdio.standalone.conf.ts with --standalone; sets its own per-run
+//                                    XDG_* dirs for tauri-driver and the app)
 // Other platforms run wdio directly.
 import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
@@ -23,13 +24,22 @@ import { fileURLToPath, URL } from 'node:url';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 const a11yBus = fileURLToPath(new URL('./atspi/with-a11y-bus.sh', import.meta.url));
-const wdio = ['wdio', 'run', 'apps/player-e2e/targets/desktop/wdio.conf.ts', ...process.argv.slice(2)];
+// `--standalone` (anywhere in the arguments) runs the standalone target's config (wdio.standalone.conf.ts)
+// instead; the flag is not passed on to wdio.
+const standalone = process.argv.slice(2).includes('--standalone');
+const wdioArgs = process.argv.slice(2).filter((arg) => arg !== '--standalone');
+const wdioConfig = `apps/player-e2e/targets/desktop/${standalone ? 'wdio.standalone.conf.ts' : 'wdio.conf.ts'}`;
+const wdio = ['wdio', 'run', wdioConfig, ...wdioArgs];
 /** How long the process group gets to exit after TERM before it is KILLed. */
 const GROUP_EXIT_TIMEOUT_MS = 30_000;
 
 const env = { ...process.env };
 // Find the workspace's wdio even when not started through a pnpm script.
 env.PATH = [join(workspaceRoot, 'node_modules/.bin'), env.PATH].join(delimiter);
+// The standalone run keeps its artifacts apart, the AT-SPI daemon log included.
+if (standalone && !env.QSPIDER_A11Y_LOG) {
+  env.QSPIDER_A11Y_LOG = join(workspaceRoot, 'apps/player-e2e/artifacts/desktop-standalone/a11y-bus.log');
+}
 
 let command = wdio;
 let privateDir;

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "productName": "qSpider E2E Standalone",
+  "version": "0.0.1",
+  "identifier": "org.qsp.e2e.standalone",
+  "publisher": "QSPFoundation",
+  "window": {
+    "title": "E2E Standalone"
+  },
+  "updater": {
+    "enabled": false
+  }
+}

@@ -18,6 +18,16 @@ export function isMissingElementError(error: unknown): boolean {
   return MISSING_ELEMENT_CODES.includes(String(code)) || MISSING_ELEMENT_CODES.includes(String(name));
 }
 
+/**
+ * Whether `error` means the WebDriver session ended under the command: the app it drove has exited
+ * (desktop: an action that quits the app can end the session before its click is answered).
+ */
+export function isSessionEndedError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const { error: code, name } = error as { error?: unknown; name?: unknown };
+  return [code, name].some((value) => String(value) === 'invalid session id');
+}
+
 /** A readable one-line description of any thrown value, including WebDriver's plain-object errors. */
 export function describeError(error: unknown): string {
   if (error instanceof Error) return `${error.name}: ${error.message.split('\n')[0]}`;

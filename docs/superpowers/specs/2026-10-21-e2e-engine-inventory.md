@@ -396,3 +396,14 @@ Open (found in 2h, not fixed):
 Fixed in 2h (found by CI, player-visible, approved by the maintainer):
 
 54. **A first-visit `?game=` zip could fail with "Game not loaded! Error code: 16"**: an imported archive's files are under `/qspider-files/`, which only the service worker serves (from IndexedDB). The worker is registered after the first render, so on a first visit the game could start before it controlled the page; its files then reached the server, whose SPA fallback answers with the app's HTML. `runGame` now waits, before it fetches any game file, until a service worker controls the page (`whenGameFilesReady`, libs/browser/src/lib/game-files.ts: `ready` plus `controllerchange`, at most 10 s, then a clear error). Plain-URL games and desktop (qsp://, a no-op) are unaffected. Covered by `a first-visit zip link waits for the service worker` (web only), which holds the worker script back with `DelayRequests`.
+
+Fixed in 3a (standalone E2E, found by the new scenarios):
+
+55. **Standalone: the Save, Load and Esc pause screen never showed.** `openPauseScreen` only pushes `?pause`, and only game-shelf listened for it, so the standalone player (no shelf) ignored it. Fixed in 5500818 with a standalone-only listener (maintainer's choice).
+56. **`build:standalone-desktop` used `--prod`, which overrides the `:desktop` configuration**, so desktop-standalone builds have run `libs/browser` since a491638 (2024-01-06): its window manager, whose `closeWindow()` is `window.close()`, a no-op in the webview (so Quit stopped the game but the app kept running), IndexedDB saves and the browser updater. Fixed in e72f229. The maintainer decided against a save migration: saves move from the webview's IndexedDB to Tauri storage.
+57. **The `libs/desktop` data fetcher (3195048, unreleased) treated `text/html` as a missing file.** Tauri serves unknown extensions (`.cfg`, `.qsps`) as `text/html`, so no desktop-standalone game started. Fixed in b5ef37f and e7a0bed: bundled files are read with `read_app_asset` (the asset resolver, exact keys, dot segments resolved, one decode).
+
+Open, not fixed (both pre-existing):
+
+- `get()` injects the CSP into bundled `.html` assets.
+- File names containing `?` or `#` are truncated by `asset_key`.

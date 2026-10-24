@@ -3,6 +3,7 @@
   windows_subsystem = "windows"
 )]
 
+mod app_asset;
 mod game_uri;
 
 use game_uri::{parse_game_uri, read_game_file};
@@ -10,7 +11,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use std::{collections::HashMap, sync::Arc};
 use tauri::http::header::{ACCESS_CONTROL_ALLOW_ORIGIN, CONTENT_TYPE};
-use tauri::{command, Manager, State};
+use tauri::{command, AppHandle, Manager, State};
 use urlencoding::decode;
 use uuid::Uuid;
 
@@ -58,6 +59,21 @@ fn read_resource(url: String, state: State<'_, GamesPath>) -> Result<tauri::ipc:
   Ok(tauri::ipc::Response::new(buf))
 }
 
+/// Reads a file of the app's own frontend (a standalone game's bundled files) by its URL. A missing
+/// file is an error, where the asset protocol would answer with index.html.
+#[command]
+fn read_app_asset(url: String, app: AppHandle) -> Result<tauri::ipc::Response, String> {
+  let key = app_asset::asset_key(&url).ok_or_else(|| "not an app url".to_string())?;
+  let resolver = app.asset_resolver();
+  if !app_asset::has_asset(resolver.iter().map(|(k, _)| k), &key) {
+    return Err(format!("file not found: {key}"));
+  }
+  let asset = resolver
+    .get(app_asset::resolver_path(&key))
+    .ok_or_else(|| format!("file not found: {key}"))?;
+  Ok(tauri::ipc::Response::new(asset.bytes))
+}
+
 fn respond(status: u16, mime: &str, body: Vec<u8>) -> tauri::http::Response<Vec<u8>> {
   let mut response = tauri::http::Response::new(body);
   *response.status_mut() = tauri::http::StatusCode::from_u16(status)
@@ -97,7 +113,11 @@ fn main() {
         Err(_) => respond(404, "text/plain", Vec::new()),
       }
     })
-    .invoke_handler(tauri::generate_handler![prepare_game_start, read_resource])
+    .invoke_handler(tauri::generate_handler![
+      prepare_game_start,
+      read_resource,
+      read_app_asset
+    ])
     .plugin(tauri_plugin_fs::init())
     .plugin(tauri_plugin_dialog::init())
     .plugin(tauri_plugin_opener::init())

@@ -3,7 +3,7 @@ name: Checks
 env:
   HUSKY: 0
   CYPRESS_INSTALL_BINARY: 0
-  # Tauri build dependencies, shared by `rust` and `e2e-desktop` so both use one apt cache.
+  # Tauri build dependencies, shared by `rust`, `e2e-desktop` and `e2e-standalone-desktop` so they share one apt cache.
   TAURI_BUILD_PKGS: >-
     libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
     libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base
@@ -123,6 +123,28 @@ jobs:
           path: apps/player-e2e/artifacts
           if-no-files-found: ignore
 
+  e2e-standalone-web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e:standalone-web
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-standalone-web-artifacts
+          path: apps/player-e2e/artifacts
+          if-no-files-found: ignore
+
   e2e-desktop:
     name: e2e-desktop
     runs-on: ubuntu-24.04
@@ -167,5 +189,52 @@ jobs:
         if: failure()
         with:
           name: e2e-desktop-artifacts
+          path: apps/player-e2e/artifacts
+          if-no-files-found: ignore
+
+  e2e-standalone-desktop:
+    name: e2e-standalone-desktop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target/e2e-standalone
+      - name: Install Tauri build dependencies (cached)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: ${{ env.TAURI_BUILD_PKGS }}
+          version: ${{ env.APT_CACHE_VERSION }}
+      # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
+      # Retried with network timeouts, so one dropped connection doesn't fail the job.
+      - name: Install WebDriver, Xvfb and AT-SPI
+        timeout-minutes: 20
+        run: |
+          apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+          for attempt in 1 2 3; do
+            if sudo apt-get $apt_opts update && \
+               sudo apt-get $apt_opts install -y webkit2gtk-driver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0; then
+              exit 0
+            fi
+            echo "apt attempt $attempt failed; retrying"
+            sleep 15
+          done
+          exit 1
+      - run: cargo install tauri-driver --locked
+      - run: pnpm e2e:standalone-desktop
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-standalone-desktop-artifacts
           path: apps/player-e2e/artifacts
           if-no-files-found: ignore

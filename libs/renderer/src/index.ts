@@ -3,6 +3,7 @@ export * from './theme-core';
 export * from './loader';
 export * from './render-state';
 export * from './game-runner';
+export * from './startup-marker';
 
 declare module 'react' {
   // eslint-disable-next-line @typescript-eslint/no-namespace

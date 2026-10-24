@@ -5,6 +5,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "target": "es2022",
+    "allowImportingTsExtensions": true,
     "types": ["node"]
   },
   "include": [
@@ -12,6 +13,7 @@
     "scenarios/**/*.ts",
     "screenplay/**/*.ts",
     "targets/web/**/*.ts",
+    "targets/standalone/**/*.ts",
     "targets/desktop/prereqs.ts",
     "targets/desktop/prereqs.spec.ts",
     "targets/desktop/private-session.ts",
