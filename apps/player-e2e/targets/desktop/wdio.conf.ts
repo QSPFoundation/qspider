@@ -278,8 +278,11 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
 export const config: WebdriverIOConfig = {
   ...desktopConfig({
     application: desktopBinary('src-tauri/target'),
-    // The app starts with the test pack: all its games on the shelf, none started.
-    args: [TEST_PACK.configPath],
+    // The app starts with the test pack: all its games on the shelf, none started. As `--file=<path>`, not
+    // the positional form: msedgedriver (Windows) turns every arg into a Chromium switch, so a bare path
+    // reaches the app as `--d:\...\game.cfg` (lowercased), which the CLI plugin rejects and the app stays
+    // on its loader. A `--name=value` switch passes with its value intact; WebKitWebDriver passes it as is.
+    args: [`--file=${TEST_PACK.configPath}`],
     artifactsDir: fileURLToPath(new URL('../../artifacts/desktop', import.meta.url)),
   }),
   specs: ['../../scenarios/**/*.scenario.ts'],

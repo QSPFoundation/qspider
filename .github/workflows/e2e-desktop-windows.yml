@@ -163,52 +163,6 @@ jobs:
         run: |
           if [ "$SUITE" = standalone ]; then target=build-desktop-standalone-e2e; else target=build-desktop-e2e; fi
           pnpm nx run "player-e2e:$target" --output-style=static
-      # TEMPORARY (3c CI rounds): why the app, once the session exists, stays on its loader (round 3).
-      # msedgedriver alone (--verbose), one session without and one with the test pack's game.cfg argument;
-      # 12 s in: the app's command line, the page, what the CLI plugin answers, the browser console.
-      # Every process is ended by the PID it was started with.
-      - name: Diagnose the app start under msedgedriver (TEMPORARY)
-        continue-on-error: true
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Continue'
-          $out = Join-Path $PWD 'apps/player-e2e/artifacts/diag'
-          New-Item -ItemType Directory -Force -Path $out | Out-Null
-          $app = (Resolve-Path 'src-tauri/target/debug/qspider.exe').Path
-          $cfg = (Resolve-Path 'apps/player-e2e/fixtures/game.cfg').Path
-          $base = 'http://127.0.0.1:9515'
-          function Clear-AppData { foreach ($d in "$env:APPDATA\org.qsp.qspider", "$env:LOCALAPPDATA\org.qsp.qspider") { Remove-Item -Recurse -Force -ErrorAction SilentlyContinue $d } }
-          function Invoke-Wd($method, $path, $body) {
-            try {
-              $json = if ($null -ne $body) { $body | ConvertTo-Json -Depth 8 -Compress } else { $null }
-              $r = Invoke-RestMethod -Method $method -Uri "$base$path" -Body $json -ContentType 'application/json' -TimeoutSec 90
-              return $r.value
-            } catch { return "ERROR $method $path : $($_.ErrorDetails.Message) $_" }
-          }
-          $drv = Start-Process -FilePath msedgedriver.exe -PassThru -ArgumentList '--port=9515', '--verbose', "--log-path=$out/msedgedriver.log"
-          Start-Sleep -Seconds 3
-          foreach ($case in @(@{ name = 'no args'; args = @() }, @{ name = "args [$cfg]"; args = @($cfg) })) {
-            Write-Host "=== session, $($case.name) ==="
-            Clear-AppData
-            $caps = @{ capabilities = @{ alwaysMatch = @{ browserName = 'webview2'; 'ms:edgeChromium' = $true; 'ms:loggingPrefs' = @{ browser = 'ALL' }; 'ms:edgeOptions' = @{ binary = $app; args = $case.args } } } }
-            $session = Invoke-Wd Post '/session' $caps
-            $id = $session.sessionId
-            if (-not $id) { Write-Host "no session: $session"; continue }
-            Start-Sleep -Seconds 12
-            Get-CimInstance Win32_Process | Where-Object { $_.Name -eq 'qspider.exe' } | ForEach-Object { "app: $($_.ProcessId) <- $($_.ParentProcessId) $($_.CommandLine)" }
-            Write-Host "url: $(Invoke-Wd Get "/session/$id/url" $null)"
-            Write-Host "root: $(Invoke-Wd Post "/session/$id/execute/sync" @{ script = 'return document.getElementById("root").innerHTML.slice(0, 300)'; args = @() })"
-            $probe = 'const done = arguments[arguments.length - 1]; const t = window.__TAURI_INTERNALS__; if (!t) { done("no __TAURI_INTERNALS__"); return; } const p = (c, a) => t.invoke(c, a || {}).then((v) => c + " OK " + JSON.stringify(v).slice(0, 400), (e) => c + " ERR " + String(e)); Promise.all([p("plugin:cli|cli_matches"), p("plugin:path|resolve_directory", { directory: 14 }), p("plugin:fs|exists", { path: "C:\\" })]).then((r) => done(r.join(" | ")));'
-            Write-Host "probe: $(Invoke-Wd Post "/session/$id/execute/async" @{ script = $probe; args = @() })"
-            $logs = Invoke-Wd Post "/session/$id/se/log" @{ type = 'browser' }
-            if ($logs -is [string]) { $logs = Invoke-Wd Post "/session/$id/log" @{ type = 'browser' } }
-            Write-Host '--- browser log ---'
-            $logs | ForEach-Object { if ($_ -is [string]) { $_ } else { "$($_.level) $($_.message)" } } | Select-Object -First 40
-            Invoke-Wd Delete "/session/$id" $null | Out-Null
-            Start-Sleep -Seconds 3
-          }
-          taskkill /PID $drv.Id /T /F
-          Clear-AppData
       - name: Run the desktop E2E
         env:
           CI: true
