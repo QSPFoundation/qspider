@@ -115,7 +115,7 @@
       },
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/debug/qspider --file apps/player-e2e/fixtures/e2e-game/e2e-game.qsps --expect-text 'E2E START'"
+        "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/debug/qspider --file apps/player-e2e/fixtures/e2e-game/e2e-game.qsps --expect-text \"E2E START\""
       }
     },
     "smoke-desktop-standalone": {
@@ -127,7 +127,7 @@
       },
       "options": {
         "cwd": "{workspaceRoot}",
-        "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/e2e-standalone/debug/qspider --expect-text 'STANDALONE START'"
+        "command": "node apps/player-e2e/targets/smoke/run-smoke.mjs --app src-tauri/target/e2e-standalone/debug/qspider --expect-text \"STANDALONE START\""
       }
     }
   }
