@@ -41,6 +41,7 @@
     "e2e:desktop": "node apps/player-e2e/targets/desktop/check-prereqs.ts && nx run player-e2e:build-desktop-e2e && node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs",
     "e2e:standalone-web": "nx run player-e2e:e2e-standalone-web",
     "e2e:standalone-desktop": "node apps/player-e2e/targets/desktop/check-prereqs.ts && nx run player-e2e:e2e-standalone-desktop",
+    "smoke:desktop": "nx run player-e2e:smoke-desktop --output-style=static && nx run player-e2e:smoke-desktop-standalone --output-style=static",
     "check:full": "pnpm check && pnpm e2e:desktop && pnpm e2e:standalone-desktop"
   },
   "private": true,
