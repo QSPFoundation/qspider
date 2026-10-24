@@ -124,8 +124,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TEMPORARY (3c round 10 diagnosis): only the diagnosis spec; the 4-entry matrix comes back after it.
-          - { suite: main, shard: '', spec: apps/player-e2e/scenarios/windows-diag.scenario.ts }
+          # TEMPORARY (3c round 12 verification): the restart-persistence specs only; the 4-entry matrix comes back after it.
+          - { suite: main, shard: '', spec: apps/player-e2e/scenarios/player-theme.scenario.ts }
+          - { suite: main, shard: '', spec: apps/player-e2e/scenarios/language.scenario.ts }
     uses: ./.github/workflows/e2e-desktop-windows.yml
     with:
       suite: ${{ matrix.suite }}

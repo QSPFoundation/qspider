@@ -37,10 +37,6 @@ export function startAssetServer(): Promise<Server> {
     [ASSET_SERVER.paths.text]: ['text/plain', Buffer.from(ASSET_SERVER.text)],
   };
   const server = createServer((request, response) => {
-    // TEMPORARY (3c round 10 diagnosis): which requests reach the server, with the headers that tell why.
-    console.log(
-      `[DIAG asset-server] ${request.method} ${request.url} origin=${request.headers['origin']} lna=${request.headers['access-control-request-private-network'] ?? request.headers['access-control-request-local-network']} site=${request.headers['sec-fetch-site']} mode=${request.headers['sec-fetch-mode']}`,
-    );
     const file = files[new URL(request.url ?? '/', 'http://x').pathname];
     const headers = { 'Access-Control-Allow-Origin': '*' };
     if (!file) {
