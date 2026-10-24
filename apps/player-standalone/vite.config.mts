@@ -37,9 +37,9 @@ export default defineConfig(({ mode }) => {
 
     build: {
       outDir: '../../dist/apps/player-standalone',
-      // outDir is outside the project root, so Vite keeps old files by default. An E2E build starts clean, so no
-      // file of an earlier build (e.g. from the repo's public/game/) is bundled with the fixture game.
-      emptyOutDir: e2ePublicDir ? true : undefined,
+      // outDir is outside the project root, so Vite would keep stale files. Every build starts clean, so no earlier
+      // build's files (an E2E fixture game or an old public/game/) are shipped.
+      emptyOutDir: true,
       reportCompressedSize: true,
       commonjsOptions: {
         transformMixedEsModules: true,

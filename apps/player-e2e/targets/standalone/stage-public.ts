@@ -18,12 +18,15 @@ export function stageStandalonePublic(): void {
   // The filter drops public/game itself, so cpSync never descends into it.
   cpSync(PUBLIC_DIR, STANDALONE_STAGE, { recursive: true, filter: (src) => resolve(src) !== PUBLIC_GAME_DIR });
   const gameDir = join(STANDALONE_STAGE, 'game');
-  for (const file of STANDALONE_GAME.files) {
-    const sourceDir = STANDALONE_GAME.themeFiles.includes(file) ? STANDALONE_GAME.themeDir : STANDALONE_GAME.dir;
-    const target = join(gameDir, file);
-    mkdirSync(dirname(target), { recursive: true });
-    copyFileSync(join(sourceDir, file), target);
-  }
+  const copy = (sourceDir: string, files: string[]): void => {
+    for (const file of files) {
+      const target = join(gameDir, file);
+      mkdirSync(dirname(target), { recursive: true });
+      copyFileSync(join(sourceDir, file), target);
+    }
+  };
+  copy(STANDALONE_GAME.dir, STANDALONE_GAME.files);
+  copy(STANDALONE_GAME.themeDir, STANDALONE_GAME.themeFiles);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

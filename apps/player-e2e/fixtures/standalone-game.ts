@@ -4,16 +4,14 @@
 // staging script, which imports it, as plain TypeScript).
 import { fileURLToPath } from 'node:url';
 
-/** The theme files the game uses, taken from the themed fixture (themed-game/). */
-const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
-
 export const STANDALONE_GAME = {
   dir: fileURLToPath(new URL('./standalone/', import.meta.url)),
-  /** Where the theme files in `files` come from. */
+  /** The game's own files, relative to `dir`; staged at the same paths in game/. */
+  files: ['game.cfg', 'standalone.qsps', 'other.qsps', 'css/standalone.css', 'js/standalone.js'],
+  /** The themed fixture (themed-game/), where the game's theme comes from. */
   themeDir: fileURLToPath(new URL('./themed-game/', import.meta.url)),
-  /** The staged game folder, relative to it: from `dir`, except the theme files (from `themeDir`). */
-  files: ['game.cfg', 'standalone.qsps', 'other.qsps', 'css/standalone.css', 'js/standalone.js', ...THEME_FILES],
-  themeFiles: THEME_FILES,
+  /** The theme files, relative to `themeDir`; staged next to game.cfg in game/. */
+  themeFiles: ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'],
   text: {
     start: 'STANDALONE START',
     /** The second [[game]]: written only if the player started it instead of the first. */
