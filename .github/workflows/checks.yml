@@ -124,14 +124,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # TEMPORARY (3c round 12 verification): the restart-persistence specs only; the 4-entry matrix comes back after it.
-          - { suite: main, shard: '', spec: apps/player-e2e/scenarios/player-theme.scenario.ts }
-          - { suite: main, shard: '', spec: apps/player-e2e/scenarios/language.scenario.ts }
+          - { suite: main, shard: 1/3 }
+          - { suite: main, shard: 2/3 }
+          - { suite: main, shard: 3/3 }
+          - { suite: standalone, shard: '' }
     uses: ./.github/workflows/e2e-desktop-windows.yml
     with:
       suite: ${{ matrix.suite }}
       shard: ${{ matrix.shard }}
-      spec: ${{ matrix.spec }}
 
   e2e-web:
     runs-on: ubuntu-24.04
