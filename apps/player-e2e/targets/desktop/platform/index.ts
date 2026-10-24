@@ -10,6 +10,8 @@ export interface Proc {
   ppid: number;
   /** Start time as the OS reports it (Linux: clock ticks since boot; Windows: CreationDate). */
   start: string;
+  /** Executable name, where the platform reports it (Windows); shown in exit-timeout errors. */
+  name?: string;
 }
 
 export interface DesktopPlatform {
