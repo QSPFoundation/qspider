@@ -1,11 +1,14 @@
-name: macOS launch smoke
+name: Desktop launch smoke
 
-# Builds the E2E debug binaries of the main desktop player and the desktop standalone player on macOS and
-# checks that each one starts, opens its game and reports the start text (`pnpm smoke:desktop`,
+# Builds the E2E debug binaries of the main desktop player and the desktop standalone player on macOS or
+# Windows and checks that each one starts, opens its game and reports the start text (`pnpm smoke:desktop`,
 # apps/player-e2e/targets/smoke/run-smoke.mjs). No WebDriver: the app reports markers on stdout, taken
-# from game state, not from the DOM; a render failure with correct state is covered by the Linux suites only.
+# from game state, not from the DOM; a render failure with correct state is covered by the WebDriver suites only.
+# The main player gets its game as a bare positional path, as the OS passes it for "Open with"; on Windows
+# this is the only CI check of that route (the Windows WebDriver suites launch with `--file=`).
 # The two smokes run as separate steps so one failure never hides the other's result.
-# Called by checks.yml (desktop-relevant PRs and main) and scheduled-desktop-build.yml (weekly).
+# Called by checks.yml (macOS: desktop-relevant PRs and main; Windows: every PR and main, gated by the
+# e2e-desktop-windows aggregate) and scheduled-desktop-build.yml (macOS, weekly).
 
 env:
   HUSKY: 0
@@ -14,6 +17,10 @@ env:
 on:
   workflow_call:
     inputs:
+      platform:
+        description: Where to run the smoke (macos | windows)
+        type: string
+        required: true
       # The gate lives here, not on the caller: a caller job skipped by `if:` shows up as `smoke-macos`
       # (skipped), never as `smoke-macos / smoke`, so a required `smoke-macos / smoke` would wait forever.
       # With `run: false` the `smoke` job itself is skipped and reports `smoke-macos / smoke` as skipped.
@@ -23,6 +30,11 @@ on:
         default: true
   workflow_dispatch:
     inputs:
+      platform:
+        description: Where to run the smoke
+        type: choice
+        options: [macos, windows]
+        default: macos
       run:
         description: Run the smoke
         type: boolean
@@ -34,9 +46,19 @@ permissions:
 jobs:
   smoke:
     if: inputs.run
-    runs-on: macos-latest
+    # windows-2025 is pinned as in e2e-desktop-windows.yml; macOS stays on macos-latest.
+    runs-on: ${{ inputs.platform == 'windows' && 'windows-2025' || 'macos-latest' }}
     timeout-minutes: 45
     steps:
+      - name: Check inputs
+        shell: bash
+        env:
+          PLATFORM: ${{ inputs.platform }}
+        run: |
+          case "$PLATFORM" in
+            macos | windows) ;;
+            *) echo "::error::platform must be 'macos' or 'windows', got '$PLATFORM'"; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
@@ -56,20 +78,24 @@ jobs:
       # The runner refuses to run in a host session off Linux unless CI is set; GitHub Actions sets CI=true.
       - name: Launch smoke (main player)
         shell: bash
+        env:
+          PLATFORM: ${{ inputs.platform }}
         run: |
           mkdir -p apps/player-e2e/artifacts/smoke
           set -o pipefail
-          pnpm nx run player-e2e:smoke-desktop --output-style=static 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos-main.log
+          pnpm nx run player-e2e:smoke-desktop --output-style=static 2>&1 | tee "apps/player-e2e/artifacts/smoke/smoke-$PLATFORM-main.log"
       - name: Launch smoke (standalone)
         if: success() || failure()
         shell: bash
+        env:
+          PLATFORM: ${{ inputs.platform }}
         run: |
           mkdir -p apps/player-e2e/artifacts/smoke
           set -o pipefail
-          pnpm nx run player-e2e:smoke-desktop-standalone --output-style=static 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos-standalone.log
+          pnpm nx run player-e2e:smoke-desktop-standalone --output-style=static 2>&1 | tee "apps/player-e2e/artifacts/smoke/smoke-$PLATFORM-standalone.log"
       - uses: actions/upload-artifact@v4
         if: failure() || cancelled()
         with:
-          name: smoke-macos-artifacts
+          name: smoke-${{ inputs.platform }}-artifacts
           path: apps/player-e2e/artifacts/smoke
           if-no-files-found: ignore

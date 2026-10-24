@@ -56,7 +56,7 @@ jobs:
           else
             echo "rust=false" >> "$GITHUB_OUTPUT"
           fi
-          if echo "$changed" | grep -qE '^(src-tauri/|libs/desktop/|libs/tauri-storage/|apps/player-desktop/|apps/player-standalone/|apps/player-e2e/targets/smoke/|apps/player-e2e/project\.json$|apps/player-e2e/fixtures/e2e-game/|apps/player-e2e/fixtures/standalone/|apps/player-e2e/fixtures/e2e-game\.ts$|apps/player-e2e/fixtures/standalone-game\.ts$|apps/player-e2e/targets/desktop/private-env\.mjs$|apps/player-e2e/targets/desktop/private-session\.ts$|apps/player-e2e/targets/standalone/|tools/standalone-config/|package\.json$|pnpm-lock\.yaml$|\.github/workflows/smoke-macos\.yml$|\.github/workflows/checks\.yml$)'; then
+          if echo "$changed" | grep -qE '^(src-tauri/|libs/desktop/|libs/tauri-storage/|apps/player-desktop/|apps/player-standalone/|apps/player-e2e/targets/smoke/|apps/player-e2e/project\.json$|apps/player-e2e/fixtures/e2e-game/|apps/player-e2e/fixtures/standalone/|apps/player-e2e/fixtures/e2e-game\.ts$|apps/player-e2e/fixtures/standalone-game\.ts$|apps/player-e2e/targets/desktop/private-env\.mjs$|apps/player-e2e/targets/desktop/private-session\.ts$|apps/player-e2e/targets/standalone/|tools/standalone-config/|package\.json$|pnpm-lock\.yaml$|\.github/workflows/smoke-desktop\.yml$|\.github/workflows/checks\.yml$)'; then
             echo "desktop=true" >> "$GITHUB_OUTPUT"
           else
             echo "desktop=false" >> "$GITHUB_OUTPUT"
@@ -109,13 +109,64 @@ jobs:
       - run: mkdir -p dist/apps/player-desktop
       - run: pnpm check:rust
 
-  # macOS launch smoke (smoke-macos.yml). Required check, listed by GitHub as `smoke-macos / smoke`.
-  # No `if:` here: the gate is the `run` input, so the check keeps that name when skipped (see smoke-macos.yml).
+  # macOS launch smoke (smoke-desktop.yml). Required check, listed by GitHub as `smoke-macos / smoke`.
+  # No `if:` here: the gate is the `run` input, so the check keeps that name when skipped (see smoke-desktop.yml).
   smoke-macos:
     needs: changes
-    uses: ./.github/workflows/smoke-macos.yml
+    uses: ./.github/workflows/smoke-desktop.yml
     with:
+      platform: macos
       run: ${{ needs.changes.outputs.desktop == 'true' }}
+
+  # Windows desktop E2E (e2e-desktop-windows.yml): the main suite in N wdio shards plus the standalone suite,
+  # on every PR and on main. N = 3, so each shard job stays at or under ~15 min: in run 40105883229 (all green
+  # on the first attempt) the jobs took 7m04, 7m04 and 9m14 (about 2m40 of setup and build each; wdio 4m20,
+  # 4m17, 6m40), standalone 5m39. N = 2 would give about 10-11 min jobs with less room for suite growth and
+  # for a failing scenario's timeouts; N = 4 adds a fourth Windows build for
+  # little gain. Revisit N when a shard job nears 15 min.
+  e2e-desktop-windows-main:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/3, 2/3, 3/3]
+    uses: ./.github/workflows/e2e-desktop-windows.yml
+    with:
+      suite: main
+      shard: ${{ matrix.shard }}
+
+  e2e-desktop-windows-standalone:
+    uses: ./.github/workflows/e2e-desktop-windows.yml
+    with:
+      suite: standalone
+
+  # Windows launch smoke (smoke-desktop.yml): the main player launched with a bare positional game path, as
+  # Windows passes it for "Open with". The Windows WebDriver suites launch with `--file=` (msedgedriver turns
+  # plain args into Chromium switches), so this is the only Windows check of that route. Every PR, no path
+  # gate, like the Windows suites; gated by the aggregate below.
+  smoke-windows:
+    uses: ./.github/workflows/smoke-desktop.yml
+    with:
+      platform: windows
+
+  # The one required Windows check. `if: always()` so it reports even when a needed job failed or was
+  # cancelled (a skipped required check would count as passing); it fails unless every needed job's result
+  # is `success` (a matrix job's result is `failure` if any shard failed).
+  e2e-desktop-windows:
+    needs: [e2e-desktop-windows-main, e2e-desktop-windows-standalone, smoke-windows]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every Windows job succeeded
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          bad=$(echo "$NEEDS" | jq -r '[to_entries[] | select(.value.result != "success") | .key] | join(", ")')
+          if [ -n "$bad" ]; then
+            echo "::error::not successful: $bad"
+            exit 1
+          fi
 
   e2e-web:
     runs-on: ubuntu-24.04

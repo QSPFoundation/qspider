@@ -6,7 +6,7 @@ import { SeePauseLanguage, SeePreferencesLabel } from '../screenplay/pause/check
 import { OpenPreferences, SwitchPauseLanguage } from '../screenplay/pause/tasks';
 import { SeeRunLinkText, SeeShelfIncludes, SeeShelfLanguage, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { SwitchShelfLanguage } from '../screenplay/shelf/tasks';
-import { OpenGameFile, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { pluralTranslation, translation } from '../screenplay/support/translations';
 
@@ -18,7 +18,7 @@ scenario('switching the language re-renders the player and persists', async (pla
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(PATH),
+    LoadGame(PATH),
     SeeGameStarted(START),
     ReturnToShelf(),
     SeeShelfIncludes(TITLE),
@@ -42,7 +42,7 @@ scenario('the pause-screen language select switches the language', async (player
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(PATH),
+    LoadGame(PATH),
     SeeGameStarted(START),
     OpenPreferences(),
     SeePreferencesLabel(PREFERENCES('en-US')),

@@ -18,6 +18,9 @@
     "targets/desktop/prereqs.spec.ts",
     "targets/desktop/private-session.ts",
     "targets/desktop/private-session.spec.ts",
+    "targets/desktop/native-dialog.ts",
+    "targets/desktop/native-dialog.spec.ts",
+    "targets/desktop/platform/**/*.ts",
     "*.config.mts"
   ]
 }

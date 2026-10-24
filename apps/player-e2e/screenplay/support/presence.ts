@@ -55,14 +55,16 @@ export const waitUntilAbsent = (element: Answerable<PageElement>) =>
 
 /**
  * Clicks `element` once it is present. While it is missing (not rendered yet, or re-rendered
- * between lookup and click), retries until INTERACTION_TIMEOUT; other errors surface.
+ * between lookup and click), retries until INTERACTION_TIMEOUT; other errors surface. `before`, when
+ * given, runs at the start of every attempt (e.g. scrolling the element into view inside its panel).
  */
-export const ClickWhenPresent = (element: Answerable<PageElement>): Interaction =>
+export const ClickWhenPresent = (element: Answerable<PageElement>, before?: Interaction): Interaction =>
   Interaction.where(d`#actor clicks ${element}`, async (actor) => {
     const { met, lastError } = await pollUntil(
       actor,
       d`whether ${element} could be clicked`,
       async (a) => {
+        if (before) await before.performAs(a);
         if (!(await (await a.answer(element)).isPresent())) return false;
         await Click.on(element).performAs(a);
         return true;

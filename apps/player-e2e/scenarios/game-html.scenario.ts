@@ -3,6 +3,7 @@ import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks'
 import { SeeContentText } from '../screenplay/content/checks';
 import {
   AreaImage,
+  AreaLink,
   BindField,
   ExecLink,
   FormField,
@@ -15,7 +16,7 @@ import { ClickContent, SubmitForm } from '../screenplay/content/tasks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { Hover, MoveAway } from '../screenplay/support/hover';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { ClickMapArea, LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { TypeInto } from '../screenplay/support/type-into';
 
@@ -25,7 +26,7 @@ scenario('authored markup renders inside the main panel', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.markup),
     SeeContentText(MARK.bold, TEXT.bold),
@@ -36,7 +37,7 @@ scenario('an exec link runs its code', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.links),
     ClickContent(ExecLink),
@@ -48,7 +49,7 @@ scenario('a numeric link runs the matching action', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.links),
     ClickContent(NumLink),
@@ -60,10 +61,10 @@ scenario('an image-map area runs its exec code', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.links),
-    ClickContent(AreaImage),
+    ClickMapArea(AreaLink, AreaImage),
     SeeMainText(TEXT.areaResult),
   );
 });
@@ -73,7 +74,7 @@ scenario('qsp-on:click runs its code', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.events),
     ClickContent(OnClick),
@@ -86,7 +87,7 @@ scenario('qsp-on:mouseenter runs its code', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.events),
     Hover(OnEnter),
@@ -99,7 +100,7 @@ scenario('qsp-on:mouseleave runs its code', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.events),
     Hover(OnLeave),
@@ -112,7 +113,7 @@ scenario('a form with qsp-on:submit runs its code on submit', async (player) => 
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.form),
     TypeInto('hello', FormField),
@@ -128,7 +129,7 @@ scenario.webOnly('qsp-bind stores typed text in the bound variable', async (play
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.bind),
     TypeInto('hello', BindField),
@@ -141,7 +142,7 @@ scenario.webOnly('qsp-bind stores a double quote literally instead of breaking t
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.bind),
     TypeInto('a"b', BindField),
@@ -154,7 +155,7 @@ scenario.webOnly('qsp-bind stores <<expr>> text literally instead of interpolati
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(GAME_HTML.path),
+    LoadGame(GAME_HTML.path),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.bind),
     TypeInto('<<2+2>>', BindField),

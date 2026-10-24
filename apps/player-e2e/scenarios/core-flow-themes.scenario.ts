@@ -5,7 +5,7 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, ReachCounter } from '../screenplay/game/tasks';
 import { SeeSlotEmpty } from '../screenplay/saves/checks';
 import { ChooseSaveSlot } from '../screenplay/saves/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { forEachTheme } from '../screenplay/support/for-each-theme';
 import type { Actor } from '@serenity-js/core';
 
@@ -18,7 +18,7 @@ const openThemed = (player: Actor, variant: ThemeVariant) =>
   player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(variant.e2eGamePath),
+    LoadGame(variant.e2eGamePath),
     SeeGameStarted(TEXT.start),
     SeeActiveTheme(variant.alias),
   );

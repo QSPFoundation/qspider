@@ -12,7 +12,7 @@ import {
   PressVolumeUpHotkey,
 } from '../screenplay/pause/tasks';
 import { SeeShelfIncludes } from '../screenplay/shelf/checks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeAudioState, SeeSoundState } from '../screenplay/support/sound-state';
 
@@ -26,7 +26,7 @@ const { lines: LINES } = SOUND;
 const OpenSoundLocation = [
   StartPlayer(),
   SeeStartupFinished(),
-  OpenGameFile(RESOURCES_GAME.zipPath),
+  LoadGame(RESOURCES_GAME.zipPath),
   SeeGameStarted(TEXT.start),
   ClickAction(ACTIONS.start.toSound),
   SeeMainTextContaining(TEXT.soundReady),

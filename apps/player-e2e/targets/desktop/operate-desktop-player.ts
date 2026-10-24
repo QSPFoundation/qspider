@@ -1,14 +1,17 @@
-import type { AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import type { Answerable, AnswersQuestions, PerformsActivities, UsesAbilities } from '@serenity-js/core';
+import type { PageElement } from '@serenity-js/web';
+import { StartupFinishedMarker } from '../../screenplay/common/elements';
 import { OpenGameButton } from '../../screenplay/shelf/elements';
 import { OperatePlayer } from '../../screenplay/support/operate-player';
-import { ClickWhenPresent } from '../../screenplay/support/presence';
-import { appRunning, expectAppExit, restartAppKeepingData } from './fresh-app';
+import { ClickWhenPresent, waitUntilPresent } from '../../screenplay/support/presence';
+import { appRunning, expectAppExit, restartAppKeepingData, restartAppKeepingDataWith } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
+import { desktopPlatform } from './platform';
 
 /**
- * The desktop player: tauri-driver launches the app with the test pack's game.cfg as its argument
+ * The desktop player: tauri-driver launches the app with the test pack's game.cfg as `--file=<game.cfg>`
  * (wdio.conf.ts), so it starts on the shelf with the pack loaded. Game files open through the
- * native Open game dialog, driven through AT-SPI (native-dialog.ts).
+ * native Open game dialog, driven through AT-SPI or UI Automation (native-dialog.ts); setup loads use the drop route.
  */
 export class OperateDesktopPlayer extends OperatePlayer {
   async startPlayer(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
@@ -18,6 +21,11 @@ export class OperateDesktopPlayer extends OperatePlayer {
   async restartPlayer(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
     // A new app process on the same private app data; it is launched with the pack again.
     await restartAppKeepingData();
+  }
+
+  async relaunchPlayerWith(_actor: UsesAbilities & AnswersQuestions, args: string[]): Promise<void> {
+    // A new app process on the same private app data, launched with `args` instead of the pack.
+    await restartAppKeepingDataWith(args);
   }
 
   async loadTestPack(_actor: UsesAbilities & AnswersQuestions): Promise<void> {
@@ -55,6 +63,24 @@ export class OperateDesktopPlayer extends OperatePlayer {
   async openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
     await actor.attemptsTo(ClickWhenPresent(OpenGameButton));
     await pickFileInNativeDialog(path);
+  }
+
+  async clickMapArea(
+    actor: UsesAbilities & AnswersQuestions & PerformsActivities,
+    area: Answerable<PageElement>,
+    image: Answerable<PageElement>,
+  ): Promise<void> {
+    // The element this OS's WebDriver accepts the click on (platform/index.ts, mapAreaClick).
+    await actor.attemptsTo(ClickWhenPresent(desktopPlatform().mapAreaClick === 'area' ? area : image));
+  }
+
+  async loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
+    // The drop route: the same importDesktop + addImported as the dialog (apps/player-desktop app.tsx,
+    // open-game-button.tsx), without the native dialog. Waits for the startup marker (init() done, the launch
+    // pack's start decision made, the drop listener up) and for the Open game button (openGameFile's
+    // precondition: on the shelf, so the drop never replaces a running game).
+    await actor.attemptsTo(waitUntilPresent(StartupFinishedMarker), waitUntilPresent(OpenGameButton));
+    await this.dropGameFile(actor, path);
   }
 
   async dropGameFile(_actor: UsesAbilities & AnswersQuestions, path: string): Promise<void> {

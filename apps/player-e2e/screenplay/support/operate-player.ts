@@ -1,5 +1,7 @@
+import type { PageElement } from '@serenity-js/web';
 import {
   Ability,
+  type Answerable,
   Interaction,
   type AnswersQuestions,
   type PerformsActivities,
@@ -21,6 +23,21 @@ export abstract class OperatePlayer extends Ability {
    * where that control is.
    */
   abstract openGameFile(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
+  /**
+   * Puts the game file at `path` into the player as a scenario's setup: the cheapest route the target has, with
+   * the same import (and the same start-or-shelve decision) as opening it. Starts from the shelf. Web: the Open
+   * game input, as openGameFile; desktop: the drop route (dropGameFile), skipping the native dialog.
+   */
+  abstract loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void>;
+  /**
+   * Clicks the image-map `area` mapped onto `image`, on the element the driver accepts: the <area> on Windows
+   * desktop (msedgedriver), the <img> under it on Linux desktop and web (README, "Target differences").
+   */
+  abstract clickMapArea(
+    actor: UsesAbilities & AnswersQuestions & PerformsActivities,
+    area: Answerable<PageElement>,
+    image: Answerable<PageElement>,
+  ): Promise<void>;
   /** Drops the game file at `path` on the player window (desktop only). */
   abstract dropGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void>;
   /**
@@ -28,6 +45,12 @@ export abstract class OperatePlayer extends Ability {
    * player's start-up; check SeeStartupFinished before relying on what it shows.
    */
   abstract restartPlayer(actor: UsesAbilities & AnswersQuestions): Promise<void>;
+  /**
+   * Ends the player and starts it again with `args` as its command line instead of the test pack, stored
+   * data kept (desktop only). Ends on the player's start-up; check SeeStartupFinished before relying on
+   * what it shows. The next restart launches with the test pack again.
+   */
+  abstract relaunchPlayerWith(actor: UsesAbilities & AnswersQuestions, args: string[]): Promise<void>;
   /** Opens the player with the game `url` in its `?game=` parameter (web only). A path like `/x/y.qsps` is served by the player's own origin. */
   abstract openGameUrl(actor: UsesAbilities & AnswersQuestions, url: string): Promise<void>;
   /**
@@ -64,6 +87,11 @@ export const StartPlayer = (): Interaction =>
 export const RestartPlayer = (): Interaction =>
   Interaction.where('#actor restarts the player', (actor) => OperatePlayer.as(actor).restartPlayer(actor));
 
+export const RelaunchPlayerWith = (args: string[]): Interaction =>
+  Interaction.where(`#actor relaunches the player with arguments ${JSON.stringify(args)}`, (actor) =>
+    OperatePlayer.as(actor).relaunchPlayerWith(actor, args),
+  );
+
 export const LoadTestPack = (): Interaction =>
   Interaction.where('#actor loads the test pack', (actor) => OperatePlayer.as(actor).loadTestPack(actor));
 
@@ -95,6 +123,16 @@ export const DropGameFile = (path: string): Interaction =>
     OperatePlayer.as(actor).dropGameFile(actor, path),
   );
 
+export const LoadGame = (path: string): Interaction =>
+  Interaction.where(`#actor loads the game file ${path}`, (actor) =>
+    OperatePlayer.as(actor).loadGame(performer(actor), path),
+  );
+
+export const ClickMapArea = (area: Answerable<PageElement>, image: Answerable<PageElement>): Interaction =>
+  Interaction.where(`#actor clicks the image-map area`, (actor) =>
+    OperatePlayer.as(actor).clickMapArea(performer(actor), area, image),
+  );
+
 export const OpenGameFile = (path: string): Interaction =>
   Interaction.where(`#actor opens the game file ${path}`, (actor) =>
     OperatePlayer.as(actor).openGameFile(performer(actor), path),
@@ -106,7 +144,7 @@ export const OpenGameFile = (path: string): Interaction =>
  */
 function performer<A extends UsesAbilities & AnswersQuestions>(actor: A): A & PerformsActivities {
   if (typeof (actor as Partial<PerformsActivities>).attemptsTo !== 'function') {
-    throw new TypeError('OpenGameFile needs an actor that performs activities');
+    throw new TypeError('this interaction needs an actor that performs activities');
   }
   return actor as A & PerformsActivities;
 }

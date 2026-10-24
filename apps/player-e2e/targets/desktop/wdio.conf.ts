@@ -1,12 +1,13 @@
 // WebdriverIO config for the desktop (Tauri) core-flow tests. Run via `pnpm e2e:desktop`,
 // which first builds the E2E debug binary (`nx run player-e2e:build-desktop-e2e`) and then runs
 // wdio through run-desktop-e2e.mjs. Never run `wdio run` on this file directly: on Linux,
-// onPrepare refuses to start outside the runner's private session (private-session.ts).
+// onPrepare refuses to start outside the runner's private session (private-session.ts); on Windows,
+// it refuses off CI unless QSPIDER_E2E_HOST_SESSION=1 (platform/windows.ts).
 import { spawn, type ChildProcess } from 'node:child_process';
-import { copyFileSync, createWriteStream, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, closeSync, openSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
@@ -16,9 +17,10 @@ import { TEST_PACK } from '../../fixtures/test-pack';
 import type { Server } from 'node:http';
 import { ASSET_SERVER, startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { buildFixtures } from '../../fixtures/build-fixtures';
-import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './fresh-app';
+import { desktopPlatform } from './platform';
+import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID, ENV_DRIVER_START_ERROR } from './platform/env';
+import { windowsWebviewOptions } from './platform/windows';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
-import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 
@@ -32,7 +34,7 @@ const DRIVER_PORT = 4444;
 process.env['QSPIDER_E2E_TARGET'] = 'desktop';
 
 // One tauri-driver PER spec-file worker (spawned in beforeSession, stopped in afterSession), each with
-// its own XDG dirs. A single driver shared across workers intermittently lost the second worker's
+// its own app data dirs (platform/). A single driver shared across workers intermittently lost the second worker's
 // session-creation handshake (tauri-driver logged hyper::Error(IncompleteMessage)) and orphaned the
 // app processes, which then poisoned later scenarios; a fresh driver per worker isolates that.
 // Within a worker, fresh-app.ts ends the app, empties the dirs and starts a new session per test.
@@ -48,7 +50,7 @@ function killDriver(): Promise<void> {
   if (!driver || driver.exitCode !== null) return Promise.resolve();
   return new Promise((resolve) => {
     driver.once('exit', () => resolve());
-    driver.kill();
+    desktopPlatform().stopDriver(driver);
   });
 }
 
@@ -117,35 +119,47 @@ function waitForPortFree(port: number, timeoutMs: number): Promise<void> {
   });
 }
 
-/** Spawns a fresh tauri-driver with its own XDG dirs for one worker, and exposes it to fresh-app.ts. */
-async function startDriver(): Promise<void> {
+/**
+ * Spawns a fresh tauri-driver for one worker, with empty app data dirs (Linux: new XDG dirs under the
+ * worker's temp dir; Windows: the app's own dirs, emptied), and exposes it to fresh-app.ts.
+ */
+async function startDriver(logPath: string): Promise<void> {
+  const platform = desktopPlatform();
   await waitForPortFree(DRIVER_PORT, 10_000);
   runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
-  const xdg = {
-    XDG_DATA_HOME: join(runDir, 'data'),
-    XDG_CONFIG_HOME: join(runDir, 'config'),
-    XDG_CACHE_HOME: join(runDir, 'cache'),
-  };
-  Object.values(xdg).forEach((dir) => mkdirSync(dir));
-  const log = createWriteStream(join(runDir, 'tauri-driver.log'));
-  tauriDriver = spawn('tauri-driver', ['--port', String(DRIVER_PORT)], {
-    env: { ...process.env, ...xdg },
-    stdio: ['ignore', 'pipe', 'pipe'],
+  const driverEnv = platform.driverEnv(runDir);
+  const dataDirs = platform.appDataDirs(runDir);
+  dataDirs.forEach((dir) => platform.emptyDir(dir));
+  // Straight into the artifacts, appended across a spec's retries, and written by the driver itself
+  // (no buffering in this worker): WDIO skips afterSession when the session could not be created and
+  // the worker then exits, which is exactly when this log (msedgedriver's stderr too) matters.
+  mkdirSync(dirname(logPath), { recursive: true });
+  appendFileSync(logPath, `--- tauri-driver started ${new Date().toISOString()} ---\n`);
+  const log = openSync(logPath, 'a');
+  try {
+    tauriDriver = spawn('tauri-driver', platform.driverArgs(DRIVER_PORT), {
+      env: { ...process.env, ...driverEnv },
+      stdio: ['ignore', log, log],
+    });
+  } finally {
+    closeSync(log); // the driver holds its own handle
+  }
+  // Covers an aborted worker; afterSession is the normal teardown. Only a driver still running: the PID of
+  // one that already exited may belong to another process by now.
+  process.once('exit', () => {
+    if (tauriDriver && tauriDriver.exitCode === null && tauriDriver.signalCode === null)
+      platform.stopDriver(tauriDriver);
   });
-  tauriDriver.stdout?.pipe(log);
-  tauriDriver.stderr?.pipe(log);
-  // Covers an aborted worker; afterSession is the normal teardown.
-  process.once('exit', () => tauriDriver?.kill());
   await waitForPort(DRIVER_PORT, 10_000);
   // If our driver died (e.g. failed to bind), the port answer came from someone else.
   if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
-    throw new SevereServiceError(
+    throw new Error(
       `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
     );
   }
   // Read by fresh-app.ts in this same worker process.
   process.env[ENV_DRIVER_PID] = String(tauriDriver.pid);
-  process.env[ENV_APP_DATA_DIRS] = JSON.stringify(Object.values(xdg));
+  process.env[ENV_APP_DATA_DIRS] = JSON.stringify(dataDirs);
 }
 
 /** What differs between the desktop targets: the app under test and where the run's artifacts go. */
@@ -154,6 +168,8 @@ export interface DesktopTarget {
   application: string;
   /** Its command-line arguments. */
   args: string[];
+  /** Its bundle identifier (tauri.conf.json): names its app data dirs. */
+  identifier: string;
   /** Emptied at the start of a run; screenshots, page sources, wdio and driver logs go here. */
   artifactsDir: string;
 }
@@ -162,7 +178,7 @@ export interface DesktopTarget {
  * The desktop WebdriverIO config for one app: the private-session guard, a fresh tauri-driver per
  * worker, retries, artifacts. Target configs spread it and set their own specs.
  */
-export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget): WebdriverIOConfig => ({
+export const desktopConfig = ({ application, args, identifier, artifactsDir }: DesktopTarget): WebdriverIOConfig => ({
   runner: 'local',
   maxInstances: 1,
   hostname: '127.0.0.1',
@@ -171,7 +187,11 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
     {
       // tauri-driver's WebKitWebDriver/msedgedriver speak WebDriver classic only.
       'wdio:enforceWebDriverClassic': true,
-      'tauri:options': { application, args },
+      // Windows: msedgedriver would give each session a throwaway WebView2 user data folder (windowsWebviewOptions).
+      'tauri:options':
+        process.platform === 'win32'
+          ? { application, args, webviewOptions: windowsWebviewOptions(identifier, process.env) }
+          : { application, args },
     } as WebdriverIO.Capabilities,
   ],
   logLevel: 'warn',
@@ -180,8 +200,10 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
   // The per-scenario app relaunch (deleteSession+reloadSession) intermittently hangs (~5-10%/run) in
   // wry/WebKitWebDriver's session handling — independent of our code. A failed spec is retried in a
   // brand-new worker with its own fresh tauri-driver (beforeSession), so no orphaned state carries over;
-  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec.
-  specFileRetries: 2,
+  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec. That hang (#167) is Linux-only
+  // (WebKitWebDriver); Windows needed no retry (run 40105883229), so it gets none: a Windows retry needs its
+  // own documented cause, and a Windows flake stays visible instead of absorbed.
+  specFileRetries: process.platform === 'win32' ? 0 : 2,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
@@ -191,15 +213,12 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
   reporters: ['spec'],
 
   async onPrepare() {
-    // First, before anything is launched: outside the private session the app would use the real
-    // display, dconf and accessibility bus.
-    if (process.platform === 'linux') {
-      const problem = privateSessionProblem(process.env, process.getuid?.() ?? -1);
-      if (problem) {
-        throw new SevereServiceError(
-          `Refusing to run the desktop E2E outside its private session: ${problem}. ${PRIVATE_SESSION_HINT}`,
-        );
-      }
+    // First, before anything is launched: on Linux outside the private session the app would use the
+    // real display, dconf and accessibility bus; on Windows off CI it would wipe the developer's app data.
+    try {
+      desktopPlatform().checkRunAllowed();
+    } catch (error) {
+      throw new SevereServiceError(error instanceof Error ? error.message : String(error));
     }
     const missing = findMissingPrereqs(process.platform, which, atspiProbes);
     if (missing.length > 0) {
@@ -227,22 +246,25 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
 
   // A fresh tauri-driver per worker (see the note by `let tauriDriver`). maxInstances is 1, so workers
   // run serially and only one driver holds DRIVER_PORT at a time.
-  async beforeSession() {
-    if (process.platform !== 'linux') return;
-    await startDriver();
+  // WDIO only logs (to the worker's log file) an error thrown here and goes on to create the session.
+  // So the error is also printed and recorded: fresh-app.ts rethrows it at the first restart, which
+  // fails the scenario with the real cause when a session could still be created (a foreign driver
+  // on the port); otherwise the session creation fails and the printed line is the cause.
+  async beforeSession(_config, _caps, specs) {
+    delete process.env[ENV_DRIVER_START_ERROR];
+    try {
+      await startDriver(join(artifactsDir, `tauri-driver-${safeName(basename(String(specs?.[0] ?? 'run')))}.log`));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`tauri-driver did not start: ${message}`);
+      process.env[ENV_DRIVER_START_ERROR] = message;
+      throw error;
+    }
   },
 
-  async afterSession(_config, _caps, specs) {
+  async afterSession() {
     await killDriver();
     if (runDir) {
-      try {
-        copyFileSync(
-          join(runDir, 'tauri-driver.log'),
-          join(artifactsDir, `tauri-driver-${safeName(basename(String(specs?.[0] ?? 'run')))}.log`),
-        );
-      } catch {
-        // no log written
-      }
       rmSync(runDir, { recursive: true, force: true });
       runDir = undefined;
     }
@@ -267,8 +289,12 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
 export const config: WebdriverIOConfig = {
   ...desktopConfig({
     application: desktopBinary('src-tauri/target'),
-    // The app starts with the test pack: all its games on the shelf, none started.
-    args: [TEST_PACK.configPath],
+    // The app starts with the test pack: all its games on the shelf, none started. As `--file=<path>`, not
+    // the positional form: msedgedriver (Windows) turns every arg into a Chromium switch, so a bare path
+    // reaches the app as `--d:\...\game.cfg` (lowercased), which the CLI plugin rejects and the app stays
+    // on its loader. A `--name=value` switch passes with its value intact; WebKitWebDriver passes it as is.
+    args: [`--file=${TEST_PACK.configPath}`],
+    identifier: 'org.qsp.qspider',
     artifactsDir: fileURLToPath(new URL('../../artifacts/desktop', import.meta.url)),
   }),
   specs: ['../../scenarios/**/*.scenario.ts'],

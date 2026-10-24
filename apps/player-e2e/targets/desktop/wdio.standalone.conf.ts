@@ -11,6 +11,7 @@ export const config: WebdriverIOConfig = {
     application: desktopBinary('src-tauri/target/e2e-standalone'),
     // The standalone player opens its bundled game by itself.
     args: [],
+    identifier: 'org.qsp.e2e.standalone',
     artifactsDir: fileURLToPath(new URL('../../artifacts/desktop-standalone', import.meta.url)),
   }),
   specs: ['../../scenarios/standalone/**/*.scenario.ts'],

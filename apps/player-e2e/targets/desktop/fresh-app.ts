@@ -1,86 +1,14 @@
 // Per-test isolation for the desktop tests: one tauri-driver serves the whole run
 // (wdio.conf.ts), and each test gets a new app process with empty app data.
-import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { browser } from '@wdio/globals';
-
-/** Env vars wdio.desktop.conf.ts sets in the launcher; WDIO workers inherit them. */
-export const ENV_DRIVER_PID = 'QSPIDER_E2E_DRIVER_PID';
-export const ENV_APP_DATA_DIRS = 'QSPIDER_E2E_APP_DATA_DIRS';
+import { desktopPlatform } from './platform';
+import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 
 const EXIT_TIMEOUT = 10_000;
-const POLL_INTERVAL = 50;
 
-interface Proc {
-  pid: number;
-  ppid: number;
-  /** Start time in clock ticks since boot: tells a reused PID apart. */
-  start: string;
-  zombie: boolean;
-}
-
-function readProc(pid: number): Proc | null {
-  let stat: string;
-  try {
-    stat = readFileSync(`/proc/${pid}/stat`, 'utf8');
-  } catch {
-    return null; // exited
-  }
-  // Fields after "(comm)"; comm itself may contain spaces and parentheses.
-  const fields = stat.slice(stat.lastIndexOf(')') + 2).split(' ');
-  return { pid, ppid: Number(fields[1]), start: fields[19], zombie: fields[0] === 'Z' };
-}
-
-/**
- * The app and its WebKit helper processes: everything below tauri-driver's direct child
- * (WebKitWebDriver), which launches one app per WebDriver session.
- */
-function appProcesses(driverPid: number): Proc[] {
-  const procs = readdirSync('/proc')
-    .filter((name) => /^\d+$/.test(name))
-    .map((name) => readProc(Number(name)))
-    .filter((p): p is Proc => p !== null && !p.zombie);
-  const children = (pid: number): Proc[] => procs.filter((p) => p.ppid === pid);
-  const result: Proc[] = [];
-  const queue = children(driverPid).flatMap((webDriver) => children(webDriver.pid));
-  while (queue.length > 0) {
-    const p = queue.shift()!;
-    result.push(p);
-    queue.push(...children(p.pid));
-  }
-  return result;
-}
-
-const isAlive = (p: Proc): boolean => {
-  const now = readProc(p.pid);
-  return now !== null && !now.zombie && now.start === p.start;
-};
-
-async function waitForExit(procs: Proc[]): Promise<void> {
-  const deadline = Date.now() + EXIT_TIMEOUT;
-  for (;;) {
-    const alive = procs.filter(isAlive);
-    if (alive.length === 0) return;
-    if (Date.now() > deadline) {
-      throw new Error(
-        `App processes still running ${EXIT_TIMEOUT}ms after the session ended: ${alive.map((p) => p.pid).join(', ')}`,
-      );
-    }
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL)); // poll interval, not a fixed wait
-  }
-}
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`${name} is not set; run the desktop tests through targets/desktop/wdio.conf.ts`);
-  return value;
-}
-
-/**
- * Whether an app process (or one of its WebKit processes) is running under the run's tauri-driver.
- * Reads /proc, so Linux only: PR 3 (Windows) must replace it.
- */
+/** Whether an app process (or one of its webview processes) is running under the worker's tauri-driver. */
 export function appRunning(): boolean {
-  return appProcesses(Number(requireEnv(ENV_DRIVER_PID))).length > 0;
+  return desktopPlatform().appRunning();
 }
 
 /**
@@ -101,26 +29,45 @@ export function appExitedAsExpected(): boolean {
 }
 
 /**
- * Ends the running app and waits until it and its WebKit processes have exited (so nothing still
+ * The session's capabilities as the config set them, taken at the worker's first restart. Every restart
+ * passes them explicitly: WebdriverIO's reloadSession(caps) keeps `caps` as the session's capabilities,
+ * so a plain reloadSession() after a custom-args launch would reuse those args.
+ */
+let defaultCapabilities: WebdriverIO.Capabilities | undefined;
+
+/** The default capabilities, with `args` (when given) as the app's command line instead of the config's. */
+function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilities {
+  defaultCapabilities ??= structuredClone(browser.requestedCapabilities as WebdriverIO.Capabilities);
+  const capabilities = structuredClone(defaultCapabilities);
+  if (args) {
+    const options = (capabilities as Record<string, unknown>)['tauri:options'] as Record<string, unknown>;
+    (capabilities as Record<string, unknown>)['tauri:options'] = { ...options, args: [...args] };
+  }
+  return capabilities;
+}
+
+/**
+ * Ends the running app and waits until it and its webview processes have exited (so nothing still
  * writes app data). An app that already exited after expectAppExit (a game that quit) only has its
  * dead session ended; with no exit expected, a missing app fails. Then, when `wipeData`, empties
- * the run's private app data dirs (from ENV_APP_DATA_DIRS, never anything else). Then starts a new
- * session: tauri-driver launches a new app process, which opens the test pack from its CLI argument.
+ * the app data dirs the platform named (ENV_APP_DATA_DIRS, never anything else;
+ * a delete that fails, e.g. on a file still held open, fails the restart). Then starts a new
+ * session: tauri-driver launches a new app process, which opens the test pack from its CLI argument,
+ * or, with `args`, gets `args` as its command line instead.
  */
-async function restartApp(wipeData: boolean): Promise<void> {
-  if (process.platform !== 'linux') {
-    // XDG dirs and /proc are Linux-only; other platforms have no isolated app data here.
-    throw new Error(`Desktop E2E isolation is implemented for Linux only, not ${process.platform}`);
-  }
-  const driverPid = Number(requireEnv(ENV_DRIVER_PID));
+async function restartApp(wipeData: boolean, args?: string[]): Promise<void> {
+  assertDriverStarted();
+  const capabilities = launchCapabilities(args);
+  const platform = desktopPlatform();
+  const driver = driverPid();
   const dataDirs = JSON.parse(requireEnv(ENV_APP_DATA_DIRS)) as string[];
 
   const exitExpected = appExitExpected;
   appExitExpected = false;
-  const running = appProcesses(driverPid);
+  const running = platform.appProcesses(driver);
   if (running.length > 0) {
     await browser.deleteSession();
-    await waitForExit(running);
+    await platform.waitForExit(running, EXIT_TIMEOUT);
   } else if (exitExpected) {
     console.warn('Restart: the previous app had already exited, as the previous scenario expected');
     // Its session outlived the app; WebKitWebDriver may answer the delete with an error about that.
@@ -128,16 +75,13 @@ async function restartApp(wipeData: boolean): Promise<void> {
       console.warn(`Ended the session of an app that had already exited: ${String(error)}`);
     });
   } else {
-    throw new Error(`No app process found under tauri-driver (pid ${driverPid})`);
+    throw new Error(`No app process found under tauri-driver (pid ${driver})`);
   }
 
   if (wipeData) {
-    for (const dir of dataDirs) {
-      rmSync(dir, { recursive: true, force: true });
-      mkdirSync(dir);
-    }
+    dataDirs.forEach((dir) => platform.emptyDir(dir));
   }
-  await browser.reloadSession();
+  await browser.reloadSession(capabilities);
 }
 
 /** A new app process with empty app data: the start of every scenario. */
@@ -148,3 +92,9 @@ export const restartAppWithEmptyData = (): Promise<void> => restartApp(true);
  * survives a restart. Same isolation as restartAppWithEmptyData.
  */
 export const restartAppKeepingData = (): Promise<void> => restartApp(false);
+
+/**
+ * A new app process on the same private app data dirs, launched with `args` as its command line instead
+ * of the test pack (the binary stays the config's). The next restart launches with the default args again.
+ */
+export const restartAppKeepingDataWith = (args: string[]): Promise<void> => restartApp(false, args);

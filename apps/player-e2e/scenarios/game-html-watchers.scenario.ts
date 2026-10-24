@@ -3,7 +3,7 @@ import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks'
 import { SeeElementText } from '../screenplay/content/checks';
 import { QspLayer, QspRegion, QspStyle, QspVariable, ShowChild } from '../screenplay/content/elements';
 import { ClickAction } from '../screenplay/game/tasks';
-import { OpenGameFile, StartPlayer } from '../screenplay/support/operate-player';
+import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
 
@@ -12,7 +12,7 @@ const { actions: ACTION, text: TEXT } = GAME_HTML;
 const openWatchers = [
   StartPlayer(),
   SeeStartupFinished(),
-  OpenGameFile(GAME_HTML.path),
+  LoadGame(GAME_HTML.path),
   SeeGameStarted(TEXT.start),
   ClickAction(ACTION.watchers),
 ] as const;

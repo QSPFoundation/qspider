@@ -1,0 +1,189 @@
+name: Windows desktop E2E
+
+# Runs the desktop E2E (WebdriverIO + tauri-driver + msedgedriver, apps/player-e2e/targets/desktop) on Windows:
+# the main suite (wdio.conf.ts) or the standalone suite (wdio.standalone.conf.ts), optionally one spec or one
+# shard. The app data dirs the run empties are the runner's own (platform/windows.ts allows that only where
+# CI is set; GitHub Actions sets CI=true, and the run step sets it again explicitly).
+# msedgedriver must match the WebView2 runtime the app runs on, so it is resolved from the installed
+# runtime's version at run time, never pinned.
+
+env:
+  HUSKY: 0
+  CYPRESS_INSTALL_BINARY: 0
+
+on:
+  workflow_call:
+    inputs:
+      suite:
+        description: Which suite to run (main | standalone)
+        type: string
+        default: main
+      spec:
+        description: One spec file to run, relative to the workspace root ('' runs the whole suite)
+        type: string
+        default: ''
+      shard:
+        description: wdio shard, e.g. 1/3 ('' runs unsharded)
+        type: string
+        default: ''
+      # The gate lives here, not on the caller: a caller job skipped by `if:` shows up as `<caller>`
+      # (skipped), never as `<caller> / e2e`, so a required `<caller> / e2e` would wait forever.
+      # With `run: false` the `e2e` job itself is skipped and reports `<caller> / e2e` as skipped.
+      run:
+        description: Run the E2E (false skips the job)
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: Which suite to run
+        type: choice
+        options: [main, standalone]
+        default: main
+      spec:
+        description: One spec file to run, relative to the workspace root (empty runs the whole suite)
+        type: string
+        default: ''
+      shard:
+        description: wdio shard, e.g. 1/3 (empty runs unsharded)
+        type: string
+        default: ''
+      run:
+        description: Run the E2E
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    if: inputs.run
+    # Pinned (not windows-latest), as the Linux jobs pin ubuntu-24.04: the file dialog, WebView2 and
+    # msedgedriver come with the image, so an image change should arrive as a deliberate bump.
+    runs-on: windows-2025
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check inputs
+        id: inputs
+        env:
+          SUITE: ${{ inputs.suite }}
+          SHARD: ${{ inputs.shard }}
+        run: |
+          case "$SUITE" in
+            main | standalone) ;;
+            *) echo "::error::suite must be 'main' or 'standalone', got '$SUITE'"; exit 1 ;;
+          esac
+          if [ -n "$SHARD" ] && ! [[ "$SHARD" =~ ^[0-9]+/[0-9]+$ ]]; then
+            echo "::error::shard must look like 1/3, got '$SHARD'"
+            exit 1
+          fi
+          # Artifact names may not contain '/': shard 1/3 becomes 1-of-3.
+          part=all
+          if [ -n "$SHARD" ]; then part="${SHARD/\//-of-}"; fi
+          echo "artifact=e2e-desktop-windows-$SUITE-$part" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: dtolnay/rust-toolchain@stable
+      # The standalone build has its own target dir (target/e2e-standalone), as in checks.yml.
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ${{ inputs.suite == 'standalone' && 'src-tauri -> target/e2e-standalone' || 'src-tauri' }}
+      # rust-cache also caches ~/.cargo/bin, so on a warm cache this finds tauri-driver already installed.
+      - run: cargo install tauri-driver --locked
+      # msedgedriver must match the WebView2 runtime's version exactly. The runtime registers its version
+      # as `pv` under EdgeUpdate\Clients\{F3017226-...} (per-machine: WOW6432Node or native; per-user: HKCU).
+      - name: Install msedgedriver for the WebView2 runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $client = '{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}'
+          $keys = @(
+            "HKLM:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\$client",
+            "HKLM:\SOFTWARE\Microsoft\EdgeUpdate\Clients\$client",
+            "HKCU:\SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\$client",
+            "HKCU:\SOFTWARE\Microsoft\EdgeUpdate\Clients\$client"
+          )
+          $version = $null
+          foreach ($key in $keys) {
+            $pv = (Get-ItemProperty -Path $key -Name pv -ErrorAction SilentlyContinue).pv
+            if ($pv -and $pv -ne '0.0.0.0') { $version = $pv; Write-Host "WebView2 runtime $pv ($key)"; break }
+          }
+          if (-not $version) {
+            Write-Host "::error::WebView2 runtime version not found (no 'pv' under EdgeUpdate\Clients\$client in HKLM or HKCU); cannot pick a matching msedgedriver"
+            exit 1
+          }
+          $dir = Join-Path $env:RUNNER_TEMP 'msedgedriver'
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          $zip = Join-Path $dir 'edgedriver_win64.zip'
+          $hosts = @('https://msedgedriver.microsoft.com', 'https://msedgedriver.azureedge.net')
+          $downloaded = $false
+          foreach ($h in $hosts) {
+            $url = "$h/$version/edgedriver_win64.zip"
+            try {
+              Invoke-WebRequest -Uri $url -OutFile $zip -MaximumRetryCount 3 -RetryIntervalSec 5
+              Write-Host "Downloaded $url"
+              $downloaded = $true
+              break
+            } catch {
+              Write-Host "Download failed: $url ($($_.Exception.Message))"
+            }
+          }
+          if (-not $downloaded) {
+            Write-Host "::error::No msedgedriver $version for the WebView2 runtime $version (tried: $($hosts -join ', '))"
+            exit 1
+          }
+          Expand-Archive -Path $zip -DestinationPath $dir -Force
+          $exe = Join-Path $dir 'msedgedriver.exe'
+          if (-not (Test-Path $exe)) {
+            Write-Host "::error::msedgedriver.exe not in the downloaded archive"
+            exit 1
+          }
+          $driverVersion = & $exe --version
+          Write-Host "WebView2 runtime: $version"
+          Write-Host "msedgedriver:     $driverVersion"
+          if ($driverVersion -notmatch [regex]::Escape($version)) {
+            Write-Host "::error::msedgedriver ($driverVersion) does not match the WebView2 runtime ($version)"
+            exit 1
+          }
+          Add-Content -Path $env:GITHUB_PATH -Value $dir
+      # Fails in seconds on a missing tauri-driver or msedgedriver, not after the build.
+      - run: node apps/player-e2e/targets/desktop/check-prereqs.ts
+      - name: Build the app under test
+        env:
+          SUITE: ${{ inputs.suite }}
+        run: |
+          if [ "$SUITE" = standalone ]; then target=build-desktop-standalone-e2e; else target=build-desktop-e2e; fi
+          pnpm nx run "player-e2e:$target" --output-style=static
+      - name: Run the desktop E2E
+        env:
+          CI: true
+          SUITE: ${{ inputs.suite }}
+          SPEC: ${{ inputs.spec }}
+          SHARD: ${{ inputs.shard }}
+        run: |
+          args=()
+          if [ "$SUITE" = standalone ]; then args+=(--standalone); fi
+          # Forward slashes work for Node and wdio on Windows; a backslash path is normalised.
+          if [ -n "$SPEC" ]; then args+=(--spec "${SPEC//\\//}"); fi
+          if [ -n "$SHARD" ]; then args+=(--shard "$SHARD"); fi
+          mkdir -p apps/player-e2e/artifacts
+          set -o pipefail
+          echo "node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs ${args[*]}"
+          node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs "${args[@]}" 2>&1 | tee apps/player-e2e/artifacts/e2e-desktop-windows.log
+      - uses: actions/upload-artifact@v4
+        if: failure() || cancelled()
+        with:
+          name: ${{ steps.inputs.outputs.artifact }}
+          path: apps/player-e2e/artifacts/**
+          if-no-files-found: ignore

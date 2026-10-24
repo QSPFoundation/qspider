@@ -2,8 +2,9 @@
 //   node run-smoke.mjs --app <binary> [--file <game>] --expect-text <text> [--timeout-ms N] [--alive-ms M]
 //                      [--host-session]
 // Launches an E2E build of a desktop app (VITE_QSPIDER_E2E=true, `tauri build --debug`), with <game> as its
-// first argument if given, and reads the markers it prints on stdout (libs/desktop/src/lib/e2e-marks.ts,
-// src-tauri/src/e2e.rs). Passes (exit 0) when, within N ms of the launch, it reports in this order
+// first argument if given (a bare positional path, as the OS passes it for "Open with"), and reads the
+// markers it prints on stdout (libs/desktop/src/lib/e2e-marks.ts, src-tauri/src/e2e.rs). Passes (exit 0)
+// when, within N ms of the launch, it reports in this order
 //   QSPIDER_E2E_MARK startup-finished
 //   QSPIDER_E2E_MARK game-running <game id>
 //   QSPIDER_E2E_MARK main-text <text>      (<text>, trimmed, must equal --expect-text exactly)
@@ -11,7 +12,8 @@
 // that arrives before the ones it follows fails the run. On failure (exit 1) it prints the reason, the
 // markers received and the last 50 lines of the app's output. The app is then stopped: on Linux by its PID
 // (it stays in the private session's process group, which the outer runner stops afterwards), on macOS as
-// its own process group, on Windows by its PID.
+// its own process group, on Windows by its PID. On Windows a <binary> without an extension gets `.exe`, so
+// one --app path serves every OS.
 //
 // On Linux the app runs only inside the desktop E2E's private session (targets/desktop/private-env.mjs):
 // started without QSPIDER_E2E_PRIVATE_SESSION, the runner re-executes itself under Xvfb and a private D-Bus,
@@ -23,7 +25,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { constants } from 'node:os';
-import { resolve } from 'node:path';
+import { extname, resolve } from 'node:path';
 import process from 'node:process';
 import { createInterface } from 'node:readline';
 import { clearTimeout, setTimeout } from 'node:timers';
@@ -97,7 +99,8 @@ if (process.platform === 'linux' && process.env.QSPIDER_E2E_PRIVATE_SESSION !== 
 
 /** Launches the app, checks its markers and liveness, stops it. Resolves to the exit status. */
 async function smoke() {
-  const app = resolve(workspaceRoot, options.app);
+  const given = resolve(workspaceRoot, options.app);
+  const app = process.platform === 'win32' && !extname(given) ? `${given}.exe` : given;
   const args = options.file ? [resolve(workspaceRoot, options.file)] : [];
   const expectText = options['expect-text'];
   if (!existsSync(app)) {

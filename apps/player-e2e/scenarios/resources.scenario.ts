@@ -11,11 +11,11 @@ import type { Task } from '@serenity-js/core';
 import { SeeMenu } from '../screenplay/menu/checks';
 import { CancelMenu } from '../screenplay/menu/tasks';
 import { CloseView } from '../screenplay/view/tasks';
-import { DelayRequests, OpenGameFile, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
+import { DelayRequests, LoadGame, OpenGameUrl, StartPlayer } from '../screenplay/support/operate-player';
 import { SeeCssValue, SeeCssValues } from '../screenplay/support/page-script';
 import { SeeImageLoaded } from '../screenplay/support/image-loaded';
 import { scenario } from '../screenplay/support/scenario';
-import { SeeSoundState, SeeSoundWebAudio } from '../screenplay/support/sound-state';
+import { SeeSoundSource, SeeSoundState, SeeSoundWebAudioWherePageAllows } from '../screenplay/support/sound-state';
 
 const { text: TEXT, actions: ACTIONS, images: IMAGES, files: FILES } = RESOURCES_GAME;
 const width = (file: string): number => (RESOURCES_IMAGES[file] ?? RESOURCES_SVGS[file])![0];
@@ -29,7 +29,7 @@ scenario('game images load from every kind of path (archive)', async (player) =>
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
     SeeImageLoaded({ qsp: 'action-image' }, width(FILES.action)),
@@ -51,11 +51,12 @@ scenario('game images load from every kind of path (archive)', async (player) =>
     SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.dataImage}")`)),
     ClickAction(ACTIONS.media.backimageExternal),
     SeeCssValue({ root: true }, '--background-image', equals(`url("${RESOURCES_GAME.externalImage}")`)),
-    // A sound at an absolute URL is fetched by the page itself (Web Audio). With the game base in front of it the
-    // fetch fails and Howler falls back to an HTML5 Audio element, which still reports `playing`.
+    // A sound at an absolute URL is used as it is (no game base in front) and plays. Howler fetches it itself (Web
+    // Audio), except for an http: URL on an https: page (Windows desktop), where it plays through HTML5 Audio.
     ClickAction(ACTIONS.media.playExternal),
+    SeeSoundSource('ext.wav', RESOURCES_GAME.externalSound),
     SeeSoundState('ext.wav', { playing: true, volume: 1 }),
-    SeeSoundWebAudio('ext.wav', true),
+    SeeSoundWebAudioWherePageAllows('ext.wav'),
     // A game script's XMLHttpRequest to an absolute URL is a real request: the shim would answer it empty.
     ClickAction(ACTIONS.media.fetchText),
     SeeResourceMark(RESOURCES_GAME.marks.xhr, RESOURCES_GAME.externalText.text),
@@ -66,7 +67,7 @@ scenario.desktopOnly('game images load from a plain folder', async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.folderGamePath),
+    LoadGame(RESOURCES_GAME.folderGamePath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
   );
@@ -98,7 +99,7 @@ scenario(TITLE, async (player) => {
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     ...SEE_RESOURCES_APPLIED,
   );
@@ -123,14 +124,14 @@ scenario('game.cfg resources are removed when the game stops', async (player) =>
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.zipPath),
+    LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     // 2 styles + 2 scripts (the font is a FontFace in document.fonts, not an element).
     SeeGameResourceCount(CFG.styles.length + CFG.scripts.length),
     ReturnToShelf(),
     SeeShelfIncludes(ARCHIVES.resourcesZip.title),
     SeeGameResourceCount(0),
-    OpenGameFile(ARCHIVES.singleZip.path),
+    LoadGame(ARCHIVES.singleZip.path),
     SeeGameStarted(ARCHIVES.singleZip.startText),
     SeeCssValues({ root: true }, { '--e2e-one': '' }),
     SeeGameResourceCount(0),
@@ -141,7 +142,7 @@ scenario('a missing game.cfg resource shows a notice and the game still starts',
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(RESOURCES_GAME.missingZipPath),
+    LoadGame(RESOURCES_GAME.missingZipPath),
     // One notice names both (styles first, joined by ', '); it hides after 3 s, so check it before anything slow.
     SeeNoticeContaining(`${CFG.missingStyle}, ${CFG.missingScript}`),
     SeeGameStarted(TEXT.start),

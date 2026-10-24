@@ -30,4 +30,5 @@ const skipped = (title: string, body: ScenarioBody): void =>
 export const scenario: ScenarioFn = Object.assign(test, {
   webOnly: (title: string, body: ScenarioBody): void => test(`${title} (web only)`, body),
   desktopOnly: (title: string, body: ScenarioBody): void => skipped(`${title} (desktop only)`, body),
+  linuxDesktopOnly: (title: string, body: ScenarioBody): void => skipped(`${title} (Linux desktop only)`, body),
 });

@@ -22,6 +22,10 @@ const skipped = (title: string, _body: ScenarioBody): void => {
   });
 };
 
+// msedgedriver passes every app argument as a Chromium switch, so a bare positional path cannot reach
+// the app on Windows (wdio.conf.ts); a scenario about that launch runs on Linux only.
+const linuxOnly = process.platform === 'win32' ? skipped : test;
+
 /**
  * Scenarios on WebdriverIO + mocha: one test per scenario. Tagged variants get the tag
  * appended to their title, as on web, where Playwright rejects duplicate titles.
@@ -29,4 +33,5 @@ const skipped = (title: string, _body: ScenarioBody): void => {
 export const scenario: ScenarioFn = Object.assign(test, {
   webOnly: (title: string, body: ScenarioBody): void => skipped(`${title} (web only)`, body),
   desktopOnly: (title: string, body: ScenarioBody): void => test(`${title} (desktop only)`, body),
+  linuxDesktopOnly: (title: string, body: ScenarioBody): void => linuxOnly(`${title} (Linux desktop only)`, body),
 });

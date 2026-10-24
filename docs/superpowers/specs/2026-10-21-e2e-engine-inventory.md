@@ -407,3 +407,13 @@ Open, not fixed (both pre-existing):
 
 - `get()` injects the CSP into bundled `.html` assets.
 - File names containing `?` or `#` are truncated by `asset_key`.
+
+Fixed in 3c (Windows desktop E2E, found by the new CI runs):
+
+58. **An unknown command-line argument left the desktop player on its loader for good.** `tauri-plugin-cli` `getMatches()` rejected the argument ("unexpected argument"), so `init()` rejected unhandled and the start-up never finished. Found on Windows, where msedgedriver turns every app argument into a Chromium switch (`qspider.exe --<lowercased path>`). Red in d552298 (`launch.scenario.ts`, an unknown option), fixed in cf67cd1: `getLaunchFilePath` logs a warning and starts without a launch file when the arguments cannot be parsed, and `init()` catches other start-up failures (a loading message before the shell is up, `showError` after), as the maintainer decided. That second branch has no E2E: a start-up failure before the shell shows only as text on the loader, which keeps animating.
+
+Open (found in 3c, not explained):
+
+59. In the Windows sound scenario the whole page was once scrolled down by 58 px under the player's `100vh`, `overflow: hidden` body, so the top of the main panel left the viewport. The overflow came from the fixture scripts' marks appended below `#root`; the marks now sit in a fixed box inside the viewport, which removes the scroll range. Which step scrolled the page was never pinned down (a single Play click did not), so a game that appends content to `<body>` could show the same shift.
+60. On Windows, when the actions list overflows its panel, opening the saves panel from the game's Save action scrolls the list by one row (`scrollTop` 0 → 29), and it stays scrolled after the panel closes. Cosmetic (the list stays scrollable); the cause (focus handling when the pause screen opens, or Radix focus restore) is not known. It does not show on Linux only because the rows fit there. The E2E is unaffected: `ClickAction` scrolls the action into view.
+61. Unverified: on the Windows desktop the page is `https://tauri.localhost` (`useHttpsScheme: true`), so a game's real `http:` resources (an image, a sound or a fetch from a non-loopback host) are likely auto-upgraded to https or blocked as mixed content. The suite cannot see it: its asset server is `127.0.0.1`, which Chromium treats as potentially trustworthy and exempts. Linux's `tauri://localhost` origin is not https, so Linux and Windows players may get different results. Open question for the maintainer: is `useHttpsScheme` intended, and should game `http:` resources work?

@@ -9,10 +9,11 @@ import { PauseScreen, QuitButton } from '../pause/elements';
 import { TEST_PACK } from '../../fixtures/test-pack';
 import { Shelf } from '../shelf/elements';
 import { OpenFromShelf } from '../shelf/tasks';
-import { LoadTestPack, OpenGameFile, StartPlayer } from '../support/operate-player';
+import { LoadTestPack, LoadGame, StartPlayer } from '../support/operate-player';
 import { Hover } from '../support/hover';
 import { ClickWhenPresent, TextNow, waitUntilPresent } from '../support/presence';
-import { Action, MainText, ShowActionsLink } from './elements';
+import { Action, Actions, MainText, ShowActionsLink } from './elements';
+import { ScrollLabelledIntoView } from '../support/scroll-into-view';
 
 /** The e2e fixture game's title in the test pack. */
 const PACK_E2E_GAME = TEST_PACK.titles[0];
@@ -27,9 +28,18 @@ export const OpenFixture = (): Task =>
     SeeGameStarted(E2E_GAME.text.start),
   );
 
-/** Clicks the game action labelled `label`, once the game shows it. */
+/**
+ * Clicks the game action labelled `label`, once the game shows it. Like a player, it first scrolls the action into
+ * view inside the actions panel: a list longer than the panel (font metrics differ by OS) hides later actions.
+ */
 export const ClickAction = (label: string): Task =>
-  Task.where(`#actor clicks the "${label}" action`, ClickWhenPresent(Action(label)));
+  Task.where(`#actor clicks the "${label}" action`, ClickWhenPresent(...ActionInView(label)));
+
+/** ClickWhenPresent's arguments for the action `label`: the action, scrolled into view before every attempt. */
+export const ActionInView = (label: string): [ReturnType<typeof Action>, Interaction] => [
+  Action(label),
+  ScrollLabelledIntoView(Actions, label),
+];
 
 /** Clicks the action `label`, then waits until the main text reads `text`. */
 const ClickActionUntil = (label: string, text: string): Task =>
@@ -64,7 +74,7 @@ export const OpenSavesFixture = (): Task =>
     '#actor opens the saves fixture game',
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(SAVES_GAME.path),
+    LoadGame(SAVES_GAME.path),
     SeeGameStarted(SAVES_GAME.text.start),
     ReachSavesCounter(0),
   );
@@ -75,7 +85,7 @@ export const OpenPanelsFixture = (): Task =>
     '#actor opens the panels fixture game',
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(PANELS_GAME.path),
+    LoadGame(PANELS_GAME.path),
     SeeGameStarted(PANELS_GAME.text.start),
   );
 

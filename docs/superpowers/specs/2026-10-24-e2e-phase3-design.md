@@ -128,7 +128,7 @@ On `macos-latest`, for **two builds**: the main desktop player (E2E build) and d
 
 ### Scope (maintainer decision: full suite)
 
-All desktop scenarios run on `windows-latest` (tauri-driver + msedgedriver, WebView2). The standalone desktop scenarios from PR 1 also run there.
+All desktop scenarios run on `windows-2025` (pinned, see "Claude's calls"; tauri-driver + msedgedriver, WebView2). The standalone desktop scenarios from PR 1 also run there.
 
 **Trigger (maintainer decision): every PR, required**, plus `main`. Unlike macOS, Windows is the only place that combines Chromium with Tauri (the `tauri.localhost` origin, storage, resource URLs), and those live in frontend libs a path filter would skip. To keep wall time near the Linux desktop job, the builder may shard the suite across parallel Windows jobs (one required check per shard, or one aggregating job), with a timeout fitted to measured CI times.
 
@@ -136,7 +136,7 @@ All desktop scenarios run on `windows-latest` (tauri-driver + msedgedriver, WebV
 
 1. **Driver setup.** `tauri-driver` with `--native-driver` pointing at an `msedgedriver` whose version matches the runner's WebView2 runtime (resolved at job time; never a hard-coded version that drifts).
 2. **Per-scenario isolation on Windows.** `fresh-app.ts` is Linux-only. On Windows, app data lives under the Roaming/Local AppData `org.qsp.qspider` dirs, and WebView2 data under Local AppData `…\EBWebView`. Those are Known Folders, so env overrides may not move them. The builder decides the mechanism (for example: end the session, wait for the app and its WebView2 processes to exit by PID tree, empty those dirs). The CI runner is ephemeral, so deleting the app's own dirs there is safe. **Never kill processes by name.**
-3. **Native file dialog via UI Automation**, behind the same `openGameFile` / `pickFileInNativeDialog` contract: no scenario changes. Same rules as the AT-SPI driver: no keystrokes into whatever has focus, no dependence on UI language, set the path through the file-name edit's value pattern, confirm, verify that the dialog closed, a bounded kill timeout, and failures surface as `Native file dialog: …`. Builder picks the implementation (PowerShell + `System.Windows.Automation`, or a Python UIA library installed in the job), preferring nothing to install.
+3. **Native file dialog via UI Automation**, behind the same `openGameFile` / `pickFileInNativeDialog` contract: no scenario changes. Same rules as the AT-SPI driver: no keystrokes into whatever has focus, no dependence on UI language, set the path in the file-name edit (built: `WM_SETTEXT` read back with `WM_GETTEXT`, then a posted `BM_CLICK` on Open, see "Claude's calls"), confirm, verify that the dialog closed, a bounded kill timeout, and failures surface as `Native file dialog: …`. Builder picks the implementation (PowerShell + `System.Windows.Automation`, or a Python UIA library installed in the job), preferring nothing to install.
 4. **Prereq check** already knows Windows (`prereqs.ts`: `win32: ['tauri-driver', 'msedgedriver']`, Linux probes only on Linux). Verify on the runner; extend only if it misses something.
 5. **Runner** (`run-desktop-e2e.mjs`) already skips the private session off Linux and runs `wdio` directly with `shell: true` on Windows. Add only what the isolation from item 2 needs.
 6. CI job `e2e-desktop-windows` (`checks.yml`), with failure artifacts uploaded the same way as the Linux job.
@@ -178,6 +178,9 @@ All desktop scenarios run on `windows-latest` (tauri-driver + msedgedriver, WebV
 - Sharding the Windows suite across parallel jobs.
 - The macOS marker channel must also work on Linux, so it can be developed locally.
 - A `workflow_dispatch` single-spec mode for Windows iteration.
+- Windows runner pinned to `windows-2025`, not `windows-latest` (d26cd7f): the file dialog, WebView2 and msedgedriver come with the image, so an image change should arrive as a deliberate bump, as the Linux jobs pin `ubuntu-24.04`. The run that prompted it showed `windows-latest` resolving to a different image (`windows-2025-vs2026`).
+- The UIA dialog driver sets the path with window messages, not the value pattern: on the CI runner UIA exposes the dialog's classic Win32 controls (ComboBoxEx32 > ComboBox > Edit, AutomationId 1148; Open, id 1) only as Panes with no patterns (round 6's raw UIA dump, run 40093830048). `dialog.ps1` takes their window handles from UIA, sets the path with `WM_SETTEXT`, reads it back with `WM_GETTEXT`, and posts `BM_CLICK` to Open. Still no keystrokes and no UI text; green from run 40096418362, discriminated in run 40096950892.
+- The Windows desktop E2E: the main suite in 3 wdio shards plus the standalone suite and the Windows launch smoke, behind one aggregating required check `e2e-desktop-windows` (Task 5). Windows gets no spec-file retries (the Linux retry covers a WebKitWebDriver hang).
 
 ## Left to the builder
 
