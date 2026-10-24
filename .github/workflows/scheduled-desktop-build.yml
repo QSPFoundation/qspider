@@ -2,7 +2,7 @@ name: Scheduled desktop build
 
 # Weekly release-like build of main on all desktop platforms, with bundling (not checked on PRs),
 # to catch drift from toolchain/runner updates and bundler breakage before a release does.
-# Also runs the macOS launch smoke (smoke-macos.yml) against main.
+# Also runs the macOS launch smoke (smoke-desktop.yml) against main.
 # No signing and no updater artifacts: this job never touches release secrets.
 
 env:
@@ -59,7 +59,9 @@ jobs:
         run: pnpm tauri build --config '{"bundle":{"createUpdaterArtifacts":false}}' ${{ matrix.args }}
 
   smoke-macos:
-    uses: ./.github/workflows/smoke-macos.yml
+    uses: ./.github/workflows/smoke-desktop.yml
+    with:
+      platform: macos
 
   report:
     needs: [build, smoke-macos]
