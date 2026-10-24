@@ -112,6 +112,7 @@ async function restartApp(wipeData: boolean): Promise<void> {
   if (running.length > 0) {
     await browser.deleteSession();
   } else {
+    console.warn(`Restart: the previous app (pids ${ending.map((p) => p.pid).join(', ')}) had already exited`);
     // Its session outlived the app; WebKitWebDriver may answer the delete with an error about that.
     await browser.deleteSession().catch((error: unknown) => {
       console.warn(`Ended the session of an app that had already exited: ${String(error)}`);
