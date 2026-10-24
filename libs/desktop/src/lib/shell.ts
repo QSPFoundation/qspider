@@ -4,8 +4,18 @@ import { getCurrentWebview } from '@tauri-apps/api/webview';
 
 export { extname } from '@tauri-apps/api/path';
 
+/**
+ * The game file the app was launched with (`--file`/`-f` or the positional path), if any. A command line
+ * the CLI config rejects (e.g. an unknown option) is logged and counts as no file: the app starts anyway.
+ */
 export async function getLaunchFilePath(): Promise<string | undefined> {
-  const { args } = await getMatches();
+  let args: Awaited<ReturnType<typeof getMatches>>['args'];
+  try {
+    ({ args } = await getMatches());
+  } catch (err) {
+    console.warn('Ignoring the command line, it could not be parsed:', err);
+    return undefined;
+  }
   const value = args['file']?.value || args['filePath']?.value;
   return typeof value === 'string' && value ? value : undefined;
 }
