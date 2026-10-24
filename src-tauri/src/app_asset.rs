@@ -39,9 +39,30 @@ pub fn has_asset(keys: impl IntoIterator<Item = impl AsRef<str>>, key: &str) -> 
     .any(|k| k.as_ref().strip_prefix('/') == Some(key))
 }
 
+/// `key` (decoded by `asset_key`) as the path `AssetResolver::get` takes: it percent-decodes again, so a
+/// literal `%` (a file named `a%20b.txt`) is escaped to survive that second decoding.
+pub fn resolver_path(key: &str) -> String {
+  key.replace('%', "%25")
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn resolver_path_survives_the_second_decoding() {
+    for key in [
+      "game/a%20b.txt",
+      "game/100%.png",
+      "game/plain.cfg",
+      "game/ф.png",
+    ] {
+      let path = resolver_path(key);
+      let decoded =
+        String::from_utf8_lossy(&urlencoding::decode_binary(path.as_bytes())).into_owned();
+      assert_eq!(decoded, key);
+    }
+  }
 
   #[test]
   fn maps_app_urls_on_every_origin() {

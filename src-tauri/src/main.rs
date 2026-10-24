@@ -69,7 +69,7 @@ fn read_app_asset(url: String, app: AppHandle) -> Result<tauri::ipc::Response, S
     return Err(format!("file not found: {key}"));
   }
   let asset = resolver
-    .get(key.clone())
+    .get(app_asset::resolver_path(&key))
     .ok_or_else(|| format!("file not found: {key}"))?;
   Ok(tauri::ipc::Response::new(asset.bytes))
 }

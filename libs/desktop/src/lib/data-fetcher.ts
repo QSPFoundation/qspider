@@ -16,7 +16,8 @@ async function readBytes(baseUrl: string, path: string): Promise<ArrayBuffer> {
     // Not fetch: the asset server answers a missing file with index.html (status 200), and a file of a
     // type it does not know with text/html, so a response cannot tell the two apart.
     try {
-      return await invoke<ArrayBuffer>('read_app_asset', { url });
+      // Normalised as fetch would: dot segments resolved, raw spaces and non-ASCII percent-encoded.
+      return await invoke<ArrayBuffer>('read_app_asset', { url: new URL(url).href });
     } catch (error) {
       throw new Error(`Failed to load ${url}: ${String(error)}`);
     }

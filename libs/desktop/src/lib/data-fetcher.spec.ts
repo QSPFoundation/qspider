@@ -49,6 +49,16 @@ describe('data-fetcher', () => {
     },
   );
 
+  it.each([
+    ['./standalone.qsps', 'tauri://localhost/game/standalone.qsps'],
+    ['sub/../css/a.css', 'tauri://localhost/game/css/a.css'],
+    ['my file ф.txt', 'tauri://localhost/game/my%20file%20%D1%84.txt'],
+  ])('passes read_app_asset a normalised url for %s', async (path, url) => {
+    invokeMock.mockResolvedValue(toBuffer([1]));
+    await fetchBinaryContent('tauri://localhost/game/', path);
+    expect(invoke).toHaveBeenCalledWith('read_app_asset', { url });
+  });
+
   it('rejects a missing bundled app file', async () => {
     invokeMock.mockRejectedValue('file not found: game/missing.cfg');
     await expect(fetchTextContent('tauri://localhost/game/', 'missing.cfg')).rejects.toThrow(
