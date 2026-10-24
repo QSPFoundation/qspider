@@ -5,13 +5,13 @@ dialog plugin through rfd) with UI Automation.
 No keystrokes: SendKeys and synthetic input land wherever focus is and depend on the keyboard
 layout. The file name is set through the field's ValuePattern, read back, and the Open button is
 pressed through its InvokePattern. No UI text: the dialog, the field and the button are found by
-window class (#32770), AutomationId (1148: file name combo box, 1: Open) and owning process only,
-never by names or labels, so the UI language does not matter. Only a dialog owned by one of
+window class (#32770, Edit, Button), AutomationId (1148: file name combo box, 1: Open) and owning
+process only, never by names or labels, so the UI language does not matter. Only a dialog owned by one of
 -AppPids (the app under test, from native-dialog.ts) is touched, never another window on the host.
 
 Usage: dialog.ps1 -Path <file> -WaitSeconds <s> -AppPids <pid,pid,...>
 Exit 0 once the dialog has closed after Open; exit 1 otherwise, with one message line on stderr,
-then (when the dialog or its field was not found) the UIA tree of the app's #32770 windows as lines
+then (when the dialog could not be driven) the UIA tree of the app's #32770 windows as lines
 starting with '|'. On failure every #32770 of the app is closed, so an open dialog does not keep
 the app alive after the session and poison the next scenario.
 #>
@@ -39,6 +39,15 @@ function Fail([string]$Message, [switch]$Dump) {
 
 try {
   Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
+  # The client-side proxies give Win32 controls (Edit, Button) their control types and patterns. Without
+  # them (as on windows-latest, where every Win32 control was a Pane with no ValuePattern) the field
+  # cannot be set; register them explicitly. A failure is kept for the dump, not fatal.
+  $script:proxies = 'registered'
+  try {
+    $providers = [Reflection.Assembly]::LoadWithPartialName('UIAutomationClientsideProviders')
+    if ($null -eq $providers) { throw 'assembly not found' }
+    [System.Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($providers.GetName())
+  } catch { $script:proxies = "not registered: $($_.Exception.Message)" }
 
   $A = [System.Windows.Automation.AutomationElement]
   $Scope = [System.Windows.Automation.TreeScope]
@@ -51,9 +60,13 @@ try {
   }
   $isDialog = New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, '#32770')
   $fileNameField = New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '1148')
+  # Id 1 with the Button control type, or the Button window class (no proxy: a Pane of class Button).
   $openButton = New-Object System.Windows.Automation.AndCondition(
     (New-Object System.Windows.Automation.PropertyCondition($A::AutomationIdProperty, '1')),
-    (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button))
+    (New-Object System.Windows.Automation.OrCondition(
+      (New-Object System.Windows.Automation.PropertyCondition($A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Button)),
+      (New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, 'Button'))
+    ))
   )
 
   # PowerShell wraps an exception thrown by a .NET method in MethodInvocationException; look inside.
@@ -126,12 +139,14 @@ try {
       $c = $element.Current
       $name = [string]$c.Name
       if ($name.Length -gt 60) { $name = $name.Substring(0, 60) + '...' }
-      [Console]::Error.WriteLine(('| ' + ('  ' * $depth) + "$($c.ControlType.ProgrammaticName) class='$($c.ClassName)' id='$($c.AutomationId)' name='$name' pid=$($c.ProcessId) control=$($c.IsControlElement) hwnd=$($c.NativeWindowHandle)"))
+      $patterns = @($element.GetSupportedPatterns() | ForEach-Object { $_.ProgrammaticName -replace 'PatternIdentifiers.Pattern$', '' }) -join ','
+      [Console]::Error.WriteLine(('| ' + ('  ' * $depth) + "$($c.ControlType.ProgrammaticName) class='$($c.ClassName)' id='$($c.AutomationId)' name='$name' pid=$($c.ProcessId) control=$($c.IsControlElement) hwnd=$($c.NativeWindowHandle) patterns=$patterns"))
       if ($depth -ge 8) { return }
       for ($child = $walker.GetFirstChild($element); $null -ne $child; $child = $walker.GetNextSibling($child)) {
         Write-Node $child ($depth + 1)
       }
     }
+    [Console]::Error.WriteLine("| client-side proxies: $script:proxies")
     foreach ($window in $A::RootElement.FindAll($Scope::Children, $ofApp)) {
       [Console]::Error.WriteLine("| app window class='$($window.Current.ClassName)' pid=$($window.Current.ProcessId)")
     }
@@ -140,15 +155,13 @@ try {
     foreach ($candidate in $candidates) { Write-Node $candidate 0 }
   }
 
-  # The file name combo box's Edit takes the value; a combo box that exposes ValuePattern itself also works.
+  # The file name field: ComboBoxEx32 > ComboBox > Edit, all three with AutomationId 1148. The Edit
+  # (by control type, or by window class when no proxy typed it) takes the value; a combo box that
+  # exposes ValuePattern itself also works.
   function Get-FileNameValue($dialog) {
-    $field = $dialog.FindFirst($Scope::Descendants, $fileNameField)
-    if ($null -eq $field) { return $null }
-    $candidates = @()
-    $edit = $field.FindFirst($Scope::Descendants, (New-Object System.Windows.Automation.PropertyCondition(
-          $A::ControlTypeProperty, [System.Windows.Automation.ControlType]::Edit)))
-    if ($null -ne $edit) { $candidates += $edit }
-    $candidates += $field
+    $fields = @($dialog.FindAll($Scope::Descendants, $fileNameField))
+    $edits = @($fields | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Edit -or $_.Current.ClassName -eq 'Edit' })
+    $candidates = $edits + @($fields | Where-Object { $edits -notcontains $_ })
     foreach ($element in $candidates) {
       $pattern = $null
       if ($element.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern, [ref]$pattern)) {
@@ -172,7 +185,8 @@ try {
     }
     if ([DateTime]::UtcNow -gt $deadline) {
       if ($null -eq $dialog -and -not $script:sawDialog) { Fail 'dialog not found' -Dump }
-      Fail 'file name field not found' -Dump
+      if ($null -eq $dialog) { Fail 'file name field not found' -Dump }
+      Fail 'file name field has no ValuePattern' -Dump
     }
     Start-Sleep -Milliseconds $PollMs # poll interval
   }
@@ -182,10 +196,10 @@ try {
   if ($readBack -ne $Path) { Fail "value not set (read back `"$readBack`")" }
 
   $open = $dialog.FindFirst($Scope::Descendants, $openButton)
-  if ($null -eq $open) { Fail 'Open button not found' }
+  if ($null -eq $open) { Fail 'Open button not found' -Dump }
   $invoke = $null
   if (-not $open.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern, [ref]$invoke)) {
-    Fail 'Open button has no InvokePattern'
+    Fail 'Open button has no InvokePattern' -Dump
   }
   ([System.Windows.Automation.InvokePattern]$invoke).Invoke()
 
