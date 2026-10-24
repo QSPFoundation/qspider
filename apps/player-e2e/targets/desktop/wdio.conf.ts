@@ -4,10 +4,10 @@
 // onPrepare refuses to start outside the runner's private session (private-session.ts); on Windows,
 // it refuses off CI unless QSPIDER_E2E_HOST_SESSION=1 (platform/windows.ts).
 import { spawn, type ChildProcess } from 'node:child_process';
-import { copyFileSync, createWriteStream, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, closeSync, openSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
 import { tmpdir } from 'node:os';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { browser } from '@wdio/globals';
 import { SevereServiceError } from 'webdriverio';
@@ -122,20 +122,27 @@ function waitForPortFree(port: number, timeoutMs: number): Promise<void> {
  * Spawns a fresh tauri-driver for one worker, with empty app data dirs (Linux: new XDG dirs under the
  * worker's temp dir; Windows: the app's own dirs, emptied), and exposes it to fresh-app.ts.
  */
-async function startDriver(): Promise<void> {
+async function startDriver(logPath: string): Promise<void> {
   const platform = desktopPlatform();
   await waitForPortFree(DRIVER_PORT, 10_000);
   runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
   const driverEnv = platform.driverEnv(runDir);
   const dataDirs = platform.appDataDirs(runDir);
   dataDirs.forEach((dir) => platform.emptyDir(dir));
-  const log = createWriteStream(join(runDir, 'tauri-driver.log'));
-  tauriDriver = spawn('tauri-driver', platform.driverArgs(DRIVER_PORT), {
-    env: { ...process.env, ...driverEnv },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  tauriDriver.stdout?.pipe(log);
-  tauriDriver.stderr?.pipe(log);
+  // Straight into the artifacts, appended across a spec's retries, and written by the driver itself
+  // (no buffering in this worker): WDIO skips afterSession when the session could not be created and
+  // the worker then exits, which is exactly when this log (msedgedriver's stderr too) matters.
+  mkdirSync(dirname(logPath), { recursive: true });
+  appendFileSync(logPath, `--- tauri-driver started ${new Date().toISOString()} ---\n`);
+  const log = openSync(logPath, 'a');
+  try {
+    tauriDriver = spawn('tauri-driver', platform.driverArgs(DRIVER_PORT), {
+      env: { ...process.env, ...driverEnv },
+      stdio: ['ignore', log, log],
+    });
+  } finally {
+    closeSync(log); // the driver holds its own handle
+  }
   // Covers an aborted worker; afterSession is the normal teardown.
   process.once('exit', () => {
     if (tauriDriver) platform.stopDriver(tauriDriver);
@@ -232,10 +239,10 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
   // So the error is also printed and recorded: fresh-app.ts rethrows it at the first restart, which
   // fails the scenario with the real cause when a session could still be created (a foreign driver
   // on the port); otherwise the session creation fails and the printed line is the cause.
-  async beforeSession() {
+  async beforeSession(_config, _caps, specs) {
     delete process.env[ENV_DRIVER_START_ERROR];
     try {
-      await startDriver();
+      await startDriver(join(artifactsDir, `tauri-driver-${safeName(basename(String(specs?.[0] ?? 'run')))}.log`));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.error(`tauri-driver did not start: ${message}`);
@@ -244,17 +251,9 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
     }
   },
 
-  async afterSession(_config, _caps, specs) {
+  async afterSession() {
     await killDriver();
     if (runDir) {
-      try {
-        copyFileSync(
-          join(runDir, 'tauri-driver.log'),
-          join(artifactsDir, `tauri-driver-${safeName(basename(String(specs?.[0] ?? 'run')))}.log`),
-        );
-      } catch {
-        // no log written
-      }
       rmSync(runDir, { recursive: true, force: true });
       runDir = undefined;
     }
