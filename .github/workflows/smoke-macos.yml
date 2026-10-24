@@ -11,13 +11,27 @@ env:
 
 on:
   workflow_call:
+    inputs:
+      # The gate lives here, not on the caller: a caller job skipped by `if:` shows up as `smoke-macos`
+      # (skipped), never as `smoke-macos / smoke`, so a required `smoke-macos / smoke` would wait forever.
+      # With `run: false` the `smoke` job itself is skipped and reports `smoke-macos / smoke` as skipped.
+      run:
+        description: Run the smoke (false skips the job)
+        type: boolean
+        default: true
   workflow_dispatch:
+    inputs:
+      run:
+        description: Run the smoke
+        type: boolean
+        default: true
 
 permissions:
   contents: read
 
 jobs:
   smoke:
+    if: inputs.run
     runs-on: macos-latest
     timeout-minutes: 45
     steps:
@@ -31,8 +45,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - uses: dtolnay/rust-toolchain@stable
-      # `src-tauri -> target` also covers the standalone build's nested target dir (target/e2e-standalone):
-      # rust-cache caches the whole target dir and cleans nested target dirs recursively.
+      # Expected to cover the standalone build's nested target dir (target/e2e-standalone) too: rust-cache
+      # caches the whole `src-tauri/target` and its cleanup recurses into nested target dirs. Unverified;
+      # confirm on the first run (cache size, standalone build incremental on a warm cache).
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
@@ -43,7 +58,7 @@ jobs:
           mkdir -p apps/player-e2e/artifacts/smoke
           pnpm smoke:desktop 2>&1 | tee apps/player-e2e/artifacts/smoke/smoke-macos.log
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() || cancelled()
         with:
           name: smoke-macos-artifacts
           path: apps/player-e2e/artifacts/smoke
