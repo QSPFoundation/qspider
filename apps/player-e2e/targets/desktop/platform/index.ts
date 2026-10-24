@@ -25,6 +25,10 @@ export interface DesktopPlatform {
   appRunning(): boolean;
   /** Resolves once every one of `procs` has exited; fails after `timeoutMs`. */
   waitForExit(procs: Proc[], timeoutMs: number): Promise<void>;
+  /** Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. */
+  emptyDir(dir: string): void;
+  /** Throws when the run must not start here (onPrepare): Linux outside the private session, Windows off CI. */
+  checkRunAllowed(): void;
   /** The dirs that hold the app's data, emptied before the driver starts and between scenarios. */
   appDataDirs(runDir: string): string[];
 }

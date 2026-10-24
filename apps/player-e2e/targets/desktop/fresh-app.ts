@@ -1,9 +1,8 @@
 // Per-test isolation for the desktop tests: one tauri-driver serves the whole run
 // (wdio.conf.ts), and each test gets a new app process with empty app data.
-import { mkdirSync, rmSync } from 'node:fs';
 import { browser } from '@wdio/globals';
 import { desktopPlatform } from './platform';
-import { driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
+import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 
 const EXIT_TIMEOUT = 10_000;
 
@@ -38,6 +37,7 @@ export function appExitedAsExpected(): boolean {
  * session: tauri-driver launches a new app process, which opens the test pack from its CLI argument.
  */
 async function restartApp(wipeData: boolean): Promise<void> {
+  assertDriverStarted();
   const platform = desktopPlatform();
   const driver = driverPid();
   const dataDirs = JSON.parse(requireEnv(ENV_APP_DATA_DIRS)) as string[];
@@ -59,10 +59,7 @@ async function restartApp(wipeData: boolean): Promise<void> {
   }
 
   if (wipeData) {
-    for (const dir of dataDirs) {
-      rmSync(dir, { recursive: true, force: true });
-      mkdirSync(dir);
-    }
+    dataDirs.forEach((dir) => platform.emptyDir(dir));
   }
   await browser.reloadSession();
 }

@@ -1,9 +1,11 @@
 // Windows: tauri-driver → msedgedriver → the app (qspider.exe) → WebView2 (msedgewebview2.exe) processes,
-// read from Win32_Process by parent PID (never by name). The app keeps its data in the user's real
+// read from Win32_Process by parent PID (a name only identifies msedgedriver's console host; nothing is
+// killed by name). The app keeps its data in the user's real
 // %APPDATA%\<identifier> and %LOCALAPPDATA%\<identifier> (with EBWebView): Tauri resolves them through
 // the Known Folders API, so no env var can redirect them. Hence the host-session guard: these dirs are
 // emptied only on a throwaway CI machine or when the developer opts in.
 import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdirSync, rmSync } from 'node:fs';
 import { win32 } from 'node:path';
 import { which } from '../prereqs';
 import { driverPid } from './env';
@@ -17,10 +19,15 @@ export const ENV_HOST_SESSION = 'QSPIDER_E2E_HOST_SESSION';
 export const APP_IDENTIFIERS = ['org.qsp.qspider', 'org.qsp.e2e.standalone'];
 
 const CIM_QUERY =
-  'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CreationDate | ConvertTo-Json -Compress';
+  'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CreationDate,Name | ConvertTo-Json -Compress';
 const POLL_INTERVAL = 250;
 
 type Env = Record<string, string | undefined>;
+
+/** A Win32_Process entry; the name tells msedgedriver's console host (conhost.exe) from the app. */
+export interface WinProc extends Proc {
+  name?: string;
+}
 
 /** Fails unless this is CI (`CI` set) or the developer opted in with QSPIDER_E2E_HOST_SESSION=1. */
 export function assertHostSessionAllowed(env: Env): void {
@@ -37,6 +44,9 @@ export function windowsAppDataDirs(env: Env): string[] {
   const roaming = env['APPDATA'];
   const local = env['LOCALAPPDATA'];
   if (!roaming || !local) throw new Error('APPDATA and LOCALAPPDATA must both be set');
+  if (!win32.isAbsolute(roaming) || !win32.isAbsolute(local)) {
+    throw new Error(`APPDATA (${roaming}) and LOCALAPPDATA (${local}) must be absolute paths`);
+  }
   return APP_IDENTIFIERS.flatMap((id) => [win32.join(roaming, id), win32.join(local, id)]);
 }
 
@@ -44,6 +54,7 @@ interface CimProcess {
   ProcessId?: unknown;
   ParentProcessId?: unknown;
   CreationDate?: unknown;
+  Name?: unknown;
 }
 
 /** CreationDate as ConvertTo-Json writes it: "/Date(ms)/" (PowerShell 5.1), ISO (7), or { value }. */
@@ -54,13 +65,15 @@ function creationDate(raw: unknown): string {
 }
 
 /** Parses the CIM_QUERY output (an array, or one object when there is a single process). */
-export function parseCimProcesses(json: string): Proc[] {
+export function parseCimProcesses(json: string): WinProc[] {
   const parsed = JSON.parse(json) as CimProcess | CimProcess[];
   return (Array.isArray(parsed) ? parsed : [parsed]).map((p) => {
     if (typeof p.ProcessId !== 'number' || typeof p.ParentProcessId !== 'number') {
       throw new Error(`Unexpected Win32_Process entry (no ProcessId/ParentProcessId): ${JSON.stringify(p)}`);
     }
-    return { pid: p.ProcessId, ppid: p.ParentProcessId, start: creationDate(p.CreationDate) };
+    const proc: WinProc = { pid: p.ProcessId, ppid: p.ParentProcessId, start: creationDate(p.CreationDate) };
+    if (typeof p.Name === 'string') proc.name = p.Name;
+    return proc;
   });
 }
 
@@ -79,14 +92,16 @@ function isChildOf(child: Proc, parent: Proc): boolean {
 
 /**
  * Every descendant of tauri-driver's direct child (msedgedriver), which launches one app per WebDriver
- * session: the app and its WebView2 processes. Neither the driver nor msedgedriver is included.
+ * session: the app and its WebView2 processes. Neither the driver nor msedgedriver is included, nor
+ * a console host (conhost.exe) of msedgedriver's own, which would otherwise look like a running app.
  */
-export function appTree(procs: Proc[], driverPid: number): Proc[] {
+export function appTree(procs: WinProc[], driverPid: number): WinProc[] {
   const driver = procs.find((p) => p.pid === driverPid);
   if (!driver) return [];
-  const children = (parent: Proc): Proc[] => procs.filter((p) => isChildOf(p, parent));
-  const result: Proc[] = [];
-  const queue = children(driver).flatMap(children);
+  const children = (parent: Proc): WinProc[] => procs.filter((p) => isChildOf(p, parent));
+  const isConsoleHost = (p: WinProc): boolean => p.name?.toLowerCase() === 'conhost.exe';
+  const result: WinProc[] = [];
+  const queue = children(driver).flatMap((nativeDriver) => children(nativeDriver).filter((p) => !isConsoleHost(p)));
   while (queue.length > 0) {
     const p = queue.shift()!;
     if (result.includes(p)) continue;
@@ -96,7 +111,7 @@ export function appTree(procs: Proc[], driverPid: number): Proc[] {
   return result;
 }
 
-function listProcesses(): Proc[] {
+function listProcesses(): WinProc[] {
   const out = execFileSync('powershell', ['-NoProfile', '-NonInteractive', '-Command', CIM_QUERY], {
     encoding: 'utf8',
     maxBuffer: 16 * 1024 * 1024,
@@ -119,8 +134,14 @@ export const windowsPlatform: DesktopPlatform = {
   },
   // Killing tauri-driver alone would leave msedgedriver (and an app) running: end its whole tree, by PID.
   stopDriver: (driver) => {
-    if (driver.pid === undefined) return;
-    spawnSync('taskkill', ['/PID', String(driver.pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
+    const pid = driver.pid;
+    const taskkill =
+      pid === undefined ? undefined : spawnSync('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true });
+    if (taskkill?.status !== 0) {
+      // Never leave afterSession waiting for an exit that will not come: end tauri-driver itself at least.
+      console.warn(`taskkill of tauri-driver (pid ${pid}) failed: ${taskkill?.error ?? taskkill?.stderr}`);
+      driver.kill();
+    }
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
@@ -134,6 +155,12 @@ export const windowsPlatform: DesktopPlatform = {
       timeoutMs,
       POLL_INTERVAL,
     ),
+  // WebView2 can release EBWebView files a moment after its processes are gone; still fails after the retries.
+  emptyDir: (dir) => {
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+    mkdirSync(dir);
+  },
+  checkRunAllowed: () => assertHostSessionAllowed(process.env),
   appDataDirs: () => {
     assertHostSessionAllowed(process.env);
     return windowsAppDataDirs(process.env);

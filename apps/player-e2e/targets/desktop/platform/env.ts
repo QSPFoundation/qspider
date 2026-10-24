@@ -12,5 +12,17 @@ export function requireEnv(name: string): string {
   return value;
 }
 
+/**
+ * Why the worker's tauri-driver did not start. WDIO only logs an error thrown in beforeSession, so
+ * startDriver records it here and fresh-app.ts rethrows it at the first restart.
+ */
+export const ENV_DRIVER_START_ERROR = 'QSPIDER_E2E_DRIVER_START_ERROR';
+
+/** Throws the recorded tauri-driver start error, if any. */
+export function assertDriverStarted(): void {
+  const error = process.env[ENV_DRIVER_START_ERROR];
+  if (error) throw new Error(`tauri-driver did not start for this worker: ${error}`);
+}
+
 /** The worker's tauri-driver PID (ENV_DRIVER_PID). */
 export const driverPid = (): number => Number(requireEnv(ENV_DRIVER_PID));

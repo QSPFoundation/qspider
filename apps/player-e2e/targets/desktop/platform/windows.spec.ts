@@ -16,6 +16,10 @@ describe('parseCimProcesses', () => {
       { pid: 11, ppid: 10, start: '2026-10-24T10:00:00.5+02:00' },
     ]);
   });
+  it('keeps the process Name when the query has it', () => {
+    const json = JSON.stringify([{ ...cim(10, 4, at(1)), Name: 'conhost.exe' }]);
+    expect(parseCimProcesses(json)).toEqual([{ pid: 10, ppid: 4, start: at(1), name: 'conhost.exe' }]);
+  });
   it('accepts a single object (ConvertTo-Json does not wrap one result in an array)', () => {
     expect(parseCimProcesses(JSON.stringify(cim(10, 4, at(1000))))).toEqual([{ pid: 10, ppid: 4, start: at(1000) }]);
   });
@@ -59,6 +63,12 @@ describe('appTree', () => {
     const stale = { pid: 400, ppid: 200, start: at(15) }; // its real parent exited; PID 200 is now the app
     expect(pids(appTree([...procs, stale], 100))).toEqual([200, 201, 202, 203]);
   });
+  it("ignores a console host among msedgedriver's own children, not one under the app", () => {
+    const driverConsole = { pid: 500, ppid: 101, start: at(12), name: 'CONHOST.EXE' };
+    const appConsole = { pid: 501, ppid: 200, start: at(24), name: 'conhost.exe' };
+    expect(pids(appTree([...procs, driverConsole, appConsole], 100))).toEqual([200, 201, 202, 203, 501]);
+    expect(appTree([...procs.slice(0, 3), driverConsole], 100)).toEqual([]);
+  });
   it('ignores a process that names itself as its parent (System Idle, PID 0)', () => {
     expect(appTree([{ pid: 0, ppid: 0, start: '' }], 0)).toEqual([]);
   });
@@ -73,6 +83,10 @@ describe('windowsAppDataDirs', () => {
       'C:\\Users\\ci\\AppData\\Roaming\\org.qsp.e2e.standalone',
       'C:\\Users\\ci\\AppData\\Local\\org.qsp.e2e.standalone',
     ]);
+  });
+  it('fails when APPDATA or LOCALAPPDATA is not an absolute path', () => {
+    expect(() => windowsAppDataDirs({ APPDATA: 'AppData\\Roaming', LOCALAPPDATA: 'C:\\l' })).toThrow(/absolute/);
+    expect(() => windowsAppDataDirs({ APPDATA: 'C:\\a', LOCALAPPDATA: '.' })).toThrow(/absolute/);
   });
   it('fails when APPDATA or LOCALAPPDATA is not set', () => {
     expect(() => windowsAppDataDirs({ APPDATA: 'C:\\a' })).toThrow(/LOCALAPPDATA/);

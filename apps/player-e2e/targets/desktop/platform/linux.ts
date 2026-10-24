@@ -1,7 +1,8 @@
 // Linux: tauri-driver → WebKitWebDriver → the app → WebKit helper processes, read from /proc. The app
 // data lives in the per-worker XDG dirs that tauri-driver (and so the app) gets.
-import { readdirSync, readFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { PRIVATE_SESSION_HINT, privateSessionProblem } from '../private-session';
 import { driverPid } from './env';
 import type { DesktopPlatform, Proc } from './index';
 import { pollUntilExited } from './wait-for-exit';
@@ -67,5 +68,18 @@ export const linuxPlatform: DesktopPlatform = {
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
   waitForExit: (procs, timeoutMs) => pollUntilExited(procs, (left) => left.filter(isAlive), timeoutMs, POLL_INTERVAL),
+  emptyDir: (dir) => {
+    rmSync(dir, { recursive: true, force: true });
+    mkdirSync(dir);
+  },
+  // Outside the private session (run-desktop-e2e.mjs) the app would use the real display, dconf and accessibility bus.
+  checkRunAllowed: () => {
+    const problem = privateSessionProblem(process.env, process.getuid?.() ?? -1);
+    if (problem) {
+      throw new Error(
+        `Refusing to run the desktop E2E outside its private session: ${problem}. ${PRIVATE_SESSION_HINT}`,
+      );
+    }
+  },
   appDataDirs: (runDir) => Object.values(xdgDirs(runDir)),
 };

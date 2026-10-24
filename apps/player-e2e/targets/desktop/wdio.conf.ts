@@ -1,7 +1,8 @@
 // WebdriverIO config for the desktop (Tauri) core-flow tests. Run via `pnpm e2e:desktop`,
 // which first builds the E2E debug binary (`nx run player-e2e:build-desktop-e2e`) and then runs
 // wdio through run-desktop-e2e.mjs. Never run `wdio run` on this file directly: on Linux,
-// onPrepare refuses to start outside the runner's private session (private-session.ts).
+// onPrepare refuses to start outside the runner's private session (private-session.ts); on Windows,
+// it refuses off CI unless QSPIDER_E2E_HOST_SESSION=1 (platform/windows.ts).
 import { spawn, type ChildProcess } from 'node:child_process';
 import { copyFileSync, createWriteStream, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { connect } from 'node:net';
@@ -17,9 +18,8 @@ import type { Server } from 'node:http';
 import { ASSET_SERVER, startAssetServer, stopAssetServer } from '../../fixtures/asset-server';
 import { buildFixtures } from '../../fixtures/build-fixtures';
 import { desktopPlatform } from './platform';
-import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID } from './platform/env';
+import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID, ENV_DRIVER_START_ERROR } from './platform/env';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
-import { PRIVATE_SESSION_HINT, privateSessionProblem } from './private-session';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 
@@ -128,10 +128,7 @@ async function startDriver(): Promise<void> {
   runDir = mkdtempSync(join(tmpdir(), 'qspider-e2e-'));
   const driverEnv = platform.driverEnv(runDir);
   const dataDirs = platform.appDataDirs(runDir);
-  for (const dir of dataDirs) {
-    rmSync(dir, { recursive: true, force: true });
-    mkdirSync(dir);
-  }
+  dataDirs.forEach((dir) => platform.emptyDir(dir));
   const log = createWriteStream(join(runDir, 'tauri-driver.log'));
   tauriDriver = spawn('tauri-driver', platform.driverArgs(DRIVER_PORT), {
     env: { ...process.env, ...driverEnv },
@@ -146,7 +143,7 @@ async function startDriver(): Promise<void> {
   await waitForPort(DRIVER_PORT, 10_000);
   // If our driver died (e.g. failed to bind), the port answer came from someone else.
   if (tauriDriver.exitCode !== null || tauriDriver.signalCode !== null) {
-    throw new SevereServiceError(
+    throw new Error(
       `tauri-driver exited (code ${tauriDriver.exitCode ?? tauriDriver.signalCode}) but port ${DRIVER_PORT} answers: another process holds it.`,
     );
   }
@@ -198,15 +195,12 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
   reporters: ['spec'],
 
   async onPrepare() {
-    // First, before anything is launched: outside the private session the app would use the real
-    // display, dconf and accessibility bus.
-    if (process.platform === 'linux') {
-      const problem = privateSessionProblem(process.env, process.getuid?.() ?? -1);
-      if (problem) {
-        throw new SevereServiceError(
-          `Refusing to run the desktop E2E outside its private session: ${problem}. ${PRIVATE_SESSION_HINT}`,
-        );
-      }
+    // First, before anything is launched: on Linux outside the private session the app would use the
+    // real display, dconf and accessibility bus; on Windows off CI it would wipe the developer's app data.
+    try {
+      desktopPlatform().checkRunAllowed();
+    } catch (error) {
+      throw new SevereServiceError(error instanceof Error ? error.message : String(error));
     }
     const missing = findMissingPrereqs(process.platform, which, atspiProbes);
     if (missing.length > 0) {
@@ -234,8 +228,20 @@ export const desktopConfig = ({ application, args, artifactsDir }: DesktopTarget
 
   // A fresh tauri-driver per worker (see the note by `let tauriDriver`). maxInstances is 1, so workers
   // run serially and only one driver holds DRIVER_PORT at a time.
+  // WDIO only logs (to the worker's log file) an error thrown here and goes on to create the session.
+  // So the error is also printed and recorded: fresh-app.ts rethrows it at the first restart, which
+  // fails the scenario with the real cause when a session could still be created (a foreign driver
+  // on the port); otherwise the session creation fails and the printed line is the cause.
   async beforeSession() {
-    await startDriver();
+    delete process.env[ENV_DRIVER_START_ERROR];
+    try {
+      await startDriver();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error(`tauri-driver did not start: ${message}`);
+      process.env[ENV_DRIVER_START_ERROR] = message;
+      throw error;
+    }
   },
 
   async afterSession(_config, _caps, specs) {
