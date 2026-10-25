@@ -8,6 +8,12 @@ export const ARCHIVES = {
   singleZip: { path: out('single-game.zip'), title: 'Single game', startText: 'SINGLE START' },
   /** Three games (fixtures/triple), none of them in the test pack; titles in game.cfg order, which is also shelf (alphabetical) order. */
   tripleZip: { path: out('triple-game.zip'), titles: ['Triple alpha', 'Triple beta', 'Triple gamma'] },
+  /** Three games (fixtures/flat-multi) all in the folder of their game.cfg; titles in game.cfg order. The second starts with the aero game's text. */
+  flatMultiZip: {
+    path: out('flat-multi.zip'),
+    titles: ['Flat alpha', 'Flat beta', 'Flat gamma'],
+    secondStartText: 'AERO START',
+  },
   sevenZip: { path: out('single-game.7z'), title: 'Single game', startText: 'SINGLE START' },
   /** Compiled .qsp of the single game; the shelf titles it by file name. */
   qspBinary: { path: out('single.qsp'), title: 'single.qsp', startText: 'SINGLE START' },
@@ -48,6 +54,7 @@ export const ARCHIVES = {
 export const SOURCES = {
   single: fileURLToPath(new URL('./single-game/', import.meta.url)),
   triple: fileURLToPath(new URL('./triple/', import.meta.url)),
+  flatMulti: fileURLToPath(new URL('./flat-multi/', import.meta.url)),
   second: fileURLToPath(new URL('./second/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),

@@ -124,6 +124,21 @@ scenario('a multi-game zip is shelved with a notice naming the count, not starte
   );
 });
 
+scenario('a multi-game zip with all its games in one folder shelves every game with its own entry', async (player) => {
+  const { path, titles, secondStartText } = ARCHIVES.flatMultiZip;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    WaitNoticeGone(),
+    OpenGameFile(path),
+    SeeNoticeContaining(pluralTranslation('en-US', '{{ count }} games added to shelf', titles.length)),
+    ...titles.map(SeeShelfIncludes),
+    // Opening the second shows its own text: its entry was not overwritten by the first game's.
+    OpenFromShelf(titles[1]),
+    SeeGameStarted(secondStartText),
+  );
+});
+
 scenario.desktopOnly('re-opening the launch pack keeps one entry each', async (player) => {
   // Desktop launches with the pack already shelved, so the shelf check alone would pass before the
   // re-import runs. The launch's own notice is waited out first; the new notice then proves the

@@ -118,6 +118,15 @@ export async function buildFixtures(): Promise<void> {
       'three/game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
     } as Zippable),
   );
+  write(
+    ARCHIVES.flatMultiZip.path,
+    zipSync({
+      'game.cfg': readFileSync(join(SOURCES.flatMulti, 'game.cfg')),
+      'single.qsps': readFileSync(join(SOURCES.single, 'single.qsps')),
+      'aero-game.qsps': readFileSync(join(SOURCES.aero, 'aero-game.qsps')),
+      'game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
+    } as Zippable),
+  );
   const utf16Files = {
     'game.cfg': utf16(readFileSync(join(SOURCES.utf16, 'game.cfg'), 'utf8')),
     'utf16.qsps': readFileSync(join(SOURCES.utf16, 'utf16.qsps')),

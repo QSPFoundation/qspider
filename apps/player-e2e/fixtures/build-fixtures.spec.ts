@@ -32,6 +32,7 @@ describe('buildFixtures', () => {
     for (const { path } of [
       ARCHIVES.singleZip,
       ARCHIVES.tripleZip,
+      ARCHIVES.flatMultiZip,
       ARCHIVES.includerZip,
       ARCHIVES.dialogsZip,
       ARCHIVES.gameHtmlZip,
