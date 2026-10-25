@@ -140,7 +140,7 @@ export const RESOURCES_GAME = {
     /** Script one, on `res_xhr`: the responseText of an XMLHttpRequest to an absolute http URL. */
     xhr: 'res-xhr',
     /** Script one, on `res_xhr_rel`: the decoded response of a relative XMLHttpRequest for `relativeText.path`. */
-    xhrRel: 'xhr-rel',
+    xhrRel: 'res-xhr-rel',
   },
   scriptText: {
     startSeen: 'RES SCRIPT SAW START',

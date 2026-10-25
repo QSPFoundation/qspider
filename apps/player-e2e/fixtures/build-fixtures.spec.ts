@@ -250,6 +250,8 @@ describe('buildFixtures', () => {
       expect(game).toContain(`$BACKIMAGE = '${RESOURCES_GAME.externalImage}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.externalSound}'`);
       expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.externalText.url}'`);
+      expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.relativeText.path}'`);
+      expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.marks.xhrRel}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.sound.backslashB}'`);
     });
 

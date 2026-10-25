@@ -49,7 +49,7 @@ window.addEventListener('qspider-event', function (e) {
     xhr.responseType = 'arraybuffer';
     xhr.onload = function () {
       // The desktop shim answers through response; its responseText stays empty while it replaces a request.
-      mark('xhr-rel', new TextDecoder().decode(xhr.response));
+      mark('res-xhr-rel', new TextDecoder().decode(xhr.response));
     };
     xhr.send();
   }
