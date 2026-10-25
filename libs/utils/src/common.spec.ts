@@ -36,6 +36,11 @@ describe('resolvePath', () => {
     expect(resolvePath('a/b', '/x/y')).toBe('/x/y');
   });
 
+  it('preserves a trailing slash on the second path', () => {
+    expect(resolvePath('a/b/c', 'd/')).toBe('a/b/d/');
+    expect(resolvePath('a/b/', '../')).toBe('a/');
+  });
+
   it('stops at the root when .. climbs above the start', () => {
     expect(resolvePath('a/', '../../x')).toBe('x');
   });
