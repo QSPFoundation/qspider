@@ -18,7 +18,15 @@ export const STANDALONE_GAME = {
     other: 'OTHER START',
     room: (n: number): string => `ROOM counter=${n}`,
   },
-  action: { goToRoom: 'Go to room', increment: 'Increment', save: 'Save', load: 'Load', quit: 'Quit' },
+  action: {
+    /** Its inclib names a file the bundle lacks. */
+    includeMissing: 'Include missing',
+    goToRoom: 'Go to room',
+    increment: 'Increment',
+    save: 'Save',
+    load: 'Load',
+    quit: 'Quit',
+  },
   /** The game's defaultTheme (from the themed fixture's e2e-theme.html). */
   theme: 'e2e-custom',
   /** Set on :root by css/standalone.css (a game.cfg style). */
