@@ -112,6 +112,7 @@ scenario.desktopOnly('a missing bundled file is rejected, not served as the page
     StartPlayer(),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.includeMissing),
+    SeeErrorAlertText(`Failed to open ${STANDALONE_GAME.missingFile}: `), // the handler's prefix
     SeeErrorAlertText(`file not found: game/${STANDALONE_GAME.missingFile}`), // read_app_asset's cause
     ClickAction(ACTION.goToRoom),
     SeeMainText(TEXT.room(0)),

@@ -1,5 +1,5 @@
 import { useAtom } from '@xoid/react';
-import { GameRunner, QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
+import { ErrorAlert, GameRunner, NoticeToast, QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
 import { baseInit$ } from '@qspider/game-state';
 import { init } from './init';
 import { Suspense } from 'react';
@@ -14,6 +14,8 @@ export const App: React.FC = () => {
       <QspiderRoot>
         <GameRunner />
         <StartupMarker />
+        <ErrorAlert />
+        <NoticeToast />
       </QspiderRoot>
     </Suspense>
   );
