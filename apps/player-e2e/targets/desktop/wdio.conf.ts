@@ -20,6 +20,7 @@ import { buildFixtures } from '../../fixtures/build-fixtures';
 import { desktopPlatform } from './platform';
 import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID, ENV_DRIVER_START_ERROR } from './platform/env';
 import { windowsWebviewOptions } from './platform/windows';
+import { MAIN_EXCLUDE, MAIN_SPECS } from './shards';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
@@ -297,7 +298,7 @@ export const config: WebdriverIOConfig = {
     identifier: 'org.qsp.qspider',
     artifactsDir: fileURLToPath(new URL('../../artifacts/desktop', import.meta.url)),
   }),
-  specs: ['../../scenarios/**/*.scenario.ts'],
+  specs: MAIN_SPECS,
   // The standalone scenarios run only against the standalone build (wdio.standalone.conf.ts).
-  exclude: ['../../scenarios/standalone/**'],
+  exclude: MAIN_EXCLUDE,
 };
