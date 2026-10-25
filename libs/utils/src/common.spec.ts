@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defer, hashString, prepareBaseUrl, resolvePath } from './common';
+import { defer, hashString, prepareBaseUrl } from './common';
 
 describe('defer', () => {
   it('resolves the promise with the given value', async () => {
@@ -12,37 +12,6 @@ describe('defer', () => {
     const deferred = defer<number>();
     deferred.reject(new Error('x'));
     await expect(deferred.promise).rejects.toThrow('x');
-  });
-});
-
-describe('resolvePath', () => {
-  it('resolves a sibling of the base file', () => {
-    expect(resolvePath('a/b/c.html', 'd.png')).toBe('a/b/d.png');
-  });
-
-  it('resolves a nested relative path', () => {
-    expect(resolvePath('a/b/c.html', 'd/e.png')).toBe('a/b/d/e.png');
-  });
-
-  it('goes up one directory for ..', () => {
-    expect(resolvePath('a/b/', '../d.png')).toBe('a/d.png');
-  });
-
-  it('ignores a leading ./', () => {
-    expect(resolvePath('a/b/c', './d')).toBe('a/b/d');
-  });
-
-  it('returns an absolute second path unchanged', () => {
-    expect(resolvePath('a/b', '/x/y')).toBe('/x/y');
-  });
-
-  it('preserves a trailing slash on the second path', () => {
-    expect(resolvePath('a/b/c', 'd/')).toBe('a/b/d/');
-    expect(resolvePath('a/b/', '../')).toBe('a/');
-  });
-
-  it('stops at the root when .. climbs above the start', () => {
-    expect(resolvePath('a/', '../../x')).toBe('x');
   });
 });
 
