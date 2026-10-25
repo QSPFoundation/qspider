@@ -85,7 +85,7 @@ describe('mainSpecFiles', () => {
     const expected = readdirSync(root, { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() && e.name !== 'standalone'
         ? readdirSync(new URL(`${e.name}/`, root), { recursive: true })
-            .map(String)
+            .map((n) => `${e.name}/${String(n)}`)
             .filter((n) => n.endsWith('.scenario.ts'))
         : e.name.endsWith('.scenario.ts')
           ? [e.name]

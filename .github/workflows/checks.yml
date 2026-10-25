@@ -119,14 +119,14 @@ jobs:
       run: ${{ needs.changes.outputs.desktop == 'true' }}
 
   # Windows desktop E2E (e2e-desktop-windows.yml): the main suite in N wdio shards plus the standalone suite,
-  # on every PR and on main. N = 3, so each shard job stays at or under ~15 min: in run 40105883229 (all green
+  # on every PR and on main. N = 3, so each shard job stays near the ~7 min target: in run 40105883229 (all green
   # on the first attempt) the jobs took 7m04, 7m04 and 9m14 (about 2m40 of setup and build each; wdio 4m20,
   # 4m17, 6m40), standalone 5m39. N = 2 would give about 10-11 min jobs with less room for suite growth and
   # for a failing scenario's timeouts; N = 4 adds a fourth Windows build for
   # little gain. The shards are split by measured spec time (shard-timings.json, README "Shards"); that
   # imbalance came from wdio's equal-count slices. In run 40121755341 the jobs took 6m38, 6m56 and 9m43;
   # the balanced table predicts about 288 s of scenarios per shard, so the jobs should come out near
-  # each other. Revisit N, or regenerate the table, when a shard job nears ~7 min.
+  # each other. Revisit N, or regenerate the table, when a shard job exceeds ~7 min.
   e2e-desktop-windows-main:
     strategy:
       fail-fast: false

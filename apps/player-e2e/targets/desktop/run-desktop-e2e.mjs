@@ -55,9 +55,10 @@ if (shardArg !== undefined) {
   }
   const platform = process.platform === 'win32' ? 'windows' : 'linux';
   const timings = JSON.parse(readFileSync(new URL('./shard-timings.json', import.meta.url), 'utf8'))[platform] ?? {};
-  const files = assignShards(mainSpecFiles(fileURLToPath(new URL('.', import.meta.url))), timings, shard.total)[
-    shard.current - 1
-  ];
+  // An empty suite is never legitimate (e.g. a glob that matches nothing); only an empty shard is.
+  const all = mainSpecFiles(fileURLToPath(new URL('.', import.meta.url)));
+  if (!all.length) refuse('no main-suite spec files found under apps/player-e2e/scenarios');
+  const files = assignShards(all, timings, shard.total)[shard.current - 1];
   const label = `Shard ${shardArg}`;
   if (!files.length) {
     console.log(`${label}: no spec files, nothing to run`);
