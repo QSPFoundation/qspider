@@ -118,9 +118,9 @@ export function pickGameDescriptor(
   descriptors: readonly GameDescriptor[],
   game: Pick<GameDescriptor, 'id' | 'file'>,
 ): GameDescriptor | undefined {
-  const byId = descriptors.find((d) => d.id === game.id);
+  const byId = descriptors.find((d) => d.id && d.id === game.id);
   if (byId) return byId;
-  const byFile = descriptors.find((d) => d.file && baseName(d.file) === baseName(game.file));
+  const byFile = descriptors.find((d) => d.file === baseName(game.file));
   if (byFile) return byFile;
   return descriptors.length === 1 ? descriptors[0] : undefined;
 }

@@ -3,10 +3,10 @@ import type { GameDescriptor } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import {
   archiveFallbackEntry,
-  pickGameDescriptor,
   archiveGameId,
   descriptorEntry,
   fileEntry,
+  pickGameDescriptor,
   splitGameUrl,
   urlConfigEntry,
   urlFallbackEntry,
@@ -179,6 +179,16 @@ describe('pickGameDescriptor', () => {
 
   it('falls back to the file name when no id matches', () => {
     expect(pickGameDescriptor([one, two, three], { id: 'x', file: 'dir/c.qsps' })).toBe(three);
+  });
+
+  it('prefers the id over the file when they point at different entries', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'three', file: 'a.qsps' })).toBe(three);
+  });
+
+  it('does not match an entry whose file sits in a deeper folder under the same name', () => {
+    const deeper = entry('deeper', 'extra/game.qsps');
+    const other = entry('other', 'other.qsps');
+    expect(pickGameDescriptor([deeper, other], { id: 'x', file: 'game.qsps' })).toBeUndefined();
   });
 
   it('takes the only entry of a single-entry descriptor even under another id and file', () => {
