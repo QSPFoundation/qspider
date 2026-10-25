@@ -8,6 +8,8 @@ export const STANDALONE_GAME = {
   dir: fileURLToPath(new URL('./standalone/', import.meta.url)),
   /** The game's own files, relative to `dir`; staged at the same paths in game/. */
   files: ['game.cfg', 'standalone.qsps', 'other.qsps', 'css/standalone.css', 'js/standalone.js'],
+  /** The file the 'Include missing' action's inclib names; the bundle lacks it. */
+  missingFile: 'missing.qsps',
   /** The themed fixture (themed-game/), where the game's theme comes from. */
   themeDir: fileURLToPath(new URL('./themed-game/', import.meta.url)),
   /** The theme files, relative to `themeDir`; staged next to game.cfg in game/. */
@@ -19,7 +21,7 @@ export const STANDALONE_GAME = {
     room: (n: number): string => `ROOM counter=${n}`,
   },
   action: {
-    /** Its inclib names a file the bundle lacks. */
+    /** Its inclib names a file the bundle lacks (`missingFile`). */
     includeMissing: 'Include missing',
     goToRoom: 'Go to room',
     increment: 'Increment',

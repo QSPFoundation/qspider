@@ -112,7 +112,7 @@ scenario.desktopOnly('a missing bundled file is rejected, not served as the page
     StartPlayer(),
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.includeMissing),
-    SeeErrorAlertText('file not found: game/missing.qsps'), // read_app_asset's cause
+    SeeErrorAlertText(`file not found: game/${STANDALONE_GAME.missingFile}`), // read_app_asset's cause
     ClickAction(ACTION.goToRoom),
     SeeMainText(TEXT.room(0)),
   );
