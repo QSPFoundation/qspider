@@ -29,7 +29,7 @@ describe('buildFixtures', () => {
   it('writes zips with the ZIP magic', () => {
     for (const { path } of [
       ARCHIVES.singleZip,
-      ARCHIVES.multiZip,
+      ARCHIVES.tripleZip,
       ARCHIVES.includerZip,
       ARCHIVES.dialogsZip,
       ARCHIVES.gameHtmlZip,

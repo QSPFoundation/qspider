@@ -107,7 +107,15 @@ export async function buildFixtures(): Promise<void> {
 
   const singleConfig = join(SOURCES.single, 'game.cfg');
   write(ARCHIVES.singleZip.path, zipPack(singleConfig));
-  write(ARCHIVES.multiZip.path, zipPack(TEST_PACK.configPath));
+  write(
+    ARCHIVES.tripleZip.path,
+    zipSync({
+      'game.cfg': readFileSync(join(SOURCES.triple, 'game.cfg')),
+      'one/single.qsps': readFileSync(join(SOURCES.single, 'single.qsps')),
+      'two/aero-game.qsps': readFileSync(join(SOURCES.aero, 'aero-game.qsps')),
+      'three/game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
+    } as Zippable),
+  );
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));

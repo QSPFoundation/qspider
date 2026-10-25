@@ -6,8 +6,8 @@ const out = (name: string): string => fileURLToPath(new URL(`../artifacts/fixtur
 
 export const ARCHIVES = {
   singleZip: { path: out('single-game.zip'), title: 'Single game', startText: 'SINGLE START' },
-  /** The test pack's games (game.cfg order), see TEST_PACK.titles. */
-  multiZip: { path: out('multi-game.zip'), titles: ['E2E game', 'Second game'] },
+  /** Three games (fixtures/triple), none of them in the test pack; titles in game.cfg order, which is also shelf (alphabetical) order. */
+  tripleZip: { path: out('triple-game.zip'), titles: ['Triple alpha', 'Triple beta', 'Triple gamma'] },
   sevenZip: { path: out('single-game.7z'), title: 'Single game', startText: 'SINGLE START' },
   /** Compiled .qsp of the single game; the shelf titles it by file name. */
   qspBinary: { path: out('single.qsp'), title: 'single.qsp', startText: 'SINGLE START' },
@@ -41,6 +41,8 @@ export const ARCHIVES = {
 /** Authored source folders. */
 export const SOURCES = {
   single: fileURLToPath(new URL('./single-game/', import.meta.url)),
+  triple: fileURLToPath(new URL('./triple/', import.meta.url)),
+  second: fileURLToPath(new URL('./second/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
