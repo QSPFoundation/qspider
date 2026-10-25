@@ -10,7 +10,10 @@ const deferred = () => {
   });
   return { promise, resolve, reject };
 };
-const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+// trackWrite settles through a catch/finally chain: a few microtask ticks, no timers.
+const settle = async () => {
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+};
 
 describe('pendingWrites$ (tracked storage writes)', () => {
   beforeEach(() => {

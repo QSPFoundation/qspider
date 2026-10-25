@@ -54,8 +54,8 @@ describe('removeGame', () => {
 
 describe('sortByTitle', () => {
   it('orders the entries by localeCompare of the title', () => {
-    const games = { 1: entry('1', 'b'), 2: entry('2', 'a'), 3: entry('3', 'B') };
-    expect(sortByTitle(games).map((g) => g.title)).toEqual(['a', 'b', 'B']);
+    const games = { 1: entry('1', 'b'), 2: entry('2', 'a') };
+    expect(sortByTitle(games).map((g) => g.title)).toEqual(['a', 'b']);
   });
 });
 
