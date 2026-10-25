@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { PlayerConfig } from '@qspider/contracts';
-import { configKind, entriesFromConfig, findDuplicateIds, findMissingFiles } from './config-entries';
+import {
+  configKind,
+  entriesFromConfig,
+  fallbackEntry,
+  findConfigEntry,
+  findDuplicateIds,
+  findMissingFiles,
+} from './config-entries';
 
 describe('entriesFromConfig', () => {
   it('maps every [[game]] to an entry sharing the load location', () => {
@@ -94,5 +101,44 @@ describe('findDuplicateIds', () => {
       ],
     } as PlayerConfig;
     expect(findDuplicateIds(entriesFromConfig(config, 'p/', '/d', 'u'))).toEqual([]);
+  });
+});
+
+describe('findConfigEntry', () => {
+  const entries = entriesFromConfig(
+    {
+      game: [
+        { id: 'a', title: 'First', file: 'first/game.qsps' },
+        { id: 'b', title: 'Second', file: 'second.qsp' },
+      ],
+    } as PlayerConfig,
+    'qsp://localhost/u1/',
+    '/games',
+    'u1',
+  );
+
+  it('finds the entry whose game file is the opened file', () => {
+    expect(findConfigEntry(entries, 'second.qsp')?.id).toBe('b');
+  });
+
+  it('finds nothing for a file the config does not list', () => {
+    expect(findConfigEntry(entries, 'other.qsp')).toBeUndefined();
+  });
+});
+
+describe('fallbackEntry', () => {
+  it('builds a classic entry titled by the file name that points at its folder', () => {
+    expect(fallbackEntry('/games/dir/game.qsp', 'game.qsp', 'qsp://localhost/u1/', '/games/dir', 'u1')).toEqual({
+      id: 'dfc52f8363398',
+      title: 'game.qsp',
+      mode: 'classic',
+      loadConfig: { url: 'qsp://localhost/u1/', entrypoint: 'game.qsp', local_path: '/games/dir', local_id: 'u1' },
+    });
+  });
+
+  it('derives the same id from the same path regardless of the session', () => {
+    const first = fallbackEntry('/games/dir/game.qsp', 'game.qsp', 'qsp://localhost/u1/', '/games/dir', 'u1');
+    const second = fallbackEntry('/games/dir/game.qsp', 'game.qsp', 'qsp://localhost/u2/', '/games/dir', 'u2');
+    expect(second.id).toBe(first.id);
   });
 });
