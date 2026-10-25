@@ -38,8 +38,8 @@ export function parseQspiderFileUrl(url: string): { gameId: string; path: string
   return { gameId: decodeURI(gameId), path: decodeURI(path) };
 }
 
-export /** The Content-Type of a known file extension; unknown ones get none (the browser decides, as before). */
-function contentTypeOf(path: string): string | undefined {
+/** The Content-Type of a known file extension; unknown ones get none (the browser decides, as before). */
+export function contentTypeOf(path: string): string | undefined {
   const name = path.slice(path.lastIndexOf('/') + 1);
   const dot = name.lastIndexOf('.');
   return dot === -1 ? undefined : MIME_TYPES[name.slice(dot + 1).toLowerCase()];

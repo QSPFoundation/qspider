@@ -2,6 +2,7 @@ import {
   fetchCatalogGame,
   games$,
   goToGame,
+  hasNewerVersion,
   loadGamesFromStorage,
   locationSettled,
   moveToShelf,
@@ -76,8 +77,7 @@ export async function init(): Promise<void> {
       try {
         loadingMessage$.set(i18n.t('Checking for updates...'));
         const catalogGame = await fetchCatalogGame(catalogId);
-        const catalogDate = new Date(catalogGame.updated_at).getTime();
-        if ((existing.meta?.source_date ?? 0) < catalogDate) {
+        if (hasNewerVersion(existing.meta?.source_date ?? 0, catalogGame.updated_at)) {
           loadingMessage$.set(i18n.t('Updating game from catalog...'));
           const [imported] = await moveToShelf(catalogGame);
           if (imported) {
