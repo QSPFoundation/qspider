@@ -36,8 +36,8 @@ export const ARCHIVES = {
   reimportV1Zip: { path: out('reimport-v1.zip'), title: 'Reimport game (v1)', startText: 'REIMPORT V1 START' },
   reimportV2Zip: { path: out('reimport-v2.zip'), title: 'Reimport game (v2)', startText: 'REIMPORT V2 START' },
   /** The UTF-16 game (fixtures/utf16-game) with its game.cfg re-encoded as UTF-16 LE: the archive, and a plain folder. */
-  utf16Zip: { path: out('utf16-game.zip'), title: 'UTF-16 game' },
-  utf16Folder: { path: out('utf16-folder'), configPath: out('utf16-folder/game.cfg'), title: 'UTF-16 game' },
+  utf16Zip: { path: out('utf16-game.zip'), title: 'UTF-16 гра' },
+  utf16Folder: { path: out('utf16-folder'), configPath: out('utf16-folder/game.cfg'), title: 'UTF-16 гра' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
