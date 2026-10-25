@@ -2,6 +2,7 @@ import {
   fetchCatalogGame,
   games$,
   goToGame,
+  hasNewerVersion,
   loadGamesFromStorage,
   locationSettled,
   moveToShelf,
@@ -23,7 +24,7 @@ import { importUrl } from '@qspider/importers';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { prepareBaseUrl } from '@qspider/utils';
-import { GameShelfEntry } from '@qspider/contracts';
+import { findCatalogEntry } from './catalog-launch';
 
 import { setupEnv } from '@qspider/env';
 
@@ -57,13 +58,7 @@ export async function init(): Promise<void> {
   }
   const catalogId = urlParams.get('catalogId');
   if (catalogId) {
-    let existing: GameShelfEntry | undefined;
-    for (const game of Object.values(games$.value)) {
-      if (game.meta?.source_id === catalogId) {
-        existing = game;
-        break;
-      }
-    }
+    const existing = findCatalogEntry(games$.value, catalogId);
     if (!existing) {
       try {
         loadingMessage$.set(i18n.t('Loading game from catalog...'));
@@ -82,8 +77,7 @@ export async function init(): Promise<void> {
       try {
         loadingMessage$.set(i18n.t('Checking for updates...'));
         const catalogGame = await fetchCatalogGame(catalogId);
-        const catalogDate = new Date(catalogGame.updated_at).getTime();
-        if ((existing.meta?.source_date ?? 0) < catalogDate) {
+        if (hasNewerVersion(existing.meta?.source_date ?? 0, catalogGame.updated_at)) {
           loadingMessage$.set(i18n.t('Updating game from catalog...'));
           const [imported] = await moveToShelf(catalogGame);
           if (imported) {

@@ -4,32 +4,19 @@ import { atom } from 'xoid';
 import { games$ } from './game-shelf';
 import i18n from '@qspider/i18n';
 import { GameShelfEntry } from '@qspider/contracts';
+import {
+  authorsUrl,
+  catalogEntryFields,
+  catalogUrl,
+  hasNewerVersion,
+  isUpdateCheckDue,
+  nextSortDirection,
+  sourceName,
+  type CatalogAuthor,
+  type CatalogGame,
+} from './catalog-rules';
 
-export interface CatalogGame {
-  slug: string;
-  name: string;
-  lang: string | null;
-  ver: string;
-  authors: string;
-  translators: string | null;
-  description_html: string;
-  file_url: string;
-  file_name: string | null;
-  file_size: number | null;
-  icon_url: string | null;
-  cover_url: string | null;
-  downloads_count: number;
-  plays_count: number;
-  likes_count: number;
-  comments_count: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CatalogAuthor {
-  names: string;
-  games_count: number;
-}
+export { sourceName, type CatalogAuthor, type CatalogGame };
 
 export const qspCatalogList$ = atom<CatalogGame[]>([]);
 export const qspAuthorFilter$ = atom('');
@@ -45,14 +32,11 @@ export const qspAuthorsLoading$ = atom(false);
 type CatalogLoadingState = 'pending' | 'loading' | 'loading-more' | 'loaded' | 'failed';
 
 export const catalogLoading$ = atom<CatalogLoadingState>('pending');
-export const sourceName = 'qsp.org';
 const CATALOG_URL = 'https://qsp.org/api/v1/games';
-const AUTHORS_URL = 'https://qsp.org/api/v1/games/authors';
 
 export const gameUpdates$ = atom<Record<string, CatalogGame | null>>({});
 
 const UPDATE_CHECKS_KEY = 'qspider_update_checks';
-const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
 function getUpdateCheckCache(): Record<string, number> {
   try {
@@ -73,11 +57,10 @@ export async function checkForUpdates(): Promise<void> {
   const updates: Record<string, CatalogGame | null> = {};
   for (const game of shelfGames) {
     const slug = game.meta!.source_id;
-    if (now - (cache[slug] ?? 0) < ONE_DAY_MS) continue;
+    if (!isUpdateCheckDue(cache[slug], now)) continue;
     try {
       const catalogGame = await fetchCatalogGame(slug);
-      const catalogDate = new Date(catalogGame.updated_at).getTime();
-      updates[game.id] = game.meta!.source_date < catalogDate ? catalogGame : null;
+      updates[game.id] = hasNewerVersion(game.meta!.source_date, catalogGame.updated_at) ? catalogGame : null;
       cache[slug] = now;
     } catch {
       // ignore failed checks
@@ -101,10 +84,7 @@ export async function loadQspAuthors(): Promise<void> {
     let page = 1;
     const allAuthors: CatalogAuthor[] = [];
     while (true) {
-      const url = new URL(AUTHORS_URL);
-      url.searchParams.set('page', String(page));
-      url.searchParams.set('per-page', '100');
-      const request = await fetch(url.toString());
+      const request = await fetch(authorsUrl(page));
       if (!request.ok) throw new Error('Failed to load authors');
       const data = await request.json();
       const authors: CatalogAuthor[] = data.data ?? data;
@@ -131,20 +111,15 @@ export async function loadQspCatalog(page = 1, reset = true): Promise<void> {
     catalogLoading$.value = 'loading-more';
   }
   try {
-    const url = new URL(CATALOG_URL);
-    url.searchParams.set('page', String(page));
-    url.searchParams.set('per-page', '20');
-    const sortField = qspSortByField$.value;
-    const sortDirection = qspSortDirection$.value;
-    url.searchParams.set('sort', sortField);
-    url.searchParams.set('order', sortDirection);
-    const titleSearch = qspTitleSearch$.value;
-    if (titleSearch) url.searchParams.set('search-name', titleSearch);
-    const authorFilter = qspAuthorFilter$.value;
-    if (authorFilter) url.searchParams.set('search-authors', authorFilter);
-    const featured = qspFeaturedFilter$.value;
-    if (featured) url.searchParams.set('featured', '1');
-    const request = await fetch(url.toString());
+    const url = catalogUrl({
+      page,
+      sort: qspSortByField$.value,
+      order: qspSortDirection$.value,
+      title: qspTitleSearch$.value,
+      author: qspAuthorFilter$.value,
+      featured: qspFeaturedFilter$.value,
+    });
+    const request = await fetch(url);
     if (!request.ok) throw new Error('Failed to load catalog');
     const data = await request.json();
     const games: CatalogGame[] = data.data ?? data;
@@ -171,17 +146,7 @@ export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> 
   try {
     const imported = await importUrl(game.file_url, game.file_name ?? `${game.slug}.qsp`);
     for (const entry of imported) {
-      entry.title = game.name;
-      entry.description = game.description_html;
-      entry.icon = game.icon_url ?? '';
-      entry.author = game.authors;
-      entry.ported_by = game.translators ?? '';
-      entry.version = game.ver;
-      entry.meta = {
-        source: sourceName,
-        source_id: game.slug,
-        source_date: new Date(game.updated_at).getTime(),
-      };
+      Object.assign(entry, catalogEntryFields(game));
       games$.actions.add(entry.id, entry);
       showNotice(
         i18n.t(`{{ name }} added to shelf`, {
@@ -198,5 +163,5 @@ export async function moveToShelf(game: CatalogGame): Promise<GameShelfEntry[]> 
 }
 
 export function toggleSortDirection(): void {
-  qspSortDirection$.update((current) => (current === 'asc' ? 'desc' : 'asc'));
+  qspSortDirection$.update((current) => nextSortDirection(current));
 }

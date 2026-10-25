@@ -75,7 +75,7 @@
       "executor": "nx:run-commands",
       "options": {
         "cwd": "{projectRoot}",
-        "command": "tsc -p tsconfig.app.json --noEmit"
+        "commands": ["tsc -p tsconfig.app.json --noEmit", "tsc -p tsconfig.spec.json --noEmit"]
       }
     }
   }

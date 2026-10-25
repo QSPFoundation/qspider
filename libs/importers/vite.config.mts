@@ -10,5 +10,7 @@ export default defineConfig({
     name: 'importers',
     environment: 'node',
     include: ['src/**/*.spec.ts'],
+    // iarna-toml-esm ships ES modules in a CommonJS package, so Node cannot load it unbundled
+    server: { deps: { inline: ['iarna-toml-esm'] } },
   },
 });

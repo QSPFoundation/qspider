@@ -1,24 +1,20 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { cyrb53, fetchProxyFallback, parseToml } from '@qspider/utils';
+import { fetchProxyFallback, parseToml } from '@qspider/utils';
 import { isSupportedArchive } from './utils';
 import { importArchive } from './archive-importer';
+import { splitGameUrl, urlConfigEntry, urlFallbackEntry } from './import-entries';
 
 export async function importUrl(
   url: string,
   name?: string,
   rootDescriptor?: GameDescriptor,
 ): Promise<GameShelfEntry[]> {
-  const urlObject = new URL(url);
-  urlObject.hash = '';
-  urlObject.search = '';
-  const cleanUrl = urlObject.toString();
+  const { cleanUrl, base, fileName } = splitGameUrl(url);
   const content = await fetchProxyFallback(url).then((r) => {
     if (!r.ok) throw new Error(`Failed to load url ${url}`);
     return r.arrayBuffer();
   });
   if (isSupportedArchive(content)) return importArchive(name || cleanUrl, content, rootDescriptor);
-  const base = cleanUrl.slice(0, cleanUrl.lastIndexOf('/') + 1);
-  const fileName = cleanUrl.replace(base, '');
   if (fileName.endsWith('.cfg')) {
     const rawConfig = new TextDecoder().decode(content);
     const config = parseToml<PlayerConfig>(rawConfig);
@@ -35,38 +31,9 @@ export async function importUrl(
       const config = parseToml<PlayerConfig>(rawConfig);
       const found = config.game.find((game) => game.file === fileName);
       if (!found) throw new Error('Config not found');
-      return [
-        {
-          id: found.id,
-          mode: found.mode,
-          title: found.title,
-          author: found.author,
-          ported_by: found.ported_by,
-          version: found.version,
-          description: found.description,
-          loadConfig: {
-            url: base,
-            entrypoint: found.file,
-          },
-        },
-      ];
+      return [urlConfigEntry(found, base)];
     } catch {
-      return [
-        {
-          id: rootDescriptor?.id || cyrb53(cleanUrl),
-          title: rootDescriptor?.title || fileName,
-          mode: rootDescriptor?.mode || 'classic',
-          author: rootDescriptor?.author,
-          ported_by: rootDescriptor?.ported_by,
-          version: rootDescriptor?.version,
-          description: rootDescriptor?.description,
-          loadConfig: {
-            url: base,
-            entrypoint: fileName,
-            descriptor: rootDescriptor,
-          },
-        },
-      ];
+      return [urlFallbackEntry(cleanUrl, base, fileName, rootDescriptor)];
     }
   }
 }

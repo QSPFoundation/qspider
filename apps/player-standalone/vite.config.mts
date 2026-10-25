@@ -46,6 +46,12 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    test: {
+      name: 'player-standalone',
+      environment: 'node',
+      include: ['src/**/*.spec.ts'],
+    },
+
     resolve: {
       alias: {
         '@qspider/env': resolve(

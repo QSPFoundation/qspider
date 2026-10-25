@@ -1,13 +1,15 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { GameShelfEntry } from '@qspider/contracts';
-
-vi.mock('@tauri-apps/plugin-os', () => ({ platform: () => 'linux' }));
 
 import { migrateGameUrls } from './storage-migration';
 
 const build = (id: string) => `qsp://localhost/${id}/`;
 
-function makeGames(url: string, icon?: string, localId: string | null = 'u1') {
+function makeGames(
+  url: string,
+  icon?: string,
+  localId: string | null = 'u1',
+): Record<string, GameShelfEntry> & { g: GameShelfEntry } {
   return {
     g: {
       id: 'g',
@@ -16,7 +18,7 @@ function makeGames(url: string, icon?: string, localId: string | null = 'u1') {
       icon,
       loadConfig: { url, entrypoint: 'a.qsp', local_id: localId ?? undefined, local_path: '/x' },
     },
-  } as Record<string, GameShelfEntry>;
+  } as Record<string, GameShelfEntry> & { g: GameShelfEntry };
 }
 
 describe('migrateGameUrls', () => {

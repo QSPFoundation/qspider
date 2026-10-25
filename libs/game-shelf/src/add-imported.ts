@@ -2,6 +2,7 @@ import { TFunction } from 'i18next';
 import { GameShelfEntry } from '@qspider/contracts';
 import { showNotice } from '@qspider/game-state';
 import { games$ } from './game-shelf';
+import { importOutcome } from './import-outcome';
 
 /**
  * The shared start decision after an import (web and desktop: launch, drop, Open game).
@@ -11,13 +12,13 @@ import { games$ } from './game-shelf';
  * - none: throws.
  */
 export function addImported(imported: GameShelfEntry[], t: TFunction): string | undefined {
-  if (!imported.length) throw new Error('No games imported');
+  const outcome = importOutcome(imported);
   for (const entry of imported) {
     games$.actions.add(entry.id, entry);
   }
-  if (imported.length > 1) {
-    showNotice(t(`{{ count }} games added to shelf`, { count: imported.length }));
+  if ('notice' in outcome) {
+    showNotice(t(`{{ count }} games added to shelf`, { count: outcome.notice }));
     return undefined;
   }
-  return imported[0].id;
+  return outcome.start;
 }

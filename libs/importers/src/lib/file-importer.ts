@@ -1,6 +1,7 @@
 import { cyrb53 } from '@qspider/utils';
 import { isSupportedArchive } from './utils';
 import { importArchive } from './archive-importer';
+import { fileEntry } from './import-entries';
 import { GameShelfEntry } from '@qspider/contracts';
 import { getStorage } from '@qspider/env';
 
@@ -10,12 +11,5 @@ export async function importFile(fileName: string, content: ArrayBuffer): Promis
   if (isSupportedArchive(content)) return importArchive(fileName, content);
   const game_id = cyrb53(fileName);
   await storage.addGameResource(game_id, fileName, content);
-  return [
-    {
-      id: cyrb53(fileName),
-      title: fileName,
-      mode: 'classic',
-      loadConfig: await storage.prepareLoadConfig(game_id, fileName),
-    },
-  ];
+  return [fileEntry(fileName, await storage.prepareLoadConfig(game_id, fileName))];
 }

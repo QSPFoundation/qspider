@@ -4,8 +4,7 @@ import Backend, { ChainedBackendOptions } from 'i18next-chained-backend';
 import Fetch from 'i18next-fetch-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import { ThemeTranslation } from '@qspider/contracts';
-
-const locales = ['en-US', 'en', 'ru-RU', 'uk-UA', 'zh'];
+import { formatDateIn, groupThemeTranslations, LOCALES } from './translations';
 
 i18n
   .use(Backend)
@@ -13,7 +12,7 @@ i18n
   .use(initReactI18next)
   .init<ChainedBackendOptions>({
     fallbackLng: 'en',
-    supportedLngs: locales,
+    supportedLngs: LOCALES,
     defaultNS: 'theme',
     fallbackNS: 'translation',
     load: 'currentOnly',
@@ -36,14 +35,7 @@ i18n
   });
 
 export function loadThemeTranslations(translations: ThemeTranslation[]): void {
-  const prepared: Record<string, Record<string, string>> = {};
-
-  for (const translation of translations) {
-    if (!locales.includes(translation.lang)) continue;
-    const bundle = prepared[translation.lang] ?? {};
-    bundle[translation.tkey] = translation.value;
-    prepared[translation.lang] = bundle;
-  }
+  const prepared = groupThemeTranslations(translations, LOCALES);
 
   for (const [locale, bundle] of Object.entries(prepared)) {
     i18n.addResourceBundle(locale, 'theme', bundle, true, true);
@@ -51,13 +43,13 @@ export function loadThemeTranslations(translations: ThemeTranslation[]): void {
 }
 
 export function unloadThemeTranslations(): void {
-  for (const locale of locales) {
+  for (const locale of LOCALES) {
     i18n.removeResourceBundle(locale, 'theme');
   }
 }
 
 export function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat(i18n.language, { dateStyle: 'long', timeStyle: 'short' }).format(date);
+  return formatDateIn(i18n.language, date);
 }
 
 export default i18n;

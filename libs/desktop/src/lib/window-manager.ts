@@ -4,6 +4,7 @@ import { LogicalSize, PhysicalSize } from '@tauri-apps/api/dpi';
 import { platform } from '@tauri-apps/plugin-os';
 import { exit } from '@tauri-apps/plugin-process';
 import { fetchBinaryContent } from './data-fetcher';
+import { adjustHeightFor, clampToMonitor, windowPlatformName } from './window-geometry';
 
 const appWindow = getCurrentWindow();
 
@@ -14,12 +15,8 @@ export const windowManager: IWindowManager = {
     const monitor = await currentMonitor();
     if (monitor) {
       const monitorSize = new PhysicalSize(monitor.size.width, monitor.size.height).toLogical(monitor.scaleFactor);
-      if (width > monitorSize.width - 1) {
-        width = monitorSize.width - 1;
-      }
-      if (height > monitorSize.height - 1) {
-        height = monitorSize.height - 1;
-      }
+      width = clampToMonitor(width, monitorSize.width);
+      height = clampToMonitor(height, monitorSize.height);
     }
     appWindow.setSize(new LogicalSize(width, await adjustHeight(height)));
   },
@@ -56,17 +53,11 @@ export const windowManager: IWindowManager = {
   },
 };
 
-// solwing a bug https://github.com/tauri-apps/tauri/issues/6333
 async function adjustHeight(height: number): Promise<number> {
-  return platform() === 'macos' ? height + 28 : height;
+  return adjustHeightFor(platform(), height);
 }
 
-const platformsMap: Record<string, string> = {
-  macos: 'Macintosh',
-  linux: 'Linux',
-  windows: 'Windows',
-};
-const resolvedPlatform = platformsMap[platform()];
+const resolvedPlatform = windowPlatformName(platform());
 if (resolvedPlatform) {
   windowManager.platform = resolvedPlatform;
 }

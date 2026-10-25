@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { isExternalUrl } from './path';
+import { cleanPath, isExternalUrl } from './path';
+
+describe('cleanPath', () => {
+  it('turns backslashes into forward slashes', () => {
+    expect(cleanPath('img\\sub\\A.PNG')).toBe('img/sub/A.PNG');
+  });
+
+  it('leaves forward-slash paths untouched', () => {
+    expect(cleanPath('img/a.png')).toBe('img/a.png');
+  });
+});
 
 describe('isExternalUrl', () => {
   it.each([

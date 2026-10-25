@@ -1,9 +1,11 @@
 import { stringify, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { cyrb53, parseToml } from '@qspider/utils';
+import { parseToml } from '@qspider/utils';
 import { getStorage } from '@qspider/env';
 import { isSupportedArchive, readSupportedArchive } from './utils';
 import type { FileDir, File } from './utils';
+import { findRootDescriptorFolder, findRootGameFileFolder, getGameFolder } from './archive-tree';
+import { archiveFallbackEntry, archiveGameId, descriptorEntry } from './import-entries';
 
 export async function importArchive(
   archiveName: string,
@@ -44,108 +46,24 @@ export async function importArchive(
       games.map(async (game) => {
         const file = game.file.slice(game.file.lastIndexOf('/') + 1);
         const loadConfig = await storage.prepareLoadConfig(game.id, file);
-        let icon = game.resources?.icon;
-        if (icon) {
-          icon = `${loadConfig.url}${icon}`;
-        }
-        return {
-          id: game.id,
-          mode: game.mode,
-          title: game.title,
-          author: game.author,
-          ported_by: game.ported_by,
-          version: game.version,
-          description: game.description,
-          icon,
-          loadConfig: {
-            ...loadConfig,
-            descriptor: game,
-          },
-        };
+        return descriptorEntry(game, loadConfig);
       }),
     );
   }
   const rootGameFile = findRootGameFileFolder(root);
   if (rootGameFile) {
     const [gameFolder, filename] = rootGameFile;
-    const game_id = rootDescriptor?.id || cyrb53(archiveName);
+    const game_id = archiveGameId(archiveName, rootDescriptor);
     await storeFolderContent(game_id, gameFolder);
     if (rootDescriptor) {
       const descriptorContent = stringify({ game: [rootDescriptor] } as unknown as JsonMap);
       await storage.addGameResource(game_id, GAME_DESCRIPTOR_NAME, new TextEncoder().encode(descriptorContent).buffer);
     }
     const loadConfig = await storage.prepareLoadConfig(game_id, filename);
-    let icon = rootDescriptor?.resources?.icon;
-    if (icon) {
-      icon = `${loadConfig.url}${icon}`;
-    }
-    return [
-      {
-        id: game_id,
-        title: rootDescriptor?.title || decodeURI(archiveName.slice(archiveName.lastIndexOf('/') + 1)),
-        mode: rootDescriptor?.mode || (archiveName.endsWith('aqsp') ? 'aero' : 'classic'),
-        author: rootDescriptor?.author,
-        ported_by: rootDescriptor?.ported_by,
-        version: rootDescriptor?.version,
-        description: rootDescriptor?.description,
-        icon,
-        loadConfig,
-      },
-    ];
+    return [archiveFallbackEntry(archiveName, loadConfig, rootDescriptor)];
   }
 
   throw new Error('Game files not found inside archive');
-}
-
-function findRootDescriptorFolder(root: FileDir): [FileDir, Uint8Array] | null {
-  for (const entry of root.content) {
-    if (entry.type === 'file' && entry.name === GAME_DESCRIPTOR_NAME) {
-      return [root, entry.data];
-    }
-  }
-  for (const entry of root.content) {
-    if (entry.type === 'dir') {
-      const found = findRootDescriptorFolder(entry);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-function findRootGameFileFolder(root: FileDir): [FileDir, string] | null {
-  let qspFile: string | null = null;
-  let qspsFile: string | null = null;
-  for (const entry of root.content) {
-    if (entry.type === 'file') {
-      if (entry.name.endsWith('.qsp') || entry.name.endsWith('.gam')) {
-        qspFile = entry.name;
-      }
-      if (entry.name.endsWith('.qsps')) {
-        qspsFile = entry.name;
-      }
-    }
-  }
-  if (qspFile) return [root, qspFile];
-  if (qspsFile) return [root, qspsFile];
-  for (const entry of root.content) {
-    if (entry.type === 'dir') {
-      const found = findRootGameFileFolder(entry);
-      if (found) return found;
-    }
-  }
-  return null;
-}
-
-function getGameFolder(root: FileDir, filename: string): FileDir {
-  const path = filename.split('/');
-  path.pop();
-  let dir: FileDir = root;
-  for (const dirName of path) {
-    const existing = dir.content.find((d): d is FileDir => d.type === 'dir' && d.name === dirName);
-    if (!existing) throw new Error(`Failed to find game file ${filename} in archvive`);
-    dir = existing;
-  }
-  return dir;
 }
 
 async function readGameDescriptor(data: Uint8Array): Promise<GameDescriptor[]> {
