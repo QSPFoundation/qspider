@@ -19,9 +19,3 @@ export function resourceRoute(os: DesktopOs, url: string): 'game' | 'app-asset' 
 export function appAssetUrl(url: string): string {
   return new URL(url).href;
 }
-
-/** UTF-16LE when the bytes start with its BOM (old files written on Windows), otherwise UTF-8. */
-export function decodeText(data: Uint8Array): string {
-  const encoding = data[0] === 255 && data[1] === 254 ? 'utf-16le' : 'utf-8';
-  return new TextDecoder(encoding).decode(data);
-}

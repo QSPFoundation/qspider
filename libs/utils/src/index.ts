@@ -6,3 +6,4 @@ export * from './throttle';
 export * from './path';
 export * from './toml';
 export * from './env';
+export * from './text';
