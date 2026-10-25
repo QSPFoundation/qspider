@@ -6,6 +6,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { ARCHIVES } from './archives';
 import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
+import { STANDALONE_STAGE, stageStandalonePublic } from '../targets/standalone/stage-public';
 import { DIALOGS } from './dialogs-game';
 import { GAME_HTML } from './game-html-game';
 import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
@@ -36,6 +37,13 @@ describe('buildFixtures', () => {
     ]) {
       expect(startsWith(path, [0x50, 0x4b]), path).toBe(true);
     }
+  });
+
+  it('stores the UTF-16 game.cfg (archive, folder, staged standalone) as UTF-16 LE with a BOM', () => {
+    stageStandalonePublic();
+    expect(unzipSync(bytes(ARCHIVES.utf16Zip.path))['game.cfg']!.slice(0, 2)).toEqual(new Uint8Array([0xff, 0xfe]));
+    expect(startsWith(ARCHIVES.utf16Folder.configPath, [0xff, 0xfe])).toBe(true);
+    expect(startsWith(join(STANDALONE_STAGE, 'game/game.cfg'), [0xff, 0xfe])).toBe(true);
   });
 
   it('writes the 7z with the 7z magic', () => {

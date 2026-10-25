@@ -12,6 +12,7 @@ import { LOOK_IMAGES } from './look-game';
 import { quietWav, squareFont } from './resource-assets';
 import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from './resources-game';
 import { TEST_PACK } from './test-pack';
+import { utf16 } from './utf16';
 
 const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
 
@@ -116,6 +117,14 @@ export async function buildFixtures(): Promise<void> {
       'three/game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
     } as Zippable),
   );
+  const utf16Files = {
+    'game.cfg': utf16(readFileSync(join(SOURCES.utf16, 'game.cfg'), 'utf8')),
+    'utf16.qsps': readFileSync(join(SOURCES.utf16, 'utf16.qsps')),
+    'css/utf16.css': readFileSync(join(SOURCES.utf16, 'css/utf16.css')),
+  };
+  write(ARCHIVES.utf16Zip.path, zipSync(utf16Files as Zippable));
+  for (const [name, data] of Object.entries(utf16Files))
+    write(join(dirname(ARCHIVES.utf16Folder.configPath), name), data);
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
