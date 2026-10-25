@@ -45,6 +45,7 @@ import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
 import { checkCondition } from './conditions';
+import { showError } from './toasts';
 
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
@@ -216,12 +217,17 @@ qspApi$.subscribe((api) => {
       onOpened();
       return;
     }
-    withCounterPaused(async () => {
-      const source = await fetchBinaryContent(baseUrl$.value, file);
-      let gameSource = source;
-      const isQsps = file.toLowerCase().endsWith('.qsps');
-      if (isQsps) {
-        gameSource = convertQsps(source);
+    // The engine is suspended inside the statement until onOpened() is called: it must be called even when
+    // the file fails to load, so the statement goes on as if the file added nothing.
+    await withCounterPaused(async () => {
+      let gameSource: ArrayBuffer;
+      try {
+        const source = await fetchBinaryContent(baseUrl$.value, file);
+        gameSource = file.toLowerCase().endsWith('.qsps') ? convertQsps(source) : source;
+      } catch (error) {
+        showError(`Failed to open ${file}: ${error instanceof Error ? error.message : String(error)}`);
+        onOpened();
+        return;
       }
       if (isNewGame) {
         const path = cleanPath(file);
