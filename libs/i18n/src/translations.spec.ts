@@ -49,6 +49,6 @@ describe('groupThemeTranslations', () => {
 
 describe('formatDateIn', () => {
   it('formats the date part in long style for the language', () => {
-    expect(formatDateIn('en', new Date(Date.UTC(2026, 9, 25, 12, 30)))).toContain('October 25, 2026');
+    expect(formatDateIn('en', new Date(2026, 9, 25, 12, 30))).toContain('October 25, 2026');
   });
 });
