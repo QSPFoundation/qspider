@@ -5,6 +5,8 @@ import { useAtom } from '@xoid/react';
 import { isNoticeShown$, noticeMessage$ } from '@qspider/game-state';
 import { useTranslation } from 'react-i18next';
 
+import './toast.css';
+
 export const NoticeToast: React.FC = () => {
   const isOpen = useAtom(isNoticeShown$);
   const message = useAtom(noticeMessage$);

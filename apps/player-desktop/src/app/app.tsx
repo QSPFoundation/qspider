@@ -5,13 +5,13 @@ import { ProvidedComponents } from '@qspider/contracts';
 import { isSupportedFileType } from './utils';
 
 import { init } from './init';
-import { QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
+import { ErrorAlert, NoticeToast, QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
 import { baseInit$, componentsRegistry$, currentGame$, showError, stopCurrentGame } from '@qspider/game-state';
 import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
 import './desktop.css';
-import { addImported, ErrorAlert, goToGame, NoticeToast, PlayerWithShelf } from '@qspider/game-shelf';
+import { addImported, goToGame, PlayerWithShelf } from '@qspider/game-shelf';
 import { useTranslation } from 'react-i18next';
 
 componentsRegistry$.actions.register(ProvidedComponents.OpenGameButton, OpenGameButton);
