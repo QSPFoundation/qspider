@@ -12,6 +12,7 @@ import {
 import { atom } from 'xoid';
 import history from 'history/browser';
 import { getStorage } from '@qspider/env';
+import { routeOf } from './location-route';
 import { pendingWrites$, trackWrite } from './pending-writes';
 import { addGame, removeGame, sortByTitle, sourceMap, updateGame } from './shelf-state';
 
@@ -69,11 +70,10 @@ export function locationSettled(): Promise<void> {
 }
 
 export async function processLocationChange(location: string): Promise<void> {
-  const search = new URLSearchParams(location);
-  const game_id = search.get('run');
-  if (game_id) {
-    if (currentGame$.value?.id === game_id) {
-      if (search.has('pause')) {
+  const route = routeOf(location);
+  if (route.kind === 'run') {
+    if (currentGame$.value?.id === route.gameId) {
+      if (route.pause) {
         onOpenPauseScreen();
       } else {
         onClosePauseScreen();
@@ -81,13 +81,13 @@ export async function processLocationChange(location: string): Promise<void> {
       return;
     }
     await initDeferred$.value.promise;
-    const descriptor = games$.value[game_id];
+    const descriptor = games$.value[route.gameId];
     await runGame(descriptor);
-    if (search.has('pause')) {
+    if (route.pause) {
       onOpenPauseScreen();
     }
     currentMode$.set('game');
-  } else if (search.has('catalog')) {
+  } else if (route.kind === 'catalog') {
     if (currentGameEntry$.value) stopCurrentGame();
     currentMode$.set('catalog');
   } else {
