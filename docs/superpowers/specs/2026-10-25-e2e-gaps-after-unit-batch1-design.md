@@ -11,6 +11,9 @@ Follow-up to Phase 4 PR 1 (#185, merged 2026-10-25), per `2026-10-25-unit-tests-
 - A separate PR, right after #185.
 - **The UTF-16 direct-open case is a bug, fixed in this PR.** Opening a `game.cfg` directly on desktop (Open game, drop, or launch with `--file=`) decodes it as UTF-8 only (`libs/desktop/src/lib/desktop-importer.ts`, `new TextDecoder().decode(content)`). The same file inside an archive or folder goes through `fetchTextContent`, whose `decodeText` handles a UTF-16 LE BOM. Commit order: a red `test(...)` scenario first, then a `fix(...)` that decodes with the same `decodeText` (from `resource-route.ts`).
 - **The web player has the same bug, and it is fixed in this PR too.** `libs/browser/src/lib/data-fetcher.ts` `fetchTextContent` returns `r.text()`, which always decodes UTF-8, so a UTF-16 `game.cfg` that works on desktop fails in the web and standalone web players. The fix: both platforms decode text with one shared BOM-aware decoder. Claude's call: move `decodeText` from `libs/desktop/src/lib/resource-route.ts` to `@qspider/utils`, keep its unit test with it, and have both fetchers and the desktop direct-open path use it. The commit order is again a red `test(...)` first, then the `fix(...)`.
+- **Added during the build (2026-10-25), both fixed in this PR:**
+  - The standalone app mounted neither the error alert nor the notice toast, so every error and notice was invisible in both standalone builds. The two components move from `@qspider/game-shelf` to `@qspider/renderer`, and the standalone app mounts them.
+  - When the games of a multi-game archive sit in the same folder as its `game.cfg`, the importer copied the cfg's first entry onto every game, so only one game reached the shelf (`libs/importers/src/lib/archive-importer.ts`). Each game now keeps its own entry.
 - The rules from earlier phases apply unchanged (listed under Constraints).
 
 ## The five behaviours and how each is proven
