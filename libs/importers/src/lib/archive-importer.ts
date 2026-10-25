@@ -1,6 +1,6 @@
 import { stringify, JsonMap } from 'iarna-toml-esm';
 import { GAME_DESCRIPTOR_NAME, GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { parseToml } from '@qspider/utils';
+import { decodeText, parseToml } from '@qspider/utils';
 import { getStorage } from '@qspider/env';
 import { isSupportedArchive, readSupportedArchive } from './utils';
 import type { FileDir, File } from './utils';
@@ -67,9 +67,7 @@ export async function importArchive(
 }
 
 async function readGameDescriptor(data: Uint8Array): Promise<GameDescriptor[]> {
-  const blob = new Blob([data.slice()]); // slice() returns a copy as ArrayBuffer
-  const text = await blob.text();
-  const descriptor = parseToml<PlayerConfig>(text);
+  const descriptor = parseToml<PlayerConfig>(decodeText(data));
   return descriptor.game;
 }
 

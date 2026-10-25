@@ -1,5 +1,5 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
-import { fetchProxyFallback, parseToml } from '@qspider/utils';
+import { decodeText, fetchProxyFallback, parseToml } from '@qspider/utils';
 import { isSupportedArchive } from './utils';
 import { importArchive } from './archive-importer';
 import { splitGameUrl, urlConfigEntry, urlFallbackEntry } from './import-entries';
@@ -16,7 +16,7 @@ export async function importUrl(
   });
   if (isSupportedArchive(content)) return importArchive(name || cleanUrl, content, rootDescriptor);
   if (fileName.endsWith('.cfg')) {
-    const rawConfig = new TextDecoder().decode(content);
+    const rawConfig = decodeText(content);
     const config = parseToml<PlayerConfig>(rawConfig);
     const games = [];
     for (const descriptor of config.game) {
@@ -27,7 +27,7 @@ export async function importUrl(
   } else {
     const gameConfigUrl = `${base}game.cfg`;
     try {
-      const rawConfig = await fetchProxyFallback(gameConfigUrl).then((r) => r.text());
+      const rawConfig = await fetchProxyFallback(gameConfigUrl).then(async (r) => decodeText(await r.arrayBuffer()));
       const config = parseToml<PlayerConfig>(rawConfig);
       const found = config.game.find((game) => game.file === fileName);
       if (!found) throw new Error('Config not found');

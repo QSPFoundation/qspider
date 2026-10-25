@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { invoke } from '@tauri-apps/api/core';
 import { basename, dirname, isAbsolute, resolve } from '@tauri-apps/api/path';
 import { importArchive, isSupportedArchive } from '@qspider/importers';
-import { parseToml } from '@qspider/utils';
+import { decodeText, parseToml } from '@qspider/utils';
 import { fetchBinaryContent, fetchTextContent } from './data-fetcher';
 import {
   configKind,
@@ -34,12 +34,7 @@ export async function importDesktop(filePath: string): Promise<GameShelfEntry[]>
   }
 
   if (kind === 'game-config') {
-    const entries = entriesFromConfig(
-      parseToml<PlayerConfig>(new TextDecoder().decode(content)),
-      urlPrefix,
-      fileDir,
-      uuid,
-    );
+    const entries = entriesFromConfig(parseToml<PlayerConfig>(decodeText(content)), urlPrefix, fileDir, uuid);
     if (!entries.length) throw new Error('No games listed in game.cfg');
     const [duplicate] = findDuplicateIds(entries);
     if (duplicate) throw new Error(`game.cfg lists the id ${duplicate} more than once`);
