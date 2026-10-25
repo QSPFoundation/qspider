@@ -163,6 +163,13 @@ export async function buildFixtures(): Promise<void> {
   ] as const) {
     write(archive.path, zipSync({ 'game.cfg': readFileSync(join(SOURCES.resources, cfg)), ...resources } as Zippable));
   }
+  for (const [archive, cfg] of [
+    [ARCHIVES.externalThemeZip, 'game.cfg'],
+    [ARCHIVES.externalTheme404Zip, 'game-404.cfg'],
+  ] as const) {
+    const config = readFileSync(join(SOURCES.externalTheme, cfg), 'utf8');
+    write(archive.path, zipWithConfig(config, [[SOURCES.externalTheme, 'external-theme.qsps']]));
+  }
   // The plain folder keeps the real case on disk (the archives are lowercased by the players).
   const folder = dirname(ARCHIVES.resourcesFolder.path);
   write(join(folder, 'game.cfg'), readFileSync(join(SOURCES.resources, 'game.cfg')));

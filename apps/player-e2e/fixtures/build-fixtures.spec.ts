@@ -8,6 +8,7 @@ import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
 import { STANDALONE_STAGE, stageStandalonePublic } from '../targets/standalone/stage-public';
 import { DIALOGS } from './dialogs-game';
+import { EXTERNAL_THEME_GAME } from './external-theme-game';
 import { GAME_HTML } from './game-html-game';
 import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
 import { PANELS_GAME } from './panels-game';
@@ -104,6 +105,17 @@ describe('buildFixtures', () => {
     );
     expect(text(THEMED_GAME.path, 'e2e-theme.html')).toContain('<qspider-theme name="e2e-custom">');
     expect(text(THEMED_GAME.path, 'game.cfg')).toContain('defaultTheme = "e2e-custom"');
+  });
+
+  it('packs the external-theme games with the theme URLs the server answers', () => {
+    const source = (name: string): string =>
+      readFileSync(fileURLToPath(new URL(`./external-theme-game/${name}`, import.meta.url)), 'utf8');
+    expect(source('game.cfg')).toContain(`themes = ["${EXTERNAL_THEME_GAME.themeUrl}"]`);
+    expect(source('game.cfg')).toContain(`defaultTheme = "${EXTERNAL_THEME_GAME.alias}"`);
+    expect(source('game-404.cfg')).toContain(`themes = ["${EXTERNAL_THEME_GAME.missingThemeUrl}"]`);
+    expect(entries(ARCHIVES.externalThemeZip.path)).toEqual(['external-theme.qsps', 'game.cfg']);
+    expect(entries(ARCHIVES.externalTheme404Zip.path)).toEqual(['external-theme.qsps', 'game.cfg']);
+    expect(text(ARCHIVES.externalTheme404Zip.path, 'game.cfg')).toContain(EXTERNAL_THEME_GAME.missingThemeUrl);
   });
 
   it('packs the missing-theme games with an unregistered defaultTheme, one in Aero mode', () => {

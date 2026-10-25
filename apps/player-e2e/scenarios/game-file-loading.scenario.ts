@@ -1,7 +1,14 @@
 // A game's own file open (inclib names a file): the engine waits until the player finishes the call.
 import { ARCHIVES } from '../fixtures/archives';
+import { EXTERNAL_THEME_GAME } from '../fixtures/external-theme-game';
 import { INCLUDER_GAME } from '../fixtures/includer-game';
-import { SeeErrorAlertText, SeeStartupFinished } from '../screenplay/common/checks';
+import {
+  SeeActiveTheme,
+  SeeErrorAlertText,
+  SeeGameStarted,
+  SeeNoticeContaining,
+  SeeStartupFinished,
+} from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
@@ -30,3 +37,24 @@ const failedOpenShowsError = (variant: typeof scenario.webOnly, causeParts: stri
 
 failedOpenShowsError(scenario.webOnly, [`${FAILED}File not found`]);
 failedOpenShowsError(scenario.desktopOnly, [FAILED, '(os error 2)']);
+
+// A game.cfg theme named by an absolute http URL is fetched by the desktop player's network route
+// (libs/desktop data-fetcher), served here by the asset server. The web player has no such route.
+scenario.desktopOnly('a theme from an external URL is applied', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(ARCHIVES.externalThemeZip.path),
+    SeeGameStarted(EXTERNAL_THEME_GAME.startText),
+    SeeActiveTheme(EXTERNAL_THEME_GAME.alias),
+  );
+});
+
+scenario.desktopOnly('a theme URL that answers 404 is reported', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(ARCHIVES.externalTheme404Zip.path),
+    SeeNoticeContaining(`${EXTERNAL_THEME_GAME.missingThemeUrl}: 404`),
+  );
+});

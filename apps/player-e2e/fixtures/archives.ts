@@ -38,6 +38,9 @@ export const ARCHIVES = {
   /** The UTF-16 game (fixtures/utf16-game) with its game.cfg re-encoded as UTF-16 LE: the archive, and a plain folder. */
   utf16Zip: { path: out('utf16-game.zip'), title: 'UTF-16 гра' },
   utf16Folder: { path: out('utf16-folder'), configPath: out('utf16-folder/game.cfg'), title: 'UTF-16 гра' },
+  /** The external-theme game (fixtures/external-theme-game): its theme is an http URL; the variant's URL answers 404. */
+  externalThemeZip: { path: out('external-theme.zip'), title: 'External theme game' },
+  externalTheme404Zip: { path: out('external-theme-404.zip'), title: 'External theme game (404)' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -59,5 +62,6 @@ export const SOURCES = {
   resources: fileURLToPath(new URL('./resources-game/', import.meta.url)),
   reimport: fileURLToPath(new URL('./reimport-game/', import.meta.url)),
   utf16: fileURLToPath(new URL('./utf16-game/', import.meta.url)),
+  externalTheme: fileURLToPath(new URL('./external-theme-game/', import.meta.url)),
   e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;
