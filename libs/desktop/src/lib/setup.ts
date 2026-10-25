@@ -3,11 +3,11 @@ import { baseUrl$ } from '@qspider/game-state';
 import { isExternalUrl } from '@qspider/utils';
 import { platform } from '@tauri-apps/plugin-os';
 import { isGameUrl } from './game-url';
+import { shouldShimXhrFor } from './game-url-rules';
 import { startE2eMarks } from './e2e-marks';
 
-/** Windows serves game files over https://qsp.localhost, so only linux/macos need the XHR shim. */
 export function shouldShimXhr(baseUrl: string): boolean {
-  return isGameUrl(baseUrl) && platform() !== 'windows';
+  return shouldShimXhrFor(platform(), baseUrl);
 }
 
 export function setupEnv() {

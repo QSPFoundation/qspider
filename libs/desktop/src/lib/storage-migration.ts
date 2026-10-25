@@ -1,5 +1,5 @@
 import type { GameShelfEntry } from '@qspider/contracts';
-import { isLegacyGameUrl } from './game-url';
+import { isLegacyGameUrl } from './game-url-rules';
 
 /**
  * Rewrites pre-v2 game urls (`qsp://<uuid>/`, `https://qsp.<uuid>/`) in the library
