@@ -1,4 +1,5 @@
 import { GameShelfEntry, PlayerConfig } from '@qspider/contracts';
+import { cyrb53 } from '@qspider/utils';
 
 export function entriesFromConfig(
   config: PlayerConfig,
@@ -52,4 +53,30 @@ export function findDuplicateIds(entries: GameShelfEntry[]): string[] {
     seen.add(id);
   }
   return [...duplicates];
+}
+
+/** The entry of the config whose game file is `fileName` (how a single opened file finds its game.cfg record). */
+export function findConfigEntry(entries: GameShelfEntry[], fileName: string): GameShelfEntry | undefined {
+  return entries.find((entry) => entry.loadConfig.entrypoint === fileName);
+}
+
+/** The entry for a game file that has no (matching) game.cfg; its id derives from the file path. */
+export function fallbackEntry(
+  filePath: string,
+  name: string,
+  urlPrefix: string,
+  fileDir: string,
+  localId: string,
+): GameShelfEntry {
+  return {
+    id: cyrb53(filePath),
+    title: name,
+    mode: 'classic',
+    loadConfig: {
+      url: urlPrefix,
+      entrypoint: name,
+      local_path: fileDir,
+      local_id: localId,
+    },
+  };
 }
