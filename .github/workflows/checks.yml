@@ -119,11 +119,14 @@ jobs:
       run: ${{ needs.changes.outputs.desktop == 'true' }}
 
   # Windows desktop E2E (e2e-desktop-windows.yml): the main suite in N wdio shards plus the standalone suite,
-  # on every PR and on main. N = 3, so each shard job stays at or under ~15 min: in run 40105883229 (all green
+  # on every PR and on main. N = 3, so each shard job stays near the ~7 min target: in run 40105883229 (all green
   # on the first attempt) the jobs took 7m04, 7m04 and 9m14 (about 2m40 of setup and build each; wdio 4m20,
   # 4m17, 6m40), standalone 5m39. N = 2 would give about 10-11 min jobs with less room for suite growth and
   # for a failing scenario's timeouts; N = 4 adds a fourth Windows build for
-  # little gain. Revisit N when a shard job nears 15 min.
+  # little gain. The shards are split by measured spec time (shard-timings.json, README "Shards"); that
+  # imbalance came from wdio's equal-count slices. In run 40121755341 the jobs took 6m38, 6m56 and 9m43;
+  # the balanced table predicts about 288 s of scenarios per shard, so the jobs should come out near
+  # each other. Revisit N, or regenerate the table, when a shard job exceeds ~7 min.
   e2e-desktop-windows-main:
     strategy:
       fail-fast: false
@@ -212,10 +215,20 @@ jobs:
           path: apps/player-e2e/artifacts
           if-no-files-found: ignore
 
-  e2e-desktop:
-    name: e2e-desktop
+  # Linux desktop E2E: the main suite in N wdio shards, split by measured spec time (shard-timings.json,
+  # README "Shards"). N = 3: unsharded, `e2e-desktop` took 12m13 in run 40121755341; the balanced table predicts
+  # about 212 s of scenarios per shard, so each shard job should land at or under ~7 min (setup and build
+  # included). Revisit N, or regenerate the table, when a shard job nears ~7 min. The matrix jobs are
+  # named `e2e-desktop-main (i/n)`, never `e2e-desktop`: that name is the required check, reported by the
+  # aggregate below.
+  e2e-desktop-main:
+    name: e2e-desktop-main (${{ matrix.shard }})
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1/3, 2/3, 3/3]
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -251,13 +264,40 @@ jobs:
           done
           exit 1
       - run: cargo install tauri-driver --locked
-      - run: pnpm e2e:desktop
+      - run: pnpm e2e:desktop --shard ${{ matrix.shard }}
+      # Artifact names may not contain '/': shard 1/3 becomes 1-of-3.
+      - name: Artifact name
+        if: failure()
+        id: artifact
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: echo "name=e2e-desktop-artifacts-${SHARD/\//-of-}" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-desktop-artifacts
+          name: ${{ steps.artifact.outputs.name }}
           path: apps/player-e2e/artifacts
           if-no-files-found: ignore
+
+  # The required Linux check, named `e2e-desktop` as before the shards. `if: always()` so it reports even when
+  # a shard failed or was cancelled (a skipped required check would count as passing); it fails unless every
+  # needed job's result is `success` (a matrix job's result is `failure` if any shard failed).
+  e2e-desktop:
+    needs: [e2e-desktop-main]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Every Linux desktop shard succeeded
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          bad=$(echo "$NEEDS" | jq -r '[to_entries[] | select(.value.result != "success") | .key] | join(", ")')
+          if [ -n "$bad" ]; then
+            echo "::error::not successful: $bad"
+            exit 1
+          fi
 
   e2e-standalone-desktop:
     name: e2e-standalone-desktop

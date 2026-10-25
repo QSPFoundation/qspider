@@ -20,6 +20,10 @@
     "targets/desktop/private-session.spec.ts",
     "targets/desktop/native-dialog.ts",
     "targets/desktop/native-dialog.spec.ts",
+    "targets/desktop/shards.ts",
+    "targets/desktop/shards.spec.ts",
+    "targets/desktop/spec-times.ts",
+    "targets/desktop/spec-times.spec.ts",
     "targets/desktop/platform/**/*.ts",
     "*.config.mts"
   ]

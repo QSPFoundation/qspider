@@ -23,7 +23,7 @@ on:
         type: string
         default: ''
       shard:
-        description: wdio shard, e.g. 1/3 ('' runs unsharded)
+        description: Balanced shard of the main suite (by shard-timings.json), e.g. 1/3; not with spec ('' runs unsharded)
         type: string
         default: ''
       # The gate lives here, not on the caller: a caller job skipped by `if:` shows up as `<caller>`
@@ -45,7 +45,7 @@ on:
         type: string
         default: ''
       shard:
-        description: wdio shard, e.g. 1/3 (empty runs unsharded)
+        description: Balanced shard of the main suite (by shard-timings.json), e.g. 1/3; not with spec (empty runs unsharded)
         type: string
         default: ''
       run:
