@@ -5,7 +5,7 @@ import { getStorage } from '@qspider/env';
 import { isSupportedArchive, readSupportedArchive } from './utils';
 import type { FileDir, File } from './utils';
 import { findRootDescriptorFolder, findRootGameFileFolder, getGameFolder } from './archive-tree';
-import { archiveFallbackEntry, archiveGameId, descriptorEntry } from './import-entries';
+import { archiveFallbackEntry, archiveGameId, descriptorEntry, pickGameDescriptor } from './import-entries';
 
 export async function importArchive(
   archiveName: string,
@@ -35,8 +35,8 @@ export async function importArchive(
             new TextEncoder().encode(descriptorContent).buffer,
           );
         } else {
-          const [descriptor] = await readGameDescriptor(descriptorFile.data);
-          Object.assign(game, descriptor);
+          const descriptor = pickGameDescriptor(await readGameDescriptor(descriptorFile.data), game);
+          if (descriptor) Object.assign(game, descriptor);
         }
       } catch (err) {
         console.error(err);
