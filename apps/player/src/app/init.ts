@@ -23,7 +23,7 @@ import { importUrl } from '@qspider/importers';
 import { loadingMessage$ } from '@qspider/renderer';
 import i18n from '@qspider/i18n';
 import { prepareBaseUrl } from '@qspider/utils';
-import { GameShelfEntry } from '@qspider/contracts';
+import { findCatalogEntry } from './catalog-launch';
 
 import { setupEnv } from '@qspider/env';
 
@@ -57,13 +57,7 @@ export async function init(): Promise<void> {
   }
   const catalogId = urlParams.get('catalogId');
   if (catalogId) {
-    let existing: GameShelfEntry | undefined;
-    for (const game of Object.values(games$.value)) {
-      if (game.meta?.source_id === catalogId) {
-        existing = game;
-        break;
-      }
-    }
+    const existing = findCatalogEntry(games$.value, catalogId);
     if (!existing) {
       try {
         loadingMessage$.set(i18n.t('Loading game from catalog...'));
