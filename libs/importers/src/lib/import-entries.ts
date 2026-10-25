@@ -106,3 +106,21 @@ export function fileEntry(fileName: string, loadConfig: LoadConfig): GameShelfEn
     loadConfig,
   };
 }
+
+const baseName = (path: string): string => path.slice(path.lastIndexOf('/') + 1);
+
+/**
+ * The entry of a game folder's own descriptor that describes `game`: the one with its id, else the one
+ * with its file name. A descriptor holding a single entry describes its only game whatever it is called.
+ * Several entries and none matching: undefined, so the game keeps the entry of the archive's descriptor.
+ */
+export function pickGameDescriptor(
+  descriptors: readonly GameDescriptor[],
+  game: Pick<GameDescriptor, 'id' | 'file'>,
+): GameDescriptor | undefined {
+  const byId = descriptors.find((d) => d.id === game.id);
+  if (byId) return byId;
+  const byFile = descriptors.find((d) => d.file && baseName(d.file) === baseName(game.file));
+  if (byFile) return byFile;
+  return descriptors.length === 1 ? descriptors[0] : undefined;
+}

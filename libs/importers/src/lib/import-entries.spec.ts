@@ -3,6 +3,7 @@ import type { GameDescriptor } from '@qspider/contracts';
 import { cyrb53 } from '@qspider/utils';
 import {
   archiveFallbackEntry,
+  pickGameDescriptor,
   archiveGameId,
   descriptorEntry,
   fileEntry,
@@ -163,5 +164,32 @@ describe('fileEntry', () => {
       mode: 'classic',
       loadConfig,
     });
+  });
+});
+
+describe('pickGameDescriptor', () => {
+  const entry = (id: string, file: string): GameDescriptor => ({ id, file, title: id, mode: 'classic' });
+  const one = entry('one', 'a.qsps');
+  const two = entry('two', 'b.qsps');
+  const three = entry('three', 'c.qsps');
+
+  it('picks the entry with the game id, not the first one', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'two', file: 'b.qsps' })).toBe(two);
+  });
+
+  it('falls back to the file name when no id matches', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'x', file: 'dir/c.qsps' })).toBe(three);
+  });
+
+  it('takes the only entry of a single-entry descriptor even under another id and file', () => {
+    expect(pickGameDescriptor([one], { id: 'x', file: 'sub/z.qsps' })).toBe(one);
+  });
+
+  it('finds nothing among several entries when none matches', () => {
+    expect(pickGameDescriptor([one, two], { id: 'x', file: 'z.qsps' })).toBeUndefined();
+  });
+
+  it('finds nothing in an empty descriptor', () => {
+    expect(pickGameDescriptor([], { id: 'x', file: 'z.qsps' })).toBeUndefined();
   });
 });
