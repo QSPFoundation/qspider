@@ -62,17 +62,23 @@ export class OperateWebPlayer extends OperatePlayer {
   }
 
   async delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void> {
+    await this.holdBack(actor, (url) => url.pathname.endsWith(pathSuffix), ms);
+  }
+
+  async delayGameLinkPage(actor: UsesAbilities & AnswersQuestions, ms: number): Promise<void> {
+    // The game link's own document (openGameUrl's second navigation), not the app's assets or the worker script.
+    await this.holdBack(actor, (url) => url.pathname === '/' && url.searchParams.has('game'), ms);
+  }
+
+  private async holdBack(actor: UsesAbilities & AnswersQuestions, matches: (url: URL) => boolean, ms: number) {
     const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
     // The server answers late: the route holds the request for `ms` before it goes on to the network. It is
     // routed on the browser context, not the page: a page route never sees the service worker's own requests
     // (its script, and what it fetches from the network).
-    await (await page.nativePage()).context().route(
-      (url) => url.pathname.endsWith(pathSuffix),
-      async (route) => {
-        await new Promise((resolve) => setTimeout(resolve, ms));
-        await route.continue().catch(() => undefined); // the page may have gone by then
-      },
-    );
+    await (await page.nativePage()).context().route(matches, async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, ms));
+      await route.continue().catch(() => undefined); // the page may have gone by then
+    });
   }
 
   async routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void> {

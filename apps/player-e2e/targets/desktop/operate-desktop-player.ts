@@ -40,6 +40,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
     throw new Error('delayRequests is not supported on desktop');
   }
 
+  async delayGameLinkPage(_actor: UsesAbilities & AnswersQuestions, _ms: number): Promise<void> {
+    throw new Error('delayGameLinkPage is not supported on desktop');
+  }
+
   async routeThroughProxy(_actor: UsesAbilities & AnswersQuestions, _origin: string): Promise<void> {
     throw new Error('routeThroughProxy is not supported on desktop');
   }

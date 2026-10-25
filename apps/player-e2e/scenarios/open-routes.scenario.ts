@@ -14,8 +14,8 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
+import { DelayGameLinkPage, DelayRequests } from '../screenplay/support/delay-requests';
 import {
-  DelayRequests,
   DropGameFile,
   OpenGameFile,
   OpenGameUrl,
@@ -60,6 +60,13 @@ scenario.webOnly('a first-visit zip link waits for the service worker', async (p
     OpenGameUrl(served(basename(v1.path))),
     SeeGameStarted(v1.startText),
   );
+});
+
+scenario.webOnly('a game link that loads while the worker activates still starts', async (player) => {
+  // The game link's page is held back, so the worker (registered by the page before it) activates while that page
+  // is still loading. Its clients.claim() then misses the page, which the worker must still come to control.
+  const { reimportV1Zip: v1 } = ARCHIVES;
+  await player.attemptsTo(DelayGameLinkPage(500), OpenGameUrl(served(basename(v1.path))), SeeGameStarted(v1.startText));
 });
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {

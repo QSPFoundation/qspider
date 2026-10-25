@@ -59,6 +59,8 @@ export abstract class OperatePlayer extends Ability {
    * service worker's own network requests too, its script included.
    */
   abstract delayRequests(actor: UsesAbilities & AnswersQuestions, pathSuffix: string, ms: number): Promise<void>;
+  /** As delayRequests, for the player page a game link opens (the `/?game=<url>` document itself) (web only). */
+  abstract delayGameLinkPage(actor: UsesAbilities & AnswersQuestions, ms: number): Promise<void>;
   /**
    * From now on, requests to `origin` fail in the browser (a CORS or network failure), and the CORS proxy
    * (https://proxy.qspider.xyz/) answers with the player's own `/path` for the original URL it is asked for (web only).
@@ -98,11 +100,6 @@ export const LoadTestPack = (): Interaction =>
 export const OpenGameUrl = (url: string): Interaction =>
   Interaction.where(`#actor opens the player with game url ${url}`, (actor) =>
     OperatePlayer.as(actor).openGameUrl(actor, url),
-  );
-
-export const DelayRequests = (pathSuffix: string, ms: number): Interaction =>
-  Interaction.where(`#actor makes requests ending with ${pathSuffix} take ${ms} ms`, (actor) =>
-    OperatePlayer.as(actor).delayRequests(actor, pathSuffix, ms),
   );
 
 export const RouteThroughProxy = (origin: string): Interaction =>
