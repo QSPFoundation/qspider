@@ -90,6 +90,7 @@ function resourcesFiles(): Record<string, Uint8Array> {
   };
   for (const name of [...RESOURCES_GAME.cfg.styles, ...RESOURCES_GAME.cfg.scripts])
     files[name] = readFileSync(join(SOURCES.resources, name));
+  files[RESOURCES_GAME.relativeText.path] = readFileSync(join(SOURCES.resources, RESOURCES_GAME.relativeText.path));
   for (const [name, [w, h]] of Object.entries(RESOURCES_IMAGES)) files[name] = transparentPng(w, h);
   for (const [name, [w, h]] of Object.entries(RESOURCES_SVGS))
     files[name] = Buffer.from(

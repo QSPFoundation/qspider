@@ -2,6 +2,7 @@
 import { ARCHIVES } from '../fixtures/archives';
 import { EXTERNAL_THEME_GAME } from '../fixtures/external-theme-game';
 import { INCLUDER_GAME } from '../fixtures/includer-game';
+import { RESOURCES_GAME } from '../fixtures/resources-game';
 import {
   SeeActiveTheme,
   SeeErrorAlertText,
@@ -9,8 +10,9 @@ import {
   SeeNoticeContaining,
   SeeStartupFinished,
 } from '../screenplay/common/checks';
-import { SeeMainText } from '../screenplay/game/checks';
+import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
+import { SeeResourceMark } from '../screenplay/resources/checks';
 import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
 
@@ -56,5 +58,22 @@ scenario.desktopOnly('a theme URL that answers 404 is reported', async (player) 
     SeeStartupFinished(),
     LoadGame(ARCHIVES.externalTheme404Zip.path),
     SeeNoticeContaining(`${EXTERNAL_THEME_GAME.missingThemeUrl}: 404`),
+  );
+});
+
+// Guards the player-visible behaviour: a game script's relative XMLHttpRequest reads the game's own file. On
+// current WebKitGTK it passes with the Linux XHR shim on or off (verified locally 2026-10-25), so it does not prove
+// the shim; the shim was added in 1a54386 for an unspecified Linux problem. On Windows the native https route
+// serves it. A broken route or shim gives another mark (an index.html or 404 cannot produce the file's text).
+scenario.desktopOnly("a game script's relative request reads the game's file", async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(ARCHIVES.resourcesZip.path),
+    SeeGameStarted(RESOURCES_GAME.text.start),
+    ClickAction(RESOURCES_GAME.actions.start.toMedia),
+    SeeMainTextContaining(RESOURCES_GAME.text.media),
+    ClickAction(RESOURCES_GAME.actions.media.fetchRelative),
+    SeeResourceMark(RESOURCES_GAME.marks.xhrRel, RESOURCES_GAME.relativeText.text),
   );
 });

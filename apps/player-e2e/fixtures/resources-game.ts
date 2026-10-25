@@ -35,6 +35,7 @@ export const RESOURCES_GAME = {
       backimageExternal: 'Backimage external',
       playExternal: 'Play external',
       fetchText: 'Fetch text',
+      fetchRelative: 'Fetch relative',
     },
     sound: {
       play: 'Play',
@@ -92,6 +93,8 @@ export const RESOURCES_GAME = {
   externalSound: assetUrl(ASSET_SERVER.paths.sound),
   /** Script one reads this URL with XMLHttpRequest (spelled in js/one.js) and writes `text` into the `xhr` mark. */
   externalText: { url: assetUrl(ASSET_SERVER.paths.text), text: ASSET_SERVER.text },
+  /** Script one reads this game file by a relative URL (spelled in js/one.js) and writes `text` into the `xhrRel` mark. */
+  relativeText: { path: 'data/rel.txt', text: 'REL TEXT' },
   /** Objects/actions: `img[data-qsp="action-image"]`, `[data-qsp="object-image"]`; the object's label. */
   objectLabel: 'RES OBJECT',
   /**
@@ -136,6 +139,8 @@ export const RESOURCES_GAME = {
     fontStatus: 'res-font-status',
     /** Script one, on `res_xhr`: the responseText of an XMLHttpRequest to an absolute http URL. */
     xhr: 'res-xhr',
+    /** Script one, on `res_xhr_rel`: the decoded response of a relative XMLHttpRequest for `relativeText.path`. */
+    xhrRel: 'xhr-rel',
   },
   scriptText: {
     startSeen: 'RES SCRIPT SAW START',
