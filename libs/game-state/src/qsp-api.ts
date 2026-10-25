@@ -217,24 +217,23 @@ qspApi$.subscribe((api) => {
       onOpened();
       return;
     }
-    // The engine is suspended inside the statement until onOpened() is called: it must be called even when
-    // the file fails to load, so the statement goes on as if the file added nothing.
+    // The engine is suspended inside the statement until onOpened() is called, and it has no failure channel:
+    // onOpened() must run exactly once on every path (a failed fetch, convert or engine open included), so the
+    // statement goes on as if the file added nothing.
     await withCounterPaused(async () => {
-      let gameSource: ArrayBuffer;
       try {
         const source = await fetchBinaryContent(baseUrl$.value, file);
-        gameSource = file.toLowerCase().endsWith('.qsps') ? convertQsps(source) : source;
+        const gameSource = file.toLowerCase().endsWith('.qsps') ? convertQsps(source) : source;
+        if (isNewGame) {
+          const path = cleanPath(file);
+          baseUrl$.update((url) => url + path.slice(0, path.lastIndexOf('/') + 1));
+        }
+        openGameSource(api, gameSource, isNewGame);
       } catch (error) {
         showError(`Failed to open ${file}: ${error instanceof Error ? error.message : String(error)}`);
+      } finally {
         onOpened();
-        return;
       }
-      if (isNewGame) {
-        const path = cleanPath(file);
-        baseUrl$.update((url) => url + path.slice(0, path.lastIndexOf('/') + 1));
-      }
-      openGameSource(api, gameSource, isNewGame);
-      onOpened();
     });
   });
   api.on('input', (text, finished) => {
