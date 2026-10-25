@@ -1,6 +1,12 @@
 /** Where the service worker serves an imported game's files from IndexedDB (see WebStorage.prepareLoadConfig). */
 const SERVED_BY_WORKER = '/qspider-files/';
 
+/**
+ * The message a page posts to the active service worker when that worker does not control it: the worker answers
+ * with clients.claim(). The worker's own claim at activation skips a page that was still loading then.
+ */
+export const CLAIM_CLIENTS_MESSAGE = 'qspider:claim-clients';
+
 /** How long a game waits for the service worker to take control of the page. */
 const CONTROL_TIMEOUT_MS = 10_000;
 
@@ -25,9 +31,13 @@ export async function whenGameFilesReady(baseUrl: string): Promise<void> {
           if (container.controller) resolve();
         };
         // `ready` is an active worker, not yet one in control: control comes with its clients.claim(),
-        // which fires controllerchange.
+        // which fires controllerchange. The timeout below stays as a backstop.
         container.addEventListener('controllerchange', onChange);
-        void container.ready.then(onChange);
+        void container.ready.then((registration) => {
+          onChange?.();
+          // Active, yet not in control: its claim at activation missed this page, so ask it to claim again.
+          if (!container.controller) registration.active?.postMessage({ type: CLAIM_CLIENTS_MESSAGE });
+        });
       }),
       new Promise<never>((_, reject) => {
         timer = setTimeout(
