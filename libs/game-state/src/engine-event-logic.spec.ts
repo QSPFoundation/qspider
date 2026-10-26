@@ -11,6 +11,7 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
+  variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
 
@@ -170,5 +171,18 @@ describe('saveTarget', () => {
 
   it('asks the player when the game names no path', () => {
     expect(saveTarget(true, '')).toBe('ask-player');
+  });
+});
+
+describe('variableOrDefault', () => {
+  it('gives the fallback for 0 and an empty string, which mean unset in QSP', () => {
+    expect(variableOrDefault(0, 7)).toBe(7);
+    expect(variableOrDefault('', 'none')).toBe('none');
+  });
+
+  it('keeps any other value the game set, a negative number included', () => {
+    expect(variableOrDefault(5, 7)).toBe(5);
+    expect(variableOrDefault('x', 'none')).toBe('x');
+    expect(variableOrDefault(-1, 7)).toBe(-1);
   });
 });
