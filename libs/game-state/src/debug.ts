@@ -125,23 +125,24 @@ export const isDebugPanelOpen$ = debuggerUIState$.focus('isPanelOpen');
 export const debugDockPosition$ = debuggerUIState$.focus('dockPosition');
 export const debugPanelSize$ = debuggerUIState$.focus('size');
 
-// Persist dock position to localStorage
-debugDockPosition$.subscribe((position) => {
+export function persistDockPosition(storage: Pick<Storage, 'setItem'> | null, position: string): void {
   try {
-    localStorage.setItem('qsp-debugger-dock-position', position);
+    storage?.setItem('qsp-debugger-dock-position', position);
   } catch {
     // Ignore localStorage errors
   }
-});
+}
 
-// Persist panel size to localStorage
-debugPanelSize$.subscribe((size) => {
+export function persistPanelSize(storage: Pick<Storage, 'setItem'> | null, size: DebuggerUIState['size']): void {
   try {
-    localStorage.setItem('qsp-debugger-size', JSON.stringify(size));
+    storage?.setItem('qsp-debugger-size', JSON.stringify(size));
   } catch {
     // Ignore localStorage errors
   }
-});
+}
+
+debugDockPosition$.subscribe((position) => persistDockPosition(getLocalStorage(), position));
+debugPanelSize$.subscribe((size) => persistPanelSize(getLocalStorage(), size));
 
 export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boolean {
   return (
