@@ -40,6 +40,7 @@ import { input$ } from './input';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
+import { parseSystemCmd } from './qspider-command-parsers';
 import { debugActions } from './debug';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
@@ -184,8 +185,8 @@ qspApi$.subscribe((api) => {
   });
   api.on('error', qspError$.set);
   api.on('system_cmd', (cmd: string): void => {
-    if (!cmd.startsWith('qspider')) return;
-    const [, _cmd] = cmd.split('.');
+    const _cmd = parseSystemCmd(cmd);
+    if (_cmd === null) return;
     for (const [prefix, processor] of Object.entries(qspiderCommands)) {
       if (_cmd.trim().startsWith(prefix)) {
         const data = _cmd.replace(prefix, '');

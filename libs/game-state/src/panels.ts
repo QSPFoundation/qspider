@@ -92,10 +92,14 @@ export const view$ = atom<ViewAtom, ViewAtomActions>(
 
 export const regions$ = atom<Record<string, string>>({});
 export const regionsScroll$ = atom<Record<string, number>>({});
+/** The text the game keeps for a region, in `$qspider_region[name]`. */
+export function readRegion(name: string): string {
+  return qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '';
+}
 export function reloadRegions(): void {
   const newState: Record<string, string> = {};
   for (const name of Object.keys(regions$.value)) {
-    newState[name] = qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '';
+    newState[name] = readRegion(name);
   }
   regions$.set(newState);
 }

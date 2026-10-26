@@ -43,6 +43,7 @@ import { clearDialogs } from './dialogs';
 import { showNotice } from './toasts';
 import { parseToml } from '@qspider/utils';
 import { debugActions } from './debug';
+import { scrollStep } from './qspider-command-parsers';
 
 export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
 export const currentGame$ = atom<GameDescriptor | null>();
@@ -275,10 +276,10 @@ export function onGameCommand(action: GameCommand): void {
     const [, panel, direction] = action.split(':');
     switch (panel) {
       case 'main':
-        mainScroll$.update((x) => (direction === 'top' ? -1 : Math.max(x, 0) + 1));
+        mainScroll$.update((x) => scrollStep(x, direction));
         break;
       case 'stats':
-        statsScroll$.update((x) => (direction === 'top' ? -1 : Math.max(x, 0) + 1));
+        statsScroll$.update((x) => scrollStep(x, direction));
         break;
     }
   }
