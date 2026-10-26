@@ -33,13 +33,19 @@ export function aeroWindow(window: GameWindow, size: { width: number; height: nu
   return { ...(window ?? {}), ...size, resizable: false };
 }
 
+/** A size attribute as a number; a missing, empty or non-numeric one (`auto`) is `fallback`. */
+function sizeAttribute(element: Element, name: string, fallback: number): number {
+  const size = parseInt(element.getAttribute(name) ?? '');
+  return Number.isNaN(size) ? fallback : size;
+}
+
 /** The size the `<game>` element of an aero game's `config.xml` asks for; null when there is no such element. */
 export function configXmlSize(doc: Document): { width: number; height: number } | null {
   const gameElement = doc.querySelector('game');
   if (!gameElement) return null;
   return {
-    width: parseInt(gameElement.getAttribute('width') || '800'),
-    height: parseInt(gameElement.getAttribute('height') || '600'),
+    width: sizeAttribute(gameElement, 'width', DEFAULT_AERO_SIZE.width),
+    height: sizeAttribute(gameElement, 'height', DEFAULT_AERO_SIZE.height),
   };
 }
 
