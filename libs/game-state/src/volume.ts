@@ -4,7 +4,8 @@ import { cleanPath } from '@qspider/utils';
 
 export const VOLUME_STEP = 10;
 
-export const normalizeVolume = (volume: number): number => (volume > 1 ? volume * 0.01 : volume);
+/** Every volume in the player (the engine's PLAY, the player volume slider) is 0..100; Howler wants 0..1. */
+export const normalizeVolume = (volume: number): number => volume / 100;
 
 /** The player volume (0..100) one step up (`1`) or down (`-1`), kept within 0..100. */
 export function stepVolume(volume: number, direction: 1 | -1): number {

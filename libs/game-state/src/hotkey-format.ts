@@ -42,6 +42,9 @@ const prettySymbolsMacOs: Record<string, string> = {
   mod: '⌘',
 };
 
+const isOwn = (table: Record<string, string>, name: string): boolean =>
+  Object.prototype.hasOwnProperty.call(table, name);
+
 /** `platform` is the window manager's platform name: 'Macintosh' gets the Mac modifier symbols. */
 export function prettifyHotkeys(keys: string, platform: string): PrettyHotkeys[] {
   const prettified: PrettyHotkeys[] = [];
@@ -50,10 +53,10 @@ export function prettifyHotkeys(keys: string, platform: string): PrettyHotkeys[]
     const plused = spaced[i].split('+');
     for (let j = 0; j < plused.length; j++) {
       let symbol = plused[j];
-      if (symbol in prettySymbolsCommon) {
+      if (isOwn(prettySymbolsCommon, symbol)) {
         symbol = prettySymbolsCommon[symbol];
       }
-      if (platform === 'Macintosh' && plused[j] in prettySymbolsMacOs) {
+      if (platform === 'Macintosh' && isOwn(prettySymbolsMacOs, plused[j])) {
         symbol = prettySymbolsMacOs[plused[j]];
       }
       prettified.push({
@@ -109,7 +112,8 @@ export function resolveHotkey(hotkey: 'space' | 'restart' | 'save', context: Hot
       // under it would leave the engine inside the old call, with the restarted game stuck.
       return { preventDefault: true, run: isBlockingDialogOpen(context.dialogs) ? null : 'restart' };
     case 'save':
-      if (context.nosave) return { preventDefault: false, run: null };
+      // The browser's "Save page" dialog must not open over a game that forbids saving.
+      if (context.nosave) return { preventDefault: true, run: null };
       return { preventDefault: true, run: 'save' };
   }
 }
