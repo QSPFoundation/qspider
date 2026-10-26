@@ -60,6 +60,7 @@ export function buildLayoutTree(panels: PanelData[] = []): LayoutTree {
   const docked: PanelData[] = panels.filter((panel) => !panel.floating);
 
   let currentLayer: LayoutLayer | null = null;
+  const upperCenter: PanelData[] = [];
   for (let i = 0; i <= maxLayer; i++) {
     const layerPanels = getLayerPanels(i, docked);
     currentLayer = {
@@ -73,8 +74,18 @@ export function buildLayoutTree(panels: PanelData[] = []): LayoutTree {
     for (const panel of layerPanels) {
       if (!DOCK_PLACES.includes(panel.dir)) continue;
       if (panel.dir === 'center' && panel.name !== 'desc') continue;
+      if (panel.dir === 'center' && !Array.isArray(currentLayer.center)) {
+        // the center of an upper layer is the layer below, so the main pane goes to the innermost center
+        upperCenter.push(panel);
+        continue;
+      }
       (currentLayer[panel.dir] as PanelData[]).push(panel);
     }
+  }
+  if (upperCenter.length && currentLayer) {
+    let innermost: LayoutLayer = currentLayer;
+    while (!Array.isArray(innermost.center)) innermost = innermost.center;
+    if (!innermost.center.length) innermost.center.push(...upperCenter);
   }
 
   return {
