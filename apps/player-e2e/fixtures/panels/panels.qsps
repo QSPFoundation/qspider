@@ -74,6 +74,7 @@ act 'Only': *clr & *pl 'SPACE RAN'
 *pl '<qsp-layer name="lay" index="1">LAYER ON</qsp-layer>'
 gs 'qspider_hide_layer', 'lay'
 act 'Fire event': gs 'qspider_event', 'e2e_event', 'A', 7
+act 'Fire dotted event': gs 'qspider_event', 'e2e_dotted', '1.5', 'a]b'
 act 'Region': gs 'qspider_update_region', 'reg', 'REGION ONE'
 act 'Layer': gs 'qspider_show_layer', 'lay'
 act 'Unlayer': gs 'qspider_hide_layer', 'lay'

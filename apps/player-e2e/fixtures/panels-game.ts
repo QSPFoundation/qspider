@@ -69,6 +69,8 @@ export const PANELS_GAME = {
     system: {
       /** qspider_event 'e2e_event' with args 'A' and 7 (see event). */
       fireEvent: 'Fire event',
+      /** qspider_event 'e2e_dotted' with string args holding a dot and a `]` (see dottedEvent). */
+      fireDottedEvent: 'Fire dotted event',
       /** Fills the region `reg` with text.regionOne. */
       region: 'Region',
       /**
@@ -135,6 +137,8 @@ export const PANELS_GAME = {
   hotkey: 'k',
   /** Event raised by system.fireEvent: name and args as the game passes them. */
   event: { name: 'e2e_event', args: ['A', 7] },
+  /** Event raised by system.fireDottedEvent: string args with a dot and a `]`, which the command parse must keep. */
+  dottedEvent: { name: 'e2e_dotted', args: ['1.5', 'a]b'] },
   /** The data-qa of the always-present link that runs `showacts 1`. Documents the literal in `screenplay/game/elements.ts` (ShowActionsLink); not imported there. */
   showActsLink: 'show-acts',
 } as const;
