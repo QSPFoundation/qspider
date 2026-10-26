@@ -31,6 +31,8 @@ export interface DesktopPlatform {
    * WebView2 processes then take up to ~20 s to exit, against well under a second after a close.
    */
   closeApp?(procs: Proc[]): number | null;
+  /** One line per process (`pid name kind` where the platform can tell the kind): evidence for a failed scenario. */
+  describeProcesses(procs: Proc[]): string;
   /** Resolves once every one of `procs` has exited; fails after `timeoutMs`. */
   waitForExit(procs: Proc[], timeoutMs: number): Promise<void>;
   /** Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. */

@@ -106,6 +106,20 @@ async function assertDriverPortFree(): Promise<void> {
 
 const safeName = (s: string): string => s.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
 
+/** How long a failure capture waits for each WebDriver answer; running out is evidence (an unresponsive webview). */
+const CAPTURE_TIMEOUT = 10_000;
+
+function withinCaptureTime<T>(answer: Promise<T>, what: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(
+      () => reject(new Error(`WebDriver gave no ${what} within ${CAPTURE_TIMEOUT}ms: the webview did not answer`)),
+      CAPTURE_TIMEOUT,
+    );
+  });
+  return Promise.race([answer, timeout]).finally(() => clearTimeout(timer));
+}
+
 /** Resolves once nothing accepts TCP on `port`: our previous worker's driver has fully released it. */
 function waitForPortFree(port: number, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
@@ -276,10 +290,20 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
     if (passed || !error) return;
     mkdirSync(artifactsDir, { recursive: true });
     const base = join(artifactsDir, safeName(test.title));
+    // First what needs no WebDriver: a hung webview can leave every WebDriver call below unanswered.
     try {
-      await browser.saveScreenshot(`${base}.png`);
+      const platform = desktopPlatform();
+      const procs = platform.appProcesses(Number(process.env[ENV_DRIVER_PID]));
+      writeFileSync(`${base}.processes.txt`, `${platform.describeProcesses(procs)}\n`);
+    } catch (err) {
+      writeFileSync(`${base}.processes.txt`, `(could not list the app's processes: ${String(err)})\n`);
+    }
+    try {
+      await withinCaptureTime(browser.saveScreenshot(`${base}.png`), 'screenshot');
       // The URL shows whether the webview navigated away from the app.
-      writeFileSync(`${base}.html`, `<!-- url: ${await browser.getUrl()} -->\n${await browser.getPageSource()}`);
+      const url = await withinCaptureTime(browser.getUrl(), 'URL');
+      const source = await withinCaptureTime(browser.getPageSource(), 'page source');
+      writeFileSync(`${base}.html`, `<!-- url: ${url} -->\n${source}`);
     } catch (err) {
       writeFileSync(`${base}.capture-error.txt`, String(err));
     }

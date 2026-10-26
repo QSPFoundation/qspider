@@ -67,6 +67,7 @@ export const linuxPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
+  describeProcesses: (procs) => (procs.length === 0 ? '(none)' : procs.map((p) => String(p.pid)).join(', ')),
   waitForExit: (procs, timeoutMs) => pollUntilExited(procs, (left) => left.filter(isAlive), timeoutMs, POLL_INTERVAL),
   emptyDir: (dir) => {
     rmSync(dir, { recursive: true, force: true });

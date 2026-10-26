@@ -191,6 +191,7 @@ export const windowsPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
+  describeProcesses: (procs) => (procs.length === 0 ? '(none)' : describeKinds(procs)),
   // WM_CLOSE to the app (msedgedriver's child, not one of its WebView2 processes): the app shuts down as on a
   // click on X, and WebView2 with it.
   closeApp: (procs) => {
