@@ -1,4 +1,5 @@
 import { Attributes, execSelectedAction, selectAction, selectedAction$ } from '@qspider/game-state';
+import { imageVariable } from '../../content/image-variable';
 import { useAtom } from '@xoid/react';
 import { useAttributes } from '../../content/attributes';
 import { actionContext } from '../../theme-core/actions';
@@ -28,10 +29,9 @@ export const AeroQspActionsList: React.FC<{ attrs: Attributes; children: ReactNo
 export const AeroQspActionItem: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const { action, index } = useContext(actionContext);
   const [Tag, style, { useFormat, useSelectedFormat, ...attributes }] = useAttributes(attrs, 'qsp-action');
-  const actionImageUrl = action.image ? action.image : '';
   const preparedStyle = {
     ...style,
-    '--action-image': action.image ? `url("${actionImageUrl}")` : '',
+    '--action-image': imageVariable(action.image),
   };
 
   const onHover = (): void => {

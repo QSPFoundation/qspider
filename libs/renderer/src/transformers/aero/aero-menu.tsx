@@ -1,4 +1,5 @@
 import { Attributes, menu$, selectedMenuItem$, useQspVariable } from '@qspider/game-state';
+import { imageVariable } from '../../content/image-variable';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useAtom } from '@xoid/react';
 import { ReactElement, ReactNode, useContext } from 'react';
@@ -81,7 +82,7 @@ export const AeroQspMenuItem: React.FC<{ attrs: Attributes; children: ReactNode 
 
   const preapredStyle = {
     ...style,
-    '--menu-item-image': item.image ? `url("${item.image}")` : '',
+    '--menu-item-image': imageVariable(item.image),
   } as React.CSSProperties;
 
   const onHover = (): void => {
