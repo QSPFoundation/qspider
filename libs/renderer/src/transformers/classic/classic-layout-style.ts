@@ -10,6 +10,15 @@ export function isDockVisible(visibility: string | null, isPanelVisible: (panel:
   return visibility.split('|').some((panel) => isPanelVisible(panel));
 }
 
+/**
+ * The layer's own rule for whether a dock takes grid space: no visibility (null) is shown, otherwise it is shown when
+ * any of the `|`-separated panels is visible. It deliberately differs from `isDockVisible` on an empty string, which
+ * hides the dock here (the empty name matches no panel). Maintainer decision, kept until they rule otherwise.
+ */
+export function isLayerDockVisible(visibility: string | null, isPanelVisible: (panel: string) => boolean): boolean {
+  return visibility?.split('|').some((panel) => isPanelVisible(panel)) ?? true;
+}
+
 export function isPaneVisible(visibility: string | null, isPanelVisible: (panel: string) => boolean): boolean {
   if (!visibility) return true;
   return isPanelVisible(visibility);

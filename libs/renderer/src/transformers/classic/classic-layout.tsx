@@ -12,7 +12,13 @@ import React, { isValidElement } from 'react';
 import { Atom, atom } from 'xoid';
 import { qspGuiLayout$ } from '../../render-state';
 import { Markup } from '@qspider/html-renderer';
-import { classicDefaultRules, isDockVisible, isPaneVisible, layerGridStyle } from './classic-layout-style';
+import {
+  classicDefaultRules,
+  isDockVisible,
+  isLayerDockVisible,
+  isPaneVisible,
+  layerGridStyle,
+} from './classic-layout-style';
 
 interface DockData {
   visibility: string | null;
@@ -50,11 +56,10 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
       const docks = get(docks$);
       const visibleDocks: Record<string, DockData> = {};
       for (const [place, data] of Object.entries(docks)) {
-        const isVisible =
-          data.visibility?.split('|').some((type) => {
-            const atom = penelAtoms[type];
-            return atom ? get(atom) : false;
-          }) ?? true;
+        const isVisible = isLayerDockVisible(data.visibility, (type) => {
+          const atom = penelAtoms[type];
+          return atom ? get(atom) : false;
+        });
         if (isVisible) visibleDocks[place] = data;
       }
       return visibleDocks;
