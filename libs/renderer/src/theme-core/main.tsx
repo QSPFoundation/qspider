@@ -11,6 +11,7 @@ import { useAtom } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { useAttributes } from '../content/attributes';
 import { scrollContext } from './scrollable';
+import { mainScrollStep } from './scroll-step';
 import { Markup } from '@qspider/html-renderer';
 import { parsedMainContent$ } from '../render-state';
 
@@ -20,7 +21,7 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
   const isNewLoc = useAtom(isNewLoc$);
   const disableScroll = useQspVariable('DISABLESCROLL', '', 0, 0);
   useEffect(() => {
-    if (!disableScroll) mainScroll$.update((x) => (isNewLoc ? -1 : Math.max(x, 0) + 1));
+    if (!disableScroll) mainScroll$.update((x) => mainScrollStep(isNewLoc, x));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNewLoc, mainContent]);
   return (
