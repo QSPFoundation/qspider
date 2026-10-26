@@ -123,7 +123,7 @@ export async function onSaveCommand(action: QspSaveCommand, context: SaveContext
       closePauseScreen();
       break;
     case 'clear':
-      if (target) clearFrom(target);
+      if (target) await clearFrom(target);
       break;
     default:
       console.error(`Unknown save action: ${action}`);
