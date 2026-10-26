@@ -7,7 +7,13 @@ import { TAGS_MAP } from './tags-map';
 // games style themselves.
 const DROPPED_TAGS = new Set(['script', 'base', 'meta', 'embed', 'object', 'applet', 'frame', 'frameset', 'command']);
 
-export const isDroppedTag = (tag: string): boolean => DROPPED_TAGS.has(tag.toLowerCase());
+/**
+ * The tag's local name, lowercased. Inside <svg> React creates elements with createElementNS, which splits a
+ * qualified name: `svg:script` becomes a script element that runs. The drop and sandbox checks read this name.
+ */
+export const localTagName = (tag: string): string => tag.slice(tag.lastIndexOf(':') + 1).toLowerCase();
+
+export const isDroppedTag = (tag: string): boolean => DROPPED_TAGS.has(localTagName(tag));
 
 const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   class: 'className',
@@ -146,7 +152,7 @@ export function convertAttributes(
     props['class'] = props['className'];
     delete props['className'];
   }
-  if (lowerTag === 'iframe') {
+  if (localTagName(tag) === 'iframe') {
     props['sandbox'] = 'allow-scripts';
   }
   let command: ConvertedAttributes['command'] = null;
@@ -159,7 +165,7 @@ export function convertAttributes(
   }
   return {
     tag,
-    dropped: isDroppedTag(lowerTag),
+    dropped: isDroppedTag(tag),
     style: { ...style, ...attributesToStyle(attributes, tag) },
     props,
     events,

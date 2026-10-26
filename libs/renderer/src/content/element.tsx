@@ -32,8 +32,8 @@ const voidTags = [
 export const Element: React.FC<ElementProps> = ({ attrs = {}, children = null, tagName }) => {
   // The tag a tag= attribute resolves to, not the parsed one, decides the drop and the void form.
   const converted = convertAttributes(attrs, tagName);
-  const [Tag, style, attributes] = bindAttributes<keyof React.JSX.IntrinsicElements>(converted);
   if (converted.dropped) return null;
+  const [Tag, style, attributes] = bindAttributes<keyof React.JSX.IntrinsicElements>(converted);
   const selfClose = voidTags.includes(converted.tag);
   return selfClose ? (
     <Tag style={style} {...attributes} />

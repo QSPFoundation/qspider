@@ -1,6 +1,6 @@
 import type { Attributes } from '@qspider/game-state';
 import { describe, expect, it } from 'vitest';
-import { attributesToStyle, convertAttributes, isDroppedTag } from './convert-attributes';
+import { attributesToStyle, convertAttributes, isDroppedTag, localTagName } from './convert-attributes';
 
 describe('attributesToStyle', () => {
   it('adds px to a bare number and keeps a percentage', () => {
@@ -146,6 +146,31 @@ describe('convertAttributes', () => {
     expect(convertAttributes({ tag: 'constructor' }, 'b').tag).toBe('constructor');
   });
 
+  it('drops a namespaced script a tag attribute names', () => {
+    const { tag, dropped } = convertAttributes({ tag: 'svg:script' }, 'g');
+    expect(tag).toBe('svg:script');
+    expect(dropped).toBe(true);
+  });
+
+  it('drops a namespaced script the parser gives', () => {
+    expect(convertAttributes({}, 'svg:script').dropped).toBe(true);
+  });
+
+  it('sandboxes a namespaced iframe', () => {
+    const { props, dropped } = convertAttributes({ tag: 'xlink:IFRAME' }, 'b');
+    expect(props).toEqual({ sandbox: 'allow-scripts' });
+    expect(dropped).toBe(false);
+  });
+
+  it('keeps clipPath and foreignObject unsandboxed and not dropped', () => {
+    for (const name of ['clipPath', 'foreignObject']) {
+      const { tag, props, dropped } = convertAttributes({ tag: name }, 'g');
+      expect(tag).toBe(name);
+      expect(props).toEqual({});
+      expect(dropped).toBe(false);
+    }
+  });
+
   it('does not drop an ordinary tag', () => {
     expect(convertAttributes({ tag: 'div' }, 'qsp-main').dropped).toBe(false);
   });
@@ -159,9 +184,26 @@ describe('isDroppedTag', () => {
     }
   });
 
+  it('drops a namespaced dropped tag by its local name', () => {
+    expect(isDroppedTag('svg:script')).toBe(true);
+    expect(isDroppedTag('a:b:SCRIPT')).toBe(true);
+    expect(isDroppedTag('script:g')).toBe(false);
+  });
+
   it('keeps the tags games style themselves with', () => {
     for (const tag of ['style', 'link', 'title', 'iframe', 'div']) {
       expect(isDroppedTag(tag), tag).toBe(false);
     }
+  });
+});
+
+describe('localTagName', () => {
+  it('reads the part after the last colon, lowercased', () => {
+    expect(localTagName('svg:Script')).toBe('script');
+    expect(localTagName('a:b:iframe')).toBe('iframe');
+  });
+
+  it('lowercases a name without a prefix', () => {
+    expect(localTagName('clipPath')).toBe('clippath');
   });
 });
