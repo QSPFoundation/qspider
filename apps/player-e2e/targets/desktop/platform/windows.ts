@@ -138,6 +138,33 @@ function listProcesses(): WinProc[] {
 
 const appProcesses = (pid: number): Proc[] => appTree(listProcesses(), pid);
 
+/** The kind of a WebView2 process from its command line (`--type=renderer`, …; none: the browser process). */
+export function processKind(commandLine: string): string {
+  return /--type=([\w-]+)/.exec(commandLine)?.[1] ?? 'browser';
+}
+
+/** `pid name kind` for each of `procs`, read from their command lines. */
+function describeKinds(procs: Proc[]): string {
+  const filter = procs.map((p) => `ProcessId=${p.pid}`).join(' OR ');
+  const out = spawnSync(
+    'powershell',
+    [
+      '-NoProfile',
+      '-NonInteractive',
+      '-Command',
+      `Get-CimInstance Win32_Process -Filter '${filter}' | Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress`,
+    ],
+    { encoding: 'utf8', windowsHide: true, maxBuffer: 16 * 1024 * 1024 },
+  );
+  try {
+    const parsed = JSON.parse(out.stdout) as { ProcessId: number; Name: string; CommandLine: string | null };
+    const list = Array.isArray(parsed) ? parsed : [parsed];
+    return list.map((p) => `${p.ProcessId} ${p.Name} ${processKind(p.CommandLine ?? '')}`).join(', ');
+  } catch {
+    return `(could not read command lines: ${out.stderr.trim()})`;
+  }
+}
+
 export const windowsPlatform: DesktopPlatform = {
   driverEnv: () => {
     assertHostSessionAllowed(process.env);
@@ -161,16 +188,41 @@ export const windowsPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
-  waitForExit: (procs, timeoutMs) =>
-    pollUntilExited(
+  // WM_CLOSE to the app (msedgedriver's child, not one of its WebView2 processes): the app shuts down as on a
+  // click on X, and WebView2 with it.
+  closeApp: (procs) => {
+    const app = (procs as WinProc[]).find((p) => p.name?.toLowerCase() !== 'msedgewebview2.exe');
+    if (!app) return null;
+    const close = spawnSync(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-Command', `(Get-Process -Id ${app.pid}).CloseMainWindow()`],
+      { encoding: 'utf8', windowsHide: true },
+    );
+    if (close.status !== 0 || close.stdout.trim() !== 'True') {
+      console.warn(`WM_CLOSE to the app (pid ${app.pid}) was not delivered: ${close.stdout} ${close.stderr}`);
+    }
+    return app.pid;
+  },
+  waitForExit: (procs, timeoutMs) => {
+    // Once the wait passes half its budget, names what each process still alive is (WebView2's --type=):
+    // the evidence for why an exit is slow.
+    const started = Date.now();
+    let described = false;
+    return pollUntilExited(
       procs,
       (left) => {
         const now = new Set(listProcesses().map((p) => `${p.pid}@${p.start}`));
-        return left.filter((p) => now.has(`${p.pid}@${p.start}`));
+        const alive = left.filter((p) => now.has(`${p.pid}@${p.start}`));
+        if (!described && alive.length > 0 && Date.now() - started > timeoutMs / 2) {
+          described = true;
+          console.warn(`Still running ${Date.now() - started}ms after the session ended: ${describeKinds(alive)}`);
+        }
+        return alive;
       },
       timeoutMs,
       POLL_INTERVAL,
-    ),
+    );
+  },
   // WebView2 can release EBWebView files a moment after its processes are gone; still fails after the retries.
   emptyDir: (dir) => {
     rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
