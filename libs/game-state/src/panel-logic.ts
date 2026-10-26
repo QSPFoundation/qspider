@@ -24,6 +24,16 @@ export function readAll<T>(names: Iterable<string>, read: (name: string) => T): 
   return state;
 }
 
+/** The index of no selected action. */
+export const NO_ACTION = -1;
+/** The action the player picked and has not run yet. */
+export const selectedAction$ = atom(NO_ACTION);
+
+/** `layers` with `name` set to `shown`; the others are kept. */
+export function withLayer(layers: Record<string, boolean>, name: string, shown: boolean): Record<string, boolean> {
+  return { ...layers, [name]: shown };
+}
+
 export interface ViewAtom {
   isOpen: boolean;
   path: string;

@@ -1,7 +1,16 @@
 import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
-import { isActionIndex, layerFlag, readAll, regionText, view$ } from './panel-logic';
+import {
+  isActionIndex,
+  layerFlag,
+  NO_ACTION,
+  readAll,
+  regionText,
+  selectedAction$,
+  view$,
+  withLayer,
+} from './panel-logic';
 
 export const mainContent$ = atom('');
 export const nextMainContent$ = atom('');
@@ -17,7 +26,7 @@ export const statsScroll$ = atom(0);
 
 export const isActsVisible$ = atom(false);
 export const actions$ = atom<QspListItem[]>([]);
-export const selectedAction$ = atom(-1);
+export { selectedAction$ };
 
 export function canSelectAction(index: number): boolean {
   return isActionIndex(index, actions$.value.length);
@@ -28,7 +37,7 @@ export function selectAction(index: number): void {
   qspApi$.value?.selectAction(index);
 }
 export function execSelectedAction(): void {
-  selectedAction$.set(-1);
+  selectedAction$.set(NO_ACTION);
   qspApi$.value?.execSelectedAction();
 }
 /** Picks the action and runs it, as a key for it does. */
@@ -67,10 +76,7 @@ export function readLayerState(name: string): boolean {
   return layerFlag(qspApi$.value?.readVariableByKey('qspider_layers', name));
 }
 export function registerLayer(name: string): void {
-  layers$.update((current) => ({
-    ...current,
-    [name]: readLayerState(name),
-  }));
+  layers$.update((current) => withLayer(current, name, readLayerState(name)));
 }
 export function reloadLayers(): void {
   layers$.set(readAll(Object.keys(layers$.value), readLayerState));

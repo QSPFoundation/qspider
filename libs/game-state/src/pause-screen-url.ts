@@ -16,7 +16,7 @@ export function pauseCloseUrl(currentSearch: string): string {
   return playerUrl(search);
 }
 
-/** The pause screen's entry is undone by going back, unless it is the only entry (then a URL without `pause` replaces it). */
+/** The pause screen's entry is undone by going back, unless it is the only entry (then the URL without `pause` is pushed). */
 export function closesByGoingBack(historyLength: number): boolean {
   return historyLength > 1;
 }

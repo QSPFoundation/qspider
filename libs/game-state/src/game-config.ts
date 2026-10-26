@@ -5,7 +5,7 @@ import { AERO_THEME, CLASSIC_THEME } from './theme-registry';
 
 type GameWindow = GameDescriptor['window'];
 
-export const DEFAULT_AERO_SIZE = { width: 800, height: 600 };
+export const DEFAULT_AERO_SIZE = Object.freeze({ width: 800, height: 600 });
 
 /** The mode of the running game; `classic` when there is no game or it names none. */
 export function gameMode(game: GameDescriptor | null | undefined): string {
