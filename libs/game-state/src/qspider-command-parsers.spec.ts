@@ -62,6 +62,12 @@ describe('parseEvent', () => {
   it('reads an unclosed [ as part of the name', () => {
     expect(parseEvent('e[1')).toEqual({ name: 'e[1' });
   });
+
+  it('ignores the text after the last ]', () => {
+    expect(parseEvent('e[1]tail')).toEqual({ name: 'e', args: [1] });
+    // The arguments run to the last ], so `1]x[2` is one bare token, which reads as 1.
+    expect(parseEvent('e[1]x[2]')).toEqual({ name: 'e', args: [1] });
+  });
 });
 
 describe('parseArgs', () => {
@@ -97,6 +103,17 @@ describe('parseArgs', () => {
 
   it('keeps a bare token that is not a number as a string (D13)', () => {
     expect(parseArgs('abc,1')).toEqual(['abc', 1]);
+  });
+
+  it('reads a bare token with parseFloat, as before D13', () => {
+    expect(parseArgs('12abc')).toEqual([12]);
+    expect(parseArgs('0x10')).toEqual([0]);
+    expect(parseArgs('1.5')).toEqual([1.5]);
+  });
+
+  it('keeps a bare token parseFloat cannot read as text (D13)', () => {
+    expect(parseArgs('-')).toEqual(['-']);
+    expect(parseArgs('~a~x')).toEqual(['a', 'x']);
   });
 });
 
