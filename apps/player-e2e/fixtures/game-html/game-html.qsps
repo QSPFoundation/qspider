@@ -15,6 +15,7 @@ act 'hostile svg': gt 'hostile_svg'
 act 'hostile iframe': gt 'hostile_iframe'
 act 'hostile js': gt 'hostile_js'
 act 'hostile tags': gt 'hostile_tags'
+act 'hostile tag attr': gt 'hostile_tag_attr'
 act 'hostile malformed': gt 'hostile_malformed'
 ---
 
@@ -135,4 +136,15 @@ end
 *pl '<embed data-qa="hostile-embed" src="x.svg">'
 *pl '<object data-qa="hostile-object" data="x.svg"></object>'
 *pl 'TAGS BENIGN'
+---
+
+# hostile_tag_attr
+*clr
+! A tag= attribute overrides the parsed tag: the overriding tag must face the same drop and sandbox rules.
+! Text first, as in hostile_tags.
+*pl 'TAG ATTR RISKY'
+*pl '<b tag="IFRAME" data-qa="hostile-tag-frame" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
+*pl '<br tag="base" data-qa="hostile-tag-base" href="https://example.invalid/">'
+*pl '<i tag="meta" data-qa="hostile-tag-meta" http-equiv="refresh" content="600;url=about:blank">m</i>'
+*pl 'TAG ATTR BENIGN'
 ---

@@ -20,6 +20,7 @@ export const GAME_HTML = {
     hostileIframe: 'hostile iframe',
     hostileJs: 'hostile js',
     hostileTags: 'hostile tags',
+    hostileTagAttr: 'hostile tag attr',
     hostileMalformed: 'hostile malformed',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
@@ -55,6 +56,10 @@ export const GAME_HTML = {
     hostileMeta: 'hostile-meta',
     hostileEmbed: 'hostile-embed',
     hostileObject: 'hostile-object',
+    /** Elements the hostile_tag_attr location writes with a tag= override: an iframe, a base and a meta. */
+    hostileTagFrame: 'hostile-tag-frame',
+    hostileTagBase: 'hostile-tag-base',
+    hostileTagMeta: 'hostile-tag-meta',
     /** Attribute the iframe payload sets on <body> if it escapes the sandbox. */
     pwnedAttribute: 'data-qa-pwned',
   },
@@ -81,6 +86,7 @@ export const GAME_HTML = {
     jsLink: 'JS LINK',
     malformed: 'MALFORMED OK',
     tagsBenign: 'TAGS BENIGN',
+    tagAttrBenign: 'TAG ATTR BENIGN',
     /** Written by every hostile payload that manages to run. */
     inject: 'PWNED',
   },

@@ -74,3 +74,19 @@ scenario('tags that redirect or embed are dropped from game text', async (player
     waitUntilAbsent(ErrorAlerts.first()),
   );
 });
+
+scenario('a tag attribute cannot smuggle a dropped tag or an unsandboxed iframe', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileTagAttr),
+    // The benign line renders after the risky elements, so the absence checks below cannot pass before the render.
+    SeeMainTextContaining(TEXT.tagAttrBenign),
+    waitUntilAbsent(ErrorAlerts.first()),
+    waitUntilPresent(ContentMark(MARK.hostileTagFrame)),
+    SeeElementAttribute(ContentMark(MARK.hostileTagFrame), 'sandbox', 'allow-scripts'),
+    waitUntilAbsent(PwnedAttribute),
+    waitUntilAbsent(DocumentMark(MARK.hostileTagBase)),
+    waitUntilAbsent(DocumentMark(MARK.hostileTagMeta)),
+  );
+});
