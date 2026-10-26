@@ -3,7 +3,15 @@ import { equals, includes, not } from '@serenity-js/assertions';
 import { Attribute, Text } from '@serenity-js/web';
 import { waitUntilAbsent } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
-import { Action, ActionsPanel, MainText } from './elements';
+import {
+  Action,
+  ActionsPanel,
+  GameAuthorTag,
+  GameDescriptionTag,
+  GameTitleTag,
+  GameVersionTag,
+  MainText,
+} from './elements';
 
 export const SeeMainText = (text: string): Task =>
   seeEventually(MainText, (e) => Text.of(e).trim(), equals(text), `#actor sees main text "${text}"`);
@@ -34,3 +42,23 @@ export const SeeActionNotSelected = (label: string): Task =>
 
 /** The actions panel is gone. An absence check: check a settled anchor first. */
 export const SeeNoActionsPanel = (): Task => Task.where('#actor sees no actions panel', waitUntilAbsent(ActionsPanel));
+
+export interface GameInfo {
+  title: string;
+  author: string;
+  version: string;
+  description: string;
+}
+
+/** The game-data tags (qsp-game-title, -author, -version, -description) show the game's own fields. */
+export const SeeGameInfoTags = (info: GameInfo): Task => {
+  const see = (element: typeof GameTitleTag, text: string, name: string) =>
+    seeEventually(element, (e) => Text.of(e).trim(), equals(text), `#actor sees ${name} read "${text}"`);
+  return Task.where(
+    '#actor sees the game info tags',
+    see(GameTitleTag, info.title, 'qsp-game-title'),
+    see(GameAuthorTag, info.author, 'qsp-game-author'),
+    see(GameVersionTag, info.version, 'qsp-game-version'),
+    see(GameDescriptionTag, info.description, 'qsp-game-description'),
+  );
+};
