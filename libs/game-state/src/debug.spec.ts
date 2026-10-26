@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  canStep$,
   debugActions,
+  debuggerUIState$,
+  persistDockPosition,
+  persistPanelSize,
   debugState$,
   matchesBreakpoint,
   readDebuggerUiState,
@@ -23,9 +27,11 @@ const record = (over: Partial<DebugRecord> = {}): DebugRecord => ({
 });
 
 const initialState = debugState$.value;
+const initialUi = debuggerUIState$.value;
 
 beforeEach(() => {
   debugState$.set(initialState);
+  debuggerUIState$.set(initialUi);
 });
 
 describe('readDebuggerUiState', () => {
@@ -64,6 +70,17 @@ describe('readDebuggerUiState', () => {
 
   it('falls back to the default size for unparsable text (D19)', () => {
     expect(readDebuggerUiState(storageOf({ 'qsp-debugger-size': 'abc' })).size).toEqual({ width: 600, height: 400 });
+  });
+
+  it('falls back to the default size for a zero or negative width or height', () => {
+    expect(readDebuggerUiState(storageOf({ 'qsp-debugger-size': '{"width":0,"height":300}' })).size).toEqual({
+      width: 600,
+      height: 400,
+    });
+    expect(readDebuggerUiState(storageOf({ 'qsp-debugger-size': '{"width":300,"height":-1}' })).size).toEqual({
+      width: 600,
+      height: 400,
+    });
   });
 
   it('falls back to the default size when the numbers are missing (D19)', () => {
@@ -296,5 +313,74 @@ describe('event log', () => {
     expect(debugState$.value.autoPauseOnLinks).toBe(true);
     debugActions.toggleAutoPauseOnLinks();
     expect(debugState$.value.autoPauseOnLinks).toBe(false);
+  });
+});
+
+describe('enable and canStep$', () => {
+  it('enableDebug turns debugging on', () => {
+    debugActions.enableDebug();
+    expect(debugState$.value.isEnabled).toBe(true);
+  });
+
+  it('canStep$ is true only while a resume function is pending', () => {
+    const seen: boolean[] = [];
+    const unsubscribe = canStep$.subscribe((value) => seen.push(value));
+    debugActions.pauseExecution();
+    debugActions.setCurrentRecord(record(), () => undefined);
+    debugActions.stepExecution();
+    unsubscribe();
+    expect(seen).toEqual([true, false]);
+  });
+});
+
+describe('debugger panel', () => {
+  it('opens, closes and toggles the panel', () => {
+    debugActions.openDebugPanel();
+    expect(debuggerUIState$.value.isPanelOpen).toBe(true);
+    debugActions.closeDebugPanel();
+    expect(debuggerUIState$.value.isPanelOpen).toBe(false);
+    debugActions.toggleDebugPanel();
+    expect(debuggerUIState$.value.isPanelOpen).toBe(true);
+    debugActions.toggleDebugPanel();
+    expect(debuggerUIState$.value.isPanelOpen).toBe(false);
+  });
+
+  it('setDockPosition changes only the dock', () => {
+    debugActions.setDockPosition('left');
+    expect(debuggerUIState$.value).toEqual({ ...DEFAULT_UI, dockPosition: 'left' });
+  });
+
+  it('setPanelSize changes only the size', () => {
+    debugActions.setPanelSize({ width: 320, height: 240 });
+    expect(debuggerUIState$.value).toEqual({ ...DEFAULT_UI, size: { width: 320, height: 240 } });
+  });
+});
+
+describe('persistence', () => {
+  const recorder = () => {
+    const calls: [string, string][] = [];
+    return { calls, setItem: (key: string, value: string) => void calls.push([key, value]) };
+  };
+
+  it('writes the dock position under its key', () => {
+    const storage = recorder();
+    persistDockPosition(storage, 'right');
+    expect(storage.calls).toEqual([['qsp-debugger-dock-position', 'right']]);
+  });
+
+  it('writes the size as JSON under its key', () => {
+    const storage = recorder();
+    persistPanelSize(storage, { width: 320, height: 240 });
+    expect(storage.calls).toEqual([['qsp-debugger-size', '{"width":320,"height":240}']]);
+  });
+
+  it('ignores missing or throwing storage', () => {
+    expect(() => persistDockPosition(null, 'left')).not.toThrow();
+    const broken = {
+      setItem: () => {
+        throw new Error('quota');
+      },
+    };
+    expect(() => persistPanelSize(broken, { width: 1, height: 1 })).not.toThrow();
   });
 });
