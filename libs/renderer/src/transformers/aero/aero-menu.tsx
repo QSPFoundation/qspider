@@ -6,6 +6,7 @@ import { animated } from '@react-spring/web';
 import { useAttributes } from '../../content/attributes';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { menuContext } from '../../theme-core/menu';
+import { menuEntries } from '../../theme-core/menu-entries';
 import { useAeroEffect } from './use-aero-effect';
 import { Markup } from '@qspider/html-renderer';
 import { aeroMenuWithParsedName$ } from '../../render-state';
@@ -57,14 +58,15 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
 export const AeroQspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const items = useAtom(aeroMenuWithParsedName$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
-  let displayIndex = 1;
+  const entries = menuEntries(items);
   return (
     <Tag style={style} {...attributes}>
       {items.map((item, index) => {
-        return item.name[0] === '-' ? (
+        const entry = entries[index];
+        return entry.separator ? (
           <qsp-menu-separator key={item.key} data-qsp="menu-separator" />
         ) : (
-          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={item.key}>
+          <menuContext.Provider value={{ item, index, displayIndex: entry.displayIndex }} key={item.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}

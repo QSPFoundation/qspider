@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { Attributes, menu$ } from '@qspider/game-state';
 import { useAtom } from '@xoid/react';
-import { createContext, CSSProperties, ReactElement, ReactNode, useContext, useState } from 'react';
+import { createContext, ReactElement, ReactNode, useContext, useState } from 'react';
 import { useAttributes } from '../content/attributes';
 import { useClickCoordinates } from '../hooks/click-coordinates';
 import React from 'react';
@@ -9,6 +9,8 @@ import { useFadeTransition } from '../hooks/fade-transition';
 import { animated } from '@react-spring/web';
 import { ListItemWithParsedContent, menuWithParsedName$ } from '../render-state';
 import { Markup } from '@qspider/html-renderer';
+import { menuEntries } from './menu-entries';
+import { menuPlacement } from './menu-placement';
 
 export const menuContext = createContext<{ item: ListItemWithParsedContent; index: number; displayIndex: number }>({
   item: { name: [], image: '' },
@@ -27,42 +29,8 @@ export const QspMenu: React.FC<{
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
   const menu = useAtom(menu$);
   const coordinates = useClickCoordinates();
-  const triggerStyle: CSSProperties = { position: 'fixed' };
   const transitions = useFadeTransition(menu.isOpen);
-  let align: 'center' | 'start' | 'end' = 'start';
-  let side: 'bottom' | 'left' | 'right' | 'top' = 'bottom';
-  if (showAs === 'fixed') {
-    const [x, y] = (showAt ?? 'left top').split(' ');
-    switch (x) {
-      case 'left':
-        triggerStyle.left = offsetX;
-        break;
-      case 'center':
-        triggerStyle.left = `calc(50% - ${offsetX}px)`;
-        align = 'center';
-        break;
-      case 'right':
-        triggerStyle.right = offsetX;
-        align = 'end';
-        break;
-    }
-    switch (y) {
-      case 'top':
-        triggerStyle.top = offsetY;
-        break;
-      case 'center':
-        triggerStyle.top = `calc(50% - ${offsetY}px)`;
-        side = 'left';
-        break;
-      case 'bottom':
-        triggerStyle.bottom = offsetY;
-        side = 'top';
-        break;
-    }
-  } else {
-    triggerStyle.left = coordinates.x ?? 0;
-    triggerStyle.top = coordinates.y ?? 0;
-  }
+  const { triggerStyle, align, side } = menuPlacement(showAs, showAt, offsetX, offsetY, coordinates);
   return (
     <DropdownMenu.Root open={menu.isOpen} onOpenChange={(): void => menu$.actions.close()}>
       <DropdownMenu.Trigger asChild>
@@ -88,14 +56,15 @@ export const QspMenu: React.FC<{
 export const QspMenuList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const items = useAtom(menuWithParsedName$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu-list');
-  let displayIndex = 1;
+  const entries = menuEntries(items);
   return (
     <Tag style={style} {...attributes}>
       {items.map((item, index) => {
-        return item.name[0] === '-' ? (
+        const entry = entries[index];
+        return entry.separator ? (
           <qsp-menu-separator key={item.key} data-qsp="menu-separator" />
         ) : (
-          <menuContext.Provider value={{ item, index, displayIndex: displayIndex++ }} key={item.key}>
+          <menuContext.Provider value={{ item, index, displayIndex: entry.displayIndex }} key={item.key}>
             {React.Children.map(children, (child) => {
               return React.cloneElement(child as ReactElement);
             })}
