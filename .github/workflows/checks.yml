@@ -14,6 +14,9 @@ env:
   # Chromium's system packages as Playwright 1.64 lists them for ubuntu24.04-x64 (its `tools` and `chromium`
   # deps), installed from the apt cache. `playwright install --with-deps` fetched them from the Azure mirror on
   # every run, and a slow mirror (24 kB/s on 2026-10-26: 12m53s) ran e2e-web past its timeout.
+  # The Linux desktop E2E's WebDriver, X server and accessibility bus. A plain apt-get spent 8–10 min on one
+  # package (libwebkit2gtk-4.1-0) from the Azure mirror on 2026-10-26 and ran the desktop jobs past their timeout.
+  DESKTOP_E2E_PKGS: webkit2gtk-driver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0
   CHROMIUM_PKGS: >-
     xvfb fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-cyrillic xfonts-scalable
     fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf libasound2t64
@@ -290,19 +293,11 @@ jobs:
           version: ${{ env.APT_CACHE_VERSION }}
       # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
       # Retried with network timeouts, so one dropped connection doesn't fail the job.
-      - name: Install WebDriver, Xvfb and AT-SPI
-        timeout-minutes: 20
-        run: |
-          apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          for attempt in 1 2 3; do
-            if sudo apt-get $apt_opts update && \
-               sudo apt-get $apt_opts install -y webkit2gtk-driver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0; then
-              exit 0
-            fi
-            echo "apt attempt $attempt failed; retrying"
-            sleep 15
-          done
-          exit 1
+      - name: Install WebDriver, Xvfb and AT-SPI (cached)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: ${{ env.DESKTOP_E2E_PKGS }}
+          version: ${{ env.APT_CACHE_VERSION }}
       - run: cargo install tauri-driver --locked
       - run: pnpm e2e:desktop --shard ${{ matrix.shard }}
       # Artifact names may not contain '/': shard 1/3 becomes 1-of-3.
@@ -364,19 +359,11 @@ jobs:
           version: ${{ env.APT_CACHE_VERSION }}
       # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
       # Retried with network timeouts, so one dropped connection doesn't fail the job.
-      - name: Install WebDriver, Xvfb and AT-SPI
-        timeout-minutes: 20
-        run: |
-          apt_opts="-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-          for attempt in 1 2 3; do
-            if sudo apt-get $apt_opts update && \
-               sudo apt-get $apt_opts install -y webkit2gtk-driver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0; then
-              exit 0
-            fi
-            echo "apt attempt $attempt failed; retrying"
-            sleep 15
-          done
-          exit 1
+      - name: Install WebDriver, Xvfb and AT-SPI (cached)
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: ${{ env.DESKTOP_E2E_PKGS }}
+          version: ${{ env.APT_CACHE_VERSION }}
       - run: cargo install tauri-driver --locked
       - run: pnpm e2e:standalone-desktop
       - uses: actions/upload-artifact@v4
