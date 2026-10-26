@@ -5,12 +5,21 @@ import { currentGameEntry$, onRestore } from './current-game';
 import { qspApi$ } from './qsp-api';
 import { getStorage } from '@qspider/env';
 import { closePauseScreen } from './pause-screen';
+import {
+  finishSave,
+  gameSavedCallback$,
+  requestedAction$,
+  resumeAfterLoad,
+  saveCommandTarget,
+  saveLoadedCallback$,
+  type QspSaveCommand,
+  type SaveContext,
+  type SaveTarget,
+} from './save-routing';
 
-export const saveLoadedCallback$ = create<null | (() => void)>();
-export const gameSavedCallback$ = create<null | (() => void)>();
+export { gameSavedCallback$, requestedAction$, saveLoadedCallback$, type QspSaveCommand, type SaveContext };
 export const saveSlots$ = create<SaveData[]>([]);
 export const namedSlots$ = create<SaveData[]>([]);
-export const requestedAction$ = create<string | null>(null);
 
 export const QUICK_SAVE_KEY = '__quicksave_qspider__';
 
@@ -27,39 +36,30 @@ export async function loadSaveList(): Promise<void> {
   namedSlots$.set(named || []);
 }
 
-export async function saveToSlot(slot: number): Promise<void> {
+async function writeSave(gameId: string, target: SaveTarget, saveData: ArrayBuffer): Promise<void> {
+  if ('slot' in target) await getStorage().saveBySlot(gameId, target.slot, saveData);
+  else await getStorage().saveByKey(gameId, target.path, saveData);
+}
+
+async function saveTo(target: SaveTarget): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   const saveData = qspApi$.value?.saveGame();
   if (saveData) {
-    await getStorage().saveBySlot(currentGame.id, slot, saveData);
+    await writeSave(currentGame.id, target, saveData);
   }
-  const saved = gameSavedCallback$.value;
-  saved?.();
-  gameSavedCallback$.set(null);
-  requestedAction$.set(null);
+  finishSave();
   await loadSaveList();
 }
 
-export async function saveToPath(path: string): Promise<void> {
-  const currentGame = currentGameEntry$.value;
-  if (!currentGame) return;
-  const saveData = qspApi$.value?.saveGame();
-  if (saveData) {
-    await getStorage().saveByKey(currentGame.id, path, saveData);
-  }
-  const saved = gameSavedCallback$.value;
-  saved?.();
-  gameSavedCallback$.set(null);
-  requestedAction$.set(null);
-  await loadSaveList();
-}
-
-export async function restoreFromSlot(slot: number): Promise<void> {
+async function restoreFrom(target: SaveTarget): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   try {
-    const saveData = await getStorage().getSaveDataBySlot(currentGame.id, slot);
+    const saveData =
+      'slot' in target
+        ? await getStorage().getSaveDataBySlot(currentGame.id, target.slot)
+        : await getStorage().getSaveDataByKey(currentGame.id, target.path);
     // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
     if (saveData) {
       qspApi$.value?.loadSave(saveData);
@@ -70,40 +70,20 @@ export async function restoreFromSlot(slot: number): Promise<void> {
   }
 }
 
-function resumeAfterLoad(): void {
-  const loaded = saveLoadedCallback$.value;
-  saveLoadedCallback$.set(null);
-  requestedAction$.set(null);
-  loaded?.();
-}
-
-export async function restoreFromPath(path: string): Promise<void> {
+async function clearFrom(target: SaveTarget): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  try {
-    const saveData = await getStorage().getSaveDataByKey(currentGame.id, path);
-    // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
-    if (saveData) {
-      qspApi$.value?.loadSave(saveData);
-    }
-  } finally {
-    resumeAfterLoad();
-  }
-}
-
-export async function clearSlot(slot: number): Promise<void> {
-  const currentGame = currentGameEntry$.value;
-  if (!currentGame) return;
-  await getStorage().clearSaveSlot(currentGame.id, slot);
+  if ('slot' in target) await getStorage().clearSaveSlot(currentGame.id, target.slot);
+  else await getStorage().clearSaveKey(currentGame.id, target.path);
   await loadSaveList();
 }
 
-export async function clearPath(path: string): Promise<void> {
-  const currentGame = currentGameEntry$.value;
-  if (!currentGame) return;
-  await getStorage().clearSaveKey(currentGame.id, path);
-  await loadSaveList();
-}
+export const saveToSlot = (slot: number): Promise<void> => saveTo({ slot });
+export const saveToPath = (path: string): Promise<void> => saveTo({ path });
+export const restoreFromSlot = (slot: number): Promise<void> => restoreFrom({ slot });
+export const restoreFromPath = (path: string): Promise<void> => restoreFrom({ path });
+export const clearSlot = (slot: number): Promise<void> => clearFrom({ slot });
+export const clearPath = (path: string): Promise<void> => clearFrom({ path });
 
 export async function quickSave(): Promise<void> {
   const nosave = qspApi$.value?.readVariable('NOSAVE');
@@ -130,34 +110,20 @@ export async function quickLoad(): Promise<void> {
   });
 }
 
-export type QspSaveCommand = 'load' | 'save' | 'clear';
-export type SaveContext = { slot_index: number; save_path: string };
 export async function onSaveCommand(action: QspSaveCommand, context: SaveContext): Promise<void> {
-  const { slot_index, save_path } = context;
+  const target = saveCommandTarget(context);
   switch (action) {
     case 'load':
-      if (slot_index > 0) {
-        await restoreFromSlot(slot_index);
-      } else if (save_path) {
-        await restoreFromPath(save_path);
-      }
+      if (target) await restoreFrom(target);
       onRestore();
       closePauseScreen();
       break;
     case 'save':
-      if (slot_index > 0) {
-        await saveToSlot(slot_index);
-      } else if (save_path) {
-        await saveToPath(save_path);
-      }
+      if (target) await saveTo(target);
       closePauseScreen();
       break;
     case 'clear':
-      if (slot_index > 0) {
-        clearSlot(slot_index);
-      } else if (save_path) {
-        clearPath(save_path);
-      }
+      if (target) clearFrom(target);
       break;
     default:
       console.error(`Unknown save action: ${action}`);

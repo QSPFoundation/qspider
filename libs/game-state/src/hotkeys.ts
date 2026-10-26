@@ -1,14 +1,13 @@
 import Mousetrap from 'mousetrap';
 import { volume$ } from './audio';
 import { isPaused$ } from './counter';
-import { GameCommand, onGameCommand } from './current-game';
-import { actions$, canSelectAction, execSelectedAction, selectAction, view$ } from './panels';
+import { GameCommand, onGameCommand, requestSavesPanel } from './current-game';
+import { actions$, canSelectAction, runAction, view$ } from './panels';
 import { input$ } from './input';
 import { menu$ } from './menu';
 import { msg$ } from './msg';
 import { wait$ } from './wait';
 import { qspApi$ } from './qsp-api';
-import { requestedAction$ } from './save';
 import create from 'xoid';
 import { isBlockingDialogOpen, resolveHotkey, type DialogState, type HotkeyDecision } from './hotkey-format';
 
@@ -63,8 +62,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     on_press: (): void | boolean => {
       const decision = decide('space');
       if (decision.run === 'exec-single-action') {
-        selectAction(0);
-        execSelectedAction();
+        runAction(0);
       }
       return decision.preventDefault ? false : undefined;
     },
@@ -87,8 +85,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     on_press: (): boolean | undefined => {
       const decision = decide('save');
       if (decision.run === 'save') {
-        requestedAction$.set('save');
-        onGameCommand('pause:saves' as GameCommand);
+        requestSavesPanel('save');
       }
       return decision.preventDefault ? false : undefined;
     },
@@ -98,8 +95,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     keys: 'mod+o',
     description: 'Load',
     on_press: (): boolean | undefined => {
-      requestedAction$.set('load');
-      onGameCommand('pause:saves' as GameCommand);
+      requestSavesPanel('load');
       return false;
     },
   },
@@ -142,8 +138,7 @@ export function setupGlobalHotKeys(): void {
         return hotkey.on_press(e, code);
       } else if (hotkey.on_press.type === 'action') {
         if (canSelectAction(hotkey.on_press.index)) {
-          selectAction(hotkey.on_press.index);
-          execSelectedAction();
+          runAction(hotkey.on_press.index);
           return false;
         }
       } else if (hotkey.on_press.type === 'game_action') {

@@ -2,14 +2,7 @@ import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts
 import { atom } from 'xoid';
 import { clearAdditionalResources, loadAdditionalResources } from './resources';
 import { openGameSource, qspApi$ } from './qsp-api';
-import {
-  AERO_THEME,
-  CLASSIC_THEME,
-  currentTheme$,
-  currentTranslations$,
-  registerThemes,
-  themeRegistry$,
-} from './themes';
+import { CLASSIC_THEME, currentTheme$, currentTranslations$, registerThemes, themeRegistry$ } from './themes';
 import { resetCounterPauses } from './counter';
 import { muted$, sounds$ } from './audio';
 import {
@@ -19,7 +12,7 @@ import {
   openPauseScreen,
   pauseScreenCurrentPanel$,
 } from './pause-screen';
-import { loadSaveList, quickLoad, quickSave } from './save';
+import { loadSaveList, quickLoad, quickSave, requestedAction$ } from './save';
 import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys';
 import { fetchBinaryContent, fetchTextContent, whenGameFilesReady, windowManager } from '@qspider/env';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
@@ -45,13 +38,26 @@ import { parseToml } from '@qspider/utils';
 import { debugActions } from './debug';
 import { scrollStep } from './qspider-command-parsers';
 import { isQspsFile } from './engine-event-logic';
+import {
+  aeroHeight,
+  aeroWidth,
+  aeroWindow,
+  chooseTheme,
+  configXmlSize,
+  DEFAULT_AERO_SIZE,
+  gameMode,
+  parseGameCommand,
+  pickDescriptor,
+  slotCount,
+  windowSettingsPlan,
+} from './game-config';
 
 export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
 export const currentGame$ = atom<GameDescriptor | null>();
-export const currentGameMode$ = atom((get) => get(currentGame$)?.mode || 'classic');
-export const currentAeroWidth$ = atom((get) => get(currentGame$)?.aero?.width ?? 800);
-export const currentAeroHeight$ = atom((get) => get(currentGame$)?.aero?.height ?? 600);
-export const saveSlotsCount$ = atom((get) => get(currentGame$)?.save_slots ?? 9);
+export const currentGameMode$ = atom((get) => gameMode(get(currentGame$)));
+export const currentAeroWidth$ = atom((get) => aeroWidth(get(currentGame$)));
+export const currentAeroHeight$ = atom((get) => aeroHeight(get(currentGame$)));
+export const saveSlotsCount$ = atom((get) => slotCount(get(currentGame$)));
 export const onGameEnd$ = atom<null | (() => void)>(null);
 export const baseUrl$ = atom('');
 
@@ -71,13 +77,9 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     try {
       const configContent = await fetchTextContent(baseUrl$.value, 'game.cfg');
       const config = parseToml<PlayerConfig>(configContent);
-      if (config.game?.length === 1) {
-        [descriptor] = config.game;
-      } else {
-        const found = config.game?.find((game) => game.id === entry.id);
-        if (!found) throw new Error('Config not found');
-        descriptor = found;
-      }
+      const found = pickDescriptor(config, entry.id);
+      if (!found) throw new Error('Config not found');
+      descriptor = found;
     } catch (e) {
       console.error('Game config not loaded', e);
     }
@@ -95,42 +97,20 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 
     if (descriptor.mode === 'aero') {
       if (descriptor.aero) {
-        descriptor.window = {
-          ...(descriptor.window ?? {}),
-          ...descriptor.aero,
-          resizable: false,
-        };
+        descriptor.window = aeroWindow(descriptor.window, descriptor.aero);
       } else {
         try {
           const content = await fetchTextContent(baseUrl$.value, 'config.xml');
           const parser = new DOMParser();
           const doc = parser.parseFromString(content, 'application/xml');
-          const gameElement = doc.querySelector('game');
-          if (gameElement) {
-            const width = parseInt(gameElement.getAttribute('width') || '800');
-            const height = parseInt(gameElement.getAttribute('height') || '600');
-            descriptor.aero = {
-              width,
-              height,
-            };
-            descriptor.window = {
-              ...(descriptor.window ?? {}),
-              width,
-              height,
-              resizable: false,
-            };
+          const size = configXmlSize(doc);
+          if (size) {
+            descriptor.aero = size;
+            descriptor.window = aeroWindow(descriptor.window, size);
           }
         } catch {
-          descriptor.aero = {
-            width: 800,
-            height: 600,
-          };
-          descriptor.window = {
-            ...(descriptor.window ?? {}),
-            width: 800,
-            height: 600,
-            resizable: false,
-          };
+          descriptor.aero = { ...DEFAULT_AERO_SIZE };
+          descriptor.window = aeroWindow(descriptor.window, DEFAULT_AERO_SIZE);
         }
       }
     }
@@ -150,19 +130,9 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     if (descriptor?.themes) {
       await registerThemes(descriptor.themes);
     }
-    if (descriptor?.defaultTheme) {
-      const theme = themeRegistry$.value[descriptor.defaultTheme];
-      if (theme) {
-        currentTheme$.set(descriptor.defaultTheme);
-      } else {
-        showNotice(`Theme ${descriptor.defaultTheme} not found`);
-        currentTheme$.set(descriptor.mode === 'aero' ? AERO_THEME : CLASSIC_THEME);
-      }
-    } else if (descriptor?.mode === 'aero') {
-      currentTheme$.set(AERO_THEME);
-    } else {
-      currentTheme$.set(CLASSIC_THEME);
-    }
+    const { theme, missing } = chooseTheme(descriptor, (alias) => Boolean(themeRegistry$.value[alias]));
+    if (missing) showNotice(`Theme ${missing} not found`);
+    currentTheme$.set(theme);
     loadThemeTranslations(currentTranslations$.value);
     if (descriptor) applyWindowSettings(descriptor.window);
     let gameSource = await fetchBinaryContent(baseUrl$.value, entry.loadConfig.entrypoint);
@@ -186,24 +156,17 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
 
 let wasResized = false;
 async function applyWindowSettings(window: GameDescriptor['window']): Promise<void> {
-  if (window) {
-    if (window.width && window.height) {
-      await windowManager.resize(window.width, window.height);
-      wasResized = true;
-    }
-    const resizable = window.resizable ?? true;
-    windowManager.setResizable(resizable);
-    if (resizable) {
-      if (window.minWidth && window.minHeight) {
-        await windowManager.setMinSize(window.minWidth, window.minHeight);
-      }
-      if (window.maxWidth && window.maxHeight) {
-        await windowManager.setMaxSize(window.maxWidth, window.maxHeight);
-      }
-    }
-    if (window.fullscreen) {
-      setTimeout(() => windowManager.goFullscreen(), 0);
-    }
+  const plan = windowSettingsPlan(window);
+  if (!plan) return;
+  if (plan.size) {
+    await windowManager.resize(plan.size.width, plan.size.height);
+    wasResized = true;
+  }
+  windowManager.setResizable(plan.resizable);
+  if (plan.minSize) await windowManager.setMinSize(plan.minSize.width, plan.minSize.height);
+  if (plan.maxSize) await windowManager.setMaxSize(plan.maxSize.width, plan.maxSize.height);
+  if (plan.fullscreen) {
+    setTimeout(() => windowManager.goFullscreen(), 0);
   }
 }
 
@@ -258,28 +221,30 @@ export function stopCurrentGame(): void {
 }
 export type GameCommand = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
 
-function onRestart(): void {
-  reloadRegions();
-  reloadLayers();
-}
+/** The regions and layers are read again from the game's variables (after a restart or a load). */
 export function onRestore(): void {
   reloadRegions();
   reloadLayers();
 }
 
+/** Asks the player for the saves panel to save or load in (the game's SAVEGAME / OPENGAME without a path, Ctrl+S, Ctrl+O). */
+export function requestSavesPanel(action: 'save' | 'load'): void {
+  requestedAction$.set(action);
+  onGameCommand('pause:saves' as GameCommand);
+}
+
 export function onGameCommand(action: GameCommand): void {
-  if (action.startsWith('pause:')) {
-    const [, panel] = action.split(':');
+  const command = parseGameCommand(action);
+  if (command.type === 'pause') {
     if (!isPauseScreenVisible$.value) openPauseScreen();
-    pauseScreenCurrentPanel$.set(panel);
-  } else if (action.startsWith('scroll:')) {
-    const [, panel, direction] = action.split(':');
-    switch (panel) {
+    pauseScreenCurrentPanel$.set(command.panel);
+  } else if (command.type === 'scroll') {
+    switch (command.panel) {
       case 'main':
-        mainScroll$.update((x) => scrollStep(x, direction));
+        mainScroll$.update((x) => scrollStep(x, command.direction));
         break;
       case 'stats':
-        statsScroll$.update((x) => scrollStep(x, direction));
+        statsScroll$.update((x) => scrollStep(x, command.direction));
         break;
     }
   }
@@ -292,7 +257,7 @@ export function onGameCommand(action: GameCommand): void {
       // pause screen is closed. The counter needs no handling here: the pause screen and a library the
       // restart loads (withCounterPaused) each hold their own pause reason and release only that.
       qspApi$.value?.restartGame();
-      onRestart();
+      onRestore();
       if (isPauseScreenVisible$.value) closePauseScreen();
       pauseScreenCurrentPanel$.set('credits');
       break;

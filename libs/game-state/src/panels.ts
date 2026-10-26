@@ -1,6 +1,7 @@
 import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
+import { isActionIndex, layerFlag, readAll, regionText, view$ } from './panel-logic';
 
 export const mainContent$ = atom('');
 export const nextMainContent$ = atom('');
@@ -19,7 +20,7 @@ export const actions$ = atom<QspListItem[]>([]);
 export const selectedAction$ = atom(-1);
 
 export function canSelectAction(index: number): boolean {
-  return index >= 0 && index < actions$.value.length;
+  return isActionIndex(index, actions$.value.length);
 }
 
 export function selectAction(index: number): void {
@@ -29,6 +30,11 @@ export function selectAction(index: number): void {
 export function execSelectedAction(): void {
   selectedAction$.set(-1);
   qspApi$.value?.execSelectedAction();
+}
+/** Picks the action and runs it, as a key for it does. */
+export function runAction(index: number): void {
+  selectAction(index);
+  execSelectedAction();
 }
 
 export const isObjsVisible$ = atom(false);
@@ -44,69 +50,21 @@ export function submitUserInput(): void {
   qspApi$.value?.updateUserInput(cmdText$.value);
 }
 
-interface ViewAtom {
-  isOpen: boolean;
-  path: string;
-  isModal: boolean;
-}
-interface ViewAtomActions {
-  open(path: string): void;
-  setIsModal(isModal: boolean): void;
-  close(): void;
-  clear(): void;
-}
-
-export const view$ = atom<ViewAtom, ViewAtomActions>(
-  {
-    isOpen: false,
-    path: '',
-    isModal: false,
-  },
-  (atom) => {
-    const isOpen$ = atom.focus((s) => s.isOpen);
-    const isModal$ = atom.focus((s) => s.isModal);
-    return {
-      open(path: string): void {
-        atom.set({
-          isOpen: true,
-          path,
-          isModal: isModal$.value,
-        });
-      },
-      setIsModal(isModal: boolean): void {
-        isModal$.set(isModal);
-      },
-      close(): void {
-        isOpen$.set(false);
-      },
-      clear(): void {
-        atom.set({
-          isOpen: false,
-          path: '',
-          isModal: false,
-        });
-      },
-    };
-  },
-);
+export { view$ };
 
 export const regions$ = atom<Record<string, string>>({});
 export const regionsScroll$ = atom<Record<string, number>>({});
 /** The text the game keeps for a region, in `$qspider_region[name]`. */
 export function readRegion(name: string): string {
-  return qspApi$.value?.readVariableByKey('$qspider_region', name) ?? '';
+  return regionText(qspApi$.value?.readVariableByKey('$qspider_region', name));
 }
 export function reloadRegions(): void {
-  const newState: Record<string, string> = {};
-  for (const name of Object.keys(regions$.value)) {
-    newState[name] = readRegion(name);
-  }
-  regions$.set(newState);
+  regions$.set(readAll(Object.keys(regions$.value), readRegion));
 }
 
 export const layers$ = atom<Record<string, boolean>>({});
 export function readLayerState(name: string): boolean {
-  return Boolean(qspApi$.value?.readVariableByKey('qspider_layers', name) ?? 0);
+  return layerFlag(qspApi$.value?.readVariableByKey('qspider_layers', name));
 }
 export function registerLayer(name: string): void {
   layers$.update((current) => ({
@@ -115,9 +73,5 @@ export function registerLayer(name: string): void {
   }));
 }
 export function reloadLayers(): void {
-  const newState: Record<string, boolean> = {};
-  for (const key of Object.keys(layers$.value)) {
-    newState[key] = readLayerState(key);
-  }
-  layers$.set(newState);
+  layers$.set(readAll(Object.keys(layers$.value), readLayerState));
 }
