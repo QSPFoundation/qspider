@@ -21,6 +21,8 @@ export const APP_IDENTIFIERS = ['org.qsp.qspider', 'org.qsp.e2e.standalone'];
 const CIM_QUERY =
   'Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CreationDate,Name | ConvertTo-Json -Compress';
 const POLL_INTERVAL = 250;
+/** Past the p99 of normal exits (1.9 s on CI), well before a slow one ends: when the stragglers are named. */
+const DESCRIBE_AFTER_MS = 2_000;
 
 type Env = Record<string, string | undefined>;
 
@@ -156,6 +158,7 @@ function describeKinds(procs: Proc[]): string {
     ],
     { encoding: 'utf8', windowsHide: true, maxBuffer: 16 * 1024 * 1024 },
   );
+  if (out.stdout.trim() === '') return '(exited before they could be named)';
   try {
     const parsed = JSON.parse(out.stdout) as { ProcessId: number; Name: string; CommandLine: string | null };
     const list = Array.isArray(parsed) ? parsed : [parsed];
@@ -204,7 +207,7 @@ export const windowsPlatform: DesktopPlatform = {
     return app.pid;
   },
   waitForExit: (procs, timeoutMs) => {
-    // Once the wait passes half its budget, names what each process still alive is (WebView2's --type=):
+    // Once the wait passes DESCRIBE_AFTER_MS, names what each process still alive is (WebView2's --type=):
     // the evidence for why an exit is slow.
     const started = Date.now();
     let described = false;
@@ -213,7 +216,7 @@ export const windowsPlatform: DesktopPlatform = {
       (left) => {
         const now = new Set(listProcesses().map((p) => `${p.pid}@${p.start}`));
         const alive = left.filter((p) => now.has(`${p.pid}@${p.start}`));
-        if (!described && alive.length > 0 && Date.now() - started > timeoutMs / 2) {
+        if (!described && alive.length > 0 && Date.now() - started > DESCRIBE_AFTER_MS) {
           described = true;
           console.warn(`Still running ${Date.now() - started}ms after the session ended: ${describeKinds(alive)}`);
         }
