@@ -10,7 +10,11 @@ export function pickTransformers<T>(mode: string, sets: { base: T; classic: T; a
   }
 }
 
-/** The transformer the set holds for a tag, by its lowercased name. */
+/**
+ * The transformer the set holds for a tag, by its lowercased name. Own keys only: game text can write
+ * `<constructor>`, which would otherwise find Object and crash the content tree.
+ */
 export function lookupTransformer<T>(set: Record<string, T>, tagName: string): T | undefined {
-  return set[tagName.toLowerCase()];
+  const name = tagName.toLowerCase();
+  return Object.prototype.hasOwnProperty.call(set, name) ? set[name] : undefined;
 }
