@@ -16,6 +16,7 @@ export * from './save';
 export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
+export * from './gui-layout';
 export * from './components';
 export * from './init';
 export * from './hotkeys';
