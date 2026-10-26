@@ -16,10 +16,10 @@ const currentTransformers$ = atom((get) => {
   }
 });
 
-export const transform: TransformCallback = (node, children, config) => {
+export const transform: TransformCallback = (node, children) => {
   const transformer = currentTransformers$.value[node.tagName.toLowerCase()];
   if (transformer) {
-    return transformer(node, children, config);
+    return transformer(node, children);
   }
-  return defaultTransform(node, children, config);
+  return defaultTransform(node, children);
 };
