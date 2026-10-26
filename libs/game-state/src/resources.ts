@@ -24,7 +24,7 @@ export async function loadAdditionalResources(resources: GameDescriptor['resourc
 }
 
 /** Resolves with `path` when the element does not report `load` in time or reports `error`, else with null. */
-function whenLoaded(element: HTMLElement, path: string): Promise<string | null> {
+export function whenLoaded(element: HTMLElement, path: string): Promise<string | null> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(path), RESOURCE_TIMEOUT_MS);
     const settle = (failed: boolean): void => {
