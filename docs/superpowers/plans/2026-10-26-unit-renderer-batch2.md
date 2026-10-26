@@ -22,18 +22,18 @@
 - **Unit tests cover pure logic only.** Rendering, engine and DOM-in-the-player behaviour stay E2E.
 - **Refactors are pure moves or extractions** in their own `refactor(<project>): …` commit, before the `test(<project>): …` commit. No player-visible change. Decision 1 is a deletion of unreachable code and also goes in a `refactor` commit.
 - **Tests describe behaviour.** Use real QSP-style HTML and exact expected values, with no snapshots. Name each `it` as a behaviour sentence.
-- **Defect rule:** if output looks wrong for input a real game could produce, write a red `test(...)` commit, then stop that function and report DONE_WITH_CONCERNS. The controller asks the maintainer. Only crashes on impossible input, dead code and internal-only fixes go ahead in a `fix(...)` commit. Two known open questions are listed under Review Focus (`qsp-on:wheel` and `$` patterns). Their red tests are expected.
+- **Defect rule:** if output looks wrong for input a real game could produce, write a red `test(...)` commit, then stop that function and report DONE_WITH_CONCERNS. The controller asks the maintainer. Only crashes on impossible input, dead code and internal-only fixes go ahead in a `fix(...)` commit. The maintainer approved the fixes for `qsp-on:wheel` and the `$` patterns on 2026-10-26. Write the red test, then the `fix(renderer): …` commit, in the same task.
 - **Data tables are not tested** (`TAGS_MAP`, `fontSizeMap`, `AERO_EFFECTS`, `deviceChecks`, the dropped-tag list). The functions that read them are.
 - **NX only:** `pnpm nx test <project>`, `pnpm nx typecheck <project>`, `pnpm nx lint <project>`, `pnpm format:check`. Never call vitest directly.
 - **Spec files are typechecked:** each touched project gets `tsconfig.spec.json`, and its `typecheck` runs both tsconfigs, as `libs/utils/project.json` does.
-- **Git:** branch `test/unit-renderer-batch2` off `test/e2e-gaps-batch1` (#186, which moved the toasts into renderer). Rebase onto `main` once #186 merges. Stage only the task's files and never bypass hooks. Don't push until Task 7. Don't run desktop E2E or `check:full`. Never touch `public/game/`.
+- **Git:** branch `test/unit-renderer-batch2` off `main` (#186 merged). Stage only the task's files and never bypass hooks. Don't push until Task 7. Don't run desktop E2E or `check:full`. Never touch `public/game/`.
 - **Local Chromium:** `CHROME_BIN=/usr/bin/chromium`. CI uses Playwright's own (`pnpm exec playwright install --with-deps chromium`).
 
 ## Review Focus
 
 1. **Text that mixes raw newlines with `<br>` or other void-only markup** (`'a<br>\nb'`, `'<img src="x.png">\nnext'`). `convertLineBreaks` only skips conversion when it sees a closing tag or `/>`, so these get extra `<br/>`s. Task 1 pins the current output only for the cases it lists. Any other case that looks wrong falls under the defect rule.
-2. **A list item name containing `$&`, `$$` or `$1`** (`'Price: $$5'`). `String.replace` with a string pattern expands these. `fillFormat` must insert the name verbatim. This is pinned red in Task 3 and is an open question for the maintainer.
-3. **`qsp-on:wheel`**, which is in `supportedEvents` but missing from `eventsMap`. Today it becomes a prop named `undefined` and does nothing. `convertAttributes` must map it to `onWheel`. This is pinned red in Task 2 and is an open question for the maintainer.
+2. **A list item name containing `$&`, `$$` or `$1`** (`'Price: $$5'`). `String.replace` with a string pattern expands these. `fillFormat` must insert the name verbatim. Pinned red in Task 3, then fixed. **Fix approved.**
+3. **`qsp-on:wheel`**, which is in `supportedEvents` but missing from `eventsMap`. Today it becomes a prop named `undefined` and does nothing. `convertAttributes` must map it to `onWheel`. Pinned red in Task 2, then fixed. **Fix approved.**
 4. **A dock with `visibility=""`** written by a theme author. `QspCLLayer` (`?? true`, so `''` means hidden) and `QspCLDock` (`!visibility` means shown) disagree today. Both must use one `isDockVisible`. Pinned in Task 4. Whichever reading wins is player-visible, so the defect rule applies.
 5. **A numeric `qsp-bind` input given non-numeric text** (`abc`). `bindAssignment` emits `x = abc`, which runs as QSP code. Task 3 pins the current output for `''` → `x = 0` only. For `abc`, write the red test the rule asks for, then report.
 
@@ -117,7 +117,7 @@
     - `class` → `className`; `colspan` → `colSpan`; `stroke-width` → `strokeWidth`; `aria-label`, `data-x` and `mask-type` are kept
     - `onclick` is dropped
     - `qsp-on:click="exec:gt 'x'"` → `events: [{ prop: 'onClick', code: "gt 'x'" }]`; `qsp-on:foo` → no event
-    - **`qsp-on:wheel` → `{ prop: 'onWheel', … }` (red, Review Focus 3: report it)**
+    - **`qsp-on:wheel` → `{ prop: 'onWheel', … }` (red, Review Focus 3, fix approved)**
     - `dataName` `qsp-main` → `props['data-qsp'] === 'main'`
     - custom tag `qsp-x` keeps `class`, not `className`
     - `iframe` → `sandbox: 'allow-scripts'`, even when the game set `sandbox=""`
@@ -131,7 +131,7 @@
 
 - [ ] **Step 3: Run.** Run: `pnpm nx test renderer`. Expected: FAIL only on `face` and `wheel`. Commit the red specs: `test(renderer): attribute conversion and save context`.
 
-- [ ] **Step 4: Fix face.** Map `face` to `fontFamily`. Commit `fix(renderer): <font face> sets font-family`. Run it again: only `wheel` stays red. Report it for the maintainer's decision.
+- [ ] **Step 4: Fix face.** Map `face` to `fontFamily`. Commit `fix(renderer): <font face> sets font-family`. Then map `wheel` to `onWheel` and commit `fix(renderer): qsp-on:wheel runs its code`. Run it again: PASS.
 
 ---
 
@@ -181,13 +181,15 @@
   - `fillFormat`:
     - `('<b>%TEXT%</b>', { '%TEXT%': 'Go' })` → `'<b>Go</b>'`
     - a missing placeholder leaves the format unchanged
-    - **`{ '%TEXT%': 'Price: $$5 $&' }` → the text inserted verbatim (red, Review Focus 2: report it)**
+    - **`{ '%TEXT%': 'Price: $$5 $&' }` → the text inserted verbatim (red, Review Focus 2, fix approved)**
   - `pickTransformers` with `{ base: { a: 1, x: 1 }, classic: { b: 2, x: 2 }, aero: { c: 3, x: 3 } }`:
     - `aero` → `{ a: 1, b: 2, c: 3, x: 3 }`
     - `classic` → `x: 2`, no `c`
     - `'qspider'` and `'weird'` → base
 
-- [ ] **Step 3: Run.** Run: `pnpm nx test renderer`. Expected: red only on the Review Focus cases. Commit `test(renderer): bind code, css variable rules, list format and transformer choice`, and report the red ones.
+- [ ] **Step 3: Run.** Run: `pnpm nx test renderer`. Expected: red only on the `$` case and the `abc` case. Commit `test(renderer): bind code, css variable rules, list format and transformer choice`.
+
+- [ ] **Step 4: Fix `$` patterns.** `fillFormat` inserts the values verbatim (a function replacer). Commit `fix(renderer): list item names with $ patterns render verbatim`. Report the `abc` red test, which isn't approved.
 
 ---
 
@@ -284,4 +286,4 @@ Follow `apps/player-e2e/README.md` Rules.
 
 - [ ] **Step 1: Completeness.** List every function and inline logic block in `libs/html-renderer/src` and `libs/renderer/src`, and mark each one tested, skipped (with the reason) or not pure. Expected skips: components and hooks that only wire atoms; `createVariableAtom` and the key counters in `render-state.ts` (engine watchers); `game-runner` `handler`; `QspDevice` (table lookup inside `useMediaQuery`); the transformer callbacks (they render React, so E2E covers them); `AERO_EFFECTS`, `TAGS_MAP` and `fontSizeMap` (tables). Put the list in the PR body.
 - [ ] **Step 2: Local gate.** Run `pnpm format:check`, then `pnpm nx run-many -t lint typecheck test -p html-renderer renderer desktop game-shelf`, then the Task 5 E2E. All must pass, and you report the output.
-- [ ] **Step 3: PR.** Only after #186 has merged and the branch is rebased onto `main`, push and open a PR against `main`. The body covers the decisions, the completeness list, any defects still open for the maintainer, and the follow-up the HtmlParser removal leaves behind: nothing in the parser sanitises any more, and the sanitising points are `game-state` `extractAttributes`, `convertAttributes` and `defaultTransform`.
+- [ ] **Step 3: PR.** Push and open a PR against `main`. The body covers the decisions, the completeness list, any defects still open for the maintainer, and the follow-up the HtmlParser removal leaves behind: nothing in the parser sanitises any more, and the sanitising points are `game-state` `extractAttributes`, `convertAttributes` and `defaultTransform`.
