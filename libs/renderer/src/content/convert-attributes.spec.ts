@@ -43,6 +43,11 @@ describe('convertAttributes', () => {
     expect(props).toEqual({ className: 'box', colSpan: '2', strokeWidth: '3' });
   });
 
+  it('keeps an attribute named like an Object.prototype member as written', () => {
+    const { props } = convertAttributes({ constructor: 'y' }, 'i');
+    expect(props).toEqual({ constructor: 'y' });
+  });
+
   it('keeps aria-, data- and mask-type attributes as written', () => {
     const { props } = convertAttributes({ 'aria-label': 'Close', 'data-x': '1', 'mask-type': 'alpha' }, 'div');
     expect(props).toEqual({ 'aria-label': 'Close', 'data-x': '1', 'mask-type': 'alpha' });
