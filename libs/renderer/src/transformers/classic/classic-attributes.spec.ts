@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dockAttributes, paneAttributes, tableDimensions } from './classic-attributes';
+import { dockAttributes, elementChildren, paneAttributes, tableDimensions } from './classic-attributes';
 
 describe('tableDimensions', () => {
   it('defaults to border 0, cellspacing 0 and cellpadding 1', () => {
@@ -16,6 +16,16 @@ describe('tableDimensions', () => {
 
   it('defaults only the attributes that are missing', () => {
     expect(tableDimensions({ border: '1' })).toEqual({ border: 1, cellspacing: 0, cellpadding: 1 });
+  });
+});
+
+describe('elementChildren', () => {
+  it('drops the whitespace text between table rows', () => {
+    expect(elementChildren(['\n  ', { tag: 'tr' }, '\n', { tag: 'tr' }])).toEqual([{ tag: 'tr' }, { tag: 'tr' }]);
+  });
+
+  it('keeps nothing when only text is left', () => {
+    expect(elementChildren(['a', 'b'])).toEqual([]);
   });
 });
 
