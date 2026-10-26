@@ -92,6 +92,17 @@ const eventsMap: Record<string, keyof EventAttributes> = {
   submit: 'onSubmit',
 };
 
+/**
+ * The name a prop lands on in the DOM, as the guards below compare it: HTML lowercases attribute names, so the
+ * camelCased `Onclick` (from `-onclick`) and `sAndbox` (from `s-andbox`) become `onclick` and `sandbox`. `-` is
+ * removed too, so a name that differs only by a dash also meets the guard.
+ */
+const guardedName = (prop: string): string => prop.replace(/-/g, '').toLowerCase();
+
+// Names convertAttributes takes out of the props and handles itself (tag= picks the tag, style is merged into the
+// style object): a second spelling must not reach the DOM under the same name.
+const CONVERTER_OWNED = new Set(['tag', 'style']);
+
 export interface ConvertedAttributes {
   /** The tag to render: the tag= attribute or the parsed tag, lowercased, SVG names in camelCase. */
   tag: string;
@@ -125,7 +136,6 @@ export function convertAttributes(
   const lowerTag = String(tagAttribute).toLowerCase();
   const tag = Object.prototype.hasOwnProperty.call(TAGS_MAP, lowerTag) ? TAGS_MAP[lowerTag] : lowerTag;
   for (const [key, value] of Object.entries(attrs)) {
-    if (key.startsWith('on')) continue;
     if (key.startsWith('qsp-on')) {
       const code = (value as string).slice(5);
       const [, event] = key.split(':');
@@ -145,6 +155,10 @@ export function convertAttributes(
         return w.toUpperCase();
       });
     }
+    // Inline handlers never pass, in any spelling: on a custom element React sets `Onclick` as an attribute and the
+    // DOM makes it a live onclick. The player's own handlers come from `events` and `command`.
+    const guarded = guardedName(preparedKey);
+    if (guarded.startsWith('on') || CONVERTER_OWNED.has(guarded)) continue;
     props[preparedKey] = value as string;
   }
 
@@ -153,6 +167,10 @@ export function convertAttributes(
     delete props['className'];
   }
   if (localTagName(tag) === 'iframe') {
+    // Every spelling goes first: React would set a later `Sandbox` after `sandbox`, and the DOM keeps the last one.
+    for (const key of Object.keys(props)) {
+      if (guardedName(key) === 'sandbox') delete props[key];
+    }
     props['sandbox'] = 'allow-scripts';
   }
   let command: ConvertedAttributes['command'] = null;

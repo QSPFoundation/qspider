@@ -59,6 +59,23 @@ describe('convertAttributes', () => {
     expect(events).toEqual([]);
   });
 
+  it('drops a dashed onclick that camelCases into a handler name on a custom element', () => {
+    const { props, events } = convertAttributes({ '-onclick': 'window.__p1=1', 'data-qa': 'c' }, 'x-y');
+    expect(props).toEqual({ 'data-qsp': 'x-y', 'data-qa': 'c' });
+    expect(events).toEqual([]);
+  });
+
+  it('drops a dashed onclick on a custom element a tag attribute names', () => {
+    const { tag, props } = convertAttributes({ tag: 'x-y', 'o-nclick': 'window.__p1=1' }, 'div');
+    expect(tag).toBe('x-y');
+    expect(props).toEqual({});
+  });
+
+  it('drops a dashed style or tag that would land on the converted style or tag', () => {
+    const { props } = convertAttributes({ '-style': 'color:red', 't-ag': 'iframe', title: 'kept' }, 'qsp-x');
+    expect(props).toEqual({ 'data-qsp': 'x', title: 'kept' });
+  });
+
   it('turns qsp-on:click into a click event with the exec: prefix cut', () => {
     const { props, events } = convertAttributes({ 'qsp-on:click': "exec:gt 'x'" }, 'div');
     expect(events).toEqual([{ prop: 'onClick', code: "gt 'x'" }]);
@@ -90,6 +107,23 @@ describe('convertAttributes', () => {
   it('forces the iframe sandbox even when the game set it empty', () => {
     const { props } = convertAttributes({ sandbox: '', src: 'a.html' }, 'iframe');
     expect(props).toEqual({ sandbox: 'allow-scripts', src: 'a.html' });
+  });
+
+  it('forces the iframe sandbox over a dashed sandbox spelling', () => {
+    const { props } = convertAttributes(
+      { sandbox: '', '-sandbox': 'allow-scripts allow-same-origin', srcdoc: '<script>parent.__p9=1</script>' },
+      'iframe',
+    );
+    expect(props).toEqual({ srcdoc: '<script>parent.__p9=1</script>', sandbox: 'allow-scripts' });
+  });
+
+  it('forces the sandbox over a dashed spelling on an iframe a tag attribute names', () => {
+    const { tag, props } = convertAttributes(
+      { tag: 'iframe', sandbox: '', 's-andbox': 'allow-scripts allow-same-origin' },
+      'div',
+    );
+    expect(tag).toBe('iframe');
+    expect(props).toEqual({ sandbox: 'allow-scripts' });
   });
 
   it('lets a tag attribute override the tag', () => {
