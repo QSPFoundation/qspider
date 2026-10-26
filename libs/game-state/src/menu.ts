@@ -1,6 +1,6 @@
-import { QspListItem } from '@qsp/wasm-engine';
+import type { QspListItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
-import { pauseCounter, resumeCounter } from './counter';
+import { pauseCounter, resumeCounter } from './counter-pauses';
 
 interface MenuAtom {
   isOpen: boolean;

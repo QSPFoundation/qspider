@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { pauseCounter, resumeCounter } from './counter';
+import { pauseCounter, resumeCounter } from './counter-pauses';
 
 interface MsgAtom {
   isOpen: boolean;
