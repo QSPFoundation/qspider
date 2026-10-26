@@ -287,3 +287,101 @@ Follow `apps/player-e2e/README.md` Rules.
 - [ ] **Step 1: Completeness.** List every function and inline logic block in `libs/html-renderer/src` and `libs/renderer/src`, and mark each one tested, skipped (with the reason) or not pure. Expected skips: components and hooks that only wire atoms; `createVariableAtom` and the key counters in `render-state.ts` (engine watchers); `game-runner` `handler`; `QspDevice` (table lookup inside `useMediaQuery`); the transformer callbacks (they render React, so E2E covers them); `AERO_EFFECTS`, `TAGS_MAP` and `fontSizeMap` (tables). Put the list in the PR body.
 - [ ] **Step 2: Local gate.** Run `pnpm format:check`, then `pnpm nx run-many -t lint typecheck test -p html-renderer renderer desktop game-shelf`, then the Task 5 E2E. All must pass, and you report the output.
 - [ ] **Step 3: PR.** Push and open a PR against `main`. The body covers the decisions, the completeness list, any defects still open for the maintainer, and the follow-up the HtmlParser removal leaves behind: nothing in the parser sanitises any more, and the sanitising points are `game-state` `extractAttributes`, `convertAttributes` and `defaultTransform`.
+
+---
+
+## Addendum (2026-10-26): findings from the final review, decided by the maintainer
+
+The final whole-branch review found a pre-existing XSS and 13 groups of untested pure logic. The maintainer decided:
+
+- (a) close the `tag=` override bypass in this PR;
+- (b) a numeric `qsp-bind` takes the leading number, or 0 when there is none;
+- (c) close all 13 coverage gaps;
+- (d) sanitise `javascript:` in `formaction`, `action`, `xlink:href` and `src`;
+- (e) fix `<qsp-game-title>` showing the author;
+- (f) revert the empty-dock-visibility change, because it wasn't approved.
+
+The gap list with file pointers is `.superpowers/sdd/2026-10-26-unit-renderer-batch2/completeness.md`. The Global Constraints above still apply.
+
+### Task 8: Revert the empty-dock change, tighten specs
+
+**Files:** `libs/renderer/src/transformers/classic/classic-layout.tsx`, `legacy-styles.spec.ts`, `css-variable-rules.spec.ts`, `classic-layout-style.spec.ts`
+
+- [ ] **Step 1:** `git revert 7929608` (the commit message says it was reverted because it wasn't approved). `isDockVisible`'s `''` → true test stays, because it pins the dock.
+- [ ] **Step 2:** In `hrStyle` specs, replace `toMatchObject` with `toEqual` on the full object. In the colour specs, replace expectations computed through `convertColor`/`invertColor`/`getContrastColor` with literal strings. Get the values by running the code once; the defect rule applies if a value looks wrong.
+- [ ] **Step 3:** `pnpm nx test renderer` PASS. Commit `test(renderer): exact hr styles and literal colours`.
+
+### Task 9: The resolved tag goes through the drop set, sandbox and void check (decision a)
+
+**Files:** `libs/renderer/src/content/convert-attributes.ts` (+ spec), `libs/renderer/src/content/element.tsx`, `libs/renderer/src/transformers/default-transformers.tsx` (move `DROPPED_TAGS` next to `convertAttributes`, as an exported `isDroppedTag(tag: string): boolean`), the E2E fixture, constants and scenario from Task 5
+
+**Interfaces:** `convertAttributes` lowercases the resolved tag (after `tag=` and `TAGS_MAP`; keep SVG camelCase names like `clipPath` working). `ConvertedAttributes` gains `dropped: boolean`, true when `isDroppedTag(resolvedTag)`. `useAttributes` keeps its signature. `Element` returns `null` when the conversion is dropped, and decides void from the resolved tag. The iframe `sandbox` applies whenever the lowercased resolved tag is `iframe`.
+
+- [ ] **Step 1: Red E2E** in `game-html-hardening.scenario.ts`, `'a tag attribute cannot smuggle a dropped tag or an unsandboxed iframe'`. Fixture location `hostile_tag_attr`: a leading text line, then `<b tag="IFRAME" data-qa="hostile-tag-frame" srcdoc="<script>parent.document.body.setAttribute('data-qa-pwned','1')</script>">x</b>`, `<br tag="base" data-qa="hostile-tag-base" href="https://example.invalid/">`, `<i tag="meta" data-qa="hostile-tag-meta" http-equiv="refresh" content="600;url=about:blank">m</i>`, then `'TAG ATTR BENIGN'`. Checks:
+  - benign text shown and no error alert;
+  - the iframe, if present, has `sandbox="allow-scripts"`, and `PwnedAttribute` is absent;
+  - the base and meta marks are absent from the document.
+
+  Run on web and see it fail. Commit `test(e2e): tag attribute cannot smuggle dropped tags`.
+
+- [ ] **Step 2: Red unit specs** in `convert-attributes.spec.ts`:
+  - `tag: 'IFRAME'` → tag `iframe`, `sandbox: 'allow-scripts'`;
+  - `tag: 'base'` → `dropped: true`;
+  - `tag: 'Script'` → `dropped: true`;
+  - `tag: 'clipPath'` stays `clipPath`, not dropped;
+  - `isDroppedTag` covers each of the nine names, case-insensitively.
+- [ ] **Step 3: Fix.** Commit `fix(renderer): the rendered tag, not the parsed one, decides drop, sandbox and void`. Unit tests and the new E2E PASS. Run `game-html-hardening`/`game-html` on web and the standalone-web suite.
+
+### Task 10: Numeric bind takes the leading number (decision b)
+
+**Files:** `libs/renderer/src/hooks/qsp-bind-code.ts` (+ spec)
+
+- [ ] **Step 1:** Turn the `it.fails` into normal tests, with values on a `$`-less bind:
+  - `'abc'` → `'n = 0'`
+  - `'5 apples'` → `'n = 5'`
+  - `'1 & gt ''x'''` → `'n = 1'`
+  - `'-3'` → `'n = -3'`
+  - `'  7'` → `'n = 7'`
+  - `''` → `'n = 0'`
+  - `'2.9'` → `'n = 2'` (QSP numbers are integers)
+
+  Run red. Commit `test(renderer): numeric bind takes the leading number`.
+
+- [ ] **Step 2:** Fix, so the numeric branch emits only `-?\d+` from the leading number, or `0`. Commit `fix(renderer): numeric qsp-bind never emits raw text as code`.
+
+### Task 11: Sanitise URL attributes (decision d)
+
+**Files:** `libs/game-state/src/attributes.ts` (`valueProcessors`); the E2E fixture, constants and `game-html-hardening.scenario.ts`
+
+- [ ] **Step 1: Red E2E** `'javascript: in form and image URLs does not run'`:
+  - a form with a `<button data-qa="hostile-formaction" formaction="javascript:document.body.setAttribute('data-qa-pwned','1')">`; click it, then `PwnedAttribute` is absent;
+  - `SeeElementAttribute` (or the existing `SeeNeutralizedHref`-style check) shows `formaction` neutralised to `#`.
+
+  Commit `test(e2e): javascript: in formaction does not run`.
+
+- [ ] **Step 2: Fix.**
+  - `formaction`, `action` and `xlink:href` use the same processor as `href`: blocked schemes become `#`, compared trimmed and case-insensitively, with whitespace and control chars stripped before the scheme check.
+  - `src` blocks only `javascript:`, `vbscript:` and `livescript:`. `data:` stays allowed, because games use data: images.
+
+  Commit `fix(game-state): neutralise script URLs in form, svg and src attributes`. Run the E2E green, plus the hardening, game-html and resources scenarios on web.
+
+### Task 12: `<qsp-game-title>` shows the title (decision e)
+
+**Files:** `libs/renderer/src/transformers/general/game-data.tsx`, plus an E2E (find the scenario that covers game-data tags; if none exists, add one in the area the README rules say)
+
+- [ ] **Step 1: Red E2E**: `<qsp-game-title>` shows the game's title. Commit `test(e2e): qsp-game-title shows the title`.
+- [ ] **Step 2: Fix** (`title`, not `author`), with a green run. Commit `fix(renderer): qsp-game-title shows the title`.
+
+### Task 13: Close the coverage gaps (decision c)
+
+**Files:** one pure file per concern next to its callers, each with a `.spec.ts`. Remove the duplicates (gaps 4, 7, 8 and 10 each have 2–3 copies) by making every copy call the one function.
+
+Gaps 1–13 are in `completeness.md`. Gap 1 is done by Task 9. Gap 12 composes game-state functions: lift `composeClassicLayout(config, defaultTemplate, fns)` only if it can be tested without importing game-state at runtime; otherwise record it as deferred to batch 3 (game-state) and say why.
+
+For each gap:
+
+- refactor commit (pure move);
+- test commit with exact values from real QSP/theme inputs;
+- the defect rule applies. Ask through DONE_WITH_CONCERNS, and only a crash on impossible input gets fixed directly.
+
+Commit per group or per pair of small groups. Before reporting, re-sweep `libs/renderer/src` for any pure logic still untested, and update `completeness.md`.
