@@ -107,7 +107,12 @@ export function convertLayer(layer: LayoutLayer, docks: Record<string, number>, 
   )}</qsp-cl-layer>`;
 }
 
-function convertDock(place: string, panels: PanelData[], docks: Record<string, number>, defaultTheme: string): string {
+export function convertDock(
+  place: string,
+  panels: PanelData[],
+  docks: Record<string, number>,
+  defaultTheme: string,
+): string {
   if (!panels.length) return '';
   const visibilityPanes = panels.map((panel) => (panel.name !== 'desc' ? panel.name : '')).filter(Boolean);
   const visibility = visibilityPanes.length > 0 ? ` visibility="${visibilityPanes.join('|')}"` : '';
@@ -151,7 +156,7 @@ const paneToTagMap: Record<string, string> = {
   vars: 'qsp-stats',
   input: 'qsp-cmd',
 };
-function extractFromDefaultTheme(name: string, defaultTheme: string, isFloating: boolean): string {
+export function extractFromDefaultTheme(name: string, defaultTheme: string, isFloating: boolean): string {
   const tagName = paneToTagMap[name];
   if (!tagName) return '';
   const regexp = new RegExp(`<${tagName}([\\s\\S]*?)</${tagName}>`, 'im');
