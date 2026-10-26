@@ -25,6 +25,12 @@ export interface DesktopPlatform {
   appProcesses(driverPid: number): Proc[];
   /** Whether an app process runs under the worker's tauri-driver (ENV_DRIVER_PID). */
   appRunning(): boolean;
+  /**
+   * Asks the app among `procs` to close its window, as a user clicking X does; returns the app's PID, or null
+   * where the platform does not do this. Ending the session instead kills the app, and on Windows its orphaned
+   * WebView2 processes then take up to ~20 s to exit, against well under a second after a close.
+   */
+  closeApp?(procs: Proc[]): number | null;
   /** Resolves once every one of `procs` has exited; fails after `timeoutMs`. */
   waitForExit(procs: Proc[], timeoutMs: number): Promise<void>;
   /** Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. */
