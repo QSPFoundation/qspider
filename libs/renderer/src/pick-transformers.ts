@@ -9,3 +9,8 @@ export function pickTransformers<T>(mode: string, sets: { base: T; classic: T; a
       return sets.base;
   }
 }
+
+/** The transformer the set holds for a tag, by its lowercased name. */
+export function lookupTransformer<T>(set: Record<string, T>, tagName: string): T | undefined {
+  return set[tagName.toLowerCase()];
+}

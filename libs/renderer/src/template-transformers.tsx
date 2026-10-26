@@ -1,7 +1,7 @@
 import { TransformCallback } from '@qspider/html-renderer';
 import { currentGameMode$ } from '@qspider/game-state';
 import { atom } from 'xoid';
-import { pickTransformers } from './pick-transformers';
+import { lookupTransformer, pickTransformers } from './pick-transformers';
 import { aeroTransformers, classicTransformers, defaultTransform, defaultTransformers } from './transformers';
 
 const currentTransformers$ = atom((get) => {
@@ -10,7 +10,7 @@ const currentTransformers$ = atom((get) => {
 });
 
 export const transform: TransformCallback = (node, children) => {
-  const transformer = currentTransformers$.value[node.tagName.toLowerCase()];
+  const transformer = lookupTransformer(currentTransformers$.value, node.tagName);
   if (transformer) {
     return transformer(node, children);
   }
