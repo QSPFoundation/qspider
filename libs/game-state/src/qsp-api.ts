@@ -50,6 +50,7 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
+  variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
 import { debugActions } from './debug';
@@ -157,8 +158,12 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
   useEffect(() => {
     if (!name) return;
     const unsubscribe = key
-      ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue((value as unknown as T) || defaultValue))
-      : qspApi$.value?.watchVariableByIndex(name, index, (value) => setValue((value as unknown as T) || defaultValue));
+      ? qspApi$.value?.watchVariableByKey(name, key, (value) =>
+          setValue(variableOrDefault(value as unknown as T, defaultValue)),
+        )
+      : qspApi$.value?.watchVariableByIndex(name, index, (value) =>
+          setValue(variableOrDefault(value as unknown as T, defaultValue)),
+        );
     return (): void => {
       unsubscribe?.();
     };

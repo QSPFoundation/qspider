@@ -101,3 +101,11 @@ export function saveTarget(hasGame: boolean, path: string | undefined): 'answer-
   if (!hasGame) return 'answer-now';
   return path ? 'path' : 'ask-player';
 }
+
+/**
+ * The value a watched game variable shows: QSP has no "unset", so 0 and `''` (what the engine reports for a
+ * variable never assigned) mean "not set" and give the fallback; any other value is the game's.
+ */
+export function variableOrDefault<T>(value: T, fallback: T): T {
+  return value || fallback;
+}
