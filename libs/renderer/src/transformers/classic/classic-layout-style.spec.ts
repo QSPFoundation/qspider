@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { classicDefaultRules, isDockVisible, isPaneVisible, layerGridStyle } from './classic-layout-style';
+import {
+  classicDefaultRules,
+  isDockVisible,
+  isLayerDockVisible,
+  isPaneVisible,
+  layerGridStyle,
+} from './classic-layout-style';
 
 const onlyActs = (panel: string) => panel === 'acts';
 
@@ -49,6 +55,24 @@ describe('isDockVisible', () => {
 
   it('shows a dock with an empty visibility, as with none', () => {
     expect(isDockVisible('', () => false)).toBe(true);
+  });
+});
+
+describe('isLayerDockVisible', () => {
+  it('shows a dock without visibility', () => {
+    expect(isLayerDockVisible(null, () => false)).toBe(true);
+  });
+
+  it('hides a dock with an empty visibility, unlike isDockVisible (maintainer decision)', () => {
+    expect(isLayerDockVisible('', () => true)).toBe(false);
+  });
+
+  it('shows a dock when any listed panel is visible', () => {
+    expect(isLayerDockVisible('objs|acts', onlyActs)).toBe(true);
+  });
+
+  it('hides a dock whose panels are unknown or hidden', () => {
+    expect(isLayerDockVisible('nope', onlyActs)).toBe(false);
   });
 });
 
