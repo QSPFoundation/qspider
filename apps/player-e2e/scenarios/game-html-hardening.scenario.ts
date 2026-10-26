@@ -2,7 +2,7 @@ import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementAttribute, SeeNeutralizedHref } from '../screenplay/content/checks';
 import { ErrorAlerts } from '../screenplay/common/elements';
-import { ContentMark, PwnedAttribute } from '../screenplay/content/elements';
+import { ContentMark, DocumentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
 import { SeeMainText, SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
@@ -56,6 +56,21 @@ scenario('malformed markup still renders', async (player) => {
     ClickAction(ACTION.hostile),
     ClickAction(ACTION.hostileMalformed),
     SeeMainTextContaining(TEXT.malformed),
+    waitUntilAbsent(ErrorAlerts.first()),
+  );
+});
+
+scenario('tags that redirect or embed are dropped from game text', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileTags),
+    // The benign line renders after the risky tags, so the absence checks below cannot pass before the render.
+    SeeMainTextContaining(TEXT.tagsBenign),
+    waitUntilAbsent(DocumentMark(MARK.hostileBase)),
+    waitUntilAbsent(DocumentMark(MARK.hostileMeta)),
+    waitUntilAbsent(DocumentMark(MARK.hostileEmbed)),
+    waitUntilAbsent(DocumentMark(MARK.hostileObject)),
     waitUntilAbsent(ErrorAlerts.first()),
   );
 });

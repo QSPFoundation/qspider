@@ -14,6 +14,7 @@ act 'hostile': gt 'hostile'
 act 'hostile svg': gt 'hostile_svg'
 act 'hostile iframe': gt 'hostile_iframe'
 act 'hostile js': gt 'hostile_js'
+act 'hostile tags': gt 'hostile_tags'
 act 'hostile malformed': gt 'hostile_malformed'
 ---
 
@@ -123,4 +124,15 @@ end
 # hostile_malformed
 *clr
 *pl '<b><i>MALFORMED OK'
+---
+
+# hostile_tags
+*clr
+! Text first: the HTML parser moves base/meta that open the content into the discarded <head>.
+*pl 'TAGS RISKY'
+*pl '<base data-qa="hostile-base" href="https://example.invalid/">'
+*pl '<meta data-qa="hostile-meta" http-equiv="refresh" content="600;url=about:blank">'
+*pl '<embed data-qa="hostile-embed" src="x.svg">'
+*pl '<object data-qa="hostile-object" data="x.svg"></object>'
+*pl 'TAGS BENIGN'
 ---
