@@ -4,7 +4,7 @@ As of 2026-10-26. Phases 1–4 of `specs/2026-10-20-automated-checks-design.md` 
 
 The items below are product defects and hardening gaps that the test work uncovered, plus a few parked test-infrastructure ideas. Each item names its source. Remove an item when the PR that closes it merges.
 
-Suggested order: 1, 2, 3, 4. Section 5 stays parked until the maintainer picks it up.
+Suggested order: 1, 2, 3, 4, with section 5 worked on as evidence comes in. Section 6 stays parked until the maintainer picks it up.
 
 ## 1. The engine is never stopped when a game stops
 
@@ -81,7 +81,25 @@ Source: #187 and #188.
 
 **CI:** confirm that a PR touching no desktop paths shows `smoke-macos / smoke` as skipped, not waiting.
 
-## 5. Test infrastructure (parked)
+## 5. CI failures still being root-caused
+
+None of these is a "flake": each one turned a PR red, and each needs a cause, not a rerun.
+
+- **Windows slow exit.** After a restart, a few WebView2 processes sometimes take 5–21 s to exit. That's over the 10 s budget.
+  - What's done: #189 made it rarer by closing the app like a user would before ending the session (p90 exit halved), and stopped it cascading, so one slow exit fails one scenario.
+  - What's not known: the cause.
+  - Where the evidence will come from: the exit wait names each still-alive process's WebView2 `--type=` at 2 s (#192). Look for `Still running …ms after the session ended:` in a Windows job log.
+- **Windows: the new app never reaches startup after a restart.** The scenario's first `SeeStartupFinished` times out at 45 s.
+  - Seen twice on 2026-10-26: `launch.scenario.ts` on #190, `text-encodings.scenario.ts` on #191.
+  - Before that: none in about 100 earlier jobs, including 13 that ran #189's exact code on its branch. The WebView2 runtime was the same (155.0.4283.62) throughout.
+  - Not attributed yet. Those failures left no artifacts, because the hung webview never answered the capture.
+  - A failed scenario now writes `<test>.processes.txt` (the app's processes and their kinds) before any WebDriver call. Each WebDriver capture is bounded at 10 s, and a timeout there is recorded as an unresponsive webview.
+  - If it recurs before the evidence explains it: run the same shards with the graceful close switched off.
+- **`frame`: Vitest browser mode "Failed to connect to the browser session … within the timeout"** (`game-state-browser`, once, on #189).
+  - CI's game-state test took 60 s ("transform 55%"), against 7–10 s locally, even on 1 CPU with a cold cache.
+  - Three browser-mode projects were running at once on the 2-vCPU runner. That contention is unconfirmed as the cause: it doesn't reproduce locally.
+
+## 6. Test infrastructure (parked)
 
 - **A lived-in profile:** a realistic, non-empty player state for E2E instead of a fresh app every time. It's about realism and needs a brainstorm.
 - **Speed:** `e2e-web` (~9 min, one worker) is now the slowest check. Desktop runs in shards: Linux about 5 min, Windows about 8 min.
