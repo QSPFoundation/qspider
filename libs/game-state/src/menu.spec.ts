@@ -82,6 +82,17 @@ describe('menu$', () => {
     expect(calls).toEqual([0]);
   });
 
+  it('resets silently: empties the menu and resumes the counter without calling back', () => {
+    const { calls, onselect } = recorder();
+    menu$.actions.open(ITEMS, onselect);
+    menu$.actions.reset();
+    expect(calls).toEqual([]);
+    expect(menu$.value).toEqual({ isOpen: false, items: [], onselect: null });
+    expect(isPaused$.value).toBe(false);
+    menu$.actions.select(0);
+    expect(calls).toEqual([]);
+  });
+
   describe('a menu opened from its own callback (D18)', () => {
     const second = recorder();
     const openSubmenu = (): void => menu$.actions.open(SUBMENU, second.onselect);
@@ -108,14 +119,18 @@ describe('menu$', () => {
       expect(second.calls).toEqual([0]);
     });
 
-    it('keeps the new menu and its handler after clear', () => {
-      menu$.actions.open(ITEMS, openSubmenu);
+    it('a menu reopened from the clear callback does not outlive the stop', () => {
+      const answers: number[] = [];
+      menu$.actions.open(ITEMS, (index) => {
+        answers.push(index);
+        openSubmenu();
+      });
       menu$.actions.clear();
-      expect(menu$.value.isOpen).toBe(true);
-      expect(menu$.value.items).toEqual(SUBMENU);
-      expect(isPaused$.value).toBe(true);
+      expect(answers).toEqual([-1]);
+      expect(menu$.value).toEqual({ isOpen: false, items: [], onselect: null });
+      expect(isPaused$.value).toBe(false);
       menu$.actions.select(0);
-      expect(second.calls).toEqual([0]);
+      expect(second.calls).toEqual([]);
     });
   });
 });

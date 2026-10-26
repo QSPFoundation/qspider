@@ -53,6 +53,17 @@ describe('msg$', () => {
     expect(msg$.value).toEqual({ isOpen: false, content: '', onclosed: null });
   });
 
+  it('resets silently: empties the box and resumes the counter without calling back', () => {
+    const { calls, onclosed } = recorder();
+    msg$.actions.open('DIALOG MESSAGE', onclosed);
+    msg$.actions.reset();
+    expect(calls).toEqual([]);
+    expect(msg$.value).toEqual({ isOpen: false, content: '', onclosed: null });
+    expect(isPaused$.value).toBe(false);
+    msg$.actions.close();
+    expect(calls).toEqual([]);
+  });
+
   describe('a message opened from its own callback (D18)', () => {
     const second = recorder();
     const openNext = (): void => msg$.actions.open('NEXT MESSAGE', second.onclosed);
@@ -70,14 +81,13 @@ describe('msg$', () => {
       expect(second.calls).toEqual([1]);
     });
 
-    it('keeps the new message and its handler after clear', () => {
+    it('a message reopened from the clear callback does not outlive the stop', () => {
       msg$.actions.open('DIALOG MESSAGE', openNext);
       msg$.actions.clear();
-      expect(msg$.value.isOpen).toBe(true);
-      expect(msg$.value.content).toBe('NEXT MESSAGE');
-      expect(isPaused$.value).toBe(true);
+      expect(msg$.value).toEqual({ isOpen: false, content: '', onclosed: null });
+      expect(isPaused$.value).toBe(false);
       msg$.actions.close();
-      expect(second.calls).toEqual([1]);
+      expect(second.calls).toEqual([]);
     });
   });
 });

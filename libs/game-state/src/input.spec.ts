@@ -91,6 +91,18 @@ describe('input$', () => {
     expect(input$.value).toEqual({ isOpen: false, content: '', entered: '', onfinished: null });
   });
 
+  it('resets silently: empties the prompt and resumes the counter without calling back', () => {
+    const { calls, onfinished } = recorder();
+    input$.actions.open('DIALOG PROMPT', onfinished);
+    input$.actions.enter('hello');
+    input$.actions.reset();
+    expect(calls).toEqual([]);
+    expect(input$.value).toEqual({ isOpen: false, content: '', entered: '', onfinished: null });
+    expect(isPaused$.value).toBe(false);
+    input$.actions.finish();
+    expect(calls).toEqual([]);
+  });
+
   describe('a prompt opened from its own callback (D18)', () => {
     const second = recorder();
     const openNext = (): void => input$.actions.open('NEXT PROMPT', second.onfinished);
@@ -117,15 +129,13 @@ describe('input$', () => {
       expect(second.calls).toEqual(['']);
     });
 
-    it('keeps the new prompt and its handler after clear', () => {
+    it('a prompt reopened from the clear callback does not outlive the stop', () => {
       input$.actions.open('DIALOG PROMPT', openNext);
       input$.actions.clear();
-      expect(input$.value.isOpen).toBe(true);
-      expect(input$.value.content).toBe('NEXT PROMPT');
-      expect(isPaused$.value).toBe(true);
-      input$.actions.enter('again');
+      expect(input$.value).toEqual({ isOpen: false, content: '', entered: '', onfinished: null });
+      expect(isPaused$.value).toBe(false);
       input$.actions.finish();
-      expect(second.calls).toEqual(['again']);
+      expect(second.calls).toEqual([]);
     });
   });
 });
