@@ -134,7 +134,7 @@ export function convertAttributes(
       }
       continue;
     }
-    let preparedKey = ATTRIBUTES_TO_PROPS[key] || key;
+    let preparedKey = Object.prototype.hasOwnProperty.call(ATTRIBUTES_TO_PROPS, key) ? ATTRIBUTES_TO_PROPS[key] : key;
     if (
       preparedKey.includes('-') &&
       !preparedKey.startsWith('aria-') &&
