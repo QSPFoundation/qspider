@@ -47,8 +47,18 @@ describe('bindAssignment', () => {
     expect(bindAssignment('n', '', 0, '')).toBe('n = 0');
   });
 
-  // Defect pending a maintainer decision: the text is emitted as QSP code (`n = abc`).
-  it.fails('treats non-numeric text in a numeric variable as 0, like an empty input: n = 0', () => {
-    expect(bindAssignment('n', '', 0, 'abc')).toBe('n = 0');
+  it.each([
+    ['abc', 'n = 0'],
+    ['5 apples', 'n = 5'],
+    ["1 & gt 'x'", 'n = 1'],
+    ['-3', 'n = -3'],
+    ['  7', 'n = 7'],
+    ['2.9', 'n = 2'],
+  ])('takes only the leading number of %j for a numeric variable: %s', (text, expected) => {
+    expect(bindAssignment('n', '', 0, text)).toBe(expected);
+  });
+
+  it('takes the leading number for a numeric array element by key too', () => {
+    expect(bindAssignment('arr', 'k', 0, "1 & gt 'x'")).toBe('arr["k"] = 1');
   });
 });
