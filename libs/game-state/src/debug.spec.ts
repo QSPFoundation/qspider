@@ -324,7 +324,7 @@ describe('enable and canStep$', () => {
 
   it('canStep$ is true only while a resume function is pending', () => {
     const seen: boolean[] = [];
-    const unsubscribe = canStep$.subscribe((value) => seen.push(value));
+    const unsubscribe = canStep$.subscribe((value) => void seen.push(value));
     debugActions.pauseExecution();
     debugActions.setCurrentRecord(record(), () => undefined);
     debugActions.stepExecution();
