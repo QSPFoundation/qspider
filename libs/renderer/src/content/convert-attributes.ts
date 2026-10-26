@@ -22,7 +22,7 @@ const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
 const attributeToStyle: Record<string, string> = {
   size: 'fontSize',
   color: 'color',
-  face: 'fontFace',
+  face: 'fontFamily',
   valign: 'verticalAlign',
   bgcolor: 'backgroundColor',
   width: 'width',
