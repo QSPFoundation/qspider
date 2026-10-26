@@ -24,7 +24,7 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 
 ### Testing and Quality
 
-- `pnpm test` - unit tests in every project (nx `test` targets, inferred by the `@nx/vitest` plugin from each project's vite/vitest config); one project: `pnpm nx test <project>`
+- `pnpm test` - unit tests in every project (nx `test` targets, inferred by the `@nx/vitest` plugin from each project's vite/vitest config); one project: `pnpm nx test <project>`. `html-renderer`, `renderer` and `desktop` run in Vitest browser mode, so they need Chromium: `CHROME_BIN=/usr/bin/chromium` or `pnpm exec playwright install chromium`
 - `pnpm lint` - Run ESLint on all projects
 - `pnpm format` - Format code with Prettier
 - `pnpm format:check` - Check code formatting
@@ -35,7 +35,7 @@ qSpider is a web and desktop player for QSP (Quest Soft Player) games. It's buil
 - `pnpm e2e:desktop` - Desktop E2E (WebdriverIO + tauri-driver); needs `tauri-driver` on PATH (`~/.cargo/bin`), `WebKitWebDriver` and Rust
 - `pnpm e2e:standalone-desktop` - Standalone desktop E2E (own Tauri debug build in `target/e2e-standalone`); same requirements as `e2e:desktop`
 - `pnpm smoke:desktop` - Desktop launch smoke of both desktop apps (no WebDriver; markers on stdout). On Linux it runs in the private session; on macOS/Windows it refuses unless `CI` is set (CI runs it on macOS and Windows); see `apps/player-e2e/README.md` "Launch smoke"
-- `pnpm check` - Fast subset: format, lint, typecheck, build, Rust checks, E2E harness unit tests, web and standalone web E2E (no desktop E2E)
+- `pnpm check` - Fast subset: format, lint, typecheck, unit tests (every project, browser-mode ones included, so Chromium as for `pnpm test`), build, Rust checks, web and standalone web E2E (no desktop E2E)
 - `pnpm check:full` - `pnpm check` plus desktop and standalone desktop E2E
 
 Before declaring work done locally, run format check, lint and typecheck plus the E2E specs the change touches, and report their results. The full gate is CI on the PR (all suites run there as parallel jobs); run `pnpm check:full` locally only when asked, or to reproduce a CI failure. `pnpm check` is the fast subset (no desktop E2E). Every check must pass; any failure is a regression to fix or report, never to hide or skip. Setup details: `apps/player-e2e/README.md`.

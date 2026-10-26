@@ -72,6 +72,11 @@ describe('buildFixtures', () => {
     expect(Object.keys(files).sort()).toEqual(['game-html.qsps', 'game.cfg', GAME_HTML.image].sort());
   });
 
+  it('spells the svg data: picture in the game-html game as the constants say', () => {
+    const game = readFileSync(fileURLToPath(new URL('./game-html/game-html.qsps', import.meta.url)), 'utf8');
+    expect(game).toContain(`data-qa="${GAME_HTML.marks.svgDataImage}" xlink:href="${GAME_HTML.dataImage}"`);
+  });
+
   it('packs the saves game as a zip', () => {
     expect(SAVES_GAME.path).toBe(ARCHIVES.savesZip.path);
     expect(startsWith(ARCHIVES.savesZip.path, [0x50, 0x4b, 0x03, 0x04])).toBe(true);
@@ -248,6 +253,7 @@ describe('buildFixtures', () => {
         expect(src.replaceAll('\\', '/').split('?')[0].toLowerCase(), qa).toBe(file.toLowerCase());
       }
       expect(game).toContain(`'${RESOURCES_GAME.dataImage}'`);
+      expect(game).toContain(`<img data-qa="${RESOURCES_GAME.dataImageQa}" src="${RESOURCES_GAME.dataImage}">`);
       expect(game).toContain(`$BACKIMAGE = '${RESOURCES_GAME.externalImage}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.externalSound}'`);
       expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.externalText.url}'`);

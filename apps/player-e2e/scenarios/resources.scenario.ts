@@ -33,6 +33,7 @@ scenario('game images load from every kind of path (archive)', async (player) =>
     LoadGame(RESOURCES_GAME.zipPath),
     SeeGameStarted(TEXT.start),
     ...SEE_START_IMAGES,
+    SeeImageLoaded({ qa: RESOURCES_GAME.dataImageQa }, 1),
     SeeImageLoaded({ qsp: 'action-image' }, width(FILES.action)),
     SeeImageLoaded({ qsp: 'object-image' }, width(FILES.object)),
     ClickAction(ACTIONS.start.toMedia),

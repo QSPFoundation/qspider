@@ -26,6 +26,7 @@ import {
   TEXT_PLACEHOLDER,
 } from '@qspider/game-state';
 import { HtmlParser, RenderNode } from '@qspider/html-renderer';
+import { fillFormat } from './fill-format';
 import { transform } from './template-transformers';
 
 export interface ListItemWithParsedContent {
@@ -135,7 +136,7 @@ export const aeroParsedMainContent$ = atom((get) => {
   let content = get(mainContent$);
   const format = get(mainFormat$);
   if (format) {
-    content = format.replace(TEXT_PLACEHOLDER, content);
+    content = fillFormat(format, { [TEXT_PLACEHOLDER]: content });
   }
   if (!get(hasBrowserTranslation$)) mainContentKey = 0;
   return { content: templateParser.parse(content), key: mainContentKey++ };
@@ -146,7 +147,7 @@ export const aeroParsedStatsContent$ = atom((get) => {
   let content = get(statsContent$);
   const format = get(statsFormat$);
   if (format) {
-    content = format.replace(TEXT_PLACEHOLDER, content);
+    content = fillFormat(format, { [TEXT_PLACEHOLDER]: content });
   }
   if (!get(hasBrowserTranslation$)) statsContentKey = 0;
   return { content: templateParser.parse(content), key: statsContentKey++ };
@@ -157,7 +158,7 @@ export const aeroParsedInputContent$ = atom((get) => {
   let content = get(input$).content;
   const format = get(inputFormat$);
   if (format) {
-    content = format.replace(TEXT_PLACEHOLDER, content);
+    content = fillFormat(format, { [TEXT_PLACEHOLDER]: content });
   }
   if (!get(hasBrowserTranslation$)) inputKey = 0;
   return { content: templateParser.parse(content), key: inputKey++ };
@@ -168,7 +169,7 @@ export const aeroParsedMsgContent$ = atom((get) => {
   let content = get(msg$).content;
   const format = get(msgFormat$);
   if (format) {
-    content = format.replace(TEXT_PLACEHOLDER, content);
+    content = fillFormat(format, { [TEXT_PLACEHOLDER]: content });
   }
   if (!get(hasBrowserTranslation$)) msgKey = 0;
   return { content: templateParser.parse(content), key: msgKey++ };
@@ -189,7 +190,7 @@ export const aeroActionsWithParsedName$ = atom((get) => {
     return {
       ...a,
       name: templateParser.parse(
-        currentFormat.replace(TEXT_PLACEHOLDER, a.name).replace(IMAGE_PLACEHOLDER, a.image || ''),
+        fillFormat(currentFormat, { [TEXT_PLACEHOLDER]: a.name, [IMAGE_PLACEHOLDER]: a.image || '' }),
       ),
       key: actionsKey++,
     };
@@ -213,7 +214,7 @@ export const aeroObjectsWithParsedName$ = atom((get) => {
     return {
       ...o,
       name: templateParser.parse(
-        currentFormat.replace(TEXT_PLACEHOLDER, displayText).replace(IMAGE_PLACEHOLDER, o.image || ''),
+        fillFormat(currentFormat, { [TEXT_PLACEHOLDER]: displayText, [IMAGE_PLACEHOLDER]: o.image || '' }),
       ),
       key: objectsKey++,
     };
@@ -236,7 +237,7 @@ export const aeroMenuWithParsedName$ = atom((get) => {
     return {
       ...o,
       name: templateParser.parse(
-        currentFormat.replace(TEXT_PLACEHOLDER, o.name).replace(IMAGE_PLACEHOLDER, o.image || ''),
+        fillFormat(currentFormat, { [TEXT_PLACEHOLDER]: o.name, [IMAGE_PLACEHOLDER]: o.image || '' }),
       ),
       key: menuKey++,
     };

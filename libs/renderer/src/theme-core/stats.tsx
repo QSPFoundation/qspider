@@ -10,6 +10,7 @@ import { useAtom } from '@xoid/react';
 import { ReactNode, useEffect } from 'react';
 import { useAttributes } from '../content/attributes';
 import { scrollContext } from './scrollable';
+import { statsScrollStep } from './scroll-step';
 import { Markup } from '@qspider/html-renderer';
 import { parsedStatsContent$ } from '../render-state';
 
@@ -22,11 +23,7 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
 
   useEffect(() => {
     if (!disableScroll) {
-      if (prevStats && statsContent !== prevStats && statsContent.startsWith(prevStats)) {
-        statsScroll$.update((x) => Math.max(x, 0) + 1);
-      } else {
-        statsScroll$.set(-1);
-      }
+      statsScroll$.update((x) => statsScrollStep(prevStats, statsContent, x));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prevStats, statsContent]);

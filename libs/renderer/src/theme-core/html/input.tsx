@@ -2,6 +2,7 @@ import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../../content/attributes';
 import { CSSProperties } from 'react';
 import { useQspBind } from '../../hooks/qsp-bind';
+import { boundChecked, parseBindIndex } from './qsp-bind-props';
 
 const QspBoundInput: React.FC<{
   attributes: Omit<Attributes, 'style'>;
@@ -20,7 +21,7 @@ const QspBoundInput: React.FC<{
         style={style}
         type="radio"
         value={value}
-        checked={bindValue === value}
+        checked={boundChecked('radio', bindValue, value)}
         onChange={handleChange}
       />
     );
@@ -32,7 +33,7 @@ const QspBoundInput: React.FC<{
         style={style}
         type="checkbox"
         value={value}
-        checked={Boolean(bindValue)}
+        checked={boundChecked('checkbox', bindValue, value)}
         onChange={handleChange}
       />
     );
@@ -43,7 +44,7 @@ const QspBoundInput: React.FC<{
 export const HtmlInput: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [, style, { value, qspBind, qspBindKey, qspBindIndex, ...attributes }] = useAttributes(attrs, 'input');
   if (qspBind) {
-    const bindIndex = parseInt(qspBindIndex || '0', 10);
+    const bindIndex = parseBindIndex(qspBindIndex);
     return (
       <QspBoundInput
         attributes={attributes}

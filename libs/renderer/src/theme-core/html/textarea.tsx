@@ -2,6 +2,7 @@ import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../../content/attributes';
 import { CSSProperties } from 'react';
 import { useQspBind } from '../../hooks/qsp-bind';
+import { parseBindIndex } from './qsp-bind-props';
 
 const QspBoundTextarea: React.FC<{
   attributes: Omit<Attributes, 'style'>;
@@ -17,7 +18,7 @@ const QspBoundTextarea: React.FC<{
 export const HtmlTextarea: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const [, style, { value, qspBind, qspBindKey, qspBindIndex, ...attributes }] = useAttributes(attrs, 'textarea');
   if (qspBind) {
-    const bindIndex = parseInt(qspBindIndex || '0', 10);
+    const bindIndex = parseBindIndex(qspBindIndex);
     return (
       <QspBoundTextarea
         attributes={attributes}

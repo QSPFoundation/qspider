@@ -1,4 +1,5 @@
 import { Attributes, isObjsVisible$, selectObject } from '@qspider/game-state';
+import { imageVariable } from '../content/image-variable';
 import { useAtom } from '@xoid/react';
 import { createContext, ReactElement, ReactNode, useContext, useState } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -48,7 +49,7 @@ export const QspObjectItem: React.FC<{ attrs: Attributes; children: ReactNode }>
 
   const preparedStyle = {
     ...style,
-    '--object-image': object.image ? `url("${object.image}")` : '',
+    '--object-image': imageVariable(object.image),
   };
   const onHover = (): void => {
     setIsSelected(true);

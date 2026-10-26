@@ -4,7 +4,7 @@ import { SeeActiveTheme, SeeErrorAlertText, SeeGameStarted, SeeStartupFinished }
 import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
 import { QspLayer } from '../screenplay/content/elements';
-import { SeeMainText } from '../screenplay/game/checks';
+import { SeeGameInfoTags, SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, PressEscape, ReturnToShelf } from '../screenplay/game/tasks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
 import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
@@ -47,6 +47,16 @@ scenario('a game-provided theme loads with its files', async (player) => {
     SeeMainText(THEMED_GAME.text.start),
     ClickAction(THEMED_GAME.action.showLayer),
     SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),
+  );
+});
+
+scenario("game info tags show the game's title, author, version and description", async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    SeeGameInfoTags({ title: THEMED_GAME.title, ...THEMED_GAME.info }),
   );
 });
 

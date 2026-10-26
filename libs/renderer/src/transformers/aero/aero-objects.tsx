@@ -1,4 +1,5 @@
 import { Attributes, selectedObject$, selectObject } from '@qspider/game-state';
+import { imageVariable } from '../../content/image-variable';
 import { ReactElement, ReactNode, useContext } from 'react';
 import { useAttributes } from '../../content/attributes';
 import { objectContext } from '../../theme-core/objects';
@@ -31,7 +32,7 @@ export const AeroQspObjectItem: React.FC<{ attrs: Attributes; children: ReactNod
 
   const preparedStyle = {
     ...style,
-    '--object-image': object.image ? `url("${object.image}")` : '',
+    '--object-image': imageVariable(object.image),
   };
 
   const onHover = (): void => {

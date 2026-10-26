@@ -19,7 +19,11 @@ export const GAME_HTML = {
     hostileSvg: 'hostile svg',
     hostileIframe: 'hostile iframe',
     hostileJs: 'hostile js',
+    hostileTags: 'hostile tags',
+    hostileTagAttr: 'hostile tag attr',
     hostileMalformed: 'hostile malformed',
+    hostileForm: 'hostile form',
+    hostileUrls: 'hostile urls',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
     /** watchers location. */
@@ -49,6 +53,38 @@ export const GAME_HTML = {
     showChild: 'show-child',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
+    /** A javascript: link with a leading space and a tab inside the scheme, which browsers ignore. */
+    jsTabLink: 'js-tab-link',
+    /** The hostile_form location's form (javascript: action), its button (javascript: formaction) and its
+     * submit input (formaction with a leading control char and a newline inside the scheme). */
+    hostileFormAction: 'hostile-form-action',
+    hostileFormaction: 'hostile-formaction',
+    hostileInputFormaction: 'hostile-input-formaction',
+    /** The hostile_form button with a dashed form-action (camelCased to formAction later). */
+    hostileFormDash: 'hostile-form-dash',
+    /** The hostile_urls location: an <img src="javascript:…"> and svg links: javascript: and data:text/html,
+     * each with xlink:href and with the dashed xlink-href; and an svg <image> with a data: PNG that must stay. */
+    hostileImgSrc: 'hostile-img-src',
+    hostileSvgLink: 'hostile-svg-link',
+    hostileSvgData: 'hostile-svg-data',
+    hostileSvgDash: 'hostile-svg-dash',
+    hostileSvgDashData: 'hostile-svg-dash-data',
+    svgDataImage: 'svg-data-image',
+    /** Risky tags the hostile_tags location writes; none may reach the document. */
+    hostileBase: 'hostile-base',
+    hostileMeta: 'hostile-meta',
+    hostileEmbed: 'hostile-embed',
+    hostileObject: 'hostile-object',
+    /** Elements the hostile_tag_attr location writes with a tag= override: an iframe, a base and a meta (it also writes svg:script, unmarked). */
+    hostileTagFrame: 'hostile-tag-frame',
+    hostileTagBase: 'hostile-tag-base',
+    hostileTagMeta: 'hostile-tag-meta',
+    /** hostile_tag_attr rows with dashed spellings: an iframe's -sandbox, a tag= iframe's s-andbox, and a custom
+     * element's -onclick, written directly and through tag=. */
+    hostileDashSandbox: 'hostile-dash-sandbox',
+    hostileTagDashSandbox: 'hostile-tag-dash-sandbox',
+    hostileDashOnclick: 'hostile-dash-onclick',
+    hostileTagDashOnclick: 'hostile-tag-dash-onclick',
     /** Attribute the iframe payload sets on <body> if it escapes the sandbox. */
     pwnedAttribute: 'data-qa-pwned',
   },
@@ -74,9 +110,16 @@ export const GAME_HTML = {
     jsBenign: 'JS BENIGN',
     jsLink: 'JS LINK',
     malformed: 'MALFORMED OK',
+    formBenign: 'FORM BENIGN',
+    urlsBenign: 'URLS BENIGN',
+    tagsBenign: 'TAGS BENIGN',
+    tagAttrBenign: 'TAG ATTR BENIGN',
     /** Written by every hostile payload that manages to run. */
     inject: 'PWNED',
   },
+  /** The 1x1 PNG data: URL the svg <image> row spells (keep in sync with game-html.qsps). */
+  dataImage:
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   /** Image file bundled in the archive for the <area>/<img> row. */
   image: 'view.png',
 } as const;

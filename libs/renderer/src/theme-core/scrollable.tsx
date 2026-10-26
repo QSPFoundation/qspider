@@ -4,12 +4,10 @@ import { Attributes } from '@qspider/game-state';
 import { useAttributes } from '../content/attributes';
 import { atom } from 'xoid';
 import { useAtom, useSetup } from '@xoid/react';
+import type { ScrollType } from './scroll-type';
 
 export const noopScrollAtom$ = atom(0);
 export const scrollContext = createContext(noopScrollAtom$);
-export type ScrollType = 'both' | 'horizontal' | 'vertical';
-export const isScrollType = (t: unknown): t is ScrollType =>
-  typeof t === 'string' && ['both', 'horizontal', 'vertical'].includes(t);
 
 export const QspScrollable: React.FC<{
   scroll?: ScrollType;

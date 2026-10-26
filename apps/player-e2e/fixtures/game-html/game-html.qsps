@@ -14,7 +14,11 @@ act 'hostile': gt 'hostile'
 act 'hostile svg': gt 'hostile_svg'
 act 'hostile iframe': gt 'hostile_iframe'
 act 'hostile js': gt 'hostile_js'
+act 'hostile tags': gt 'hostile_tags'
+act 'hostile tag attr': gt 'hostile_tag_attr'
 act 'hostile malformed': gt 'hostile_malformed'
+act 'hostile form': gt 'hostile_form'
+act 'hostile urls': gt 'hostile_urls'
 ---
 
 # markup
@@ -117,10 +121,65 @@ end
 # hostile_js
 *clr
 *pl '<a target="_self" href="JavaScript:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-link">JS LINK</a>'
+*pl '<a target="_self" href=" java&#9;script:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-tab-link">JS TAB LINK</a>'
 *pl 'JS BENIGN'
+---
+
+# hostile_form
+*clr
+! A form URL attribute runs code on submit. The button's formaction overrides the form's action.
+*pl 'FORM RISKY'
+*pl '<form action="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-form-action"><button type="submit" data-qa="hostile-formaction" formaction="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">FORMACTION</button><input type="submit" value="INPUT" data-qa="hostile-input-formaction" formaction="&#1;java&#10;script:document.body.setAttribute(''data-qa-pwned'',''1'')"></form>'
+! A dashed name is camelCased into the prop later (form-action becomes formAction), so the guard must see it too.
+*pl '<form><button type="submit" data-qa="hostile-form-dash" form-action="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">DASH</button></form>'
+*pl 'FORM BENIGN'
+---
+
+# hostile_urls
+*clr
+! URL attributes on images and SVG links, colon and dashed spellings (xlink-href becomes xlinkHref, then xlink:href).
+*pl 'URLS RISKY'
+*pl '<img data-qa="hostile-img-src" src="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">'
+*pl '<svg><a data-qa="hostile-svg-link" xlink:href="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-data" xlink:href="data:text/html,x"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-dash" xlink-href="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-dash-data" xlink-href="data:text/html,x"><text y="10">x</text></a></svg>'
+! A data: picture on the non-navigating svg image stays (Inkscape embeds pictures this way).
+*pl '<svg><image data-qa="svg-data-image" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="1" height="1"/></svg>'
+*pl 'URLS BENIGN'
 ---
 
 # hostile_malformed
 *clr
 *pl '<b><i>MALFORMED OK'
+---
+
+# hostile_tags
+*clr
+! Text first: the HTML parser moves base/meta that open the content into the discarded <head>.
+*pl 'TAGS RISKY'
+*pl '<base data-qa="hostile-base" href="https://example.invalid/">'
+*pl '<meta data-qa="hostile-meta" http-equiv="refresh" content="600;url=about:blank">'
+*pl '<embed data-qa="hostile-embed" src="x.svg">'
+*pl '<object data-qa="hostile-object" data="x.svg"></object>'
+*pl 'TAGS BENIGN'
+---
+
+# hostile_tag_attr
+*clr
+! A tag= attribute overrides the parsed tag: the overriding tag must face the same drop and sandbox rules.
+! Text first, as in hostile_tags.
+*pl 'TAG ATTR RISKY'
+! A dashed name is camelCased after the on* and sandbox rules: -sandbox becomes Sandbox and -onclick Onclick, and
+! the DOM lowercases them back to sandbox and onclick (live on a custom element). Directly and through tag=.
+*pl '<iframe width="40" height="20" sandbox="" -sandbox="allow-scripts allow-same-origin" data-qa="hostile-dash-sandbox" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>"></iframe>'
+*pl '<b tag="iframe" width="40" height="20" sandbox="" s-andbox="allow-scripts allow-same-origin" data-qa="hostile-tag-dash-sandbox" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
+*pl '<x-y -onclick="document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-dash-onclick">DASH CLICK</x-y>'
+*pl '<b tag="x-y" o-nclick="document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-tag-dash-onclick">TAG DASH CLICK</b>'
+*pl '<b tag="IFRAME" data-qa="hostile-tag-frame" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
+*pl '<br tag="base" data-qa="hostile-tag-base" href="https://example.invalid/">'
+*pl '<i tag="meta" data-qa="hostile-tag-meta" http-equiv="refresh" content="600;url=about:blank">m</i>'
+*pl '<svg><g tag="svg:script">document.body.setAttribute(''data-qa-pwned'',''1'')</g></svg>'
+*pl '<svg><svg:script>document.body.setAttribute(''data-qa-pwned'',''1'')</svg:script></svg>'
+*pl 'TAG ATTR BENIGN'
 ---

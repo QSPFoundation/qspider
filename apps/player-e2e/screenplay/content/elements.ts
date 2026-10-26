@@ -45,3 +45,9 @@ export const QspLayer = PageElements.located(By.css('[data-qsp="layer"]')).first
 export const PwnedAttribute = PageElements.located(By.css('[data-qa-pwned]'))
   .first()
   .describedAs('pwned marker attribute');
+
+/** An authored element anywhere in the document, <head> included (React hoists meta/link/title there). No visible() filter: base, meta and embed have no box. */
+export const DocumentMark = (mark: string) =>
+  PageElements.located(By.css(`[data-qa="${mark}"]`))
+    .first()
+    .describedAs(`document element "${mark}"`);

@@ -4,10 +4,11 @@ import { useAttributes } from '../../content/attributes';
 import { useAtom } from '@xoid/react';
 import { atom } from 'xoid';
 import { formatDate } from '@qspider/i18n';
+import { slotNumbers } from './slot-numbers';
 
 export const slotContentContext = createContext<{ index: number; date?: number }>({ index: -1 });
 
-const baseSlots$ = atom((get) => Array.from({ length: get(saveSlotsCount$) }, (_, index) => index + 1));
+const baseSlots$ = atom((get) => slotNumbers(get(saveSlotsCount$)));
 
 export const QspSlotsList: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ attrs, children }) => {
   const baseSlots = useAtom(baseSlots$);

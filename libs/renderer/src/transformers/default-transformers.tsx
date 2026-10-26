@@ -37,11 +37,13 @@ import {
   QspPauseScreenPanel,
   QspSlot,
 } from '../theme-core/pause-screen';
-import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
+import { QspScrollable } from '../theme-core/scrollable';
+import { isScrollType, ScrollType } from '../theme-core/scroll-type';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
 import { QspView, QspViewImage } from '../theme-core/view';
 import { HtmlLink, Link } from './base/link';
 import { Element } from '../content/element';
+import { isDroppedTag } from '../content/convert-attributes';
 import { QspT } from '../qsp-t';
 import { QspMain, QspMainContent } from '../theme-core/main';
 import { HtmlSelect } from '../theme-core/html/select';
@@ -59,11 +61,14 @@ import { QspLocaleSelect } from './general/locale-selector';
 import { QspGameAuthor, QspGameDescription, QspGameTitle, QspGameVersion } from './general/game-data';
 import { QspOrientation } from '../theme-core/orientation';
 import { QspDevice } from '../theme-core/device';
+import { linkTarget } from './link-target';
+import { showCondition } from './show-condition';
+import { layerIndex, menuOffset, variableIndex } from './default-attributes';
 
 export const defaultTransform: TransformCallback = (node, children) => {
   const tagName = node.tagName.toLowerCase();
-  // Game text is untrusted: a <script> (top-level or inside <svg>) must never reach the DOM.
-  if (tagName === 'script') return null;
+  // Game text is untrusted: these tags (a <script> too, top-level or inside <svg>) must never reach the DOM.
+  if (isDroppedTag(tagName)) return null;
   const attributes = extractAttributes(node);
   return (
     <Element tagName={tagName} attrs={attributes}>
@@ -168,8 +173,8 @@ export const defaultTransformers: Record<string, TransformCallback> = {
       <QspMenu
         showAs={showAs as 'mouse'}
         showAt={showAt}
-        offsetX={offsetX ? parseInt(offsetX, 10) : 0}
-        offsetY={offsetY ? parseInt(offsetY, 10) : 0}
+        offsetX={menuOffset(offsetX)}
+        offsetY={menuOffset(offsetY)}
         attrs={attributes}
       >
         {children}
@@ -270,13 +275,7 @@ export const defaultTransformers: Record<string, TransformCallback> = {
   },
   'qsp-variable'(node) {
     const { name, key, index } = extractAttributes(node);
-    return (
-      <QspVariable
-        name={name as string}
-        vkey={key as string}
-        index={index ? parseInt(index as string, 10) : undefined}
-      />
-    );
+    return <QspVariable name={name as string} vkey={key as string} index={variableIndex(index as string)} />;
   },
   'qsp-region'(node) {
     const { name, ...attributes } = extractAttributes(node);
@@ -286,19 +285,17 @@ export const defaultTransformers: Record<string, TransformCallback> = {
   'qsp-layer'(node, children) {
     const { name, index, ...attributes } = extractAttributes(node);
     return (
-      <QspLayer name={name as string} index={parseInt(index)} attrs={attributes}>
+      <QspLayer name={name as string} index={layerIndex(index)} attrs={attributes}>
         {children}
       </QspLayer>
     );
   },
   'qsp-show'(node, children) {
     const variable = node.getAttribute('when') || '';
-    let condition: [string, string] = ['is-not', variable.startsWith('$') ? '' : '0'];
-    for (const key of conditionAttributes) {
-      if (node.hasAttribute(key)) {
-        condition = [key, node.getAttribute(key) || ''];
-      }
-    }
+    const present = conditionAttributes
+      .filter((key) => node.hasAttribute(key))
+      .map((key): [string, string] => [key, node.getAttribute(key) || '']);
+    const condition = showCondition(variable, present);
     return (
       <QspShow variable={variable} condition={condition}>
         {children}
@@ -315,20 +312,19 @@ export const defaultTransformers: Record<string, TransformCallback> = {
   },
   a: (node, children) => {
     const { href, ...attributes } = extractAttributes(node);
-    if (href) {
-      if (href.toLowerCase().startsWith('exec:')) {
-        return (
-          <Link attrs={attributes} exec={href.substring(5)}>
-            {children}
-          </Link>
-        );
-      } else if (parseInt(href) > 0) {
-        return (
-          <Link attrs={attributes} act={parseInt(href)}>
-            {children}
-          </Link>
-        );
-      }
+    const target = linkTarget(href);
+    if (target.kind === 'exec') {
+      return (
+        <Link attrs={attributes} exec={target.code}>
+          {children}
+        </Link>
+      );
+    } else if (target.kind === 'action') {
+      return (
+        <Link attrs={attributes} act={target.number}>
+          {children}
+        </Link>
+      );
     }
     const attrs = {
       href,

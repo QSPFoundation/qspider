@@ -1,7 +1,7 @@
 import { CssVarDefinition, baseUrl$, currentCssVariables$, initialBaseUrl$, useQspVariable } from '@qspider/game-state';
-import { cleanPath, convertColor, getContrastColor, invertColor, isExternalUrl } from '@qspider/utils';
 import { useAtom, useSetup } from '@xoid/react';
 import { atom } from 'xoid';
+import { cssVariableRules, resolveThemeUrl, resourceVariableCss } from './css-variable-rules';
 
 export const QspCSSVariables: React.FC = () => {
   const variables = useAtom(currentCssVariables$);
@@ -48,44 +48,17 @@ const QspCssVariableResource: React.FC<{ name: string; url: string; withSize: bo
   url = prepareUrl(url);
   const { name } = props;
 
-  const sizeDefinitions = props.withSize ? `${name}-w: ${size.width}px; ${name}-h: ${size.height}px` : '';
-  const content = `qsp-game-root, #portal-container {${name}: ${url ? `url("${url}")` : 'none'};${sizeDefinitions}}`;
+  const content = resourceVariableCss(name, url, props.withSize ? size : null);
   return <style>{content}</style>;
 };
 
 function prepareUrl(url: string): string {
-  if (url.startsWith('qspider:')) {
-    url = url.replace('qspider:', initialBaseUrl$.value);
-  } else if (isExternalUrl(url)) {
-    return url;
-  } else {
-    url = baseUrl$.value + url;
-  }
-  return cleanPath(url);
+  return resolveThemeUrl(url, baseUrl$.value, initialBaseUrl$.value);
 }
 
 export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ definition }) => {
   const value = useQspVariable(definition.from, '', 0, '');
-  const rules: string[] = [];
-  if (definition.type === 'color') {
-    const preparedValue = value ? convertColor(Number(value)) : definition.defaultValue;
-    if (preparedValue) {
-      rules.push(`${definition.name}: ${preparedValue}`);
-      if (definition.withContrast) {
-        rules.push(`${definition.name}-contrast: ${getContrastColor(preparedValue)}`);
-      }
-      if (definition.withInverted) {
-        const inverted = invertColor(preparedValue);
-        rules.push(`${definition.name}-inverted: ${inverted}`);
-        if (definition.withContrast) {
-          rules.push(`${definition.name}-inverted-contrast: ${getContrastColor(inverted)}`);
-        }
-      }
-    }
-  } else if (definition.type === 'unit') {
-    const unitValue = value || definition.defaultValue;
-    if (unitValue) rules.push(`${definition.name}: ${unitValue}${definition.unit || ''}`);
-  } else if (definition.type === 'resource') {
+  if (definition.type === 'resource') {
     if (!value && !definition.defaultValue) return null;
     return (
       <QspCssVariableResource
@@ -94,9 +67,8 @@ export const QspCssVariable: React.FC<{ definition: CssVarDefinition }> = ({ def
         withSize={definition.withSize}
       />
     );
-  } else if (value) {
-    rules.push(`${definition.name}: ${value}`);
   }
+  const rules = cssVariableRules(definition, value);
   if (!rules.length) return null;
   const content = `qsp-game-root, #portal-container {${rules.join('; ')}}`;
   return <style>{content}</style>;

@@ -1,11 +1,12 @@
 import { TransformCallback } from '@qspider/html-renderer';
-import { DockPlace, extractAttributes } from '@qspider/game-state';
+import { extractAttributes } from '@qspider/game-state';
 import { Font } from './classic/font';
 import { Big, Strike, Tt } from './classic/format';
 import { Hr } from './classic/hr';
 import { Table } from './classic/table';
 import { Area } from './classic/area';
 import { Video } from './classic/video';
+import { dockAttributes, elementChildren, paneAttributes, tableDimensions } from './classic/classic-attributes';
 import { QspCL, QspCLDefaults, QspCLDock, QspCLLayer, QspCLPane } from './classic/classic-layout';
 
 export const classicTransformers: Record<string, TransformCallback> = {
@@ -30,20 +31,21 @@ export const classicTransformers: Record<string, TransformCallback> = {
     return <Strike attrs={extractAttributes(node)}>{children}</Strike>;
   },
   tbody: (_node, children) => {
-    return <tbody>{children.filter((child) => typeof child !== 'string')}</tbody>;
+    return <tbody>{elementChildren(children)}</tbody>;
   },
   table: (node, children) => {
-    const { border = '0', cellspacing = '0', cellpadding = '1', align, valign, ...attrs } = extractAttributes(node);
+    const { border, cellspacing, cellpadding, align, valign, ...attrs } = extractAttributes(node);
+    const dimensions = tableDimensions({ border, cellspacing, cellpadding });
     return (
       <Table
         align={align as React.CSSProperties['textAlign']}
         valign={valign as React.CSSProperties['verticalAlign']}
-        border={Number(border)}
-        cellspacing={Number(cellspacing)}
-        cellpadding={Number(cellpadding)}
+        border={dimensions.border}
+        cellspacing={dimensions.cellspacing}
+        cellpadding={dimensions.cellpadding}
         attrs={attrs}
       >
-        {children.filter((child) => typeof child !== 'string')}
+        {elementChildren(children)}
       </Table>
     );
   },
@@ -59,20 +61,21 @@ export const classicTransformers: Record<string, TransformCallback> = {
     return <QspCLLayer>{children}</QspCLLayer>;
   },
   'qsp-cl-dock': (node, children) => {
-    const place: DockPlace = (node.getAttribute('place') || 'center') as DockPlace;
-    const visibility = node.getAttribute('visibility');
-    const size = node.getAttribute('size') ?? 0;
+    const { place, visibility, size } = dockAttributes(
+      node.getAttribute('place'),
+      node.getAttribute('visibility'),
+      node.getAttribute('size'),
+    );
     return (
-      <QspCLDock place={place} visibility={visibility} size={Number(size)}>
+      <QspCLDock place={place} visibility={visibility} size={size}>
         {children}
       </QspCLDock>
     );
   },
   'qsp-cl-pane': (node, children) => {
-    const proportion = node.getAttribute('proportion') ?? 1;
-    const visibility = node.getAttribute('visibility');
+    const { visibility, proportion } = paneAttributes(node.getAttribute('visibility'), node.getAttribute('proportion'));
     return (
-      <QspCLPane visibility={visibility} proportion={Number(proportion)}>
+      <QspCLPane visibility={visibility} proportion={proportion}>
         {children}
       </QspCLPane>
     );

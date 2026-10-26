@@ -35,6 +35,11 @@
       "automerge": false
     },
     {
+      "description": "playwright and @playwright/test must resolve to one version: they share the downloaded browsers",
+      "matchPackageNames": ["playwright", "@playwright/test"],
+      "groupName": "playwright"
+    },
+    {
       "matchManagers": ["github-actions"],
       "groupName": "github actions"
     },

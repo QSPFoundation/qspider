@@ -1,16 +1,13 @@
 import { mainContent$, newLocEffect$, newLocHash$, nextMainContent$ } from '@qspider/game-state';
-import { AERO_EFFECTS } from './aero-effects';
+import { aeroEffectConfig, aeroStepDuration } from './aero-effect-timing';
 import { useAtom } from '@xoid/react';
 import { TransitionFn, animated, useTransition } from '@react-spring/web';
 import { ReactNode, useEffect } from 'react';
 
 export const AeroNewlocEffect: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { effect, time, seq: isSequential } = useAtom(newLocEffect$);
-  let duration = time;
-  const effectConfig = AERO_EFFECTS[effect] ?? {};
-  if (effectConfig.enter && Array.isArray(effectConfig.enter)) {
-    duration /= effectConfig.enter.length;
-  }
+  const effectConfig = aeroEffectConfig(effect);
+  const duration = aeroStepDuration(time, effectConfig);
   const newLocHash = useAtom(newLocHash$);
 
   const transformation = useTransition(newLocHash, {

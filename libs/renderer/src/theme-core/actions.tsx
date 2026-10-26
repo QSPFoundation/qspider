@@ -1,4 +1,5 @@
 import { Attributes, execSelectedAction, isActsVisible$, selectAction, selectedAction$ } from '@qspider/game-state';
+import { imageVariable } from '../content/image-variable';
 import { useAtom } from '@xoid/react';
 import { createContext, ReactElement, ReactNode, useContext } from 'react';
 import { useAttributes } from '../content/attributes';
@@ -46,7 +47,7 @@ export const QspActionItem: React.FC<{ attrs: Attributes; children: ReactNode }>
   const [Tag, style, { useFormat, ...attributes }] = useAttributes(attrs, 'qsp-action');
   const preparedStyle = {
     ...style,
-    '--action-image': action.image ? `url("${action.image}")` : '',
+    '--action-image': imageVariable(action.image),
   };
 
   const onHover = (): void => {
