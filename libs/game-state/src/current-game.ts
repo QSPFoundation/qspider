@@ -44,6 +44,7 @@ import { showNotice } from './toasts';
 import { parseToml } from '@qspider/utils';
 import { debugActions } from './debug';
 import { scrollStep } from './qspider-command-parsers';
+import { isQspsFile } from './engine-event-logic';
 
 export const currentGameEntry$ = atom<GameShelfEntry | null>(null);
 export const currentGame$ = atom<GameDescriptor | null>();
@@ -166,8 +167,7 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     if (descriptor) applyWindowSettings(descriptor.window);
     let gameSource = await fetchBinaryContent(baseUrl$.value, entry.loadConfig.entrypoint);
     if (!gameSource) throw new Error('Failed to load game');
-    const isQsps = entry.loadConfig.entrypoint.toLowerCase().endsWith('.qsps');
-    if (isQsps) {
+    if (isQspsFile(entry.loadConfig.entrypoint)) {
       gameSource = convertQsps(gameSource);
     }
     // A clean slate for the new game: no pause reason left over from the previous one.
