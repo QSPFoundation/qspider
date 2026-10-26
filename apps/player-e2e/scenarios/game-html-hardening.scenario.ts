@@ -84,9 +84,22 @@ scenario('a tag attribute cannot smuggle a dropped tag or an unsandboxed iframe'
     SeeMainTextContaining(TEXT.tagAttrBenign),
     waitUntilAbsent(ErrorAlerts.first()),
     waitUntilPresent(ContentMark(MARK.hostileTagFrame)),
+    // Deterministic pin of the sandbox; the PwnedAttribute check below cannot see a late-running srcdoc script.
     SeeElementAttribute(ContentMark(MARK.hostileTagFrame), 'sandbox', 'allow-scripts'),
     waitUntilAbsent(PwnedAttribute),
     waitUntilAbsent(DocumentMark(MARK.hostileTagBase)),
     waitUntilAbsent(DocumentMark(MARK.hostileTagMeta)),
+  );
+});
+
+scenario('a namespaced script in game text does not run', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileTagAttr),
+    // The benign line renders after the svg:script lines; a script element inserted by React runs synchronously,
+    // so a script that escaped the drop has already set the attribute by then.
+    SeeMainTextContaining(TEXT.tagAttrBenign),
+    waitUntilAbsent(PwnedAttribute),
   );
 });

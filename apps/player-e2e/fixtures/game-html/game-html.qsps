@@ -146,5 +146,7 @@ end
 *pl '<b tag="IFRAME" data-qa="hostile-tag-frame" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
 *pl '<br tag="base" data-qa="hostile-tag-base" href="https://example.invalid/">'
 *pl '<i tag="meta" data-qa="hostile-tag-meta" http-equiv="refresh" content="600;url=about:blank">m</i>'
+*pl '<svg><g tag="svg:script">document.body.setAttribute(''data-qa-pwned'',''1'')</g></svg>'
+*pl '<svg><svg:script>document.body.setAttribute(''data-qa-pwned'',''1'')</svg:script></svg>'
 *pl 'TAG ATTR BENIGN'
 ---

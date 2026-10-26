@@ -56,7 +56,7 @@ export const GAME_HTML = {
     hostileMeta: 'hostile-meta',
     hostileEmbed: 'hostile-embed',
     hostileObject: 'hostile-object',
-    /** Elements the hostile_tag_attr location writes with a tag= override: an iframe, a base and a meta. */
+    /** Elements the hostile_tag_attr location writes with a tag= override: an iframe, a base and a meta (it also writes svg:script, unmarked). */
     hostileTagFrame: 'hostile-tag-frame',
     hostileTagBase: 'hostile-tag-base',
     hostileTagMeta: 'hostile-tag-meta',
