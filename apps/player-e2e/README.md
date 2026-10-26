@@ -219,7 +219,7 @@ The matrix: the core flows run under aero and custom on web only (`webOnly`; the
 - `pnpm e2e:web` - build the player, then run Playwright.
 - `pnpm e2e:desktop` - check desktop prerequisites (`targets/desktop/check-prereqs.ts`; fails in seconds, naming what's missing), build the E2E debug binary (`nx run player-e2e:build-desktop-e2e`), then run WebdriverIO through `targets/desktop/run-desktop-e2e.mjs` (below). Extra arguments to that script go to `wdio run`.
 - `pnpm nx test player-e2e` - unit tests for the harness itself: the desktop prerequisite check (`targets/desktop/check-prereqs.ts`), and the private-session guard (`targets/desktop/private-session.ts`).
-- `pnpm check` runs those unit tests, then `e2e:web` and `e2e:standalone-web` as its last steps; `pnpm check:full` adds `e2e:desktop` and `e2e:standalone-desktop`.
+- `pnpm check` runs those unit tests with every other project's (`nx run-many -t test`), then `e2e:web` and `e2e:standalone-web` as its last steps; `pnpm check:full` adds `e2e:desktop` and `e2e:standalone-desktop`.
 - `pnpm e2e:standalone-web` - `nx run player-e2e:e2e-standalone-web` (stage, build, serve, Playwright; see "Standalone").
 - `pnpm smoke:desktop` - the desktop launch smoke of both desktop apps, no WebDriver (see "Launch smoke"). Not part of `pnpm check` or `pnpm check:full`; CI runs it on macOS and Windows.
 - `pnpm e2e:standalone-desktop` - the desktop prerequisite check, then `nx run player-e2e:e2e-standalone-desktop`. It passes no extra arguments to wdio. To run part of the suite, build once with `pnpm nx run player-e2e:build-desktop-standalone-e2e`, then `node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs --standalone --spec …`. That uses the standalone binary as last built: rebuild after any change outside `apps/player-e2e`.
@@ -242,6 +242,8 @@ The standalone player (`apps/player-standalone`) has its own small suite, `scena
 Web:
 
 - Chromium. Either `CHROME_BIN=/usr/bin/chromium` (use a system browser) or `pnpm exec playwright install chromium`. With neither, Playwright fails with its install message.
+
+Unit tests (`pnpm test`, `pnpm check`): `html-renderer`, `renderer` and `desktop` run in Vitest browser mode (`vitest.browser.mts`), so they need the same Chromium: `CHROME_BIN=/usr/bin/chromium` or `pnpm exec playwright install chromium`.
 
 Desktop:
 
