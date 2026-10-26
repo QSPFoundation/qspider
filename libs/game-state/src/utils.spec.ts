@@ -1,5 +1,5 @@
 import { readQsp } from '@qsp/converters';
-import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
+import type { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
 import { clamp, convertQsps, isHashPath, prepareContent, prepareList, prepareObjectList } from './utils';
 

@@ -11,15 +11,18 @@ export const conditionAttributes = [
   'less-or-equal',
 ];
 
-function isNumeric(value: string | number): boolean {
-  return typeof value === 'number' || (value.trim() !== '' && !Number.isNaN(Number(value)));
+function isNumeric(value: string): boolean {
+  return value.trim() !== '' && !Number.isNaN(Number(value));
 }
 
-/** Compares as numbers when both sides are numeric, otherwise as strings. */
+/** A number compares numerically against `Number(toCompare)`; two numeric strings compare as numbers, any other strings as text. */
 function compare(value: string | number, toCompare: string): number {
+  if (typeof value === 'number') {
+    const right = Number(toCompare);
+    return value > right ? 1 : value < right ? -1 : value === right ? 0 : NaN;
+  }
   if (isNumeric(value) && isNumeric(toCompare)) return Number(value) - Number(toCompare);
-  const left = String(value);
-  return left < toCompare ? -1 : left > toCompare ? 1 : 0;
+  return value < toCompare ? -1 : value > toCompare ? 1 : 0;
 }
 
 export function checkCondition(value: string | number, condition: [string, string]): boolean {

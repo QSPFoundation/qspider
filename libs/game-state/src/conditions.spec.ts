@@ -41,6 +41,13 @@ describe('checkCondition', () => {
     expect(checkCondition(10, ['less-or-equal', '9'])).toBe(false);
   });
 
+  it('keeps numeric comparison for a number against a non-numeric or empty string', () => {
+    expect(checkCondition(10, ['less', 'abc'])).toBe(false);
+    expect(checkCondition(10, ['greater', 'abc'])).toBe(false);
+    expect(checkCondition(-1, ['greater', ''])).toBe(false);
+    expect(checkCondition(1, ['greater', ''])).toBe(true);
+  });
+
   it('orders non-numeric strings as strings', () => {
     expect(checkCondition('b', ['greater', 'a'])).toBe(true);
     expect(checkCondition('a', ['greater', 'b'])).toBe(false);
