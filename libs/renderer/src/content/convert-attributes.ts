@@ -1,5 +1,13 @@
 import type { Attributes, EventAttributes } from '@qspider/game-state';
 import { fontSizeMap } from './font-sizes';
+import { TAGS_MAP } from './tags-map';
+
+// Tags game text must never reach the DOM: script runs code; base, meta (refresh) and frame* redirect or
+// rebase the page; embed, object, applet and command load active content. style, link and title stay:
+// games style themselves.
+const DROPPED_TAGS = new Set(['script', 'base', 'meta', 'embed', 'object', 'applet', 'frame', 'frameset', 'command']);
+
+export const isDroppedTag = (tag: string): boolean => DROPPED_TAGS.has(tag.toLowerCase());
 
 const ATTRIBUTES_TO_PROPS: Record<string, string> = Object.freeze({
   class: 'className',
@@ -79,7 +87,10 @@ const eventsMap: Record<string, keyof EventAttributes> = {
 };
 
 export interface ConvertedAttributes {
+  /** The tag to render: the tag= attribute or the parsed tag, lowercased, SVG names in camelCase. */
   tag: string;
+  /** The tag is one game text must never put in the DOM (isDroppedTag). */
+  dropped: boolean;
   style: React.CSSProperties;
   props: Record<string, unknown>;
   events: { prop: keyof EventAttributes; code: string }[];
@@ -97,13 +108,16 @@ export function convertAttributes(
     props['data-qsp'] = dataName.replace('qsp-', '');
   }
   const {
-    tag = tagName,
+    tag: tagAttribute = tagName,
     style = {},
     'qsp-command': qspCommand,
     'qsp-save-command': qspSaveCommand,
     ...attrs
   } = attributes;
 
+  // A tag= attribute overrides the parsed tag, so the drop, sandbox and void checks read the resolved one.
+  const lowerTag = String(tagAttribute).toLowerCase();
+  const tag = Object.prototype.hasOwnProperty.call(TAGS_MAP, lowerTag) ? TAGS_MAP[lowerTag] : lowerTag;
   for (const [key, value] of Object.entries(attrs)) {
     if (key.startsWith('on')) continue;
     if (key.startsWith('qsp-on')) {
@@ -128,11 +142,11 @@ export function convertAttributes(
     props[preparedKey] = value as string;
   }
 
-  if ((tag as string).includes('-') && props['className']) {
+  if (tag.includes('-') && props['className']) {
     props['class'] = props['className'];
     delete props['className'];
   }
-  if (tag === 'iframe') {
+  if (lowerTag === 'iframe') {
     props['sandbox'] = 'allow-scripts';
   }
   let command: ConvertedAttributes['command'] = null;
@@ -144,8 +158,9 @@ export function convertAttributes(
     command = { kind: 'save', value: qspSaveCommand as string };
   }
   return {
-    tag: tag as string,
-    style: { ...style, ...attributesToStyle(attributes, tag as string) },
+    tag,
+    dropped: isDroppedTag(lowerTag),
+    style: { ...style, ...attributesToStyle(attributes, tag) },
     props,
     events,
     command,

@@ -43,6 +43,7 @@ import { QspStats, QspStatsContent } from '../theme-core/stats';
 import { QspView, QspViewImage } from '../theme-core/view';
 import { HtmlLink, Link } from './base/link';
 import { Element } from '../content/element';
+import { isDroppedTag } from '../content/convert-attributes';
 import { QspT } from '../qsp-t';
 import { QspMain, QspMainContent } from '../theme-core/main';
 import { HtmlSelect } from '../theme-core/html/select';
@@ -61,15 +62,10 @@ import { QspGameAuthor, QspGameDescription, QspGameTitle, QspGameVersion } from 
 import { QspOrientation } from '../theme-core/orientation';
 import { QspDevice } from '../theme-core/device';
 
-// Tags game text must never reach the DOM: script runs code; base, meta (refresh) and frame* redirect or
-// rebase the page; embed, object, applet and command load active content. style, link and title stay:
-// games style themselves.
-const DROPPED_TAGS = new Set(['script', 'base', 'meta', 'embed', 'object', 'applet', 'frame', 'frameset', 'command']);
-
 export const defaultTransform: TransformCallback = (node, children) => {
   const tagName = node.tagName.toLowerCase();
   // Game text is untrusted: these tags (a <script> too, top-level or inside <svg>) must never reach the DOM.
-  if (DROPPED_TAGS.has(tagName)) return null;
+  if (isDroppedTag(tagName)) return null;
   const attributes = extractAttributes(node);
   return (
     <Element tagName={tagName} attrs={attributes}>

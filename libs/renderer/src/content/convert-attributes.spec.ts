@@ -1,6 +1,6 @@
 import type { Attributes } from '@qspider/game-state';
 import { describe, expect, it } from 'vitest';
-import { attributesToStyle, convertAttributes } from './convert-attributes';
+import { attributesToStyle, convertAttributes, isDroppedTag } from './convert-attributes';
 
 describe('attributesToStyle', () => {
   it('adds px to a bare number and keeps a percentage', () => {
@@ -111,5 +111,57 @@ describe('convertAttributes', () => {
 
   it('has no command by default', () => {
     expect(convertAttributes({}, 'div').command).toBeNull();
+  });
+
+  it('sandboxes an iframe a tag attribute names in any case', () => {
+    const { tag, props, dropped } = convertAttributes({ tag: 'IFRAME', srcdoc: '<b>x</b>' }, 'b');
+    expect(tag).toBe('iframe');
+    expect(props).toEqual({ srcdoc: '<b>x</b>', sandbox: 'allow-scripts' });
+    expect(dropped).toBe(false);
+  });
+
+  it('drops a base a tag attribute names', () => {
+    const { tag, dropped } = convertAttributes({ tag: 'base', href: 'https://example.invalid/' }, 'br');
+    expect(tag).toBe('base');
+    expect(dropped).toBe(true);
+  });
+
+  it('drops a script a tag attribute names in mixed case', () => {
+    const { tag, dropped } = convertAttributes({ tag: 'Script', src: 'x.js', async: 'true' }, 'qsp-main');
+    expect(tag).toBe('script');
+    expect(dropped).toBe(true);
+  });
+
+  it('keeps the camelCase name of an SVG tag a tag attribute names', () => {
+    const { tag, dropped } = convertAttributes({ tag: 'clipPath', id: 'c' }, 'g');
+    expect(tag).toBe('clipPath');
+    expect(dropped).toBe(false);
+  });
+
+  it('maps a parsed lowercase SVG tag to its camelCase name', () => {
+    expect(convertAttributes({}, 'foreignobject').tag).toBe('foreignObject');
+  });
+
+  it('keeps a tag named like an object property as written', () => {
+    expect(convertAttributes({ tag: 'constructor' }, 'b').tag).toBe('constructor');
+  });
+
+  it('does not drop an ordinary tag', () => {
+    expect(convertAttributes({ tag: 'div' }, 'qsp-main').dropped).toBe(false);
+  });
+});
+
+describe('isDroppedTag', () => {
+  it('drops each tag that runs code, redirects or embeds, in any case', () => {
+    for (const tag of ['script', 'base', 'meta', 'embed', 'object', 'applet', 'frame', 'frameset', 'command']) {
+      expect(isDroppedTag(tag), tag).toBe(true);
+      expect(isDroppedTag(tag.toUpperCase()), tag.toUpperCase()).toBe(true);
+    }
+  });
+
+  it('keeps the tags games style themselves with', () => {
+    for (const tag of ['style', 'link', 'title', 'iframe', 'div']) {
+      expect(isDroppedTag(tag), tag).toBe(false);
+    }
   });
 });
