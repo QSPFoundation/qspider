@@ -12,7 +12,7 @@ export const QspGameTitle: React.FC<{ attrs: Attributes }> = ({ attrs }) => {
   const currentGame = useAtom(currentGameEntry$);
   return (
     <Tag {...attributes} style={style}>
-      {currentGame?.author || t('n/a')}
+      {currentGame?.title || t('n/a')}
     </Tag>
   );
 };
