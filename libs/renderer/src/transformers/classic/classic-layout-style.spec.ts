@@ -64,7 +64,7 @@ describe('isLayerDockVisible', () => {
   });
 
   it('hides a dock with an empty visibility, unlike isDockVisible (maintainer decision)', () => {
-    expect(isLayerDockVisible('', () => true)).toBe(false);
+    expect(isLayerDockVisible('', onlyActs)).toBe(false);
   });
 
   it('shows a dock when any listed panel is visible', () => {
