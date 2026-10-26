@@ -55,6 +55,10 @@ act 'Play again':
   play 'snd/a.wav', 80
   *pl 'SND AGAIN A=' + str(isplay('snd/a.wav'))
 end
+act 'Play quiet':
+  play 'snd/a.wav', 1
+  *pl 'SND QUIET A=' + str(isplay('snd/a.wav'))
+end
 act 'Is playing': *pl 'SND IS A=' + str(isplay('snd/a.wav'))
 act 'Close':
   close 'snd/a.wav'

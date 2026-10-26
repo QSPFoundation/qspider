@@ -63,6 +63,16 @@ scenario('PLAY, replay, ISPLAY and CLOSE', async (player) => {
   );
 });
 
+// PLAY volumes are 0..100: 1 is one percent, not full volume.
+scenario('PLAY with volume 1 plays at one percent', async (player) => {
+  await player.attemptsTo(
+    ...OpenSoundLocation,
+    ClickAction(ACTIONS.sound.playQuiet),
+    SeeMainTextContaining(`${LINES.playQuiet}1`),
+    SeeSoundState('a.wav', PLAYING(0.01)),
+  );
+});
+
 scenario('a sound path with backslashes', async (player) => {
   await player.attemptsTo(
     ...OpenSoundLocation,

@@ -40,6 +40,7 @@ export const RESOURCES_GAME = {
     sound: {
       play: 'Play',
       playAgain: 'Play again',
+      playQuiet: 'Play quiet',
       isPlaying: 'Is playing',
       close: 'Close',
       playTwo: 'Play two',
@@ -174,6 +175,7 @@ export const RESOURCES_GAME = {
     lines: {
       play: 'SND PLAY A=',
       playAgain: 'SND AGAIN A=',
+      playQuiet: 'SND QUIET A=',
       isPlaying: 'SND IS A=',
       close: 'SND CLOSE A=',
       playTwo: 'SND TWO A=',
@@ -181,8 +183,8 @@ export const RESOURCES_GAME = {
       backslash: 'SND BACKSLASH B=',
       closeBackslashB: 'SND CLOSEB B=',
     },
-    /** Volumes the `Play` / `Play again` actions pass. */
-    volume: { play: 50, playAgain: 80 },
+    /** Volumes the `Play` / `Play again` / `Play quiet` actions pass (0..100). */
+    volume: { play: 50, playAgain: 80, playQuiet: 1 },
     /** Seconds of each wav: long enough that nothing ends by itself during a scenario. */
     seconds: 20,
   },
