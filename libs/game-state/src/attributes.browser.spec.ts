@@ -203,6 +203,19 @@ describe('processStyles', () => {
     expect(processStyles('background-image: img/a.png')).toEqual({ backgroundImage: 'url("img/a.png")' });
   });
 
+  it('turns the backslashes of a Windows bare path into slashes, so they are not read as CSS escapes', () => {
+    expect(processStyles('background-image:img\\a.png')).toEqual({ backgroundImage: 'url("img/a.png")' });
+  });
+
+  it('wraps a quoted bare path once', () => {
+    expect(processStyles('background-image:"a.png"')).toEqual({ backgroundImage: 'url("a.png")' });
+    expect(processStyles("background-image:'a.png'")).toEqual({ backgroundImage: 'url("a.png")' });
+  });
+
+  it('escapes a double quote inside a bare path', () => {
+    expect(processStyles('background-image:a"b.png')).toEqual({ backgroundImage: 'url("a\\"b.png")' });
+  });
+
   it('does not wrap a gradient, a url() list or a keyword in url()', () => {
     expect(processStyles('background-image:linear-gradient(red, blue)')).toEqual({
       backgroundImage: 'linear-gradient(red, blue)',
@@ -224,6 +237,16 @@ describe('processStyles', () => {
 
   it('keeps a number with a unit as text', () => {
     expect(processStyles('width:10px')).toEqual({ width: '10px' });
+  });
+
+  it('reads property names case-insensitively', () => {
+    expect(processStyles('COLOR:red')).toEqual({ color: 'red' });
+    expect(processStyles('Background-Image:url(x)')).toEqual({ backgroundImage: 'url(x)' });
+    expect(processStyles('-MS-Transform:none')).toEqual({ msTransform: 'none' });
+  });
+
+  it('keeps a custom property name exactly as written, case included', () => {
+    expect(processStyles('--Accent:red')).toEqual({ '--Accent': 'red' });
   });
 
   it('splits the value at the first colon only', () => {
