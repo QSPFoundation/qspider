@@ -1,4 +1,10 @@
 # start
 inclib 'included.qsps'
 gosub 'included_marker'
+act 'Include missing':
+	*clr
+	inclib 'missing.qsps'
+	*pl 'AFTER MISSING'
+end
+act 'Go on': *clr & *pl 'WENT ON'
 ---

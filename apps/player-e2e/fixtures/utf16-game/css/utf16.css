@@ -1,0 +1,4 @@
+/* A game.cfg style: applies only if the UTF-16 game.cfg was decoded. */
+:root {
+  --e2e-utf16: UTF16;
+}

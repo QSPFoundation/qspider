@@ -6,17 +6,16 @@ import { URL_GAME } from '../fixtures/url-game';
 import {
   SeeErrorShown,
   SeeGameStarted,
-  SeeNoticeShown,
+  SeeNoticeContaining,
   SeeStartupFinished,
   WaitNoticeGone,
 } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
-import { E2E_GAME } from '../fixtures/e2e-game';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ReturnToShelf } from '../screenplay/game/tasks';
 import { SeeShelfIncludes, SeeShelfLacks, SeeShelfTitles, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
+import { DelayGameLinkPage, DelayRequests } from '../screenplay/support/delay-requests';
 import {
-  DelayRequests,
   DropGameFile,
   OpenGameFile,
   OpenGameUrl,
@@ -25,6 +24,7 @@ import {
 } from '../screenplay/support/operate-player';
 import { SeeProxied } from '../screenplay/support/proxy';
 import { scenario } from '../screenplay/support/scenario';
+import { pluralTranslation } from '../screenplay/support/translations';
 
 /** Path of a fixture served by the player's own origin (see global-setup.ts). */
 const served = (file: string): string => `/${URL_GAME.servedDir}/${file}`;
@@ -60,6 +60,13 @@ scenario.webOnly('a first-visit zip link waits for the service worker', async (p
     OpenGameUrl(served(basename(v1.path))),
     SeeGameStarted(v1.startText),
   );
+});
+
+scenario.webOnly('a game link that loads while the worker activates still starts', async (player) => {
+  // The game link's page is held back, so the worker (registered by the page before it) activates while that page
+  // is still loading. Its clients.claim() then misses the page, which the worker must still come to control.
+  const { reimportV1Zip: v1 } = ARCHIVES;
+  await player.attemptsTo(DelayGameLinkPage(500), OpenGameUrl(served(basename(v1.path))), SeeGameStarted(v1.startText));
 });
 
 scenario.webOnly('a failed URL import clears the loader and shows an error', async (player) => {
@@ -106,16 +113,36 @@ scenario('an includer game loads its included file', async (player) => {
   );
 });
 
-scenario('a multi-game zip is shelved, not started', async (player) => {
+scenario('a multi-game zip is shelved with a notice naming the count, not started', async (player) => {
+  const { path, titles } = ARCHIVES.tripleZip;
   await player.attemptsTo(
     StartPlayer(),
     SeeStartupFinished(),
-    OpenGameFile(ARCHIVES.multiZip.path),
-    SeeShelfTitles([...ARCHIVES.multiZip.titles]),
-    // Settle anchor: both games are shelved and still startable from the shelf. Had one auto-started,
+    // The launch pack shows its own notice at startup on desktop; wait it out so the check below is about this open.
+    WaitNoticeGone(),
+    OpenGameFile(path),
+    SeeNoticeContaining(pluralTranslation('en-US', '{{ count }} games added to shelf', titles.length)),
+    // Not an exact list: on desktop the launch pack is on the shelf too.
+    ...titles.map(SeeShelfIncludes),
+    // Settle anchor: all games are shelved and still startable from the shelf. Had one auto-started,
     // the shelf would be gone and this fails; opening one shows nothing was running before.
-    OpenFromShelf(ARCHIVES.multiZip.titles[0]),
-    SeeGameStarted(E2E_GAME.text.start),
+    OpenFromShelf(titles[0]),
+    SeeGameStarted(ARCHIVES.singleZip.startText),
+  );
+});
+
+scenario('a multi-game zip with all its games in one folder shelves every game with its own entry', async (player) => {
+  const { path, titles, secondStartText } = ARCHIVES.flatMultiZip;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    WaitNoticeGone(),
+    OpenGameFile(path),
+    SeeNoticeContaining(pluralTranslation('en-US', '{{ count }} games added to shelf', titles.length)),
+    ...titles.map(SeeShelfIncludes),
+    // Opening the second shows its own text: its entry was not overwritten by the first game's.
+    OpenFromShelf(titles[1]),
+    SeeGameStarted(secondStartText),
   );
 });
 
@@ -129,7 +156,7 @@ scenario.desktopOnly('re-opening the launch pack keeps one entry each', async (p
     SeeStartupFinished(),
     WaitNoticeGone(),
     OpenGameFile(TEST_PACK.configPath),
-    SeeNoticeShown(),
+    SeeNoticeContaining(pluralTranslation('en-US', '{{ count }} games added to shelf', TEST_PACK.titles.length)),
     SeeShelfTitles([...TEST_PACK.titles]),
   );
 });

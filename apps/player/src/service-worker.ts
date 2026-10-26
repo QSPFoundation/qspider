@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
 import { clientsClaim } from 'workbox-core';
-import { getStorage } from '@qspider/env';
+import { CLAIM_CLIENTS_MESSAGE, getStorage } from '@qspider/env';
 import { NetworkOnly, Strategy, StrategyHandler } from 'workbox-strategies';
 import { Route, registerRoute } from 'workbox-routing';
 import { contentTypeOf, isUtf16Le, parseQspiderFileUrl } from './qspider-files';
@@ -13,6 +13,12 @@ clientsClaim();
 sw.addEventListener('install', () => {
   // force the new service worker to unregister and replace the old one
   sw.skipWaiting();
+});
+
+// A page that was still loading when this worker activated is not claimed by the clientsClaim() above; such a page
+// asks for it (libs/browser/src/lib/game-files.ts).
+sw.addEventListener('message', (event) => {
+  if ((event.data as { type?: unknown } | null)?.type === CLAIM_CLIENTS_MESSAGE) event.waitUntil(sw.clients.claim());
 });
 
 class QspiderStrategy extends Strategy {

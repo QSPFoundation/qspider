@@ -6,7 +6,9 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { ARCHIVES } from './archives';
 import { unzipSync } from 'fflate';
 import { buildFixtures } from './build-fixtures';
+import { STANDALONE_STAGE, stageStandalonePublic } from '../targets/standalone/stage-public';
 import { DIALOGS } from './dialogs-game';
+import { EXTERNAL_THEME_GAME } from './external-theme-game';
 import { GAME_HTML } from './game-html-game';
 import { LOOK_AERO_TABLE, LOOK_CLASSIC_TABLE, LOOK_GAME, LOOK_IMAGES } from './look-game';
 import { PANELS_GAME } from './panels-game';
@@ -29,13 +31,21 @@ describe('buildFixtures', () => {
   it('writes zips with the ZIP magic', () => {
     for (const { path } of [
       ARCHIVES.singleZip,
-      ARCHIVES.multiZip,
+      ARCHIVES.tripleZip,
+      ARCHIVES.flatMultiZip,
       ARCHIVES.includerZip,
       ARCHIVES.dialogsZip,
       ARCHIVES.gameHtmlZip,
     ]) {
       expect(startsWith(path, [0x50, 0x4b]), path).toBe(true);
     }
+  });
+
+  it('stores the UTF-16 game.cfg (archive, folder, staged standalone) as UTF-16 LE with a BOM', () => {
+    stageStandalonePublic();
+    expect(unzipSync(bytes(ARCHIVES.utf16Zip.path))['game.cfg']!.slice(0, 2)).toEqual(new Uint8Array([0xff, 0xfe]));
+    expect(startsWith(ARCHIVES.utf16Folder.configPath, [0xff, 0xfe])).toBe(true);
+    expect(startsWith(join(STANDALONE_STAGE, 'game/game.cfg'), [0xff, 0xfe])).toBe(true);
   });
 
   it('writes the 7z with the 7z magic', () => {
@@ -96,6 +106,17 @@ describe('buildFixtures', () => {
     );
     expect(text(THEMED_GAME.path, 'e2e-theme.html')).toContain('<qspider-theme name="e2e-custom">');
     expect(text(THEMED_GAME.path, 'game.cfg')).toContain('defaultTheme = "e2e-custom"');
+  });
+
+  it('packs the external-theme games with the theme URLs the server answers', () => {
+    const source = (name: string): string =>
+      readFileSync(fileURLToPath(new URL(`./external-theme-game/${name}`, import.meta.url)), 'utf8');
+    expect(source('game.cfg')).toContain(`themes = ["${EXTERNAL_THEME_GAME.themeUrl}"]`);
+    expect(source('game.cfg')).toContain(`defaultTheme = "${EXTERNAL_THEME_GAME.alias}"`);
+    expect(source('game-404.cfg')).toContain(`themes = ["${EXTERNAL_THEME_GAME.missingThemeUrl}"]`);
+    expect(entries(ARCHIVES.externalThemeZip.path)).toEqual(['external-theme.qsps', 'game.cfg']);
+    expect(entries(ARCHIVES.externalTheme404Zip.path)).toEqual(['external-theme.qsps', 'game.cfg']);
+    expect(text(ARCHIVES.externalTheme404Zip.path, 'game.cfg')).toContain(EXTERNAL_THEME_GAME.missingThemeUrl);
   });
 
   it('packs the missing-theme games with an unregistered defaultTheme, one in Aero mode', () => {
@@ -230,6 +251,8 @@ describe('buildFixtures', () => {
       expect(game).toContain(`$BACKIMAGE = '${RESOURCES_GAME.externalImage}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.externalSound}'`);
       expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.externalText.url}'`);
+      expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.relativeText.path}'`);
+      expect(source('js/one.js')).toContain(`'${RESOURCES_GAME.marks.xhrRel}'`);
       expect(game).toContain(`play '${RESOURCES_GAME.sound.backslashB}'`);
     });
 

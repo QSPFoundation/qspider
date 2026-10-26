@@ -12,6 +12,7 @@ import { LOOK_IMAGES } from './look-game';
 import { quietWav, squareFont } from './resource-assets';
 import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from './resources-game';
 import { TEST_PACK } from './test-pack';
+import { utf16 } from './utf16';
 
 const THEME_FILES = ['e2e-theme.html', 'e2e-theme.css', 'e2e-theme.js'];
 
@@ -89,6 +90,7 @@ function resourcesFiles(): Record<string, Uint8Array> {
   };
   for (const name of [...RESOURCES_GAME.cfg.styles, ...RESOURCES_GAME.cfg.scripts])
     files[name] = readFileSync(join(SOURCES.resources, name));
+  files[RESOURCES_GAME.relativeText.path] = readFileSync(join(SOURCES.resources, RESOURCES_GAME.relativeText.path));
   for (const [name, [w, h]] of Object.entries(RESOURCES_IMAGES)) files[name] = transparentPng(w, h);
   for (const [name, [w, h]] of Object.entries(RESOURCES_SVGS))
     files[name] = Buffer.from(
@@ -107,7 +109,32 @@ export async function buildFixtures(): Promise<void> {
 
   const singleConfig = join(SOURCES.single, 'game.cfg');
   write(ARCHIVES.singleZip.path, zipPack(singleConfig));
-  write(ARCHIVES.multiZip.path, zipPack(TEST_PACK.configPath));
+  write(
+    ARCHIVES.tripleZip.path,
+    zipSync({
+      'game.cfg': readFileSync(join(SOURCES.triple, 'game.cfg')),
+      'one/single.qsps': readFileSync(join(SOURCES.single, 'single.qsps')),
+      'two/aero-game.qsps': readFileSync(join(SOURCES.aero, 'aero-game.qsps')),
+      'three/game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
+    } as Zippable),
+  );
+  write(
+    ARCHIVES.flatMultiZip.path,
+    zipSync({
+      'game.cfg': readFileSync(join(SOURCES.flatMulti, 'game.cfg')),
+      'single.qsps': readFileSync(join(SOURCES.single, 'single.qsps')),
+      'aero-game.qsps': readFileSync(join(SOURCES.aero, 'aero-game.qsps')),
+      'game.qsps': readFileSync(join(SOURCES.second, 'game.qsps')),
+    } as Zippable),
+  );
+  const utf16Files = {
+    'game.cfg': utf16(readFileSync(join(SOURCES.utf16, 'game.cfg'), 'utf8')),
+    'utf16.qsps': readFileSync(join(SOURCES.utf16, 'utf16.qsps')),
+    'css/utf16.css': readFileSync(join(SOURCES.utf16, 'css/utf16.css')),
+  };
+  write(ARCHIVES.utf16Zip.path, zipSync(utf16Files as Zippable));
+  for (const [name, data] of Object.entries(utf16Files))
+    write(join(dirname(ARCHIVES.utf16Folder.configPath), name), data);
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
@@ -145,6 +172,13 @@ export async function buildFixtures(): Promise<void> {
     [ARCHIVES.resourcesMissingZip, 'game-missing.cfg'],
   ] as const) {
     write(archive.path, zipSync({ 'game.cfg': readFileSync(join(SOURCES.resources, cfg)), ...resources } as Zippable));
+  }
+  for (const [archive, cfg] of [
+    [ARCHIVES.externalThemeZip, 'game.cfg'],
+    [ARCHIVES.externalTheme404Zip, 'game-404.cfg'],
+  ] as const) {
+    const config = readFileSync(join(SOURCES.externalTheme, cfg), 'utf8');
+    write(archive.path, zipWithConfig(config, [[SOURCES.externalTheme, 'external-theme.qsps']]));
   }
   // The plain folder keeps the real case on disk (the archives are lowercased by the players).
   const folder = dirname(ARCHIVES.resourcesFolder.path);

@@ -2,7 +2,7 @@
 // index.html, with no shelf. Run only by the standalone targets (e2e-standalone-web and
 // e2e-standalone-desktop).
 import { STANDALONE_GAME } from '../../fixtures/standalone-game';
-import { SeeActiveTheme, SeeGameStarted, SeeStartupFinished } from '../../screenplay/common/checks';
+import { SeeActiveTheme, SeeErrorAlertText, SeeGameStarted, SeeStartupFinished } from '../../screenplay/common/checks';
 import { SeeMainText } from '../../screenplay/game/checks';
 import { ClickAction } from '../../screenplay/game/tasks';
 import { SeeResourceMark } from '../../screenplay/resources/checks';
@@ -102,5 +102,19 @@ scenario("the game's theme and resources apply", async (player) => {
     SeeThemeCssApplied(),
     SeeCssValues({ root: true }, { [CSS.property]: CSS.value }),
     SeeResourceMark(MARK.qa, MARK.text),
+  );
+});
+
+// The desktop app reads its own files through read_app_asset (src-tauri/src/main.rs), not fetch: the asset
+// server answers a missing file with index.html (status 200), which the engine would get as the game file.
+scenario.desktopOnly('a missing bundled file is rejected, not served as the page', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.includeMissing),
+    SeeErrorAlertText(`Failed to open ${STANDALONE_GAME.missingFile}: `), // the handler's prefix
+    SeeErrorAlertText(`file not found: game/${STANDALONE_GAME.missingFile}`), // read_app_asset's cause
+    ClickAction(ACTION.goToRoom),
+    SeeMainText(TEXT.room(0)),
   );
 });

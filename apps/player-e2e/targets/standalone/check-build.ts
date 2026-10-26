@@ -1,10 +1,11 @@
 // Fails unless the standalone build bundles the staged fixture: its game/game.cfg must be byte-identical to
-// the fixture's. NX caches player-standalone:build without the staged dir among its inputs, so this catches a
+// the fixture's, re-encoded as UTF-16 by the staging. NX caches player-standalone:build without the staged dir among its inputs, so this catches a
 // stale bundle (or one built from the repo's own public/game/).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STANDALONE_GAME } from '../../fixtures/standalone-game.ts';
+import { utf16 } from '../../fixtures/utf16.ts';
 
 const BUILT_CONFIG = fileURLToPath(new URL('../../../../dist/apps/player-standalone/game/game.cfg', import.meta.url));
 const FIXTURE_CONFIG = join(STANDALONE_GAME.dir, 'game.cfg');
@@ -15,7 +16,7 @@ try {
 } catch {
   built = undefined;
 }
-if (!built?.equals(readFileSync(FIXTURE_CONFIG))) {
+if (!built?.equals(utf16(readFileSync(FIXTURE_CONFIG, 'utf8')))) {
   console.error(`${BUILT_CONFIG} is not the standalone fixture's game.cfg (${FIXTURE_CONFIG}): stale or wrong build.`);
   process.exit(1);
 }

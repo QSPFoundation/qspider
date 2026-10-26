@@ -11,13 +11,28 @@ import { quietWav } from './resource-assets';
 export const ASSET_SERVER = {
   host: '127.0.0.1',
   port: 47631,
-  /** The URLs the resources game spells (guarded in build-fixtures.spec.ts). */
-  paths: { image: '/ext.png', sound: '/ext.wav', text: '/ext.txt' },
+  /** The URLs the resources game and the external-theme game spell (guarded in build-fixtures.spec.ts). */
+  paths: {
+    image: '/ext.png',
+    sound: '/ext.wav',
+    text: '/ext.txt',
+    theme: '/ext-theme.html',
+    /** Never served: answers 404. */
+    missingTheme: '/missing-theme.html',
+  },
   /** The body of `paths.text`: what the game script's XHR must read back. */
   text: 'XHR EXTERNAL TEXT',
   /** Seconds of the wav: long enough that nothing ends by itself during a scenario. */
   soundSeconds: 20,
 } as const;
+
+/** The smallest theme that still shows the game: one main panel. */
+const EXTERNAL_THEME_HTML = `<qspider-theme name="e2e-ext">
+  <qsp-player>
+    <qsp-main><qsp-main-content></qsp-main-content></qsp-main>
+  </qsp-player>
+</qspider-theme>
+`;
 
 const PNG_1X1 = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
@@ -35,6 +50,7 @@ export function startAssetServer(): Promise<Server> {
     [ASSET_SERVER.paths.image]: ['image/png', PNG_1X1],
     [ASSET_SERVER.paths.sound]: ['audio/wav', quietWav(ASSET_SERVER.soundSeconds, 440)],
     [ASSET_SERVER.paths.text]: ['text/plain', Buffer.from(ASSET_SERVER.text)],
+    [ASSET_SERVER.paths.theme]: ['text/html', Buffer.from(EXTERNAL_THEME_HTML)],
   };
   const server = createServer((request, response) => {
     const file = files[new URL(request.url ?? '/', 'http://x').pathname];

@@ -5,6 +5,8 @@ import { errorMessage$, isErrorShown$ } from '@qspider/game-state';
 import { useTranslation } from 'react-i18next';
 import { Cross1Icon } from '@radix-ui/react-icons';
 
+import './toast.css';
+
 export const ErrorAlert: React.FC = () => {
   const { t } = useTranslation();
   const isOpen = useAtom(isErrorShown$);

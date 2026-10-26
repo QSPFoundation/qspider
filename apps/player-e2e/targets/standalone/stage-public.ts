@@ -2,10 +2,11 @@
 // folder, with the standalone fixture game in game/ instead. The builds read it through
 // QSPIDER_E2E_STANDALONE_PUBLIC_DIR (apps/player-standalone/vite.config.mts).
 // The repo's public/game/ is never read or written: maintainers keep a local game there.
-import { copyFileSync, cpSync, mkdirSync, rmSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { STANDALONE_GAME } from '../../fixtures/standalone-game.ts';
+import { utf16 } from '../../fixtures/utf16.ts';
 
 const WORKSPACE_ROOT = fileURLToPath(new URL('../../../../', import.meta.url));
 const PUBLIC_DIR = join(WORKSPACE_ROOT, 'public');
@@ -26,6 +27,9 @@ export function stageStandalonePublic(): void {
     }
   };
   copy(STANDALONE_GAME.dir, STANDALONE_GAME.files);
+  // The bundled game.cfg is UTF-16 LE with a BOM: the standalone players must decode it.
+  const cfg = join(gameDir, 'game.cfg');
+  writeFileSync(cfg, utf16(readFileSync(cfg, 'utf8')));
   copy(STANDALONE_GAME.themeDir, STANDALONE_GAME.themeFiles);
 }
 

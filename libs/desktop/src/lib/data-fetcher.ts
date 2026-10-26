@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { platform } from '@tauri-apps/plugin-os';
-import { appAssetUrl, decodeText, resolveResourceUrl, resourceRoute } from './resource-route';
+import { decodeText } from '@qspider/utils';
+import { appAssetUrl, resolveResourceUrl, resourceRoute } from './resource-route';
 
 async function readBytes(baseUrl: string, path: string): Promise<ArrayBuffer> {
   const url = resolveResourceUrl(baseUrl, path);

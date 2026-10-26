@@ -2,6 +2,7 @@
 inclib 'qspider'
 *pl 'STANDALONE START'
 counter = 0
+act 'Include missing': inclib 'missing.qsps'
 act 'Go to room': gt 'room'
 ---
 

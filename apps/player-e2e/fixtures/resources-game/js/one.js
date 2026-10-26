@@ -1,7 +1,8 @@
-/* global window, document, getComputedStyle, XMLHttpRequest */
+/* global window, document, getComputedStyle, XMLHttpRequest, TextDecoder */
 // Game script one. Records its run in window.E2E_RES.order and answers the game's events by writing
 // markers into the page: res_start (fired by the start location), res_show (the resources location) and res_xhr
-// (the media location: reads an absolute http URL with XMLHttpRequest and writes its responseText).
+// (the media location: reads an absolute http URL with XMLHttpRequest and writes its responseText) and res_xhr_rel
+// (reads the game's own data/rel.txt by a relative URL and writes the decoded response).
 (window.E2E_RES = window.E2E_RES || { order: [] }).order.push('one');
 function mark(qa, text) {
   var box = document.querySelector('[data-qa="e2e-marks"]');
@@ -39,6 +40,16 @@ window.addEventListener('qspider-event', function (e) {
     xhr.open('GET', 'http://127.0.0.1:47631/ext.txt');
     xhr.onload = function () {
       mark('res-xhr', xhr.responseText);
+    };
+    xhr.send();
+  }
+  if (e.detail.name === 'res_xhr_rel') {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data/rel.txt');
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function () {
+      // The desktop shim answers through response; its responseText stays empty while it replaces a request.
+      mark('res-xhr-rel', new TextDecoder().decode(xhr.response));
     };
     xhr.send();
   }

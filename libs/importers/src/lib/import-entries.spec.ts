@@ -6,6 +6,7 @@ import {
   archiveGameId,
   descriptorEntry,
   fileEntry,
+  pickGameDescriptor,
   splitGameUrl,
   urlConfigEntry,
   urlFallbackEntry,
@@ -163,5 +164,42 @@ describe('fileEntry', () => {
       mode: 'classic',
       loadConfig,
     });
+  });
+});
+
+describe('pickGameDescriptor', () => {
+  const entry = (id: string, file: string): GameDescriptor => ({ id, file, title: id, mode: 'classic' });
+  const one = entry('one', 'a.qsps');
+  const two = entry('two', 'b.qsps');
+  const three = entry('three', 'c.qsps');
+
+  it('picks the entry with the game id, not the first one', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'two', file: 'b.qsps' })).toBe(two);
+  });
+
+  it('falls back to the file name when no id matches', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'x', file: 'dir/c.qsps' })).toBe(three);
+  });
+
+  it('prefers the id over the file when they point at different entries', () => {
+    expect(pickGameDescriptor([one, two, three], { id: 'three', file: 'a.qsps' })).toBe(three);
+  });
+
+  it('does not match an entry whose file sits in a deeper folder under the same name', () => {
+    const deeper = entry('deeper', 'extra/game.qsps');
+    const other = entry('other', 'other.qsps');
+    expect(pickGameDescriptor([deeper, other], { id: 'x', file: 'game.qsps' })).toBeUndefined();
+  });
+
+  it('takes the only entry of a single-entry descriptor even under another id and file', () => {
+    expect(pickGameDescriptor([one], { id: 'x', file: 'sub/z.qsps' })).toBe(one);
+  });
+
+  it('finds nothing among several entries when none matches', () => {
+    expect(pickGameDescriptor([one, two], { id: 'x', file: 'z.qsps' })).toBeUndefined();
+  });
+
+  it('finds nothing in an empty descriptor', () => {
+    expect(pickGameDescriptor([], { id: 'x', file: 'z.qsps' })).toBeUndefined();
   });
 });

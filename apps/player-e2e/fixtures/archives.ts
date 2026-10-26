@@ -6,8 +6,14 @@ const out = (name: string): string => fileURLToPath(new URL(`../artifacts/fixtur
 
 export const ARCHIVES = {
   singleZip: { path: out('single-game.zip'), title: 'Single game', startText: 'SINGLE START' },
-  /** The test pack's games (game.cfg order), see TEST_PACK.titles. */
-  multiZip: { path: out('multi-game.zip'), titles: ['E2E game', 'Second game'] },
+  /** Three games (fixtures/triple), none of them in the test pack; titles in game.cfg order, which is also shelf (alphabetical) order. */
+  tripleZip: { path: out('triple-game.zip'), titles: ['Triple alpha', 'Triple beta', 'Triple gamma'] },
+  /** Three games (fixtures/flat-multi) all in the folder of their game.cfg; titles in game.cfg order. The second starts with the aero game's text. */
+  flatMultiZip: {
+    path: out('flat-multi.zip'),
+    titles: ['Flat alpha', 'Flat beta', 'Flat gamma'],
+    secondStartText: 'AERO START',
+  },
   sevenZip: { path: out('single-game.7z'), title: 'Single game', startText: 'SINGLE START' },
   /** Compiled .qsp of the single game; the shelf titles it by file name. */
   qspBinary: { path: out('single.qsp'), title: 'single.qsp', startText: 'SINGLE START' },
@@ -35,12 +41,21 @@ export const ARCHIVES = {
   /** Two versions of one game: the same game.cfg id, a different title and start text. */
   reimportV1Zip: { path: out('reimport-v1.zip'), title: 'Reimport game (v1)', startText: 'REIMPORT V1 START' },
   reimportV2Zip: { path: out('reimport-v2.zip'), title: 'Reimport game (v2)', startText: 'REIMPORT V2 START' },
+  /** The UTF-16 game (fixtures/utf16-game) with its game.cfg re-encoded as UTF-16 LE: the archive, and a plain folder. */
+  utf16Zip: { path: out('utf16-game.zip'), title: 'UTF-16 гра' },
+  utf16Folder: { path: out('utf16-folder'), configPath: out('utf16-folder/game.cfg'), title: 'UTF-16 гра' },
+  /** The external-theme game (fixtures/external-theme-game): its theme is an http URL; the variant's URL answers 404. */
+  externalThemeZip: { path: out('external-theme.zip'), title: 'External theme game' },
+  externalTheme404Zip: { path: out('external-theme-404.zip'), title: 'External theme game (404)' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
 /** Authored source folders. */
 export const SOURCES = {
   single: fileURLToPath(new URL('./single-game/', import.meta.url)),
+  triple: fileURLToPath(new URL('./triple/', import.meta.url)),
+  flatMulti: fileURLToPath(new URL('./flat-multi/', import.meta.url)),
+  second: fileURLToPath(new URL('./second/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
@@ -53,5 +68,7 @@ export const SOURCES = {
   look: fileURLToPath(new URL('./look-game/', import.meta.url)),
   resources: fileURLToPath(new URL('./resources-game/', import.meta.url)),
   reimport: fileURLToPath(new URL('./reimport-game/', import.meta.url)),
+  utf16: fileURLToPath(new URL('./utf16-game/', import.meta.url)),
+  externalTheme: fileURLToPath(new URL('./external-theme-game/', import.meta.url)),
   e2eGame: fileURLToPath(new URL('./e2e-game/', import.meta.url)),
 } as const;

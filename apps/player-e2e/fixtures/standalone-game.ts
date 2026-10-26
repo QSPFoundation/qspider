@@ -8,6 +8,8 @@ export const STANDALONE_GAME = {
   dir: fileURLToPath(new URL('./standalone/', import.meta.url)),
   /** The game's own files, relative to `dir`; staged at the same paths in game/. */
   files: ['game.cfg', 'standalone.qsps', 'other.qsps', 'css/standalone.css', 'js/standalone.js'],
+  /** The file the 'Include missing' action's inclib names; the bundle lacks it. */
+  missingFile: 'missing.qsps',
   /** The themed fixture (themed-game/), where the game's theme comes from. */
   themeDir: fileURLToPath(new URL('./themed-game/', import.meta.url)),
   /** The theme files, relative to `themeDir`; staged next to game.cfg in game/. */
@@ -18,7 +20,15 @@ export const STANDALONE_GAME = {
     other: 'OTHER START',
     room: (n: number): string => `ROOM counter=${n}`,
   },
-  action: { goToRoom: 'Go to room', increment: 'Increment', save: 'Save', load: 'Load', quit: 'Quit' },
+  action: {
+    /** Its inclib names a file the bundle lacks (`missingFile`). */
+    includeMissing: 'Include missing',
+    goToRoom: 'Go to room',
+    increment: 'Increment',
+    save: 'Save',
+    load: 'Load',
+    quit: 'Quit',
+  },
   /** The game's defaultTheme (from the themed fixture's e2e-theme.html). */
   theme: 'e2e-custom',
   /** Set on :root by css/standalone.css (a game.cfg style). */

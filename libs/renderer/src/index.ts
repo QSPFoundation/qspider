@@ -4,6 +4,8 @@ export * from './loader';
 export * from './render-state';
 export * from './game-runner';
 export * from './startup-marker';
+export * from './error-alert';
+export * from './notice-toast';
 
 declare module 'react' {
   // eslint-disable-next-line @typescript-eslint/no-namespace

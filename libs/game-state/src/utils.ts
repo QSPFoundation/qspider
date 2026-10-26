@@ -1,13 +1,9 @@
 import { readQsps, writeQsp } from '@qsp/converters';
 import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
-import { cleanPath } from '@qspider/utils';
+import { cleanPath, decodeText } from '@qspider/utils';
 
 export function convertQsps(source: ArrayBuffer): ArrayBuffer {
-  const data = new Uint8Array(source.slice(0, 2));
-  const encoding = data[0] === 255 && data[1] === 254 ? 'utf-16le' : 'utf-8';
-  const decoder = new TextDecoder(encoding);
-  const text = decoder.decode(source);
-  return writeQsp(readQsps(text));
+  return writeQsp(readQsps(decodeText(source)));
 }
 
 export function prepareContent(text: string): string {
