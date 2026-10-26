@@ -39,9 +39,7 @@ import {
 } from './panels';
 import { convertQsps } from './utils';
 import { initialBaseUrl$ } from './init';
-import { input$ } from './input';
-import { menu$ } from './menu';
-import { msg$ } from './msg';
+import { clearDialogs } from './dialogs';
 import { showNotice } from './toasts';
 import { parseToml } from '@qspider/utils';
 import { debugActions } from './debug';
@@ -222,9 +220,7 @@ export function stopCurrentGame(): void {
   pauseScreenCurrentPanel$.set('credits');
 
   // clear state
-  input$.actions.clear();
-  menu$.actions.clear();
-  msg$.actions.clear();
+  clearDialogs();
   // After the dialog clears (they resume their own reasons): only "no game" pauses the counter now.
   resetCounterPauses('no-game');
   mainContent$.set('');
