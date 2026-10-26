@@ -61,14 +61,36 @@ export type Attributes = {
     [attr: string]: AttributeValue;
   } & EventAttributes;
 
-const BLOCKED_HREF_SCHEMES = ['javascript:', 'vbscript:', 'livescript:', 'data:'];
+const SCRIPT_SCHEMES = ['javascript:', 'vbscript:', 'livescript:'];
+const BLOCKED_HREF_SCHEMES = [...SCRIPT_SCHEMES, 'data:'];
+
+/**
+ * The value as the browser reads its scheme, lowercased: browsers ignore leading spaces and control characters
+ * and drop tabs and newlines inside a URL (` java\tscript:` runs), so every char up to U+0020 is removed.
+ */
+const schemeView = (value: string): string =>
+  Array.from(value)
+    .filter((char) => char.charCodeAt(0) > 0x20)
+    .join('')
+    .toLowerCase();
+
+const blockSchemes =
+  (blocked: string[], replacement: string) =>
+  (value: string): string => {
+    const scheme = schemeView(value);
+    return blocked.some((prefix) => scheme.startsWith(prefix)) ? replacement : value;
+  };
+
+// The player's own guard: React sanitises only some props (not lowercase formaction) and only javascript:.
+const neutraliseLink = blockSchemes(BLOCKED_HREF_SCHEMES, '#');
 
 const valueProcessors: Record<string, (value: string) => string> = {
-  href(value: string) {
-    const scheme = value.trim().toLowerCase();
-    if (BLOCKED_HREF_SCHEMES.some((blocked) => scheme.startsWith(blocked))) return '#';
-    return value;
-  },
+  href: neutraliseLink,
+  formaction: neutraliseLink,
+  action: neutraliseLink,
+  'xlink:href': neutraliseLink,
+  // Games use data: images, so src keeps data: and blocks only the script schemes.
+  src: blockSchemes(SCRIPT_SCHEMES, 'about:blank'),
 };
 
 export function extractAttributes(node: HTMLElement): Attributes {
@@ -81,7 +103,9 @@ export function extractAttributes(node: HTMLElement): Attributes {
     } else if (BOOLEAN_ATTRIBUTES.has(name)) {
       attributes[name as keyof BooleanAttributes] = true;
     } else {
-      attributes[name] = name in valueProcessors ? valueProcessors[name](value) : value;
+      attributes[name] = Object.prototype.hasOwnProperty.call(valueProcessors, name)
+        ? valueProcessors[name](value)
+        : value;
     }
   });
   return attributes;
