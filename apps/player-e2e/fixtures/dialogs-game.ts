@@ -8,6 +8,8 @@ export const DIALOGS = {
   /** Action labels on the start location. */
   actions: {
     message: 'Show message',
+    /** msg text.firstOfTwo, then msg text.secondOfTwo, then writes text.afterTwoMessages. */
+    twoMessages: 'Two messages',
     input: 'Ask input',
     menu: 'Open menu',
     showView: 'Show view',
@@ -22,6 +24,9 @@ export const DIALOGS = {
     /** Body of the msg dialog. */
     message: 'DIALOG MESSAGE',
     afterMessage: 'AFTER MESSAGE',
+    firstOfTwo: 'FIRST OF TWO',
+    secondOfTwo: 'SECOND OF TWO',
+    afterTwoMessages: 'AFTER TWO MESSAGES',
     /** Prompt of the input dialog. */
     inputPrompt: 'DIALOG PROMPT',
     afterShortWait: 'AFTER SHORT WAIT',

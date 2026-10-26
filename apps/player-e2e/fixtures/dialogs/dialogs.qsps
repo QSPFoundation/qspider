@@ -4,6 +4,10 @@ act 'Show message':
   msg 'DIALOG MESSAGE'
   *clr & *pl 'AFTER MESSAGE'
 end
+act 'Two messages':
+  msg 'FIRST OF TWO' & msg 'SECOND OF TWO'
+  *clr & *pl 'AFTER TWO MESSAGES'
+end
 act 'Ask input':
   $r = input('DIALOG PROMPT')
   *clr & *pl 'INPUT ECHO: <<$r>>'

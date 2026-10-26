@@ -1,7 +1,8 @@
 import { DIALOGS } from '../fixtures/dialogs-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeMainText } from '../screenplay/game/checks';
-import { ClickAction } from '../screenplay/game/tasks';
+import { ClickAction, GoBackToShelf } from '../screenplay/game/tasks';
+import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { SeeInput, SeeInputGone } from '../screenplay/input/checks';
 import { CancelInput, SubmitInput } from '../screenplay/input/tasks';
 import { SeeMenu, SeeMenuSeparator } from '../screenplay/menu/checks';
@@ -29,6 +30,21 @@ scenario('a message box shows text and resumes the game when dismissed', async (
     DismissMsg(),
     SeeMsgGone(),
     SeeMainText(TEXT.afterMessage),
+  );
+});
+
+scenario('a message box does not outlive its game', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.twoMessages),
+    SeeMsg(TEXT.firstOfTwo),
+    GoBackToShelf(),
+    OpenFromShelf(DIALOGS.title),
+    SeeGameStarted(TEXT.start),
+    SeeMsgGone(),
   );
 });
 
