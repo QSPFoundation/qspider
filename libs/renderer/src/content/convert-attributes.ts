@@ -74,6 +74,7 @@ const eventsMap: Record<string, keyof EventAttributes> = {
   mouseleave: 'onMouseLeave',
   contextmenu: 'onContextMenu',
   dblclick: 'onDoubleClick',
+  wheel: 'onWheel',
   submit: 'onSubmit',
 };
 

@@ -52,6 +52,7 @@ export type EventAttributes = {
   onMouseLeave?: (e: MouseEvent) => void;
   onContextMenu?: (e: MouseEvent) => void;
   onDoubleClick?: (e: MouseEvent) => void;
+  onWheel?: (e: WheelEvent) => void;
   onSubmit?: (e: Event) => void;
 };
 export type Attributes = {
