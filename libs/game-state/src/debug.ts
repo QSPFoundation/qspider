@@ -76,24 +76,36 @@ export interface DebuggerUIState {
   size: { width: number; height: number };
 }
 
-export const debuggerUIState$ = atom<DebuggerUIState>(() => {
-  // Initialize from localStorage
+const DEFAULT_PANEL_SIZE = { width: 600, height: 400 };
+
+export function readDebuggerUiState(storage: Pick<Storage, 'getItem'> | null): DebuggerUIState {
   try {
-    const savedPosition = localStorage.getItem('qsp-debugger-dock-position');
-    const savedSize = localStorage.getItem('qsp-debugger-size');
+    if (!storage) throw new Error('no storage');
+    const savedPosition = storage.getItem('qsp-debugger-dock-position');
+    const savedSize = storage.getItem('qsp-debugger-size');
     return {
       isPanelOpen: false,
       dockPosition: (savedPosition as 'bottom' | 'left' | 'right') || 'bottom',
-      size: savedSize ? JSON.parse(savedSize) : { width: 600, height: 400 },
+      size: savedSize ? JSON.parse(savedSize) : { ...DEFAULT_PANEL_SIZE },
     };
   } catch {
     return {
       isPanelOpen: false,
       dockPosition: 'bottom',
-      size: { width: 600, height: 400 },
+      size: { ...DEFAULT_PANEL_SIZE },
     };
   }
-});
+}
+
+function getLocalStorage(): Storage | null {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export const debuggerUIState$ = atom<DebuggerUIState>(() => readDebuggerUiState(getLocalStorage()));
 
 export const isDebugPanelOpen$ = debuggerUIState$.focus('isPanelOpen');
 export const debugDockPosition$ = debuggerUIState$.focus('dockPosition');
@@ -116,6 +128,15 @@ debugPanelSize$.subscribe((size) => {
     // Ignore localStorage errors
   }
 });
+
+export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boolean {
+  return (
+    bp.enabled &&
+    bp.location === record.loc &&
+    (bp.line === undefined || bp.line === record.line) &&
+    (bp.actionIndex === undefined || bp.actionIndex === record.actIndex)
+  );
+}
 
 function executeResume(): void {
   const resume = debugResumeFunction$.value;
@@ -167,13 +188,7 @@ export const debugActions = {
     debugResumeFunction$.set(resume);
 
     const state = debugState$.value;
-    const shouldPause = state.breakpoints.some(
-      (bp) =>
-        bp.enabled &&
-        bp.location === record.loc &&
-        (bp.line === undefined || bp.line === record.line) &&
-        (bp.actionIndex === undefined || bp.actionIndex === record.actIndex),
-    );
+    const shouldPause = state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
 
     if (shouldPause || state.isPaused) {
       debugState$.update((s) => ({ ...s, isPaused: true }));
