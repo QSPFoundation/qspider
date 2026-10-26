@@ -23,6 +23,7 @@ export const GAME_HTML = {
     hostileTagAttr: 'hostile tag attr',
     hostileMalformed: 'hostile malformed',
     hostileForm: 'hostile form',
+    hostileUrls: 'hostile urls',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
     /** watchers location. */
@@ -59,6 +60,16 @@ export const GAME_HTML = {
     hostileFormAction: 'hostile-form-action',
     hostileFormaction: 'hostile-formaction',
     hostileInputFormaction: 'hostile-input-formaction',
+    /** The hostile_form button with a dashed form-action (camelCased to formAction later). */
+    hostileFormDash: 'hostile-form-dash',
+    /** The hostile_urls location: an <img src="javascript:…"> and svg links: javascript: and data:text/html,
+     * each with xlink:href and with the dashed xlink-href; and an svg <image> with a data: PNG that must stay. */
+    hostileImgSrc: 'hostile-img-src',
+    hostileSvgLink: 'hostile-svg-link',
+    hostileSvgData: 'hostile-svg-data',
+    hostileSvgDash: 'hostile-svg-dash',
+    hostileSvgDashData: 'hostile-svg-dash-data',
+    svgDataImage: 'svg-data-image',
     /** Risky tags the hostile_tags location writes; none may reach the document. */
     hostileBase: 'hostile-base',
     hostileMeta: 'hostile-meta',
@@ -94,11 +105,15 @@ export const GAME_HTML = {
     jsLink: 'JS LINK',
     malformed: 'MALFORMED OK',
     formBenign: 'FORM BENIGN',
+    urlsBenign: 'URLS BENIGN',
     tagsBenign: 'TAGS BENIGN',
     tagAttrBenign: 'TAG ATTR BENIGN',
     /** Written by every hostile payload that manages to run. */
     inject: 'PWNED',
   },
+  /** The 1x1 PNG data: URL the svg <image> row spells (keep in sync with game-html.qsps). */
+  dataImage:
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   /** Image file bundled in the archive for the <area>/<img> row. */
   image: 'view.png',
 } as const;

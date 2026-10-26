@@ -83,6 +83,8 @@ export const RESOURCES_GAME = {
    * The $BACKIMAGE `data:` action: a 1x1 PNG. The game spells the same URI;
    * keep both in sync (guarded in build-fixtures.spec.ts).
    */
+  /** The start location's <img> with the same data: PNG in src: it must load (1px wide), so data: images work. */
+  dataImageQa: 'res-img-data',
   dataImage:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   /**

@@ -74,10 +74,38 @@ scenario('javascript: in formaction does not run', async (player) => {
     SeeNeutralizedUrl(ContentMark(MARK.hostileFormaction), 'formaction'),
     SeeNeutralizedUrl(ContentMark(MARK.hostileInputFormaction), 'formaction'),
     SeeNeutralizedUrl(ContentMark(MARK.hostileFormAction), 'action'),
-    // Submitting to the neutralized '#' is a plain form submission: it reloads the player, as any form without
-    // a qsp-on:submit handler does. The attribute pins above are the deterministic proof.
+    SeeNeutralizedUrl(ContentMark(MARK.hostileFormDash), 'formaction'),
+    // The absence check after the click proves something only in a red run (the payload ran). On green, submitting
+    // to the neutralized '#' reloads the player, as any form without qsp-on:submit does, which also clears it: the
+    // attribute checks above are the green proof.
     ClickContent(ContentMark(MARK.hostileFormaction)),
     waitUntilAbsent(PwnedAttribute),
+  );
+});
+
+scenario('script URLs in images and svg links are neutralized', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileUrls),
+    SeeMainTextContaining(TEXT.urlsBenign),
+    // src keeps data: (games use data: images), so a blocked src becomes about:blank, never the page URL.
+    SeeElementAttribute(DocumentMark(MARK.hostileImgSrc), 'src', 'about:blank'),
+    SeeNeutralizedUrl(DocumentMark(MARK.hostileSvgLink), 'xlink:href'),
+    SeeNeutralizedUrl(DocumentMark(MARK.hostileSvgData), 'xlink:href'),
+    // Dashed names are camelCased into xlinkHref later; React would rewrite only the javascript: one.
+    SeeNeutralizedUrl(DocumentMark(MARK.hostileSvgDash), 'xlink:href'),
+    SeeNeutralizedUrl(DocumentMark(MARK.hostileSvgDashData), 'xlink:href'),
+  );
+});
+
+scenario('an svg image keeps its data: picture', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileUrls),
+    SeeMainTextContaining(TEXT.urlsBenign),
+    SeeElementAttribute(DocumentMark(MARK.svgDataImage), 'xlink:href', GAME_HTML.dataImage),
   );
 });
 

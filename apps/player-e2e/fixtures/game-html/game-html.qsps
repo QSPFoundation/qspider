@@ -18,6 +18,7 @@ act 'hostile tags': gt 'hostile_tags'
 act 'hostile tag attr': gt 'hostile_tag_attr'
 act 'hostile malformed': gt 'hostile_malformed'
 act 'hostile form': gt 'hostile_form'
+act 'hostile urls': gt 'hostile_urls'
 ---
 
 # markup
@@ -129,7 +130,23 @@ end
 ! A form URL attribute runs code on submit. The button's formaction overrides the form's action.
 *pl 'FORM RISKY'
 *pl '<form action="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-form-action"><button type="submit" data-qa="hostile-formaction" formaction="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">FORMACTION</button><input type="submit" value="INPUT" data-qa="hostile-input-formaction" formaction="&#1;java&#10;script:document.body.setAttribute(''data-qa-pwned'',''1'')"></form>'
+! A dashed name is camelCased into the prop later (form-action becomes formAction), so the guard must see it too.
+*pl '<form><button type="submit" data-qa="hostile-form-dash" form-action="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">DASH</button></form>'
 *pl 'FORM BENIGN'
+---
+
+# hostile_urls
+*clr
+! URL attributes on images and SVG links, colon and dashed spellings (xlink-href becomes xlinkHref, then xlink:href).
+*pl 'URLS RISKY'
+*pl '<img data-qa="hostile-img-src" src="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">'
+*pl '<svg><a data-qa="hostile-svg-link" xlink:href="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-data" xlink:href="data:text/html,x"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-dash" xlink-href="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')"><text y="10">x</text></a></svg>'
+*pl '<svg><a data-qa="hostile-svg-dash-data" xlink-href="data:text/html,x"><text y="10">x</text></a></svg>'
+! A data: picture on the non-navigating svg image stays (Inkscape embeds pictures this way).
+*pl '<svg><image data-qa="svg-data-image" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==" width="1" height="1"/></svg>'
+*pl 'URLS BENIGN'
 ---
 
 # hostile_malformed
