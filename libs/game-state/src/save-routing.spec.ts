@@ -66,7 +66,7 @@ describe('resumeAfterLoad', () => {
   });
 
   it('clears the callback before it runs, so a load the callback starts keeps its own callback', () => {
-    const seen: Array<(() => void) | null> = [];
+    const seen: unknown[] = [];
     saveLoadedCallback$.set(() => seen.push(saveLoadedCallback$.value));
     resumeAfterLoad();
     expect(seen).toEqual([null]);
