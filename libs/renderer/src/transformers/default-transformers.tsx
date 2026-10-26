@@ -37,7 +37,8 @@ import {
   QspPauseScreenPanel,
   QspSlot,
 } from '../theme-core/pause-screen';
-import { isScrollType, QspScrollable, ScrollType } from '../theme-core/scrollable';
+import { QspScrollable } from '../theme-core/scrollable';
+import { isScrollType, ScrollType } from '../theme-core/scroll-type';
 import { QspStats, QspStatsContent } from '../theme-core/stats';
 import { QspView, QspViewImage } from '../theme-core/view';
 import { HtmlLink, Link } from './base/link';
