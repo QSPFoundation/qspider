@@ -161,6 +161,21 @@ export const windowsPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
+  // WM_CLOSE to the app (msedgedriver's child, not one of its WebView2 processes): the app shuts down as on a
+  // click on X, and WebView2 with it.
+  closeApp: (procs) => {
+    const app = (procs as WinProc[]).find((p) => p.name?.toLowerCase() !== 'msedgewebview2.exe');
+    if (!app) return null;
+    const close = spawnSync(
+      'powershell',
+      ['-NoProfile', '-NonInteractive', '-Command', `(Get-Process -Id ${app.pid}).CloseMainWindow()`],
+      { encoding: 'utf8', windowsHide: true },
+    );
+    if (close.status !== 0 || close.stdout.trim() !== 'True') {
+      console.warn(`WM_CLOSE to the app (pid ${app.pid}) was not delivered: ${close.stdout} ${close.stderr}`);
+    }
+    return app.pid;
+  },
   waitForExit: (procs, timeoutMs) =>
     pollUntilExited(
       procs,

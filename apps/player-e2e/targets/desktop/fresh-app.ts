@@ -3,8 +3,31 @@
 import { browser } from '@wdio/globals';
 import { desktopPlatform } from './platform';
 import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
+import { restartStep } from './restart-step';
 
 const EXIT_TIMEOUT = 10_000;
+/** How long a closed app gets to exit on its own before its session is ended, which kills it. */
+const CLOSE_TIMEOUT = 5_000;
+
+/**
+ * Set from the moment a restart ends the app's session until it starts the next one: a restart that failed
+ * in between (its exit wait timed out) leaves no session, and the next restart must only start one.
+ */
+let sessionEnded = false;
+
+/** Closes the app the way a user does, where the platform supports it, and waits (bounded) for it to exit. */
+async function closeApp(platform: ReturnType<typeof desktopPlatform>, driver: number): Promise<void> {
+  const app = platform.closeApp?.(platform.appProcesses(driver));
+  if (app === undefined || app === null) return;
+  const deadline = Date.now() + CLOSE_TIMEOUT;
+  while (platform.appProcesses(driver).some((p) => p.pid === app)) {
+    if (Date.now() > deadline) {
+      console.warn(`The app (pid ${app}) did not exit within ${CLOSE_TIMEOUT}ms of a close; ending its session`);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250)); // poll interval, not a fixed wait
+  }
+}
 
 /** Whether an app process (or one of its webview processes) is running under the worker's tauri-driver. */
 export function appRunning(): boolean {
@@ -47,8 +70,9 @@ function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilitie
 }
 
 /**
- * Ends the running app and waits until it and its webview processes have exited (so nothing still
- * writes app data). An app that already exited after expectAppExit (a game that quit) only has its
+ * Closes the running app as a user would (where the platform supports it), ends its session and waits until
+ * it and its webview processes have exited (so nothing still writes app data). After a restart that failed
+ * in that wait, only the new app is started, so the failure stays with that one scenario. An app that already exited after expectAppExit (a game that quit) only has its
  * dead session ended; with no exit expected, a missing app fails. Then, when `wipeData`, empties
  * the app data dirs the platform named (ENV_APP_DATA_DIRS, never anything else;
  * a delete that fails, e.g. on a file still held open, fails the restart). Then starts a new
@@ -65,10 +89,19 @@ async function restartApp(wipeData: boolean, args?: string[]): Promise<void> {
   const exitExpected = appExitExpected;
   appExitExpected = false;
   const running = platform.appProcesses(driver);
-  if (running.length > 0) {
-    await browser.deleteSession();
+  const step = restartStep(running.length > 0, exitExpected, sessionEnded);
+  if (step === 'end-session') {
+    await closeApp(platform, driver);
+    sessionEnded = true;
+    // After a close the app has usually exited already; the driver may answer the delete with an error about that.
+    await browser.deleteSession().catch((error: unknown) => {
+      if (platform.appProcesses(driver).length > 0) throw error;
+      console.warn(`Ended the session of an app that had already closed: ${String(error)}`);
+    });
     await platform.waitForExit(running, EXIT_TIMEOUT);
-  } else if (exitExpected) {
+  } else if (step === 'start-only') {
+    console.warn('Restart: the previous restart ended the session but failed waiting for the app to exit');
+  } else if (step === 'end-dead-session') {
     console.warn('Restart: the previous app had already exited, as the previous scenario expected');
     // Its session outlived the app; WebKitWebDriver may answer the delete with an error about that.
     await browser.deleteSession().catch((error: unknown) => {
@@ -82,6 +115,7 @@ async function restartApp(wipeData: boolean, args?: string[]): Promise<void> {
     dataDirs.forEach((dir) => platform.emptyDir(dir));
   }
   await browser.reloadSession(capabilities);
+  sessionEnded = false;
 }
 
 /** A new app process with empty app data: the start of every scenario. */
