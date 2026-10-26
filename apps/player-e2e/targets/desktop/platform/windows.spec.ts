@@ -3,6 +3,7 @@ import {
   appTree,
   assertHostSessionAllowed,
   parseCimProcesses,
+  processKind,
   windowsAppDataDirs,
   windowsWebviewOptions,
 } from './windows';
@@ -123,5 +124,15 @@ describe('windowsWebviewOptions', () => {
   it('fails when LOCALAPPDATA is missing or relative', () => {
     expect(() => windowsWebviewOptions('org.qsp.qspider', {})).toThrow(/LOCALAPPDATA/);
     expect(() => windowsWebviewOptions('org.qsp.qspider', { LOCALAPPDATA: 'AppData' })).toThrow(/absolute/);
+  });
+});
+
+describe('processKind', () => {
+  it('reads the WebView2 process type from its command line', () => {
+    expect(processKind('"msedgewebview2.exe" --type=renderer --webview-exe-name=qspider.exe')).toBe('renderer');
+    expect(processKind('"msedgewebview2.exe" --type=gpu-process --field-trial-handle=1')).toBe('gpu-process');
+    expect(processKind('"msedgewebview2.exe" --embedded-browser-webview=1 --webview-exe-name=qspider.exe')).toBe(
+      'browser',
+    );
   });
 });

@@ -24,6 +24,8 @@
     "targets/desktop/shards.spec.ts",
     "targets/desktop/spec-times.ts",
     "targets/desktop/spec-times.spec.ts",
+    "targets/desktop/restart-step.ts",
+    "targets/desktop/restart-step.spec.ts",
     "targets/desktop/platform/**/*.ts",
     "*.config.mts"
   ]
