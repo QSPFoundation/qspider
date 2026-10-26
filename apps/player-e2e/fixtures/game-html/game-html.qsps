@@ -170,6 +170,12 @@ end
 ! A tag= attribute overrides the parsed tag: the overriding tag must face the same drop and sandbox rules.
 ! Text first, as in hostile_tags.
 *pl 'TAG ATTR RISKY'
+! A dashed name is camelCased after the on* and sandbox rules: -sandbox becomes Sandbox and -onclick Onclick, and
+! the DOM lowercases them back to sandbox and onclick (live on a custom element). Directly and through tag=.
+*pl '<iframe width="40" height="20" sandbox="" -sandbox="allow-scripts allow-same-origin" data-qa="hostile-dash-sandbox" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>"></iframe>'
+*pl '<b tag="iframe" width="40" height="20" sandbox="" s-andbox="allow-scripts allow-same-origin" data-qa="hostile-tag-dash-sandbox" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
+*pl '<x-y -onclick="document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-dash-onclick">DASH CLICK</x-y>'
+*pl '<b tag="x-y" o-nclick="document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-tag-dash-onclick">TAG DASH CLICK</b>'
 *pl '<b tag="IFRAME" data-qa="hostile-tag-frame" srcdoc="<script>parent.document.body.setAttribute(''data-qa-pwned'',''1'')</script>">x</b>'
 *pl '<br tag="base" data-qa="hostile-tag-base" href="https://example.invalid/">'
 *pl '<i tag="meta" data-qa="hostile-tag-meta" http-equiv="refresh" content="600;url=about:blank">m</i>'

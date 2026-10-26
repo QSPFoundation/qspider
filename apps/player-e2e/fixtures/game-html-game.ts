@@ -79,6 +79,12 @@ export const GAME_HTML = {
     hostileTagFrame: 'hostile-tag-frame',
     hostileTagBase: 'hostile-tag-base',
     hostileTagMeta: 'hostile-tag-meta',
+    /** hostile_tag_attr rows with dashed spellings: an iframe's -sandbox, a tag= iframe's s-andbox, and a custom
+     * element's -onclick, written directly and through tag=. */
+    hostileDashSandbox: 'hostile-dash-sandbox',
+    hostileTagDashSandbox: 'hostile-tag-dash-sandbox',
+    hostileDashOnclick: 'hostile-dash-onclick',
+    hostileTagDashOnclick: 'hostile-tag-dash-onclick',
     /** Attribute the iframe payload sets on <body> if it escapes the sandbox. */
     pwnedAttribute: 'data-qa-pwned',
   },

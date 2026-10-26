@@ -1,6 +1,11 @@
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { SeeElementAttribute, SeeNeutralizedHref, SeeNeutralizedUrl } from '../screenplay/content/checks';
+import {
+  SeeElementAttribute,
+  SeeElementWithoutAttribute,
+  SeeNeutralizedHref,
+  SeeNeutralizedUrl,
+} from '../screenplay/content/checks';
 import { ErrorAlerts } from '../screenplay/common/elements';
 import { ContentMark, DocumentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
@@ -148,6 +153,24 @@ scenario('a tag attribute cannot smuggle a dropped tag or an unsandboxed iframe'
     waitUntilAbsent(PwnedAttribute),
     waitUntilAbsent(DocumentMark(MARK.hostileTagBase)),
     waitUntilAbsent(DocumentMark(MARK.hostileTagMeta)),
+  );
+});
+
+scenario('a dashed attribute cannot add an event handler or loosen the iframe sandbox', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileTagAttr),
+    SeeMainTextContaining(TEXT.tagAttrBenign),
+    // Deterministic pins: a srcdoc script can run after the PwnedAttribute check below.
+    SeeElementAttribute(ContentMark(MARK.hostileDashSandbox), 'sandbox', 'allow-scripts'),
+    SeeElementAttribute(ContentMark(MARK.hostileTagDashSandbox), 'sandbox', 'allow-scripts'),
+    // -onclick reaches a custom element as Onclick, which the DOM stores as a live onclick handler.
+    SeeElementWithoutAttribute(ContentMark(MARK.hostileDashOnclick), 'onclick'),
+    SeeElementWithoutAttribute(ContentMark(MARK.hostileTagDashOnclick), 'onclick'),
+    ClickContent(ContentMark(MARK.hostileDashOnclick)),
+    ClickContent(ContentMark(MARK.hostileTagDashOnclick)),
+    waitUntilAbsent(PwnedAttribute),
   );
 });
 

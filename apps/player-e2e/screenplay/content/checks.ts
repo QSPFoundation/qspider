@@ -26,6 +26,10 @@ export const SeeElementAttribute = (element: Answerable<PageElement>, name: stri
     `#actor sees the ${name} attribute read "${value}"`,
   );
 
+/** `element` eventually has no attribute `name` (it reads null on both targets). Check a settled anchor first. */
+export const SeeElementWithoutAttribute = (element: Answerable<PageElement>, name: string): Task =>
+  seeEventually(element, (e) => Attribute.called(name).of(e), equals(null), `#actor sees no ${name} attribute`);
+
 /**
  * `element`'s URL attribute `name` is neutralized: it never mentions `javascript` and ends with `#`. The attribute
  * value is `#` on Chromium but the resolved URL (`<origin>/<path>#`) on desktop WebKit, so exact equality is not portable.
