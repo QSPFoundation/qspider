@@ -65,12 +65,23 @@ export function parseTheme(content: string, is_user_defined = true): Record<stri
   return themeData;
 }
 
+/**
+ * Source indentation out of a template: a newline run between two tags is dropped (a template inside a
+ * `qsp-` tag must have no stray text nodes), any other one becomes a single space so words stay apart.
+ */
+function collapseWhitespace(html: string): string {
+  return html
+    .replace(/(?<=>)[ \t\r\n]*\n[ \t\r\n]*(?=<)/g, '')
+    .replace(/[ \t]*(?:\r?\n[ \t]*)+/g, ' ')
+    .trim();
+}
+
 export function extractTagData(root: HTMLElement, selector: string): TemplateTag | undefined {
   const node = root.querySelector<HTMLElement>(selector);
   if (!node) return;
   return {
     attrs: extractAttributes(node),
-    template: node.innerHTML.replace(/[ \t]*\r?\n[ \t]*/gm, ''),
+    template: collapseWhitespace(node.innerHTML),
   };
 }
 
