@@ -31,12 +31,9 @@ export const emptyCache = (state: CodeInspectorState): CodeInspectorState => ({
   locationInfoCache: new Map(),
 });
 
-export interface CodeMatch {
-  line?: number;
-  actionIndex?: number;
-  actionLine?: number;
-  text: string;
-}
+export type CodeMatch =
+  | { kind: 'code'; line: number; text: string }
+  | { kind: 'action'; actionIndex: number; actionLine: number; text: string };
 
 export interface LocationMatches {
   location: string;
@@ -72,14 +69,19 @@ export function searchLocations(cache: Map<string, LocationInfo>, searchTerm: st
 
     locationInfo.code.forEach((line, index) => {
       if (line.toLowerCase().includes(needle)) {
-        matches.push({ line: index + 1, text: line.trim() });
+        matches.push({ kind: 'code', line: index + 1, text: line.trim() });
       }
     });
 
     locationInfo.actions.forEach((action, actionIndex) => {
       action.forEach((line, lineIndex) => {
         if (line.toLowerCase().includes(needle)) {
-          matches.push({ actionIndex, actionLine: lineIndex + 1, text: `[Action ${actionIndex}] ${line.trim()}` });
+          matches.push({
+            kind: 'action',
+            actionIndex,
+            actionLine: lineIndex + 1,
+            text: `[Action ${actionIndex}] ${line.trim()}`,
+          });
         }
       });
     });
