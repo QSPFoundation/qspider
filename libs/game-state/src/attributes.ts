@@ -137,7 +137,7 @@ export function extractAttributes(node: HTMLElement): Attributes {
   return attributes;
 }
 
-function processStyles(value: string): Record<string, string | number> {
+export function processStyles(value: string): Record<string, string | number> {
   const rules = value.split(';');
   const style: Record<string, string | number> = {};
   for (const rule of rules) {
