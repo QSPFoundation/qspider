@@ -23,6 +23,13 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
   },
   (atom) => {
     const isOpen$ = atom.focus((s) => s.isOpen);
+    function answer(index: number): void {
+      if (!isOpen$.value) return;
+      const { onselect } = atom.value;
+      resumeCounter('menu');
+      atom.update((s) => ({ ...s, isOpen: false, onselect: null }));
+      onselect?.(index);
+    }
     return {
       open(items: QspListItem[], onselect: (index: number) => void): void {
         pauseCounter('menu');
@@ -32,32 +39,25 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
           onselect,
         });
       },
+      // Each answer resets the state before calling back: the engine resumes inside the callback, and a menu
+      // opened there (MENU from a menu item's location) must not be closed or lose its handler afterwards.
       select(index: number): void {
-        if (isOpen$.value) {
-          resumeCounter('menu');
-          isOpen$.set(false);
-          atom.value.onselect?.(index);
-          atom.value.onselect = null;
-        }
+        answer(index);
       },
       close(): void {
-        if (isOpen$.value) {
-          resumeCounter('menu');
-          isOpen$.set(false);
-          atom.value.onselect?.(-1);
-          atom.value.onselect = null;
-        }
+        answer(-1);
       },
       clear(): void {
-        if (isOpen$.value) {
-          resumeCounter('menu');
-          atom.value.onselect?.(-1);
-        }
+        const { isOpen, onselect } = atom.value;
         atom.set({
           isOpen: false,
           items: [],
           onselect: null,
         });
+        if (isOpen) {
+          resumeCounter('menu');
+          onselect?.(-1);
+        }
       },
     };
   },

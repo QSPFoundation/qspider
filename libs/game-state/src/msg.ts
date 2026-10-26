@@ -29,23 +29,27 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
           onclosed,
         });
       },
+      // Close and clear reset the state before calling back: the engine resumes inside the callback, and a
+      // dialog opened there must survive.
       close(): void {
         if (isOpen$.value) {
+          const { onclosed } = atom.value;
           resumeCounter('msg');
-          isOpen$.set(false);
-          atom.value.onclosed?.();
+          atom.update((s) => ({ ...s, isOpen: false, onclosed: null }));
+          onclosed?.();
         }
       },
       clear(): void {
-        if (isOpen$.value) {
-          resumeCounter('msg');
-          atom.value.onclosed?.();
-        }
+        const { isOpen, onclosed } = atom.value;
         atom.set({
           isOpen: false,
           content: '',
           onclosed: null,
         });
+        if (isOpen) {
+          resumeCounter('msg');
+          onclosed?.();
+        }
       },
     };
   },
