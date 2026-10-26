@@ -1,7 +1,7 @@
 import {
   currentGameEntry$,
   currentTheme$,
-  isBlockingDialogOpen,
+  isDialogBlocking,
   isPauseScreenVisible$,
   openPauseScreen,
   qspApi$,
@@ -23,7 +23,7 @@ import { TouchPauseButton } from './touch-pause-button';
 
 const openPauseOnEscape = throttle((e: KeyboardEvent): void => {
   if (!currentGameEntry$.value) return;
-  if (isBlockingDialogOpen() || isPauseScreenVisible$.value) return;
+  if (isDialogBlocking() || isPauseScreenVisible$.value) return;
   e.preventDefault();
   e.stopPropagation();
   const nosave = qspApi$.value?.readVariable('NOSAVE');

@@ -20,6 +20,7 @@ export * from './gui-layout';
 export * from './components';
 export * from './init';
 export * from './hotkeys';
+export { prettifyHotkeys, type PrettyHotkeys } from './hotkey-format';
 export * from './browser-translation';
 export * from './conditions';
 export * from './debug';

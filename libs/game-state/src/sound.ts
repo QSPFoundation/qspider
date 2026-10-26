@@ -1,4 +1,5 @@
 import { Howl } from 'howler';
+import { normalizeVolume } from './volume';
 
 enum SoundState {
   Loading,
@@ -9,8 +10,6 @@ enum SoundState {
   Paused,
   Played,
 }
-
-export const normalizeVolume = (volume: number): number => (volume > 1 ? volume * 0.01 : volume);
 
 export class Sound {
   public static create(input: string, volume: number): Sound {

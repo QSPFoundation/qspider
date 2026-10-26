@@ -10,7 +10,31 @@ import { wait$ } from './wait';
 import { qspApi$ } from './qsp-api';
 import { requestedAction$ } from './save';
 import create from 'xoid';
-import { windowManager } from '@qspider/env';
+import { isBlockingDialogOpen, resolveHotkey, type DialogState, type HotkeyDecision } from './hotkey-format';
+
+function dialogState(): DialogState {
+  return {
+    msg: msg$.value.isOpen,
+    input: input$.value.isOpen,
+    menu: menu$.value.isOpen,
+    wait: Boolean(wait$.value),
+    view: { isOpen: view$.value.isOpen, isModal: view$.value.isModal },
+  };
+}
+
+/** Whether a msg, input, menu, wait or modal view is open (the Escape handler in game-runner.tsx asks). */
+export function isDialogBlocking(): boolean {
+  return isBlockingDialogOpen(dialogState());
+}
+
+function decide(hotkey: 'space' | 'restart' | 'save'): HotkeyDecision {
+  return resolveHotkey(hotkey, {
+    isPaused: isPaused$.value,
+    actionCount: actions$.value.length,
+    dialogs: dialogState(),
+    nosave: hotkey === 'save' && Boolean(qspApi$.value?.readVariable('NOSAVE')),
+  });
+}
 
 interface GlobalHotKey {
   keys: string;
@@ -20,27 +44,6 @@ interface GlobalHotKey {
     | { type: 'game_action'; action: GameCommand }
     | { type: 'action'; index: number }
     | ((e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void | boolean);
-}
-
-export type PrettyHotkeys =
-  | {
-      type: 'key';
-      symbol: string;
-    }
-  | {
-      type: 'separator';
-      symbol: string;
-    };
-
-/** A msg, input, menu, wait or modal view is open: shared by the Restart hotkey and the Escape handler (game-runner.tsx). */
-export function isBlockingDialogOpen(): boolean {
-  return (
-    msg$.value.isOpen ||
-    input$.value.isOpen ||
-    menu$.value.isOpen ||
-    Boolean(wait$.value) ||
-    (view$.value.isOpen && view$.value.isModal)
-  );
 }
 
 export const globalHotKeys$ = create<GlobalHotKey[]>([
@@ -58,13 +61,12 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     keys: 'space',
     description: 'Single action',
     on_press: (): void | boolean => {
-      if (isPaused$.value) return;
-      const actions = actions$.value;
-      if (actions.length === 1) {
+      const decision = decide('space');
+      if (decision.run === 'exec-single-action') {
         selectAction(0);
         execSelectedAction();
       }
-      return false;
+      return decision.preventDefault ? false : undefined;
     },
   },
   {
@@ -72,9 +74,7 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     keys: 'mod+r',
     description: 'Restart',
     on_press: (): boolean => {
-      // Ignored (but still kept from the browser's reload) while the engine waits on a dialog: restarting
-      // under it would leave the engine inside the old call, with the restarted game stuck.
-      if (!isBlockingDialogOpen()) onGameCommand('restart');
+      if (decide('restart').run === 'restart') onGameCommand('restart');
       return false;
     },
   },
@@ -85,11 +85,12 @@ export const globalHotKeys$ = create<GlobalHotKey[]>([
     keys: 'mod+s',
     description: 'Save',
     on_press: (): boolean | undefined => {
-      const nosave = qspApi$.value?.readVariable('NOSAVE');
-      if (nosave) return;
-      requestedAction$.set('save');
-      onGameCommand('pause:saves' as GameCommand);
-      return false;
+      const decision = decide('save');
+      if (decision.run === 'save') {
+        requestedAction$.set('save');
+        onGameCommand('pause:saves' as GameCommand);
+      }
+      return decision.preventDefault ? false : undefined;
     },
   },
   {
@@ -161,65 +162,6 @@ export function setupCustomHotKeys(map: Record<string, string>): void {
       return false;
     });
   }
-}
-
-const prettySymbolsCommon: Record<string, string> = {
-  backspace: 'BackSpace',
-  tab: 'Tab',
-  enter: '↵ Enter',
-  capslock: 'CapsLock',
-  space: 'Space',
-  pageup: 'PageUp',
-  pagedown: 'PageDown',
-  end: 'End',
-  home: 'Home',
-  left: '←',
-  up: '↑',
-  right: '→',
-  down: '↓',
-  ins: 'Insert',
-  del: 'Delete',
-  plus: '+',
-  f12: 'F12',
-  shift: 'Shift',
-  ctrl: 'Ctrl',
-  alt: 'Alt',
-  mod: 'Ctrl',
-};
-
-const prettySymbolsMacOs: Record<string, string> = {
-  shift: '⇧',
-  ctrl: '⌃',
-  alt: '⌥',
-  mod: '⌘',
-};
-
-export function prettifyHotkeys(keys: string): PrettyHotkeys[] {
-  const prettified: PrettyHotkeys[] = [];
-  const spaced = keys.split(' ');
-  for (let i = 0; i < spaced.length; i++) {
-    const plused = spaced[i].split('+');
-    for (let j = 0; j < plused.length; j++) {
-      let symbol = plused[j];
-      if (symbol in prettySymbolsCommon) {
-        symbol = prettySymbolsCommon[symbol];
-      }
-      if (windowManager.platform === 'Macintosh' && plused[j] in prettySymbolsMacOs) {
-        symbol = prettySymbolsMacOs[plused[j]];
-      }
-      prettified.push({
-        type: 'key',
-        symbol,
-      });
-      if (j < plused.length - 1) {
-        prettified.push({ type: 'separator', symbol: '+' });
-      }
-    }
-    if (i < spaced.length - 1) {
-      prettified.push({ type: 'separator', symbol: ' ' });
-    }
-  }
-  return prettified;
 }
 
 export function clearHotkeys(): void {
