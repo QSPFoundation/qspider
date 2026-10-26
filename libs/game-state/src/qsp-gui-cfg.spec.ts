@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { QspGUIPanel } from '@qspider/contracts';
 import { buildGuiLayoutTemplate } from './gui-layout';
 import {
   buildLayoutTree,
@@ -47,7 +48,7 @@ const panel = (over: Partial<PanelData>): PanelData => ({
   dir: 'right',
   floating: false,
   layer: 0,
-  name: 'objs',
+  name: QspGUIPanel.Objects,
   pos: 0,
   row: 0,
   prop: 100000,
@@ -111,15 +112,15 @@ describe('buildLayoutTree', () => {
 
   it('drops empty outer layers', () => {
     const { layer } = buildLayoutTree([
-      panel({ name: 'desc', dir: 'center', layer: 0 }),
-      panel({ name: 'input', dir: 'bottom', layer: 2 }),
+      panel({ name: QspGUIPanel.Main, dir: 'center', layer: 0 }),
+      panel({ name: QspGUIPanel.Input, dir: 'bottom', layer: 2 }),
     ]);
     expect(layer?.index).toBe(2);
     expect((layer?.center as { index: number }).index).toBe(0);
   });
 
   it('keeps a floating panel other than imgview out of the layout', () => {
-    const { layer, floating } = buildLayoutTree([panel({ name: 'objs', floating: true })]);
+    const { layer, floating } = buildLayoutTree([panel({ name: QspGUIPanel.Objects, floating: true })]);
     expect(layer).toMatchObject({ top: [], right: [], bottom: [], left: [], center: [] });
     expect(floating).toEqual([]);
   });
@@ -127,19 +128,19 @@ describe('buildLayoutTree', () => {
 
 describe('convertPane', () => {
   it('wraps the theme tag of a docked pane and strips its attributes', () => {
-    expect(convertPane(panel({ name: 'objs', prop: 39931 }), THEME, false)).toBe(
+    expect(convertPane(panel({ name: QspGUIPanel.Objects, prop: 39931 }), THEME, false)).toBe(
       '<qsp-cl-pane visibility="objs" proportion="39931"><qsp-objects><div>objs</div></qsp-objects></qsp-cl-pane>',
     );
   });
 
   it('leaves visibility empty for desc', () => {
-    expect(convertPane(panel({ name: 'desc', dir: 'center' }), THEME, false)).toBe(
+    expect(convertPane(panel({ name: QspGUIPanel.Main, dir: 'center' }), THEME, false)).toBe(
       `<qsp-cl-pane visibility="" proportion="100000">${MAIN}</qsp-cl-pane>`,
     );
   });
 
   it('marks a floating pane modal', () => {
-    expect(convertPane(panel({ name: 'imgview', floating: true }), THEME, true)).toBe(
+    expect(convertPane(panel({ name: QspGUIPanel.ImageView, floating: true }), THEME, true)).toBe(
       '<qsp-cl-pane visibility="imgview" proportion="100000"><qsp-view modal><div>view</div></qsp-view></qsp-cl-pane>',
     );
   });
@@ -151,26 +152,26 @@ describe('convertDock', () => {
   });
 
   it('uses the stored dock size, minus the caption for top and bottom', () => {
-    const p = panel({ dir: 'bottom', name: 'acts', layer: 0, row: 0 });
+    const p = panel({ dir: 'bottom', name: QspGUIPanel.Actions, layer: 0, row: 0 });
     expect(convertDock('bottom', [p], { '3,0,0': 271 }, THEME)).toBe(
       '<qsp-cl-dock place="bottom" visibility="acts" size="251"><qsp-cl-pane visibility="acts" proportion="100000"><qsp-actions><div>acts</div></qsp-actions></qsp-cl-pane></qsp-cl-dock>',
     );
   });
 
   it('uses the stored dock size as is for left and right', () => {
-    const p = panel({ dir: 'right', name: 'vars' });
+    const p = panel({ dir: 'right', name: QspGUIPanel.Stats });
     expect(convertDock('right', [p], { '2,0,0': 351 }, THEME)).toContain(' size="351"');
   });
 
   it('falls back to the biggest bestw for a side dock and besth for a top dock', () => {
     const side = [panel({ dir: 'left', bestw: 200 }), panel({ dir: 'left', bestw: 350 })];
     expect(convertDock('left', side, {}, THEME)).toContain(' size="350"');
-    const top = [panel({ dir: 'top', name: 'imgview', besth: 150 })];
+    const top = [panel({ dir: 'top', name: QspGUIPanel.ImageView, besth: 150 })];
     expect(convertDock('top', top, {}, THEME)).toContain(' size="150"');
   });
 
   it('gives a center dock no size and lists no visibility for desc alone', () => {
-    const p = panel({ dir: 'center', name: 'desc' });
+    const p = panel({ dir: 'center', name: QspGUIPanel.Main });
     expect(convertDock('center', [p], {}, THEME)).toBe(
       `<qsp-cl-dock place="center"><qsp-cl-pane visibility="" proportion="100000">${MAIN}</qsp-cl-pane></qsp-cl-dock>`,
     );
@@ -180,11 +181,11 @@ describe('convertDock', () => {
 describe('convertLayer', () => {
   it('orders docks top, left, center, right, bottom', () => {
     const { layer } = buildLayoutTree([
-      panel({ dir: 'bottom', name: 'acts' }),
-      panel({ dir: 'top', name: 'imgview' }),
-      panel({ dir: 'right', name: 'vars' }),
-      panel({ dir: 'left', name: 'objs' }),
-      panel({ dir: 'center', name: 'desc' }),
+      panel({ dir: 'bottom', name: QspGUIPanel.Actions }),
+      panel({ dir: 'top', name: QspGUIPanel.ImageView }),
+      panel({ dir: 'right', name: QspGUIPanel.Stats }),
+      panel({ dir: 'left', name: QspGUIPanel.Objects }),
+      panel({ dir: 'center', name: QspGUIPanel.Main }),
     ]);
     const html = convertLayer(layer!, {}, THEME);
     const order = ['place="top"', 'place="left"', 'place="center"', 'place="right"', 'place="bottom"'].map((s) =>
@@ -286,12 +287,12 @@ describe('panels with incomplete data', () => {
   });
 
   it('D8: escapes a double quote in a panel name', () => {
-    const html = convertPane(panel({ name: 'a"b' as PanelData['name'] }), THEME, false);
+    const html = convertPane(panel({ name: 'a"b' as QspGUIPanel }), THEME, false);
     expect(html).toBe('<qsp-cl-pane visibility="a&quot;b" proportion="100000"></qsp-cl-pane>');
   });
 
   it('D8: escapes a double quote in the dock visibility list', () => {
-    const html = convertDock('right', [panel({ name: 'a"b' as PanelData['name'] })], {}, THEME);
+    const html = convertDock('right', [panel({ name: 'a"b' as QspGUIPanel })], {}, THEME);
     expect(html).toContain(' visibility="a&quot;b"');
     expect(html).not.toContain('a"b');
   });
