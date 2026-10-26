@@ -34,6 +34,7 @@ export function errorMessage(error: unknown, fallback: string): string {
 export function searchLocations(cache: Map<string, LocationInfo>, searchTerm: string): LocationMatches[] {
   const results: LocationMatches[] = [];
   const needle = searchTerm.toLowerCase();
+  if (!needle) return results;
 
   for (const [locationName, locationInfo] of cache) {
     const matches: CodeMatch[] = [];
@@ -47,7 +48,7 @@ export function searchLocations(cache: Map<string, LocationInfo>, searchTerm: st
     locationInfo.actions.forEach((action, actionIndex) => {
       action.forEach((line, lineIndex) => {
         if (line.toLowerCase().includes(needle)) {
-          matches.push({ line: lineIndex + 1, text: `[Action ${actionIndex}] ${line.trim()}` });
+          matches.push({ actionIndex, actionLine: lineIndex + 1, text: `[Action ${actionIndex}] ${line.trim()}` });
         }
       });
     });

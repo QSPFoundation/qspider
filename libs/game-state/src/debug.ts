@@ -78,23 +78,37 @@ export interface DebuggerUIState {
 
 const DEFAULT_PANEL_SIZE = { width: 600, height: 400 };
 
-export function readDebuggerUiState(storage: Pick<Storage, 'getItem'> | null): DebuggerUIState {
+const DOCK_POSITIONS: readonly DebuggerUIState['dockPosition'][] = ['bottom', 'left', 'right'];
+
+function parseSize(text: string | null): DebuggerUIState['size'] {
+  if (!text) return { ...DEFAULT_PANEL_SIZE };
   try {
-    if (!storage) throw new Error('no storage');
-    const savedPosition = storage.getItem('qsp-debugger-dock-position');
-    const savedSize = storage.getItem('qsp-debugger-size');
-    return {
-      isPanelOpen: false,
-      dockPosition: (savedPosition as 'bottom' | 'left' | 'right') || 'bottom',
-      size: savedSize ? JSON.parse(savedSize) : { ...DEFAULT_PANEL_SIZE },
-    };
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === 'object') {
+      const { width, height } = parsed as Record<string, unknown>;
+      if (typeof width === 'number' && typeof height === 'number' && width > 0 && height > 0) {
+        return { width, height };
+      }
+    }
   } catch {
-    return {
-      isPanelOpen: false,
-      dockPosition: 'bottom',
-      size: { ...DEFAULT_PANEL_SIZE },
-    };
+    // fall through to the default
   }
+  return { ...DEFAULT_PANEL_SIZE };
+}
+
+export function readDebuggerUiState(storage: Pick<Storage, 'getItem'> | null): DebuggerUIState {
+  let savedPosition: string | null = null;
+  let savedSize: string | null = null;
+  try {
+    if (storage) {
+      savedPosition = storage.getItem('qsp-debugger-dock-position');
+      savedSize = storage.getItem('qsp-debugger-size');
+    }
+  } catch {
+    // unreadable storage means defaults
+  }
+  const dockPosition = DOCK_POSITIONS.find((p) => p === savedPosition) ?? 'bottom';
+  return { isPanelOpen: false, dockPosition, size: parseSize(savedSize) };
 }
 
 function getLocalStorage(): Storage | null {
