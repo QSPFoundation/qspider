@@ -29,12 +29,15 @@ export const DIALOGS = {
   },
   /** Menu items in order; the `-:-` separator between them is not an item. */
   menu: {
-    items: ['First item', 'Second item', 'Open message'],
+    items: ['First item', 'Second item', 'Open message', 'Open submenu'],
     firstResult: 'MENU RESULT FIRST',
     secondResult: 'MENU RESULT SECOND',
     /** The third item opens a msg with this body; closing it writes msgClosedResult. */
     msgBody: 'MENU MSG',
     msgClosedResult: 'MENU MSG CLOSED',
+    /** The fourth item's location opens a second menu with this one item; choosing it writes subResult. */
+    subItem: 'Sub item',
+    subResult: 'SUBMENU RESULT',
     /** Written when the menu is dismissed without choosing (the -1 path). */
     cancelResult: 'MENU CANCELLED',
   },
