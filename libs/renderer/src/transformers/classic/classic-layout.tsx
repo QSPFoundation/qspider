@@ -50,10 +50,11 @@ export const QspCLLayer: React.FC<{ children: React.ReactNode }> = (props) => {
       const docks = get(docks$);
       const visibleDocks: Record<string, DockData> = {};
       for (const [place, data] of Object.entries(docks)) {
-        const isVisible = isDockVisible(data.visibility, (panel) => {
-          const atom = penelAtoms[panel];
-          return atom ? get(atom) : false;
-        });
+        const isVisible =
+          data.visibility?.split('|').some((type) => {
+            const atom = penelAtoms[type];
+            return atom ? get(atom) : false;
+          }) ?? true;
         if (isVisible) visibleDocks[place] = data;
       }
       return visibleDocks;
