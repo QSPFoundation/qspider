@@ -1,5 +1,36 @@
 import type { LocationInfo } from './debug';
 
+export interface CodeInspectorState {
+  locationInfoCache: Map<string, LocationInfo>;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const beginLoad = (state: CodeInspectorState): CodeInspectorState => ({
+  ...state,
+  isLoading: true,
+  error: null,
+});
+
+export const endLoad = (state: CodeInspectorState): CodeInspectorState => ({ ...state, isLoading: false });
+
+export const failLoad = (state: CodeInspectorState, error: unknown, fallback: string): CodeInspectorState => ({
+  ...state,
+  isLoading: false,
+  error: errorMessage(error, fallback),
+});
+
+export const cacheLocation = (state: CodeInspectorState, name: string, info: LocationInfo): CodeInspectorState => ({
+  ...state,
+  locationInfoCache: new Map(state.locationInfoCache).set(name, info),
+  isLoading: false,
+});
+
+export const emptyCache = (state: CodeInspectorState): CodeInspectorState => ({
+  ...state,
+  locationInfoCache: new Map(),
+});
+
 export interface CodeMatch {
   line?: number;
   actionIndex?: number;

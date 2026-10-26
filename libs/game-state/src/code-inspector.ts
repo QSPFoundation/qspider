@@ -7,13 +7,17 @@ import {
   getLocationDescription,
 } from './qsp-api';
 import { debugActions, LocationInfo } from './debug';
-import { buildLocationInfo, errorMessage, searchLocations, type LocationMatches } from './code-search';
-
-export interface CodeInspectorState {
-  locationInfoCache: Map<string, LocationInfo>;
-  isLoading: boolean;
-  error: string | null;
-}
+import {
+  beginLoad,
+  buildLocationInfo,
+  cacheLocation,
+  emptyCache,
+  endLoad,
+  failLoad,
+  searchLocations,
+  type CodeInspectorState,
+  type LocationMatches,
+} from './code-search';
 
 export const codeInspectorState$ = atom<CodeInspectorState>({
   locationInfoCache: new Map(),
@@ -23,19 +27,15 @@ export const codeInspectorState$ = atom<CodeInspectorState>({
 
 export const codeInspectorActions = {
   refreshLocations: async (): Promise<void> => {
-    codeInspectorState$.update((state) => ({ ...state, isLoading: true, error: null }));
+    codeInspectorState$.update(beginLoad);
 
     try {
       const locations = getLocationsList();
       debugActions.setLocations(locations);
 
-      codeInspectorState$.update((state) => ({ ...state, isLoading: false }));
+      codeInspectorState$.update(endLoad);
     } catch (error) {
-      codeInspectorState$.update((state) => ({
-        ...state,
-        isLoading: false,
-        error: errorMessage(error, 'Failed to refresh locations'),
-      }));
+      codeInspectorState$.update((state) => failLoad(state, error, 'Failed to refresh locations'));
     }
   },
 
@@ -46,7 +46,7 @@ export const codeInspectorActions = {
       return cache.get(locationName) || null;
     }
 
-    codeInspectorState$.update((state) => ({ ...state, isLoading: true, error: null }));
+    codeInspectorState$.update(beginLoad);
 
     try {
       const locationInfo = buildLocationInfo(locationName, {
@@ -56,28 +56,17 @@ export const codeInspectorActions = {
         getLocationDescription,
       });
 
-      codeInspectorState$.update((state) => ({
-        ...state,
-        locationInfoCache: new Map(state.locationInfoCache).set(locationName, locationInfo),
-        isLoading: false,
-      }));
+      codeInspectorState$.update((state) => cacheLocation(state, locationName, locationInfo));
 
       return locationInfo;
     } catch (error) {
-      codeInspectorState$.update((state) => ({
-        ...state,
-        isLoading: false,
-        error: errorMessage(error, 'Failed to get location info'),
-      }));
+      codeInspectorState$.update((state) => failLoad(state, error, 'Failed to get location info'));
       return null;
     }
   },
 
   clearCache: (): void => {
-    codeInspectorState$.update((state) => ({
-      ...state,
-      locationInfoCache: new Map(),
-    }));
+    codeInspectorState$.update(emptyCache);
   },
 
   getActionCode: (location: string, actionIndex: number): string[] => {
