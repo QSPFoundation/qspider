@@ -1,4 +1,5 @@
-// Volume arithmetic of audio.ts and sound.ts, kept apart from Howler. Light: only the clamp helper.
+// Volume arithmetic of audio.ts and sound.ts, kept apart from Howler. Light: only the clamp helper and
+// @qspider/utils' cleanPath (both free of side effects at import).
 import { clamp } from './utils';
 import { cleanPath } from '@qspider/utils';
 

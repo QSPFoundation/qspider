@@ -25,4 +25,10 @@ export * from './browser-translation';
 export * from './conditions';
 export * from './debug';
 export * from './code-inspector';
-export * from './code-search';
+export {
+  searchLocations,
+  type CodeInspectorState,
+  type CodeMatch,
+  type LocationMatches,
+  type LocationReader,
+} from './code-search';
