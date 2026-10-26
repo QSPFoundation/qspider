@@ -35,6 +35,8 @@ export const GAME_HTML = {
   /** data-qa values of authored elements. */
   marks: {
     bold: 'mk-bold',
+    /** The markup location's div with a data: PNG as its style background-image (the dataImage URL). */
+    styleDataBg: 'style-data-bg',
     execLink: 'exec-link',
     numLink: 'num-link',
     areaLink: 'area-link',
@@ -117,7 +119,7 @@ export const GAME_HTML = {
     /** Written by every hostile payload that manages to run. */
     inject: 'PWNED',
   },
-  /** The 1x1 PNG data: URL the svg <image> row spells (keep in sync with game-html.qsps). */
+  /** The 1x1 PNG data: URL the svg <image> row and the style-data-bg div spell (keep in sync with game-html.qsps). */
   dataImage:
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
   /** Image file bundled in the archive for the <area>/<img> row. */

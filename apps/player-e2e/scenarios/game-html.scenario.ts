@@ -1,3 +1,4 @@
+import { includes } from '@serenity-js/assertions';
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeContentText } from '../screenplay/content/checks';
@@ -17,6 +18,7 @@ import { SeeMainText } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { Hover, MoveAway } from '../screenplay/support/hover';
 import { ClickMapArea, LoadGame, StartPlayer } from '../screenplay/support/operate-player';
+import { SeeCssValue } from '../screenplay/support/page-script';
 import { scenario } from '../screenplay/support/scenario';
 import { TypeInto } from '../screenplay/support/type-into';
 
@@ -30,6 +32,18 @@ scenario('authored markup renders inside the main panel', async (player) => {
     SeeGameStarted(TEXT.start),
     ClickAction(ACTION.markup),
     SeeContentText(MARK.bold, TEXT.bold),
+  );
+});
+
+scenario('a data: URL in a style attribute stays whole', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.markup),
+    SeeContentText(MARK.bold, TEXT.bold),
+    SeeCssValue({ qa: MARK.styleDataBg }, 'background-image', includes(GAME_HTML.dataImage)),
   );
 });
 

@@ -24,6 +24,8 @@ act 'hostile urls': gt 'hostile_urls'
 # markup
 *clr
 *pl '<b data-qa="mk-bold">MARKUP BOLD</b>'
+! A data: URL in a style attribute holds ; and : inside url(), so the style parser must keep it whole.
+*pl '<div data-qa="style-data-bg" style="width:8px;height:8px;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==)"></div>'
 ---
 
 # links
