@@ -160,14 +160,22 @@ describe('convertDock', () => {
 
   it('uses the stored dock size as is for left and right', () => {
     const p = panel({ dir: 'right', name: QspGUIPanel.Stats });
-    expect(convertDock('right', [p], { '2,0,0': 351 }, THEME)).toContain(' size="351"');
+    expect(convertDock('right', [p], { '2,0,0': 351 }, THEME)).toBe(
+      '<qsp-cl-dock place="right" visibility="vars" size="351"><qsp-cl-pane visibility="vars" proportion="100000"><qsp-stats><div>vars</div></qsp-stats></qsp-cl-pane></qsp-cl-dock>',
+    );
   });
 
   it('falls back to the biggest bestw for a side dock and besth for a top dock', () => {
     const side = [panel({ dir: 'left', bestw: 200 }), panel({ dir: 'left', bestw: 350 })];
-    expect(convertDock('left', side, {}, THEME)).toContain(' size="350"');
+    const objs =
+      '<qsp-cl-pane visibility="objs" proportion="100000"><qsp-objects><div>objs</div></qsp-objects></qsp-cl-pane>';
+    expect(convertDock('left', side, {}, THEME)).toBe(
+      `<qsp-cl-dock place="left" visibility="objs|objs" size="350">${objs}${objs}</qsp-cl-dock>`,
+    );
     const top = [panel({ dir: 'top', name: QspGUIPanel.ImageView, besth: 150 })];
-    expect(convertDock('top', top, {}, THEME)).toContain(' size="150"');
+    expect(convertDock('top', top, {}, THEME)).toBe(
+      '<qsp-cl-dock place="top" visibility="imgview" size="150"><qsp-cl-pane visibility="imgview" proportion="100000"><qsp-view><div>view</div></qsp-view></qsp-cl-pane></qsp-cl-dock>',
+    );
   });
 
   it('gives a center dock no size and lists no visibility for desc alone', () => {
@@ -251,13 +259,20 @@ describe('buildGuiLayoutTemplate', () => {
 
 describe('panels with incomplete data', () => {
   const withPanels = (panels: string) => parseCfg(`[General]\nPanels=layout2|${panels}|`);
+  const DESC_DOCK = `<qsp-cl-dock place="center"><qsp-cl-pane visibility="" proportion="100000">${MAIN}</qsp-cl-pane></qsp-cl-dock>`;
+  const OBJS_DOCK =
+    '<qsp-cl-dock place="bottom" visibility="objs" size="9"><qsp-cl-pane visibility="objs" proportion="5"><qsp-objects><div>objs</div></qsp-objects></qsp-cl-pane></qsp-cl-dock>';
+  /** The layout of a cfg whose only usable panel is desc. */
+  const DESC_ONLY = `<qsp-cl-layer>${DESC_DOCK}</qsp-cl-layer>`;
+  /** One layer: desc in the center, objs (besth=9, no dock size) in the bottom dock. */
+  const DESC_AND_OBJS = `<qsp-cl-layer>${DESC_DOCK}${OBJS_DOCK}</qsp-cl-layer>`;
 
   it('D7: skips a panel with dir=0 instead of throwing', () => {
     const cfg = withPanels(
       'name=desc;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;dir=0;layer=0;row=0;pos=1;prop=1;bestw=1;besth=1',
     );
     expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
-    expect(buildGuiLayoutTemplate(cfg, THEME)).not.toContain('qsp-objects');
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_ONLY);
   });
 
   it('D7: skips a panel with dir=6 instead of throwing', () => {
@@ -265,7 +280,7 @@ describe('panels with incomplete data', () => {
       'name=desc;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;dir=6;layer=0;row=0;pos=1;prop=1;bestw=1;besth=1',
     );
     expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
-    expect(buildGuiLayoutTemplate(cfg, THEME)).not.toContain('qsp-objects');
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_ONLY);
   });
 
   it('D7: skips a panel with no dir instead of throwing', () => {
@@ -273,17 +288,14 @@ describe('panels with incomplete data', () => {
       'name=desc;state=768;dir=5;layer=0;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;layer=0;row=0;pos=1;prop=1;bestw=1;besth=1',
     );
     expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
-    expect(buildGuiLayoutTemplate(cfg, THEME)).not.toContain('qsp-objects');
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_ONLY);
   });
 
   it('D7: puts a panel with no layer on layer 0 and keeps the layout', () => {
     const cfg = withPanels(
       'name=desc;state=768;dir=5;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;dir=3;layer=0;row=0;pos=1;prop=5;bestw=1;besth=9',
     );
-    const html = buildGuiLayoutTemplate(cfg, THEME);
-    expect(html).toContain('<qsp-main>');
-    expect(html).toContain('<qsp-objects>');
-    expect(html.match(/<qsp-cl-layer>/g)).toHaveLength(1);
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_AND_OBJS);
   });
 
   it('D8: escapes a double quote in a panel name', () => {
@@ -301,20 +313,18 @@ describe('panels with incomplete data', () => {
       'name=desc;state=768;dir=5;layer=1;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;dir=3;layer=0;row=0;pos=0;prop=5;bestw=1;besth=9',
     );
     expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
-    const html = buildGuiLayoutTemplate(cfg, THEME);
-    expect(html).toContain('<qsp-main>');
-    expect(html).toContain('<qsp-objects>');
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_AND_OBJS);
   });
 
   it('desc alone on layer 1 does not throw and still shows the main pane', () => {
     const cfg = withPanels('name=desc;state=768;dir=5;layer=1;row=0;pos=0;prop=100000;bestw=1;besth=1');
     expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
-    expect(buildGuiLayoutTemplate(cfg, THEME)).toContain('<qsp-main>');
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toBe(DESC_ONLY);
   });
 
   it('D8: escapes a double quote in the dock visibility list', () => {
-    const html = convertDock('right', [panel({ name: 'a"b' as QspGUIPanel })], {}, THEME);
-    expect(html).toContain(' visibility="a&quot;b"');
-    expect(html).not.toContain('a"b');
+    expect(convertDock('right', [panel({ name: 'a"b' as QspGUIPanel })], {}, THEME)).toBe(
+      '<qsp-cl-dock place="right" visibility="a&quot;b" size="300"><qsp-cl-pane visibility="a&quot;b" proportion="100000"></qsp-cl-pane></qsp-cl-dock>',
+    );
   });
 });
