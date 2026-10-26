@@ -204,7 +204,7 @@
   "lint-staged": {
     "*.{ts,tsx}": [
       "prettier --write",
-      "eslint"
+      "eslint --flag v10_config_lookup_from_file"
     ],
     "*.{js,mjs,json,md,css,yml}": "prettier --write"
   },
