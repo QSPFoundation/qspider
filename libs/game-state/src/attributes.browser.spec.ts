@@ -3,6 +3,7 @@ import { extractAttributes, processStyles } from './attributes';
 
 const PNG =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+// eslint-disable-next-line no-script-url -- the hostile input the URL guard must neutralise
 const SCRIPT = "javascript:document.body.setAttribute('data-qa-pwned','1')";
 
 /** The first element `selector` matches in `html`, parsed by the browser as game text is. */
@@ -30,6 +31,7 @@ describe('extractAttributes: URL attributes', () => {
   });
 
   it('reads the scheme case-insensitively', () => {
+    // eslint-disable-next-line no-script-url -- the hostile input the URL guard must neutralise
     expect(extractAttributes(withAttribute('a', 'href', 'JavaScript:alert(1)'))).toEqual({ href: '#' });
     expect(extractAttributes(withAttribute('a', 'href', 'VBSCRIPT:x'))).toEqual({ href: '#' });
     expect(extractAttributes(withAttribute('a', 'href', 'LiveScript:x'))).toEqual({ href: '#' });
