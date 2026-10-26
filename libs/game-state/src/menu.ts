@@ -60,8 +60,10 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       },
       clear(): void {
         const { isOpen, onselect } = atom.value;
+        // The game is stopping: the callback gets a clean state, and anything it reopens is discarded.
         reset();
         if (isOpen) onselect?.(-1);
+        reset();
       },
       reset,
     };

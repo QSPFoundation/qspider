@@ -67,8 +67,10 @@ export const input$ = create<InputAtom, InputAtomActions>(
       },
       clear(): void {
         const { isOpen, onfinished } = atom.value;
+        // The game is stopping: the callback gets a clean state, and anything it reopens is discarded.
         reset();
         if (isOpen) onfinished?.('');
+        reset();
       },
       reset,
     };

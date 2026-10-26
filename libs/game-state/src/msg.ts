@@ -40,7 +40,7 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
           onclosed,
         });
       },
-      // Close and clear reset the state before calling back: the engine resumes inside the callback, and a
+      // Close resets the state before calling back: the engine resumes inside the callback, and a
       // dialog opened there must survive.
       close(): void {
         if (isOpen$.value) {
@@ -52,8 +52,10 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
       },
       clear(): void {
         const { isOpen, onclosed } = atom.value;
+        // The game is stopping: the callback gets a clean state, and anything it reopens is discarded.
         reset();
         if (isOpen) onclosed?.();
+        reset();
       },
       reset,
     };
