@@ -14,6 +14,11 @@ export function boundInputValue(input: { type: string; checked: boolean; value: 
   return input.type === 'checkbox' ? (input.checked ? input.value : '') : input.value;
 }
 
+/** The leading integer of the text (optional `-`, then digits, after leading whitespace), or `0` if there is none. */
+function leadingInteger(value: string): string {
+  return /^\s*(-?\d+)/.exec(value)?.[1] ?? '0';
+}
+
 export function bindAssignment(bind: string, bindKey: string, bindIndex: number, value: string): string {
   const name: string[] = [bind];
   if (bindKey || bindIndex) {
@@ -26,6 +31,6 @@ export function bindAssignment(bind: string, bindKey: string, bindIndex: number,
     name.push(']');
   }
   const fullName = name.join('');
-  const toSet = fullName.startsWith('$') ? toQspString(value) : value || 0;
+  const toSet = fullName.startsWith('$') ? toQspString(value) : leadingInteger(value);
   return `${fullName} = ${toSet}`;
 }
