@@ -27,8 +27,8 @@ export function parseSystemCmd(cmd: string): string | null {
  * - A closing `~` ends its argument: what follows before the next comma is a new argument
  *   (`~a~x` gives `['a', 'x']`).
  * - An unclosed `~` runs to the end and is still a string (`~12` gives `'12'`).
- * - A bare token is trimmed; empty ones are skipped. It is a number when `Number()` reads it as one,
- *   otherwise it is kept as text (`x` gives `'x'`, never NaN).
+ * - A bare token is trimmed; empty ones are skipped. It is the number `parseFloat` reads from it, as before
+ *   (`12abc` gives 12, `0x10` gives 0); only where `parseFloat` gives NaN is it kept as text (`x` gives `'x'`).
  */
 export function parseArgs(input: string): EventArg[] {
   const args: EventArg[] = [];
@@ -64,7 +64,7 @@ export function parseArgs(input: string): EventArg[] {
 function pushNumber(args: EventArg[], chars: string[]): void {
   const token = chars.join('').trim();
   if (!token) return;
-  const value = Number(token);
+  const value = parseFloat(token);
   args.push(Number.isNaN(value) ? token : value);
 }
 

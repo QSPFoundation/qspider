@@ -1,5 +1,6 @@
 // The decisions behind the engine's callbacks in qsp-api.ts (links, version, files, new locations, panels,
 // saves), kept apart from the engine wiring. Light: only types and the QspPanel enum (no side effects).
+// A runtime import is safe only because the engine's entry has no side effects at import; only the enum is used.
 import { QspPanel } from '@qsp/wasm-engine';
 import type { DebugState } from './debug';
 
