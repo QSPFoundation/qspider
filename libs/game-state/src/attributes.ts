@@ -1,3 +1,4 @@
+import { cleanPath } from '@qspider/utils';
 import React from 'react';
 
 export type AttributeValue = string;
@@ -171,7 +172,20 @@ const splitDeclarations = (value: string): string[] => {
 // (url(), a gradient, image-set(), var()) and is kept too.
 const IMAGE_KEYWORDS = new Set(['none', 'inherit', 'initial', 'unset', 'revert', 'revert-layer']);
 
-/** The style object React takes: camelCased names, custom properties (`--accent`) verbatim, plain numbers as numbers. */
+/**
+ * A bare background-image path as a CSS url(): one pair of surrounding quotes dropped, backslashes turned into
+ * slashes as for every resource path (in CSS `\a` is an escape), and `"` escaped so the string stays closed.
+ */
+const bareImageUrl = (path: string): string => {
+  const unquoted = /^(["'])[\s\S]*\1$/.test(path) ? path.slice(1, -1) : path;
+  return `url("${cleanPath(unquoted).replace(/"/g, '\\"')}")`;
+};
+
+/**
+ * The style object React takes: names lowercased and camelCased, custom properties (`--Accent`) verbatim, plain
+ * numbers as numbers. No url() scheme guard on purpose: javascript: in a CSS url() does not run in Chromium, WebKit
+ * or WebView2, and a regex cannot cover CSS escapes (`java\73 cript:`).
+ */
 export function processStyles(styleAttribute: string): Record<string, string | number> {
   const style: Record<string, string | number> = {};
   for (const declaration of splitDeclarations(styleAttribute)) {
@@ -184,11 +198,14 @@ export function processStyles(styleAttribute: string): Record<string, string | n
       style[prop] = value;
       continue;
     }
-    const name = prop.replace(/^-ms-/, 'ms-').replace(/-./g, (c) => c.substring(1).toUpperCase());
+    const name = prop
+      .toLowerCase()
+      .replace(/^-ms-/, 'ms-')
+      .replace(/-./g, (c) => c.substring(1).toUpperCase());
     let preparedValue: string | number = value;
     if (name === 'backgroundImage' && value && !value.includes('(') && !IMAGE_KEYWORDS.has(value.toLowerCase())) {
       // A bare path, as classic games write it.
-      preparedValue = `url("${value}")`;
+      preparedValue = bareImageUrl(value);
     } else if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
       preparedValue = parseFloat(value);
     }
