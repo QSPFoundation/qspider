@@ -19,6 +19,11 @@ export function dockAttributes(
   return { place: (place || 'center') as DockPlace, visibility, size: Number(size ?? 0) };
 }
 
+/** The child elements of a table: whitespace text between rows and cells is dropped. */
+export function elementChildren<T>(children: T[]): T[] {
+  return children.filter((child) => typeof child !== 'string');
+}
+
 /** The visibility and proportion of `<qsp-cl-pane>`: proportion 1 when not written. */
 export function paneAttributes(
   visibility: string | null,

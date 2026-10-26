@@ -6,7 +6,7 @@ import { Hr } from './classic/hr';
 import { Table } from './classic/table';
 import { Area } from './classic/area';
 import { Video } from './classic/video';
-import { dockAttributes, paneAttributes, tableDimensions } from './classic/classic-attributes';
+import { dockAttributes, elementChildren, paneAttributes, tableDimensions } from './classic/classic-attributes';
 import { QspCL, QspCLDefaults, QspCLDock, QspCLLayer, QspCLPane } from './classic/classic-layout';
 
 export const classicTransformers: Record<string, TransformCallback> = {
@@ -31,7 +31,7 @@ export const classicTransformers: Record<string, TransformCallback> = {
     return <Strike attrs={extractAttributes(node)}>{children}</Strike>;
   },
   tbody: (_node, children) => {
-    return <tbody>{children.filter((child) => typeof child !== 'string')}</tbody>;
+    return <tbody>{elementChildren(children)}</tbody>;
   },
   table: (node, children) => {
     const { border, cellspacing, cellpadding, align, valign, ...attrs } = extractAttributes(node);
@@ -45,7 +45,7 @@ export const classicTransformers: Record<string, TransformCallback> = {
         cellpadding={dimensions.cellpadding}
         attrs={attrs}
       >
-        {children.filter((child) => typeof child !== 'string')}
+        {elementChildren(children)}
       </Table>
     );
   },
