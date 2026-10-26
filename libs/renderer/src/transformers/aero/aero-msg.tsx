@@ -8,6 +8,7 @@ import { buttonContext } from '../../theme-core/buttons';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { QspScrollable } from '../../theme-core/scrollable';
 import { useAeroEffect } from './use-aero-effect';
+import { aeroPosition, dialogClassName } from './aero-position';
 import { AeroOverlay } from './aero-overlay';
 import { aeroParsedMsgContent$ } from '../../render-state';
 import { Markup } from '@qspider/html-renderer';
@@ -19,12 +20,12 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
   const msgX = useQspVariable('MSG_X', '', 0, 200);
   const msgY = useQspVariable('MSG_Y', '', 0, 165);
   const transitions = useAeroEffect(msg.isOpen, '$MSG_EFFECT', 'MSG_EFFECT_TIME');
-  const useMouseCoordinates = msgX < 0 || msgY < 0;
+  const position = aeroPosition(msgX, msgY, coordinates);
   const positionStyle = {
-    '--aero-msg-x': `${useMouseCoordinates ? coordinates.x : msgX}px`,
-    '--aero-msg-y': `${useMouseCoordinates ? coordinates.y : msgY}px`,
+    '--aero-msg-x': `${position.x}px`,
+    '--aero-msg-y': `${position.y}px`,
   } as CSSProperties;
-  const contentClass = `qsp-dialog-container${useMouseCoordinates ? ' at-mouse' : ''}`;
+  const contentClass = dialogClassName(position.atMouse);
   function onClose(): void {
     msg$.actions.close();
   }

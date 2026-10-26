@@ -7,6 +7,7 @@ import { useAttributes } from '../../content/attributes';
 import { useClickCoordinates } from '../../hooks/click-coordinates';
 import { menuContext } from '../../theme-core/menu';
 import { menuEntries } from '../../theme-core/menu-entries';
+import { aeroPosition, menuClassName } from './aero-position';
 import { useAeroEffect } from './use-aero-effect';
 import { Markup } from '@qspider/html-renderer';
 import { aeroMenuWithParsedName$ } from '../../render-state';
@@ -20,11 +21,8 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   const menuX = useQspVariable('MENU_X', '', 0, -1);
   const menuY = useQspVariable('MENU_Y', '', 0, -1);
   const transitions = useAeroEffect(menu.isOpen, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
-  const useMouseCoordinates = menuX < 0 || menuY < 0;
-  const left = useMouseCoordinates ? coordinates.x : menuX;
-  const top = useMouseCoordinates ? coordinates.y : menuY;
-  let className = attributes['className'] || '';
-  if (isFixed) className += ' aero-fixed-menu';
+  const { x: left, y: top } = aeroPosition(menuX, menuY, coordinates);
+  const className = menuClassName(attributes['className'], Boolean(isFixed));
   return (
     <DropdownMenu.Root open={menu.isOpen} onOpenChange={(): void => menu$.actions.close()}>
       <DropdownMenu.Trigger asChild>
