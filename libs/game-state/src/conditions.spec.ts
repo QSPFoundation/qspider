@@ -65,6 +65,14 @@ describe('checkCondition', () => {
     expect(checkCondition('9', ['less-or-equal', '10'])).toBe(true);
   });
 
+  it('treats only decimal integers as numeric strings', () => {
+    expect(checkCondition('Infinity', ['greater-or-equal', 'Infinity'])).toBe(true);
+    expect(checkCondition('Infinity', ['less-or-equal', 'Infinity'])).toBe(true);
+    expect(checkCondition('10', ['greater', '0x10'])).toBe(true);
+    expect(checkCondition('1e3', ['less', '9'])).toBe(true);
+    expect(checkCondition(' 12', ['greater', '9'])).toBe(true);
+  });
+
   it('keeps string order when only one side is numeric', () => {
     expect(checkCondition('10', ['greater', 'abc'])).toBe(false);
     expect(checkCondition('abc', ['greater', '10'])).toBe(true);

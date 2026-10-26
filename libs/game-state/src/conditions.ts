@@ -12,7 +12,7 @@ export const conditionAttributes = [
 ];
 
 function isNumeric(value: string): boolean {
-  return value.trim() !== '' && !Number.isNaN(Number(value));
+  return /^-?\d+$/.test(value.trim());
 }
 
 /** A number compares numerically against `Number(toCompare)`; two numeric strings compare as numbers, any other strings as text. */
@@ -21,7 +21,11 @@ function compare(value: string | number, toCompare: string): number {
     const right = Number(toCompare);
     return value > right ? 1 : value < right ? -1 : value === right ? 0 : NaN;
   }
-  if (isNumeric(value) && isNumeric(toCompare)) return Number(value) - Number(toCompare);
+  if (isNumeric(value) && isNumeric(toCompare)) {
+    const left = Number(value);
+    const right = Number(toCompare);
+    return left > right ? 1 : left < right ? -1 : 0;
+  }
   return value < toCompare ? -1 : value > toCompare ? 1 : 0;
 }
 
