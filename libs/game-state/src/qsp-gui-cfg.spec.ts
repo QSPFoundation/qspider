@@ -291,6 +291,27 @@ describe('panels with incomplete data', () => {
     expect(html).toBe('<qsp-cl-pane visibility="a&quot;b" proportion="100000"></qsp-cl-pane>');
   });
 
+  it('D8: escapes < and & in a panel name', () => {
+    const html = convertPane(panel({ name: 'a<b&c' as QspGUIPanel }), THEME, false);
+    expect(html).toBe('<qsp-cl-pane visibility="a&lt;b&amp;c" proportion="100000"></qsp-cl-pane>');
+  });
+
+  it('desc on an upper layer does not throw and still shows the main pane', () => {
+    const cfg = withPanels(
+      'name=desc;state=768;dir=5;layer=1;row=0;pos=0;prop=100000;bestw=1;besth=1|name=objs;state=0;dir=3;layer=0;row=0;pos=0;prop=5;bestw=1;besth=9',
+    );
+    expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
+    const html = buildGuiLayoutTemplate(cfg, THEME);
+    expect(html).toContain('<qsp-main>');
+    expect(html).toContain('<qsp-objects>');
+  });
+
+  it('desc alone on layer 1 does not throw and still shows the main pane', () => {
+    const cfg = withPanels('name=desc;state=768;dir=5;layer=1;row=0;pos=0;prop=100000;bestw=1;besth=1');
+    expect(() => buildGuiLayoutTemplate(cfg, THEME)).not.toThrow();
+    expect(buildGuiLayoutTemplate(cfg, THEME)).toContain('<qsp-main>');
+  });
+
   it('D8: escapes a double quote in the dock visibility list', () => {
     const html = convertDock('right', [panel({ name: 'a"b' as QspGUIPanel })], {}, THEME);
     expect(html).toContain(' visibility="a&quot;b"');
