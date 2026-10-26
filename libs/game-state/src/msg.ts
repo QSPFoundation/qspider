@@ -10,6 +10,7 @@ interface MsgAtomAction {
   open(content: string, onclosed: () => void): void;
   close(): void;
   clear(): void;
+  reset(): void;
 }
 
 export const msg$ = create<MsgAtom, MsgAtomAction>(
@@ -20,6 +21,16 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
   },
   (atom) => {
     const isOpen$ = atom.focus((s) => s.isOpen);
+    /** Empties the box and drops its handler without answering the engine. */
+    function reset(): void {
+      const { isOpen } = atom.value;
+      atom.set({
+        isOpen: false,
+        content: '',
+        onclosed: null,
+      });
+      if (isOpen) resumeCounter('msg');
+    }
     return {
       open(content: string, onclosed: () => void): void {
         pauseCounter('msg');
@@ -41,16 +52,10 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
       },
       clear(): void {
         const { isOpen, onclosed } = atom.value;
-        atom.set({
-          isOpen: false,
-          content: '',
-          onclosed: null,
-        });
-        if (isOpen) {
-          resumeCounter('msg');
-          onclosed?.();
-        }
+        reset();
+        if (isOpen) onclosed?.();
       },
+      reset,
     };
   },
 );

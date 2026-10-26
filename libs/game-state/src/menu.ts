@@ -12,6 +12,7 @@ interface MenuAtomAction {
   select(index: number): void;
   close(): void;
   clear(): void;
+  reset(): void;
 }
 
 export const selectedMenuItem$ = atom(-1);
@@ -29,6 +30,16 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       resumeCounter('menu');
       atom.update((s) => ({ ...s, isOpen: false, onselect: null }));
       onselect?.(index);
+    }
+    /** Empties the menu and drops its handler without answering the engine. */
+    function reset(): void {
+      const { isOpen } = atom.value;
+      atom.set({
+        isOpen: false,
+        items: [],
+        onselect: null,
+      });
+      if (isOpen) resumeCounter('menu');
     }
     return {
       open(items: QspListItem[], onselect: (index: number) => void): void {
@@ -49,16 +60,10 @@ export const menu$ = atom<MenuAtom, MenuAtomAction>(
       },
       clear(): void {
         const { isOpen, onselect } = atom.value;
-        atom.set({
-          isOpen: false,
-          items: [],
-          onselect: null,
-        });
-        if (isOpen) {
-          resumeCounter('menu');
-          onselect?.(-1);
-        }
+        reset();
+        if (isOpen) onselect?.(-1);
       },
+      reset,
     };
   },
 );

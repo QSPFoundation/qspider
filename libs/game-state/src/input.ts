@@ -13,6 +13,7 @@ interface InputAtomActions {
   finish(): void;
   close(): void;
   clear(): void;
+  reset(): void;
 }
 
 export const input$ = create<InputAtom, InputAtomActions>(
@@ -31,6 +32,17 @@ export const input$ = create<InputAtom, InputAtomActions>(
       atom.update((s) => ({ ...s, isOpen: false, onfinished: null }));
       resumeCounter('input');
       onfinished?.(result);
+    }
+    /** Empties the prompt and drops its handler without answering the engine. */
+    function reset(): void {
+      const { isOpen } = atom.value;
+      atom.set({
+        isOpen: false,
+        content: '',
+        entered: '',
+        onfinished: null,
+      });
+      if (isOpen) resumeCounter('input');
     }
     return {
       open(content: string, onfinished: (result: string) => void): void {
@@ -55,17 +67,10 @@ export const input$ = create<InputAtom, InputAtomActions>(
       },
       clear(): void {
         const { isOpen, onfinished } = atom.value;
-        atom.set({
-          isOpen: false,
-          content: '',
-          entered: '',
-          onfinished: null,
-        });
-        if (isOpen) {
-          resumeCounter('input');
-          onfinished?.('');
-        }
+        reset();
+        if (isOpen) onfinished?.('');
       },
+      reset,
     };
   },
 );
