@@ -3,20 +3,26 @@ import { fontSizeStyle, hrStyle, tableClassName, tableStyle } from './legacy-sty
 
 describe('hrStyle', () => {
   it('draws a plain <hr> as an inset top line', () => {
-    expect(hrStyle(null, null, false)).toMatchObject({
+    expect(hrStyle(null, null, false)).toEqual({
       borderWidth: '1px 0 0 0',
       borderStyle: 'inset',
+      borderColor: 'rgb(128, 128, 128)',
+      borderRadius: '1px',
       height: '0px',
+      margin: '0.5em auto',
       width: '100%',
       backgroundColor: 'transparent',
     });
   });
 
   it('draws <hr width="50%" size="3" noshade> as a solid grey bar', () => {
-    expect(hrStyle('50%', '3', true)).toMatchObject({
+    expect(hrStyle('50%', '3', true)).toEqual({
       borderWidth: '1px',
       borderStyle: 'solid',
+      borderColor: 'rgb(128, 128, 128)',
+      borderRadius: '1px',
       height: '3px',
+      margin: '0.5em auto',
       width: '50%',
       backgroundColor: 'rgb(128, 128, 128)',
     });

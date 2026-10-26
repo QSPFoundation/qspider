@@ -1,4 +1,3 @@
-import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { describe, expect, it } from 'vitest';
 import { classicDefaultRules, isDockVisible, isPaneVisible, layerGridStyle } from './classic-layout-style';
 
@@ -72,22 +71,17 @@ describe('classicDefaultRules', () => {
   });
 
   it('writes the four background rules for a real BackColor', () => {
-    const color = convertColor(0xff0000, false) as string;
-    const inverted = invertColor(color);
     expect(classicDefaultRules({ ...empty, BackColor: 0xff0000 })).toEqual([
-      `--cl-background-color: ${color}`,
-      `--cl-background-color-contrast: ${getContrastColor(color)}`,
-      `--cl-background-color-inverted: ${inverted}`,
-      `--cl-background-color-inverted-contrast: ${getContrastColor(inverted)}`,
+      '--cl-background-color: rgb(0,0,255)',
+      '--cl-background-color-contrast: white',
+      '--cl-background-color-inverted: #FFFF00',
+      '--cl-background-color-inverted-contrast: black',
     ]);
   });
 
   it('writes font colour and link colour rules', () => {
     const rules = classicDefaultRules({ ...empty, FontColor: 0xff0000, LinkColor: 0x0000ff });
-    expect(rules).toEqual([
-      `--cl-color: ${convertColor(0xff0000, false)}`,
-      `--cl-link-color: ${convertColor(0x0000ff, false)}`,
-    ]);
+    expect(rules).toEqual(['--cl-color: rgb(0,0,255)', '--cl-link-color: rgb(255,0,0)']);
   });
 
   it('writes the font size in points', () => {

@@ -1,5 +1,4 @@
 import type { CssVarDefinition } from '@qspider/game-state';
-import { convertColor, getContrastColor, invertColor } from '@qspider/utils';
 import { describe, expect, it } from 'vitest';
 import { cssVariableRules, resolveThemeUrl, resourceVariableCss } from './css-variable-rules';
 
@@ -8,16 +7,9 @@ const definition = (overrides: Record<string, unknown>): CssVarDefinition =>
 
 describe('cssVariableRules', () => {
   it('writes a colour with its contrast, inverted and inverted contrast variants', () => {
-    const color = convertColor(0xff0000ff) as string;
-    const inverted = invertColor(color);
     expect(
       cssVariableRules(definition({ type: 'color', withContrast: true, withInverted: true }), String(0xff0000ff)),
-    ).toEqual([
-      `--x: ${color}`,
-      `--x-contrast: ${getContrastColor(color)}`,
-      `--x-inverted: ${inverted}`,
-      `--x-inverted-contrast: ${getContrastColor(inverted)}`,
-    ]);
+    ).toEqual(['--x: rgba(255,0,0,1)', '--x-contrast: white', '--x-inverted: #00FFFF', '--x-inverted-contrast: black']);
   });
 
   it('uses the default colour when the variable is empty', () => {
