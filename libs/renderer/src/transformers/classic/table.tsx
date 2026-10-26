@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAttributes } from '../../content/attributes';
+import { tableClassName, tableStyle } from './legacy-styles';
 import { Attributes } from '@qspider/game-state';
 
 export const Table: React.FC<{
@@ -14,15 +15,9 @@ export const Table: React.FC<{
   const [, style, { className, ...attributes }] = useAttributes(attrs, 'table');
   const preparedStyle: React.CSSProperties = {
     ...style,
-    ...{
-      textAlign: align ?? 'left',
-      verticalAlign: valign ?? 'top',
-      '--table-border-width': `${border || 0}px`,
-      '--table-cellspacing': `${cellspacing || 0}px`,
-      '--table-cellpadding': `${cellpadding || 0}px`,
-    },
+    ...tableStyle({ border, cellspacing, cellpadding, align, valign }),
   };
-  const preparedClassName = className ? `${className} classic-table` : 'classic-table';
+  const preparedClassName = tableClassName(className);
   return (
     <table {...attributes} style={preparedStyle} className={preparedClassName}>
       {children}
