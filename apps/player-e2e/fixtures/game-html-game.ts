@@ -22,6 +22,7 @@ export const GAME_HTML = {
     hostileTags: 'hostile tags',
     hostileTagAttr: 'hostile tag attr',
     hostileMalformed: 'hostile malformed',
+    hostileForm: 'hostile form',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
     /** watchers location. */
@@ -51,6 +52,13 @@ export const GAME_HTML = {
     showChild: 'show-child',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
+    /** A javascript: link with a leading space and a tab inside the scheme, which browsers ignore. */
+    jsTabLink: 'js-tab-link',
+    /** The hostile_form location's form (javascript: action), its button (javascript: formaction) and its
+     * submit input (formaction with a leading control char and a newline inside the scheme). */
+    hostileFormAction: 'hostile-form-action',
+    hostileFormaction: 'hostile-formaction',
+    hostileInputFormaction: 'hostile-input-formaction',
     /** Risky tags the hostile_tags location writes; none may reach the document. */
     hostileBase: 'hostile-base',
     hostileMeta: 'hostile-meta',
@@ -85,6 +93,7 @@ export const GAME_HTML = {
     jsBenign: 'JS BENIGN',
     jsLink: 'JS LINK',
     malformed: 'MALFORMED OK',
+    formBenign: 'FORM BENIGN',
     tagsBenign: 'TAGS BENIGN',
     tagAttrBenign: 'TAG ATTR BENIGN',
     /** Written by every hostile payload that manages to run. */

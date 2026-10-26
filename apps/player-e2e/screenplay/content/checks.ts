@@ -27,17 +27,20 @@ export const SeeElementAttribute = (element: Answerable<PageElement>, name: stri
   );
 
 /**
- * `element`'s href is neutralized: it never mentions `javascript` and ends with `#`. The attribute value
- * is `#` on Chromium but the resolved URL (`<origin>/<path>#`) on desktop WebKit, so exact equality is not portable.
+ * `element`'s URL attribute `name` is neutralized: it never mentions `javascript` and ends with `#`. The attribute
+ * value is `#` on Chromium but the resolved URL (`<origin>/<path>#`) on desktop WebKit, so exact equality is not portable.
  */
-export const SeeNeutralizedHref = (element: Answerable<PageElement>): Task =>
+export const SeeNeutralizedUrl = (element: Answerable<PageElement>, name: string): Task =>
   Task.where(
-    `#actor sees the href of the element neutralized`,
+    `#actor sees the ${name} of the element neutralized`,
     seeEventually(
       element,
-      (e) => Attribute.called('href').of(e).toLowerCase(),
+      (e) => Attribute.called(name).of(e).toLowerCase(),
       not(includes('javascript')),
-      '#actor sees the href free of "javascript"',
+      `#actor sees the ${name} free of "javascript"`,
     ),
-    seeEventually(element, (e) => Attribute.called('href').of(e), endsWith('#'), '#actor sees the href end with "#"'),
+    seeEventually(element, (e) => Attribute.called(name).of(e), endsWith('#'), `#actor sees the ${name} end with "#"`),
   );
+
+/** `element`'s href is neutralized (SeeNeutralizedUrl). */
+export const SeeNeutralizedHref = (element: Answerable<PageElement>): Task => SeeNeutralizedUrl(element, 'href');

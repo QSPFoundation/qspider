@@ -1,6 +1,6 @@
 import { GAME_HTML } from '../fixtures/game-html-game';
 import { SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
-import { SeeElementAttribute, SeeNeutralizedHref } from '../screenplay/content/checks';
+import { SeeElementAttribute, SeeNeutralizedHref, SeeNeutralizedUrl } from '../screenplay/content/checks';
 import { ErrorAlerts } from '../screenplay/common/elements';
 import { ContentMark, DocumentMark, PwnedAttribute } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
@@ -47,6 +47,37 @@ scenario('a mixed-case javascript: link does not run', async (player) => {
     SeeNeutralizedHref(ContentMark(MARK.jsLink)),
     SeeMainTextContaining(TEXT.jsBenign),
     SeeMainTextWithout(TEXT.inject),
+  );
+});
+
+scenario('a javascript: link with whitespace in its scheme is neutralized', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileJs),
+    // Browsers ignore a leading space and a tab inside the scheme, so the player's guard must strip them too.
+    // React's own guard would replace the URL with a javascript:throw one, which this check rejects.
+    SeeNeutralizedHref(ContentMark(MARK.jsTabLink)),
+    ClickContent(ContentMark(MARK.jsTabLink)),
+    SeeMainTextContaining(TEXT.jsBenign),
+    SeeMainTextWithout(TEXT.inject),
+  );
+});
+
+scenario('javascript: in formaction does not run', async (player) => {
+  await player.attemptsTo(
+    ...openGame,
+    ClickAction(ACTION.hostile),
+    ClickAction(ACTION.hostileForm),
+    SeeMainTextContaining(TEXT.formBenign),
+    // React sanitises only the camelCase formAction prop; game text reaches it as lowercase formaction.
+    SeeNeutralizedUrl(ContentMark(MARK.hostileFormaction), 'formaction'),
+    SeeNeutralizedUrl(ContentMark(MARK.hostileInputFormaction), 'formaction'),
+    SeeNeutralizedUrl(ContentMark(MARK.hostileFormAction), 'action'),
+    // Submitting to the neutralized '#' is a plain form submission: it reloads the player, as any form without
+    // a qsp-on:submit handler does. The attribute pins above are the deterministic proof.
+    ClickContent(ContentMark(MARK.hostileFormaction)),
+    waitUntilAbsent(PwnedAttribute),
   );
 });
 

@@ -17,6 +17,7 @@ act 'hostile js': gt 'hostile_js'
 act 'hostile tags': gt 'hostile_tags'
 act 'hostile tag attr': gt 'hostile_tag_attr'
 act 'hostile malformed': gt 'hostile_malformed'
+act 'hostile form': gt 'hostile_form'
 ---
 
 # markup
@@ -119,7 +120,16 @@ end
 # hostile_js
 *clr
 *pl '<a target="_self" href="JavaScript:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-link">JS LINK</a>'
+*pl '<a target="_self" href=" java&#9;script:document.querySelector(''[data-qsp=&quot;main-content&quot;]'').append(''PWNED'')" data-qa="js-tab-link">JS TAB LINK</a>'
 *pl 'JS BENIGN'
+---
+
+# hostile_form
+*clr
+! A form URL attribute runs code on submit. The button's formaction overrides the form's action.
+*pl 'FORM RISKY'
+*pl '<form action="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')" data-qa="hostile-form-action"><button type="submit" data-qa="hostile-formaction" formaction="javascript:document.body.setAttribute(''data-qa-pwned'',''1'')">FORMACTION</button><input type="submit" value="INPUT" data-qa="hostile-input-formaction" formaction="&#1;java&#10;script:document.body.setAttribute(''data-qa-pwned'',''1'')"></form>'
+*pl 'FORM BENIGN'
 ---
 
 # hostile_malformed
