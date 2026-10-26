@@ -30,6 +30,8 @@ export const AERO_GAME = {
 export const THEMED_GAME = {
   path: ARCHIVES.themedZip.path,
   title: 'Themed game',
+  /** The game.cfg fields the theme shows through qsp-game-author, -version and -description (the title is `title`). */
+  info: { author: 'Theme Author', version: '3.4', description: 'Theme description' },
   text: { start: 'THEMED START' },
   /** Written by the theme itself (e2e-theme.html, .js): `data-qa` marks of its elements and their text. */
   theme: {

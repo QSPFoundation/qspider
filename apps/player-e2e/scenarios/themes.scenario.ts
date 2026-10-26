@@ -12,7 +12,12 @@ import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
 import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
-import { SeeThemeChrome, SeeThemeCssApplied, SeeThemeScriptRan } from '../screenplay/themes/e2e-custom/checks';
+import {
+  SeeGameInfoTags,
+  SeeThemeChrome,
+  SeeThemeCssApplied,
+  SeeThemeScriptRan,
+} from '../screenplay/themes/e2e-custom/checks';
 
 // The start location offers both actions (the `next` location has none), so the message comes first.
 const { action: ACTION, text: TEXT } = AERO_GAME;
@@ -44,6 +49,7 @@ scenario('a game-provided theme loads with its files', async (player) => {
     SeeThemeChrome(),
     SeeThemeCssApplied(),
     SeeThemeScriptRan(),
+    SeeGameInfoTags(),
     SeeMainText(THEMED_GAME.text.start),
     ClickAction(THEMED_GAME.action.showLayer),
     SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),

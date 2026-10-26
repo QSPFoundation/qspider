@@ -12,3 +12,11 @@ export const ThemeChrome = PageElement.located(By.css(`[data-qa="${chromeMark}"]
 export const ThemeScriptMarker = PageElement.located(By.css(`[data-qa="${scriptMark}"]`)).describedAs(
   'theme script marker',
 );
+
+/** The game-data tags the theme uses (`data-qsp` is the tag name without `qsp-`, given by the renderer). */
+export const GameTitleTag = PageElement.located(By.css('[data-qsp="game-title"]')).describedAs('qsp-game-title');
+export const GameAuthorTag = PageElement.located(By.css('[data-qsp="game-author"]')).describedAs('qsp-game-author');
+export const GameVersionTag = PageElement.located(By.css('[data-qsp="game-version"]')).describedAs('qsp-game-version');
+export const GameDescriptionTag = PageElement.located(By.css('[data-qsp="game-description"]')).describedAs(
+  'qsp-game-description',
+);
