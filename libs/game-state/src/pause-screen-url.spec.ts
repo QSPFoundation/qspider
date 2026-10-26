@@ -31,7 +31,7 @@ describe('closesByGoingBack', () => {
     expect(closesByGoingBack(2)).toBe(true);
   });
 
-  it('replaces the URL when the pause screen is the only entry', () => {
+  it('pushes the URL without pause when the pause screen is the only entry', () => {
     expect(closesByGoingBack(1)).toBe(false);
   });
 });

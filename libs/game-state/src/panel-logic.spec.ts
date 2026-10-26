@@ -1,5 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { isActionIndex, layerFlag, readAll, regionText, view$ } from './panel-logic';
+import {
+  isActionIndex,
+  layerFlag,
+  NO_ACTION,
+  readAll,
+  regionText,
+  selectedAction$,
+  view$,
+  withLayer,
+} from './panel-logic';
 
 describe('isActionIndex', () => {
   it('accepts the indexes of the actions and nothing else', () => {
@@ -93,5 +102,24 @@ describe('view$', () => {
     view$.actions.open('pic.png');
     view$.actions.clear();
     expect(view$.value).toEqual({ isOpen: false, path: '', isModal: false });
+  });
+});
+
+describe('selectedAction$', () => {
+  it('starts with no action selected', () => {
+    expect(selectedAction$.value).toBe(NO_ACTION);
+    expect(NO_ACTION).toBe(-1);
+  });
+});
+
+describe('withLayer', () => {
+  it('adds a layer and keeps the others', () => {
+    expect(withLayer({ a: true }, 'b', false)).toEqual({ a: true, b: false });
+  });
+
+  it('replaces the flag of a registered layer without touching the original', () => {
+    const layers = { a: false };
+    expect(withLayer(layers, 'a', true)).toEqual({ a: true });
+    expect(layers).toEqual({ a: false });
   });
 });
