@@ -16,10 +16,19 @@ export * from './save';
 export * from './hooks';
 export * from './player-theme';
 export * from './qsp-gui-cfg';
+export * from './gui-layout';
 export * from './components';
 export * from './init';
 export * from './hotkeys';
+export { prettifyHotkeys, type PrettyHotkeys } from './hotkey-format';
 export * from './browser-translation';
 export * from './conditions';
 export * from './debug';
 export * from './code-inspector';
+export {
+  searchLocations,
+  type CodeInspectorState,
+  type CodeMatch,
+  type LocationMatches,
+  type LocationReader,
+} from './code-search';

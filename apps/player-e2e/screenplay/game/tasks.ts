@@ -1,6 +1,6 @@
 import { type Interaction, Task, Wait } from '@serenity-js/core';
 import { equals } from '@serenity-js/assertions';
-import { Key, Press } from '@serenity-js/web';
+import { Key, Navigate, Press } from '@serenity-js/web';
 import { E2E_GAME } from '../../fixtures/e2e-game';
 import { PANELS_GAME } from '../../fixtures/panels-game';
 import { SAVES_GAME } from '../../fixtures/saves-game';
@@ -106,6 +106,10 @@ export const ReturnToShelf = (): Task =>
     ClickWhenPresent(QuitButton),
     waitUntilPresent(Shelf),
   );
+
+/** Leaves the game with the browser Back button, which stops it and shows the shelf. */
+export const GoBackToShelf = (): Task =>
+  Task.where('#actor goes back to the shelf', Navigate.back(), waitUntilPresent(Shelf));
 
 /** Moves the pointer over the game action labelled `label`, once the game shows it. */
 export const HoverAction = (label: string): Interaction => Hover(Action(label));

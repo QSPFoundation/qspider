@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { pauseCounter, resumeCounter } from './counter';
+import { pauseCounter, resumeCounter } from './counter-pauses';
 
 interface MsgAtom {
   isOpen: boolean;
@@ -10,6 +10,7 @@ interface MsgAtomAction {
   open(content: string, onclosed: () => void): void;
   close(): void;
   clear(): void;
+  reset(): void;
 }
 
 export const msg$ = create<MsgAtom, MsgAtomAction>(
@@ -20,6 +21,16 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
   },
   (atom) => {
     const isOpen$ = atom.focus((s) => s.isOpen);
+    /** Empties the box and drops its handler without answering the engine. */
+    function reset(): void {
+      const { isOpen } = atom.value;
+      atom.set({
+        isOpen: false,
+        content: '',
+        onclosed: null,
+      });
+      if (isOpen) resumeCounter('msg');
+    }
     return {
       open(content: string, onclosed: () => void): void {
         pauseCounter('msg');
@@ -29,24 +40,24 @@ export const msg$ = create<MsgAtom, MsgAtomAction>(
           onclosed,
         });
       },
+      // Close resets the state before calling back: the engine resumes inside the callback, and a
+      // dialog opened there must survive.
       close(): void {
         if (isOpen$.value) {
+          const { onclosed } = atom.value;
           resumeCounter('msg');
-          isOpen$.set(false);
-          atom.value.onclosed?.();
+          atom.update((s) => ({ ...s, isOpen: false, onclosed: null }));
+          onclosed?.();
         }
       },
       clear(): void {
-        if (isOpen$.value) {
-          resumeCounter('msg');
-          atom.value.onclosed?.();
-        }
-        atom.set({
-          isOpen: false,
-          content: '',
-          onclosed: null,
-        });
+        const { isOpen, onclosed } = atom.value;
+        // The game is stopping: the callback gets a clean state, and anything it reopens is discarded.
+        reset();
+        if (isOpen) onclosed?.();
+        reset();
       },
+      reset,
     };
   },
 );

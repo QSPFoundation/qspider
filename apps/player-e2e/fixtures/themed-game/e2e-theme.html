@@ -20,6 +20,10 @@
   </definitions>
   <qsp-player>
     <div data-qa="e2e-theme-chrome" class="e2e-theme-chrome">E2E THEME</div>
+    <!-- The words sit on two source lines: the template must keep one space between them. -->
+    <!-- prettier-ignore -->
+    <div data-qa="e2e-theme-spacing">THEME
+      SPACING</div>
     <div>
       <qsp-game-title></qsp-game-title>
       <qsp-game-author></qsp-game-author>
@@ -195,5 +199,14 @@
         </qsp-pause-screen-content>
       </div>
     </qsp-pause-screen>
+  </qsp-player>
+</qspider-theme>
+<!--
+  A game theme under a built-in alias: the player must keep its own classic theme (this one has no
+  qsp-main, so a game shown with it would have no main text).
+-->
+<qspider-theme name="qspider:classic">
+  <qsp-player>
+    <div>NOT THE CLASSIC THEME</div>
   </qsp-player>
 </qspider-theme>

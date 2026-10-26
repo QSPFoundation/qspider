@@ -12,7 +12,12 @@ import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
 import { DismissMsg } from '../screenplay/msg/tasks';
 import { LoadGame, StartPlayer } from '../screenplay/support/operate-player';
 import { scenario } from '../screenplay/support/scenario';
-import { SeeThemeChrome, SeeThemeCssApplied, SeeThemeScriptRan } from '../screenplay/themes/e2e-custom/checks';
+import {
+  SeeThemeChrome,
+  SeeThemeCssApplied,
+  SeeThemeScriptRan,
+  SeeThemeWordSpacing,
+} from '../screenplay/themes/e2e-custom/checks';
 
 // The start location offers both actions (the `next` location has none), so the message comes first.
 const { action: ACTION, text: TEXT } = AERO_GAME;
@@ -47,6 +52,34 @@ scenario('a game-provided theme loads with its files', async (player) => {
     SeeMainText(THEMED_GAME.text.start),
     ClickAction(THEMED_GAME.action.showLayer),
     SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),
+  );
+});
+
+scenario('a theme template keeps the space between words on separate lines', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    SeeThemeChrome(),
+    SeeThemeWordSpacing(),
+  );
+});
+
+// The themed game's theme file also defines a theme named qspider:classic. The player keeps its own: the
+// next game, whose qspgui.cfg builds its layout from the built-in classic theme, still starts and lays out.
+scenario('a game cannot replace a built-in theme', async (player) => {
+  const { text, dock } = GUI_CFG_GAME;
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    ReturnToShelf(),
+    LoadGame(GUI_CFG_GAME.path),
+    SeeGameStarted(text.start),
+    SeeActiveTheme(THEME_ALIAS.classic),
+    SeeStatsInDock(dock.cfg, text.stats),
   );
 });
 
@@ -115,6 +148,7 @@ scenario('the game switches theme at runtime', async (player) => {
     SeeActiveTheme(THEME_ALIAS.custom),
     ClickAction(action.toClassic),
     SeeActiveTheme(THEME_ALIAS.classic),
+    // the built-in classic theme, not the game's theme of that name (which has no main text)
     SeeMainText(THEMED_GAME.text.start), // the game still plays
     ClickAction(action.toCustom), // and its actions still work
     SeeActiveTheme(THEME_ALIAS.custom),

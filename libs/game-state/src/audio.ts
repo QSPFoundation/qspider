@@ -1,10 +1,8 @@
 import { Howler } from 'howler';
-import { normalizeVolume, Sound } from './sound';
+import { Sound } from './sound';
+import { getFileKey, normalizeVolume, stepVolume } from './volume';
 import { atom } from 'xoid';
-import { cleanPath } from '@qspider/utils';
 import { clamp } from './utils';
-
-const VOLUME_STEP = 10;
 
 export const sounds$ = atom(new Map<string, Sound>(), (atom) => {
   return {
@@ -47,10 +45,10 @@ export const muted$ = atom(false);
 export const volume$ = atom(100, (atom) => {
   return {
     increase(): void {
-      atom.update((s) => clamp(s + VOLUME_STEP, 0, 100));
+      atom.update((s) => stepVolume(s, 1));
     },
     decrease(): void {
-      atom.update((s) => clamp(s - VOLUME_STEP, 0, 100));
+      atom.update((s) => stepVolume(s, -1));
     },
   };
 });
@@ -61,7 +59,3 @@ muted$.watch((isMuted) => {
 volume$.watch((volume) => {
   Howler.volume(normalizeVolume(clamp(volume, 0, 100)));
 });
-
-function getFileKey(path: string): string {
-  return cleanPath(path).toUpperCase();
-}

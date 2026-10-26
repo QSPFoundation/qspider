@@ -7,12 +7,17 @@ import {
   getLocationDescription,
 } from './qsp-api';
 import { debugActions, LocationInfo } from './debug';
-
-export interface CodeInspectorState {
-  locationInfoCache: Map<string, LocationInfo>;
-  isLoading: boolean;
-  error: string | null;
-}
+import {
+  beginLoad,
+  buildLocationInfo,
+  cacheLocation,
+  emptyCache,
+  endLoad,
+  failLoad,
+  searchLocations,
+  type CodeInspectorState,
+  type LocationMatches,
+} from './code-search';
 
 export const codeInspectorState$ = atom<CodeInspectorState>({
   locationInfoCache: new Map(),
@@ -22,19 +27,15 @@ export const codeInspectorState$ = atom<CodeInspectorState>({
 
 export const codeInspectorActions = {
   refreshLocations: async (): Promise<void> => {
-    codeInspectorState$.update((state) => ({ ...state, isLoading: true, error: null }));
+    codeInspectorState$.update(beginLoad);
 
     try {
       const locations = getLocationsList();
       debugActions.setLocations(locations);
 
-      codeInspectorState$.update((state) => ({ ...state, isLoading: false }));
+      codeInspectorState$.update(endLoad);
     } catch (error) {
-      codeInspectorState$.update((state) => ({
-        ...state,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to refresh locations',
-      }));
+      codeInspectorState$.update((state) => failLoad(state, error, 'Failed to refresh locations'));
     }
   },
 
@@ -45,44 +46,27 @@ export const codeInspectorActions = {
       return cache.get(locationName) || null;
     }
 
-    codeInspectorState$.update((state) => ({ ...state, isLoading: true, error: null }));
+    codeInspectorState$.update(beginLoad);
 
     try {
-      const code = getLocationCode(locationName);
-      const actionsList = getLocationActions(locationName);
-      const description = getLocationDescription(locationName);
+      const locationInfo = buildLocationInfo(locationName, {
+        getLocationCode,
+        getLocationActions,
+        getActionCode,
+        getLocationDescription,
+      });
 
-      const actions = actionsList.map((_, index) => getActionCode(locationName, index));
-
-      const locationInfo: LocationInfo = {
-        name: locationName,
-        code,
-        actions,
-        description,
-      };
-
-      codeInspectorState$.update((state) => ({
-        ...state,
-        locationInfoCache: new Map(state.locationInfoCache).set(locationName, locationInfo),
-        isLoading: false,
-      }));
+      codeInspectorState$.update((state) => cacheLocation(state, locationName, locationInfo));
 
       return locationInfo;
     } catch (error) {
-      codeInspectorState$.update((state) => ({
-        ...state,
-        isLoading: false,
-        error: error instanceof Error ? error.message : 'Failed to get location info',
-      }));
+      codeInspectorState$.update((state) => failLoad(state, error, 'Failed to get location info'));
       return null;
     }
   },
 
   clearCache: (): void => {
-    codeInspectorState$.update((state) => ({
-      ...state,
-      locationInfoCache: new Map(),
-    }));
+    codeInspectorState$.update(emptyCache);
   },
 
   getActionCode: (location: string, actionIndex: number): string[] => {
@@ -94,37 +78,8 @@ export const codeInspectorActions = {
     }
   },
 
-  searchInCode: (searchTerm: string): { location: string; matches: Array<{ line: number; text: string }> }[] => {
-    const results: { location: string; matches: Array<{ line: number; text: string }> }[] = [];
-    const cache = codeInspectorState$.value.locationInfoCache;
-
-    for (const [locationName, locationInfo] of cache) {
-      const matches: Array<{ line: number; text: string }> = [];
-
-      locationInfo.code.forEach((line: string, index: number) => {
-        if (line.toLowerCase().includes(searchTerm.toLowerCase())) {
-          matches.push({ line: index + 1, text: line.trim() });
-        }
-      });
-
-      locationInfo.actions.forEach((action: string[], actionIndex: number) => {
-        action.forEach((line: string, lineIndex: number) => {
-          if (line.toLowerCase().includes(searchTerm.toLowerCase())) {
-            matches.push({
-              line: lineIndex + 1,
-              text: `[Action ${actionIndex}] ${line.trim()}`,
-            });
-          }
-        });
-      });
-
-      if (matches.length > 0) {
-        results.push({ location: locationName, matches });
-      }
-    }
-
-    return results;
-  },
+  searchInCode: (searchTerm: string): LocationMatches[] =>
+    searchLocations(codeInspectorState$.value.locationInfoCache, searchTerm),
 };
 
 export const isCodeInspectorLoading$ = codeInspectorState$.focus('isLoading');

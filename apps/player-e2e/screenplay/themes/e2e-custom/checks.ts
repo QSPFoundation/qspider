@@ -4,7 +4,7 @@ import { Text } from '@serenity-js/web';
 import { THEMED_GAME } from '../../../fixtures/themes-game';
 import { SeeCssValues } from '../../support/page-script';
 import { seeEventually } from '../../support/see-eventually';
-import { ThemeChrome, ThemeScriptMarker } from './elements';
+import { ThemeChrome, ThemeScriptMarker, ThemeSpacedText } from './elements';
 
 /** The theme's own chrome shows (its markup was used). */
 export const SeeThemeChrome = (): Task =>
@@ -27,3 +27,12 @@ export const SeeThemeScriptRan = (): Task =>
 /** The theme's css-link file took effect: its rule set a custom property on the chrome. */
 export const SeeThemeCssApplied = (): Task =>
   SeeCssValues({ qa: THEMED_GAME.theme.chromeMark }, { [THEMED_GAME.theme.cssProperty]: THEMED_GAME.theme.cssMark });
+
+/** The words the theme wrote on separate source lines read with one space between them. */
+export const SeeThemeWordSpacing = (): Task =>
+  seeEventually(
+    ThemeSpacedText,
+    (e) => Text.of(e).trim(),
+    equals(THEMED_GAME.theme.spacing),
+    `#actor sees the theme text "${THEMED_GAME.theme.spacing}"`,
+  );

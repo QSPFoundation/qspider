@@ -4,6 +4,10 @@ act 'Show message':
   msg 'DIALOG MESSAGE'
   *clr & *pl 'AFTER MESSAGE'
 end
+act 'Two messages':
+  msg 'FIRST OF TWO' & msg 'SECOND OF TWO'
+  *clr & *pl 'AFTER TWO MESSAGES'
+end
 act 'Ask input':
   $r = input('DIALOG PROMPT')
   *clr & *pl 'INPUT ECHO: <<$r>>'
@@ -14,6 +18,7 @@ act 'Open menu':
   $arr[1] = '-:-'
   $arr[2] = 'Second item:menu_second:'
   $arr[3] = 'Open message:menu_msg:'
+  $arr[4] = 'Open submenu:menu_sub:'
   menu '$arr'
   if $picked = '': *clr & *pl 'MENU CANCELLED'
 end
@@ -43,4 +48,14 @@ $picked = 'second'
 $picked = 'msg'
 msg 'MENU MSG'
 *clr & *pl 'MENU MSG CLOSED'
+---
+
+# menu_sub
+$picked = 'sub'
+$sub[0] = 'Sub item:menu_sub_item:'
+menu '$sub'
+---
+
+# menu_sub_item
+*clr & *pl 'SUBMENU RESULT'
 ---

@@ -2,7 +2,6 @@ import {
   initQspEngine,
   QspAPI,
   QspErrorData,
-  QspPanel,
   QspVariableType,
   QspListItem,
   DebugRecord as QspDebugRecord,
@@ -29,8 +28,8 @@ import {
   statsContent$,
   view$,
 } from './panels';
-import { baseUrl$, currentGameEntry$, GameCommand, onGameCommand } from './current-game';
-import { gameSavedCallback$, requestedAction$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
+import { baseUrl$, currentGameEntry$, requestSavesPanel } from './current-game';
+import { gameSavedCallback$, restoreFromPath, saveLoadedCallback$, saveToPath } from './save';
 import { counterDelay$, withCounterPaused } from './counter';
 import { wait$ } from './wait';
 import { convertQsps, prepareContent, prepareList, prepareObjectList } from './utils';
@@ -40,6 +39,20 @@ import { input$ } from './input';
 import { sounds$ } from './audio';
 import { msg$ } from './msg';
 import { qspiderCommands } from './qspider-commands';
+import { parseSystemCmd } from './qspider-command-parsers';
+import {
+  gameFileUrl,
+  isExecHref,
+  isNewLoc,
+  isQspsFile,
+  newLocEffect,
+  panelVisibility,
+  saveTarget,
+  shouldPauseOnLink,
+  stripExec,
+  variableOrDefault,
+  versionAnswer,
+} from './engine-event-logic';
 import { debugActions } from './debug';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
@@ -87,10 +100,7 @@ export function execCode(code: string): void {
   if (!api) return;
 
   // Check if debug mode is enabled and should pause on link execution
-  const debugState = debugActions.getDebugState();
-  const shouldPauseOnLink = debugState.isEnabled && (debugState.isPaused || debugState.autoPauseOnLinks);
-
-  if (shouldPauseOnLink) {
+  if (shouldPauseOnLink(debugActions.getDebugState())) {
     // Create a synthetic debug record for the link execution
     debugActions.setLinkExecution(code, () => {
       api.execCode(code);
@@ -131,8 +141,8 @@ export function getLocationDescription(name: string): string {
 }
 
 export function onLinkClicked(href: string): void {
-  if (href.toLowerCase().startsWith('exec:')) {
-    execCode(href.substring(5));
+  if (isExecHref(href)) {
+    execCode(stripExec(href));
   } else {
     window.location.href = href;
   }
@@ -148,8 +158,12 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
   useEffect(() => {
     if (!name) return;
     const unsubscribe = key
-      ? qspApi$.value?.watchVariableByKey(name, key, (value) => setValue((value as unknown as T) || defaultValue))
-      : qspApi$.value?.watchVariableByIndex(name, index, (value) => setValue((value as unknown as T) || defaultValue));
+      ? qspApi$.value?.watchVariableByKey(name, key, (value) =>
+          setValue(variableOrDefault(value as unknown as T, defaultValue)),
+        )
+      : qspApi$.value?.watchVariableByIndex(name, index, (value) =>
+          setValue(variableOrDefault(value as unknown as T, defaultValue)),
+        );
     return (): void => {
       unsubscribe?.();
     };
@@ -174,18 +188,12 @@ export function useQspExpression(variable: string, condition: [string, string]):
 
 qspApi$.subscribe((api) => {
   api.on('version', (type, callback) => {
-    switch (type) {
-      case 'player':
-        return callback('qSpider');
-      case 'platform':
-        return callback(windowManager.isBrowser ? 'browser' : windowManager.platform || 'unknown');
-    }
-    return callback(api.version());
+    return callback(versionAnswer(type, windowManager) ?? api.version());
   });
   api.on('error', qspError$.set);
   api.on('system_cmd', (cmd: string): void => {
-    if (!cmd.startsWith('qspider')) return;
-    const [, _cmd] = cmd.split('.');
+    const _cmd = parseSystemCmd(cmd);
+    if (_cmd === null) return;
     for (const [prefix, processor] of Object.entries(qspiderCommands)) {
       if (_cmd.trim().startsWith(prefix)) {
         const data = _cmd.replace(prefix, '');
@@ -223,10 +231,9 @@ qspApi$.subscribe((api) => {
     await withCounterPaused(async () => {
       try {
         const source = await fetchBinaryContent(baseUrl$.value, file);
-        const gameSource = file.toLowerCase().endsWith('.qsps') ? convertQsps(source) : source;
+        const gameSource = isQspsFile(file) ? convertQsps(source) : source;
         if (isNewGame) {
-          const path = cleanPath(file);
-          baseUrl$.update((url) => url + path.slice(0, path.lastIndexOf('/') + 1));
+          baseUrl$.update((url) => gameFileUrl(url, cleanPath(file)));
         }
         openGameSource(api, gameSource, isNewGame);
       } catch (error) {
@@ -248,15 +255,11 @@ qspApi$.subscribe((api) => {
   api.on('main_changed', (text) => {
     const prevMain = mainContent$.value;
     const nextMain = prepareContent(text);
-    const isNewLoc = !prevMain || (nextMain !== prevMain && !nextMain.startsWith(prevMain));
-    isNewLoc$.set(isNewLoc);
+    const newLoc = isNewLoc(prevMain, nextMain);
+    isNewLoc$.set(newLoc);
     nextMainContent$.set(nextMain);
-    if (isNewLoc) {
-      newLocEffect$.set({
-        effect: String(api.readVariable('$NEWLOC_EFFECT') || ''),
-        time: Number(api.readVariable('NEWLOC_EFFECT_TIME')) || 500,
-        seq: Boolean(Number(api.readVariable('NEWLOC_EFFECT_SEQ'))),
-      });
+    if (newLoc) {
+      newLocEffect$.set(newLocEffect((name) => api.readVariable(name)));
       newLocHash$.set(String(hashString(nextMainContent$.value)));
     } else {
       mainContent$.set(nextMain);
@@ -282,43 +285,34 @@ qspApi$.subscribe((api) => {
     }
   });
   api.on('panel_visibility', (type, isShown) => {
-    if (type & QspPanel.VARS) {
-      isStatsVisible$.set(isShown);
-    }
-    if (type & QspPanel.ACTS) {
-      isActsVisible$.set(isShown);
-    }
-    if (type & QspPanel.OBJS) {
-      isObjsVisible$.set(isShown);
-    }
-    if (type & QspPanel.INPUT) {
-      isCmdVisible$.set(isShown);
-    }
+    const panels = panelVisibility(type);
+    if (panels.stats) isStatsVisible$.set(isShown);
+    if (panels.acts) isActsVisible$.set(isShown);
+    if (panels.objs) isObjsVisible$.set(isShown);
+    if (panels.cmd) isCmdVisible$.set(isShown);
   });
   api.on('load_save', async (path, loaded) => {
-    const currentGame = currentGameEntry$.value;
-    if (!currentGame) return loaded();
+    const target = saveTarget(Boolean(currentGameEntry$.value), path);
+    if (target === 'answer-now') return loaded();
     saveLoadedCallback$.set(() => {
       loaded();
     });
-    if (path) {
+    if (target === 'path') {
       await restoreFromPath(path);
     } else {
-      requestedAction$.set('load');
-      onGameCommand('pause:saves' as GameCommand);
+      requestSavesPanel('load');
     }
   });
   api.on('save_game', async (path, saved) => {
-    const currentGame = currentGameEntry$.value;
-    if (!currentGame) return saved();
+    const target = saveTarget(Boolean(currentGameEntry$.value), path);
+    if (target === 'answer-now') return saved();
     gameSavedCallback$.set(() => {
       saved();
     });
-    if (path) {
+    if (target === 'path') {
       await saveToPath(path);
     } else {
-      requestedAction$.set('save');
-      onGameCommand('pause:saves' as GameCommand);
+      requestSavesPanel('save');
     }
   });
   api.on('wait', (ms, finish) => {

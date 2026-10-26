@@ -9,7 +9,7 @@ import { RecordWindowEvents, SeePageProbe, SeeRecordedEvent } from '../screenpla
 import { waitUntilAbsent } from '../screenplay/support/presence';
 import { scenario } from '../screenplay/support/scenario';
 
-const { action: ACTION, text: TEXT, event: EVENT } = PANELS_GAME;
+const { action: ACTION, text: TEXT, event: EVENT, dottedEvent: DOTTED_EVENT } = PANELS_GAME;
 
 scenario('a game event reaches the page', async (player) => {
   await player.attemptsTo(
@@ -19,6 +19,17 @@ scenario('a game event reaches the page', async (player) => {
     RecordWindowEvents('qspider-event'),
     ClickAction(ACTION.system.fireEvent),
     SeeRecordedEvent('qspider-event', { name: EVENT.name, args: EVENT.args }),
+  );
+});
+
+scenario('a game event keeps a dot and a bracket in its arguments', async (player) => {
+  await player.attemptsTo(
+    OpenPanelsFixture(),
+    ClickAction(ACTION.start.system),
+    SeeMainText(TEXT.systemRoom), // settled anchor: the room is entered before the recorder starts
+    RecordWindowEvents('qspider-event'),
+    ClickAction(ACTION.system.fireDottedEvent),
+    SeeRecordedEvent('qspider-event', { name: DOTTED_EVENT.name, args: DOTTED_EVENT.args }),
   );
 });
 

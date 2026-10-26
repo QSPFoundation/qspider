@@ -20,6 +20,7 @@ import {
   SaveToSlot,
   ShowSavesPanel,
 } from '../screenplay/saves/tasks';
+import { RecordKeyDefaults, SeeKeyDefault } from '../screenplay/support/key-defaults';
 import { scenario } from '../screenplay/support/scenario';
 
 const { action: ACTION, text: TEXT } = SAVES_GAME;
@@ -128,7 +129,10 @@ scenario('NOSAVE blocks Ctrl+S', async (player) => {
     OpenSavesFixture(),
     ClickAction(ACTION.enableNosave),
     SeeMainTextContaining(TEXT.nosaveOn),
+    RecordKeyDefaults(),
     PressSaveHotkey(),
+    // The player keeps Ctrl+S: the browser's own save dialog is prevented even though nothing is saved.
+    SeeKeyDefault({ key: 's', ctrl: true, prevented: true }),
     // The action result is the anchor: a saves panel opened by Ctrl+S would have paused the game.
     ClickAction(ACTION.increment),
     SeeMainTextContaining(TEXT.counter(1)),

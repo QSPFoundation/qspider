@@ -76,46 +76,82 @@ export interface DebuggerUIState {
   size: { width: number; height: number };
 }
 
-export const debuggerUIState$ = atom<DebuggerUIState>(() => {
-  // Initialize from localStorage
+const DEFAULT_PANEL_SIZE = { width: 600, height: 400 };
+
+const DOCK_POSITIONS: readonly DebuggerUIState['dockPosition'][] = ['bottom', 'left', 'right'];
+
+function parseSize(text: string | null): DebuggerUIState['size'] {
+  if (!text) return { ...DEFAULT_PANEL_SIZE };
   try {
-    const savedPosition = localStorage.getItem('qsp-debugger-dock-position');
-    const savedSize = localStorage.getItem('qsp-debugger-size');
-    return {
-      isPanelOpen: false,
-      dockPosition: (savedPosition as 'bottom' | 'left' | 'right') || 'bottom',
-      size: savedSize ? JSON.parse(savedSize) : { width: 600, height: 400 },
-    };
+    const parsed: unknown = JSON.parse(text);
+    if (parsed && typeof parsed === 'object') {
+      const { width, height } = parsed as Record<string, unknown>;
+      if (typeof width === 'number' && typeof height === 'number' && width > 0 && height > 0) {
+        return { width, height };
+      }
+    }
   } catch {
-    return {
-      isPanelOpen: false,
-      dockPosition: 'bottom',
-      size: { width: 600, height: 400 },
-    };
+    // fall through to the default
   }
-});
+  return { ...DEFAULT_PANEL_SIZE };
+}
+
+export function readDebuggerUiState(storage: Pick<Storage, 'getItem'> | null): DebuggerUIState {
+  let savedPosition: string | null = null;
+  let savedSize: string | null = null;
+  try {
+    if (storage) {
+      savedPosition = storage.getItem('qsp-debugger-dock-position');
+      savedSize = storage.getItem('qsp-debugger-size');
+    }
+  } catch {
+    // unreadable storage means defaults
+  }
+  const dockPosition = DOCK_POSITIONS.find((p) => p === savedPosition) ?? 'bottom';
+  return { isPanelOpen: false, dockPosition, size: parseSize(savedSize) };
+}
+
+function getLocalStorage(): Storage | null {
+  try {
+    return typeof localStorage === 'undefined' ? null : localStorage;
+  } catch {
+    return null;
+  }
+}
+
+export const debuggerUIState$ = atom<DebuggerUIState>(() => readDebuggerUiState(getLocalStorage()));
 
 export const isDebugPanelOpen$ = debuggerUIState$.focus('isPanelOpen');
 export const debugDockPosition$ = debuggerUIState$.focus('dockPosition');
 export const debugPanelSize$ = debuggerUIState$.focus('size');
 
-// Persist dock position to localStorage
-debugDockPosition$.subscribe((position) => {
+export function persistDockPosition(storage: Pick<Storage, 'setItem'> | null, position: string): void {
   try {
-    localStorage.setItem('qsp-debugger-dock-position', position);
+    storage?.setItem('qsp-debugger-dock-position', position);
   } catch {
     // Ignore localStorage errors
   }
-});
+}
 
-// Persist panel size to localStorage
-debugPanelSize$.subscribe((size) => {
+export function persistPanelSize(storage: Pick<Storage, 'setItem'> | null, size: DebuggerUIState['size']): void {
   try {
-    localStorage.setItem('qsp-debugger-size', JSON.stringify(size));
+    storage?.setItem('qsp-debugger-size', JSON.stringify(size));
   } catch {
     // Ignore localStorage errors
   }
-});
+}
+
+debugDockPosition$.subscribe((position) => persistDockPosition(getLocalStorage(), position));
+debugPanelSize$.subscribe((size) => persistPanelSize(getLocalStorage(), size));
+
+export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boolean {
+  return (
+    bp.enabled &&
+    bp.location === record.loc &&
+    (bp.line === undefined || bp.line === record.line) &&
+    (bp.actionIndex === undefined || bp.actionIndex === record.actIndex)
+  );
+}
 
 function executeResume(): void {
   const resume = debugResumeFunction$.value;
@@ -167,13 +203,7 @@ export const debugActions = {
     debugResumeFunction$.set(resume);
 
     const state = debugState$.value;
-    const shouldPause = state.breakpoints.some(
-      (bp) =>
-        bp.enabled &&
-        bp.location === record.loc &&
-        (bp.line === undefined || bp.line === record.line) &&
-        (bp.actionIndex === undefined || bp.actionIndex === record.actIndex),
-    );
+    const shouldPause = state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
 
     if (shouldPause || state.isPaused) {
       debugState$.update((s) => ({ ...s, isPaused: true }));

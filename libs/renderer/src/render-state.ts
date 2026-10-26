@@ -1,9 +1,7 @@
 import { Atom, atom } from 'xoid';
 import {
   actions$,
-  buildLayoutTree,
-  convertLayer,
-  convertPane,
+  buildGuiLayoutTemplate,
   currentGameEntry$,
   currentThemeData$,
   DEFAULT_LIST_FORMAT,
@@ -55,13 +53,7 @@ export const qspGuiLayout$ = atom((get) => {
   const config = get(qspGuiCfg$);
   if (!config) return null;
   const defaultTheme = get(defaultClassicTheme$).qsp_player?.template ?? '';
-  const layout = buildLayoutTree(config.Panels);
-  let template = '';
-  if (layout.layer) template += convertLayer(layout.layer, config.Docks, defaultTheme);
-  for (const floating of layout.floating) {
-    template += convertPane(floating, defaultTheme, true);
-  }
-  return templateParser.parse(template, false);
+  return templateParser.parse(buildGuiLayoutTemplate(config, defaultTheme), false);
 });
 
 let mainContentKey = 0;

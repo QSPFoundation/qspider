@@ -46,16 +46,21 @@ interface LayoutTree {
 }
 
 const CAPTION_SIZE = 20;
+const DOCK_PLACES: readonly string[] = ['top', 'right', 'bottom', 'left', 'center'];
+
+const escapeAttribute = (value: string | number): string =>
+  String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 export const qspGuiCfg$ = atom<CfgData | null>(null);
 
-export function buildLayoutTree(panels: PanelData[]): LayoutTree {
+export function buildLayoutTree(panels: PanelData[] = []): LayoutTree {
   const maxLayer = getMaxLayer(panels);
 
   const floating: PanelData[] = panels.filter((panel) => panel.floating && panel.name === 'imgview');
   const docked: PanelData[] = panels.filter((panel) => !panel.floating);
 
   let currentLayer: LayoutLayer | null = null;
+  const upperCenter: PanelData[] = [];
   for (let i = 0; i <= maxLayer; i++) {
     const layerPanels = getLayerPanels(i, docked);
     currentLayer = {
@@ -67,9 +72,20 @@ export function buildLayoutTree(panels: PanelData[]): LayoutTree {
       center: currentLayer || [],
     };
     for (const panel of layerPanels) {
+      if (!DOCK_PLACES.includes(panel.dir)) continue;
       if (panel.dir === 'center' && panel.name !== 'desc') continue;
+      if (panel.dir === 'center' && !Array.isArray(currentLayer.center)) {
+        // the center of an upper layer is the layer below, so the main pane goes to the innermost center
+        upperCenter.push(panel);
+        continue;
+      }
       (currentLayer[panel.dir] as PanelData[]).push(panel);
     }
+  }
+  if (upperCenter.length && currentLayer) {
+    let innermost: LayoutLayer = currentLayer;
+    while (!Array.isArray(innermost.center)) innermost = innermost.center;
+    if (!innermost.center.length) innermost.center.push(...upperCenter);
   }
 
   return {
@@ -107,10 +123,15 @@ export function convertLayer(layer: LayoutLayer, docks: Record<string, number>, 
   )}</qsp-cl-layer>`;
 }
 
-function convertDock(place: string, panels: PanelData[], docks: Record<string, number>, defaultTheme: string): string {
+export function convertDock(
+  place: string,
+  panels: PanelData[],
+  docks: Record<string, number>,
+  defaultTheme: string,
+): string {
   if (!panels.length) return '';
   const visibilityPanes = panels.map((panel) => (panel.name !== 'desc' ? panel.name : '')).filter(Boolean);
-  const visibility = visibilityPanes.length > 0 ? ` visibility="${visibilityPanes.join('|')}"` : '';
+  const visibility = visibilityPanes.length > 0 ? ` visibility="${escapeAttribute(visibilityPanes.join('|'))}"` : '';
   const [panel] = panels;
   const dockKey = `${WxWidgetsDirection[panel.dir]},${panel.layer},${panel.row}`;
   let size = '';
@@ -130,9 +151,9 @@ function convertDock(place: string, panels: PanelData[], docks: Record<string, n
 }
 
 export function convertPane(pane: PanelData, defaultTheme: string, isFloating: boolean): string {
-  return `<qsp-cl-pane visibility="${pane.name !== 'desc' ? pane.name : ''}" proportion="${
-    pane.prop
-  }">${extractFromDefaultTheme(pane.name, defaultTheme, isFloating)}</qsp-cl-pane>`;
+  return `<qsp-cl-pane visibility="${escapeAttribute(pane.name !== 'desc' ? pane.name : '')}" proportion="${escapeAttribute(
+    pane.prop,
+  )}">${extractFromDefaultTheme(pane.name, defaultTheme, isFloating)}</qsp-cl-pane>`;
 }
 
 function getMaxLayer(panels: PanelData[]): number {
@@ -151,15 +172,15 @@ const paneToTagMap: Record<string, string> = {
   vars: 'qsp-stats',
   input: 'qsp-cmd',
 };
-function extractFromDefaultTheme(name: string, defaultTheme: string, isFloating: boolean): string {
+export function extractFromDefaultTheme(name: string, defaultTheme: string, isFloating: boolean): string {
   const tagName = paneToTagMap[name];
   if (!tagName) return '';
-  const regexp = new RegExp(`<${tagName}([\\s\\S]*?)</${tagName}>`, 'im');
+  const regexp = new RegExp(`<${tagName}(?=[\\s>/])([\\s\\S]*?)</${tagName}>`, 'im');
   const match = defaultTheme.match(regexp);
   const template = match?.[0] ?? '';
   return isFloating
-    ? template.replace(new RegExp(`<${tagName}(.*?)>`, 'im'), `<${tagName} modal>`)
-    : template.replace(new RegExp(`<${tagName}(.*?)>`, 'im'), `<${tagName}>`);
+    ? template.replace(new RegExp(`<${tagName}(?=[\\s>/])[^>]*>`, 'im'), `<${tagName} modal>`)
+    : template.replace(new RegExp(`<${tagName}(?=[\\s>/])[^>]*>`, 'im'), `<${tagName}>`);
 }
 
 const GROUP_REGEXP = /\[(.*?)\]/i;
@@ -219,7 +240,7 @@ function parsePanels(key: string, text: string): Record<string, unknown> {
             }
             return acc;
           },
-          {} as Record<string, unknown>,
+          { layer: 0 } as Record<string, unknown>,
         );
       panels.push(panelData);
     }

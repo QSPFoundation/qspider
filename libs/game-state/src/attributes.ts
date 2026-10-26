@@ -1,3 +1,4 @@
+import { cleanPath } from '@qspider/utils';
 import React from 'react';
 
 export type AttributeValue = string;
@@ -137,15 +138,74 @@ export function extractAttributes(node: HTMLElement): Attributes {
   return attributes;
 }
 
-function processStyles(value: string): Record<string, string | number> {
-  const rules = value.split(';');
+/**
+ * Splits a style attribute into declarations at each `;` outside parentheses and quotes, so a `url(data:…;base64,…)`
+ * or a quoted `content: 'a;b'` stays whole. A backslash escapes the next character, as in CSS.
+ */
+const splitDeclarations = (value: string): string[] => {
+  const declarations: string[] = [];
+  let depth = 0;
+  let quote = '';
+  let start = 0;
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+    if (char === '\\') {
+      i++;
+    } else if (quote) {
+      if (char === quote) quote = '';
+    } else if (char === '"' || char === "'") {
+      quote = char;
+    } else if (char === '(') {
+      depth++;
+    } else if (char === ')') {
+      depth = Math.max(0, depth - 1);
+    } else if (char === ';' && depth === 0) {
+      declarations.push(value.slice(start, i));
+      start = i + 1;
+    }
+  }
+  declarations.push(value.slice(start));
+  return declarations;
+};
+
+// Values a background-image takes as they are: `none` and the CSS-wide keywords. Anything with a `(` is a function
+// (url(), a gradient, image-set(), var()) and is kept too.
+const IMAGE_KEYWORDS = new Set(['none', 'inherit', 'initial', 'unset', 'revert', 'revert-layer']);
+
+/**
+ * A bare background-image path as a CSS url(): one pair of surrounding quotes dropped, backslashes turned into
+ * slashes as for every resource path (in CSS `\a` is an escape), and `"` escaped so the string stays closed.
+ */
+const bareImageUrl = (path: string): string => {
+  const unquoted = /^(["'])[\s\S]*\1$/.test(path) ? path.slice(1, -1) : path;
+  return `url("${cleanPath(unquoted).replace(/"/g, '\\"')}")`;
+};
+
+/**
+ * The style object React takes: names lowercased and camelCased, custom properties (`--Accent`) verbatim, plain
+ * numbers as numbers. No url() scheme guard on purpose: javascript: in a CSS url() does not run in Chromium, WebKit
+ * or WebView2, and a regex cannot cover CSS escapes (`java\73 cript:`).
+ */
+export function processStyles(styleAttribute: string): Record<string, string | number> {
   const style: Record<string, string | number> = {};
-  for (const rule of rules) {
-    const [prop, value] = rule.trim().split(':');
-    const name = prop.replace(/^-ms-/, 'ms-').replace(/-./g, (c) => c.substring(1).toUpperCase());
+  for (const declaration of splitDeclarations(styleAttribute)) {
+    const colon = declaration.indexOf(':');
+    if (colon === -1) continue;
+    const prop = declaration.slice(0, colon).trim();
+    const value = declaration.slice(colon + 1).trim();
+    if (!prop) continue;
+    if (prop.startsWith('--')) {
+      style[prop] = value;
+      continue;
+    }
+    const name = prop
+      .toLowerCase()
+      .replace(/^-ms-/, 'ms-')
+      .replace(/-./g, (c) => c.substring(1).toUpperCase());
     let preparedValue: string | number = value;
-    if (name === 'backgroundImage' && !value.includes('url(')) {
-      preparedValue = `url("${value}")`;
+    if (name === 'backgroundImage' && value && !value.includes('(') && !IMAGE_KEYWORDS.has(value.toLowerCase())) {
+      // A bare path, as classic games write it.
+      preparedValue = bareImageUrl(value);
     } else if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
       preparedValue = parseFloat(value);
     }

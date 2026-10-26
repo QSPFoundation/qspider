@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { pauseCounter, resumeCounter } from './counter';
+import { pauseCounter, resumeCounter } from './counter-pauses';
 
 export const wait$ = create<{ ms: number; finish: () => void } | null>(null);
 const waitTimeout$ = create<ReturnType<typeof setTimeout>>();

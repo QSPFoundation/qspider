@@ -1,3 +1,4 @@
+import { windowManager } from '@qspider/env';
 import { Attributes, globalHotKeys$, prettifyHotkeys } from '@qspider/game-state';
 import { useAttributes } from '../../content/attributes';
 import { useAtom } from '@xoid/react';
@@ -14,7 +15,7 @@ export const QspGlobalHotkeys: React.FC<{ attrs: Attributes }> = ({ attrs }) => 
         <qsp-hotkey key={index}>
           <qsp-hotkey-description>{t(hotkey.description)}</qsp-hotkey-description>
           <qsp-hotkey-keys>
-            {prettifyHotkeys(hotkey.keys).map((key, index) =>
+            {prettifyHotkeys(hotkey.keys, windowManager.platform).map((key, index) =>
               key.type === 'key' ? <qsp-hotkey-key key={index}>{key.symbol}</qsp-hotkey-key> : key.symbol,
             )}
           </qsp-hotkey-keys>

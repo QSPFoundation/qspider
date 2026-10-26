@@ -72,9 +72,12 @@ describe('buildFixtures', () => {
     expect(Object.keys(files).sort()).toEqual(['game-html.qsps', 'game.cfg', GAME_HTML.image].sort());
   });
 
-  it('spells the svg data: picture in the game-html game as the constants say', () => {
+  it('spells the data: pictures in the game-html game as the constants say', () => {
     const game = readFileSync(fileURLToPath(new URL('./game-html/game-html.qsps', import.meta.url)), 'utf8');
     expect(game).toContain(`data-qa="${GAME_HTML.marks.svgDataImage}" xlink:href="${GAME_HTML.dataImage}"`);
+    expect(game).toContain(
+      `data-qa="${GAME_HTML.marks.styleDataBg}" style="width:8px;height:8px;background-image:url(${GAME_HTML.dataImage})"`,
+    );
   });
 
   it('packs the saves game as a zip', () => {

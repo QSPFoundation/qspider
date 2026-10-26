@@ -37,6 +37,9 @@ export const THEMED_GAME = {
   theme: {
     chromeMark: 'e2e-theme-chrome',
     chrome: 'E2E THEME',
+    /** A theme element whose two words sit on separate source lines: the template keeps one space between them. */
+    spacingMark: 'e2e-theme-spacing',
+    spacing: 'THEME SPACING',
     /** The custom property e2e-theme.css sets on the chrome: proves the css-link file was applied. */
     cssProperty: '--e2e-theme-css',
     cssMark: 'LOADED',

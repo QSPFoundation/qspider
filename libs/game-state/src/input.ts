@@ -1,5 +1,5 @@
 import { create } from 'xoid';
-import { pauseCounter, resumeCounter } from './counter';
+import { pauseCounter, resumeCounter } from './counter-pauses';
 
 interface InputAtom {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface InputAtomActions {
   finish(): void;
   close(): void;
   clear(): void;
+  reset(): void;
 }
 
 export const input$ = create<InputAtom, InputAtomActions>(
@@ -25,6 +26,24 @@ export const input$ = create<InputAtom, InputAtomActions>(
   (atom) => {
     const isOpen$ = atom.focus((s) => s.isOpen);
     const entered$ = atom.focus((s) => s.entered);
+    function answer(result: string): void {
+      if (!isOpen$.value) return;
+      const { onfinished } = atom.value;
+      atom.update((s) => ({ ...s, isOpen: false, onfinished: null }));
+      resumeCounter('input');
+      onfinished?.(result);
+    }
+    /** Empties the prompt and drops its handler without answering the engine. */
+    function reset(): void {
+      const { isOpen } = atom.value;
+      atom.set({
+        isOpen: false,
+        content: '',
+        entered: '',
+        onfinished: null,
+      });
+      if (isOpen) resumeCounter('input');
+    }
     return {
       open(content: string, onfinished: (result: string) => void): void {
         pauseCounter('input');
@@ -38,32 +57,22 @@ export const input$ = create<InputAtom, InputAtomActions>(
       enter(value: string): void {
         entered$.set(value);
       },
+      // Each answer resets the state before calling back: the engine resumes inside the callback, and a
+      // prompt opened there must survive.
       finish(): void {
-        if (isOpen$.value) {
-          isOpen$.set(false);
-          resumeCounter('input');
-          atom.value.onfinished?.(entered$.value);
-        }
+        answer(entered$.value);
       },
       close(): void {
-        if (isOpen$.value) {
-          isOpen$.set(false);
-          resumeCounter('input');
-          atom.value.onfinished?.('');
-        }
+        answer('');
       },
       clear(): void {
-        if (isOpen$.value) {
-          atom.value.onfinished?.('');
-          resumeCounter('input');
-        }
-        atom.set({
-          isOpen: false,
-          content: '',
-          entered: '',
-          onfinished: null,
-        });
+        const { isOpen, onfinished } = atom.value;
+        // The game is stopping: the callback gets a clean state, and anything it reopens is discarded.
+        reset();
+        if (isOpen) onfinished?.('');
+        reset();
       },
+      reset,
     };
   },
 );

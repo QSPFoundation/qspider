@@ -11,6 +11,24 @@ export const conditionAttributes = [
   'less-or-equal',
 ];
 
+function isNumeric(value: string): boolean {
+  return /^-?\d+$/.test(value.trim());
+}
+
+/** A number compares numerically against `Number(toCompare)`; two numeric strings compare as numbers, any other strings as text. */
+function compare(value: string | number, toCompare: string): number {
+  if (typeof value === 'number') {
+    const right = Number(toCompare);
+    return value > right ? 1 : value < right ? -1 : value === right ? 0 : NaN;
+  }
+  if (isNumeric(value) && isNumeric(toCompare)) {
+    const left = Number(value);
+    const right = Number(toCompare);
+    return left > right ? 1 : left < right ? -1 : 0;
+  }
+  return value < toCompare ? -1 : value > toCompare ? 1 : 0;
+}
+
 export function checkCondition(value: string | number, condition: [string, string]): boolean {
   const [op, toCompare] = condition;
   switch (op) {
@@ -21,17 +39,17 @@ export function checkCondition(value: string | number, condition: [string, strin
     case 'is-not':
       return String(value) !== String(toCompare);
     case 'contains':
-      return typeof value === 'string' ? value.includes(toCompare) : false;
+      return String(value).includes(toCompare);
     case 'not-contains':
-      return typeof value === 'string' ? !value.includes(toCompare) : false;
+      return !String(value).includes(toCompare);
     case 'greater':
-      return typeof value === 'number' ? value > Number(toCompare) : value > toCompare;
+      return compare(value, toCompare) > 0;
     case 'less':
-      return typeof value === 'number' ? value < Number(toCompare) : value < toCompare;
+      return compare(value, toCompare) < 0;
     case 'greater-or-equal':
-      return typeof value === 'number' ? value >= Number(toCompare) : value >= toCompare;
+      return compare(value, toCompare) >= 0;
     case 'less-or-equal':
-      return typeof value === 'number' ? value <= Number(toCompare) : value <= toCompare;
+      return compare(value, toCompare) <= 0;
   }
   return false;
 }
