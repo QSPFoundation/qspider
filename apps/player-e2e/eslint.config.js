@@ -13,8 +13,8 @@ const compat = new FlatCompat({
   recommendedConfig: js.configs.recommended,
 });
 
-// E2E conventions (apps/player-e2e/README.md, "Rules"). `nx lint` runs ESLint from the repo root with this
-// file as an override config, so the patterns below are anchored to this directory with `basePath`.
+// E2E conventions (apps/player-e2e/README.md, "Rules"). The patterns below are anchored to this directory with
+// `basePath`, so they match whichever directory ESLint runs from (`nx lint` here, lint-staged at the repo root).
 const FRAMEWORKS = ['@playwright/test', 'playwright*', 'webdriverio', '@wdio/*'];
 const TARGETS = {
   group: ['**/targets/**'],

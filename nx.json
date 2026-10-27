@@ -85,16 +85,6 @@
         "defaultConfiguration": "production"
       }
     ],
-    "@nx/eslint:lint": {
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/.eslintrc.json",
-        "{workspaceRoot}/eslint.config.js",
-        "{workspaceRoot}/tools/eslint-rules/**/*"
-      ],
-      "cache": true
-    },
     "@nx/js:tsc": {
       "cache": true,
       "dependsOn": ["^build"],
@@ -126,6 +116,23 @@
           "plugin": "@nx/vite/plugin"
         },
         "defaultConfiguration": "development"
+      }
+    ],
+    "lint": [
+      {
+        "filter": {
+          "plugin": "@nx/eslint/plugin"
+        },
+        "inputs": [
+          "default",
+          "^default",
+          "{workspaceRoot}/.eslintrc.json",
+          "{workspaceRoot}/eslint.config.js",
+          "{workspaceRoot}/tools/eslint-rules/**/*",
+          {
+            "externalDependencies": ["eslint"]
+          }
+        ]
       }
     ]
   },
@@ -161,6 +168,32 @@
         "serveStaticTargetName": "serve-static"
       },
       "include": ["apps/player/**/*", "apps/player-desktop/**/*", "apps/player-standalone/**/*"]
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/docs/**/*",
+        "apps/player/**/*",
+        "apps/player-desktop/**/*",
+        "apps/player-e2e/**/*",
+        "apps/player-standalone/**/*",
+        "libs/browser/**/*",
+        "libs/contracts/**/*",
+        "libs/debugger/**/*",
+        "libs/desktop/**/*",
+        "libs/docusaurus/**/*",
+        "libs/game-shelf/**/*",
+        "libs/game-state/**/*",
+        "libs/html-renderer/**/*",
+        "libs/i18n/**/*",
+        "libs/importers/**/*",
+        "libs/renderer/**/*",
+        "libs/tauri-storage/**/*",
+        "libs/utils/**/*"
+      ]
     }
   ]
 }
