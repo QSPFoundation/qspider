@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { resolve } from 'node:path';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -32,6 +31,7 @@ export default defineConfig({
     },
   },
   resolve: {
+    tsconfigPaths: true,
     alias: {
       '@qspider/env': resolve(import.meta.dirname, '../../libs/desktop/src/index.ts'),
     },
@@ -42,11 +42,7 @@ export default defineConfig({
     host: 'localhost',
   },
 
-  plugins: [react(), nxViteTsPaths()],
-
-  worker: {
-    plugins: () => [nxViteTsPaths()],
-  },
+  plugins: [react()],
 
   test: {
     name: 'player-desktop',

@@ -1,7 +1,6 @@
 /// <reference types='vitest' />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { resolve } from 'node:path';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -33,7 +32,7 @@ export default defineConfig(({ mode }) => {
       host: 'localhost',
     },
 
-    plugins: [react(), nxViteTsPaths()],
+    plugins: [react()],
 
     build: {
       outDir: '../../dist/apps/player-standalone',
@@ -53,6 +52,7 @@ export default defineConfig(({ mode }) => {
     },
 
     resolve: {
+      tsconfigPaths: true,
       alias: {
         '@qspider/env': resolve(
           import.meta.dirname,
