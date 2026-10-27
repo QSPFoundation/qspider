@@ -1,13 +1,30 @@
 // Per-test isolation for the desktop tests: one tauri-driver serves the whole run
 // (wdio.conf.ts), and each test gets a new app process with empty app data.
 import { browser } from '@wdio/globals';
-import { desktopPlatform } from './platform';
+import { desktopPlatform, type Proc } from './platform';
 import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 import { restartStep } from './restart-step';
 
-const EXIT_TIMEOUT = 10_000;
 /** How long a closed app gets to exit on its own before its session is ended, which kills it. */
 const CLOSE_TIMEOUT = 5_000;
+/**
+ * A guard against an app that never exits, not a speed budget: on Windows the orphaned WebView2 `browser` and
+ * `crashpad-handler` processes of an app whose session ended sometimes take 20 s and more. The restart's own
+ * timeout (RESTART_TIMEOUT) covers it.
+ */
+const EXIT_TIMEOUT = 40_000;
+/** The mocha timeout a restart runs under, instead of the scenario's: the close, the exit wait, a launch. */
+const RESTART_TIMEOUT = CLOSE_TIMEOUT + EXIT_TIMEOUT + 30_000;
+/** How long the killed leftovers of a failed exit wait get to be gone. */
+const KILL_TIMEOUT = 5_000;
+
+/** The running scenario's test (scenario.ts), whose timeout a restart sets aside. */
+let scenarioTest: Mocha.Runnable | undefined;
+
+/** Called first in every scenario: its restarts do not count against its timeout. */
+export function startScenario(context: Mocha.Context): void {
+  scenarioTest = context.runnable();
+}
 
 /**
  * Set from the moment a restart ends the app's session until it starts the next one: a restart that failed
@@ -72,7 +89,8 @@ function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilitie
 /**
  * Closes the running app as a user would (where the platform supports it), ends its session and waits until
  * it and its webview processes have exited (so nothing still writes app data). After a restart that failed
- * in that wait, only the new app is started, so the failure stays with that one scenario. An app that already exited after expectAppExit (a game that quit) only has its
+ * in that wait (which kills what it left), only the new app is started, so the failure stays with that one
+ * scenario. An app that already exited after expectAppExit (a game that quit) only has its
  * dead session ended; with no exit expected, a missing app fails. Then, when `wipeData`, empties
  * the app data dirs the platform named (ENV_APP_DATA_DIRS, never anything else;
  * a delete that fails, e.g. on a file still held open, fails the restart). Then starts a new
@@ -80,6 +98,33 @@ function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilitie
  * or, with `args`, gets `args` as its command line instead.
  */
 async function restartApp(wipeData: boolean, args?: string[]): Promise<void> {
+  // A slow exit of the previous app must not eat the scenario's time; setting its timeout back restarts the timer.
+  const test = scenarioTest;
+  const scenarioTimeout = test?.timeout();
+  setTimeoutWhileRunning(test, RESTART_TIMEOUT);
+  await restartAppNow(wipeData, args);
+  if (scenarioTimeout !== undefined) setTimeoutWhileRunning(test, scenarioTimeout);
+}
+
+/** Sets the test's timeout, unless it already ended: on an ended test it would arm a timer again. */
+function setTimeoutWhileRunning(test: Mocha.Runnable | undefined, ms: number): void {
+  if (test && test.state === undefined && !test.timedOut) test.timeout(ms);
+}
+
+/**
+ * Kills what a failed exit wait left, so the next restart starts the new app on its own: those processes may be
+ * hung for good (Linux, #167; still under tauri-driver, so every later restart would wait for them again), or
+ * orphans out of appProcesses' reach (Windows: a WebView2 `browser` whose app was killed), and a new app on the
+ * same WebView2 user data folder would join that dying browser process.
+ */
+async function killLeftovers(platform: ReturnType<typeof desktopPlatform>, procs: Proc[]): Promise<void> {
+  platform.kill(procs);
+  await platform.waitForExit(procs, KILL_TIMEOUT).catch((error: unknown) => {
+    console.warn(`Killed leftovers of a failed exit wait are still running: ${String(error)}`);
+  });
+}
+
+async function restartAppNow(wipeData: boolean, args: string[] | undefined): Promise<void> {
   assertDriverStarted();
   const capabilities = launchCapabilities(args);
   const platform = desktopPlatform();
@@ -98,7 +143,10 @@ async function restartApp(wipeData: boolean, args?: string[]): Promise<void> {
       if (platform.appProcesses(driver).length > 0) throw error;
       console.warn(`Ended the session of an app that had already closed: ${String(error)}`);
     });
-    await platform.waitForExit(running, EXIT_TIMEOUT);
+    await platform.waitForExit(running, EXIT_TIMEOUT).catch(async (error: unknown) => {
+      await killLeftovers(platform, running);
+      throw error;
+    });
   } else if (step === 'start-only') {
     console.warn('Restart: the previous restart ended the session but failed waiting for the app to exit');
   } else if (step === 'end-dead-session') {

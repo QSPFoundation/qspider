@@ -67,6 +67,14 @@ export const linuxPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
+  kill: (procs) =>
+    procs.filter(isAlive).forEach((p) => {
+      try {
+        process.kill(p.pid, 'SIGKILL');
+      } catch {
+        // exited in between
+      }
+    }),
   describeProcesses: (procs) => (procs.length === 0 ? '(none)' : procs.map((p) => String(p.pid)).join(', ')),
   waitForExit: (procs, timeoutMs) => pollUntilExited(procs, (left) => left.filter(isAlive), timeoutMs, POLL_INTERVAL),
   emptyDir: (dir) => {

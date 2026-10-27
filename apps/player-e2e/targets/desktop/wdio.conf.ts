@@ -209,7 +209,9 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
           : { application, args },
     } as WebdriverIO.Capabilities,
   ],
-  logLevel: 'warn',
+  // Windows: every WebDriver command goes to wdio-logs/, so a scenario that hits mocha's timeout shows which call
+  // never answered (the startup hang seen on CI, 2026-10-26/27).
+  logLevel: process.platform === 'win32' ? 'info' : 'warn',
   outputDir: join(artifactsDir, 'wdio-logs'),
   waitforTimeout: 10_000,
   // The per-scenario app relaunch (deleteSession+reloadSession) intermittently hangs (~5-10%/run) in
@@ -222,7 +224,7 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
-  // timeout: as Playwright's (targets/web/playwright.config.ts); it includes the per-test app restart.
+  // timeout: as Playwright's (targets/web/playwright.config.ts); the per-test app restart has its own (scenario.ts).
   // forbidOnly: a stray it.only would silently skip the rest of the suite.
   mochaOpts: { ui: 'bdd', timeout: 45_000, retries: 0, forbidOnly: true },
   reporters: ['spec'],

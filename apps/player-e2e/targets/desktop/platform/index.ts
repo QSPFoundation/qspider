@@ -33,6 +33,11 @@ export interface DesktopPlatform {
   closeApp?(procs: Proc[]): number | null;
   /** One line per process (`pid name kind` where the platform can tell the kind): evidence for a failed scenario. */
   describeProcesses(procs: Proc[]): string;
+  /**
+   * Kills those of `procs` still running (the same PID and start time), by PID: the leftovers of an app whose
+   * exit wait failed, which may be out of appProcesses' reach (orphans) or hung for good.
+   */
+  kill(procs: Proc[]): void;
   /** Resolves once every one of `procs` has exited; fails after `timeoutMs`. */
   waitForExit(procs: Proc[], timeoutMs: number): Promise<void>;
   /** Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. */
