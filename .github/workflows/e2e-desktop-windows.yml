@@ -59,7 +59,7 @@ permissions:
 jobs:
   e2e:
     if: inputs.run
-    # Pinned (not windows-latest), as the Linux jobs pin ubuntu-24.04: the file dialog, WebView2 and
+    # Pinned (not windows-latest), as the Linux jobs pin ubuntu-26.04: the file dialog, WebView2 and
     # msedgedriver come with the image, so an image change should arrive as a deliberate bump.
     runs-on: windows-2025
     timeout-minutes: 60
