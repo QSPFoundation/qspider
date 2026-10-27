@@ -59,7 +59,7 @@ permissions:
 jobs:
   e2e:
     if: inputs.run
-    # Pinned (not windows-latest), as the Linux jobs pin ubuntu-24.04: the file dialog, WebView2 and
+    # Pinned (not windows-latest), as the Linux jobs pin ubuntu-26.04: the file dialog, WebView2 and
     # msedgedriver come with the image, so an image change should arrive as a deliberate bump.
     runs-on: windows-2025
     timeout-minutes: 60
@@ -85,11 +85,11 @@ jobs:
           part=all
           if [ -n "$SHARD" ]; then part="${SHARD/\//-of-}"; fi
           echo "artifact=e2e-desktop-windows-$SUITE-$part" >> "$GITHUB_OUTPUT"
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -181,7 +181,7 @@ jobs:
           set -o pipefail
           echo "node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs ${args[*]}"
           node apps/player-e2e/targets/desktop/run-desktop-e2e.mjs "${args[@]}" 2>&1 | tee apps/player-e2e/artifacts/e2e-desktop-windows.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure() || cancelled()
         with:
           name: ${{ steps.inputs.outputs.artifact }}

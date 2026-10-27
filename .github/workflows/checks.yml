@@ -10,13 +10,18 @@ env:
     gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x
     gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio
   # Bump to invalidate the apt cache (e.g. after a runner image update breaks a restored package).
+  # cache-apt-pkgs-action never runs apt update on GitHub runners, so each job updates the package lists first:
+  # the ubuntu-26.04 image's lists named debs the archive had since removed (404, 2026-10-27). When apt fails the
+  # action saves an empty cache that every job then restores; a check after each cache step fails the job there.
+  # Bump this, or delete the cache, to recover.
   APT_CACHE_VERSION: 1
   # Chromium's system packages as Playwright 1.64 lists them for ubuntu24.04-x64 (its `tools` and `chromium`
-  # deps), installed from the apt cache. `playwright install --with-deps` fetched them from the Azure mirror on
-  # every run, and a slow mirror (24 kB/s on 2026-10-26: 12m53s) ran e2e-web past its timeout.
+  # deps; the same names install on 26.04), installed from the apt cache. `playwright install --with-deps`
+  # fetched them from the Azure mirror on every run, and a slow mirror (24 kB/s on 2026-10-26: 12m53s) ran
+  # e2e-web past its timeout.
   # The Linux desktop E2E's WebDriver, X server and accessibility bus. A plain apt-get spent 8–10 min on one
   # package (libwebkit2gtk-4.1-0) from the Azure mirror on 2026-10-26 and ran the desktop jobs past their timeout.
-  DESKTOP_E2E_PKGS: webkit2gtk-driver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0
+  DESKTOP_E2E_PKGS: webkitgtk-webdriver xvfb dbus at-spi2-core python3-gi gir1.2-atspi-2.0
   CHROMIUM_PKGS: >-
     xvfb fonts-noto-color-emoji fonts-unifont libfontconfig1 libfreetype6 xfonts-cyrillic xfonts-scalable
     fonts-liberation fonts-ipafont-gothic fonts-wqy-zenhei fonts-tlwg-loma-otf fonts-freefont-ttf libasound2t64
@@ -42,13 +47,13 @@ jobs:
   # required check. Rust compile errors are still caught on every PR by e2e-desktop, which builds the
   # Tauri app.
   changes:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     outputs:
       rust: ${{ steps.diff.outputs.rust }}
       desktop: ${{ steps.diff.outputs.desktop }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: diff
@@ -75,26 +80,33 @@ jobs:
           fi
 
   frame:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
+        id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.CHROMIUM_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.chromium-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from CHROMIUM_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       - name: Cache Playwright's Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -104,15 +116,15 @@ jobs:
   rust:
     needs: changes
     if: needs.changes.outputs.rust == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     # A cold apt cache on a slow mirror has taken 15+ minutes on its own; cache hits take seconds.
     timeout-minutes: 35
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -123,11 +135,18 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
+        id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.TAURI_BUILD_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.tauri-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from TAURI_BUILD_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       # Tauri's build script requires frontendDist to exist
       - run: mkdir -p dist/apps/player-desktop
       - run: pnpm check:rust
@@ -180,7 +199,7 @@ jobs:
   e2e-desktop-windows:
     needs: [e2e-desktop-windows-main, e2e-desktop-windows-standalone, smoke-windows]
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Every Windows job succeeded
@@ -195,31 +214,38 @@ jobs:
           fi
 
   e2e-web:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
+        id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.CHROMIUM_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.chromium-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from CHROMIUM_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       - name: Cache Playwright's Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm exec playwright install chromium
       - run: pnpm e2e:web
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-web-artifacts
@@ -227,31 +253,38 @@ jobs:
           if-no-files-found: ignore
 
   e2e-standalone-web:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
+        id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.CHROMIUM_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.chromium-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from CHROMIUM_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       - name: Cache Playwright's Chromium
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - run: pnpm exec playwright install chromium
       - run: pnpm e2e:standalone-web
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-standalone-web-artifacts
@@ -270,14 +303,14 @@ jobs:
       fail-fast: false
       matrix:
         shard: [1/3, 2/3, 3/3]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -286,18 +319,27 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
+        id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.TAURI_BUILD_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
-      # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
-      # Retried with network timeouts, so one dropped connection doesn't fail the job.
+      - name: Check the apt cache is not empty
+        if: steps.tauri-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from TAURI_BUILD_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       - name: Install WebDriver, Xvfb and AT-SPI (cached)
+        id: e2e-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.DESKTOP_E2E_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.e2e-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from DESKTOP_E2E_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       # The cache action restores package files but runs no post-install triggers. GLib's schema compile is one of
       # them: without it WebKitWebDriver and the app abort ("Settings schema 'org.gnome.system.proxy' is not installed").
       - run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas
@@ -310,7 +352,7 @@ jobs:
         env:
           SHARD: ${{ matrix.shard }}
         run: echo "name=e2e-desktop-artifacts-${SHARD/\//-of-}" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: ${{ steps.artifact.outputs.name }}
@@ -323,7 +365,7 @@ jobs:
   e2e-desktop:
     needs: [e2e-desktop-main]
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     steps:
       - name: Every Linux desktop shard succeeded
@@ -339,14 +381,14 @@ jobs:
 
   e2e-standalone-desktop:
     name: e2e-standalone-desktop
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -355,24 +397,33 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target/e2e-standalone
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
+        id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.TAURI_BUILD_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
-      # Not cached: services and tools with post-install setup, which a file-level cache may not restore.
-      # Retried with network timeouts, so one dropped connection doesn't fail the job.
+      - name: Check the apt cache is not empty
+        if: steps.tauri-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from TAURI_BUILD_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       - name: Install WebDriver, Xvfb and AT-SPI (cached)
+        id: e2e-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         with:
           packages: ${{ env.DESKTOP_E2E_PKGS }}
           version: ${{ env.APT_CACHE_VERSION }}
+      - name: Check the apt cache is not empty
+        if: steps.e2e-pkgs.outputs.all-package-version-list == ''
+        run: echo '::error::No packages from DESKTOP_E2E_PKGS installed or restored (see APT_CACHE_VERSION)' && exit 1
       # The cache action restores package files but runs no post-install triggers. GLib's schema compile is one of
       # them: without it WebKitWebDriver and the app abort ("Settings schema 'org.gnome.system.proxy' is not installed").
       - run: sudo glib-compile-schemas /usr/share/glib-2.0/schemas
       - run: cargo install tauri-driver --locked
       - run: pnpm e2e:standalone-desktop
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-standalone-desktop-artifacts
