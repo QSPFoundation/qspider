@@ -72,27 +72,20 @@
   "defaultProject": "player",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"],
-      "cache": true
-    },
-    "@nx/eslint:lint": {
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/.eslintrc.json",
-        "{workspaceRoot}/eslint.config.js",
-        "{workspaceRoot}/tools/eslint-rules/**/*"
-      ],
-      "cache": true
-    },
+    "build": [
+      {
+        "dependsOn": ["^build"],
+        "inputs": ["production", "^production"],
+        "cache": true
+      },
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "production"
+      }
+    ],
     "@nx/js:tsc": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "@nx/vite:build": {
       "cache": true,
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
@@ -104,7 +97,44 @@
     "typecheck": {
       "cache": true,
       "inputs": ["default", "^default"]
-    }
+    },
+    "preview": [
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "development",
+        "configurations": {
+          "development": {},
+          "production": {}
+        }
+      }
+    ],
+    "serve": [
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "development"
+      }
+    ],
+    "lint": [
+      {
+        "filter": {
+          "plugin": "@nx/eslint/plugin"
+        },
+        "inputs": [
+          "default",
+          "^default",
+          "{workspaceRoot}/.eslintrc.json",
+          "{workspaceRoot}/eslint.config.js",
+          "{workspaceRoot}/tools/eslint-rules/**/*",
+          {
+            "externalDependencies": ["eslint"]
+          }
+        ]
+      }
+    ]
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
@@ -126,6 +156,44 @@
       "options": {
         "testTargetName": "test"
       }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "devTargetName": "dev",
+        "typecheckTargetName": "typecheck",
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static"
+      },
+      "include": ["apps/player/**/*", "apps/player-desktop/**/*", "apps/player-standalone/**/*"]
+    },
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      },
+      "include": [
+        "apps/docs/**/*",
+        "apps/player/**/*",
+        "apps/player-desktop/**/*",
+        "apps/player-e2e/**/*",
+        "apps/player-standalone/**/*",
+        "libs/browser/**/*",
+        "libs/contracts/**/*",
+        "libs/debugger/**/*",
+        "libs/desktop/**/*",
+        "libs/docusaurus/**/*",
+        "libs/game-shelf/**/*",
+        "libs/game-state/**/*",
+        "libs/html-renderer/**/*",
+        "libs/i18n/**/*",
+        "libs/importers/**/*",
+        "libs/renderer/**/*",
+        "libs/tauri-storage/**/*",
+        "libs/utils/**/*"
+      ]
     }
   ]
 }

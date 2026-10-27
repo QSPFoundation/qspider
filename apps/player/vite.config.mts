@@ -1,7 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
 
@@ -41,7 +40,6 @@ export default defineConfig({
 
   plugins: [
     react(),
-    nxViteTsPaths(),
     VitePWA({
       srcDir: 'src',
       filename: 'service-worker.ts',
@@ -57,14 +55,11 @@ export default defineConfig({
     }),
   ],
   resolve: {
+    tsconfigPaths: true,
     alias: {
       '@qspider/env': resolve(import.meta.dirname, '../../libs/browser/src/index.ts'),
       '@qspider/utils': resolve(import.meta.dirname, '../../libs/utils/src/index.ts'),
     },
-  },
-
-  worker: {
-    plugins: () => [nxViteTsPaths()],
   },
 
   test: {

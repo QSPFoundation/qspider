@@ -6,13 +6,7 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/vite:build",
-      "outputs": ["{options.outputPath}"],
       "inputs": ["production", "^production", { "env": "VITE_QSPIDER_E2E" }],
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/player-desktop"
-      },
       "configurations": {
         "development": {
           "mode": "development"
@@ -23,41 +17,14 @@
       }
     },
     "serve": {
-      "executor": "@nx/vite:dev-server",
-      "options": {
-        "buildTarget": "player-desktop:build"
-      },
       "configurations": {
         "production": {
-          "buildTarget": "player-desktop:build:production",
-          "hmr": true
+          "mode": "production"
         },
         "development": {
-          "buildTarget": "player-desktop:build:development",
-          "hmr": true
+          "mode": "development"
         }
-      },
-      "defaultConfiguration": "development"
-    },
-    "preview": {
-      "executor": "@nx/vite:preview-server",
-      "defaultConfiguration": "development",
-      "options": {
-        "buildTarget": "player-desktop:build"
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "player-desktop:build:development"
-        },
-        "production": {
-          "buildTarget": "player-desktop:build:production"
-        }
-      },
-      "dependsOn": ["build"]
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+      }
     },
     "typecheck": {
       "executor": "nx:run-commands",

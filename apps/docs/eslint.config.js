@@ -3,7 +3,7 @@ const js = require('@eslint/js');
 const tseslint = require('typescript-eslint');
 
 module.exports = [
-  { ignores: ['apps/docs/.docusaurus/**', 'apps/docs/babel.config.cjs', 'apps/docs/eslint.config.js'] },
+  { ignores: ['.docusaurus/**', 'babel.config.cjs', 'eslint.config.js'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   { plugins: { '@nx': nxEslintPlugin } },

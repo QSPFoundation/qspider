@@ -6,12 +6,6 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@nx/vite:build",
-      "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/player"
-      },
       "configurations": {
         "development": {
           "mode": "development"
@@ -22,19 +16,12 @@
       }
     },
     "serve": {
-      "executor": "@nx/vite:dev-server",
-      "defaultConfiguration": "development",
-      "options": {
-        "buildTarget": "player:build"
-      },
       "configurations": {
         "production": {
-          "buildTarget": "player:build:production",
-          "hmr": true
+          "mode": "production"
         },
         "development": {
-          "buildTarget": "player:build:development",
-          "hmr": true
+          "mode": "development"
         }
       }
     },
@@ -43,26 +30,6 @@
       "options": {
         "buildTarget": "player:build-test:production"
       }
-    },
-    "preview": {
-      "executor": "@nx/vite:preview-server",
-      "defaultConfiguration": "development",
-      "options": {
-        "buildTarget": "player:build"
-      },
-      "configurations": {
-        "development": {
-          "buildTarget": "player:build:development"
-        },
-        "production": {
-          "buildTarget": "player:build:production"
-        }
-      },
-      "dependsOn": ["build"]
-    },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
     },
     "typecheck": {
       "executor": "nx:run-commands",
