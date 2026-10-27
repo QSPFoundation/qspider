@@ -10,8 +10,10 @@ env:
     gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x
     gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio
   # Bump to invalidate the apt cache (e.g. after a runner image update breaks a restored package).
-  # cache-apt-pkgs-action saves an empty cache when apt fails (a mirror 404 on 2026-10-27), and every job then
-  # restores it. A check after each cache step fails the job there; bump this, or delete the cache, to recover.
+  # cache-apt-pkgs-action never runs apt update on GitHub runners, so each job updates the package lists first:
+  # the ubuntu-26.04 image's lists named debs the archive had since removed (404, 2026-10-27). When apt fails the
+  # action saves an empty cache that every job then restores; a check after each cache step fails the job there.
+  # Bump this, or delete the cache, to recover.
   APT_CACHE_VERSION: 1
   # Chromium's system packages as Playwright 1.64 lists them for ubuntu24.04-x64 (its `tools` and `chromium`
   # deps; the same names install on 26.04), installed from the apt cache. `playwright install --with-deps`
@@ -91,6 +93,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm format:check
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
         id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
@@ -130,6 +135,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
         id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
@@ -218,6 +226,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
         id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
@@ -254,6 +265,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Chromium's system packages (cached)
         id: chromium-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
@@ -305,6 +319,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
         id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
@@ -380,6 +397,9 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target/e2e-standalone
+      - name: Update the apt package lists
+        timeout-minutes: 5
+        run: sudo apt-get update
       - name: Install Tauri build dependencies (cached)
         id: tauri-pkgs
         uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
