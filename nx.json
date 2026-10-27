@@ -72,11 +72,19 @@
   "defaultProject": "player",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "targetDefaults": {
-    "build": {
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"],
-      "cache": true
-    },
+    "build": [
+      {
+        "dependsOn": ["^build"],
+        "inputs": ["production", "^production"],
+        "cache": true
+      },
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "production"
+      }
+    ],
     "@nx/eslint:lint": {
       "inputs": [
         "default",
@@ -92,11 +100,6 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
-    "@nx/vite:build": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^production"]
@@ -104,7 +107,27 @@
     "typecheck": {
       "cache": true,
       "inputs": ["default", "^default"]
-    }
+    },
+    "preview": [
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "development",
+        "configurations": {
+          "development": {},
+          "production": {}
+        }
+      }
+    ],
+    "serve": [
+      {
+        "filter": {
+          "plugin": "@nx/vite/plugin"
+        },
+        "defaultConfiguration": "development"
+      }
+    ]
   },
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
@@ -126,6 +149,18 @@
       "options": {
         "testTargetName": "test"
       }
+    },
+    {
+      "plugin": "@nx/vite/plugin",
+      "options": {
+        "devTargetName": "dev",
+        "typecheckTargetName": "typecheck",
+        "buildTargetName": "build",
+        "serveTargetName": "serve",
+        "previewTargetName": "preview",
+        "serveStaticTargetName": "serve-static"
+      },
+      "include": ["apps/player/**/*", "apps/player-desktop/**/*", "apps/player-standalone/**/*"]
     }
   ]
 }
