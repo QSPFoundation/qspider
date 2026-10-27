@@ -2,3 +2,15 @@ packages:
   - 'apps/*'
   - 'libs/*'
   - 'docs'
+
+# pnpm 12 fails installs on unreviewed build scripts; pnpm 10 skipped all of
+# these and nothing needed them, so they stay denied.
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  core-js: false
+  edgedriver: false
+  esbuild: false
+  geckodriver: false
+  nx: false
+  unrs-resolver: false
