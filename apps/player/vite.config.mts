@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { resolve } from 'node:path';
+import { nxReadySignal } from '@nx/vite/plugins/nx-ready-signal.plugin';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pkg = require('../../package.json');
@@ -53,6 +54,7 @@ export default defineConfig({
         enabled: true,
       },
     }),
+    nxReadySignal(),
   ],
   resolve: {
     tsconfigPaths: true,

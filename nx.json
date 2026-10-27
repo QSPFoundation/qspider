@@ -90,10 +90,6 @@
       "dependsOn": ["^build"],
       "inputs": ["production", "^production"]
     },
-    "@nx/vitest:test": {
-      "cache": true,
-      "inputs": ["default", "^production"]
-    },
     "typecheck": {
       "cache": true,
       "inputs": ["default", "^default"]
@@ -155,6 +151,14 @@
       "plugin": "@nx/vitest",
       "options": {
         "testTargetName": "test"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        }
       }
     },
     {
