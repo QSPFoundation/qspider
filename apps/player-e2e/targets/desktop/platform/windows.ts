@@ -140,6 +140,12 @@ function listProcesses(): WinProc[] {
 
 const appProcesses = (pid: number): Proc[] => appTree(listProcesses(), pid);
 
+/** Those of `procs` still running: the same PID with the same CreationDate. */
+function stillRunning(procs: Proc[]): Proc[] {
+  const now = new Set(listProcesses().map((p) => `${p.pid}@${p.start}`));
+  return procs.filter((p) => now.has(`${p.pid}@${p.start}`));
+}
+
 /** The kind of a WebView2 process from its command line (`--type=renderer`, …; none: the browser process). */
 export function processKind(commandLine: string): string {
   return /--type=([\w-]+)/.exec(commandLine)?.[1] ?? 'browser';
@@ -191,6 +197,17 @@ export const windowsPlatform: DesktopPlatform = {
   },
   appProcesses,
   appRunning: () => appProcesses(driverPid()).length > 0,
+  kill: (procs) => {
+    const left = stillRunning(procs);
+    if (left.length === 0) return;
+    const taskkill = spawnSync('taskkill', [...left.flatMap((p) => ['/PID', String(p.pid)]), '/F'], {
+      encoding: 'utf8',
+      windowsHide: true,
+    });
+    // One may exit in between; the exit wait that follows tells whether they are gone.
+    if (taskkill.status !== 0)
+      console.warn(`taskkill of ${describeKinds(left)}: ${taskkill.stdout} ${taskkill.stderr}`);
+  },
   describeProcesses: (procs) => (procs.length === 0 ? '(none)' : describeKinds(procs)),
   // WM_CLOSE to the app (msedgedriver's child, not one of its WebView2 processes): the app shuts down as on a
   // click on X, and WebView2 with it.
@@ -215,8 +232,7 @@ export const windowsPlatform: DesktopPlatform = {
     return pollUntilExited(
       procs,
       (left) => {
-        const now = new Set(listProcesses().map((p) => `${p.pid}@${p.start}`));
-        const alive = left.filter((p) => now.has(`${p.pid}@${p.start}`));
+        const alive = stillRunning(left);
         if (!described && alive.length > 0 && Date.now() - started > DESCRIBE_AFTER_MS) {
           described = true;
           console.warn(`Still running ${Date.now() - started}ms after the session ended: ${describeKinds(alive)}`);
