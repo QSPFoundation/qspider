@@ -199,8 +199,5 @@
         "libs/utils/**/*"
       ]
     }
-  ],
-  "affected": {
-    "legacy": true
-  }
+  ]
 }
