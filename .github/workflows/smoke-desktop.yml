@@ -59,11 +59,11 @@ jobs:
             macos | windows) ;;
             *) echo "::error::platform must be 'macos' or 'windows', got '$PLATFORM'"; exit 1 ;;
           esac
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
         with:
           version: 12.15.0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -93,7 +93,7 @@ jobs:
           mkdir -p apps/player-e2e/artifacts/smoke
           set -o pipefail
           pnpm nx run player-e2e:smoke-desktop-standalone --output-style=static 2>&1 | tee "apps/player-e2e/artifacts/smoke/smoke-$PLATFORM-standalone.log"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure() || cancelled()
         with:
           name: smoke-${{ inputs.platform }}-artifacts
