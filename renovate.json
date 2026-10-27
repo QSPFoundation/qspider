@@ -47,6 +47,11 @@
       "description": "pnpm is pinned both in package.json packageManager and in the workflows' pnpm/action-setup version; bump both in one PR",
       "matchPackageNames": ["pnpm"],
       "groupName": "pnpm"
+    },
+    {
+      "description": "Hold WebdriverIO at 9 until @serenity-js/webdriverio supports 10 (its peer range is ^9; v10's default strictSelectors makes Serenity's isPresent() throw on a missing element)",
+      "matchPackageNames": ["webdriverio", "@wdio/**"],
+      "allowedVersions": "<10"
     }
   ]
 }
