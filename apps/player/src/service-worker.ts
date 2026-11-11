@@ -47,7 +47,18 @@ class QspiderStrategy extends Strategy {
 
 registerRoute(({ request }) => request.url.includes('/qspider-files/'), new QspiderStrategy());
 
-const networkOnlyNavigationRoute = new Route(({ request }) => {
-  return request.mode === 'navigate';
-}, new NetworkOnly());
+// A page load always asks the server, even while the browser's HTTP cache still holds the page: GitHub Pages
+// serves index.html with max-age=600, so a load right after a deploy would otherwise run the previous build.
+// The revalidation is a conditional request, answered with 304 while the page is unchanged.
+// Workbox drops `fetchOptions` for navigation requests, so the request is rebuilt with the cache mode instead
+// (a Request built from a navigation request with an init gets mode 'same-origin').
+const revalidatePage = {
+  requestWillFetch: async ({ request }: { request: Request }) => new Request(request, { cache: 'no-cache' }),
+};
+const networkOnlyNavigationRoute = new Route(
+  ({ request }) => {
+    return request.mode === 'navigate';
+  },
+  new NetworkOnly({ plugins: [revalidatePage] }),
+);
 registerRoute(networkOnlyNavigationRoute);
