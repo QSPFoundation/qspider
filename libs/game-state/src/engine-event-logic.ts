@@ -105,6 +105,15 @@ export function saveTarget(hasGame: boolean, path: string | undefined): 'answer-
 }
 
 /**
+ * The name to read a game variable by: a name with a type prefix (`$`, `#`, `%`) as is, any other as a number
+ * (`#name`). The engine reads a name without a prefix as whatever is stored (`undefined` when nothing is), while
+ * the player reads it as QSP does in code: a number, 0 when unset.
+ */
+export function typedVariableName(name: string): string {
+  return /^[$#%]/.test(name) ? name : `#${name}`;
+}
+
+/**
  * The value a watched game variable shows: QSP has no "unset", so 0 and `''` (what the engine reports for a
  * variable never assigned) mean "not set" and give the fallback; any other value is the game's.
  */

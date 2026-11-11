@@ -54,7 +54,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@nx/devkit": "24.0.1",
     "@qsp/converters": "^1.0.1",
-    "@qsp/wasm-engine": "^1.6.1",
+    "@qsp/wasm-engine": "^2.0.0",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.2.1",
     "@radix-ui/react-dialog": "^1.3.1",

@@ -32,18 +32,18 @@ export function canSelectAction(index: number): boolean {
   return isActionIndex(index, actions$.value.length);
 }
 
-export function selectAction(index: number): void {
+export function selectAction(index: number): Promise<void> | undefined {
   selectedAction$.set(index);
-  qspApi$.value?.selectAction(index);
+  return qspApi$.value?.selectAction(index);
 }
-export function execSelectedAction(): void {
+export function execSelectedAction(): Promise<void> | undefined {
   selectedAction$.set(NO_ACTION);
-  qspApi$.value?.execSelectedAction();
+  return qspApi$.value?.execSelectedAction();
 }
-/** Picks the action and runs it, as a key for it does. */
-export function runAction(index: number): void {
-  selectAction(index);
-  execSelectedAction();
+/** Picks the action and runs it, as a key for it does; the game's `$ONACTSEL` code finishes first. */
+export async function runAction(index: number): Promise<void> {
+  await selectAction(index);
+  await execSelectedAction();
 }
 
 export const isObjsVisible$ = atom(false);
@@ -73,7 +73,7 @@ export function reloadRegions(): void {
 
 export const layers$ = atom<Record<string, boolean>>({});
 export function readLayerState(name: string): boolean {
-  return layerFlag(qspApi$.value?.readVariableByKey('qspider_layers', name));
+  return layerFlag(qspApi$.value?.readVariableByKey('#qspider_layers', name));
 }
 export function registerLayer(name: string): void {
   layers$.update((current) => withLayer(current, name, readLayerState(name)));

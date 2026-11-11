@@ -14,3 +14,6 @@ allowBuilds:
   geckodriver: false
   nx: false
   unrs-resolver: false
+
+minimumReleaseAgeExclude:
+  - '@qsp/wasm-engine@2.0.0'

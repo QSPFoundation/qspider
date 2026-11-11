@@ -191,8 +191,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@qsp/wasm-engine':
-        specifier: ^1.6.1
-        version: 1.6.1
+        specifier: ^2.0.0
+        version: 2.0.0
       '@radix-ui/colors':
         specifier: ^3.0.0
         version: 3.0.0
@@ -3316,8 +3316,8 @@ packages:
     resolution: {integrity: sha512-FrKDJ3ofOpJjQU6JtS35ohYaURVh3j3RozP52+ctLoFClXqY5/91pyGZvmsNkIicpEHvTvyIwl3x8yxQeBD2eg==}
     engines: {node: '>=14'}
 
-  '@qsp/wasm-engine@1.6.1':
-    resolution: {integrity: sha512-KTgGTpYix0Dh9jLQGHRc1kZhKXwhhTCgAoZB7gidnUoKVYWmUgaMrYO1pjEOcI5PSPBfKJ2U8TnTAGixsOg9LQ==}
+  '@qsp/wasm-engine@2.0.0':
+    resolution: {integrity: sha512-1zrI73gsCZRrUD5/U/4DG/OcOpXprWLd6fAocet0F/xkR73fSDmNVGWD4fC5zVbCLuK0pgclpo2QW3w/xmYUOg==}
 
   '@radix-ui/colors@3.0.0':
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
@@ -15714,7 +15714,7 @@ snapshots:
 
   '@qsp/converters@1.0.1': {}
 
-  '@qsp/wasm-engine@1.6.1': {}
+  '@qsp/wasm-engine@2.0.0': {}
 
   '@radix-ui/colors@3.0.0': {}
 

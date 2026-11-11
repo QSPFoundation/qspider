@@ -26,7 +26,7 @@ const openPauseOnEscape = throttle((e: KeyboardEvent): void => {
   if (isDialogBlocking() || isPauseScreenVisible$.value) return;
   e.preventDefault();
   e.stopPropagation();
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  const nosave = qspApi$.value?.readVariable('#NOSAVE');
   if (nosave) {
     requestedAction$.set('load');
   }

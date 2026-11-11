@@ -6,6 +6,7 @@ import {
   QspListItem,
   DebugRecord as QspDebugRecord,
   QspEventLogger,
+  QspEvents,
 } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -50,6 +51,7 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
+  typedVariableName,
   variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
@@ -69,30 +71,55 @@ export const qspApiInitialized$ = atom(false);
 export const gameOpenEpoch$ = atom(0);
 
 /** Opens a game in the engine; a new game wipes its variable watchers, which `gameOpenEpoch$` announces. */
-export function openGameSource(api: QspAPI, source: ArrayBuffer, isNewGame: boolean): void {
-  api.openGame(source, isNewGame);
+export async function openGameSource(api: QspAPI, source: ArrayBuffer, isNewGame: boolean): Promise<void> {
+  await api.openGame(source, isNewGame);
   if (isNewGame) gameOpenEpoch$.update((n) => n + 1);
 }
 export const qspError$ = atom<QspErrorData | null>(null);
 export const qspiderModule$ = atom(writeQsp(readQsps(qspiderModuleContent)));
 
-// Event logger implementation
-const eventLogger: QspEventLogger = {
-  log(event, ...args) {
-    debugActions.logEvent(event, ...args);
-  },
-};
+let wasmBinary: ArrayBuffer | null = null;
+let engineReady: Promise<void> = Promise.resolve();
+/**
+ * Engines of stopped games. A stopped game may still be inside a statement (a dialog it waits in, or code the
+ * engine resumes a tick after an answer): its engine's events are ignored and never answered, so that game's
+ * code never reaches the player again, and an engine left waiting can't hold up the next game.
+ */
+const retiredApis = new WeakSet<QspAPI>();
+
+async function startEngine(): Promise<void> {
+  if (!wasmBinary) throw new Error('QSP engine is not loaded');
+  const api = await initQspEngine(wasmBinary);
+  const eventLogger: QspEventLogger = {
+    log(event, ...args) {
+      if (!retiredApis.has(api)) debugActions.logEvent(event, ...args);
+    },
+  };
+  api.registerEventLogger(eventLogger);
+  qspApi$.set(api);
+}
 
 export async function initQspApi(): Promise<void> {
-  const wasm = await fetch(wasmUrl).then((r) => r.arrayBuffer());
-  const api = await initQspEngine(wasm);
-  console.log(`QSP version: ${api.version()} ${api.getCompiledDateTime()}`);
-
-  // Register event logger
-  api.registerEventLogger(eventLogger);
-
-  qspApi$.set(api);
+  wasmBinary = await fetch(wasmUrl).then((r) => r.arrayBuffer());
+  engineReady = startEngine();
+  await engineReady;
+  const api = qspApi$.value;
+  if (api) console.log(`QSP version: ${api.version()} ${api.getCompiledDateTime()}`);
   qspApiInitialized$.set(true);
+}
+
+/** Retires the engine of the game that stopped (see `retiredApis`) and starts a fresh one for the next game. */
+export function replaceQspEngine(): void {
+  const api = qspApi$.value;
+  if (!api || !wasmBinary) return;
+  retiredApis.add(api);
+  engineReady = startEngine();
+  engineReady.catch((error) => console.error('Failed to start the QSP engine', error));
+}
+
+/** Settles when the engine a game starts in is ready (after `replaceQspEngine`, the fresh one). */
+export function whenQspEngineReady(): Promise<void> {
+  return engineReady;
 }
 
 export function execCode(code: string): void {
@@ -125,11 +152,12 @@ export function getLocationsList(): string[] {
 }
 
 export function getLocationCode(name: string): string[] {
-  return qspApi$.value?.getLocationCode(name) || [];
+  return qspApi$.value?.getLocationCode(name).map((entry) => entry.code) || [];
 }
 
+/** The code of a base action of a location (not a dynamic one). */
 export function getActionCode(location: string, index: number): string[] {
-  return qspApi$.value?.getActionCode(location, index) || [];
+  return qspApi$.value?.getLocationActionCode(location, index).map((entry) => entry.code) || [];
 }
 
 export function getLocationActions(name: string): QspListItem[] {
@@ -158,10 +186,10 @@ export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
   useEffect(() => {
     if (!name) return;
     const unsubscribe = key
-      ? qspApi$.value?.watchVariableByKey(name, key, (value) =>
+      ? qspApi$.value?.watchVariableByKey(typedVariableName(name), key, (value) =>
           setValue(variableOrDefault(value as unknown as T, defaultValue)),
         )
-      : qspApi$.value?.watchVariableByIndex(name, index, (value) =>
+      : qspApi$.value?.watchVariableByIndex(typedVariableName(name), index, (value) =>
           setValue(variableOrDefault(value as unknown as T, defaultValue)),
         );
     return (): void => {
@@ -176,8 +204,9 @@ export function useQspExpression(variable: string, condition: [string, string]):
   const [value, setValue] = useState(false);
   useEffect(() => {
     if (!variable) return;
-    const unsubscribe = qspApi$.value?.watchVariable(variable, (value) => {
-      setValue(checkCondition(value, condition));
+    // A typed name reads a string or a number (a tuple only if the theme names a `%` variable).
+    const unsubscribe = qspApi$.value?.watchVariable(typedVariableName(variable), (value) => {
+      setValue(checkCondition(value as string | number, condition));
     });
     return (): void => {
       unsubscribe?.();
@@ -187,11 +216,16 @@ export function useQspExpression(variable: string, condition: [string, string]):
 }
 
 qspApi$.subscribe((api) => {
-  api.on('version', (type, callback) => {
+  // Every listener of a retired engine goes silent (see `retiredApis`).
+  function on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
+    const call = listener as (...args: unknown[]) => unknown;
+    api.on(event, ((...args: unknown[]) => (retiredApis.has(api) ? undefined : call(...args))) as QspEvents[E]);
+  }
+  on('version', (type, callback) => {
     return callback(versionAnswer(type, windowManager) ?? api.version());
   });
-  api.on('error', qspError$.set);
-  api.on('system_cmd', (cmd: string): void => {
+  on('error', qspError$.set);
+  on('system_cmd', (cmd: string): void => {
     const _cmd = parseSystemCmd(cmd);
     if (_cmd === null) return;
     for (const [prefix, processor] of Object.entries(qspiderCommands)) {
@@ -201,14 +235,14 @@ qspApi$.subscribe((api) => {
       }
     }
   });
-  api.on('is_play', (path, result) => {
+  on('is_play', (path, result) => {
     result(sounds$.actions.isPlaying(path));
   });
-  api.on('play_file', (path, volume, ready) => {
+  on('play_file', (path, volume, ready) => {
     sounds$.actions.play(cleanPath(path), volume);
     ready();
   });
-  api.on('close_file', (path, ready) => {
+  on('close_file', (path, ready) => {
     if (path) {
       sounds$.actions.close(path);
     } else {
@@ -216,12 +250,12 @@ qspApi$.subscribe((api) => {
     }
     ready();
   });
-  api.on('timer', (ms) => {
+  on('timer', (ms) => {
     counterDelay$.set(ms);
   });
-  api.on('open_game', async (file, isNewGame, onOpened) => {
+  on('open_game', async (file, isNewGame, onOpened) => {
     if (file === 'qspider') {
-      api.openGame(qspiderModule$.value, false);
+      await api.openGame(qspiderModule$.value, false);
       onOpened();
       return;
     }
@@ -235,7 +269,7 @@ qspApi$.subscribe((api) => {
         if (isNewGame) {
           baseUrl$.update((url) => gameFileUrl(url, cleanPath(file)));
         }
-        openGameSource(api, gameSource, isNewGame);
+        await openGameSource(api, gameSource, isNewGame);
       } catch (error) {
         showError(`Failed to open ${file}: ${error instanceof Error ? error.message : String(error)}`);
       } finally {
@@ -243,55 +277,55 @@ qspApi$.subscribe((api) => {
       }
     });
   });
-  api.on('input', (text, finished) => {
+  on('input', (text, finished) => {
     input$.actions.open(text, finished);
   });
-  api.on('menu', (items, select) => {
+  on('menu', (items, select) => {
     menu$.actions.open(prepareList(items), select);
   });
-  api.on('msg', (text, closed) => {
+  on('msg', (text, closed) => {
     msg$.actions.open(text, closed);
   });
-  api.on('main_changed', (text) => {
+  on('main_changed', (text) => {
     const prevMain = mainContent$.value;
     const nextMain = prepareContent(text);
     const newLoc = isNewLoc(prevMain, nextMain);
     isNewLoc$.set(newLoc);
     nextMainContent$.set(nextMain);
     if (newLoc) {
-      newLocEffect$.set(newLocEffect((name) => api.readVariable(name)));
+      newLocEffect$.set(newLocEffect((name) => api.readVariable(typedVariableName(name))));
       newLocHash$.set(String(hashString(nextMainContent$.value)));
     } else {
       mainContent$.set(nextMain);
     }
   });
-  api.on('stats_changed', (text) => {
+  on('stats_changed', (text) => {
     statsContent$.set(prepareContent(text));
   });
-  api.on('actions_changed', (actions) => {
+  on('actions_changed', (actions) => {
     actions$.set(prepareList(actions));
   });
-  api.on('objects_changed', (objects) => {
+  on('objects_changed', (objects) => {
     objects$.set(prepareObjectList(objects));
   });
-  api.on('user_input', (text) => {
+  on('user_input', (text) => {
     cmdText$.set(text);
   });
-  api.on('view', (path) => {
+  on('view', (path) => {
     if (path) {
       view$.actions.open(cleanPath(path));
     } else {
       view$.actions.close();
     }
   });
-  api.on('panel_visibility', (type, isShown) => {
+  on('panel_visibility', (type, isShown) => {
     const panels = panelVisibility(type);
     if (panels.stats) isStatsVisible$.set(isShown);
     if (panels.acts) isActsVisible$.set(isShown);
     if (panels.objs) isObjsVisible$.set(isShown);
     if (panels.cmd) isCmdVisible$.set(isShown);
   });
-  api.on('load_save', async (path, loaded) => {
+  on('load_save', async (path, loaded) => {
     const target = saveTarget(Boolean(currentGameEntry$.value), path);
     if (target === 'answer-now') return loaded();
     saveLoadedCallback$.set(() => {
@@ -303,7 +337,7 @@ qspApi$.subscribe((api) => {
       requestSavesPanel('load');
     }
   });
-  api.on('save_game', async (path, saved) => {
+  on('save_game', async (path, saved) => {
     const target = saveTarget(Boolean(currentGameEntry$.value), path);
     if (target === 'answer-now') return saved();
     gameSavedCallback$.set(() => {
@@ -315,10 +349,10 @@ qspApi$.subscribe((api) => {
       requestSavesPanel('save');
     }
   });
-  api.on('wait', (ms, finish) => {
+  on('wait', (ms, finish) => {
     wait$.set({ ms, finish });
   });
-  api.on('debug', (debugRecord: QspDebugRecord, resume: () => void) => {
+  on('debug', (debugRecord: QspDebugRecord, resume: () => void) => {
     debugActions.setCurrentRecord(debugRecord, resume);
   });
 });

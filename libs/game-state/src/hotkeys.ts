@@ -31,7 +31,7 @@ function decide(hotkey: 'space' | 'restart' | 'save'): HotkeyDecision {
     isPaused: isPaused$.value,
     actionCount: actions$.value.length,
     dialogs: dialogState(),
-    nosave: hotkey === 'save' && Boolean(qspApi$.value?.readVariable('NOSAVE')),
+    nosave: hotkey === 'save' && Boolean(qspApi$.value?.readVariable('#NOSAVE')),
   });
 }
 

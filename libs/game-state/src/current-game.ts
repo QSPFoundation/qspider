@@ -1,7 +1,7 @@
 import { GameDescriptor, GameShelfEntry, PlayerConfig } from '@qspider/contracts';
 import { atom } from 'xoid';
 import { clearAdditionalResources, loadAdditionalResources } from './resources';
-import { openGameSource, qspApi$ } from './qsp-api';
+import { openGameSource, qspApi$, replaceQspEngine, whenQspEngineReady } from './qsp-api';
 import { CLASSIC_THEME, currentTheme$, currentTranslations$, registerThemes, themeRegistry$ } from './themes';
 import { resetCounterPauses } from './counter';
 import { muted$, sounds$ } from './audio';
@@ -142,7 +142,11 @@ export async function runGame(entry: GameShelfEntry): Promise<void> {
     }
     // A clean slate for the new game: no pause reason left over from the previous one.
     resetCounterPauses();
-    if (qspApi$.value) openGameSource(qspApi$.value, gameSource, true);
+    // A game stopped just before has its engine replaced; this game starts in the fresh one.
+    await whenQspEngineReady();
+    if (qspApi$.value) await openGameSource(qspApi$.value, gameSource, true);
+    // Not awaited: the promise settles only when the game's start code ends, which may wait in a dialog that
+    // shows only once the game is current.
     qspApi$.value?.restartGame();
     currentGameEntry$.set(entry);
     if (descriptor) currentGame$.set(descriptor);
@@ -176,6 +180,8 @@ baseUrl$.subscribe((url) => {
 });
 
 export function stopCurrentGame(): void {
+  // First: the dialogs cleared below answer the stopped game's engine, and it must not run that game further.
+  replaceQspEngine();
   baseUrl$.set(initialBaseUrl$.value);
   currentGameEntry$.set(null);
   currentGame$.set(null);

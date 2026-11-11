@@ -48,6 +48,26 @@ scenario('a message box does not outlive its game', async (player) => {
   );
 });
 
+// A game stopped inside a message box must not leave the engine waiting in it: the next game's message boxes
+// still hold the game until dismissed (one at a time, not both at once).
+scenario('a game stopped in a message box leaves the next game waiting on its own', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(DIALOGS.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.twoMessages),
+    SeeMsg(TEXT.firstOfTwo),
+    GoBackToShelf(),
+    OpenFromShelf(DIALOGS.title),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.twoMessages),
+    SeeMsg(TEXT.firstOfTwo),
+    DismissMsg(),
+    SeeMsg(TEXT.secondOfTwo),
+  );
+});
+
 scenario('an input prompt returns the submitted text', async (player) => {
   await player.attemptsTo(
     StartPlayer(),

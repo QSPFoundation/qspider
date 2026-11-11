@@ -1,7 +1,7 @@
 // The panels fixture game (panels/panels.qsps, packed as ARCHIVES.panelsZip with obj.png): its path
 // and the strings it writes. Keep this module free of test-framework imports: both runners load it.
 //
-// QSP 5.9 choices (engine @qsp/wasm-engine 1.6.1):
+// QSP 5.9 choices (engine @qsp/wasm-engine 2.0.0):
 // - `*pl` / `*clr` write the main text; `pl` / `clr` (no star) write the stats panel.
 // - Handlers are set by assigning a location name to a special string variable: `$onobjsel`
 //   (object selected; the object's name is in `$selobj`), `$usercom` (text typed in the input line;

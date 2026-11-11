@@ -44,7 +44,7 @@ async function writeSave(gameId: string, target: SaveTarget, saveData: ArrayBuff
 async function saveTo(target: SaveTarget): Promise<void> {
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
-  const saveData = qspApi$.value?.saveGame();
+  const saveData = await qspApi$.value?.saveGame();
   if (saveData) {
     await writeSave(currentGame.id, target, saveData);
   }
@@ -62,7 +62,7 @@ async function restoreFrom(target: SaveTarget): Promise<void> {
         : await getStorage().getSaveDataByKey(currentGame.id, target.path);
     // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
     if (saveData) {
-      qspApi$.value?.loadSave(saveData);
+      await qspApi$.value?.loadSave(saveData);
     }
   } finally {
     // Always resume the engine, even if reading or restoring the save failed.
@@ -86,12 +86,12 @@ export const clearSlot = (slot: number): Promise<void> => clearFrom({ slot });
 export const clearPath = (path: string): Promise<void> => clearFrom({ path });
 
 export async function quickSave(): Promise<void> {
-  const nosave = qspApi$.value?.readVariable('NOSAVE');
+  const nosave = qspApi$.value?.readVariable('#NOSAVE');
   if (nosave) return;
   const currentGame = currentGameEntry$.value;
   if (!currentGame) return;
   await withCounterPaused(async () => {
-    const saveData = qspApi$.value?.saveGame();
+    const saveData = await qspApi$.value?.saveGame();
     if (!saveData) return;
     await getStorage().saveByKey(currentGame.id, QUICK_SAVE_KEY, saveData);
     await loadSaveList();
@@ -104,7 +104,7 @@ export async function quickLoad(): Promise<void> {
   await withCounterPaused(async () => {
     const saveData = await getStorage().getSaveDataByKey(currentGame.id, QUICK_SAVE_KEY);
     if (saveData) {
-      qspApi$.value?.loadSave(saveData);
+      await qspApi$.value?.loadSave(saveData);
       onRestore();
     }
   });
