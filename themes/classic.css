@@ -1,16 +1,16 @@
 qsp-game-root,
 #portal-container {
-  --border-color: var(--background-color-contrast, var(--cl-background-color-contrast, gray));
-  --font-size: var(--code-font-size, var(--cl-font-size));
+  --border-color: var(--background-color-contrast);
+  --font-size: var(--code-font-size, var(--cl-font-size, 12pt));
   --font-name: var(--code-font-name, var(--cl-font-name));
-  --color: var(--code-color, var(--cl-color));
-  --link-color: var(--code-link-color, var(--cl-link-color));
-  --background-color: var(--code-background-color, var(--cl-background-color));
-  --background-color-inverted: var(--code-background-color-inverted, var(--cl-background-color-inverted));
-  --background-color-contrast: var(--code-background-color-contrast, var(--cl-background-color-contrast));
+  --color: var(--code-color, var(--cl-color, #000000));
+  --link-color: var(--code-link-color, var(--cl-link-color, #0000ff));
+  --background-color: var(--code-background-color, var(--cl-background-color, #e0e0e0));
+  --background-color-inverted: var(--code-background-color-inverted, var(--cl-background-color-inverted, #1f1f1f));
+  --background-color-contrast: var(--code-background-color-contrast, var(--cl-background-color-contrast, black));
   --background-color-inverted-contrast: var(
     --code-background-color-inverted-contrast,
-    var(--cl-background-color-inverted-contrast)
+    var(--cl-background-color-inverted-contrast, white)
   );
   font-size: var(--font-size);
   font-family: var(--font-name);
