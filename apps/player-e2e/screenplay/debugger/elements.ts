@@ -1,4 +1,5 @@
-import { By, PageElement } from '@serenity-js/web';
+import { startsWith } from '@serenity-js/assertions';
+import { By, PageElement, PageElements, Text } from '@serenity-js/web';
 
 // The debugger panel (libs/debugger) is app-shell UI: its controls are located by `data-qa`.
 
@@ -68,3 +69,65 @@ export const DebugEventsCount = PageElement.located(By.css('[data-qa="debug-even
 export const DebugEventsClearButton = PageElement.located(By.css('[data-qa="debug-events-clear"]')).describedAs(
   'clear events button',
 );
+
+/**
+ * The first token span of the editor (a leaf span of a view line: Monaco's own DOM, located by its classes) whose
+ * text starts with `text`. A token is its own span (`$WHO`, `%REC`, `#U`) except a plain name, which shares its
+ * span with the operator after it (`GOLD =`).
+ */
+export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') => {
+  const tokens = PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span')).where(
+    Text,
+    startsWith(text),
+  );
+  return (occurrence === 'last' ? tokens.last() : tokens.first()).describedAs(`${occurrence} editor token "${text}"`);
+};
+
+/** Monaco's hover widget content (the widget lives inside the editor's DOM). */
+export const HoverContent = PageElement.located(
+  By.css('[data-qa="debug-editor"] .monaco-hover:not(.hidden) .monaco-hover-content'),
+).describedAs('editor hover');
+
+/** The hover's Pin link: a markdown link to the pin command (`command:<id>?...`, as Monaco renders it). */
+export const HoverPinLink = PageElement.located(
+  By.css('[data-qa="debug-editor"] .monaco-hover-content a[data-href^="command:qsp.debugger.pinVariable"]'),
+).describedAs('hover pin link');
+
+export const WatchPanel = PageElement.located(By.css('[data-qa="debug-watch-panel"]')).describedAs('watch panel');
+export const WatchInput = PageElement.located(By.css('[data-qa="debug-watch-input"]')).describedAs('watch input');
+export const WatchAddButton = PageElement.located(By.css('[data-qa="debug-watch-add"]')).describedAs(
+  'watch add button',
+);
+
+/** A watch entry by the name as entered, upper-cased; `data-changed` is `true` or `false`. */
+export const WatchEntry = (name: string) =>
+  PageElement.located(By.css(`[data-qa="debug-watch-entry"][data-name="${name.toUpperCase()}"]`)).describedAs(
+    `watch entry "${name.toUpperCase()}"`,
+  );
+
+/** The formatted value inside an entry. */
+export const WatchValue = (name: string) =>
+  PageElement.located(By.css('[data-qa="debug-watch-value"]'))
+    .of(WatchEntry(name))
+    .describedAs(`watch value of "${name.toUpperCase()}"`);
+
+/** The pause toggle inside an entry; `data-state` is `on` or `off`. */
+export const WatchPauseToggle = (name: string) =>
+  PageElement.located(By.css('[data-qa="debug-watch-pause-toggle"]'))
+    .of(WatchEntry(name))
+    .describedAs(`watch pause toggle of "${name.toUpperCase()}"`);
+
+/** The notice naming the change that paused the game. */
+export const ChangeNotice = PageElement.located(By.css('[data-qa="debug-change-notice"]')).describedAs('change notice');
+
+/** The expand button of a watch entry. */
+export const WatchExpandButton = (name: string) =>
+  PageElement.located(By.css('[data-qa="debug-watch-expand"]'))
+    .of(WatchEntry(name))
+    .describedAs(`watch expand button of "${name.toUpperCase()}"`);
+
+/** A row of an expanded entry, by its key (a field name, or the index of an item). */
+export const WatchRow = (name: string, key: string) =>
+  PageElement.located(By.css(`[data-qa="debug-watch-row"][data-key="${key}"]`))
+    .of(WatchEntry(name))
+    .describedAs(`row "${key}" of watch entry "${name.toUpperCase()}"`);

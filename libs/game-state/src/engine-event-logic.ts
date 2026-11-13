@@ -6,11 +6,15 @@
 import { QspPanel } from '@qsp/wasm-engine';
 import type { DebugState } from './debug';
 
-/** Whether a link the player runs goes through the debugger first: debugging, and paused or pausing on links. */
+/**
+ * Whether a link the player runs goes through the debugger first: debugging with the panel open, and paused or
+ * pausing on links.
+ */
 export function shouldPauseOnLink(
   debugState: Pick<DebugState, 'isEnabled' | 'isPaused' | 'autoPauseOnLinks'>,
+  isPanelOpen: boolean,
 ): boolean {
-  return debugState.isEnabled && (debugState.isPaused || debugState.autoPauseOnLinks);
+  return isPanelOpen && debugState.isEnabled && (debugState.isPaused || debugState.autoPauseOnLinks);
 }
 
 /** A link whose href is QSP code (`exec:<code>`, the prefix in any case). */

@@ -5,8 +5,10 @@ import { pollUntil } from './polling';
 /**
  * Waits until `ms` have passed on the page's own clock. The single documented exception to "no fixed
  * sleeps": it waits for the condition under test (elapsed time) and must never paper over a race.
- * The only allowed use: the counter "does not run while a dialog / the pause screen is open" checks, with
- * ms = 5 x the timer interval. Any other use needs maintainer approval.
+ * The allowed uses (maintainer-approved): the counter "does not run while a dialog / the pause screen is open"
+ * checks, with ms = 5 x the timer interval, and the two debugger scenarios that recheck the watch panel's change
+ * marks and notice survive the counter's clean runs (2.5 s = 5 x the counter's 500 ms). Any other use needs
+ * maintainer approval.
  */
 export const PageClockAdvanced = (ms: number): Task =>
   Task.where(

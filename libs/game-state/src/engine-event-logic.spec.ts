@@ -16,11 +16,15 @@ import {
 } from './engine-event-logic';
 
 describe('shouldPauseOnLink', () => {
-  it('pauses on a link only while debugging, when paused or pausing on links', () => {
-    expect(shouldPauseOnLink({ isEnabled: true, isPaused: true, autoPauseOnLinks: false })).toBe(true);
-    expect(shouldPauseOnLink({ isEnabled: true, isPaused: false, autoPauseOnLinks: true })).toBe(true);
-    expect(shouldPauseOnLink({ isEnabled: true, isPaused: false, autoPauseOnLinks: false })).toBe(false);
-    expect(shouldPauseOnLink({ isEnabled: false, isPaused: true, autoPauseOnLinks: true })).toBe(false);
+  it('pauses on a link only while debugging with the panel open, when paused or pausing on links', () => {
+    expect(shouldPauseOnLink({ isEnabled: true, isPaused: true, autoPauseOnLinks: false }, true)).toBe(true);
+    expect(shouldPauseOnLink({ isEnabled: true, isPaused: false, autoPauseOnLinks: true }, true)).toBe(true);
+    expect(shouldPauseOnLink({ isEnabled: true, isPaused: false, autoPauseOnLinks: false }, true)).toBe(false);
+    expect(shouldPauseOnLink({ isEnabled: false, isPaused: true, autoPauseOnLinks: true }, true)).toBe(false);
+  });
+
+  it('never pauses on a link while the panel is closed', () => {
+    expect(shouldPauseOnLink({ isEnabled: true, isPaused: true, autoPauseOnLinks: true }, false)).toBe(false);
   });
 });
 

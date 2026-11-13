@@ -1,5 +1,6 @@
 import { Task } from '@serenity-js/core';
 import { Key, Press } from '@serenity-js/web';
+import { TypeInto } from '../support/type-into';
 import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../support/presence';
 import {
   DebugBreakpointButton,
@@ -13,7 +14,13 @@ import {
   DebugResumeButton,
   DebugStepButton,
   DebugToggle,
+  EditorToken,
+  HoverPinLink,
   PauseOnLinksToggle,
+  WatchAddButton,
+  WatchExpandButton,
+  WatchInput,
+  WatchPauseToggle,
 } from './elements';
 
 /** Presses F12 and waits until the debugger panel shows. */
@@ -56,3 +63,35 @@ export const OpenEventsTab = (): Task => Task.where('#actor opens the events tab
 
 export const ClearEvents = (): Task =>
   Task.where('#actor clears the event log', ClickWhenPresent(DebugEventsClearButton));
+
+/** Types `name` into the watch input and adds it to the watch list. */
+export const AddWatch = (name: string): Task =>
+  Task.where(
+    `#actor adds "${name}" to the watch list`,
+    waitUntilPresent(WatchInput),
+    TypeInto(name, WatchInput),
+    ClickWhenPresent(WatchAddButton),
+  );
+
+/** Toggles pausing on change of the watched `name`. */
+export const ToggleWatchPause = (name: string): Task =>
+  Task.where(`#actor toggles the break on change of "${name}"`, ClickWhenPresent(WatchPauseToggle(name)));
+
+/**
+ * Opens the editor hover on the token `text`: clicks the token (the cursor lands in it), then the chord Ctrl+K,
+ * Ctrl+I, Monaco's "Show Hover". Keyboard only, so it is portable (no pointer movement).
+ */
+export const HoverToken = (text: string, occurrence: 'first' | 'last' = 'first'): Task =>
+  Task.where(
+    `#actor opens the hover of the ${occurrence} "${text}"`,
+    ClickWhenPresent(EditorToken(text, occurrence)),
+    Press.the(Key.Control, 'k'),
+    Press.the(Key.Control, 'i'),
+  );
+
+/** Pins the hovered variable to the watch list with the hover's Pin link. */
+export const PinFromHover = (): Task => Task.where('#actor pins the hovered variable', ClickWhenPresent(HoverPinLink));
+
+/** Expands the watch entry `name` (an array or a tuple) to its rows. */
+export const ExpandWatch = (name: string): Task =>
+  Task.where(`#actor expands the watch entry "${name}"`, ClickWhenPresent(WatchExpandButton(name)));

@@ -51,7 +51,7 @@ import {
   stripExec,
   versionAnswer,
 } from './engine-event-logic';
-import { debugActions } from './debug';
+import { debugActions, isDebugPanelOpen$ } from './debug';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
@@ -111,7 +111,7 @@ export function execCode(code: string): void {
   if (!api) return;
 
   // Check if debug mode is enabled and should pause on link execution
-  if (shouldPauseOnLink(debugActions.getDebugState())) {
+  if (shouldPauseOnLink(debugActions.getDebugState(), isDebugPanelOpen$.value)) {
     // Create a synthetic debug record for the link execution
     debugActions.setLinkExecution(code, () => {
       api.execCode(code);

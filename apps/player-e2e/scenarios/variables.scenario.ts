@@ -54,6 +54,17 @@ scenario("qsp-variable shows a tuple in QSP's text form", async (player) => {
   );
 });
 
+scenario('qsp-variable prints a record the QSP way', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.watchers),
+    SeeElementText(ContentMark(MARK.wrec), TEXT.record, `#actor sees the record variable read "${TEXT.record}"`),
+  );
+});
+
 // Two readers share one engine watcher: when the main text's reader goes away, the stats panel's reader must keep
 // updating, and a reader that comes back must show the current value.
 scenario('a shared variable keeps updating its remaining reader after another reader leaves', async (player) => {

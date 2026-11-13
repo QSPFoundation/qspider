@@ -5,6 +5,7 @@ import * as RadixTooltip from '@radix-ui/react-tooltip';
 import { debugState$, debugActions, enableDebugMode, disableDebugMode, canStep$ } from '@qspider/game-state';
 import { TooltipButton } from './tooltip-button';
 import { formatEventArgs } from './debug-utils';
+import { WatchPanel } from './watch-panel';
 
 export const LocationRightPanel: React.FC = () => {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export const LocationRightPanel: React.FC = () => {
 
   return (
     <RadixTabs.Root defaultValue="execution" className="qsp-debugger-right-panel">
+      <WatchPanel />
       <RadixTabs.List className="qsp-debugger-right-panel-tabs">
         <RadixTabs.Trigger value="execution" className="qsp-debugger-right-panel-tab">
           {t('Execution')}

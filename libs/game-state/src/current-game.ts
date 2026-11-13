@@ -24,6 +24,7 @@ import { clearDialogs } from './dialogs';
 import { showNotice } from './toasts';
 import { parseToml } from '@qspider/utils';
 import { debugActions } from './debug';
+import { resetWatchBaseline, setWatchGame } from './debug-watch';
 import { scrollStep } from './qspider-command-parsers';
 import { isQspsFile } from './engine-event-logic';
 import {
@@ -48,6 +49,9 @@ export const currentAeroHeight$ = atom((get) => aeroHeight(get(currentGame$)));
 export const saveSlotsCount$ = atom((get) => slotCount(get(currentGame$)));
 export const onGameEnd$ = atom<null | (() => void)>(null);
 export const baseUrl$ = atom('');
+
+// The debugger's watch list is saved per game, by the shelf id saves use too.
+currentGameEntry$.subscribe((entry) => setWatchGame(entry?.id ?? null));
 
 export async function runGame(entry: GameShelfEntry): Promise<void> {
   if (!entry) throw new Error('Game not found');
@@ -239,6 +243,7 @@ export function onGameCommand(action: GameCommand): void {
       stopCurrentGame();
       break;
     case 'restart':
+      resetWatchBaseline(); // the restarted game is a new baseline, not a change
       // Closing the pause screen goes back in history, to the shelf when it is not open, so only an open
       // pause screen is closed. The counter needs no handling here: the pause screen and a library the
       // restart loads (withCounterPaused) each hold their own pause reason and release only that.

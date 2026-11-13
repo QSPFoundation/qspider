@@ -1,11 +1,27 @@
 # start
+hits = 5
 *pl 'DEBUG START'
 *pl '<a href="exec:gt ''second''" data-qa="debug-link">to second</a>'
 ! The go action (a goto to the second location) is a base action added when build-fixtures compiles this file to debugger.qsp:
 ! a QSPS act is a statement, and the debugger lists only the base actions of a location on its Actions tab.
+! So are `bump` (`hits += 1`) and `hold` (`hits += 1 & msg 'HOLD'`, then a second line): they change HITS without leaving `start`.
 ---
 
 # second
 *pl 'DEBUG SECOND'
 *pl 'DEBUG SECOND END'
+---
+
+# vars
+gold = 100
+$who = 'Ann'
+$inv[] = 'sword'
+$inv['key'] = 'brass'
+%rec = [name: 'Ann', age: 30]
+u = '42'
+gold -= 30
+*pl 'VARS END <<gold>>'
+uval = #u
+ghost = $nothing
+bag = $inv
 ---

@@ -7,6 +7,7 @@ import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution';
 import type * as Monaco from 'monaco-editor';
 import { registerQspLanguage } from './qsp-language';
+import { registerQspHover } from './qsp-hover';
 
 export const monaco = editorCore as unknown as typeof Monaco;
 
@@ -19,3 +20,4 @@ globalThis.MonacoEnvironment = {
 loader.config({ monaco });
 
 registerQspLanguage(monaco);
+registerQspHover(monaco);

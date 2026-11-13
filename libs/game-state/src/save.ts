@@ -5,6 +5,7 @@ import { currentGameEntry$ } from './current-game';
 import { qspApi$ } from './qsp-api';
 import { getStorage } from '@qspider/env';
 import { closePauseScreen } from './pause-screen';
+import { resetWatchBaseline } from './debug-watch';
 import {
   finishSave,
   gameSavedCallback$,
@@ -62,6 +63,7 @@ async function restoreFrom(target: SaveTarget): Promise<void> {
         : await getStorage().getSaveDataByKey(currentGame.id, target.path);
     // Engine contract (load_save event): the callback runs after api.loadSave has restored the state.
     if (saveData) {
+      resetWatchBaseline(); // a loaded save is a new baseline, not a change
       await qspApi$.value?.loadSave(saveData);
     }
   } finally {
@@ -104,6 +106,7 @@ export async function quickLoad(): Promise<void> {
   await withCounterPaused(async () => {
     const saveData = await getStorage().getSaveDataByKey(currentGame.id, QUICK_SAVE_KEY);
     if (saveData) {
+      resetWatchBaseline(); // a loaded save is a new baseline, not a change
       await qspApi$.value?.loadSave(saveData);
     }
   });
