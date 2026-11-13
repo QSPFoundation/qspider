@@ -12,3 +12,9 @@ export const DelayGameLinkPage = (ms: number): Interaction =>
   Interaction.where(`#actor makes the page a game link opens take ${ms} ms`, (actor) =>
     OperatePlayer.as(actor).delayGameLinkPage(actor, ms),
   );
+
+/** Requests to `origin` fail in the browser (web only); call it before `StartPlayer()`. */
+export const BlockOrigin = (origin: string): Interaction =>
+  Interaction.where(`#actor makes ${origin} unreachable`, (actor) =>
+    OperatePlayer.as(actor).blockOrigin(actor, origin),
+  );

@@ -105,6 +105,15 @@ export class OperateWebPlayer extends OperatePlayer {
     });
   }
 
+  async blockOrigin(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void> {
+    const page = (await BrowseTheWebWithPlaywright.as(actor).currentPage()) as PlaywrightPage;
+    // On the browser context, so it holds for every page and worker of the scenario, and from the first navigation.
+    await (await page.nativePage()).context().route(
+      (url) => url.origin === origin,
+      (route) => route.abort('failed'),
+    );
+  }
+
   async proxiedUrls(): Promise<string[]> {
     return [...this.proxied];
   }

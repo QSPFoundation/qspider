@@ -37,6 +37,7 @@ export const Debugger: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   return (
     <div
+      data-qa="debugger-layout"
       className={`qsp-debugger-layout ${isDebugPanelOpen ? 'debugger-open' : ''} ${isDebugPanelOpen ? `debugger-${dockPosition}` : ''}`}
     >
       <div className="qsp-debugger-main-content">{children}</div>

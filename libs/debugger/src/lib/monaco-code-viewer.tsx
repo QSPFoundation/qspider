@@ -2,13 +2,7 @@ import { Editor } from '@monaco-editor/react';
 import React, { useEffect, useRef, useState } from 'react';
 import type { editor } from 'monaco-editor';
 import { useTranslation } from 'react-i18next';
-import { registerQspLanguage } from './qsp-language';
-
-declare global {
-  interface Window {
-    monaco: typeof import('monaco-editor');
-  }
-}
+import { monaco } from './monaco-setup';
 
 interface BreakpointInfo {
   id: string;
@@ -66,11 +60,6 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
   const handleEditorDidMount = (editorInstance: editor.IStandaloneCodeEditor): void => {
     editorRef.current = editorInstance;
 
-    // Register QSP language if not already registered
-    if (window.monaco) {
-      registerQspLanguage(window.monaco);
-    }
-
     // Configure editor for readonly code viewing
     editorInstance.updateOptions({
       readOnly: true,
@@ -90,7 +79,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
     if (onBreakpointToggle && locationName) {
       editorInstance.onMouseDown((e) => {
         // Check if click was in the glyph margin (where breakpoints are shown)
-        if (e.target.type === window.monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+        if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
           const lineNumber = e.target.position?.lineNumber;
           if (lineNumber) {
             handleToggleBreakpointRef.current?.(lineNumber);
@@ -104,13 +93,13 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
   // Highlight current execution line
   useEffect(() => {
-    if (editorRef.current && currentLine && currentLine > 0 && window.monaco) {
+    if (editorRef.current && currentLine && currentLine > 0) {
       const editor = editorRef.current;
 
       // Add decoration to highlight current line
       const decorations = editor.createDecorationsCollection([
         {
-          range: new window.monaco.Range(currentLine, 1, currentLine, 1),
+          range: new monaco.Range(currentLine, 1, currentLine, 1),
           options: {
             isWholeLine: true,
             className: 'qsp-current-line-decoration',
@@ -132,7 +121,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
   // Scroll to target line (e.g., when clicking a breakpoint)
   useEffect(() => {
-    if (editorRef.current && targetLine && targetLine > 0 && window.monaco) {
+    if (editorRef.current && targetLine && targetLine > 0) {
       const editor = editorRef.current;
       // Scroll to target line
       editor.revealLineInCenter(targetLine);
@@ -154,7 +143,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
       // Create breakpoint decorations
       const decorations = relevantBreakpoints.map((bp) => ({
-        range: new window.monaco.Range(bp.line!, 1, bp.line!, 1),
+        range: new monaco.Range(bp.line!, 1, bp.line!, 1),
         options: {
           isWholeLine: false,
           // Different glyph styles for enabled vs disabled
@@ -213,7 +202,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
   return (
     <div className="qsp-monaco-code-viewer">
       {title && <div className="qsp-monaco-code-title">{title}</div>}
-      <div className="qsp-monaco-editor-container">
+      <div className="qsp-monaco-editor-container" data-qa="debug-editor">
         <Editor
           height={height}
           language={language}

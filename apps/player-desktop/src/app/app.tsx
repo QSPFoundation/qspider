@@ -7,6 +7,7 @@ import { isSupportedFileType } from './utils';
 import { init } from './init';
 import { ErrorAlert, NoticeToast, QspiderLoader, QspiderRoot, StartupMarker } from '@qspider/renderer';
 import { baseInit$, componentsRegistry$, currentGame$, showError, stopCurrentGame } from '@qspider/game-state';
+import { Debugger } from '@qspider/debugger';
 import { extname, importDesktop, onFileDrop } from '@qspider/desktop';
 import { useAtom } from '@xoid/react';
 
@@ -68,10 +69,12 @@ export const App: React.FC = () => {
   return (
     <Suspense fallback={<QspiderLoader />}>
       <QspiderRoot>
-        <PlayerWithShelf />
-        <ErrorAlert />
-        <NoticeToast />
-        <StartupMarker />
+        <Debugger>
+          <PlayerWithShelf />
+          <ErrorAlert />
+          <NoticeToast />
+          <StartupMarker />
+        </Debugger>
       </QspiderRoot>
       {isFileDropHovered ? (
         <div className={unsupportedType ? 'file-drop-area disabled' : 'file-drop-area'}>

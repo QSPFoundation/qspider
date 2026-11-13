@@ -137,7 +137,12 @@ export const DebugPanel: React.FC = () => {
   };
 
   return (
-    <div className={`qsp-debugger-container ${position} ${!isOpen ? 'hidden' : ''}`} style={containerStyle}>
+    <div
+      data-qa="debug-panel"
+      data-dock={position}
+      className={`qsp-debugger-container ${position} ${!isOpen ? 'hidden' : ''}`}
+      style={containerStyle}
+    >
       <div className={`qsp-debugger-resizer ${isResizing ? 'resizing' : ''}`} onMouseDown={handleMouseDown} />
       <div className="qsp-debugger-header">
         <div className="qsp-debugger-title">
@@ -148,6 +153,7 @@ export const DebugPanel: React.FC = () => {
             <div className="qsp-debugger-dock-controls">
               <TooltipButton
                 onClick={() => debugActions.setDockPosition('left')}
+                qa="debug-dock-left"
                 tooltip={t('Dock to left')}
                 className={`qsp-debugger-dock-button ${position === 'left' ? 'active' : ''}`}
               >
@@ -155,6 +161,7 @@ export const DebugPanel: React.FC = () => {
               </TooltipButton>
               <TooltipButton
                 onClick={() => debugActions.setDockPosition('bottom')}
+                qa="debug-dock-bottom"
                 tooltip={t('Dock to bottom')}
                 className={`qsp-debugger-dock-button ${position === 'bottom' ? 'active' : ''}`}
               >
@@ -162,6 +169,7 @@ export const DebugPanel: React.FC = () => {
               </TooltipButton>
               <TooltipButton
                 onClick={() => debugActions.setDockPosition('right')}
+                qa="debug-dock-right"
                 tooltip={t('Dock to right')}
                 className={`qsp-debugger-dock-button ${position === 'right' ? 'active' : ''}`}
               >
@@ -170,6 +178,7 @@ export const DebugPanel: React.FC = () => {
             </div>
             <TooltipButton
               onClick={() => debugActions.closeDebugPanel()}
+              qa="debug-close"
               tooltip={t('Close debugger panel')}
               className="qsp-debugger-close-button"
             >
@@ -193,6 +202,9 @@ export const DebugPanel: React.FC = () => {
               return (
                 <div
                   key={location}
+                  data-qa="debug-location"
+                  data-location={location}
+                  data-selected={isSelected}
                   className={`qsp-debugger-location-item ${
                     isSelected ? 'selected' : ''
                   } ${isCurrentExecution ? 'current-execution' : ''}`}
@@ -204,6 +216,7 @@ export const DebugPanel: React.FC = () => {
                   </span>
                   <RadixTooltip.Provider>
                     <TooltipButton
+                      qa="debug-breakpoint"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleAddBreakpoint(location);

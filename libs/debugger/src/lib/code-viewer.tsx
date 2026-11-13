@@ -157,12 +157,16 @@ export const CodeViewer: React.FC = () => {
       <div className="qsp-debugger-code-controls">
         <div className="qsp-debugger-code-type-selector">
           <button
+            data-qa="debug-code-tab"
+            data-code-type="location"
             onClick={() => setSelectedCodeType('location')}
             className={`qsp-debugger-code-type-button ${selectedCodeType === 'location' ? 'active' : ''}`}
           >
             {t('Location Code')}
           </button>
           <button
+            data-qa="debug-code-tab"
+            data-code-type="description"
             onClick={() => setSelectedCodeType('description')}
             className={`qsp-debugger-code-type-button ${selectedCodeType === 'description' ? 'active' : ''}`}
           >
@@ -170,6 +174,8 @@ export const CodeViewer: React.FC = () => {
           </button>
           {locationInfo.actions.length > 0 && (
             <button
+              data-qa="debug-code-tab"
+              data-code-type="action"
               onClick={() => setSelectedCodeType('action')}
               className={`qsp-debugger-code-type-button ${selectedCodeType === 'action' ? 'active' : ''}`}
             >
