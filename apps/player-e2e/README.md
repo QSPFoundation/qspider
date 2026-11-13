@@ -35,6 +35,7 @@ apps/player-e2e/
   screenplay/
     <area>/             elements.ts, tasks.ts, checks.ts (as needed) for one place in the UI
       shelf/ game/ pause/ saves/ stats/ objects/ cmd/ content/ view/ wait/ msg/ input/ menu/
+      classic/ look/ resources/ standalone/ themes/ debugger/
     common/             elements and checks used by more than one area
     support/            shared primitives (below)
   targets/

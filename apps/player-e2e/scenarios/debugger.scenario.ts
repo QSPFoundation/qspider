@@ -26,9 +26,10 @@ import {
   TogglePauseOnLinks,
 } from '../screenplay/debugger/tasks';
 import { SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
-import { ClickAction } from '../screenplay/game/tasks';
+import { ClickAction, ReturnToShelf } from '../screenplay/game/tasks';
 import { ContentMark } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
+import { SeeShelfIncludes, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { LoadGame, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { BlockOrigin } from '../screenplay/support/delay-requests';
@@ -92,10 +93,11 @@ scenario('an action shows up in the event log and clear empties it', async (play
   await player.attemptsTo(
     ...OpenDebuggerGame(),
     OpenDebugger(),
-    EnableDebugging(),
+    OpenEventsTab(),
+    ClearEvents(), // the engine logs from game start, so the log starts non-empty
+    SeeEventsCount(0),
     ClickAction(ACTION.go),
     SeeMainTextContaining(TEXT.second),
-    OpenEventsTab(),
     SeeEventsAbove(0),
     ClearEvents(),
     SeeEventsCount(0),
@@ -124,6 +126,9 @@ scenario('the dock position survives a player restart', async (player) => {
     OpenDebugger(),
     DockDebugger('left'),
     SeeDebuggerDocked('left'),
+    ReturnToShelf(),
+    SeeShelfIncludes(DEBUGGER_GAME.title),
+    SeeShelfWritesSettled(), // the dock position and the shelf must reach storage before the restart
     RestartPlayer(),
     SeeStartupFinished(),
     OpenFromShelf(DEBUGGER_GAME.title),
