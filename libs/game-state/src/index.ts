@@ -35,4 +35,6 @@ export {
   type LocationReader,
 } from './code-search';
 export { formatQspValue, formatQspValueTruncated, scalarOrUnset } from './variable-logic';
+export { readHover, type HoverReading } from './debug-hover';
+export { hoverReadPlan, type HoverPlan } from './debug-hover-logic';
 export * from './variables';

@@ -78,7 +78,7 @@ function quote(text: string): string {
 }
 
 /** An item's index as QSP code writes it: `'key'`, `1, 2` for a tuple key, or the position. */
-function indexText(key: string | QspTuple | undefined, position: number): string {
+export function indexText(key: string | QspTuple | undefined, position: number): string {
   if (key === undefined) return String(position);
   if (isTuple(key)) return formatQspValueTruncated(key, DESCRIBE_MAX_ITEMS).slice(1, -1);
   return quote(key);
