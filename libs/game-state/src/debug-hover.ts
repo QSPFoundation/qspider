@@ -1,6 +1,6 @@
 import type { QspAPI, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { isRetiredEngine, qspApi$ } from './qsp-engine';
-import { describeHover, describeSummary, HOVER_SUMMARY_ITEMS, type HoverPlan } from './debug-hover-logic';
+import { describeHover, describeSummary, isArrayHover, HOVER_SUMMARY_ITEMS, type HoverPlan } from './debug-hover-logic';
 import { indexText, itemWindow } from './debug-watch-logic';
 
 export interface HoverReading {
@@ -18,6 +18,9 @@ function readRaw(api: QspAPI, name: string): QspVariableValue {
 
 function readValueLines(api: QspAPI, name: string): string[] {
   const size = api.readVariableSize(name);
+  if (size > 0 && isArrayHover(size, api.readVariableItem(name, 0).key)) {
+    return describeSummary(name, ...summaryItems(api, name));
+  }
   return describeHover(name, api.readVariable(name), PREFIX.test(name) ? readRaw(api, name) : undefined, size);
 }
 

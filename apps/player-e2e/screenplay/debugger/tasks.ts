@@ -81,10 +81,10 @@ export const ToggleWatchPause = (name: string): Task =>
  * Opens the editor hover on the token `text`: clicks the token (the cursor lands in it), then the chord Ctrl+K,
  * Ctrl+I, Monaco's "Show Hover". Keyboard only, so it is portable (no pointer movement).
  */
-export const HoverToken = (text: string): Task =>
+export const HoverToken = (text: string, occurrence: 'first' | 'last' = 'first'): Task =>
   Task.where(
-    `#actor opens the hover of "${text}"`,
-    ClickWhenPresent(EditorToken(text)),
+    `#actor opens the hover of the ${occurrence} "${text}"`,
+    ClickWhenPresent(EditorToken(text, occurrence)),
     Press.the(Key.Control, 'k'),
     Press.the(Key.Control, 'i'),
   );

@@ -1,6 +1,13 @@
 import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
-import { describeHover, describeSummary, hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+import {
+  describeHover,
+  describeSummary,
+  isArrayHover,
+  hoverCodeBlock,
+  hoverReadPlan,
+  type HoverPlan,
+} from './debug-hover-logic';
 
 const tuple = (items: QspVariableValue[], names?: Array<string | undefined>): QspTuple => {
   const t = [...items] as QspTuple;
@@ -148,5 +155,20 @@ describe('hoverCodeBlock', () => {
     const lines = hoverCodeBlock(["$A = '[x](command:foo) <img src=x>'"]).split('\n');
     expect(lines).toHaveLength(3);
     expect(lines[1]).toBe("$A = '[x](command:foo) <img src=x>'");
+  });
+});
+
+describe('isArrayHover', () => {
+  it('is false for a single plain value', () => {
+    expect(isArrayHover(1, undefined)).toBe(false);
+  });
+
+  it('is true for several items', () => {
+    expect(isArrayHover(2, undefined)).toBe(true);
+  });
+
+  it('is true for one keyed item, string or tuple key', () => {
+    expect(isArrayHover(1, 'key')).toBe(true);
+    expect(isArrayHover(1, tuple([1, 2]))).toBe(true);
   });
 });

@@ -75,11 +75,13 @@ export const DebugEventsClearButton = PageElement.located(By.css('[data-qa="debu
  * text starts with `text`. A token is its own span (`$WHO`, `%REC`, `#U`) except a plain name, which shares its
  * span with the operator after it (`GOLD =`).
  */
-export const EditorToken = (text: string) =>
-  PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span'))
-    .where(Text, startsWith(text))
-    .first()
-    .describedAs(`editor token "${text}"`);
+export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') => {
+  const tokens = PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span')).where(
+    Text,
+    startsWith(text),
+  );
+  return (occurrence === 'last' ? tokens.last() : tokens.first()).describedAs(`${occurrence} editor token "${text}"`);
+};
 
 /** Monaco's hover widget content (the widget lives inside the editor's DOM). */
 export const HoverContent = PageElement.located(

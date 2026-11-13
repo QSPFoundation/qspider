@@ -220,6 +220,22 @@ scenario('hovering a variable while paused shows its value', async (player) => {
   );
 });
 
+// `$inv` holds two items, one keyed: hovered with no brackets (the last line of `vars` reads it whole) it shows the
+// count and the items, not only its first cell.
+scenario('hovering an array name shows its item count and items', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    SelectLocation(LOCATION.vars),
+    SeeEditorCode(VARS.lastLine),
+    ClickAction(ACTION.vars),
+    SeeMainTextContaining(TEXT.varsEnd), // the array is set now
+    HoverToken(VARS.token.inv, 'last'),
+    SeeHoverText(VARS.hover.invCount),
+    ...VARS.hover.invItems.map((item) => SeeHoverText(item)),
+  );
+});
+
 scenario('a pinned variable updates on step and is marked changed', async (player) => {
   await player.attemptsTo(
     ...OpenDebuggerGame(),

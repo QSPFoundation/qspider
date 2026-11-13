@@ -23,19 +23,24 @@ export const DEBUGGER_GAME = {
    */
   code: { start: "*PL 'DEBUG START'", second: "*PL 'DEBUG SECOND'", goAction: "GT 'second'" },
   /**
-   * The `vars` location (10 lines, one statement each; the last reads `$nothing`, a name nothing sets): what the variable hover, the watch panel and break on change
+   * The `vars` location (11 lines, one statement each; the last two read `$nothing`, a name nothing sets, and `$inv` whole): what the variable hover, the watch panel and break on change
    * read. `changeLine` is the line of `GOLD -= 30`; `hover` is what hovering each variable shows once the first six
    * lines ran. Hover tokens are spelled as the editor shows them (upper-cased).
    */
   vars: {
     changeLine: 7,
-    token: { gold: 'GOLD', who: '$WHO', rec: '%REC', numberU: '#U', unset: '$NOTHING' },
+    /** The last line of `vars`, as the editor shows it: the one that reads `$inv` whole. */
+    lastLine: 'BAG = $INV',
+    token: { gold: 'GOLD', who: '$WHO', rec: '%REC', numberU: '#U', unset: '$NOTHING', inv: '$INV' },
     hover: {
       gold: '100',
       who: "'Ann'",
       rec: "[NAME: 'Ann', AGE: 30]",
       hiddenByPrefix: "'42'",
       unset: '$NOTHING — not set',
+      /** `$inv` hovered with no brackets: its item count, then its items (`'sword'`, and `'key'` → `'brass'`). */
+      invCount: '$INV — 2 items',
+      invItems: ['sword', 'brass'],
     },
     rows: { name: 'NAME', nameValue: "'Ann'", age: 'AGE', ageValue: '30' },
     watch: { before: '100', after: '70' },

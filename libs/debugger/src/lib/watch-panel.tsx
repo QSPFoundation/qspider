@@ -5,8 +5,10 @@ import {
   changeNotice$,
   debugState$,
   indexText,
+  itemWindow,
   showValue,
   watchActions,
+  WATCH_ITEM_CAP,
   watchChanged$,
   watchKey,
   watchList$,
@@ -15,7 +17,8 @@ import {
   type WatchValue,
 } from '@qspider/game-state';
 
-type QspTuple = Extract<WatchValue['value'], readonly unknown[]>;
+type QspVariableValue = WatchValue['value'];
+type QspTuple = Extract<QspVariableValue, readonly unknown[]>;
 
 /** The text of an entry's value: a variable with no cells is "not set" (the engine reads it as '', 0 or []). */
 function entryText(value: WatchValue | undefined, notSet: string, items: (n: number) => string): string {
@@ -31,22 +34,54 @@ function expandable(value: WatchValue | undefined): boolean {
   return value.size > 1 || value.items.some((item) => item.key !== undefined) || Array.isArray(value.value);
 }
 
-/** The rows of a tuple: named (`NAME  value`) for a record's fields, numbered otherwise; nested tuples expand. */
+/** Most rows a list shows before "… n more": the same cap the watch snapshot puts on the items it reads. */
+const ROW_CAP = WATCH_ITEM_CAP;
+
+/**
+ * One row: its key, an optional arrow, and its value. A tuple value gets an expand control (collapsed by default)
+ * and, when open, its own rows, so nested values expand on demand.
+ */
+function Row({ rowKey, arrow, value }: { rowKey: string; arrow?: boolean; value: QspVariableValue }) {
+  const [open, setOpen] = useState(false);
+  const nested = Array.isArray(value);
+  return (
+    <div>
+      <div className="qsp-debugger-watch-row" data-qa="debug-watch-row" data-key={rowKey}>
+        {nested ? (
+          <button
+            type="button"
+            className="qsp-debugger-watch-expand"
+            data-qa="debug-watch-expand"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? '▾' : '▸'}
+          </button>
+        ) : null}
+        <span className="qsp-debugger-watch-row-key">{rowKey}</span>{' '}
+        {arrow && <span className="qsp-debugger-watch-row-arrow">→ </span>}
+        <span className="qsp-debugger-watch-row-value">{nested && open ? '' : showValue(value)}</span>
+      </div>
+      {nested && open && <TupleRows tuple={value} />}
+    </div>
+  );
+}
+
+/** The "… n more" line after a capped list of rows. */
+function MoreRow({ count }: { count: number }) {
+  const { t } = useTranslation();
+  return <div className="qsp-debugger-watch-row">{`… ${count} ${t('more')}`}</div>;
+}
+
+/** The rows of a tuple: named (`NAME  value`) for a record's fields, numbered otherwise; the first `ROW_CAP` show. */
 function TupleRows({ tuple }: { tuple: QspTuple }) {
+  const shown = itemWindow(tuple.length, ROW_CAP);
   return (
     <div className="qsp-debugger-watch-rows">
-      {tuple.map((item, i) => {
-        const name = tuple.names?.[i] ?? String(i);
-        return (
-          <div key={i}>
-            <div className="qsp-debugger-watch-row" data-qa="debug-watch-row" data-key={name}>
-              <span className="qsp-debugger-watch-row-key">{name}</span>{' '}
-              <span className="qsp-debugger-watch-row-value">{Array.isArray(item) ? '' : showValue(item)}</span>
-            </div>
-            {Array.isArray(item) && <TupleRows tuple={item} />}
-          </div>
-        );
-      })}
+      {tuple.slice(0, shown).map((item, i) => (
+        <Row key={i} rowKey={tuple.names?.[i] ?? String(i)} value={item} />
+      ))}
+      {tuple.length > shown && <MoreRow count={tuple.length - shown} />}
     </div>
   );
 }
@@ -54,19 +89,13 @@ function TupleRows({ tuple }: { tuple: QspTuple }) {
 function WatchRows({ value }: { value: WatchValue }) {
   const keyed = value.size > 1 || value.items.some((item) => item.key !== undefined);
   if (!keyed) return Array.isArray(value.value) ? <TupleRows tuple={value.value} /> : null;
+  const shown = itemWindow(value.items.length, ROW_CAP);
   return (
     <div className="qsp-debugger-watch-rows">
-      {value.items.map((item, i) => {
-        const key = indexText(item.key, i);
-        return (
-          <div key={i} className="qsp-debugger-watch-row" data-qa="debug-watch-row" data-key={key}>
-            <span className="qsp-debugger-watch-row-key">{key}</span>{' '}
-            <span className="qsp-debugger-watch-row-arrow">→</span>{' '}
-            <span className="qsp-debugger-watch-row-value">{showValue(item.value)}</span>
-          </div>
-        );
-      })}
-      {value.size > value.items.length && <div className="qsp-debugger-watch-row">… ({value.size} items)</div>}
+      {value.items.slice(0, shown).map((item, i) => (
+        <Row key={i} rowKey={indexText(item.key, i)} arrow value={item.value} />
+      ))}
+      {value.size > shown && <MoreRow count={value.size - shown} />}
     </div>
   );
 }

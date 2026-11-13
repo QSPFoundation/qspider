@@ -25,7 +25,7 @@ export * from './browser-translation';
 export * from './conditions';
 export * from './debug';
 export * from './debug-watch';
-export { WATCH_ITEM_CAP, indexText, showValue, watchKey, type WatchValue } from './debug-watch-logic';
+export { WATCH_ITEM_CAP, indexText, itemWindow, showValue, watchKey, type WatchValue } from './debug-watch-logic';
 export * from './code-inspector';
 export {
   searchLocations,

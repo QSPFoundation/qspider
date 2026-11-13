@@ -94,6 +94,11 @@ export function describeHover(name: string, typed: QspVariableValue, raw: QspVar
   return lines;
 }
 
+/** Whether a whole-variable hover shows the array summary: several items, or one with a key (not a plain value). */
+export function isArrayHover(size: number, firstKey: string | QspTuple | undefined): boolean {
+  return size > 1 || firstKey !== undefined;
+}
+
 /** The hover of a whole array: its item count and its first items (`shown`) with their keys or positions. */
 export function describeSummary(
   name: string,
