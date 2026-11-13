@@ -26,6 +26,8 @@ export const GAME_HTML = {
     hostileUrls: 'hostile urls',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
+    /** bind location: writes UBOUND=<value> of the unprefixed variable. */
+    showUbind: 'show ubind',
     /** watchers location. */
     changeVar: 'change var',
     changeStyle: 'change style',
@@ -53,6 +55,9 @@ export const GAME_HTML = {
     formSubmit: 'form-submit',
     bindField: 'bind-field',
     showChild: 'show-child',
+    /** Wraps the watchers location's qsp-variable on an unprefixed variable, and the bind location's input bound to one. */
+    uvarBox: 'uvar-box',
+    ubindField: 'ubind-field',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
     /** A javascript: link with a leading space and a tab inside the scheme, which browsers ignore. */
@@ -102,6 +107,10 @@ export const GAME_HTML = {
     formResult: 'FORM SUBMIT RESULT',
     /** `BOUND=<value>` after the show bind action. */
     bound: (value: string): string => `BOUND=${value}`,
+    /** `UBOUND=<value>` after the show ubind action. */
+    ubound: (value: string): string => `UBOUND=${value}`,
+    /** The unprefixed string variable the watchers location shows. */
+    unprefixed: 'UNPREFIXED TEXT',
     varOne: 'VAR ONE',
     varTwo: 'VAR TWO',
     shown: 'SHOWN',

@@ -85,6 +85,9 @@ end
 $boundstr = ''
 *pl '<input type="text" qsp-bind="$boundstr" data-qa="bind-field">'
 act 'show bind': *clr & *pl 'BOUND=<<$boundstr>>'
+ubind = 'seed'
+*pl '<input type="text" qsp-bind="ubind" data-qa="ubind-field">'
+act 'show ubind': *clr & *pl 'UBOUND=<<ubind>>'
 ---
 
 # watchers
@@ -92,6 +95,8 @@ act 'show bind': *clr & *pl 'BOUND=<<$boundstr>>'
 $wvar = 'VAR ONE'
 $wcss = ''
 *pl '<qsp-variable name="$wvar"></qsp-variable>'
+uvar = 'UNPREFIXED TEXT'
+*pl '<span data-qa="uvar-box"><qsp-variable name="uvar"></qsp-variable></span>'
 *pl '<qsp-show when="$wvar" equals="VAR TWO"><span data-qa="show-child">SHOWN</span></qsp-show>'
 *pl '<qsp-style from="$wcss"></qsp-style>'
 *pl '<qsp-region name="reg"></qsp-region>'

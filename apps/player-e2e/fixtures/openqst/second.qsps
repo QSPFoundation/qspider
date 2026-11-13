@@ -1,0 +1,8 @@
+# second
+*pl 'OPENQST SECOND'
+! 0xFF332211 = rgb(17,34,51)
+act 'Set colour':
+	FCOLOR = -13426159
+	*pl 'COLOUR SET'
+end
+---

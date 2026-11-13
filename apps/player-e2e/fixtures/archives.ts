@@ -47,6 +47,7 @@ export const ARCHIVES = {
   /** The external-theme game (fixtures/external-theme-game): its theme is an http URL; the variant's URL answers 404. */
   externalThemeZip: { path: out('external-theme.zip'), title: 'External theme game' },
   externalTheme404Zip: { path: out('external-theme-404.zip'), title: 'External theme game (404)' },
+  openqstZip: { path: out('openqst.zip'), title: 'OPENQST game' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -57,6 +58,7 @@ export const SOURCES = {
   flatMulti: fileURLToPath(new URL('./flat-multi/', import.meta.url)),
   second: fileURLToPath(new URL('./second/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
+  openqst: fileURLToPath(new URL('./openqst/', import.meta.url)),
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
   saves: fileURLToPath(new URL('./saves/', import.meta.url)),
