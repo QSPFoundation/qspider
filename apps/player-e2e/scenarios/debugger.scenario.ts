@@ -373,6 +373,7 @@ scenario('hovering a prefixed name nothing sets says it is not set', async (play
     ...OpenDebuggerGame(),
     OpenDebugger(),
     SelectLocation(LOCATION.vars),
+    SeeEditorCode(VARS.lastLine), // the editor shows vars before a token is looked up
     HoverToken(VARS.token.unset),
     SeeHoverText(VARS.hover.unset),
   );
