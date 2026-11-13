@@ -31,6 +31,11 @@ const initialUi = debuggerUIState$.value;
 
 beforeEach(() => {
   debugState$.set(initialState);
+  // Through the public close path: it resets the module state behind the panel (the remembered debug mode,
+  // watching), so no test depends on the one before it.
+  debuggerUIState$.update((s) => ({ ...s, isPanelOpen: true }));
+  debugActions.closeDebugPanel();
+  debugState$.set(initialState);
   debuggerUIState$.set(initialUi);
 });
 

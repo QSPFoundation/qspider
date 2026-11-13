@@ -103,5 +103,19 @@ export function describeChange(
     const key = (after ?? before)?.key;
     return { name: `${name}[${indexText(key, i)}]`, from: show(before?.value), to: show(after?.value) };
   }
+  // No shown item differs: the array changed past the items a snapshot reads (its size, or an item beyond them).
+  if (prev.size !== next.size) return { name, from: `${prev.size} items`, to: `${next.size} items` };
   return { name, from: show(prev.value), to: show(next.value) };
+}
+
+/**
+ * What an after-run report of the engine does with the watched values:
+ * - `ignore`: the engine is held at a debug stop, so nothing can have changed since that stop's snapshot.
+ * - `display`: the engine waits inside a run (a dialog or WAIT it shows): the shown values refresh, but the change
+ *   baseline and the last stop stay, so the next stop still sees the change, pauses on it and blames the right line.
+ * - `consume`: the run ended: its changes are taken (and blamed on its last stop) and the baseline moves on.
+ */
+export function afterRunMode(state: { stopHeld: boolean; dialogPending: boolean }): 'ignore' | 'display' | 'consume' {
+  if (state.stopHeld) return 'ignore';
+  return state.dialogPending ? 'display' : 'consume';
 }

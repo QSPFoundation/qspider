@@ -1,8 +1,13 @@
 import type { QspAPI } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { gameOpenEpoch$, isRetiredEngine, qspApi$ } from './qsp-engine';
+import { msg$ } from './msg';
+import { menu$ } from './menu';
+import { input$ } from './input';
+import { wait$ } from './wait';
 import {
   addWatch,
+  afterRunMode,
   changedNames,
   describeChange,
   itemWindow,
@@ -81,8 +86,11 @@ function persistWatchList(list: string[]): void {
 
 /** Whether watching runs: only while the debugger panel is open. No engine read happens otherwise. */
 let active = false;
-/** Whether the last snapshot exists to compare against; false after a reset (the next snapshot is a baseline). */
-let hasBaseline = false;
+/**
+ * The snapshot changes are measured against; null after a reset (the next snapshot is a baseline). It moves on at
+ * each stop and at the end of a run, not when the shown values merely refresh while a run waits in a dialog.
+ */
+let baseline: Record<string, WatchValue> | null = null;
 /** The last debug stop of the current run; null once a run ended (or nothing stopped yet). */
 let lastStop: StopRecord | null = null;
 /** Whether the engine is held at a debug stop: nothing can change until it is released. */
@@ -109,12 +117,12 @@ function liveApi(): QspAPI | null {
   return active && api && !isRetiredEngine(api) ? api : null;
 }
 
-/** Takes a snapshot and marks what changed since the last one; returns the changed names. */
+/** Takes a snapshot, marks what changed since the baseline and makes it the new baseline; returns the changed names. */
 function takeSnapshot(api: QspAPI, where: Omit<ChangeNotice, 'name' | 'from' | 'to'>): string[] {
-  const prev = hasBaseline ? watchValues$.value : null;
+  const prev = baseline;
   const next = readSnapshot(api);
   const changed = changedNames(prev, next);
-  hasBaseline = true;
+  baseline = next;
   watchValues$.set(next);
   watchChanged$.set(changed);
   if (prev && changed.length > 0) {
@@ -146,30 +154,52 @@ export function releaseWatchStop(): void {
   stopHeld = false;
 }
 
+/** Whether the engine waits inside a run for a dialog or a WAIT it showed. */
+function isDialogPending(): boolean {
+  return msg$.value.isOpen || menu$.value.isOpen || input$.value.isOpen || wait$.value !== null;
+}
+
 /**
  * The snapshot after an engine run (and when the panel opens). A change seen here was made by the run's last line
  * (the last stop), or, with no stop, by the run itself; it never pauses, there is nothing left to pause at.
+ * The engine also reports before a dialog or WAIT inside a run: then only the shown values refresh, and the change
+ * stays for the next stop to pause on and blame on its line (`afterRunMode`).
  */
 export function snapshotAfterRun(): void {
   const api = liveApi();
-  if (!api || stopHeld) return;
+  if (!api) return;
+  const mode = afterRunMode({ stopHeld, dialogPending: isDialogPending() });
+  if (mode === 'ignore') return;
+  if (mode === 'display') {
+    const next = readSnapshot(api);
+    watchValues$.set(next);
+    watchChanged$.set(changedNames(baseline, next));
+    return;
+  }
   takeSnapshot(api, lastStop ? { loc: lastStop.loc, line: lastStop.line } : {});
   lastStop = null;
 }
 
 /** The next snapshot is a baseline: no change marks, no notice, no pause (a game start, OPENQST, a load). */
 export function resetWatchBaseline(): void {
-  hasBaseline = false;
+  baseline = null;
   lastStop = null;
   stopHeld = false;
   watchChanged$.set([]);
   changeNotice$.set(null);
 }
 
-// The after-run hook: one engine watcher, read after every engine run. The engine reports its watchers whenever
-// it refreshes the screen (the end of every run, and before a dialog or WAIT inside one), and a `%` read always
-// gives a fresh tuple, so this watcher's callback runs at every report, whatever the variables did. The watched
+// The after-run hook: one engine watcher used as a tick, so its callback runs after every engine run. The watched
 // names themselves can't be the hook: a watcher sees only one cell, and an array's later items would slip by.
+// It relies on three internals of @qsp/wasm-engine 2.0.0 (qsp-api.js), so check them on every engine upgrade:
+// 1. `applyTypePrefix` returns a fresh `[]` for a `%` read of a variable that holds no tuple (and a tuple read
+//    builds a new array), so the watcher's `!==` comparison always sees a "change".
+// 2. `onRefresh` (the end of every run, and before a dialog or WAIT inside one) schedules
+//    `setTimeout(() => this.reportWatched(), 0)`, which calls every watcher.
+// 3. Watchers read through `readCached`, whose cache `clearCache()` empties at every `exec` start and end and every
+//    `notify`, so each report reads anew instead of returning the cached (same) array.
+// An upstream fix that compares tuple watcher values structurally (C12) would silence this tick: it would then fire
+// only on its first attach, and the watch list would stop refreshing after runs.
 const TICK_VARIABLE = '%QSPIDER_DEBUG_WATCH_TICK';
 let detachTick: (() => void) | null = null;
 
@@ -222,7 +252,9 @@ export const watchActions = {
     const api = liveApi();
     if (!api) return;
     const key = watchKey(name);
-    watchValues$.update((values) => ({ ...values, [key]: readWatchValue(api, key) }));
+    const value = readWatchValue(api, key);
+    if (baseline) baseline = { ...baseline, [key]: value };
+    watchValues$.update((values) => ({ ...values, [key]: value }));
   },
 
   remove: (name: string): void => {
@@ -230,6 +262,10 @@ export const watchActions = {
     setList(removeWatch(watchList$.value, name));
     watchPause$.update(({ [key]: _, ...rest }) => rest);
     watchValues$.update(({ [key]: _, ...rest }) => rest);
+    if (baseline) {
+      const { [key]: _, ...rest } = baseline;
+      baseline = rest;
+    }
     watchChanged$.update((changed) => changed.filter((entry) => entry !== key));
   },
 

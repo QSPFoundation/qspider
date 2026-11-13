@@ -2,6 +2,7 @@ import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
 import {
   addWatch,
+  afterRunMode,
   changedNames,
   describeChange,
   itemWindow,
@@ -132,6 +133,21 @@ describe('changedNames', () => {
   });
 });
 
+describe('afterRunMode', () => {
+  it('consumes the change baseline only when the engine is neither held at a stop nor waiting inside a run', () => {
+    expect(afterRunMode({ stopHeld: false, dialogPending: false })).toBe('consume');
+  });
+
+  it('only refreshes the shown values while a dialog or WAIT is pending inside a run', () => {
+    expect(afterRunMode({ stopHeld: false, dialogPending: true })).toBe('display');
+  });
+
+  it('ignores a report while a debug stop is held', () => {
+    expect(afterRunMode({ stopHeld: true, dialogPending: false })).toBe('ignore');
+    expect(afterRunMode({ stopHeld: true, dialogPending: true })).toBe('ignore');
+  });
+});
+
 describe('describeChange', () => {
   it('formats the old and new values', () => {
     expect(describeChange('GOLD', scalar(100), scalar(70))).toEqual({ name: 'GOLD', from: '100', to: '70' });
@@ -158,6 +174,13 @@ describe('describeChange', () => {
     };
     const after: WatchValue = { ...before, items: [before.items[0], { key: 'key', value: 'iron' }] };
     expect(describeChange('$INV', before, after)).toEqual({ name: "$INV['key']", from: 'brass', to: 'iron' });
+  });
+
+  it('describes a size change past the item cap', () => {
+    const items = Array.from({ length: WATCH_ITEM_CAP }, (_, i) => ({ key: undefined, value: i }));
+    const before: WatchValue = { value: 0, size: 120, items };
+    const after: WatchValue = { value: 0, size: 121, items };
+    expect(describeChange('$A', before, after)).toEqual({ name: '$A', from: '120 items', to: '121 items' });
   });
 
   it('names an added item by its index', () => {
