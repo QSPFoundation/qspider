@@ -1,3 +1,6 @@
+import type { QspVariableValue } from '@qsp/wasm-engine';
+import { scalarOrUnset } from '@qspider/game-state';
+
 /**
  * Builds a QSP double-quoted string literal that evaluates to `value` verbatim.
  * - A quote inside a literal is written doubled (`""`), the rule `@qsp/converters` readQsps applies.
@@ -19,18 +22,23 @@ function leadingInteger(value: string): string {
   return /^\s*(-?\d+)/.exec(value)?.[1] ?? '0';
 }
 
-export function bindAssignment(bind: string, bindKey: string, bindIndex: number, value: string): string {
-  const name: string[] = [bind];
-  if (bindKey || bindIndex) {
-    name.push('[');
-    if (bindKey) {
-      name.push(`"${bindKey}"`);
-    } else {
-      name.push(String(bindIndex));
-    }
-    name.push(']');
+/**
+ * `$`-prefixed names always take text; unprefixed names take text only when they currently hold a string,
+ * otherwise the leading integer (an unset variable or a tuple counts as numeric).
+ */
+export function bindAssignment(
+  bind: string,
+  bindKey: string,
+  bindIndex: number,
+  value: string,
+  stored: QspVariableValue,
+): string {
+  let fullName = bind;
+  if (bindKey) {
+    fullName += `[${toQspString(bindKey)}]`;
+  } else if (bindIndex) {
+    fullName += `[${bindIndex}]`;
   }
-  const fullName = name.join('');
-  const toSet = fullName.startsWith('$') ? toQspString(value) : leadingInteger(value);
-  return `${fullName} = ${toSet}`;
+  const isText = bind.startsWith('$') || typeof scalarOrUnset(stored) === 'string';
+  return `${fullName} = ${isText ? toQspString(value) : leadingInteger(value)}`;
 }
