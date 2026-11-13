@@ -69,6 +69,8 @@ export const GAME_HTML = {
     uvarBox: 'uvar-box',
     /** Wraps the watchers location's qsp-variable on a tuple variable. */
     tvarBox: 'tvar-box',
+    /** Wraps the watchers location's qsp-variable on a record variable. */
+    wrec: 'wrec',
     ubindField: 'ubind-field',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
@@ -125,6 +127,8 @@ export const GAME_HTML = {
     unprefixed: 'UNPREFIXED TEXT',
     /** The watchers location's tuple `(1, 'a')` in QSP's text form. */
     tuple: "[1, 'a']",
+    /** The watchers location's record `[name: 'Ann', age: 30]` in the way QSP prints it. */
+    record: "[NAME: 'Ann', AGE: 30]",
     sharedOne: 'SHARED ONE',
     sharedTwo: 'SHARED TWO',
     /** Written by the shared_away location: the main-text reader is gone. */

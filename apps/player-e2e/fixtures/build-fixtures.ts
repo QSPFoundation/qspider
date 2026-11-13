@@ -29,14 +29,17 @@ function packFiles(configPath: string, extraFiles: string[] = []): Record<string
 }
 
 /**
- * The debugger game, compiled: debugger.qsps plus a base action `go` on `start`. The debugger's Actions tab lists
+ * The debugger game, compiled: debugger.qsps plus the base actions `go` and `vars` on `start`. The debugger's Actions tab lists
  * a location's base actions, which only a compiled .qsp has (the QSPS reader reads none: its `act` is a statement).
  */
 function debuggerZip(): Uint8Array {
   const locations = readQsps(readFileSync(join(SOURCES.debugger, 'debugger.qsps'), 'utf8'));
   const start = locations.find((location) => location.name === 'start');
   if (!start) throw new Error('debugger.qsps has no start location');
-  start.actions = [{ name: DEBUGGER_GAME.action.go, code: [`gt '${DEBUGGER_GAME.location.second}'`] }];
+  start.actions = [
+    { name: DEBUGGER_GAME.action.go, code: [`gt '${DEBUGGER_GAME.location.second}'`] },
+    { name: DEBUGGER_GAME.action.vars, code: [`gt '${DEBUGGER_GAME.location.vars}'`] },
+  ];
   return zipSync({
     'game.cfg': readFileSync(join(SOURCES.debugger, 'game.cfg')),
     'debugger.qsp': new Uint8Array(writeQsp(locations)),

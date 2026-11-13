@@ -4,13 +4,17 @@ import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
 import {
+  ChangeNotice,
   DebugCurrentExecution,
   DebugEditorLines,
   DebugEventsCount,
   DebugPanel,
   DebugStatus,
   DebuggerLayout,
+  HoverContent,
   PauseOnLinksStatus,
+  WatchEntry,
+  WatchValue,
 } from './elements';
 
 export const SeeDebuggerOpen = (): Task =>
@@ -88,4 +92,35 @@ export const SeeEventsCount = (n: number): Task =>
     (e) => Attribute.called('data-count').of(e).as(Number),
     equals(n),
     `#actor sees ${n} logged events`,
+  );
+
+/** The editor hover's text contains `text`. */
+export const SeeHoverText = (text: string): Task =>
+  seeEventually(
+    HoverContent,
+    (e) => Text.of(e).replace(/\s+/g, ' '),
+    includes(text),
+    `#actor sees the hover show ${text}`,
+  );
+
+/** The watch entry `name` shows the value `text`. */
+export const SeeWatchValue = (name: string, text: string): Task =>
+  seeEventually(WatchValue(name), (e) => Text.of(e).trim(), equals(text), `#actor sees ${name} watched as ${text}`);
+
+/** The watch entry `name` is (or is not) marked changed. */
+export const SeeWatchChanged = (name: string, changed: boolean): Task =>
+  seeEventually(
+    WatchEntry(name),
+    (e) => Attribute.called('data-changed').of(e),
+    equals(String(changed)),
+    `#actor sees ${name} ${changed ? 'marked' : 'not marked'} changed`,
+  );
+
+/** The change notice contains `text`. */
+export const SeeChangeNotice = (text: string): Task =>
+  seeEventually(
+    ChangeNotice,
+    (e) => Text.of(e).replace(/\s+/g, ' '),
+    includes(text),
+    `#actor sees the change notice contain ${text}`,
   );

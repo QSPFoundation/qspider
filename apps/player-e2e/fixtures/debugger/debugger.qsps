@@ -9,3 +9,15 @@
 *pl 'DEBUG SECOND'
 *pl 'DEBUG SECOND END'
 ---
+
+# vars
+gold = 100
+$who = 'Ann'
+$inv[] = 'sword'
+$inv['key'] = 'brass'
+%rec = [name: 'Ann', age: 30]
+u = '42'
+gold -= 30
+*pl 'VARS END <<gold>>'
+uval = #u
+---
