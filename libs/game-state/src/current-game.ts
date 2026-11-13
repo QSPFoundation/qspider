@@ -17,19 +17,7 @@ import { clearHotkeys, setupCustomHotKeys, setupGlobalHotKeys } from './hotkeys'
 import { fetchBinaryContent, fetchTextContent, whenGameFilesReady, windowManager } from '@qspider/env';
 import { parseCfg, qspGuiCfg$ } from './qsp-gui-cfg';
 import { loadThemeTranslations, unloadThemeTranslations } from '@qspider/i18n';
-import {
-  actions$,
-  cmdText$,
-  layers$,
-  mainContent$,
-  mainScroll$,
-  objects$,
-  regions$,
-  reloadLayers,
-  reloadRegions,
-  statsContent$,
-  statsScroll$,
-} from './panels';
+import { actions$, cmdText$, mainContent$, mainScroll$, objects$, statsContent$, statsScroll$ } from './panels';
 import { convertQsps } from './utils';
 import { initialBaseUrl$ } from './init';
 import { clearDialogs } from './dialogs';
@@ -214,8 +202,6 @@ export function stopCurrentGame(): void {
   if (wasResized) windowManager.resize(1024, 768);
 
   sounds$.actions.clear();
-  regions$.set({});
-  layers$.set({});
   clearAdditionalResources();
   clearHotkeys();
   unloadThemeTranslations();
@@ -226,12 +212,6 @@ export function stopCurrentGame(): void {
   onGameEnd$.value?.();
 }
 export type GameCommand = 'quicksave' | 'quickload' | 'restart' | 'resume' | 'quit' | 'mute' | 'unmute' | 'toggle-mute';
-
-/** The regions and layers are read again from the game's variables (after a restart or a load). */
-export function onRestore(): void {
-  reloadRegions();
-  reloadLayers();
-}
 
 /** Asks the player for the saves panel to save or load in (the game's SAVEGAME / OPENGAME without a path, Ctrl+S, Ctrl+O). */
 export function requestSavesPanel(action: 'save' | 'load'): void {
@@ -263,7 +243,6 @@ export function onGameCommand(action: GameCommand): void {
       // pause screen is closed. The counter needs no handling here: the pause screen and a library the
       // restart loads (withCounterPaused) each hold their own pause reason and release only that.
       qspApi$.value?.restartGame();
-      onRestore();
       if (isPauseScreenVisible$.value) closePauseScreen();
       pauseScreenCurrentPanel$.set('credits');
       break;

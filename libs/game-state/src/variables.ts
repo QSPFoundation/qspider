@@ -1,7 +1,7 @@
 import type { QspAPI, QspVariableType, QspVariableValue } from '@qsp/wasm-engine';
 import { Atom, atom } from 'xoid';
 import { useCallback, useSyncExternalStore } from 'react';
-import { gameOpenEpoch$, qspApi$ } from './qsp-api';
+import { gameOpenEpoch$, isRetiredEngine, qspApi$ } from './qsp-engine';
 import { checkCondition } from './conditions';
 import { variableOrDefault } from './engine-event-logic';
 import { conditionValue, nextRefCount, sameValue, scalarOrUnset, variableKey } from './variable-logic';
@@ -38,6 +38,7 @@ function attach(entry: VariableEntry, api: QspAPI | undefined): void {
   if (!api) return;
   const { atom$, name, key, index } = entry;
   const onValue = (value: QspVariableValue): void => {
+    if (isRetiredEngine(api)) return;
     if (!sameValue(atom$.value, value)) atom$.set(value);
   };
   entry.unwatch = key ? api.watchVariableByKey(name, key, onValue) : api.watchVariableByIndex(name, index, onValue);
@@ -51,18 +52,10 @@ function reattachAll(): void {
   }
 }
 
-let installed = false;
-/**
- * A fresh engine (after a game stops) and a new game (which wipes the engine's watchers) both need every live
- * entry to watch again. Subscribed on the first acquire, not at import: qsp-api.ts reaches this module through
- * an import cycle (qsp-api → current-game → themes → variables), so its atoms don't exist yet at import.
- */
-function reattachOnEngineChange(): void {
-  if (installed) return;
-  installed = true;
-  qspApi$.subscribe(reattachAll);
-  gameOpenEpoch$.subscribe(reattachAll);
-}
+// A fresh engine (after a game stops) and a new game (which wipes the engine's watchers) both need every live
+// entry to watch again. The leaf qsp-engine module makes subscribing at import safe despite the import cycle.
+qspApi$.subscribe(reattachAll);
+gameOpenEpoch$.subscribe(reattachAll);
 
 /** The shared atom of a game variable cell (memoized by the case-insensitive name, prefix kept, and key or index). */
 function variable$(name: string, key = '', index = 0): Atom<QspVariableValue> {
@@ -74,7 +67,6 @@ function variable$(name: string, key = '', index = 0): Atom<QspVariableValue> {
  * last release detaches the watcher and forgets the entry.
  */
 function acquireVariable(name: string, key = '', index = 0): () => void {
-  reattachOnEngineChange();
   const entry = entryFor(name, key, index);
   entry.count = nextRefCount(entry.count, 1);
   if (entry.count === 1) attach(entry, qspApi$.value);

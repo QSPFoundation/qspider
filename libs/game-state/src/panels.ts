@@ -1,16 +1,7 @@
 import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
-import {
-  isActionIndex,
-  layerFlag,
-  NO_ACTION,
-  readAll,
-  regionText,
-  selectedAction$,
-  view$,
-  withLayer,
-} from './panel-logic';
+import { isActionIndex, NO_ACTION, selectedAction$, view$ } from './panel-logic';
 
 export const mainContent$ = atom('');
 export const nextMainContent$ = atom('');
@@ -61,23 +52,4 @@ export function submitUserInput(): void {
 
 export { view$ };
 
-export const regions$ = atom<Record<string, string>>({});
 export const regionsScroll$ = atom<Record<string, number>>({});
-/** The text the game keeps for a region, in `$qspider_region[name]`. */
-export function readRegion(name: string): string {
-  return regionText(qspApi$.value?.readVariableByKey('$qspider_region', name));
-}
-export function reloadRegions(): void {
-  regions$.set(readAll(Object.keys(regions$.value), readRegion));
-}
-
-export const layers$ = atom<Record<string, boolean>>({});
-export function readLayerState(name: string): boolean {
-  return layerFlag(qspApi$.value?.readVariableByKey('#qspider_layers', name));
-}
-export function registerLayer(name: string): void {
-  layers$.update((current) => withLayer(current, name, readLayerState(name)));
-}
-export function reloadLayers(): void {
-  layers$.set(readAll(Object.keys(layers$.value), readLayerState));
-}

@@ -31,7 +31,9 @@ export const GAME_HTML = {
     /** watchers location. */
     changeVar: 'change var',
     changeStyle: 'change style',
+    /** A plain assignment to `$qspider_region['reg']`, with no command: the region follows the variable. */
     fillRegion: 'fill region',
+    /** A plain assignment to `qspider_layers['lay']`, with no command: the layer follows the variable. */
     fillLayer: 'fill layer',
     /** watchers location: goes to the shared location (one variable, a stats reader and a main-text reader). */
     shared: 'shared',

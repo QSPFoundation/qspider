@@ -1,14 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import {
-  isActionIndex,
-  layerFlag,
-  NO_ACTION,
-  readAll,
-  regionText,
-  selectedAction$,
-  view$,
-  withLayer,
-} from './panel-logic';
+import { isActionIndex, NO_ACTION, selectedAction$, view$ } from './panel-logic';
 
 describe('isActionIndex', () => {
   it('accepts the indexes of the actions and nothing else', () => {
@@ -20,45 +11,6 @@ describe('isActionIndex', () => {
 
   it('accepts no index when there are no actions', () => {
     expect(isActionIndex(0, 0)).toBe(false);
-  });
-});
-
-describe('layerFlag', () => {
-  it('shows a layer the game set to anything but 0', () => {
-    expect(layerFlag(1)).toBe(true);
-    expect(layerFlag(-1)).toBe(true);
-    expect(layerFlag('x')).toBe(true);
-  });
-
-  it('hides a layer the game set to 0 or never set', () => {
-    expect(layerFlag(0)).toBe(false);
-    expect(layerFlag(undefined)).toBe(false);
-    expect(layerFlag(null)).toBe(false);
-  });
-});
-
-describe('regionText', () => {
-  it('is the text the game keeps, or empty when it keeps none', () => {
-    expect(regionText('<b>hi</b>')).toBe('<b>hi</b>');
-    expect(regionText('')).toBe('');
-    expect(regionText(undefined)).toBe('');
-    expect(regionText(null)).toBe('');
-  });
-});
-
-describe('readAll', () => {
-  it('reads every name once into a record', () => {
-    const read: string[] = [];
-    const state = readAll(['top', 'side'], (name) => {
-      read.push(name);
-      return name.length;
-    });
-    expect(state).toEqual({ top: 3, side: 4 });
-    expect(read).toEqual(['top', 'side']);
-  });
-
-  it('is empty for no names', () => {
-    expect(readAll([], () => 1)).toEqual({});
   });
 });
 
@@ -109,17 +61,5 @@ describe('selectedAction$', () => {
   it('starts with no action selected', () => {
     expect(selectedAction$.value).toBe(NO_ACTION);
     expect(NO_ACTION).toBe(-1);
-  });
-});
-
-describe('withLayer', () => {
-  it('adds a layer and keeps the others', () => {
-    expect(withLayer({ a: true }, 'b', false)).toEqual({ a: true, b: false });
-  });
-
-  it('replaces the flag of a registered layer without touching the original', () => {
-    const layers = { a: false };
-    expect(withLayer(layers, 'a', true)).toEqual({ a: true });
-    expect(layers).toEqual({ a: false });
   });
 });

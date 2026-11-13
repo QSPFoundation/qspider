@@ -1,5 +1,6 @@
-import { Attributes, regions$, regionsScroll$ } from '@qspider/game-state';
-import { useAtom, useSetup } from '@xoid/react';
+import { Attributes, regionsScroll$, useQspVariable } from '@qspider/game-state';
+import { useSetup } from '@xoid/react';
+import { useMemo } from 'react';
 import { atom } from 'xoid';
 import { useAttributes } from '../../content/attributes';
 import { QspScrollable, scrollContext } from '../scrollable';
@@ -7,15 +8,13 @@ import { templateParser } from '../../render-state';
 import { Markup } from '@qspider/html-renderer';
 
 export const QspRegion: React.FC<{ name: string; scrollable?: boolean; attrs: Attributes }> = (props) => {
-  const content$ = useSetup((props$) => {
-    const name$ = atom((get) => get(props$).name);
-    return atom((get) => templateParser.parse(get(regions$)[get(name$)]));
-  }, props);
+  // A nameless region watches nothing (an empty key would read index 0).
+  const text = useQspVariable(props.name ? '$qspider_region' : undefined, props.name ?? '', 0, '');
+  const content = useMemo(() => templateParser.parse(text), [text]);
   const scroll$ = useSetup((props$) => {
     const name$ = atom((get) => get(props$).name);
     return atom((get) => get(regionsScroll$)[get(name$)] ?? 0);
   }, props);
-  const content = useAtom(content$);
   const [Tag, style, attributes] = useAttributes(props.attrs, 'qsp-region');
   if (props.scrollable) {
     return (

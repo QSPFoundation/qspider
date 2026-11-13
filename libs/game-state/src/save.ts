@@ -1,7 +1,7 @@
 import { SaveData } from '@qspider/contracts';
 import { create } from 'xoid';
 import { withCounterPaused } from './counter';
-import { currentGameEntry$, onRestore } from './current-game';
+import { currentGameEntry$ } from './current-game';
 import { qspApi$ } from './qsp-api';
 import { getStorage } from '@qspider/env';
 import { closePauseScreen } from './pause-screen';
@@ -105,7 +105,6 @@ export async function quickLoad(): Promise<void> {
     const saveData = await getStorage().getSaveDataByKey(currentGame.id, QUICK_SAVE_KEY);
     if (saveData) {
       await qspApi$.value?.loadSave(saveData);
-      onRestore();
     }
   });
 }
@@ -115,7 +114,6 @@ export async function onSaveCommand(action: QspSaveCommand, context: SaveContext
   switch (action) {
     case 'load':
       if (target) await restoreFrom(target);
-      onRestore();
       closePauseScreen();
       break;
     case 'save':

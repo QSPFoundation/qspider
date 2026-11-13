@@ -7,19 +7,16 @@ exec('qspider.change_theme:<<$args[0]>>')
 ! $args[0] - region name
 ! $args[1] - content
 $qspider_region[$args[0]] = $args[1]
-exec('qspider.update_region:<<$args[0]>>')
 ---
 # qspider_append_region
 ! $args[0] - region name
 ! $args[1] - content
 $qspider_region[$args[0]] += $args[1]
-exec('qspider.update_region:<<$args[0]>>')
 ---
 # qspider_prepend_region
 ! $args[0] - region name
 ! $args[1] - content
 $qspider_region[$args[0]] = $args[1] + $qspider_region[$args[0]]
-exec('qspider.update_region:<<$args[0]>>')
 ---
 # qspider_scroll_region
 ! $args[0] - region name
@@ -30,26 +27,22 @@ exec('qspider.scroll_region:<<$args[0]>>:<<$args[1]>>')
 ! $args[0] - region name
 ! $args[1] - content
 $qspider_region[$args[0]] = ''
-exec('qspider.update_region:<<$args[0]>>')
 ---
 
 # qspider_show_layer
 ! $args[0] - layer name
 qspider_layers[$args[0]] = 1
-exec('qspider.update_layer:<<$args[0]>>')
 ---
 
 # qspider_hide_layer
 ! $args[0] - layer name
 qspider_layers[$args[0]] = 0
-exec('qspider.update_layer:<<$args[0]>>')
 ---
 
 # qspider_show_only_layer
 ! $args[0] - layer name
 killvar 'qspider_layers'
 qspider_layers[$args[0]] = 1
-exec('qspider.update_layers')
 ---
 
 # qspider_quicksave

@@ -2,7 +2,19 @@ import { PANELS_GAME } from '../fixtures/panels-game';
 import { SeeElementText } from '../screenplay/content/checks';
 import { FirstQspRegion, QspLayer, QspRegion } from '../screenplay/content/elements';
 import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
-import { ClickAction, OpenPanelsFixture, PressEscape, PressKey, PressRestartHotkey } from '../screenplay/game/tasks';
+import {
+  ClickAction,
+  OpenPanelsFixture,
+  PressEscape,
+  PressKey,
+  PressQuickLoad,
+  PressQuickSave,
+  PressRestartHotkey,
+  ReturnToShelf,
+} from '../screenplay/game/tasks';
+import { SeeQuickSaveFilled } from '../screenplay/saves/checks';
+import { CancelSavesPanel, OpenSavesPanel } from '../screenplay/saves/tasks';
+import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
@@ -57,11 +69,8 @@ scenario('the game can restart itself', async (player) => {
   );
 });
 
-// Region: QspRegion renders regions$[name] and never re-reads the engine, so without reloadRegions on restart
-// the re-entered life room would still show LIFE REGION. Layer: QspLayer re-reads the engine on mount
-// (registerLayer), so its absence here holds even without reloadLayers; it checks behaviour, not the reload.
-// The reload itself is proved by 'restart hides a theme-layout layer the game showed' (themes.scenario.ts):
-// a layout-level layer stays mounted across a restart.
+// Region and layer follow the game's variables ($qspider_region, #qspider_layers), so a restart resets both
+// with no reload step: the re-entered life room shows no LIFE REGION and the layer is gone.
 scenario('restart resets regions and layers', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
@@ -77,6 +86,29 @@ scenario('restart resets regions and layers', async (player) => {
     SeeMainTextContaining(TEXT.lifeRoom), // settled anchor for the checks below
     SeeElementText(FirstQspRegion, '', 'region'),
     waitUntilAbsent(QspLayer),
+  );
+});
+
+// The region and the layer live in the save. Returning to the shelf drops what the player knew of them, so
+// after quickload they must come from the loaded game's variables.
+scenario('a quickload in a reopened game brings back its region and layer', async (player) => {
+  await player.attemptsTo(
+    OpenPanelsFixture(),
+    ClickAction(ACTION.start.lifecycle),
+    ClickAction(ACTION.life.fill),
+    SeeElementText(QspRegion, TEXT.lifeRegion, 'region'),
+    SeeElementText(QspLayer, TEXT.lifeLayer, 'layer'),
+    PressQuickSave(),
+    OpenSavesPanel(),
+    SeeQuickSaveFilled(), // F5 is async and silent: settle on the filled slot
+    CancelSavesPanel(),
+    ReturnToShelf(),
+    OpenFromShelf(PANELS_GAME.title),
+    SeeMainText(TEXT.start),
+    PressQuickLoad(),
+    SeeMainTextContaining(TEXT.lifeRoom),
+    SeeElementText(QspRegion, TEXT.lifeRegion, 'region'),
+    SeeElementText(QspLayer, TEXT.lifeLayer, 'layer'),
   );
 });
 

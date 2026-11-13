@@ -7,10 +7,7 @@ describe('parseSystemCmd', () => {
   it('keeps the command after qspider. for every helper of the qspider module', () => {
     expect(parseSystemCmd('qspider.change_theme:e2e-custom')).toBe('change_theme:e2e-custom');
     expect(parseSystemCmd('qspider.change_theme:qspider:classic')).toBe('change_theme:qspider:classic');
-    expect(parseSystemCmd('qspider.update_region:reg')).toBe('update_region:reg');
     expect(parseSystemCmd('qspider.scroll_region:reg:top')).toBe('scroll_region:reg:top');
-    expect(parseSystemCmd('qspider.update_layer:lay')).toBe('update_layer:lay');
-    expect(parseSystemCmd('qspider.update_layers')).toBe('update_layers');
     expect(parseSystemCmd('qspider.action:toggle-mute')).toBe('action:toggle-mute');
     expect(parseSystemCmd('qspider.action:pause:saves')).toBe('action:pause:saves');
     expect(parseSystemCmd('qspider.action:scroll:main:bottom')).toBe('action:scroll:main:bottom');
