@@ -60,8 +60,8 @@ import { showError } from './toasts';
 export const qspApi$ = atom<QspAPI>();
 export const qspApiInitialized$ = atom(false);
 /**
- * Counts the games opened as new. Opening a new game wipes the engine's variable watchers, so every
- * module-level watcher must subscribe again when this changes.
+ * Counts the games opened as new. Opening a new game wipes the engine's variable watchers, so the variable layer
+ * (variables.ts) re-attaches its watchers when this changes.
  */
 export const gameOpenEpoch$ = atom(0);
 
