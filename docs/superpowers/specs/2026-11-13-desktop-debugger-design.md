@@ -28,7 +28,8 @@ change the debugger without fear.
   `?worker` import and `self.MonacoEnvironment.getWorker`). The QSP language is our own, so no TS/JSON/CSS/HTML
   workers are needed.
 - Monaco and its worker land only in lazy chunks. The players' entry chunks don't grow by more than a few KB. The
-  builder checks this in the build output and records the before and after entry chunk sizes in the PR.
+  builder checks this once, by hand, in the build output and records the before and after entry chunk sizes in the PR.
+  No automated test or CI check for chunk sizes (maintainer's call).
 
 ## Non-goals
 
