@@ -4,7 +4,7 @@ import { useQspVariable } from '@qspider/game-state';
 import { forwardRef } from 'react';
 
 export const AeroOverlay: React.FC = forwardRef(() => {
-  const isShadeDisabled = useQspVariable('DISABLESHADE', '', 0, 0);
+  const isShadeDisabled = useQspVariable('#DISABLESHADE', '', 0, 0);
   const style = useSpring({
     from: { opacity: 0 },
     to: { opacity: 0.8 },

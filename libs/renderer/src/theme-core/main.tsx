@@ -19,7 +19,7 @@ export const QspMain: React.FC<{ attrs: Attributes; children: ReactNode }> = ({ 
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-main');
   const mainContent = useAtom(mainContent$);
   const isNewLoc = useAtom(isNewLoc$);
-  const disableScroll = useQspVariable('DISABLESCROLL', '', 0, 0);
+  const disableScroll = useQspVariable('#DISABLESCROLL', '', 0, 0);
   useEffect(() => {
     if (!disableScroll) mainScroll$.update((x) => mainScrollStep(isNewLoc, x));
     // eslint-disable-next-line react-hooks/exhaustive-deps
