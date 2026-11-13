@@ -105,14 +105,8 @@ uvar = 'UNPREFIXED TEXT'
 *pl '<qsp-layer name="lay" index="1">LAYER TEXT</qsp-layer>'
 act 'change var': $wvar = 'VAR TWO'
 act 'change style': $wcss = '.e2e{color:blue}'
-act 'fill region':
-  $qspider_region['reg'] = 'REGION TEXT'
-  exec 'qspider.update_region:reg'
-end
-act 'fill layer':
-  qspider_layers['lay'] = 1
-  exec 'qspider.update_layer:lay'
-end
+act 'fill region': $qspider_region['reg'] = 'REGION TEXT'
+act 'fill layer': qspider_layers['lay'] = 1
 act 'shared': gt 'shared'
 ---
 

@@ -3,7 +3,7 @@ import { SeeStatsInDock } from '../screenplay/classic/checks';
 import { SeeActiveTheme, SeeErrorAlertText, SeeGameStarted, SeeStartupFinished } from '../screenplay/common/checks';
 import { SeeElementText } from '../screenplay/content/checks';
 import { NoticeToastElement } from '../screenplay/common/elements';
-import { QspLayer } from '../screenplay/content/elements';
+import { LayerNamed, QspLayer } from '../screenplay/content/elements';
 import { SeeGameInfoTags, SeeMainText } from '../screenplay/game/checks';
 import { ClickAction, PressEscape, ReturnToShelf } from '../screenplay/game/tasks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
@@ -185,6 +185,22 @@ scenario('restart hides a theme-layout layer the game showed', async (player) =>
     ClickWhenPresent(RestartButton),
     SeeMainText(THEMED_GAME.text.start),
     waitUntilAbsent(QspLayer),
+  );
+});
+
+// qspider_show_only_layer kills the whole layers array, so every other shown layer must hide. Guards the
+// watcher that follows the variable directly: a watcher on another key re-reads 0.
+scenario('showing only one layer hides the other shown layers', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(THEMED_GAME.path),
+    SeeGameStarted(THEMED_GAME.text.start),
+    ClickAction(THEMED_GAME.action.showLayer),
+    SeeElementText(QspLayer, THEMED_GAME.theme.layerText, 'the theme layer reads its text'),
+    ClickAction(THEMED_GAME.action.showOnlyOther),
+    waitUntilPresent(LayerNamed(THEMED_GAME.theme.otherLayer)),
+    waitUntilAbsent(LayerNamed(THEMED_GAME.theme.layer)),
   );
 });
 

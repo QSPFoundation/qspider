@@ -2,7 +2,19 @@ import { PANELS_GAME } from '../fixtures/panels-game';
 import { SeeElementText } from '../screenplay/content/checks';
 import { FirstQspRegion, QspLayer, QspRegion } from '../screenplay/content/elements';
 import { SeeMainText, SeeMainTextContaining } from '../screenplay/game/checks';
-import { ClickAction, OpenPanelsFixture, PressEscape, PressKey, PressRestartHotkey } from '../screenplay/game/tasks';
+import {
+  ClickAction,
+  OpenPanelsFixture,
+  PressEscape,
+  PressKey,
+  PressQuickLoad,
+  PressQuickSave,
+  PressRestartHotkey,
+  ReturnToShelf,
+} from '../screenplay/game/tasks';
+import { SeeQuickSaveFilled } from '../screenplay/saves/checks';
+import { CancelSavesPanel, OpenSavesPanel } from '../screenplay/saves/tasks';
+import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { SeeNoPauseScreen } from '../screenplay/pause/checks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
 import { SeeMsg, SeeMsgGone } from '../screenplay/msg/checks';
@@ -77,6 +89,29 @@ scenario('restart resets regions and layers', async (player) => {
     SeeMainTextContaining(TEXT.lifeRoom), // settled anchor for the checks below
     SeeElementText(FirstQspRegion, '', 'region'),
     waitUntilAbsent(QspLayer),
+  );
+});
+
+// The region and the layer live in the save. Returning to the shelf drops what the player knew of them, so
+// after quickload they must come from the loaded game's variables.
+scenario('a quickload in a reopened game brings back its region and layer', async (player) => {
+  await player.attemptsTo(
+    OpenPanelsFixture(),
+    ClickAction(ACTION.start.lifecycle),
+    ClickAction(ACTION.life.fill),
+    SeeElementText(QspRegion, TEXT.lifeRegion, 'region'),
+    SeeElementText(QspLayer, TEXT.lifeLayer, 'layer'),
+    PressQuickSave(),
+    OpenSavesPanel(),
+    SeeQuickSaveFilled(), // F5 is async and silent: settle on the filled slot
+    CancelSavesPanel(),
+    ReturnToShelf(),
+    OpenFromShelf(PANELS_GAME.title),
+    SeeMainText(TEXT.start),
+    PressQuickLoad(),
+    SeeMainTextContaining(TEXT.lifeRoom),
+    SeeElementText(QspRegion, TEXT.lifeRegion, 'region'),
+    SeeElementText(QspLayer, TEXT.lifeLayer, 'layer'),
   );
 });
 

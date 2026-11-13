@@ -48,10 +48,14 @@ export const THEMED_GAME = {
     /** The theme-level qsp-layer (outside the main content, so it survives a restart) and its text. */
     layer: 'themelay',
     layerText: 'THEME LAYER',
+    /** A second theme-level layer, shown only by the 'Show only other' action. */
+    otherLayer: 'otherlay',
   },
   action: {
     showLayer: 'Show layer',
     hideLayer: 'Hide layer',
+    /** gs 'qspider_show_only_layer', 'otherlay': hides every other shown layer. */
+    showOnlyOther: 'Show only other',
     restart: 'Restart',
     toClassic: 'To classic',
     toCustom: 'To custom',
