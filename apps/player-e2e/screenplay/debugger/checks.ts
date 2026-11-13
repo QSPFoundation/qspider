@@ -14,6 +14,7 @@ import {
   HoverContent,
   PauseOnLinksStatus,
   WatchEntry,
+  WatchRow,
   WatchValue,
 } from './elements';
 
@@ -123,4 +124,13 @@ export const SeeChangeNotice = (text: string): Task =>
     (e) => Text.of(e).replace(/\s+/g, ' '),
     includes(text),
     `#actor sees the change notice contain ${text}`,
+  );
+
+/** The row `key` of the expanded watch entry `name` reads `key value`. */
+export const SeeWatchRow = (name: string, key: string, value: string): Task =>
+  seeEventually(
+    WatchRow(name, key),
+    (e) => Text.of(e).replace(/\s+/g, ' ').trim(),
+    equals(`${key} ${value}`),
+    `#actor sees ${name} row ${key} read ${value}`,
   );

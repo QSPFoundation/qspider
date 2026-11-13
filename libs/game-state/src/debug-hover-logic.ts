@@ -1,9 +1,7 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
-import { indexText } from './debug-watch-logic';
+import { indexText, showValue } from './debug-watch-logic';
 import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
-/** Most items of a tuple a hover prints. */
-const HOVER_MAX_ITEMS = 10;
 /** Most items of an array a hover summary lists. */
 export const HOVER_SUMMARY_ITEMS = 5;
 
@@ -80,13 +78,6 @@ export function hoverReadPlan(
   return summary;
 }
 
-/** A value as the hover shows it: strings quoted, tuples in QSP form. */
-export function showValue(value: QspVariableValue): string {
-  if (value === undefined) return '(empty)';
-  if (typeof value === 'string') return `'${value.replaceAll("'", "''")}'`;
-  return formatQspValueTruncated(value, HOVER_MAX_ITEMS);
-}
-
 function typeName(value: QspVariableValue): string {
   return isTuple(value) ? 'tuple' : typeof value === 'number' ? 'number' : 'string';
 }
@@ -96,7 +87,8 @@ function typeName(value: QspVariableValue): string {
  * what is stored (`raw`, read without it), what is stored. A variable with no value and no items is not set.
  */
 export function describeHover(name: string, typed: QspVariableValue, raw: QspVariableValue, size: number): string[] {
-  if (raw === undefined && typed === undefined && size === 0) return [`${name} — not set`];
+  // Unset means no cells and nothing stored: the engine reads an unset `$`/`#`/`%` name as '' / 0 / [] (size 0).
+  if (size === 0 && raw === undefined) return [`${name} — not set`];
   const lines = [`${name} = ${showValue(typed)}`];
   if (raw !== undefined && !sameValue(typed, raw)) lines.push(`stored value is a ${typeName(raw)}: ${showValue(raw)}`);
   return lines;

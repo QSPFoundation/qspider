@@ -1,4 +1,4 @@
-import { equals, startsWith } from '@serenity-js/assertions';
+import { startsWith } from '@serenity-js/assertions';
 import { By, PageElement, PageElements, Text } from '@serenity-js/web';
 
 // The debugger panel (libs/debugger) is app-shell UI: its controls are located by `data-qa`.
@@ -86,11 +86,10 @@ export const HoverContent = PageElement.located(
   By.css('[data-qa="debug-editor"] .monaco-hover:not(.hidden) .monaco-hover-content'),
 ).describedAs('editor hover');
 
-/** The hover's Pin link (a link with the text `Pin`). */
-export const HoverPinLink = PageElements.located(By.css('[data-qa="debug-editor"] .monaco-hover-content a'))
-  .where(Text, equals('Pin'))
-  .first()
-  .describedAs('hover pin link');
+/** The hover's Pin link: a markdown link to the pin command (`command:<id>?...`, as Monaco renders it). */
+export const HoverPinLink = PageElement.located(
+  By.css('[data-qa="debug-editor"] .monaco-hover-content a[data-href^="command:qsp.debugger.pinVariable"]'),
+).describedAs('hover pin link');
 
 export const WatchPanel = PageElement.located(By.css('[data-qa="debug-watch-panel"]')).describedAs('watch panel');
 export const WatchInput = PageElement.located(By.css('[data-qa="debug-watch-input"]')).describedAs('watch input');
@@ -118,3 +117,15 @@ export const WatchPauseToggle = (name: string) =>
 
 /** The notice naming the change that paused the game. */
 export const ChangeNotice = PageElement.located(By.css('[data-qa="debug-change-notice"]')).describedAs('change notice');
+
+/** The expand button of a watch entry. */
+export const WatchExpandButton = (name: string) =>
+  PageElement.located(By.css('[data-qa="debug-watch-expand"]'))
+    .of(WatchEntry(name))
+    .describedAs(`watch expand button of "${name.toUpperCase()}"`);
+
+/** A row of an expanded entry, by its key (a field name, or the index of an item). */
+export const WatchRow = (name: string, key: string) =>
+  PageElement.located(By.css(`[data-qa="debug-watch-row"][data-key="${key}"]`))
+    .of(WatchEntry(name))
+    .describedAs(`row "${key}" of watch entry "${name.toUpperCase()}"`);

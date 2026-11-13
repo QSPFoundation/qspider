@@ -1,5 +1,5 @@
 import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
-import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
+import { formatQspValue, formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
 /** Most items of one watched array a snapshot reads, so a stop never stalls on a huge array. */
 export const WATCH_ITEM_CAP = 100;
@@ -77,10 +77,17 @@ function quote(text: string): string {
   return `'${text.replace(/'/g, "''")}'`;
 }
 
+/** A value as the hover and the watch panel show it: strings quoted, tuples in QSP form (at most `maxItems` items). */
+export function showValue(value: QspVariableValue, maxItems = 10): string {
+  if (value === undefined) return '(empty)';
+  if (typeof value === 'string') return `'${value.replaceAll("'", "''")}'`;
+  return formatQspValueTruncated(value, maxItems);
+}
+
 /** An item's index as QSP code writes it: `'key'`, `1, 2` for a tuple key, or the position. */
 export function indexText(key: string | QspTuple | undefined, position: number): string {
   if (key === undefined) return String(position);
-  if (isTuple(key)) return formatQspValueTruncated(key, DESCRIBE_MAX_ITEMS).slice(1, -1);
+  if (isTuple(key)) return formatQspValue(key).slice(1, -1);
   return quote(key);
 }
 
@@ -93,7 +100,7 @@ export function describeChange(
   prev: WatchValue,
   next: WatchValue,
 ): { name: string; from: string; to: string } {
-  const show = (v: QspVariableValue): string => formatQspValueTruncated(v, DESCRIBE_MAX_ITEMS);
+  const show = (v: QspVariableValue): string => showValue(v, DESCRIBE_MAX_ITEMS);
   if (!sameValue(prev.value, next.value)) return { name, from: show(prev.value), to: show(next.value) };
   const count = Math.max(prev.items.length, next.items.length);
   for (let i = 0; i < count; i++) {

@@ -18,6 +18,7 @@ import {
   HoverPinLink,
   PauseOnLinksToggle,
   WatchAddButton,
+  WatchExpandButton,
   WatchInput,
   WatchPauseToggle,
 } from './elements';
@@ -90,3 +91,7 @@ export const HoverToken = (text: string): Task =>
 
 /** Pins the hovered variable to the watch list with the hover's Pin link. */
 export const PinFromHover = (): Task => Task.where('#actor pins the hovered variable', ClickWhenPresent(HoverPinLink));
+
+/** Expands the watch entry `name` (an array or a tuple) to its rows. */
+export const ExpandWatch = (name: string): Task =>
+  Task.where(`#actor expands the watch entry "${name}"`, ClickWhenPresent(WatchExpandButton(name)));

@@ -118,15 +118,20 @@ function liveApi(): QspAPI | null {
 }
 
 /** Takes a snapshot, marks what changed since the baseline and makes it the new baseline; returns the changed names. */
-function takeSnapshot(api: QspAPI, where: Omit<ChangeNotice, 'name' | 'from' | 'to'>): string[] {
+function takeSnapshot(
+  api: QspAPI,
+  where: Omit<ChangeNotice, 'name' | 'from' | 'to'>,
+  keepWhenClean: boolean,
+): string[] {
   const prev = baseline;
   const next = readSnapshot(api);
   const changed = changedNames(prev, next);
   baseline = next;
   watchValues$.set(next);
+  if (keepWhenClean && changed.length === 0) return changed;
   watchChanged$.set(changed);
   if (prev && changed.length === 0) {
-    // The notice names the last change seen: the next snapshot that sees none (a step, a run that ends) clears it.
+    // The notice names the last change seen: the next debug stop that sees none clears it.
     changeNotice$.set(null);
   } else if (prev) {
     const pausing = watchPause$.value;
@@ -145,7 +150,7 @@ export function snapshotAtStop(record: StopRecord): boolean {
   const api = liveApi();
   if (!api) return false;
   const where = lastStop ? { loc: lastStop.loc, line: lastStop.line } : { betweenRuns: true };
-  const changed = takeSnapshot(api, where);
+  const changed = takeSnapshot(api, where, false);
   lastStop = { loc: record.loc, line: record.line };
   stopHeld = true;
   const pausing = watchPause$.value;
@@ -175,11 +180,14 @@ export function snapshotAfterRun(): void {
   if (mode === 'ignore') return;
   if (mode === 'display') {
     const next = readSnapshot(api);
+    baseline ??= next; // opened mid-dialog: what shows now is the baseline
     watchValues$.set(next);
     watchChanged$.set(changedNames(baseline, next));
     return;
   }
-  takeSnapshot(api, lastStop ? { loc: lastStop.loc, line: lastStop.line } : {});
+  // A clean after-run snapshot keeps the marks and the notice: the engine runs often with nothing to report (qspider
+  // runs the counter every 500 ms), and a change's marks must outlive those runs until the next stop or change.
+  takeSnapshot(api, lastStop ? { loc: lastStop.loc, line: lastStop.line } : {}, true);
   lastStop = null;
 }
 
@@ -199,6 +207,8 @@ export function resetWatchBaseline(): void {
 //    builds a new array), so the watcher's `!==` comparison always sees a "change".
 // 2. `onRefresh` (the end of every run, and before a dialog or WAIT inside one) schedules
 //    `setTimeout(() => this.reportWatched(), 0)`, which calls every watcher.
+// Runs are frequent: qspider's counter calls `execCounter()` every 500 ms, so the tick fires at least that often
+// with nothing to report (see `takeSnapshot`: a clean after-run snapshot keeps the change marks).
 // 3. Watchers read through `readCached`, whose cache `clearCache()` empties at every `exec` start and end and every
 //    `notify`, so each report reads anew instead of returning the cached (same) array.
 // An upstream fix that compares tuple watcher values structurally (C12) would silence this tick: it would then fire
@@ -270,6 +280,10 @@ export const watchActions = {
       baseline = rest;
     }
     watchChanged$.update((changed) => changed.filter((entry) => entry !== key));
+    // the notice names this entry (or an item of it): it goes with it
+    changeNotice$.update((notice) =>
+      notice && (notice.name === key || notice.name.startsWith(`${key}[`)) ? null : notice,
+    );
   },
 
   togglePause: (name: string): void => {

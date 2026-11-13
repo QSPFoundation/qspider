@@ -12,11 +12,13 @@ import {
   SeeHoverText,
   SeePauseOnLinks,
   SeeWatchChanged,
+  SeeWatchRow,
   SeeWatchValue,
 } from '../screenplay/debugger/checks';
 import {
   AddWatch,
   ClearEvents,
+  ExpandWatch,
   CloseDebugger,
   DockDebugger,
   EnableDebugging,
@@ -45,6 +47,7 @@ import { SeeShelfIncludes, SeeShelfWritesSettled } from '../screenplay/shelf/che
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
 import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { LoadGame, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
+import { PageClockAdvanced } from '../screenplay/support/page-clock';
 import { BlockOrigin } from '../screenplay/support/delay-requests';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeNoScriptFrom } from '../screenplay/support/script-sources';
@@ -59,6 +62,8 @@ const {
   hold: HOLD,
 } = DEBUGGER_GAME;
 const EDITOR_CDN = 'cdn.jsdelivr.net';
+/** Past several runs of qspider's 500 ms counter, each of which refreshes the watch with nothing to report. */
+const PAST_COUNTER_RUNS = 2500;
 
 /** From a clean app: opens the debugger fixture game at its start (its main text holds a link beside the start text). */
 const OpenDebuggerGame = () => [
@@ -303,6 +308,8 @@ scenario('with debug mode off, an action that changes a watched variable updates
     ClickAction(ACTION.bump), // a run of one line, with no debug stop to read the value at
     SeeWatchValue(HITS.token, HITS.afterBump),
     SeeWatchChanged(HITS.token, true),
+    PageClockAdvanced(PAST_COUNTER_RUNS),
+    SeeWatchChanged(HITS.token, true), // the counter's clean runs since did not wipe the mark
   );
 });
 
@@ -318,6 +325,9 @@ scenario('a change made by the last line of a run is reported and does not pause
     SeeChangeNotice(HITS.changeBump),
     SeeChangeNotice(HITS.at),
     SeeDebugStatus('running'),
+    PageClockAdvanced(PAST_COUNTER_RUNS),
+    SeeChangeNotice(HITS.changeBump), // the counter's clean runs since did not wipe the notice
+    SeeWatchChanged(HITS.token, true),
   );
 });
 
@@ -339,5 +349,28 @@ scenario('a change made before a msg pauses at the next stop and names its line'
     SeeMainTextWithout(HOLD.after),
     ResumeDebugger(),
     SeeMainTextContaining(HOLD.after),
+  );
+});
+
+scenario('hovering a prefixed name nothing sets says it is not set', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    SelectLocation(LOCATION.vars),
+    HoverToken(VARS.token.unset),
+    SeeHoverText(VARS.hover.unset),
+  );
+});
+
+scenario('a watched record expands to its fields', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    ClickAction(ACTION.vars),
+    SeeMainTextContaining(TEXT.varsEnd), // the record is set now
+    AddWatch(VARS.token.rec),
+    ExpandWatch(VARS.token.rec),
+    SeeWatchRow(VARS.token.rec, VARS.rows.name, VARS.rows.nameValue),
+    SeeWatchRow(VARS.token.rec, VARS.rows.age, VARS.rows.ageValue),
   );
 });

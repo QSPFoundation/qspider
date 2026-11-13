@@ -23,14 +23,21 @@ export const DEBUGGER_GAME = {
    */
   code: { start: "*PL 'DEBUG START'", second: "*PL 'DEBUG SECOND'", goAction: "GT 'second'" },
   /**
-   * The `vars` location (9 lines, one statement each): what the variable hover, the watch panel and break on change
+   * The `vars` location (10 lines, one statement each; the last reads `$nothing`, a name nothing sets): what the variable hover, the watch panel and break on change
    * read. `changeLine` is the line of `GOLD -= 30`; `hover` is what hovering each variable shows once the first six
    * lines ran. Hover tokens are spelled as the editor shows them (upper-cased).
    */
   vars: {
     changeLine: 7,
-    token: { gold: 'GOLD', who: '$WHO', rec: '%REC', numberU: '#U' },
-    hover: { gold: '100', who: "'Ann'", rec: "[NAME: 'Ann', AGE: 30]", hiddenByPrefix: "'42'" },
+    token: { gold: 'GOLD', who: '$WHO', rec: '%REC', numberU: '#U', unset: '$NOTHING' },
+    hover: {
+      gold: '100',
+      who: "'Ann'",
+      rec: "[NAME: 'Ann', AGE: 30]",
+      hiddenByPrefix: "'42'",
+      unset: '$NOTHING — not set',
+    },
+    rows: { name: 'NAME', nameValue: "'Ann'", age: 'AGE', ageValue: '30' },
     watch: { before: '100', after: '70' },
     change: 'GOLD changed 100 → 70',
     changeAt: 'vars, line 7',

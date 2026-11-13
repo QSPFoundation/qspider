@@ -15,46 +15,58 @@ import {
   type WatchValue,
 } from '@qspider/game-state';
 
-/** The text of an entry's value: a variable with nothing in it is "not set". */
-function entryText(value: WatchValue | undefined, notSet: string): string {
+type QspTuple = Extract<WatchValue['value'], readonly unknown[]>;
+
+/** The text of an entry's value: a variable with no cells is "not set" (the engine reads it as '', 0 or []). */
+function entryText(value: WatchValue | undefined, notSet: string, items: (n: number) => string): string {
   if (!value) return '';
-  if (value.value === undefined && value.size === 0) return notSet;
+  if (value.size === 0) return notSet;
+  if (value.size > 1) return items(value.size);
   return showValue(value.value);
 }
 
-/** Whether an entry can expand: an array (several items, or keyed ones) or a tuple. */
+/** Whether an entry can expand: an array (several items, or a keyed one) or a tuple. */
 function expandable(value: WatchValue | undefined): boolean {
-  if (!value) return false;
+  if (!value || value.size === 0) return false;
   return value.size > 1 || value.items.some((item) => item.key !== undefined) || Array.isArray(value.value);
 }
 
-function WatchRows({ value }: { value: WatchValue }) {
-  if (value.items.length > 0) {
-    return (
-      <div className="qsp-debugger-watch-rows">
-        {value.items.map((item, i) => (
-          <div key={i} className="qsp-debugger-watch-row" data-qa="debug-watch-item">
-            <span className="qsp-debugger-watch-row-key">{indexText(item.key, i)}</span>
-            <span className="qsp-debugger-watch-row-arrow">→</span>
-            <span className="qsp-debugger-watch-row-value">{showValue(item.value)}</span>
-          </div>
-        ))}
-        {value.size > value.items.length && <div className="qsp-debugger-watch-row">… ({value.size} items)</div>}
-      </div>
-    );
-  }
-  const tuple = Array.isArray(value.value) ? value.value : [];
+/** The rows of a tuple: named (`NAME  value`) for a record's fields, numbered otherwise; nested tuples expand. */
+function TupleRows({ tuple }: { tuple: QspTuple }) {
   return (
     <div className="qsp-debugger-watch-rows">
       {tuple.map((item, i) => {
-        const name = tuple.names?.[i];
+        const name = tuple.names?.[i] ?? String(i);
         return (
-          <div key={i} className="qsp-debugger-watch-row" data-qa="debug-watch-item">
-            <span className="qsp-debugger-watch-row-key">{name ?? i}</span>
-            <span className="qsp-debugger-watch-row-value">{showValue(item)}</span>
+          <div key={i}>
+            <div className="qsp-debugger-watch-row" data-qa="debug-watch-row" data-key={name}>
+              <span className="qsp-debugger-watch-row-key">{name}</span>{' '}
+              <span className="qsp-debugger-watch-row-value">{Array.isArray(item) ? '' : showValue(item)}</span>
+            </div>
+            {Array.isArray(item) && <TupleRows tuple={item} />}
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function WatchRows({ value }: { value: WatchValue }) {
+  const keyed = value.size > 1 || value.items.some((item) => item.key !== undefined);
+  if (!keyed) return Array.isArray(value.value) ? <TupleRows tuple={value.value} /> : null;
+  return (
+    <div className="qsp-debugger-watch-rows">
+      {value.items.map((item, i) => {
+        const key = indexText(item.key, i);
+        return (
+          <div key={i} className="qsp-debugger-watch-row" data-qa="debug-watch-row" data-key={key}>
+            <span className="qsp-debugger-watch-row-key">{key}</span>{' '}
+            <span className="qsp-debugger-watch-row-arrow">→</span>{' '}
+            <span className="qsp-debugger-watch-row-value">{showValue(item.value)}</span>
+          </div>
+        );
+      })}
+      {value.size > value.items.length && <div className="qsp-debugger-watch-row">… ({value.size} items)</div>}
     </div>
   );
 }
@@ -139,7 +151,7 @@ export const WatchPanel: React.FC = () => {
               )}
               <span className="qsp-debugger-watch-name">{key}</span>
               <span className="qsp-debugger-watch-value" data-qa="debug-watch-value">
-                {entryText(value, t('not set'))}
+                {entryText(value, t('not set'), (n) => `${n} ${t('items')}`)}
               </span>
               <button
                 type="button"

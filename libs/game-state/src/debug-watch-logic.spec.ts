@@ -5,10 +5,12 @@ import {
   afterRunMode,
   changedNames,
   describeChange,
+  indexText,
   itemWindow,
   parseWatchList,
   removeWatch,
   serializeWatchList,
+  showValue,
   WATCH_ITEM_CAP,
   watchKey,
   type WatchValue,
@@ -173,7 +175,7 @@ describe('describeChange', () => {
       ],
     };
     const after: WatchValue = { ...before, items: [before.items[0], { key: 'key', value: 'iron' }] };
-    expect(describeChange('$INV', before, after)).toEqual({ name: "$INV['key']", from: 'brass', to: 'iron' });
+    expect(describeChange('$INV', before, after)).toEqual({ name: "$INV['key']", from: "'brass'", to: "'iron'" });
   });
 
   it('describes a size change past the item cap', () => {
@@ -193,6 +195,25 @@ describe('describeChange', () => {
         { key: undefined, value: 'b' },
       ],
     };
-    expect(describeChange('$A', before, after)).toEqual({ name: '$A[1]', from: '', to: 'b' });
+    expect(describeChange('$A', before, after)).toEqual({ name: '$A[1]', from: '(empty)', to: "'b'" });
+  });
+});
+
+describe('showValue', () => {
+  it('quotes strings, doubling a quote', () => {
+    expect(showValue('Ann')).toBe("'Ann'");
+    expect(showValue("it's")).toBe("'it''s'");
+    expect(showValue('')).toBe("''");
+  });
+
+  it('leaves numbers bare and says an unset value is empty', () => {
+    expect(showValue(70)).toBe('70');
+    expect(showValue(undefined)).toBe('(empty)');
+  });
+});
+
+describe('indexText', () => {
+  it('prints a long tuple key in full', () => {
+    expect(indexText(tuple([1, 2, 3, 4, 5, 6, 7]), 0)).toBe('1, 2, 3, 4, 5, 6, 7');
   });
 });

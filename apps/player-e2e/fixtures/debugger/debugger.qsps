@@ -22,4 +22,5 @@ u = '42'
 gold -= 30
 *pl 'VARS END <<gold>>'
 uval = #u
+ghost = $nothing
 ---

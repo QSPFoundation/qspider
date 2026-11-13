@@ -63,6 +63,17 @@ describe('describeHover', () => {
     expect(describeHover('FOO', undefined, undefined, 0)).toEqual(['FOO — not set']);
   });
 
+  it('says an unset prefixed name is not set, though the engine reads it as an empty value', () => {
+    // the engine's typed read of an unset name: '' for `$`, 0 for `#`, [] for `%`, all with size 0
+    expect(describeHover('$S', '', undefined, 0)).toEqual(['$S — not set']);
+    expect(describeHover('#N', 0, undefined, 0)).toEqual(['#N — not set']);
+    expect(describeHover('%R', tuple([]), undefined, 0)).toEqual(['%R — not set']);
+  });
+
+  it('shows a name set to an empty string as a value', () => {
+    expect(describeHover('$E', '', '', 1)).toEqual(["$E = ''"]);
+  });
+
   it('shows the typed value, a string quoted', () => {
     expect(describeHover('GOLD', 100, 100, 1)).toEqual(['GOLD = 100']);
     expect(describeHover('$WHO', 'Ann', 'Ann', 1)).toEqual(["$WHO = 'Ann'"]);
