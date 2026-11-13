@@ -29,6 +29,7 @@ function compare(value: string | number, toCompare: string): number {
   return value < toCompare ? -1 : value > toCompare ? 1 : 0;
 }
 
+/** `not-empty` is the internal default of `<qsp-show>` (not a written attribute): neither `''` nor `0`. */
 export function checkCondition(value: string | number, condition: [string, string]): boolean {
   const [op, toCompare] = condition;
   switch (op) {
@@ -50,6 +51,8 @@ export function checkCondition(value: string | number, condition: [string, strin
       return compare(value, toCompare) >= 0;
     case 'less-or-equal':
       return compare(value, toCompare) <= 0;
+    case 'not-empty':
+      return value !== '' && value !== 0;
   }
   return false;
 }
