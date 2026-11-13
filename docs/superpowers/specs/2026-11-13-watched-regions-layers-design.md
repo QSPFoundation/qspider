@@ -28,7 +28,7 @@ store of the same values.
 
 - `regionsScroll$` and the `scroll_region` command stay as they are, because scrolling is UI state, not a game
   variable.
-- No change to `qspider.qsps` or to the command parser.
+- No change to the command parser or to the `qspider.qsps` procedures' names and arguments.
 
 ## Behaviour change (accepted)
 
@@ -43,8 +43,12 @@ the screen. Nothing that works today stops working.
 - **Removed from game-state.** `regions$`, `readRegion`, `reloadRegions`, `layers$`, `readLayerState`,
   `registerLayer`, `reloadLayers`, `onRestore`, the resets in `stopCurrentGame`, and any `panel-logic` helpers that
   lose their last caller (together with their unit tests).
-- **Commands.** `update_region:`, `update_layer:` and `update_layers` stay in `qspiderCommands` as no-ops, so games
-  and older copies of the library that send them keep working. A comment says why they are kept.
+- **Commands removed.** `update_region:`, `update_layer:` and `update_layers` are deleted from `qspiderCommands`
+  (with their parser tests), and the `exec('qspider.update_region:…')` / `update_layer(s)` lines are deleted from
+  `qspider.qsps`. Games are expected to use the library procedures (maintainer's call). A game that still sends
+  one directly is unaffected: an unknown `qspider.` command is silently ignored (`qsp-api.ts` `system_cmd`
+  handler). The E2E fixtures that send them directly (`game-html.qsps` `fill region` / `fill layer`) switch to the
+  library procedures or to plain assignment.
 - **Leaf module** (`libs/game-state/src/qsp-engine-ref.ts`, name left to the builder). It holds `qspApi$`,
   `gameOpenEpoch$`, and the retired-engine set with `retireEngine(api)` / `isRetiredEngine(api)`. `qsp-api.ts`
   imports and re-exports what it used to export, so the public `index.ts` surface is unchanged. Internal importers
