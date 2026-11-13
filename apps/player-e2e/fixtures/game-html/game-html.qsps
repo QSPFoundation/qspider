@@ -113,6 +113,27 @@ act 'fill layer':
   qspider_layers['lay'] = 1
   exec 'qspider.update_layer:lay'
 end
+act 'shared': gt 'shared'
+---
+
+# shared
+! One variable, two readers: the stats panel keeps its reader while the reader in the main text comes and goes.
+clr
+showstat 1
+$svar = 'SHARED ONE'
+pl '<span data-qa="svar-stats"><qsp-variable name="$svar"></qsp-variable></span>'
+*pl '<span data-qa="svar-main"><qsp-variable name="$svar"></qsp-variable></span>'
+act 'leave shared': gt 'shared_away'
+---
+
+# shared_away
+*pl 'SHARED AWAY'
+act 'change shared': $svar = 'SHARED TWO'
+act 'back to shared': gt 'shared_back'
+---
+
+# shared_back
+*pl '<span data-qa="svar-main"><qsp-variable name="$svar"></qsp-variable></span>'
 ---
 
 # hostile_svg

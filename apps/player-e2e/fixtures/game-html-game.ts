@@ -33,6 +33,11 @@ export const GAME_HTML = {
     changeStyle: 'change style',
     fillRegion: 'fill region',
     fillLayer: 'fill layer',
+    /** watchers location: goes to the shared location (one variable, a stats reader and a main-text reader). */
+    shared: 'shared',
+    leaveShared: 'leave shared',
+    changeShared: 'change shared',
+    backToShared: 'back to shared',
   },
   /** data-qa values of authored elements. */
   marks: {
@@ -54,6 +59,9 @@ export const GAME_HTML = {
     formField: 'form-field',
     formSubmit: 'form-submit',
     bindField: 'bind-field',
+    /** The shared location's qsp-variable on $svar in the stats panel, and in the main text. */
+    svarStats: 'svar-stats',
+    svarMain: 'svar-main',
     showChild: 'show-child',
     /** Wraps the watchers location's qsp-variable on an unprefixed variable, and the bind location's input bound to one. */
     uvarBox: 'uvar-box',
@@ -115,6 +123,10 @@ export const GAME_HTML = {
     unprefixed: 'UNPREFIXED TEXT',
     /** The watchers location's tuple `(1, 'a')` in QSP's text form. */
     tuple: "[1, 'a']",
+    sharedOne: 'SHARED ONE',
+    sharedTwo: 'SHARED TWO',
+    /** Written by the shared_away location: the main-text reader is gone. */
+    sharedAway: 'SHARED AWAY',
     varOne: 'VAR ONE',
     varTwo: 'VAR TWO',
     shown: 'SHOWN',

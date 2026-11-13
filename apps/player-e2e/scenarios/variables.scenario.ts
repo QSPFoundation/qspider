@@ -54,6 +54,39 @@ scenario("qsp-variable shows a tuple in QSP's text form", async (player) => {
   );
 });
 
+// Two readers share one engine watcher: when the main text's reader goes away, the stats panel's reader must keep
+// updating, and a reader that comes back must show the current value.
+scenario('a shared variable keeps updating its remaining reader after another reader leaves', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.watchers),
+    ClickAction(ACTION.shared),
+    SeeElementText(ContentMark(MARK.svarMain), TEXT.sharedOne, `#actor sees the main reader read "${TEXT.sharedOne}"`),
+    SeeElementText(
+      ContentMark(MARK.svarStats),
+      TEXT.sharedOne,
+      `#actor sees the stats reader read "${TEXT.sharedOne}"`,
+    ),
+    ClickAction(ACTION.leaveShared),
+    SeeMainTextContaining(TEXT.sharedAway),
+    ClickAction(ACTION.changeShared),
+    SeeElementText(
+      ContentMark(MARK.svarStats),
+      TEXT.sharedTwo,
+      `#actor sees the stats reader read "${TEXT.sharedTwo}"`,
+    ),
+    ClickAction(ACTION.backToShared),
+    SeeElementText(
+      ContentMark(MARK.svarMain),
+      TEXT.sharedTwo,
+      `#actor sees the returning main reader read "${TEXT.sharedTwo}"`,
+    ),
+  );
+});
+
 // Web only, for the reason given on the qsp-bind scenarios in game-html.scenario.ts (WebKitWebDriver drops typed characters).
 scenario.webOnly('qsp-bind on an unprefixed variable holding a string stores typed text', async (player) => {
   await player.attemptsTo(
