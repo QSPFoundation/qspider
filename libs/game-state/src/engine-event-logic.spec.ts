@@ -11,6 +11,7 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
+  typedVariableName,
   variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
@@ -121,6 +122,19 @@ describe('newLocEffect', () => {
       time: 500,
       seq: false,
     });
+  });
+});
+
+describe('typedVariableName', () => {
+  it('keeps a name with a type prefix', () => {
+    expect(typedVariableName('$name')).toBe('$name');
+    expect(typedVariableName('#count')).toBe('#count');
+    expect(typedVariableName('%pair')).toBe('%pair');
+  });
+
+  it('reads a name without a prefix as a number', () => {
+    expect(typedVariableName('NOSAVE')).toBe('#NOSAVE');
+    expect(typedVariableName('qspider_layers')).toBe('#qspider_layers');
   });
 });
 

@@ -129,6 +129,16 @@ describe('matchesBreakpoint', () => {
     expect(matchesBreakpoint(bp({ actionIndex: 0 }), record({ actIndex: 0 }))).toBe(true);
     expect(matchesBreakpoint(bp({ actionIndex: 0 }), record({ actIndex: 1 }))).toBe(false);
   });
+
+  // An action's lines are numbered from 1 within its own code, so line 2 of the location is not line 2 of an action.
+  it('matches a line of the location code only in the location code, not the same line of an action', () => {
+    expect(matchesBreakpoint(bp({ line: 2 }), record({ line: 2, actIndex: -1 }))).toBe(true);
+    expect(matchesBreakpoint(bp({ line: 2 }), record({ line: 2, actIndex: 0 }))).toBe(false);
+  });
+
+  it('matches a location-wide breakpoint in the actions of the location too', () => {
+    expect(matchesBreakpoint(bp(), record({ line: 2, actIndex: 1 }))).toBe(true);
+  });
 });
 
 describe('breakpoints', () => {
