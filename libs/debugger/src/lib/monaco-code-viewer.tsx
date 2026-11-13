@@ -213,7 +213,7 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
   return (
     <div className="qsp-monaco-code-viewer">
       {title && <div className="qsp-monaco-code-title">{title}</div>}
-      <div className="qsp-monaco-editor-container">
+      <div className="qsp-monaco-editor-container" data-qa="debug-editor">
         <Editor
           height={height}
           language={language}

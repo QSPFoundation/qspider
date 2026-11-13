@@ -48,6 +48,10 @@ export class OperateDesktopPlayer extends OperatePlayer {
     throw new Error('routeThroughProxy is not supported on desktop');
   }
 
+  async blockOrigin(_actor: UsesAbilities & AnswersQuestions, _origin: string): Promise<void> {
+    throw new Error('blockOrigin is not supported on desktop');
+  }
+
   async proxiedUrls(_actor: UsesAbilities & AnswersQuestions): Promise<string[]> {
     throw new Error('proxiedUrls is not supported on desktop');
   }

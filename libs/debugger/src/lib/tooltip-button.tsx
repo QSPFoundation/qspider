@@ -7,6 +7,8 @@ interface TooltipButtonProps {
   children: React.ReactNode;
   className?: string;
   disabled?: boolean;
+  /** `data-qa` hook for E2E. */
+  qa?: string;
 }
 
 export const TooltipButton: React.FC<TooltipButtonProps> = ({
@@ -15,11 +17,12 @@ export const TooltipButton: React.FC<TooltipButtonProps> = ({
   children,
   className = '',
   disabled = false,
+  qa,
 }) => {
   return (
     <RadixTooltip.Root>
       <RadixTooltip.Trigger asChild>
-        <button type="button" onClick={onClick} className={className} disabled={disabled}>
+        <button type="button" onClick={onClick} className={className} disabled={disabled} data-qa={qa}>
           {children}
         </button>
       </RadixTooltip.Trigger>

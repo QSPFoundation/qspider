@@ -48,6 +48,7 @@ export const ARCHIVES = {
   externalThemeZip: { path: out('external-theme.zip'), title: 'External theme game' },
   externalTheme404Zip: { path: out('external-theme-404.zip'), title: 'External theme game (404)' },
   openqstZip: { path: out('openqst.zip'), title: 'OPENQST game' },
+  debuggerZip: { path: out('debugger.zip'), title: 'Debugger game' },
   includerZip: { path: out('includer.zip'), title: 'Includer game', includedMarker: 'INCLUDED MARKER' },
 } as const;
 
@@ -59,6 +60,7 @@ export const SOURCES = {
   second: fileURLToPath(new URL('./second/', import.meta.url)),
   includer: fileURLToPath(new URL('./includer/', import.meta.url)),
   openqst: fileURLToPath(new URL('./openqst/', import.meta.url)),
+  debugger: fileURLToPath(new URL('./debugger/', import.meta.url)),
   dialogs: fileURLToPath(new URL('./dialogs/', import.meta.url)),
   gameHtml: fileURLToPath(new URL('./game-html/', import.meta.url)),
   saves: fileURLToPath(new URL('./saves/', import.meta.url)),

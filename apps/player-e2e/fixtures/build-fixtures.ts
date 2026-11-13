@@ -8,6 +8,7 @@ import { zipSync, type Zippable } from 'fflate';
 import SevenZip from '7z-wasm';
 import { deflateSync, crc32 } from 'node:zlib';
 import { ARCHIVES, SOURCES } from './archives';
+import { DEBUGGER_GAME } from './debugger-game';
 import { LOOK_IMAGES } from './look-game';
 import { quietWav, squareFont } from './resource-assets';
 import { RESOURCES_GAME, RESOURCES_IMAGES, RESOURCES_SVGS } from './resources-game';
@@ -25,6 +26,21 @@ function packFiles(configPath: string, extraFiles: string[] = []): Record<string
   for (const file of [...game.map((g) => g.file), ...extraFiles])
     files[file] = readFileSync(join(dirname(configPath), file));
   return files;
+}
+
+/**
+ * The debugger game, compiled: debugger.qsps plus a base action `go` on `start`. The debugger's Actions tab lists
+ * a location's base actions, which only a compiled .qsp has (the QSPS reader reads none: its `act` is a statement).
+ */
+function debuggerZip(): Uint8Array {
+  const locations = readQsps(readFileSync(join(SOURCES.debugger, 'debugger.qsps'), 'utf8'));
+  const start = locations.find((location) => location.name === 'start');
+  if (!start) throw new Error('debugger.qsps has no start location');
+  start.actions = [{ name: DEBUGGER_GAME.action.go, code: [`gt '${DEBUGGER_GAME.location.second}'`] }];
+  return zipSync({
+    'game.cfg': readFileSync(join(SOURCES.debugger, 'game.cfg')),
+    'debugger.qsp': new Uint8Array(writeQsp(locations)),
+  } as Zippable);
 }
 
 /** Zip of an authored game.cfg text and files read from folders (`[folder, name]`, packed under `name`). */
@@ -137,6 +153,7 @@ export async function buildFixtures(): Promise<void> {
     write(join(dirname(ARCHIVES.utf16Folder.configPath), name), data);
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
   write(ARCHIVES.openqstZip.path, zipPack(join(SOURCES.openqst, 'game.cfg'), ['second.qsps']));
+  write(ARCHIVES.debuggerZip.path, debuggerZip());
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
   write(ARCHIVES.savesZip.path, zipPack(join(SOURCES.saves, 'game.cfg')));

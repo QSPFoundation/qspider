@@ -67,6 +67,8 @@ export abstract class OperatePlayer extends Ability {
    * Call it after startPlayer. Every URL the proxy is asked for is recorded; read it with proxiedUrls.
    */
   abstract routeThroughProxy(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
+  /** From now on, requests to `origin` fail in the browser, with no proxy fallback (web only). Call it before startPlayer. */
+  abstract blockOrigin(actor: UsesAbilities & AnswersQuestions, origin: string): Promise<void>;
   /** The original URLs the CORS proxy was asked for since routeThroughProxy (web only). */
   abstract proxiedUrls(actor: UsesAbilities & AnswersQuestions): Promise<string[]>;
   /**
