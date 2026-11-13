@@ -11,7 +11,6 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
-  typedVariableName,
   variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
@@ -108,7 +107,9 @@ describe('newLocEffect', () => {
       values[name];
 
   it('reads the effect the game set', () => {
-    expect(newLocEffect(reader({ $NEWLOC_EFFECT: 'fade', NEWLOC_EFFECT_TIME: 300, NEWLOC_EFFECT_SEQ: 1 }))).toEqual({
+    expect(
+      newLocEffect(reader({ $NEWLOC_EFFECT: 'fade', '#NEWLOC_EFFECT_TIME': 300, '#NEWLOC_EFFECT_SEQ': 1 })),
+    ).toEqual({
       effect: 'fade',
       time: 300,
       seq: true,
@@ -117,24 +118,11 @@ describe('newLocEffect', () => {
 
   // The engine reads an unset string as '' and an unset number as 0; 0 means unset in QSP (D12), so a time of 0 is 500.
   it('falls back to no effect, 500 ms and not sequential for unset variables', () => {
-    expect(newLocEffect(reader({ $NEWLOC_EFFECT: '', NEWLOC_EFFECT_TIME: 0, NEWLOC_EFFECT_SEQ: 0 }))).toEqual({
+    expect(newLocEffect(reader({ $NEWLOC_EFFECT: '', '#NEWLOC_EFFECT_TIME': 0, '#NEWLOC_EFFECT_SEQ': 0 }))).toEqual({
       effect: '',
       time: 500,
       seq: false,
     });
-  });
-});
-
-describe('typedVariableName', () => {
-  it('keeps a name with a type prefix', () => {
-    expect(typedVariableName('$name')).toBe('$name');
-    expect(typedVariableName('#count')).toBe('#count');
-    expect(typedVariableName('%pair')).toBe('%pair');
-  });
-
-  it('reads a name without a prefix as a number', () => {
-    expect(typedVariableName('NOSAVE')).toBe('#NOSAVE');
-    expect(typedVariableName('qspider_layers')).toBe('#qspider_layers');
   });
 });
 

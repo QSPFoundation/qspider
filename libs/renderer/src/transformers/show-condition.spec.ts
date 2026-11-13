@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { showCondition } from './show-condition';
 
 describe('showCondition', () => {
-  it('shows a numeric variable unless it is 0 when no condition is written', () => {
-    expect(showCondition('hp', [])).toEqual(['is-not', '0']);
+  it('shows an unprefixed variable unless it is empty when no condition is written', () => {
+    expect(showCondition('hp', [])).toEqual(['not-empty', '']);
+  });
+
+  it('shows a numeric variable unless it is empty when no condition is written', () => {
+    expect(showCondition('#hp', [])).toEqual(['not-empty', '']);
   });
 
   it('shows a string variable unless it is empty when no condition is written', () => {

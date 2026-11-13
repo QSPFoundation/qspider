@@ -1,7 +1,7 @@
 import { atom } from 'xoid';
 import { parseTheme, ThemeData } from './theme-parser';
 import { addTheme, CLASSIC_THEME, resetThemes, ThemeRegistry, themeDataOf } from './theme-registry';
-import { useQspVariable } from './qsp-api';
+import { useQspVariable } from './variables';
 import { fetchTextContent } from '@qspider/env';
 import { baseUrl$ } from './current-game';
 

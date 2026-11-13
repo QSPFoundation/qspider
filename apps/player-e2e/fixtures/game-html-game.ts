@@ -26,11 +26,18 @@ export const GAME_HTML = {
     hostileUrls: 'hostile urls',
     /** bind location: writes BOUND=<value>. */
     showBind: 'show bind',
+    /** bind location: writes UBOUND=<value> of the unprefixed variable. */
+    showUbind: 'show ubind',
     /** watchers location. */
     changeVar: 'change var',
     changeStyle: 'change style',
     fillRegion: 'fill region',
     fillLayer: 'fill layer',
+    /** watchers location: goes to the shared location (one variable, a stats reader and a main-text reader). */
+    shared: 'shared',
+    leaveShared: 'leave shared',
+    changeShared: 'change shared',
+    backToShared: 'back to shared',
   },
   /** data-qa values of authored elements. */
   marks: {
@@ -52,7 +59,15 @@ export const GAME_HTML = {
     formField: 'form-field',
     formSubmit: 'form-submit',
     bindField: 'bind-field',
+    /** The shared location's qsp-variable on $svar in the stats panel, and in the main text. */
+    svarStats: 'svar-stats',
+    svarMain: 'svar-main',
     showChild: 'show-child',
+    /** Wraps the watchers location's qsp-variable on an unprefixed variable, and the bind location's input bound to one. */
+    uvarBox: 'uvar-box',
+    /** Wraps the watchers location's qsp-variable on a tuple variable. */
+    tvarBox: 'tvar-box',
+    ubindField: 'ubind-field',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
     /** A javascript: link with a leading space and a tab inside the scheme, which browsers ignore. */
@@ -102,6 +117,16 @@ export const GAME_HTML = {
     formResult: 'FORM SUBMIT RESULT',
     /** `BOUND=<value>` after the show bind action. */
     bound: (value: string): string => `BOUND=${value}`,
+    /** `UBOUND=<value>` after the show ubind action. */
+    ubound: (value: string): string => `UBOUND=${value}`,
+    /** The unprefixed string variable the watchers location shows. */
+    unprefixed: 'UNPREFIXED TEXT',
+    /** The watchers location's tuple `(1, 'a')` in QSP's text form. */
+    tuple: "[1, 'a']",
+    sharedOne: 'SHARED ONE',
+    sharedTwo: 'SHARED TWO',
+    /** Written by the shared_away location: the main-text reader is gone. */
+    sharedAway: 'SHARED AWAY',
     varOne: 'VAR ONE',
     varTwo: 'VAR TWO',
     shown: 'SHOWN',

@@ -17,9 +17,9 @@ export const AeroQspMsg: React.FC<{ attrs: Attributes; children: ReactNode }> = 
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-msg');
   const msg = useAtom(msg$);
   const coordinates = useClickCoordinates();
-  const msgX = useQspVariable('MSG_X', '', 0, 200);
-  const msgY = useQspVariable('MSG_Y', '', 0, 165);
-  const transitions = useAeroEffect(msg.isOpen, '$MSG_EFFECT', 'MSG_EFFECT_TIME');
+  const msgX = useQspVariable('#MSG_X', '', 0, 200);
+  const msgY = useQspVariable('#MSG_Y', '', 0, 165);
+  const transitions = useAeroEffect(msg.isOpen, '$MSG_EFFECT', '#MSG_EFFECT_TIME');
   const position = aeroPosition(msgX, msgY, coordinates);
   const positionStyle = {
     '--aero-msg-x': `${position.x}px`,

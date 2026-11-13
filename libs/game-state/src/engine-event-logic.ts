@@ -69,12 +69,12 @@ export interface NewLocEffect {
   seq: boolean;
 }
 
-/** The new-location effect from the game's `$NEWLOC_EFFECT`, `NEWLOC_EFFECT_TIME` (default 500) and `NEWLOC_EFFECT_SEQ`. */
+/** The new-location effect from the game's `$NEWLOC_EFFECT`, `#NEWLOC_EFFECT_TIME` (default 500) and `#NEWLOC_EFFECT_SEQ`. */
 export function newLocEffect(readVariable: (name: string) => unknown): NewLocEffect {
   return {
     effect: String(readVariable('$NEWLOC_EFFECT') || ''),
-    time: Number(readVariable('NEWLOC_EFFECT_TIME')) || 500,
-    seq: Boolean(Number(readVariable('NEWLOC_EFFECT_SEQ'))),
+    time: Number(readVariable('#NEWLOC_EFFECT_TIME')) || 500,
+    seq: Boolean(Number(readVariable('#NEWLOC_EFFECT_SEQ'))),
   };
 }
 
@@ -102,15 +102,6 @@ export function panelVisibility(type: number): PanelVisibility {
 export function saveTarget(hasGame: boolean, path: string | undefined): 'answer-now' | 'path' | 'ask-player' {
   if (!hasGame) return 'answer-now';
   return path ? 'path' : 'ask-player';
-}
-
-/**
- * The name to read a game variable by: a name with a type prefix (`$`, `#`, `%`) as is, any other as a number
- * (`#name`). The engine reads a name without a prefix as whatever is stored (`undefined` when nothing is), while
- * the player reads it as QSP does in code: a number, 0 when unset.
- */
-export function typedVariableName(name: string): string {
-  return /^[$#%]/.test(name) ? name : `#${name}`;
 }
 
 /**

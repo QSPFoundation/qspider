@@ -17,9 +17,9 @@ export const AeroQspInput: React.FC<{ attrs: Attributes; children: ReactNode }> 
   const input = useAtom(input$);
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-input');
   const coordinates = useClickCoordinates();
-  const inputX = useQspVariable('INPUT_X', '', 0, 200);
-  const inputY = useQspVariable('INPUT_Y', '', 0, 165);
-  const transitions = useAeroEffect(input.isOpen, '$INPUT_EFFECT', 'INPUT_EFFECT_TIME');
+  const inputX = useQspVariable('#INPUT_X', '', 0, 200);
+  const inputY = useQspVariable('#INPUT_Y', '', 0, 165);
+  const transitions = useAeroEffect(input.isOpen, '$INPUT_EFFECT', '#INPUT_EFFECT_TIME');
   const position = aeroPosition(inputX, inputY, coordinates);
   const positionStyle = {
     '--aero-input-x': `${position.x}px`,

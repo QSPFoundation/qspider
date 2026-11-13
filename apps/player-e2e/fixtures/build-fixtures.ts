@@ -136,6 +136,7 @@ export async function buildFixtures(): Promise<void> {
   for (const [name, data] of Object.entries(utf16Files))
     write(join(dirname(ARCHIVES.utf16Folder.configPath), name), data);
   write(ARCHIVES.includerZip.path, zipPack(join(SOURCES.includer, 'game.cfg'), ['included.qsps']));
+  write(ARCHIVES.openqstZip.path, zipPack(join(SOURCES.openqst, 'game.cfg'), ['second.qsps']));
   write(ARCHIVES.dialogsZip.path, zipPack(join(SOURCES.dialogs, 'game.cfg'), [ARCHIVES.dialogsZip.image]));
   write(ARCHIVES.gameHtmlZip.path, zipPack(join(SOURCES.gameHtml, 'game.cfg'), [ARCHIVES.gameHtmlZip.image]));
   write(ARCHIVES.savesZip.path, zipPack(join(SOURCES.saves, 'game.cfg')));

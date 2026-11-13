@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { checkCondition } from './conditions';
+import { conditionValue } from './variable-logic';
 
 describe('checkCondition', () => {
   it('equals and is compare as text', () => {
@@ -80,5 +81,16 @@ describe('checkCondition', () => {
 
   it('gives false for an unknown op', () => {
     expect(checkCondition('a', ['starts-with', 'a'])).toBe(false);
+  });
+
+  it('not-empty is false for an empty string, 0 and an unset variable', () => {
+    expect(checkCondition('', ['not-empty', ''])).toBe(false);
+    expect(checkCondition(0, ['not-empty', ''])).toBe(false);
+    expect(checkCondition(conditionValue(undefined), ['not-empty', ''])).toBe(false);
+  });
+
+  it('not-empty is true for a non-empty string and a non-zero number', () => {
+    expect(checkCondition('a', ['not-empty', ''])).toBe(true);
+    expect(checkCondition(5, ['not-empty', ''])).toBe(true);
   });
 });

@@ -1,15 +1,15 @@
-import { useQspVariable } from '@qspider/game-state';
+import { formatQspValue, useQspVariableRaw } from '@qspider/game-state';
 
 export const QspVariable: React.FC<{ name: string; vkey?: string; index?: number }> = ({
   name,
   vkey = '',
   index = 0,
 }) => {
-  const defaultValue = name.startsWith('$') ? '' : 0;
-  const value = useQspVariable(name, vkey, index, defaultValue);
+  const raw = useQspVariableRaw(name, vkey, index);
+  const text = raw === undefined ? (name.startsWith('$') ? '' : '0') : formatQspValue(raw);
   return (
     <qsp-variable data-qsp="variable" data-name={name} data-key={vkey ? vkey : index}>
-      {value}
+      {text}
     </qsp-variable>
   );
 };

@@ -19,7 +19,7 @@ export const QspStats: React.FC<{ attrs: Attributes; children: ReactNode }> = ({
   const isVisible = useAtom(isStatsVisible$);
   const statsContent = useAtom(statsContent$);
   const prevStats = usePrevious(statsContent);
-  const disableScroll = useQspVariable('DISABLESCROLL', '', 0, 0);
+  const disableScroll = useQspVariable('#DISABLESCROLL', '', 0, 0);
 
   useEffect(() => {
     if (!disableScroll) {

@@ -18,10 +18,10 @@ export const AeroQspMenu: React.FC<{ attrs: Attributes; children: ReactNode }> =
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-menu');
   const menu = useAtom(menu$);
   const coordinates = useClickCoordinates();
-  const isFixed = useQspVariable('FIXED_SIZE_MENU', '', 0, 0);
-  const menuX = useQspVariable('MENU_X', '', 0, -1);
-  const menuY = useQspVariable('MENU_Y', '', 0, -1);
-  const transitions = useAeroEffect(menu.isOpen, '$MENU_EFFECT', 'MENU_EFFECT_TIME');
+  const isFixed = useQspVariable('#FIXED_SIZE_MENU', '', 0, 0);
+  const menuX = useQspVariable('#MENU_X', '', 0, -1);
+  const menuY = useQspVariable('#MENU_Y', '', 0, -1);
+  const transitions = useAeroEffect(menu.isOpen, '$MENU_EFFECT', '#MENU_EFFECT_TIME');
   const { x: left, y: top } = aeroPosition(menuX, menuY, coordinates);
   const className = menuClassName(attributes['className'], Boolean(isFixed));
   return (

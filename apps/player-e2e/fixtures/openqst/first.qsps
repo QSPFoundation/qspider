@@ -1,0 +1,4 @@
+# first
+*pl 'OPENQST FIRST'
+act 'Open second': openqst 'second.qsps'
+---

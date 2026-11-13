@@ -11,8 +11,8 @@ export const AeroQspView: React.FC<{ attrs: Attributes; modal?: boolean; childre
 }) => {
   const [Tag, style, attributes] = useAttributes(attrs, 'qsp-view');
   const view = useAtom(view$);
-  const alwaysShow = useQspVariable('ALWAYS_SHOW_VIEW', '', 0, 0);
-  const transitions = useAeroEffect(view.isOpen, '$VIEW_EFFECT', 'VIEW_EFFECT_TIME');
+  const alwaysShow = useQspVariable('#ALWAYS_SHOW_VIEW', '', 0, 0);
+  const transitions = useAeroEffect(view.isOpen, '$VIEW_EFFECT', '#VIEW_EFFECT_TIME');
   const preparedStyle = {
     ...style,
     '--view-image': `url("${view.path}")`,

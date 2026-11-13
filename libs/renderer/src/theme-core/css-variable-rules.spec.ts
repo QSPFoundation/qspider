@@ -12,8 +12,18 @@ describe('cssVariableRules', () => {
     ).toEqual(['--x: rgba(255,0,0,1)', '--x-contrast: white', '--x-inverted: #00FFFF', '--x-inverted-contrast: black']);
   });
 
+  it('converts a raw numeric string value into a colour rule', () => {
+    expect(cssVariableRules(definition({ name: '--code-color', type: 'color' }), '255')).toEqual([
+      '--code-color: rgba(255,0,0,0)',
+    ]);
+  });
+
   it('uses the default colour when the variable is empty', () => {
     expect(cssVariableRules(definition({ type: 'color', defaultValue: 'red' }), '')).toEqual(['--x: red']);
+  });
+
+  it('uses the default colour when the variable is not a number', () => {
+    expect(cssVariableRules(definition({ type: 'color', defaultValue: '#000000' }), 'red')).toEqual(['--x: #000000']);
   });
 
   it('writes nothing for a colour without a value and without a default', () => {

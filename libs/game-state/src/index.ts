@@ -32,3 +32,5 @@ export {
   type LocationMatches,
   type LocationReader,
 } from './code-search';
+export { formatQspValue, scalarOrUnset } from './variable-logic';
+export * from './variables';
