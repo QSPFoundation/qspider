@@ -2,7 +2,6 @@ import {
   initQspEngine,
   QspAPI,
   QspErrorData,
-  QspVariableType,
   QspListItem,
   DebugRecord as QspDebugRecord,
   QspEventLogger,
@@ -12,7 +11,6 @@ import { atom } from 'xoid';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm?url';
-import { useEffect, useState } from 'react';
 import {
   actions$,
   cmdText$,
@@ -51,15 +49,12 @@ import {
   saveTarget,
   shouldPauseOnLink,
   stripExec,
-  typedVariableName,
-  variableOrDefault,
   versionAnswer,
 } from './engine-event-logic';
 import { debugActions } from './debug';
 import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
-import { checkCondition } from './conditions';
 import { showError } from './toasts';
 
 export const qspApi$ = atom<QspAPI>();
@@ -176,45 +171,6 @@ export function onLinkClicked(href: string): void {
   }
 }
 
-export function useQspVariable<Name extends string, T = QspVariableType<Name>>(
-  name: Name | undefined,
-  key: string,
-  index: number,
-  defaultValue: T,
-): T {
-  const [value, setValue] = useState(defaultValue);
-  useEffect(() => {
-    if (!name) return;
-    const unsubscribe = key
-      ? qspApi$.value?.watchVariableByKey(typedVariableName(name), key, (value) =>
-          setValue(variableOrDefault(value as unknown as T, defaultValue)),
-        )
-      : qspApi$.value?.watchVariableByIndex(typedVariableName(name), index, (value) =>
-          setValue(variableOrDefault(value as unknown as T, defaultValue)),
-        );
-    return (): void => {
-      unsubscribe?.();
-    };
-  }, [name, key, index, defaultValue]);
-
-  return value;
-}
-
-export function useQspExpression(variable: string, condition: [string, string]): boolean {
-  const [value, setValue] = useState(false);
-  useEffect(() => {
-    if (!variable) return;
-    // A typed name reads a string or a number (a tuple only if the theme names a `%` variable).
-    const unsubscribe = qspApi$.value?.watchVariable(typedVariableName(variable), (value) => {
-      setValue(checkCondition(value as string | number, condition));
-    });
-    return (): void => {
-      unsubscribe?.();
-    };
-  }, [variable, condition]);
-  return value;
-}
-
 qspApi$.subscribe((api) => {
   // Every listener of a retired engine goes silent (see `retiredApis`).
   function on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
@@ -293,7 +249,7 @@ qspApi$.subscribe((api) => {
     isNewLoc$.set(newLoc);
     nextMainContent$.set(nextMain);
     if (newLoc) {
-      newLocEffect$.set(newLocEffect((name) => api.readVariable(typedVariableName(name))));
+      newLocEffect$.set(newLocEffect((name) => api.readVariable(name)));
       newLocHash$.set(String(hashString(nextMainContent$.value)));
     } else {
       mainContent$.set(nextMain);

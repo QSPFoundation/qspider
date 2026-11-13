@@ -33,3 +33,4 @@ export {
   type LocationReader,
 } from './code-search';
 export * from './variable-logic';
+export * from './variables';
