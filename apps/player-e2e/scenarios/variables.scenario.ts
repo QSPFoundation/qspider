@@ -43,6 +43,17 @@ scenario('qsp-variable shows a string stored in an unprefixed variable', async (
   );
 });
 
+scenario("qsp-variable shows a tuple in QSP's text form", async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.watchers),
+    SeeElementText(ContentMark(MARK.tvarBox), TEXT.tuple, `#actor sees the tuple variable read "${TEXT.tuple}"`),
+  );
+});
+
 // Web only, for the reason given on the qsp-bind scenarios in game-html.scenario.ts (WebKitWebDriver drops typed characters).
 scenario.webOnly('qsp-bind on an unprefixed variable holding a string stores typed text', async (player) => {
   await player.attemptsTo(

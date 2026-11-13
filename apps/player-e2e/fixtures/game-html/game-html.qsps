@@ -97,6 +97,8 @@ $wcss = ''
 *pl '<qsp-variable name="$wvar"></qsp-variable>'
 uvar = 'UNPREFIXED TEXT'
 *pl '<span data-qa="uvar-box"><qsp-variable name="uvar"></qsp-variable></span>'
+%tvar = (1, 'a')
+*pl '<span data-qa="tvar-box"><qsp-variable name="%tvar"></qsp-variable></span>'
 *pl '<qsp-show when="$wvar" equals="VAR TWO"><span data-qa="show-child">SHOWN</span></qsp-show>'
 *pl '<qsp-style from="$wcss"></qsp-style>'
 *pl '<qsp-region name="reg"></qsp-region>'

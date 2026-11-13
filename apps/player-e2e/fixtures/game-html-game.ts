@@ -57,6 +57,8 @@ export const GAME_HTML = {
     showChild: 'show-child',
     /** Wraps the watchers location's qsp-variable on an unprefixed variable, and the bind location's input bound to one. */
     uvarBox: 'uvar-box',
+    /** Wraps the watchers location's qsp-variable on a tuple variable. */
+    tvarBox: 'tvar-box',
     ubindField: 'ubind-field',
     hostileFrame: 'hostile-frame',
     jsLink: 'js-link',
@@ -111,6 +113,8 @@ export const GAME_HTML = {
     ubound: (value: string): string => `UBOUND=${value}`,
     /** The unprefixed string variable the watchers location shows. */
     unprefixed: 'UNPREFIXED TEXT',
+    /** The watchers location's tuple `(1, 'a')` in QSP's text form. */
+    tuple: "[1, 'a']",
     varOne: 'VAR ONE',
     varTwo: 'VAR TWO',
     shown: 'SHOWN',
