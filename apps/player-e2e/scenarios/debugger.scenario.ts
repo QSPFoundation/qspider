@@ -35,6 +35,8 @@ import {
 } from '../screenplay/debugger/tasks';
 import { DebugPanel } from '../screenplay/debugger/elements';
 import { SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
+import { SeeMsg } from '../screenplay/msg/checks';
+import { DismissMsg } from '../screenplay/msg/tasks';
 import { ClickAction, PressEscape, ReturnToShelf } from '../screenplay/game/tasks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
 import { ContentMark } from '../screenplay/content/elements';
@@ -47,7 +49,15 @@ import { BlockOrigin } from '../screenplay/support/delay-requests';
 import { scenario } from '../screenplay/support/scenario';
 import { SeeNoScriptFrom } from '../screenplay/support/script-sources';
 
-const { location: LOCATION, action: ACTION, text: TEXT, code: CODE, vars: VARS } = DEBUGGER_GAME;
+const {
+  location: LOCATION,
+  action: ACTION,
+  text: TEXT,
+  code: CODE,
+  vars: VARS,
+  hits: HITS,
+  hold: HOLD,
+} = DEBUGGER_GAME;
 const EDITOR_CDN = 'cdn.jsdelivr.net';
 
 /** From a clean app: opens the debugger fixture game at its start (its main text holds a link beside the start text). */
@@ -280,5 +290,54 @@ scenario('a prefix that hides the stored value says so', async (player) => {
     HoverToken(VARS.token.numberU),
     SeeHoverText('0'),
     SeeHoverText(VARS.hover.hiddenByPrefix),
+  );
+});
+
+scenario('with debug mode off, an action that changes a watched variable updates the watch panel', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    SeeDebugStatus('disabled'),
+    AddWatch(HITS.token),
+    SeeWatchChanged(HITS.token, false),
+    ClickAction(ACTION.bump), // a run of one line, with no debug stop to read the value at
+    SeeWatchValue(HITS.token, HITS.afterBump),
+    SeeWatchChanged(HITS.token, true),
+  );
+});
+
+scenario('a change made by the last line of a run is reported and does not pause', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    EnableDebugging(),
+    AddWatch(HITS.token),
+    ToggleWatchPause(HITS.token), // it would pause if there were a stop left to pause at
+    ClickAction(ACTION.bump),
+    SeeWatchValue(HITS.token, HITS.afterBump),
+    SeeChangeNotice(HITS.changeBump),
+    SeeChangeNotice(HITS.at),
+    SeeDebugStatus('running'),
+  );
+});
+
+scenario('a change made before a msg pauses at the next stop and names its line', async (player) => {
+  await player.attemptsTo(
+    ...OpenDebuggerGame(),
+    OpenDebugger(),
+    EnableDebugging(),
+    AddWatch(HITS.token),
+    ToggleWatchPause(HITS.token),
+    ClickAction(ACTION.hold), // line 1: `hits += 1 & msg`; line 2 writes the text after it
+    SeeMsg(HOLD.msg),
+    SeeDebugStatus('running'), // the msg holds the run inside line 1: no stop yet, so no pause
+    DismissMsg(),
+    SeeDebugStatus('paused'),
+    SeeExecutionLine(LOCATION.start, 2),
+    SeeChangeNotice(HITS.changeBump),
+    SeeChangeNotice(HITS.at), // the change is blamed on line 1, not on the stop that saw it
+    SeeMainTextWithout(HOLD.after),
+    ResumeDebugger(),
+    SeeMainTextContaining(HOLD.after),
   );
 });

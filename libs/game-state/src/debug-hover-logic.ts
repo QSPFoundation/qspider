@@ -81,7 +81,7 @@ export function hoverReadPlan(
 }
 
 /** A value as the hover shows it: strings quoted, tuples in QSP form. */
-function show(value: QspVariableValue): string {
+export function showValue(value: QspVariableValue): string {
   if (value === undefined) return '(empty)';
   if (typeof value === 'string') return `'${value.replaceAll("'", "''")}'`;
   return formatQspValueTruncated(value, HOVER_MAX_ITEMS);
@@ -97,8 +97,8 @@ function typeName(value: QspVariableValue): string {
  */
 export function describeHover(name: string, typed: QspVariableValue, raw: QspVariableValue, size: number): string[] {
   if (raw === undefined && typed === undefined && size === 0) return [`${name} — not set`];
-  const lines = [`${name} = ${show(typed)}`];
-  if (raw !== undefined && !sameValue(typed, raw)) lines.push(`stored value is a ${typeName(raw)}: ${show(raw)}`);
+  const lines = [`${name} = ${showValue(typed)}`];
+  if (raw !== undefined && !sameValue(typed, raw)) lines.push(`stored value is a ${typeName(raw)}: ${showValue(raw)}`);
   return lines;
 }
 
@@ -110,7 +110,7 @@ export function describeSummary(
 ): string[] {
   if (size === 0) return [`${name} — not set`];
   const lines = [`${name} — ${size} items`];
-  shown.forEach(({ key, value }, i) => lines.push(`[${indexText(key, i)}] → ${show(value)}`));
+  shown.forEach(({ key, value }, i) => lines.push(`[${indexText(key, i)}] → ${showValue(value)}`));
   if (size > shown.length) lines.push('…');
   return lines;
 }

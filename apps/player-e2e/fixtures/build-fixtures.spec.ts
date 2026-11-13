@@ -67,7 +67,7 @@ describe('buildFixtures', () => {
     expect([...files[DIALOGS.viewImage].slice(0, 4)]).toEqual([0x89, 0x50, 0x4e, 0x47]);
   });
 
-  it('packs the debugger game compiled, with go and vars base actions on start', () => {
+  it('packs the debugger game compiled, with its base actions on start', () => {
     expect(DEBUGGER_GAME.path).toBe(ARCHIVES.debuggerZip.path);
     const files = unzipSync(bytes(ARCHIVES.debuggerZip.path));
     expect(Object.keys(files).sort()).toEqual(['debugger.qsp', 'game.cfg']);
@@ -79,7 +79,7 @@ describe('buildFixtures', () => {
       DEBUGGER_GAME.location.vars,
     ]);
     const start = locations.find((l) => l.name === DEBUGGER_GAME.location.start)!;
-    expect(start.actions.map((a) => a.name)).toEqual([DEBUGGER_GAME.action.go, DEBUGGER_GAME.action.vars]);
+    expect(start.actions.map((a) => a.name)).toEqual(Object.values(DEBUGGER_GAME.action));
   });
 
   it('packs the game-html game with its image', () => {

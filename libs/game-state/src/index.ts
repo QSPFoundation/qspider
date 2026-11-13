@@ -25,7 +25,7 @@ export * from './browser-translation';
 export * from './conditions';
 export * from './debug';
 export * from './debug-watch';
-export { WATCH_ITEM_CAP, watchKey, type WatchValue } from './debug-watch-logic';
+export { WATCH_ITEM_CAP, indexText, watchKey, type WatchValue } from './debug-watch-logic';
 export * from './code-inspector';
 export {
   searchLocations,
@@ -36,5 +36,5 @@ export {
 } from './code-search';
 export { formatQspValue, formatQspValueTruncated, scalarOrUnset } from './variable-logic';
 export { readHover, type HoverReading } from './debug-hover';
-export { hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+export { hoverCodeBlock, hoverReadPlan, showValue, type HoverPlan } from './debug-hover-logic';
 export * from './variables';

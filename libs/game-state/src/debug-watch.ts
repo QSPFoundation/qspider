@@ -125,7 +125,10 @@ function takeSnapshot(api: QspAPI, where: Omit<ChangeNotice, 'name' | 'from' | '
   baseline = next;
   watchValues$.set(next);
   watchChanged$.set(changed);
-  if (prev && changed.length > 0) {
+  if (prev && changed.length === 0) {
+    // The notice names the last change seen: the next snapshot that sees none (a step, a run that ends) clears it.
+    changeNotice$.set(null);
+  } else if (prev) {
     const pausing = watchPause$.value;
     const reported = changed.find((name) => pausing[name]) ?? changed[0];
     changeNotice$.set({ ...describeChange(reported, prev[reported], next[reported]), ...where });

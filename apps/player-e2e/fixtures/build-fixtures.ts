@@ -29,7 +29,7 @@ function packFiles(configPath: string, extraFiles: string[] = []): Record<string
 }
 
 /**
- * The debugger game, compiled: debugger.qsps plus the base actions `go` and `vars` on `start`. The debugger's Actions tab lists
+ * The debugger game, compiled: debugger.qsps plus the base actions `go`, `vars`, `bump` and `hold` on `start`. The debugger's Actions tab lists
  * a location's base actions, which only a compiled .qsp has (the QSPS reader reads none: its `act` is a statement).
  */
 function debuggerZip(): Uint8Array {
@@ -39,6 +39,11 @@ function debuggerZip(): Uint8Array {
   start.actions = [
     { name: DEBUGGER_GAME.action.go, code: [`gt '${DEBUGGER_GAME.location.second}'`] },
     { name: DEBUGGER_GAME.action.vars, code: [`gt '${DEBUGGER_GAME.location.vars}'`] },
+    { name: DEBUGGER_GAME.action.bump, code: ['hits += 1'] },
+    {
+      name: DEBUGGER_GAME.action.hold,
+      code: [`hits += 1 & msg '${DEBUGGER_GAME.hold.msg}'`, `*pl '${DEBUGGER_GAME.hold.after}'`],
+    },
   ];
   return zipSync({
     'game.cfg': readFileSync(join(SOURCES.debugger, 'game.cfg')),
