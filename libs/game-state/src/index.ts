@@ -24,6 +24,8 @@ export { prettifyHotkeys, type PrettyHotkeys } from './hotkey-format';
 export * from './browser-translation';
 export * from './conditions';
 export * from './debug';
+export * from './debug-watch';
+export { WATCH_ITEM_CAP, watchKey, type WatchValue } from './debug-watch-logic';
 export * from './code-inspector';
 export {
   searchLocations,

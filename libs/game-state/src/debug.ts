@@ -1,4 +1,6 @@
 import { atom } from 'xoid';
+import { qspApi$ } from './qsp-engine';
+import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
 
 export interface DebugRecord {
   code: string;
@@ -157,6 +159,15 @@ export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boo
   return bp.line === undefined || record.actIndex < 0;
 }
 
+/** Whether debug mode was on when the panel last closed: reopening turns it back on. */
+let debugModeWasOn = false;
+
+function setEngineDebugMode(on: boolean): void {
+  const api = qspApi$.value;
+  if (on) api?.enableDebugMode();
+  else api?.disableDebugMode();
+}
+
 function executeResume(): void {
   const resume = debugResumeFunction$.value;
   debugResumeFunction$.set(null);
@@ -175,6 +186,7 @@ export const debugActions = {
   },
 
   disableDebug: (): void => {
+    debugModeWasOn = false;
     debugState$.update((state) => ({
       ...state,
       isEnabled: false,
@@ -204,10 +216,19 @@ export const debugActions = {
       executionHistory: [...state.executionHistory.slice(-99), record],
     }));
 
-    debugResumeFunction$.set(resume);
+    debugResumeFunction$.set(() => {
+      releaseWatchStop();
+      resume();
+    });
 
+    // While the panel is closed nothing pauses and nothing is read.
+    if (!isDebugPanelOpen$.value) {
+      executeResume();
+      return;
+    }
+    const pauseOnChange = snapshotAtStop(record);
     const state = debugState$.value;
-    const shouldPause = state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
+    const shouldPause = pauseOnChange || state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
 
     if (shouldPause || state.isPaused) {
       debugState$.update((s) => ({ ...s, isPaused: true }));
@@ -217,6 +238,10 @@ export const debugActions = {
   },
 
   setLinkExecution: (code: string, execute: () => void): void => {
+    if (!isDebugPanelOpen$.value) {
+      execute();
+      return;
+    }
     const linkRecord: DebugRecord = {
       code,
       loc: '[EXEC Link]',
@@ -306,16 +331,36 @@ export const debugActions = {
   },
 
   // UI actions
+  /** Opens the panel: debug mode comes back on if it was on when the panel closed, and watching starts afresh. */
   openDebugPanel: (): void => {
+    if (isDebugPanelOpen$.value) return;
     isDebugPanelOpen$.set(true);
+    if (debugModeWasOn) {
+      setEngineDebugMode(true);
+      debugActions.enableDebug();
+    }
+    setWatchActive(true);
+    resetWatchBaseline();
+    snapshotAfterRun();
   },
 
+  /**
+   * Closes the panel: a held pause (a debug stop or a held link) is released once, debug mode goes off (remembered
+   * for reopening), and watching stops, so a closed panel neither pauses nor slows the game.
+   */
   closeDebugPanel: (): void => {
+    if (!isDebugPanelOpen$.value) return;
+    const wasOn = debugState$.value.isEnabled;
+    setWatchActive(false);
     isDebugPanelOpen$.set(false);
+    setEngineDebugMode(false);
+    debugActions.disableDebug(); // clears the pause and calls the held resume once
+    debugModeWasOn = wasOn;
   },
 
   toggleDebugPanel: (): void => {
-    isDebugPanelOpen$.update((isOpen) => !isOpen);
+    if (isDebugPanelOpen$.value) debugActions.closeDebugPanel();
+    else debugActions.openDebugPanel();
   },
 
   setDockPosition: (position: 'bottom' | 'left' | 'right'): void => {

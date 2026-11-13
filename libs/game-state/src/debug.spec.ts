@@ -34,6 +34,9 @@ beforeEach(() => {
   debuggerUIState$.set(initialUi);
 });
 
+/** The panel open, without the open action's engine side (pausing works only while it is open). */
+const panelOpen = (): void => debuggerUIState$.update((s) => ({ ...s, isPanelOpen: true }));
+
 describe('readDebuggerUiState', () => {
   it('returns the defaults without storage', () => {
     expect(readDebuggerUiState(null)).toEqual(DEFAULT_UI);
@@ -175,6 +178,8 @@ describe('breakpoints', () => {
 });
 
 describe('records and history', () => {
+  beforeEach(panelOpen);
+
   it('keeps only the last 100 history records', () => {
     debugState$.update((s) => ({ ...s, isPaused: true }));
     for (let i = 0; i < 105; i++) debugActions.setCurrentRecord(record({ line: i }), () => undefined);
@@ -184,12 +189,15 @@ describe('records and history', () => {
     expect(history[99].line).toBe(104);
   });
 
-  it('pauses on a matching breakpoint and keeps the resume function', () => {
+  it('pauses on a matching breakpoint and keeps a resume function that resumes the engine', () => {
     debugActions.addBreakpoint({ location: 'start', line: 1, enabled: true });
-    const resume = () => undefined;
-    debugActions.setCurrentRecord(record(), resume);
+    let calls = 0;
+    debugActions.setCurrentRecord(record(), () => {
+      calls++;
+    });
     expect(debugState$.value.isPaused).toBe(true);
-    expect(debugState$.value.resumeFunction).toBe(resume);
+    debugState$.value.resumeFunction?.();
+    expect(calls).toBe(1);
   });
 
   it('clears the execution history', () => {
@@ -218,7 +226,10 @@ describe('records and history', () => {
 });
 
 describe('execution control', () => {
-  beforeEach(() => vi.useFakeTimers());
+  beforeEach(() => {
+    panelOpen();
+    vi.useFakeTimers();
+  });
   afterEach(() => vi.useRealTimers());
 
   it('runs the resume function on a later tick, once, and clears it', () => {
@@ -344,6 +355,70 @@ describe('enable and canStep$', () => {
 });
 
 describe('debugger panel', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('with the panel closed a breakpoint does not pause and the stop resumes', () => {
+    debugActions.addBreakpoint({ location: 'start', line: 1, enabled: true });
+    let calls = 0;
+    debugActions.setCurrentRecord(record(), () => {
+      calls++;
+    });
+    vi.runAllTimers();
+    expect(debugState$.value.isPaused).toBe(false);
+    expect(calls).toBe(1);
+  });
+
+  it('with the panel closed a link runs at once', () => {
+    let ran = 0;
+    debugActions.setLinkExecution('gt "x"', () => {
+      ran++;
+    });
+    expect(ran).toBe(1);
+    expect(debugState$.value.isPaused).toBe(false);
+  });
+
+  it('closing the panel while paused releases the stop once and turns debugging off', () => {
+    debugActions.openDebugPanel();
+    debugActions.enableDebug();
+    debugActions.addBreakpoint({ location: 'start', line: 1, enabled: true });
+    let calls = 0;
+    debugActions.setCurrentRecord(record(), () => {
+      calls++;
+    });
+    expect(debugState$.value.isPaused).toBe(true);
+    debugActions.closeDebugPanel();
+    vi.runAllTimers();
+    expect(debugState$.value).toMatchObject({ isEnabled: false, isPaused: false, resumeFunction: null });
+    expect(calls).toBe(1);
+    debugActions.stepExecution();
+    vi.runAllTimers();
+    expect(calls).toBe(1);
+  });
+
+  it('closing the panel runs a held link', () => {
+    debugActions.openDebugPanel();
+    let ran = 0;
+    debugActions.setLinkExecution('gt "x"', () => {
+      ran++;
+    });
+    debugActions.closeDebugPanel();
+    vi.runAllTimers();
+    expect(ran).toBe(1);
+  });
+
+  it('reopening turns debugging back on only if it was on', () => {
+    debugActions.openDebugPanel();
+    debugActions.enableDebug();
+    debugActions.closeDebugPanel();
+    debugActions.openDebugPanel();
+    expect(debugState$.value.isEnabled).toBe(true);
+    debugActions.disableDebug();
+    debugActions.closeDebugPanel();
+    debugActions.openDebugPanel();
+    expect(debugState$.value.isEnabled).toBe(false);
+  });
+
   it('opens, closes and toggles the panel', () => {
     debugActions.openDebugPanel();
     expect(debuggerUIState$.value.isPanelOpen).toBe(true);
