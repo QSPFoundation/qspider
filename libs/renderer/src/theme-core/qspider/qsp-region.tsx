@@ -8,7 +8,8 @@ import { templateParser } from '../../render-state';
 import { Markup } from '@qspider/html-renderer';
 
 export const QspRegion: React.FC<{ name: string; scrollable?: boolean; attrs: Attributes }> = (props) => {
-  const text = useQspVariable('$qspider_region', props.name, 0, '');
+  // A nameless region watches nothing (an empty key would read index 0).
+  const text = useQspVariable(props.name ? '$qspider_region' : undefined, props.name ?? '', 0, '');
   const content = useMemo(() => templateParser.parse(text), [text]);
   const scroll$ = useSetup((props$) => {
     const name$ = atom((get) => get(props$).name);
