@@ -11,7 +11,7 @@ type StartOutcome = { kind: 'started' } | { kind: 'waiting' } | { kind: 'error';
 const normalize = (s: string): string => s.replace(/\s+/g, ' ').trim();
 
 /** One read of what the player shows: the game's start text, an error alert (with its text), or neither yet. */
-const GameStartOutcome = (startText: string) =>
+const GameStartOutcome = (startText: string, contains = false) =>
   Question.about<StartOutcome>(`whether the game shows "${startText}" or an error`, async (actor) => {
     for (const alert of await actor.answer(ErrorAlerts)) {
       if (!(await isShown(alert))) continue;
@@ -19,13 +19,15 @@ const GameStartOutcome = (startText: string) =>
       const text = (await textIfPresent(alert)) ?? '(closed before its text could be read)';
       return { kind: 'error', text: normalize(text) };
     }
-    return (await actor.answer(TextNow(MainText))) === startText ? { kind: 'started' } : { kind: 'waiting' };
+    const main = await actor.answer(TextNow(MainText));
+    const started = main !== undefined && (contains ? main.includes(startText) : main === startText);
+    return started ? { kind: 'started' } : { kind: 'waiting' };
   });
 
 /** Waits for the game to start or an error alert; fails at once, with the alert's text, on an error. */
-const GameStartedOrFailed = (startText: string) =>
+const GameStartedOrFailed = (startText: string, contains = false) =>
   Question.about<'started' | 'waiting'>(`whether the game shows "${startText}"`, async (actor) => {
-    const outcome = await actor.answer(GameStartOutcome(startText));
+    const outcome = await actor.answer(GameStartOutcome(startText, contains));
     if (outcome.kind === 'error') throw new AssertionError(`Player shows an error alert: ${outcome.text}`);
     return outcome.kind;
   });
@@ -36,6 +38,17 @@ export const SeeGameStarted = (startText: string) =>
     `#actor sees the game start with "${startText}"`,
     Wait.until(GameStartedOrFailed(startText), not(equals('waiting'))),
     seeEventually(MainText, (e) => Text.of(e).trim(), equals(startText), `#actor sees main text "${startText}"`),
+  );
+
+/**
+ * As SeeGameStarted, for a start whose main text holds more than `startText` (a link, say): fails fast on an
+ * error alert, else waits until the main text contains `startText`.
+ */
+export const SeeGameStartedContaining = (startText: string) =>
+  Task.where(
+    `#actor sees the game start with main text containing "${startText}"`,
+    Wait.until(GameStartedOrFailed(startText, true), not(equals('waiting'))),
+    seeEventually(MainText, (e) => Text.of(e), includes(startText), `#actor sees main text containing "${startText}"`),
   );
 
 /**

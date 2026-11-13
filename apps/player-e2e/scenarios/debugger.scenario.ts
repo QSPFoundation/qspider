@@ -1,5 +1,5 @@
 import { DEBUGGER_GAME } from '../fixtures/debugger-game';
-import { SeeStartupFinished } from '../screenplay/common/checks';
+import { SeeGameStartedContaining, SeeStartupFinished } from '../screenplay/common/checks';
 import {
   SeeDebuggerDocked,
   SeeDebuggerOpen,
@@ -25,7 +25,7 @@ import {
   ToggleLocationBreakpoint,
   TogglePauseOnLinks,
 } from '../screenplay/debugger/tasks';
-import { SeeMainTextContaining } from '../screenplay/game/checks';
+import { SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
 import { ClickAction } from '../screenplay/game/tasks';
 import { ContentMark } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
@@ -38,15 +38,12 @@ import { SeeNoScriptFrom } from '../screenplay/support/script-sources';
 const { location: LOCATION, action: ACTION, text: TEXT, code: CODE } = DEBUGGER_GAME;
 const EDITOR_CDN = 'cdn.jsdelivr.net';
 
-/**
- * From a clean app: opens the debugger fixture game at its start. The start text sits beside the link's text, so
- * the exact-match SeeGameStarted does not fit; the main text is checked for containing it.
- */
+/** From a clean app: opens the debugger fixture game at its start (its main text holds a link beside the start text). */
 const OpenDebuggerGame = () => [
   StartPlayer(),
   SeeStartupFinished(),
   LoadGame(DEBUGGER_GAME.path),
-  SeeMainTextContaining(TEXT.start),
+  SeeGameStartedContaining(TEXT.start),
 ];
 
 scenario('F12 opens the debugger and the close button and F12 close it', async (player) => {
@@ -115,6 +112,7 @@ scenario('with pause on links on, a link pauses before its code runs', async (pl
     ClickContent(ContentMark(DEBUGGER_GAME.link.qa)),
     SeeDebugStatus('paused'),
     SeeMainTextContaining(TEXT.start),
+    SeeMainTextWithout(TEXT.second),
     ResumeDebugger(),
     SeeMainTextContaining(TEXT.second),
   );
@@ -129,7 +127,7 @@ scenario('the dock position survives a player restart', async (player) => {
     RestartPlayer(),
     SeeStartupFinished(),
     OpenFromShelf(DEBUGGER_GAME.title),
-    SeeMainTextContaining(TEXT.start),
+    SeeGameStartedContaining(TEXT.start),
     OpenDebugger(),
     SeeDebuggerDocked('left'),
   );
