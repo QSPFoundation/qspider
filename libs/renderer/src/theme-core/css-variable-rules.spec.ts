@@ -18,14 +18,12 @@ describe('cssVariableRules', () => {
     ]);
   });
 
-  it('prefers the default colour over an empty value', () => {
-    expect(cssVariableRules(definition({ name: '--code-color', type: 'color', defaultValue: 'blue' }), '')).toEqual([
-      '--code-color: blue',
-    ]);
-  });
-
   it('uses the default colour when the variable is empty', () => {
     expect(cssVariableRules(definition({ type: 'color', defaultValue: 'red' }), '')).toEqual(['--x: red']);
+  });
+
+  it('uses the default colour when the variable is not a number', () => {
+    expect(cssVariableRules(definition({ type: 'color', defaultValue: '#000000' }), 'red')).toEqual(['--x: #000000']);
   });
 
   it('writes nothing for a colour without a value and without a default', () => {

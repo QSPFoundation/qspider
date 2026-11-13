@@ -4,7 +4,7 @@ import { cleanPath, convertColor, getContrastColor, invertColor, isExternalUrl }
 export function cssVariableRules(definition: CssVarDefinition, value: string): string[] {
   const rules: string[] = [];
   if (definition.type === 'color') {
-    const preparedValue = value ? convertColor(Number(value)) : definition.defaultValue;
+    const preparedValue = (value ? convertColor(Number(value)) : null) ?? definition.defaultValue;
     if (preparedValue) {
       rules.push(`${definition.name}: ${preparedValue}`);
       if (definition.withContrast) {
