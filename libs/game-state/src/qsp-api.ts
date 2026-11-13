@@ -56,14 +56,10 @@ import qspiderModuleContent from './modules/qspider.qsps?raw';
 import { readQsps, writeQsp } from '@qsp/converters';
 import { fetchBinaryContent, windowManager } from '@qspider/env';
 import { showError } from './toasts';
+import { gameOpenEpoch$, isRetiredEngine, qspApi$, retireEngine } from './qsp-engine';
 
-export const qspApi$ = atom<QspAPI>();
+export { qspApi$, gameOpenEpoch$ } from './qsp-engine';
 export const qspApiInitialized$ = atom(false);
-/**
- * Counts the games opened as new. Opening a new game wipes the engine's variable watchers, so the variable layer
- * (variables.ts) re-attaches its watchers when this changes.
- */
-export const gameOpenEpoch$ = atom(0);
 
 /** Opens a game in the engine; a new game wipes its variable watchers, which `gameOpenEpoch$` announces. */
 export async function openGameSource(api: QspAPI, source: ArrayBuffer, isNewGame: boolean): Promise<void> {
@@ -75,19 +71,12 @@ export const qspiderModule$ = atom(writeQsp(readQsps(qspiderModuleContent)));
 
 let wasmBinary: ArrayBuffer | null = null;
 let engineReady: Promise<void> = Promise.resolve();
-/**
- * Engines of stopped games. A stopped game may still be inside a statement (a dialog it waits in, or code the
- * engine resumes a tick after an answer): its engine's events are ignored and never answered, so that game's
- * code never reaches the player again, and an engine left waiting can't hold up the next game.
- */
-const retiredApis = new WeakSet<QspAPI>();
-
 async function startEngine(): Promise<void> {
   if (!wasmBinary) throw new Error('QSP engine is not loaded');
   const api = await initQspEngine(wasmBinary);
   const eventLogger: QspEventLogger = {
     log(event, ...args) {
-      if (!retiredApis.has(api)) debugActions.logEvent(event, ...args);
+      if (!isRetiredEngine(api)) debugActions.logEvent(event, ...args);
     },
   };
   api.registerEventLogger(eventLogger);
@@ -103,11 +92,11 @@ export async function initQspApi(): Promise<void> {
   qspApiInitialized$.set(true);
 }
 
-/** Retires the engine of the game that stopped (see `retiredApis`) and starts a fresh one for the next game. */
+/** Retires the engine of the game that stopped (see `retireEngine`) and starts a fresh one for the next game. */
 export function replaceQspEngine(): void {
   const api = qspApi$.value;
   if (!api || !wasmBinary) return;
-  retiredApis.add(api);
+  retireEngine(api);
   engineReady = startEngine();
   engineReady.catch((error) => console.error('Failed to start the QSP engine', error));
 }
@@ -172,10 +161,10 @@ export function onLinkClicked(href: string): void {
 }
 
 qspApi$.subscribe((api) => {
-  // Every listener of a retired engine goes silent (see `retiredApis`).
+  // Every listener of a retired engine goes silent (see `retireEngine`).
   function on<E extends keyof QspEvents>(event: E, listener: QspEvents[E]): void {
     const call = listener as (...args: unknown[]) => unknown;
-    api.on(event, ((...args: unknown[]) => (retiredApis.has(api) ? undefined : call(...args))) as QspEvents[E]);
+    api.on(event, ((...args: unknown[]) => (isRetiredEngine(api) ? undefined : call(...args))) as QspEvents[E]);
   }
   on('version', (type, callback) => {
     return callback(versionAnswer(type, windowManager) ?? api.version());
