@@ -1,5 +1,5 @@
 import { currentGameEntry$, GameCommand, onGameCommand, stopCurrentGame } from './current-game';
-import { layers$, readLayerState, readRegion, regions$, regionsScroll$, reloadLayers } from './panels';
+import { regionsScroll$ } from './panels';
 import { currentTheme$, themeRegistry$ } from './themes';
 import { showError } from './toasts';
 import { windowManager } from '@qspider/env';
@@ -34,19 +34,9 @@ export const qspiderCommands: Record<string, (input: string) => void> = {
     }
     currentTheme$.set(name);
   },
-  'update_region:'(name: string): void {
-    regions$.focus((s) => s[name]).set(readRegion(name));
-  },
   'scroll_region:'(data: string): void {
     const { name, direction } = parseScrollRegion(data);
     regionsScroll$.focus((s) => s[name]).update((x) => scrollStep(x, direction));
-  },
-  'update_layer:'(name: string): void {
-    const layer$ = layers$.focus((s) => s[name]);
-    layer$.set(readLayerState(name));
-  },
-  update_layers(): void {
-    reloadLayers();
   },
   'fullscreen:'(state: string): void {
     if (state === 'on') {

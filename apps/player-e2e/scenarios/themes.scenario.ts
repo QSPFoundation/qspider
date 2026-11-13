@@ -169,9 +169,8 @@ scenario('switching to an unknown theme shows an error and keeps the theme', asy
   );
 });
 
-// The layer is theme-level (outside the main content), so it stays mounted across a restart and only
-// reloadLayers can clear it. A layer inside the main content re-reads the engine on mount and cannot show that
-// (see lifecycle.scenario.ts). Kept here: the fixture and its elements are the theme's.
+// The layer is theme-level (outside the main content), so it stays mounted across a restart and follows the
+// new engine's #qspider_layers, which a restart resets. Kept here: the fixture and its elements are the theme's.
 scenario('restart hides a theme-layout layer the game showed', async (player) => {
   await player.attemptsTo(
     StartPlayer(),

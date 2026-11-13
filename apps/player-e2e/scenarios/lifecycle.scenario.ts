@@ -69,11 +69,8 @@ scenario('the game can restart itself', async (player) => {
   );
 });
 
-// Region: QspRegion renders regions$[name] and never re-reads the engine, so without reloadRegions on restart
-// the re-entered life room would still show LIFE REGION. Layer: QspLayer re-reads the engine on mount
-// (registerLayer), so its absence here holds even without reloadLayers; it checks behaviour, not the reload.
-// The reload itself is proved by 'restart hides a theme-layout layer the game showed' (themes.scenario.ts):
-// a layout-level layer stays mounted across a restart.
+// Region and layer follow the game's variables ($qspider_region, #qspider_layers), so a restart resets both
+// with no reload step: the re-entered life room shows no LIFE REGION and the layer is gone.
 scenario('restart resets regions and layers', async (player) => {
   await player.attemptsTo(
     OpenPanelsFixture(),
