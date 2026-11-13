@@ -51,21 +51,21 @@ function reattachAll(): void {
   }
 }
 
-let reattaching = false;
+let installed = false;
 /**
  * A fresh engine (after a game stops) and a new game (which wipes the engine's watchers) both need every live
  * entry to watch again. Subscribed on the first acquire, not at import: qsp-api.ts reaches this module through
  * an import cycle (qsp-api → current-game → themes → variables), so its atoms don't exist yet at import.
  */
 function reattachOnEngineChange(): void {
-  if (reattaching) return;
-  reattaching = true;
+  if (installed) return;
+  installed = true;
   qspApi$.subscribe(reattachAll);
   gameOpenEpoch$.subscribe(reattachAll);
 }
 
 /** The shared atom of a game variable cell (memoized by the case-insensitive name, prefix kept, and key or index). */
-export function variable$(name: string, key = '', index = 0): Atom<QspVariableValue> {
+function variable$(name: string, key = '', index = 0): Atom<QspVariableValue> {
   return entryFor(name, key, index).atom$;
 }
 
@@ -73,7 +73,7 @@ export function variable$(name: string, key = '', index = 0): Atom<QspVariableVa
  * Holds a game variable cell: the first holder attaches its engine watcher. The returned release lets go; the
  * last release detaches the watcher and forgets the entry.
  */
-export function acquireVariable(name: string, key = '', index = 0): () => void {
+function acquireVariable(name: string, key = '', index = 0): () => void {
   reattachOnEngineChange();
   const entry = entryFor(name, key, index);
   entry.count = nextRefCount(entry.count, 1);
@@ -89,6 +89,15 @@ export function acquireVariable(name: string, key = '', index = 0): () => void {
     const id = variableKey(entry.name, entry.key, entry.index);
     if (entries.get(id) === entry) entries.delete(id);
   };
+}
+
+/**
+ * Holds a game variable cell for the app's lifetime and returns its shared atom, for module-level readers (the
+ * aero format variables) that live as long as the app does.
+ */
+export function heldVariable$(name: string, key = '', index = 0): Atom<QspVariableValue> {
+  acquireVariable(name, key, index);
+  return variable$(name, key, index);
 }
 
 /** The current value of a cell without creating an entry for it (undefined when nobody holds it). */

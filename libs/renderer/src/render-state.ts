@@ -1,6 +1,5 @@
 import { Atom, atom } from 'xoid';
 import {
-  acquireVariable,
   actions$,
   buildGuiLayoutTemplate,
   currentGameEntry$,
@@ -8,6 +7,7 @@ import {
   DEFAULT_LIST_FORMAT,
   DEFAULT_SELECTED_LIST_FORMAT,
   defaultClassicTheme$,
+  heldVariable$,
   hasBrowserTranslation$,
   IMAGE_PLACEHOLDER,
   input$,
@@ -22,7 +22,6 @@ import {
   selectedObject$,
   statsContent$,
   TEXT_PLACEHOLDER,
-  variable$,
 } from '@qspider/game-state';
 import { HtmlParser, RenderNode } from '@qspider/html-renderer';
 import { fillFormat } from './fill-format';
@@ -108,8 +107,7 @@ export const menuWithParsedName$ = atom((get) => {
 
 /** A format variable of the game as a string (or `defaultValue` when unset), watched for the app's lifetime. */
 function createVariableAtom(name: string, defaultValue = ''): Atom<string> {
-  acquireVariable(name);
-  const variable = variable$(name);
+  const variable = heldVariable$(name);
   return atom((get) => String(scalarOrUnset(get(variable)) || defaultValue));
 }
 
