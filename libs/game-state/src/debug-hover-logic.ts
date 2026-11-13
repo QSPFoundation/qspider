@@ -114,3 +114,14 @@ export function describeSummary(
   if (size > shown.length) lines.push('…');
   return lines;
 }
+
+/**
+ * Hover lines as one markdown fenced code block, safe for game text: the fence is longer than any backtick run in
+ * the lines, and newlines are collapsed, so no value or key can end the block and add markdown (a link, HTML).
+ */
+export function hoverCodeBlock(lines: string[]): string {
+  const flat = lines.map((line) => line.replace(/\r\n|[\r\n\u2028\u2029]/g, ' '));
+  const longest = Math.max(0, ...flat.flatMap((line) => (line.match(/`+/g) ?? []).map((run) => run.length)));
+  const fence = '`'.repeat(Math.max(3, longest + 1));
+  return `${fence}\n${flat.join('\n')}\n${fence}`;
+}

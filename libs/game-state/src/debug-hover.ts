@@ -30,7 +30,8 @@ function readItemLines(api: QspAPI, name: string, key: QspVariableKey): string[]
 /** Resolved index of a single-variable index: its value if it is a number or a string, else undefined. */
 function readIndex(api: QspAPI, indexName: string): string | number | undefined {
   const value = api.readVariable(indexName);
-  return typeof value === 'string' || typeof value === 'number' ? value : undefined;
+  if (typeof value === 'number') return Number.isInteger(value) ? value : undefined;
+  return typeof value === 'string' ? value : undefined;
 }
 
 /**

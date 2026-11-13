@@ -1,6 +1,6 @@
 import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
-import { describeHover, describeSummary, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+import { describeHover, describeSummary, hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
 
 const tuple = (items: QspVariableValue[], names?: Array<string | undefined>): QspTuple => {
   const t = [...items] as QspTuple;
@@ -113,5 +113,29 @@ describe('describeSummary', () => {
 
   it('marks that more items exist than shown', () => {
     expect(describeSummary('A', 9, [{ key: undefined, value: 1 }])).toEqual(['A — 9 items', '[0] → 1', '…']);
+  });
+});
+
+describe('hoverCodeBlock', () => {
+  it('wraps the lines in a fence, one per line', () => {
+    expect(hoverCodeBlock(['A = 1', 'B = 2'])).toBe('```\nA = 1\nB = 2\n```');
+  });
+
+  it('uses a fence longer than any backtick run in the text', () => {
+    const block = hoverCodeBlock(["$A = 'a``[x](command:foo)'"]);
+    expect(block.startsWith('```\n')).toBe(true);
+    const long = hoverCodeBlock(['x ```` y']);
+    expect(long).toBe('`````\nx ```` y\n`````');
+  });
+
+  it('collapses a blank line and other line breaks inside a value', () => {
+    const block = hoverCodeBlock(["$A = 'a\n\nb\r\nc'"]);
+    expect(block).toBe("```\n$A = 'a  b c'\n```");
+  });
+
+  it('leaves link and HTML text inside the block as plain lines', () => {
+    const lines = hoverCodeBlock(["$A = '[x](command:foo) <img src=x>'"]).split('\n');
+    expect(lines).toHaveLength(3);
+    expect(lines[1]).toBe("$A = '[x](command:foo) <img src=x>'");
   });
 });

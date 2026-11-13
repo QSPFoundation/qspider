@@ -1,5 +1,5 @@
 import type * as Monaco from 'monaco-editor';
-import { hoverReadPlan, readHover, watchActions } from '@qspider/game-state';
+import { hoverCodeBlock, hoverReadPlan, readHover, watchActions } from '@qspider/game-state';
 import { qspLanguageDefinition } from './qsp-language';
 
 const PIN_COMMAND = 'qsp.debugger.pinVariable';
@@ -25,12 +25,6 @@ function bracketText(line: string, from: number): string | undefined {
     }
   }
   return line.slice(from + 1);
-}
-
-/** A line as markdown inline code, so names, brackets and quotes show as written. */
-function code(text: string): string {
-  const fence = text.includes('`') ? '``' : '`';
-  return `${fence}${text.includes('`') ? ` ${text} ` : text}${fence}`;
 }
 
 /**
@@ -69,13 +63,13 @@ export function registerQspHover(monaco: typeof Monaco): void {
       const plan = hoverReadPlan(word, bracketText(line, end), isKeyword);
       const { lines, pinName } = readHover(plan);
       if (lines.length === 0) return null;
-      const body = lines.map(code).join('\n\n');
+      const body = hoverCodeBlock(lines);
       const pin = pinName
         ? `\n\n[Pin](command:${PIN_COMMAND}?${encodeURIComponent(JSON.stringify([pinName]))} "Add to the watch list")`
         : '';
       return {
         range: new monaco.Range(position.lineNumber, start + 1, position.lineNumber, end + 1),
-        contents: [{ value: body + pin, isTrusted: true }],
+        contents: [{ value: body + pin, isTrusted: { enabledCommands: [PIN_COMMAND] } }],
       };
     },
   });
