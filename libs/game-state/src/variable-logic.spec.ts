@@ -8,6 +8,7 @@ describe('variableKey', () => {
     expect(variableKey('a', 'k', 3)).toBe(variableKey('A', 'k', 0));
     expect(variableKey('a', '', 1)).not.toBe(variableKey('a', '', 2));
     expect(variableKey('a', 'K', 0)).not.toBe(variableKey('a', 'k', 0));
+    expect(variableKey('a', undefined, undefined)).toBe(variableKey('a', '', 0));
   });
 });
 

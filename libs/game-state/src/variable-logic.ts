@@ -1,9 +1,9 @@
 import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
 
 /** Registry key of a variable cell: upper-cased name (prefix kept); a key wins over the index. */
-export function variableKey(name: string, key: string, index: number): string {
+export function variableKey(name: string, key: string | undefined, index: number | undefined): string {
   const upper = name.toUpperCase();
-  return key !== '' ? `${upper}\u0000k${key}` : `${upper}\u0000i${index}`;
+  return key ? `${upper}\u0000k${key}` : `${upper}\u0000i${index ?? 0}`;
 }
 
 export function isTuple(v: QspVariableValue): v is QspTuple {
