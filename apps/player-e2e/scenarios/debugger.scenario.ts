@@ -33,6 +33,7 @@ import {
   ToggleWatchPause,
   TogglePauseOnLinks,
 } from '../screenplay/debugger/tasks';
+import { DebugPanel } from '../screenplay/debugger/elements';
 import { SeeMainTextContaining, SeeMainTextWithout } from '../screenplay/game/checks';
 import { ClickAction, PressEscape, ReturnToShelf } from '../screenplay/game/tasks';
 import { PauseScreen, RestartButton } from '../screenplay/pause/elements';
@@ -40,7 +41,7 @@ import { ContentMark } from '../screenplay/content/elements';
 import { ClickContent } from '../screenplay/content/tasks';
 import { SeeShelfIncludes, SeeShelfWritesSettled } from '../screenplay/shelf/checks';
 import { OpenFromShelf } from '../screenplay/shelf/tasks';
-import { ClickWhenPresent, waitUntilPresent } from '../screenplay/support/presence';
+import { ClickWhenPresent, waitUntilAbsent, waitUntilPresent } from '../screenplay/support/presence';
 import { LoadGame, RestartPlayer, StartPlayer } from '../screenplay/support/operate-player';
 import { BlockOrigin } from '../screenplay/support/delay-requests';
 import { scenario } from '../screenplay/support/scenario';
@@ -223,6 +224,8 @@ scenario('break on change pauses after the changing line and names it', async (p
   await player.attemptsTo(
     ...OpenDebuggerGame(),
     ...PauseInVars(),
+    ...StepTimes(6), // `gold = 100` ran: the watch starts from 100
+    SeeExecutionLine(LOCATION.vars, VARS.changeLine),
     AddWatch(VARS.token.gold),
     ToggleWatchPause(VARS.token.gold),
     ToggleLocationBreakpoint(LOCATION.vars), // off: only the change may pause the game now
@@ -238,6 +241,7 @@ scenario('closing the panel releases a pause and stops pausing', async (player) 
     ...OpenDebuggerGame(),
     ...PauseInVars(),
     CloseDebugger(), // the pause is released: the game runs on
+    waitUntilAbsent(DebugPanel),
     SeeMainTextContaining(TEXT.varsEnd),
     ...RestartFromPauseScreen(),
     ClickAction(ACTION.vars), // the panel is closed: nothing pauses
