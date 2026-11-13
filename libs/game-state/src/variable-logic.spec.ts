@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { conditionValue, formatQspValue, nextRefCount, sameValue, scalarOrUnset, variableKey } from './variable-logic';
+import {
+  conditionValue,
+  formatQspValue,
+  formatQspValueTruncated,
+  nextRefCount,
+  sameValue,
+  scalarOrUnset,
+  variableKey,
+} from './variable-logic';
 
 describe('variableKey', () => {
   it('upper-cases the name, keeps the prefix, key wins over index', () => {
@@ -39,6 +47,23 @@ describe('formatQspValue', () => {
     expect(formatQspValue('text')).toBe('text');
     expect(formatQspValue(7)).toBe('7');
     expect(formatQspValue(undefined)).toBe('');
+  });
+
+  it('prints record field names', () => {
+    expect(formatQspValue(Object.assign(['Ann', 30], { names: ['NAME', 'AGE'] }))).toBe("[NAME: 'Ann', AGE: 30]");
+    expect(formatQspValue(Object.assign([1, 2], { names: ['A', undefined] }))).toBe('[A: 1, 2]');
+    const inner = Object.assign([5], { names: ['X'] });
+    expect(formatQspValue([1, inner])).toBe('[1, [X: 5]]');
+  });
+});
+
+describe('formatQspValueTruncated', () => {
+  it('cuts long tuples and reports the count', () => {
+    const twelve = Array.from({ length: 12 }, (_, i) => i + 1);
+    expect(formatQspValueTruncated(twelve, 3)).toBe('[1, 2, 3, …] (12 items)');
+    expect(formatQspValueTruncated([1, 2], 3)).toBe('[1, 2]');
+    expect(formatQspValueTruncated([[1, 2, 3, 4]], 2)).toBe('[[1, 2, …] (4 items)]');
+    expect(formatQspValueTruncated(5, 3)).toBe('5');
   });
 });
 

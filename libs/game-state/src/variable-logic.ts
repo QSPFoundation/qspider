@@ -34,18 +34,34 @@ export function conditionValue(v: QspVariableValue): string | number {
 }
 
 /**
- * QSP text form: tuples as `[1, 'a''b', [2, 'c']]`. Record `names` are not part of
- * the probed text form, so they are ignored here.
+ * QSP text form: tuples as `[1, 'a''b', [2, 'c']]`; record fields as `[NAME: 'Ann', AGE: 30]`
+ * (names are stored upper-cased by the engine).
  */
 export function formatQspValue(v: QspVariableValue): string {
-  if (v === undefined) return '';
-  if (isTuple(v)) return `[${v.map(formatTupleItem).join(', ')}]`;
-  return String(v);
+  return format(v, Infinity);
 }
 
-function formatTupleItem(v: QspVariableValue): string {
+/** Like `formatQspValue`, but a tuple longer than `maxItems` prints its first items, then `, …] (<n> items)`. */
+export function formatQspValueTruncated(v: QspVariableValue, maxItems: number): string {
+  return format(v, maxItems);
+}
+
+function format(v: QspVariableValue, maxItems: number): string {
+  if (v === undefined) return '';
+  if (!isTuple(v)) return String(v);
+  const shown = v.length > maxItems ? v.slice(0, maxItems) : v;
+  const items = shown.map((item, i) => {
+    const name = v.names?.[i];
+    const text = formatTupleItem(item, maxItems);
+    return name ? `${name}: ${text}` : text;
+  });
+  if (shown.length === v.length) return `[${items.join(', ')}]`;
+  return `[${items.length ? `${items.join(', ')}, ` : ''}…] (${v.length} items)`;
+}
+
+function formatTupleItem(v: QspVariableValue, maxItems: number): string {
   if (typeof v === 'string') return `'${v.replaceAll("'", "''")}'`;
-  return formatQspValue(v);
+  return format(v, maxItems);
 }
 
 export function nextRefCount(count: number, delta: 1 | -1): number {
