@@ -81,6 +81,10 @@ describe('walkFields', () => {
     expect(walkFields(rec, [{ name: 'B' }, { name: 'C' }, { name: 'D' }])).toBeUndefined();
   });
 
+  it('returns the stored value whatever the prefix', () => {
+    expect(walkFields(record([['X', 5]]), [{ name: 'X', prefix: '$' }])).toBe(5);
+  });
+
   it('returns the value itself for no fields', () => {
     expect(walkFields(5, [])).toBe(5);
   });

@@ -1,6 +1,6 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { NAME_STOP, parseLiteral, QSP_NAME, splitParts } from './debug-hover-logic';
-import { applyTypePrefix, isTuple, type QspTypePrefix } from './variable-logic';
+import { isTuple, type QspTypePrefix } from './variable-logic';
 
 export interface QspField {
   /** Upper-cased, quotes removed. */
@@ -125,16 +125,16 @@ export function formatQspPath(path: QspPath): string {
 }
 
 /**
- * Follows `fields` from `value` by name (upper-case compare), reading each as its prefix says.
- * Undefined when a step is not a tuple or the field is missing.
+ * Follows `fields` from `value` by name (upper-case compare) and returns the stored value: type prefixes are not
+ * applied (see `applyTypePrefix`). Undefined when a step is not a tuple or the field is missing.
  */
 export function walkFields(value: QspVariableValue, fields: QspField[]): QspVariableValue {
   let current = value;
-  for (const { name, prefix } of fields) {
+  for (const { name } of fields) {
     if (!isTuple(current)) return undefined;
     const at = current.names?.findIndex((n) => n?.toUpperCase() === name) ?? -1;
     if (at < 0) return undefined;
-    current = applyTypePrefix(prefix, current[at]);
+    current = current[at];
   }
   return current;
 }
