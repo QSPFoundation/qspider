@@ -53,6 +53,7 @@ export const CodeViewer: React.FC = () => {
           name: '[EXEC Link]',
           code: debugState.currentRecord?.code ? [debugState.currentRecord.code] : [],
           actions: [],
+          actionNames: [],
           description: '',
         });
         setLoading(false);
@@ -204,7 +205,9 @@ export const CodeViewer: React.FC = () => {
                   <RadixSelect.Viewport>
                     {locationInfo.actions.map((_, index) => (
                       <RadixSelect.Item key={index} value={index.toString()} className="q-select-item">
-                        <RadixSelect.ItemText>{t('Action {{number}}', { number: index + 1 })}</RadixSelect.ItemText>
+                        <RadixSelect.ItemText>
+                          {locationInfo.actionNames[index]?.trim() || t('Action {{number}}', { number: index + 1 })}
+                        </RadixSelect.ItemText>
                         <RadixSelect.ItemIndicator className="q-select-item-indicator">
                           <CheckIcon />
                         </RadixSelect.ItemIndicator>

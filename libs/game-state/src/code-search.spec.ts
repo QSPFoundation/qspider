@@ -7,6 +7,7 @@ import {
   endLoad,
   errorMessage,
   failLoad,
+  placeCodeLines,
   searchLocations,
   type CodeInspectorState,
   type LocationReader,
@@ -17,6 +18,7 @@ const info = (name: string, code: string[], actions: string[][] = []): LocationI
   name,
   code,
   actions,
+  actionNames: [],
   description: '',
 });
 
@@ -58,7 +60,7 @@ describe('buildLocationInfo', () => {
   it('assembles code, one code list per action, and the description', () => {
     const reader: LocationReader = {
       getLocationCode: () => ['x = 1'],
-      getLocationActions: () => ['a', 'b'],
+      getLocationActions: () => [{ name: 'go' }, { name: 'vars' }],
       getActionCode: (_name, index) => [`code ${index}`],
       getLocationDescription: () => 'desc',
     };
@@ -66,6 +68,7 @@ describe('buildLocationInfo', () => {
       name: 'start',
       code: ['x = 1'],
       actions: [['code 0'], ['code 1']],
+      actionNames: ['go', 'vars'],
       description: 'desc',
     });
   });
@@ -80,6 +83,32 @@ describe('buildLocationInfo', () => {
       getLocationDescription: () => '',
     };
     expect(() => buildLocationInfo('x', reader)).toThrow('no such location');
+  });
+});
+
+describe('placeCodeLines', () => {
+  it('puts each entry at its engine line, splitting multi-line entries and filling gaps', () => {
+    expect(
+      placeCodeLines([
+        { line: 1, code: 'A = 1' },
+        { line: 2, code: 'M = 1 + 2' },
+        { line: 4, code: "$X = 'multi\r\nline'" },
+        { line: 6, code: 'B = 2' },
+      ]),
+    ).toEqual(['A = 1', 'M = 1 + 2', '', "$X = 'multi", "line'", 'B = 2']);
+  });
+
+  it('lets a multi-line comment fill its lines before the next entry', () => {
+    expect(
+      placeCodeLines([
+        { line: 2, code: "! NOTE 'spans\r\nlines' {and\r\na block} END" },
+        { line: 5, code: 'X = 1' },
+      ]),
+    ).toEqual(['', "! NOTE 'spans", "lines' {and", 'a block} END', 'X = 1']);
+  });
+
+  it('returns no lines for no entries', () => {
+    expect(placeCodeLines([])).toEqual([]);
   });
 });
 

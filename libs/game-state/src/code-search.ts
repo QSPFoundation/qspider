@@ -42,9 +42,25 @@ export interface LocationMatches {
 
 export interface LocationReader {
   getLocationCode(name: string): string[];
-  getLocationActions(name: string): unknown[];
+  getLocationActions(name: string): Array<{ name: string }>;
   getActionCode(name: string, index: number): string[];
   getLocationDescription(name: string): string;
+}
+
+/**
+ * Lays engine code entries out so that element `n - 1` is engine line `n`. An entry may span several lines
+ * (line continuation, multi-line string or comment); gaps between entries are empty lines.
+ */
+export function placeCodeLines(entries: Array<{ line: number; code: string }>): string[] {
+  const lines: string[] = [];
+  for (const { line, code } of entries) {
+    code.split(/\r?\n/).forEach((text, offset) => {
+      const index = line - 1 + offset;
+      while (lines.length < index) lines.push('');
+      lines[index] = text;
+    });
+  }
+  return lines;
 }
 
 export function buildLocationInfo(name: string, reader: LocationReader): LocationInfo {
@@ -52,7 +68,8 @@ export function buildLocationInfo(name: string, reader: LocationReader): Locatio
   const actionsList = reader.getLocationActions(name);
   const description = reader.getLocationDescription(name);
   const actions = actionsList.map((_, index) => reader.getActionCode(name, index));
-  return { name, code, actions, description };
+  const actionNames = actionsList.map((action) => action.name);
+  return { name, code, actions, actionNames, description };
 }
 
 export function errorMessage(error: unknown, fallback: string): string {

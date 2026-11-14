@@ -8,6 +8,7 @@ import {
   QspEvents,
 } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
+import { placeCodeLines } from './code-search';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import wasmUrl from '@qsp/wasm-engine/qsp-engine.wasm?url';
@@ -136,12 +137,14 @@ export function getLocationsList(): string[] {
 }
 
 export function getLocationCode(name: string): string[] {
-  return qspApi$.value?.getLocationCode(name).map((entry) => entry.code) || [];
+  const api = qspApi$.value;
+  return api ? placeCodeLines(api.getLocationCode(name)) : [];
 }
 
 /** The code of a base action of a location (not a dynamic one). */
 export function getActionCode(location: string, index: number): string[] {
-  return qspApi$.value?.getLocationActionCode(location, index).map((entry) => entry.code) || [];
+  const api = qspApi$.value;
+  return api ? placeCodeLines(api.getLocationActionCode(location, index)) : [];
 }
 
 export function getLocationActions(name: string): QspListItem[] {
