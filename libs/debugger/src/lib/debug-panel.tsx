@@ -16,6 +16,7 @@ import {
 import { TooltipButton } from './tooltip-button';
 import { LocationRightPanel } from './location-right-panel';
 import { CodeViewer } from './code-viewer';
+import { CurrentActions } from './current-actions';
 import './debugger.css';
 
 export type DockPosition = 'bottom' | 'left' | 'right';
@@ -190,6 +191,7 @@ export const DebugPanel: React.FC = () => {
 
       <div className="qsp-debugger-content">
         <div className="qsp-debugger-sidebar">
+          <CurrentActions />
           <div className="qsp-debugger-locations-content">
             {isLoading && <div className="qsp-debugger-loading">{t('Loading...')}</div>}
             {error && <div className="qsp-debugger-error">{error}</div>}

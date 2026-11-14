@@ -147,6 +147,16 @@ describe('matchesBreakpoint', () => {
   it('matches a location-wide breakpoint in the actions of the location too', () => {
     expect(matchesBreakpoint(bp(), record({ line: 2, actIndex: 1 }))).toBe(true);
   });
+
+  it('a line breakpoint does not fire for a step placed outside the location', () => {
+    expect(matchesBreakpoint(bp({ line: 3 }), record({ line: 3 }), 'action')).toBe(false);
+    expect(matchesBreakpoint(bp({ line: 3 }), record({ line: 3 }), 'code')).toBe(false);
+    expect(matchesBreakpoint(bp({ line: 3 }), record({ line: 3 }), 'location')).toBe(true);
+  });
+
+  it('a location breakpoint still fires for a step placed in an action', () => {
+    expect(matchesBreakpoint(bp(), record({ line: 3 }), 'action')).toBe(true);
+  });
 });
 
 describe('breakpoints', () => {

@@ -78,6 +78,7 @@ describe('buildFixtures', () => {
       DEBUGGER_GAME.location.second,
       DEBUGGER_GAME.location.vars,
       DEBUGGER_GAME.location.syntax,
+      DEBUGGER_GAME.location.acts,
     ]);
     const start = locations.find((l) => l.name === DEBUGGER_GAME.location.start)!;
     expect(start.actions.map((a) => a.name)).toEqual(Object.values(DEBUGGER_GAME.action));
