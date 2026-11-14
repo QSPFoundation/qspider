@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { actionOrigin, codeLinesOf, isActionStep, placeStep, settleRun } from './action-run';
+import { actionOrigin, codeLinesOf, isActionStep, isLocationStep, placeStep, settleRun } from './action-run';
 import type { DebugRecord } from './debug';
 
 const record = (over: Partial<DebugRecord> = {}): DebugRecord => ({
@@ -60,17 +60,34 @@ describe('isActionStep', () => {
   });
 });
 
+describe('isLocationStep', () => {
+  const lines = ['ACT1', "ACT 'go': GT 'acts'", '  Y = 2', "*PL 'done'"];
+  it('is true when the step is contained in the location line', () => {
+    expect(isLocationStep(record({ code: "GT 'acts'", line: 2 }), lines)).toBe(true);
+  });
+  it('is true for several contained lines, trimmed', () => {
+    expect(isLocationStep(record({ code: "Y = 2\r\n *PL 'done'", line: 3 }), lines)).toBe(true);
+  });
+  it('is false when a line is not contained', () => {
+    expect(isLocationStep(record({ code: 'OTHER', line: 3 }), lines)).toBe(false);
+  });
+  it('is true for the entry step at line 0', () => {
+    expect(isLocationStep(record({ code: '', line: 0 }), lines)).toBe(true);
+  });
+});
+
 describe('settleRun', () => {
   it('takes the location from the first step, not the current location', () => {
-    const run = { index: 0, name: 'a', lines: ['', 'Z = 3'], loc: null, origin: null };
+    const run = { index: 0, name: 'a', lines: ['', 'Z = 3'], loc: null, origin: null, locationLines: null };
     expect(settleRun(run, record({ loc: 'other', line: 2, code: 'Z = 3' }), ['GS 1', 'Z = 3'])).toEqual({
       ...run,
       loc: 'other',
       origin: 'placed',
+      locationLines: ['GS 1', 'Z = 3'],
     });
   });
   it('keeps a settled run', () => {
-    const run = { index: 0, name: 'a', lines: ['X'], loc: 'start', origin: 'detached' as const };
+    const run = { index: 0, name: 'a', lines: ['X'], loc: 'start', origin: 'detached' as const, locationLines: [] };
     expect(settleRun(run, record({ loc: 'other' }), [])).toBe(run);
   });
 });
@@ -82,6 +99,7 @@ describe('placeStep', () => {
     lines: ['', '', 'DETACHED = 1', "$NOTE = 'two", "lines'"],
     loc: 'acts',
     origin: 'detached' as const,
+    locationLines: ['ACT1', 'X = 1', 'Y = 2'],
   };
   it('is location without a run', () => expect(placeStep(record({ loc: 'acts', line: 3 }), null)).toBe('location'));
   it('is location for a placed run', () =>
@@ -96,4 +114,12 @@ describe('placeStep', () => {
     expect(placeStep(record({ loc: 'acts', line: 4, code: "$NOTE = 'two\r\nlines'" }), detached)).toBe('action'));
   it('is code when nothing matches', () =>
     expect(placeStep(record({ loc: 'acts', line: 3, code: 'OTHER' }), detached)).toBe('code'));
+  it('is location for a line of the location (a gt back into it)', () =>
+    expect(placeStep(record({ loc: 'acts', line: 3, code: 'Y = 2' }), detached)).toBe('location'));
+  it('is action when the step is both an action line and a location line', () =>
+    expect(placeStep(record({ loc: 'acts', line: 3, code: 'Y = 2' }), { ...detached, lines: ['', '', 'Y = 2'] })).toBe(
+      'action',
+    ));
+  it('is location for the entry step at line 0', () =>
+    expect(placeStep(record({ loc: 'acts', line: 0, code: '' }), detached)).toBe('location'));
 });

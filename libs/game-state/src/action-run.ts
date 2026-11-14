@@ -16,6 +16,8 @@ export interface ActionRun {
   loc: string | null;
   /** Null until the first step. */
   origin: ActionOrigin | null;
+  /** The code lines of its location, read at the first step; null until then. */
+  locationLines: string[] | null;
 }
 
 export function codeLinesOf(code: string): string[] {
@@ -31,10 +33,10 @@ export function actionOrigin(actionLines: string[], locationLines: string[]): Ac
   return placed ? 'placed' : 'detached';
 }
 
-/** Fixes the location and origin of a run at its first step; a settled run is returned as is. */
+/** Fixes the location, its lines and the origin of a run at its first step; a settled run is returned as is. */
 export function settleRun(run: ActionRun, record: DebugRecord, locationLines: string[]): ActionRun {
   if (run.origin) return run;
-  return { ...run, loc: record.loc, origin: actionOrigin(run.lines, locationLines) };
+  return { ...run, loc: record.loc, origin: actionOrigin(run.lines, locationLines), locationLines };
 }
 
 /** Whether a step runs lines of the saved action code: its lines equal the saved ones from its line number on. */
@@ -45,8 +47,24 @@ export function isActionStep(record: DebugRecord, actionLines: string[]): boolea
   return saved.length === lines.length && lines.every((line, i) => line === saved[i]);
 }
 
-/** Where a step of the run belongs: only a detached run's own code is the action; its other steps are code. */
+/**
+ * Whether a step runs lines of the location: the entry step (line 0), or each of its lines is contained in the
+ * location line of the same number, as `actionOrigin` compares.
+ */
+export function isLocationStep(record: DebugRecord, locationLines: string[]): boolean {
+  if (record.line === 0) return true;
+  if (record.line < 0) return false;
+  return codeLinesOf(record.code).every((line, i) =>
+    (locationLines[record.line - 1 + i] ?? '').trim().includes(line.trim()),
+  );
+}
+
+/**
+ * Where a step of the run belongs: in a detached run's location, its own code is the action (checked first), the
+ * location's lines are the location, and anything else is code alone.
+ */
 export function placeStep(record: DebugRecord, run: ActionRun | null): StepPlace {
   if (!run || run.origin !== 'detached' || record.actIndex >= 0 || record.loc !== run.loc) return 'location';
-  return isActionStep(record, run.lines) ? 'action' : 'code';
+  if (isActionStep(record, run.lines)) return 'action';
+  return isLocationStep(record, run.locationLines ?? []) ? 'location' : 'code';
 }

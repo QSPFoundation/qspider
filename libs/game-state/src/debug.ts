@@ -338,7 +338,7 @@ export const debugActions = {
   beginActionRun: (index: number, name: string, lines: string[]): ActionRun | null => {
     const state = debugState$.value;
     if (!isDebugPanelOpen$.value || !state.isEnabled || state.actionRun) return null;
-    const run: ActionRun = { index, name, lines, loc: null, origin: null };
+    const run: ActionRun = { index, name, lines, loc: null, origin: null, locationLines: null };
     debugState$.update((s) => ({ ...s, actionRun: run }));
     return run;
   },
