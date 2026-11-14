@@ -2,8 +2,9 @@ import type { Answerable, AnswersQuestions, PerformsActivities, UsesAbilities } 
 import type { PageElement } from '@serenity-js/web';
 import { ClickWhenPresent } from '../../screenplay/support/presence';
 import { BrowseTheWebWithPlaywright, type PlaywrightPage } from '@serenity-js/playwright';
+import type { Locator } from '@playwright/test';
 import { TEST_PACK } from '../../fixtures/test-pack';
-import { OperatePlayer } from '../../screenplay/support/operate-player';
+import { type ClickPoint, OperatePlayer } from '../../screenplay/support/operate-player';
 
 /** The web player: a page at the app root; files open through the shelf's Open game file input. */
 export class OperateWebPlayer extends OperatePlayer {
@@ -40,6 +41,12 @@ export class OperateWebPlayer extends OperatePlayer {
     await page.navigateTo('/');
     const origin = new URL((await page.url()).href).origin;
     await page.navigateTo(`/?game=${encodeURIComponent(new URL(url, origin).href)}`);
+  }
+
+  async clickAt(actor: AnswersQuestions, element: Answerable<PageElement>, at?: ClickPoint): Promise<void> {
+    // Playwright's own click scrolls only when the element is out of view, and takes a position from the top-left.
+    const locator = (await (await actor.answer(element)).nativeElement()) as Locator;
+    await locator.click(at ? { position: at } : undefined);
   }
 
   async clickMapArea(

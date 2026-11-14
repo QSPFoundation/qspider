@@ -1,5 +1,5 @@
-import { startsWith } from '@serenity-js/assertions';
 import { By, PageElement, PageElements, Text } from '@serenity-js/web';
+import { equals } from '@serenity-js/assertions';
 
 // The debugger panel (libs/debugger) is app-shell UI: its controls are located by `data-qa`.
 
@@ -31,11 +31,6 @@ export const DebugBreakpointButton = (name: string) =>
 /** The tab of a code type: `location`, `description` or `action` (the last only when the location has actions). */
 export const DebugCodeTab = (type: 'location' | 'description' | 'action') =>
   PageElement.located(By.css(`[data-qa="debug-code-tab"][data-code-type="${type}"]`)).describedAs(`${type} code tab`);
-
-/** The editor's rendered lines (Monaco's view lines). */
-export const DebugEditorLines = PageElement.located(By.css('[data-qa="debug-editor"] .view-lines')).describedAs(
-  'debugger editor text',
-);
 
 export const DebugToggle = PageElement.located(By.css('[data-qa="debug-toggle"]')).describedAs('debug enable toggle');
 
@@ -69,29 +64,6 @@ export const DebugEventsCount = PageElement.located(By.css('[data-qa="debug-even
 export const DebugEventsClearButton = PageElement.located(By.css('[data-qa="debug-events-clear"]')).describedAs(
   'clear events button',
 );
-
-/**
- * The first token span of the editor (a leaf span of a view line: Monaco's own DOM, located by its classes) whose
- * text starts with `text`. A token is its own span (`$WHO`, `%REC`, `#U`) except a plain name, which shares its
- * span with the operator after it (`GOLD =`).
- */
-export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') => {
-  const tokens = PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span')).where(
-    Text,
-    startsWith(text),
-  );
-  return (occurrence === 'last' ? tokens.last() : tokens.first()).describedAs(`${occurrence} editor token "${text}"`);
-};
-
-/** Monaco's hover widget content (the widget lives inside the editor's DOM). */
-export const HoverContent = PageElement.located(
-  By.css('[data-qa="debug-editor"] .monaco-hover:not(.hidden) .monaco-hover-content'),
-).describedAs('editor hover');
-
-/** The hover's Pin link: a markdown link to the pin command (`command:<id>?...`, as Monaco renders it). */
-export const HoverPinLink = PageElement.located(
-  By.css('[data-qa="debug-editor"] .monaco-hover-content a[data-href^="command:qsp.debugger.pinVariable"]'),
-).describedAs('hover pin link');
 
 export const WatchPanel = PageElement.located(By.css('[data-qa="debug-watch-panel"]')).describedAs('watch panel');
 export const WatchInput = PageElement.located(By.css('[data-qa="debug-watch-input"]')).describedAs('watch input');
@@ -131,3 +103,20 @@ export const WatchRow = (name: string, key: string) =>
   PageElement.located(By.css(`[data-qa="debug-watch-row"][data-key="${key}"]`))
     .of(WatchEntry(name))
     .describedAs(`row "${key}" of watch entry "${name.toUpperCase()}"`);
+
+/** The Actions picker of the code view (a Radix select: its trigger is a combobox). Shown on the action code tab. */
+export const ActionPicker = PageElement.located(By.css('[data-qa="debug-panel"] [role="combobox"]')).describedAs(
+  'actions picker',
+);
+
+/** An option of the open Actions picker (portalled out of the panel), by its text: the action's name. */
+export const ActionPickerOption = (name: string) =>
+  PageElements.located(By.css('[role="listbox"] [role="option"]'))
+    .where(Text, equals(name))
+    .first()
+    .describedAs(`action "${name}" in the actions picker`);
+
+/** The watch panel's message for an entry it cannot watch (the draft stays in the input). */
+export const WatchInvalid = PageElement.located(By.css('[data-qa="debug-watch-invalid"]')).describedAs(
+  'invalid watch entry message',
+);

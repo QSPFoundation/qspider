@@ -2,7 +2,7 @@ import type { Answerable, AnswersQuestions, PerformsActivities, UsesAbilities } 
 import type { PageElement } from '@serenity-js/web';
 import { StartupFinishedMarker } from '../../screenplay/common/elements';
 import { OpenGameButton } from '../../screenplay/shelf/elements';
-import { OperatePlayer } from '../../screenplay/support/operate-player';
+import { type ClickPoint, OperatePlayer } from '../../screenplay/support/operate-player';
 import { ClickWhenPresent, waitUntilPresent } from '../../screenplay/support/presence';
 import { appRunning, expectAppExit, restartAppKeepingData, restartAppKeepingDataWith } from './fresh-app';
 import { pickFileInNativeDialog } from './native-dialog';
@@ -80,6 +80,14 @@ export class OperateDesktopPlayer extends OperatePlayer {
   ): Promise<void> {
     // The element this OS's WebDriver accepts the click on (platform/index.ts, mapAreaClick).
     await actor.attemptsTo(ClickWhenPresent(desktopPlatform().mapAreaClick === 'area' ? area : image));
+  }
+
+  async clickAt(actor: AnswersQuestions, element: Answerable<PageElement>, at?: ClickPoint): Promise<void> {
+    // WebdriverIO's click with an offset is a pointer action (no scroll first), its offset counted from the centre.
+    const native = (await (await actor.answer(element)).nativeElement()) as WebdriverIO.Element;
+    if (!at) return native.click({ x: 0, y: 0 });
+    const { width, height } = await native.getSize();
+    await native.click({ x: Math.round(at.x - width / 2), y: Math.round(at.y - height / 2) });
   }
 
   async loadGame(actor: UsesAbilities & AnswersQuestions & PerformsActivities, path: string): Promise<void> {
