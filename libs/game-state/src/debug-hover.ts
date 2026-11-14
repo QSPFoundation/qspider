@@ -1,7 +1,9 @@
-import type { QspAPI, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
+import type { QspAPI, QspVariableKey } from '@qsp/wasm-engine';
 import { isRetiredEngine, qspApi$ } from './qsp-engine';
 import { describeHover, describeSummary, isArrayHover, HOVER_SUMMARY_ITEMS, type HoverPlan } from './debug-hover-logic';
-import { indexText, itemWindow } from './debug-watch-logic';
+import { itemWindow } from './debug-watch-logic';
+import { effectivePrefix, formatQspPath, type QspField, type QspPath } from './qsp-path';
+import { readHiddenValue, readPath } from './qsp-path-read';
 
 export interface HoverReading {
   lines: string[];
@@ -9,25 +11,24 @@ export interface HoverReading {
   pinName?: string;
 }
 
-const PREFIX = /^[$#%]/;
-
-/** The name's stored value: read without a prefix, so no type conversion hides it. */
-function readRaw(api: QspAPI, name: string): QspVariableValue {
-  return api.readVariable(name.replace(PREFIX, ''));
-}
-
 function readValueLines(api: QspAPI, name: string): string[] {
   const size = api.readVariableSize(name);
   if (size > 0 && isArrayHover(size, api.readVariableItem(name, 0).key)) {
     return describeSummary(name, ...summaryItems(api, name));
   }
-  return describeHover(name, api.readVariable(name), PREFIX.test(name) ? readRaw(api, name) : undefined, size);
+  return describeHover(name, api.readVariable(name), readHiddenValue(api, name), size);
 }
 
-function readItemLines(api: QspAPI, name: string, key: QspVariableKey): string[] {
-  const label = `${name}[${typeof key === 'number' ? key : indexText(key, 0)}]`;
-  const typed = typeof key === 'number' ? api.readVariableByIndex(name, key) : api.readVariableByKey(name, key);
-  return describeHover(label, typed, undefined, typed === undefined ? 0 : 1);
+/**
+ * The lines of a path with an index or fields, under the path's label. With fields, a prefix that types the value
+ * also shows what is stored, and a missing field is not set; without, a missing item is not set.
+ */
+function readPathLines(api: QspAPI, path: QspPath): string[] {
+  const { value, stored } = readPath(api, path);
+  const hasFields = path.fields.length > 0;
+  const hidden = hasFields && effectivePrefix(path) ? stored : undefined;
+  const found = hasFields ? stored : value;
+  return describeHover(formatQspPath(path), value, hidden, found === undefined ? 0 : 1);
 }
 
 /** Resolved index of a single-variable index: its value if it is a number or a string, else undefined. */
@@ -45,19 +46,25 @@ export function readHover(plan: HoverPlan): HoverReading {
   const api = qspApi$.value;
   if (plan.kind === 'none' || !api || isRetiredEngine(api)) return { lines: [] };
   const { name } = plan;
-  const pinName = name;
+  const fields: QspField[] = plan.kind === 'summary' ? [] : (plan.fields ?? []);
+  const path = (index?: QspVariableKey): QspPath => ({ name: name.toUpperCase(), index, fields });
   switch (plan.kind) {
-    case 'value':
-      return { lines: readValueLines(api, name), pinName };
-    case 'item':
-      return { lines: readItemLines(api, name, plan.key), pinName };
+    case 'value': {
+      if (fields.length === 0) return { lines: readValueLines(api, name), pinName: name };
+      const found = path();
+      return { lines: readPathLines(api, found), pinName: formatQspPath(found) };
+    }
+    case 'item': {
+      const found = path(plan.key);
+      return { lines: readPathLines(api, found), pinName: formatQspPath(found) };
+    }
     case 'itemByVar': {
       const index = readIndex(api, plan.indexName);
-      if (index === undefined) return { lines: describeSummary(name, ...summaryItems(api, name)), pinName };
-      return { lines: [`${plan.indexName} = ${index}`, ...readItemLines(api, name, index)], pinName };
+      if (index === undefined) return { lines: describeSummary(name, ...summaryItems(api, name)), pinName: name };
+      return { lines: [`${plan.indexName} = ${index}`, ...readPathLines(api, path(index))], pinName: name };
     }
     case 'summary':
-      return { lines: describeSummary(name, ...summaryItems(api, name)), pinName };
+      return { lines: describeSummary(name, ...summaryItems(api, name)), pinName: name };
   }
 }
 

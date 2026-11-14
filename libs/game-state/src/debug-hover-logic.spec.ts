@@ -19,13 +19,52 @@ const isKeyword = (word: string) => ['if', 'set', 'pl'].includes(word.toLowerCas
 const plan = (token: string, indexText?: string): HoverPlan => hoverReadPlan(token, indexText, isKeyword);
 
 describe('hoverReadPlan', () => {
+  it('carries the fields of a path', () => {
+    expect(hoverReadPlan('A', undefined, isKeyword, ['B', '$C'])).toEqual({
+      kind: 'value',
+      name: 'A',
+      fields: [{ name: 'B' }, { name: 'C', prefix: '$' }],
+    });
+    expect(hoverReadPlan('A', "'k'", isKeyword, ['B'])).toEqual({
+      kind: 'item',
+      name: 'A',
+      key: 'k',
+      fields: [{ name: 'B' }],
+    });
+    expect(hoverReadPlan('$A', 'ИНДЕКС', isKeyword, ['B'])).toEqual({
+      kind: 'itemByVar',
+      name: '$A',
+      indexName: 'ИНДЕКС',
+      fields: [{ name: 'B' }],
+    });
+  });
+
+  it('reads nothing for a field that is dynamic', () => {
+    expect(hoverReadPlan('A', undefined, isKeyword, ["'x<<y>>'"])).toEqual({ kind: 'none' });
+  });
+
+  it('gives the summary of the base when an expression index is followed by fields', () => {
+    expect(hoverReadPlan('A', 'I + 1', isKeyword, ['B'])).toEqual({ kind: 'summary', name: 'A' });
+  });
+
   it('reads the value of a name as written, with or without a prefix', () => {
     for (const name of ['GOLD', '$WHO', '#U', '%REC']) expect(plan(name)).toEqual({ kind: 'value', name });
   });
 
-  it('gives none for a keyword', () => {
-    expect(plan('IF')).toEqual({ kind: 'none' });
-    expect(plan('pl', '1')).toEqual({ kind: 'none' });
+  it('reads a name that is also a keyword: the token kind decides, not the word', () => {
+    // `MID = 1`, `SET = 1`: the tokenizer marks an assigned name a variable; only those reach the plan
+    expect(plan('IF')).toEqual({ kind: 'value', name: 'IF' });
+    expect(plan('pl', '1')).toEqual({ kind: 'item', name: 'pl', key: 1 });
+  });
+
+  it('does not read a keyword index as a variable', () => {
+    expect(plan('$A', 'set')).toEqual({ kind: 'summary', name: '$A' });
+  });
+
+  it('gives the summary of the base for a string key with <<…>> (reading it would run code)', () => {
+    expect(plan('A', "'<<I>>'")).toEqual({ kind: 'summary', name: 'A' });
+    expect(plan('A', "1, 'x<<I>>'")).toEqual({ kind: 'summary', name: 'A' });
+    expect(hoverReadPlan('A', "'<<I>>'", isKeyword, ['B'])).toEqual({ kind: 'summary', name: 'A' });
   });
 
   it('keeps a prefixed word that looks like a keyword', () => {

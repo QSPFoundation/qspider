@@ -1,6 +1,8 @@
 import type { QspAPI } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { gameOpenEpoch$, isRetiredEngine, qspApi$ } from './qsp-engine';
+import { parseQspPath } from './qsp-path';
+import { readPath } from './qsp-path-read';
 import { msg$ } from './msg';
 import { menu$ } from './menu';
 import { input$ } from './input';
@@ -17,6 +19,7 @@ import {
   WATCH_ITEM_CAP,
   watchKey,
   type WatchValue,
+  pathWatchSize,
 } from './debug-watch-logic';
 
 /** Where a debug stop is: the part of a debug record the change notice names. */
@@ -35,7 +38,7 @@ export interface ChangeNotice {
   betweenRuns?: boolean;
 }
 
-/** The watched names of the current game (upper-cased, as entered), saved per game. */
+/** The watched names of the current game (as canonical paths), saved per game. */
 export const watchList$ = atom<string[]>([]);
 /** Which watched names pause the game when they change (by `watchKey`); not saved. */
 export const watchPause$ = atom<Record<string, boolean>>({});
@@ -96,7 +99,17 @@ let lastStop: StopRecord | null = null;
 /** Whether the engine is held at a debug stop: nothing can change until it is released. */
 let stopHeld = false;
 
-function readWatchValue(api: QspAPI, name: string): WatchValue {
+/** What a watch entry (by `watchKey`) reads: a variable as an array, an item or a field as one value. */
+function readWatchValue(api: QspAPI, key: string): WatchValue {
+  const path = parseQspPath(key);
+  if (path && (path.index !== undefined || path.fields.length > 0)) {
+    const { value, stored } = readPath(api, path);
+    return { value, size: pathWatchSize(path.fields.length > 0, value, stored), items: [] };
+  }
+  return readVariableValue(api, key);
+}
+
+function readVariableValue(api: QspAPI, name: string): WatchValue {
   const size = api.readVariableSize(name);
   const items: WatchValue['items'] = [];
   for (let i = 0, count = itemWindow(size, WATCH_ITEM_CAP); i < count; i++) {
@@ -257,17 +270,19 @@ function setList(list: string[]): void {
 }
 
 export const watchActions = {
-  /** Adds a watch entry. Its value is read at once and is its baseline: adding is never a change. */
-  add: (name: string): void => {
+  /** Adds a watch entry; false when the text is no variable, item or field. Its value is read at once and is its baseline: adding is never a change. */
+  add: (name: string): boolean => {
+    const key = watchKey(name);
+    if (!key) return false;
     const list = addWatch(watchList$.value, name);
-    if (list === watchList$.value) return;
+    if (list === watchList$.value) return true;
     setList(list);
     const api = liveApi();
-    if (!api) return;
-    const key = watchKey(name);
+    if (!api) return true;
     const value = readWatchValue(api, key);
     if (baseline) baseline = { ...baseline, [key]: value };
     watchValues$.update((values) => ({ ...values, [key]: value }));
+    return true;
   },
 
   remove: (name: string): void => {

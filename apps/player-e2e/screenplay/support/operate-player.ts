@@ -7,6 +7,13 @@ import {
   type PerformsActivities,
   type UsesAbilities,
 } from '@serenity-js/core';
+import { performer } from './performer';
+
+/** A point inside an element, in CSS pixels from its top-left corner. */
+export interface ClickPoint {
+  x: number;
+  y: number;
+}
 
 /**
  * What the player does differently on each target. Each target's Cast gives actors one subclass
@@ -38,6 +45,8 @@ export abstract class OperatePlayer extends Ability {
     area: Answerable<PageElement>,
     image: Answerable<PageElement>,
   ): Promise<void>;
+  /** Clicks `element` at `at` (CSS pixels from its top-left corner) or its centre, without scrolling it first. */
+  abstract clickAt(actor: AnswersQuestions, element: Answerable<PageElement>, at?: ClickPoint): Promise<void>;
   /** Drops the game file at `path` on the player window (desktop only). */
   abstract dropGameFile(actor: UsesAbilities & AnswersQuestions, path: string): Promise<void>;
   /**
@@ -136,14 +145,3 @@ export const OpenGameFile = (path: string): Interaction =>
   Interaction.where(`#actor opens the game file ${path}`, (actor) =>
     OperatePlayer.as(actor).openGameFile(performer(actor), path),
   );
-
-/**
- * Serenity types an Interaction's actor without PerformsActivities, though it is always an Actor.
- * Checked here, so a target can run its own steps (e.g. a click) as reported activities.
- */
-function performer<A extends UsesAbilities & AnswersQuestions>(actor: A): A & PerformsActivities {
-  if (typeof (actor as Partial<PerformsActivities>).attemptsTo !== 'function') {
-    throw new TypeError('this interaction needs an actor that performs activities');
-  }
-  return actor as A & PerformsActivities;
-}

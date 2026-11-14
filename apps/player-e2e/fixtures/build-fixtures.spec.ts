@@ -77,9 +77,12 @@ describe('buildFixtures', () => {
       DEBUGGER_GAME.location.start,
       DEBUGGER_GAME.location.second,
       DEBUGGER_GAME.location.vars,
+      DEBUGGER_GAME.location.syntax,
     ]);
     const start = locations.find((l) => l.name === DEBUGGER_GAME.location.start)!;
     expect(start.actions.map((a) => a.name)).toEqual(Object.values(DEBUGGER_GAME.action));
+    const syntax = start.actions.find((a) => a.name === DEBUGGER_GAME.action.syntax)!;
+    expect(syntax.code).toEqual([`gt '${DEBUGGER_GAME.location.syntax}'`]);
   });
 
   it('packs the game-html game with its image', () => {

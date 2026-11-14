@@ -1,4 +1,5 @@
 import type { QspTuple, QspVariableValue } from '@qsp/wasm-engine';
+import { formatQspPath, parseQspPath } from './qsp-path';
 import { formatQspValue, formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
 /** Most items of one watched array a snapshot reads, so a stop never stalls on a huge array. */
@@ -7,12 +8,16 @@ export const WATCH_ITEM_CAP = 100;
 /** Most items of a tuple a change description prints. */
 const DESCRIBE_MAX_ITEMS = 5;
 
-/** A watch entry's identity: names are case-insensitive, but the prefix counts (`$a` and `a` read differently). */
+/**
+ * A watch entry's identity: the canonical form of its path (a variable, an item `a['k']` or fields `a['k'].f`).
+ * Names are case-insensitive, but the prefix counts (`$a` and `a` read differently). Empty when the text is no path.
+ */
 export function watchKey(name: string): string {
-  return name.trim().toUpperCase();
+  const path = parseQspPath(name);
+  return path ? formatQspPath(path) : '';
 }
 
-/** Adds `name` (upper-cased) unless an entry with its identity is there already. */
+/** Adds `name` (as its canonical key) unless an entry with its identity is there already. */
 export function addWatch(list: string[], name: string): string[] {
   const key = watchKey(name);
   if (!key || list.some((entry) => watchKey(entry) === key)) return list;
@@ -45,6 +50,14 @@ export interface WatchValue {
   value: QspVariableValue;
   size: number;
   items: Array<{ key: string | QspTuple | undefined; value: QspVariableValue }>;
+}
+
+/**
+ * The item count a path watch reads. With fields the path's end exists only when something is stored there (`stored`):
+ * the prefixed `value` of a missing field is '' and would pass for a set one. Without fields it is the value itself.
+ */
+export function pathWatchSize(hasFields: boolean, value: QspVariableValue, stored: QspVariableValue): number {
+  return (hasFields ? stored : value) === undefined ? 0 : 1;
 }
 
 /** How many items of an array of `size` items to read. */

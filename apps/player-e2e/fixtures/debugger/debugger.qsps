@@ -5,6 +5,7 @@ hits = 5
 ! The go action (a goto to the second location) is a base action added when build-fixtures compiles this file to debugger.qsp:
 ! a QSPS act is a statement, and the debugger lists only the base actions of a location on its Actions tab.
 ! So are `bump` (`hits += 1`) and `hold` (`hits += 1 & msg 'HOLD'`, then a second line): they change HITS without leaving `start`.
+! And `syntax` (a goto to `syntax`, whose description build-fixtures sets: `<b>Gold: <<A.B.C>></b>`).
 ---
 
 # second
@@ -24,4 +25,36 @@ gold -= 30
 uval = #u
 ghost = $nothing
 bag = $inv
+---
+
+# syntax
+ПЕРЕМЕННАЯ = 5
+A.B.C = 42
+$INV2['k'] = 'brass'
+R = [name: 'Bob', 'full name': 'B B']
+$S = $MID('hello', 2)
+add obj 'lamp' & del obj 'lamp' & close all
+alias LINKED = 'X'
+insvar 'NUMS', 0, 7
+movearr 'COPY', 'NUMS'
+$K = $ARRKEY('$INV2', 0)
+exec 'EXECUTED = 1'
+IF 1 ! 2: X = 1
+Y = 1 & ! mid-line comment
+CODE = { $T = 'in <<A.B.C>>' }
+JOINED = 1 + _
+  2
+AFTER_JOIN = 1
+$M = 'line one
+line two'
+AFTER_STRING = 1
+! a note 'that spans
+lines' {with
+a block} end
+AFTER_COMMENT = 1
+$REC['k'].TITLE = 'Sir'
+$FULL = R.'full name'
+P.ROLE = 'cook'
+$JOB = $P.ROLE
+*pl 'SYNTAX END <<ПЕРЕМЕННАЯ>>'
 ---

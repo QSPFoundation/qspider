@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 export const DEBUGGER_GAME = {
   path: fileURLToPath(new URL('../artifacts/fixtures/debugger.zip', import.meta.url)),
   title: 'Debugger game',
-  location: { start: 'start', second: 'second', vars: 'vars' },
-  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold' },
+  location: { start: 'start', second: 'second', vars: 'vars', syntax: 'syntax' },
+  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold', syntax: 'syntax' },
   /** The link in `start`: it runs `gt 'second'`. */
   link: { text: 'to second', qa: 'debug-link' },
   text: { start: 'DEBUG START', second: 'DEBUG SECOND', varsEnd: 'VARS END 70' },
@@ -46,5 +46,53 @@ export const DEBUGGER_GAME = {
     watch: { before: '100', after: '70' },
     change: 'GOLD changed 100 → 70',
     changeAt: 'vars, line 7',
+  },
+  /**
+   * The `syntax` location: one statement of each kind the engine reads (a Cyrillic name, fields `A.B.C`, a keyed
+   * item, a record, `$MID`, two-word statements, `!` as an operator and as a mid-line comment, a `{…}` block with
+   * `<<…>>` in a string, a ` _` continuation, a multi-line string and a multi-line comment), then field paths (lines
+   * 25–28: a field of a keyed item of a prefixed base, a quoted field read, a field set and read through a prefixed
+   * base), then `*pl` of `end`. Its description is `description`. The editor shows the engine's spelling
+   * (upper-cased outside strings and blocks), at the engine's line numbers: the joined continuation leaves line 16
+   * blank, the string ends on 19, the comment on 23. Hover lines read `label = value`.
+   */
+  syntax: {
+    end: 'SYNTAX END 5',
+    /** The first line, as the editor shows it. */
+    firstLine: 'ПЕРЕМЕННАЯ = 5',
+    /** The line of `CODE = { $T = 'in <<A.B.C>>' }`. */
+    blockLine: 14,
+    description: '<b>Gold: <<A.B.C>></b>',
+    /** `leaf` is first `C` of `A.B.C = 42` on line 2, and last the one in `'in <<A.B.C>>'` in the block on `blockLine`. */
+    token: { cyrillic: 'ПЕРЕМЕННАЯ', base: 'A', field: 'B', leaf: 'C', s: '$S', mid: '$MID', item: '$INV2' },
+    hover: {
+      cyrillic: 'ПЕРЕМЕННАЯ = 5',
+      base: 'A = [B: [C: 42]]',
+      field: 'A.B = [C: 42]',
+      leaf: 'A.B.C = 42',
+      item: "$INV2['K'] = 'brass'",
+      s: "$S = 'ello'",
+    },
+    /** Watch entries by their canonical text (as a pin adds them), their values, and an entry the watch rejects. */
+    watch: { leaf: 'A.B.C', leafValue: '42', item: "$INV2['K']", itemValue: "'brass'", invalid: 'a[i]' },
+    /**
+     * The field paths: `$REC['k'].TITLE = 'Sir'` (line 25, `itemField`), `$FULL = R.'full name'` (26, `quoted`; the
+     * record `R` holds `'full name'` too, on line 4, so the hover takes the last one in view) and
+     * `$JOB = $P.ROLE` (28, `prefixed`, the last `ROLE`: line 27 sets `P.ROLE`). `line` is brought into view first.
+     */
+    paths: {
+      line: 26,
+      token: { itemField: 'TITLE', quoted: "'full name'", prefixed: 'ROLE' },
+      hover: { itemField: "$REC['K'].TITLE = 'Sir'", quoted: "R.'FULL NAME' = 'B B'", prefixed: "$P.ROLE = 'cook'" },
+      watch: { itemField: "$REC['K'].TITLE", itemFieldValue: "'Sir'" },
+    },
+    change: 'A.B.C changed',
+    changeAt: 'syntax, line 2',
+    /** The first line after each multi-line construct: its engine line number and its code as the editor shows it. */
+    after: {
+      continuation: { line: 17, code: 'AFTER_JOIN = 1' },
+      string: { line: 20, code: 'AFTER_STRING = 1' },
+      comment: { line: 24, code: 'AFTER_COMMENT = 1' },
+    },
   },
 } as const;

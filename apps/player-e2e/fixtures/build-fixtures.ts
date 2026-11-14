@@ -44,7 +44,11 @@ function debuggerZip(): Uint8Array {
       name: DEBUGGER_GAME.action.hold,
       code: [`hits += 1 & msg '${DEBUGGER_GAME.hold.msg}'`, `*pl '${DEBUGGER_GAME.hold.after}'`],
     },
+    { name: DEBUGGER_GAME.action.syntax, code: [`gt '${DEBUGGER_GAME.location.syntax}'`] },
   ];
+  const syntax = locations.find((location) => location.name === DEBUGGER_GAME.location.syntax);
+  if (!syntax) throw new Error('debugger.qsps has no syntax location');
+  syntax.description = [DEBUGGER_GAME.syntax.description];
   return zipSync({
     'game.cfg': readFileSync(join(SOURCES.debugger, 'game.cfg')),
     'debugger.qsp': new Uint8Array(writeQsp(locations)),

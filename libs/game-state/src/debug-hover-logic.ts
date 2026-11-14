@@ -1,80 +1,55 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { indexText, showValue } from './debug-watch-logic';
-import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
+import { isDynamicKey, parseQspPath, QSP_NAME, splitParts, parseLiteral, type QspField } from './qsp-path';
+import { isTuple, sameValue } from './variable-logic';
 
 /** Most items of an array a hover summary lists. */
 export const HOVER_SUMMARY_ITEMS = 5;
 
 /** What a hover reads: the variable, one item of it, an item named by a variable, or the array summary. */
 export type HoverPlan =
-  | { kind: 'value'; name: string }
-  | { kind: 'item'; name: string; key: QspVariableKey }
-  | { kind: 'itemByVar'; name: string; indexName: string }
+  | { kind: 'value'; name: string; fields?: QspField[] }
+  | { kind: 'item'; name: string; key: QspVariableKey; fields?: QspField[] }
+  | { kind: 'itemByVar'; name: string; indexName: string; fields?: QspField[] }
   | { kind: 'summary'; name: string }
   | { kind: 'none' };
 
-/** Splits `text` at commas outside quotes; null when a quote is left open. */
-function splitParts(text: string): string[] | null {
-  const parts: string[] = [];
-  let current = '';
-  let quote: string | null = null;
-  for (const ch of text) {
-    if (quote) {
-      if (ch === quote) quote = null; // a doubled quote closes and reopens: both stay in the part
-      current += ch;
-    } else if (ch === ',') {
-      parts.push(current);
-      current = '';
-    } else {
-      if (ch === "'" || ch === '"') quote = ch;
-      current += ch;
-    }
-  }
-  if (quote) return null;
-  parts.push(current);
-  return parts;
-}
-
-/** A number or a quoted string literal (QSP doubles the quote to escape it); undefined for anything else. */
-function parseLiteral(text: string): string | number | undefined {
-  const part = text.trim();
-  if (/^-?\d+$/.test(part)) return Number(part);
-  const quote = part[0];
-  if ((quote === "'" || quote === '"') && part.length >= 2 && part.endsWith(quote)) {
-    const body = part.slice(1, -1);
-    // every quote inside must be doubled, or the literal is something else (`'a' + 'b'`)
-    if (body.replaceAll(quote + quote, '').includes(quote)) return undefined;
-    return body.replaceAll(quote + quote, quote);
-  }
-  return undefined;
-}
-
-const PLAIN_NAME = /^[$#%]?[A-Za-z_]\w*$/;
-
 /**
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).
- * A literal index or key reads that item, a single plain name is read first and then used as the index, and any
- * other expression falls back to the array summary: evaluating it would run code. Keywords read nothing.
+ * The token is a variable: the caller's tokenizer decides that (`MID = 1` assigns a variable named like a function).
+ * A literal index or key reads that item, a single plain name that is not a keyword is read first and then used as
+ * the index, and any other expression falls back to the array summary: evaluating it would run code. So does a
+ * string key with `<<…>>` in it. `fieldTexts` are the `.field` parts as written; a field that cannot be read
+ * statically (a quoted name with `<<`) reads nothing, and fields after an index that is an expression are ignored
+ * (the summary of the base).
  */
 export function hoverReadPlan(
   token: string,
   indexTextAfter: string | undefined,
   isKeyword: (word: string) => boolean,
+  fieldTexts: string[] = [],
 ): HoverPlan {
-  if (isKeyword(token)) return { kind: 'none' };
   const name = token;
-  if (indexTextAfter === undefined) return { kind: 'value', name };
+  let fields: QspField[] | undefined;
+  if (fieldTexts.length > 0) {
+    const parsed = parseQspPath(`A.${fieldTexts.join('.')}`);
+    if (!parsed) return { kind: 'none' };
+    fields = parsed.fields;
+  }
+  const withFields = fields ? { fields } : {};
+  if (indexTextAfter === undefined) return { kind: 'value', name, ...withFields };
   const summary: HoverPlan = { kind: 'summary', name };
   const parts = splitParts(indexTextAfter);
   if (!parts) return summary;
   const literals = parts.map(parseLiteral);
+  if (literals.some(isDynamicKey)) return summary;
   if (literals.every((literal) => literal !== undefined)) {
-    if (literals.length === 1) return { kind: 'item', name, key: literals[0] as QspVariableKey };
+    if (literals.length === 1) return { kind: 'item', name, key: literals[0] as QspVariableKey, ...withFields };
     const key = [...literals] as QspTuple;
-    return { kind: 'item', name, key };
+    return { kind: 'item', name, key, ...withFields };
   }
   const single = parts.length === 1 ? parts[0].trim() : '';
-  if (PLAIN_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single };
+  if (QSP_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single, ...withFields };
   return summary;
 }
 

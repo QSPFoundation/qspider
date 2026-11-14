@@ -53,6 +53,7 @@ export const CodeViewer: React.FC = () => {
           name: '[EXEC Link]',
           code: debugState.currentRecord?.code ? [debugState.currentRecord.code] : [],
           actions: [],
+          actionNames: [],
           description: '',
         });
         setLoading(false);
@@ -108,16 +109,24 @@ export const CodeViewer: React.FC = () => {
     return debugState.targetLine ?? undefined;
   };
 
-  const getCodeToDisplay = (): string => {
+  // The text in the editor and its language. A placeholder for missing code is plain text: as QSP it would be
+  // highlighted and its words hovered as game variables.
+  const getCodeToDisplay = (): { code: string; language: string } => {
+    const language = selectedCodeType === 'description' ? 'qsp-description' : 'qsp'; // HTML with <<…>> for description
+    const placeholder = (text: string) => ({ code: text, language: 'plaintext' });
     if (selectedCodeType === 'location') {
-      return locationInfo.code.join('\n') || t('// No location code');
+      const code = locationInfo.code.join('\n');
+      return code ? { code, language } : placeholder(t('// No location code'));
     } else if (selectedCodeType === 'description') {
-      return locationInfo.description || t('// No location description');
+      return locationInfo.description
+        ? { code: locationInfo.description, language }
+        : placeholder(t('// No location description'));
     } else {
       const action = locationInfo.actions[selectedActionIndex];
-      return action ? action.join('\n') : t('// Empty action');
+      return action ? { code: action.join('\n'), language } : placeholder(t('// Empty action'));
     }
   };
+  const display = getCodeToDisplay();
 
   const getTitle = (): string => {
     if (selectedCodeType === 'location') {
@@ -204,7 +213,9 @@ export const CodeViewer: React.FC = () => {
                   <RadixSelect.Viewport>
                     {locationInfo.actions.map((_, index) => (
                       <RadixSelect.Item key={index} value={index.toString()} className="q-select-item">
-                        <RadixSelect.ItemText>{t('Action {{number}}', { number: index + 1 })}</RadixSelect.ItemText>
+                        <RadixSelect.ItemText>
+                          {locationInfo.actionNames[index]?.trim() || t('Action {{number}}', { number: index + 1 })}
+                        </RadixSelect.ItemText>
                         <RadixSelect.ItemIndicator className="q-select-item-indicator">
                           <CheckIcon />
                         </RadixSelect.ItemIndicator>
@@ -223,8 +234,8 @@ export const CodeViewer: React.FC = () => {
 
       <div className="qsp-debugger-monaco-container">
         <MonacoCodeViewer
-          code={getCodeToDisplay()}
-          language={selectedCodeType === 'description' ? 'html' : 'qsp'} // HTML for description, QSP for QSP code
+          code={display.code}
+          language={display.language}
           theme="vs" // Use light theme to match qSpider
           height="100%"
           currentLine={getCurrentLine()}

@@ -4,16 +4,16 @@ import { Attribute, Text } from '@serenity-js/web';
 import { PresenceOf } from '../support/presence';
 import { seeEventually } from '../support/see-eventually';
 import {
+  ActionPickerOption,
   ChangeNotice,
   DebugCurrentExecution,
-  DebugEditorLines,
   DebugEventsCount,
   DebugPanel,
   DebugStatus,
   DebuggerLayout,
-  HoverContent,
   PauseOnLinksStatus,
   WatchEntry,
+  WatchInvalid,
   WatchRow,
   WatchValue,
 } from './elements';
@@ -28,15 +28,6 @@ export const SeeDebuggerDocked = (dock: 'left' | 'bottom' | 'right'): Task =>
     (e) => Attribute.called('class').of(e),
     includes(`debugger-${dock}`),
     `#actor sees the debugger docked ${dock}`,
-  );
-
-/** The editor shows `code`; Monaco spells spaces as no-break spaces, so both sides are normalised. */
-export const SeeEditorCode = (code: string): Task =>
-  seeEventually(
-    DebugEditorLines,
-    (e) => Text.of(e).replace(/\s+/g, ' '),
-    includes(code.replace(/\s+/g, ' ')),
-    `#actor sees the debugger editor show ${code}`,
   );
 
 /** The debug status is `disabled`, `running` or `paused`. */
@@ -95,15 +86,6 @@ export const SeeEventsCount = (n: number): Task =>
     `#actor sees ${n} logged events`,
   );
 
-/** The editor hover's text contains `text`. */
-export const SeeHoverText = (text: string): Task =>
-  seeEventually(
-    HoverContent,
-    (e) => Text.of(e).replace(/\s+/g, ' '),
-    includes(text),
-    `#actor sees the hover show ${text}`,
-  );
-
 /** The watch entry `name` shows the value `text`. */
 export const SeeWatchValue = (name: string, text: string): Task =>
   seeEventually(WatchValue(name), (e) => Text.of(e).trim(), equals(text), `#actor sees ${name} watched as ${text}`);
@@ -134,3 +116,16 @@ export const SeeWatchRow = (name: string, key: string, value: string): Task =>
     equals(`${key} ${value}`),
     `#actor sees ${name} row ${key} read ${value}`,
   );
+
+/** The open Actions picker lists the action `name`. */
+export const SeeActionName = (name: string): Task =>
+  seeEventually(
+    ActionPickerOption(name),
+    (e) => PresenceOf(e),
+    equals(true),
+    `#actor sees the action "${name}" listed`,
+  );
+
+/** The watch panel says the entry it was given cannot be watched. */
+export const SeeWatchInvalid = (): Task =>
+  seeEventually(WatchInvalid, (e) => PresenceOf(e), equals(true), '#actor sees the watch entry rejected');

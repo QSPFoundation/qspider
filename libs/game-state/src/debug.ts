@@ -20,6 +20,7 @@ export interface LocationInfo {
   name: string;
   code: string[];
   actions: string[][];
+  actionNames: string[];
   description: string;
 }
 
