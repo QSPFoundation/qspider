@@ -1,7 +1,7 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { indexText, showValue } from './debug-watch-logic';
 import { isDynamicKey, parseQspPath, QSP_NAME, splitParts, parseLiteral, type QspField } from './qsp-path';
-import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
+import { isTuple, sameValue } from './variable-logic';
 
 /** Most items of an array a hover summary lists. */
 export const HOVER_SUMMARY_ITEMS = 5;
