@@ -1,6 +1,7 @@
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-engine';
 import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
+import type { StepPlace } from './action-run';
 
 export interface DebugRecord {
   code: string;
@@ -152,9 +153,12 @@ debugPanelSize$.subscribe((size) => persistPanelSize(getLocalStorage(), size));
  * With a line it stops at that line of its code: the action's code (`actionIndex`, a base action of the location,
  * as the step's `actIndex` counts) or else the location code (`actIndex` -1): action lines are numbered from 1
  * within the action, so the same number in the location code is another line.
+ * A line without an action index is a line of the location code: it never matches a step placed elsewhere
+ * (`place` other than 'location', the default).
  */
-export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boolean {
+export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord, place: StepPlace = 'location'): boolean {
   if (!bp.enabled || bp.location !== record.loc) return false;
+  if (bp.line !== undefined && bp.actionIndex === undefined && place !== 'location') return false;
   if (bp.line !== undefined && bp.line !== record.line) return false;
   if (bp.actionIndex !== undefined) return bp.actionIndex === record.actIndex;
   return bp.line === undefined || record.actIndex < 0;
