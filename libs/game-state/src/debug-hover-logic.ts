@@ -1,6 +1,6 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { indexText, showValue } from './debug-watch-logic';
-import { parseQspPath, QSP_NAME, splitParts, parseLiteral, type QspField } from './qsp-path';
+import { isDynamicKey, parseQspPath, QSP_NAME, splitParts, parseLiteral, type QspField } from './qsp-path';
 import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
 /** Most items of an array a hover summary lists. */
@@ -18,7 +18,8 @@ export type HoverPlan =
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).
  * The token is a variable: the caller's tokenizer decides that (`MID = 1` assigns a variable named like a function).
  * A literal index or key reads that item, a single plain name that is not a keyword is read first and then used as
- * the index, and any other expression falls back to the array summary: evaluating it would run code. `fieldTexts` are the `.field` parts as written; a field that cannot be read
+ * the index, and any other expression falls back to the array summary: evaluating it would run code. So does a
+ * string key with `<<…>>` in it. `fieldTexts` are the `.field` parts as written; a field that cannot be read
  * statically (a quoted name with `<<`) reads nothing, and fields after an index that is an expression are ignored
  * (the summary of the base).
  */
@@ -41,6 +42,7 @@ export function hoverReadPlan(
   const parts = splitParts(indexTextAfter);
   if (!parts) return summary;
   const literals = parts.map(parseLiteral);
+  if (literals.some(isDynamicKey)) return summary;
   if (literals.every((literal) => literal !== undefined)) {
     if (literals.length === 1) return { kind: 'item', name, key: literals[0] as QspVariableKey, ...withFields };
     const key = [...literals] as QspTuple;

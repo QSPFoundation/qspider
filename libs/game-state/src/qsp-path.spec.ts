@@ -33,9 +33,12 @@ describe('parseQspPath', () => {
     expect(parseQspPath('ПЕРЕМЕННАЯ')).toEqual({ name: 'ПЕРЕМЕННАЯ', fields: [] });
   });
 
-  it.each(['a[i].b', 'a[i + 1]', "a.'x<<y>>'", '1a', '', 'a[]', 'a.', 'a[1', "a['x"])('rejects %j', (text) => {
-    expect(parseQspPath(text)).toBeNull();
-  });
+  it.each(['a[i].b', 'a[i + 1]', "a.'x<<y>>'", "a['<<i>>']", "a[1, 'x<<i>>'].b", '1a', '', 'a[]', 'a.', 'a[1', "a['x"])(
+    'rejects %j',
+    (text) => {
+      expect(parseQspPath(text)).toBeNull();
+    },
+  );
 });
 
 describe('formatQspPath', () => {

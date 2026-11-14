@@ -61,6 +61,12 @@ describe('hoverReadPlan', () => {
     expect(plan('$A', 'set')).toEqual({ kind: 'summary', name: '$A' });
   });
 
+  it('gives the summary of the base for a string key with <<…>> (reading it would run code)', () => {
+    expect(plan('A', "'<<I>>'")).toEqual({ kind: 'summary', name: 'A' });
+    expect(plan('A', "1, 'x<<I>>'")).toEqual({ kind: 'summary', name: 'A' });
+    expect(hoverReadPlan('A', "'<<I>>'", isKeyword, ['B'])).toEqual({ kind: 'summary', name: 'A' });
+  });
+
   it('keeps a prefixed word that looks like a keyword', () => {
     expect(plan('$IF')).toEqual({ kind: 'value', name: '$IF' });
   });

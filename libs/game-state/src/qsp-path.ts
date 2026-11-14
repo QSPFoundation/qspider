@@ -88,17 +88,23 @@ function nameEnd(text: string, start: number): number {
   return start + run.exec(text)![0].length;
 }
 
+/** A string key with `<<…>>` in it: the engine expands it when it reads the key, which would run code. */
+export function isDynamicKey(literal: string | number | undefined): boolean {
+  return typeof literal === 'string' && literal.includes('<<');
+}
+
 function parseIndex(inside: string): QspVariableKey | undefined {
   const parts = splitParts(inside);
   if (!parts) return undefined;
   const literals = parts.map(parseLiteral);
-  if (literals.some((literal) => literal === undefined)) return undefined;
+  if (literals.some((literal) => literal === undefined || isDynamicKey(literal))) return undefined;
   return literals.length === 1 ? (literals[0] as QspVariableKey) : ([...literals] as QspTuple);
 }
 
 /**
  * A variable path as written in code: `NAME`, one literal `[…]` index, then `.field` parts (plain, prefixed or
- * quoted). Null for anything else: an index that is a variable or an expression, a quoted field containing `<<`.
+ * quoted). Null for anything else: an index that is a variable or an expression, a string key or a quoted field
+ * containing `<<`.
  */
 export function parseQspPath(text: string): QspPath | null {
   const source = text.trim();
