@@ -19,6 +19,34 @@ const isKeyword = (word: string) => ['if', 'set', 'pl'].includes(word.toLowerCas
 const plan = (token: string, indexText?: string): HoverPlan => hoverReadPlan(token, indexText, isKeyword);
 
 describe('hoverReadPlan', () => {
+  it('carries the fields of a path', () => {
+    expect(hoverReadPlan('A', undefined, isKeyword, ['B', '$C'])).toEqual({
+      kind: 'value',
+      name: 'A',
+      fields: [{ name: 'B' }, { name: 'C', prefix: '$' }],
+    });
+    expect(hoverReadPlan('A', "'k'", isKeyword, ['B'])).toEqual({
+      kind: 'item',
+      name: 'A',
+      key: 'k',
+      fields: [{ name: 'B' }],
+    });
+    expect(hoverReadPlan('$A', 'ИНДЕКС', isKeyword, ['B'])).toEqual({
+      kind: 'itemByVar',
+      name: '$A',
+      indexName: 'ИНДЕКС',
+      fields: [{ name: 'B' }],
+    });
+  });
+
+  it('reads nothing for a field that is dynamic', () => {
+    expect(hoverReadPlan('A', undefined, isKeyword, ["'x<<y>>'"])).toEqual({ kind: 'none' });
+  });
+
+  it('gives the summary of the base when an expression index is followed by fields', () => {
+    expect(hoverReadPlan('A', 'I + 1', isKeyword, ['B'])).toEqual({ kind: 'summary', name: 'A' });
+  });
+
   it('reads the value of a name as written, with or without a prefix', () => {
     for (const name of ['GOLD', '$WHO', '#U', '%REC']) expect(plan(name)).toEqual({ kind: 'value', name });
   });

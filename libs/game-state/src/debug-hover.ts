@@ -1,7 +1,9 @@
 import type { QspAPI, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { isRetiredEngine, qspApi$ } from './qsp-engine';
 import { describeHover, describeSummary, isArrayHover, HOVER_SUMMARY_ITEMS, type HoverPlan } from './debug-hover-logic';
-import { indexText, itemWindow } from './debug-watch-logic';
+import { itemWindow } from './debug-watch-logic';
+import { formatQspPath, walkFields, type QspField, type QspPath } from './qsp-path';
+import { applyTypePrefix } from './variable-logic';
 
 export interface HoverReading {
   lines: string[];
@@ -24,10 +26,27 @@ function readValueLines(api: QspAPI, name: string): string[] {
   return describeHover(name, api.readVariable(name), PREFIX.test(name) ? readRaw(api, name) : undefined, size);
 }
 
-function readItemLines(api: QspAPI, name: string, key: QspVariableKey): string[] {
-  const label = `${name}[${typeof key === 'number' ? key : indexText(key, 0)}]`;
-  const typed = typeof key === 'number' ? api.readVariableByIndex(name, key) : api.readVariableByKey(name, key);
-  return describeHover(label, typed, undefined, typed === undefined ? 0 : 1);
+/** The item of `name` at `key`, as the engine reads it with the name's prefix. */
+function readItem(api: QspAPI, name: string, key: QspVariableKey): QspVariableValue {
+  return typeof key === 'number' ? api.readVariableByIndex(name, key) : api.readVariableByKey(name, key);
+}
+
+/** The value at the end of `fields` (the last field's type prefix applied), described under the path's label. */
+function readFieldLines(path: QspPath, base: QspVariableValue): string[] {
+  const raw = walkFields(base, path.fields);
+  const prefix = path.fields[path.fields.length - 1]?.prefix;
+  return describeHover(
+    formatQspPath(path),
+    applyTypePrefix(prefix, raw),
+    prefix ? raw : undefined,
+    raw === undefined ? 0 : 1,
+  );
+}
+
+function readItemLines(api: QspAPI, path: QspPath): string[] {
+  const typed = readItem(api, path.name, path.index as QspVariableKey);
+  if (path.fields.length > 0) return readFieldLines(path, typed);
+  return describeHover(formatQspPath(path), typed, undefined, typed === undefined ? 0 : 1);
 }
 
 /** Resolved index of a single-variable index: its value if it is a number or a string, else undefined. */
@@ -45,19 +64,25 @@ export function readHover(plan: HoverPlan): HoverReading {
   const api = qspApi$.value;
   if (plan.kind === 'none' || !api || isRetiredEngine(api)) return { lines: [] };
   const { name } = plan;
-  const pinName = name;
+  const fields: QspField[] = plan.kind === 'summary' ? [] : (plan.fields ?? []);
+  const path = (index?: QspVariableKey): QspPath => ({ name: name.toUpperCase(), index, fields });
   switch (plan.kind) {
-    case 'value':
-      return { lines: readValueLines(api, name), pinName };
-    case 'item':
-      return { lines: readItemLines(api, name, plan.key), pinName };
+    case 'value': {
+      if (fields.length === 0) return { lines: readValueLines(api, name), pinName: name };
+      const found = path();
+      return { lines: readFieldLines(found, api.readVariable(name)), pinName: formatQspPath(found) };
+    }
+    case 'item': {
+      const found = path(plan.key);
+      return { lines: readItemLines(api, found), pinName: formatQspPath(found) };
+    }
     case 'itemByVar': {
       const index = readIndex(api, plan.indexName);
-      if (index === undefined) return { lines: describeSummary(name, ...summaryItems(api, name)), pinName };
-      return { lines: [`${plan.indexName} = ${index}`, ...readItemLines(api, name, index)], pinName };
+      if (index === undefined) return { lines: describeSummary(name, ...summaryItems(api, name)), pinName: name };
+      return { lines: [`${plan.indexName} = ${index}`, ...readItemLines(api, path(index))], pinName: name };
     }
     case 'summary':
-      return { lines: describeSummary(name, ...summaryItems(api, name)), pinName };
+      return { lines: describeSummary(name, ...summaryItems(api, name)), pinName: name };
   }
 }
 

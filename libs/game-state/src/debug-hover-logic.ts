@@ -1,5 +1,6 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { indexText, showValue } from './debug-watch-logic';
+import { parseQspPath, type QspField } from './qsp-path';
 import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
 /** Most items of an array a hover summary lists. */
@@ -7,9 +8,9 @@ export const HOVER_SUMMARY_ITEMS = 5;
 
 /** What a hover reads: the variable, one item of it, an item named by a variable, or the array summary. */
 export type HoverPlan =
-  | { kind: 'value'; name: string }
-  | { kind: 'item'; name: string; key: QspVariableKey }
-  | { kind: 'itemByVar'; name: string; indexName: string }
+  | { kind: 'value'; name: string; fields?: QspField[] }
+  | { kind: 'item'; name: string; key: QspVariableKey; fields?: QspField[] }
+  | { kind: 'itemByVar'; name: string; indexName: string; fields?: QspField[] }
   | { kind: 'summary'; name: string }
   | { kind: 'none' };
 
@@ -58,26 +59,36 @@ export const QSP_NAME = new RegExp(`^[$#%]?[^${NAME_STOP}\\d][^${NAME_STOP}]*$`,
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).
  * A literal index or key reads that item, a single plain name is read first and then used as the index, and any
  * other expression falls back to the array summary: evaluating it would run code. Keywords read nothing.
+ * `fieldTexts` are the `.field` parts as written; a field that cannot be read statically (a quoted name with `<<`)
+ * reads nothing, and fields after an index that is an expression are ignored (the summary of the base).
  */
 export function hoverReadPlan(
   token: string,
   indexTextAfter: string | undefined,
   isKeyword: (word: string) => boolean,
+  fieldTexts: string[] = [],
 ): HoverPlan {
   if (isKeyword(token)) return { kind: 'none' };
   const name = token;
-  if (indexTextAfter === undefined) return { kind: 'value', name };
+  let fields: QspField[] | undefined;
+  if (fieldTexts.length > 0) {
+    const parsed = parseQspPath(`A.${fieldTexts.join('.')}`);
+    if (!parsed) return { kind: 'none' };
+    fields = parsed.fields;
+  }
+  const withFields = fields ? { fields } : {};
+  if (indexTextAfter === undefined) return { kind: 'value', name, ...withFields };
   const summary: HoverPlan = { kind: 'summary', name };
   const parts = splitParts(indexTextAfter);
   if (!parts) return summary;
   const literals = parts.map(parseLiteral);
   if (literals.every((literal) => literal !== undefined)) {
-    if (literals.length === 1) return { kind: 'item', name, key: literals[0] as QspVariableKey };
+    if (literals.length === 1) return { kind: 'item', name, key: literals[0] as QspVariableKey, ...withFields };
     const key = [...literals] as QspTuple;
-    return { kind: 'item', name, key };
+    return { kind: 'item', name, key, ...withFields };
   }
   const single = parts.length === 1 ? parts[0].trim() : '';
-  if (QSP_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single };
+  if (QSP_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single, ...withFields };
   return summary;
 }
 
