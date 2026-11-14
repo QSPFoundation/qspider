@@ -4,6 +4,11 @@ import type { editor } from 'monaco-editor';
 import { useTranslation } from 'react-i18next';
 import { monaco } from './monaco-setup';
 
+/**
+ * A model's tokenization part: Monaco has it at runtime but leaves it out of its public typings, so it may be absent.
+ */
+type ModelWithTokenization = editor.ITextModel & { tokenization?: { forceTokenization?(lineNumber: number): void } };
+
 interface BreakpointInfo {
   id: string;
   line?: number;
@@ -90,6 +95,19 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
     setEditorMounted(true);
   };
+
+  // On a new text or language, Monaco tokenizes the lines in view, except when they end at the first line it has not
+  // tokenized yet: a one-line text (a description, mostly) is left to its idle-time background tokenizer. That runs
+  // from requestIdleCallback, which Chromium calls only after a new frame, and nothing on screen changes: the text
+  // stayed plain until a click. Tokenize the lines in view now. Runs after the editor's own effects (a child's
+  // effects run before its parent's), so the model has the new text and language.
+  useEffect(() => {
+    const editor = editorRef.current;
+    const model = editor?.getModel() as ModelWithTokenization | null | undefined;
+    if (!editor || !model) return;
+    const lastInView = Math.max(1, ...editor.getVisibleRanges().map((range) => range.endLineNumber));
+    model.tokenization?.forceTokenization?.(Math.min(lastInView, model.getLineCount()));
+  }, [editorMounted, language, code]);
 
   // Highlight current execution line
   useEffect(() => {
