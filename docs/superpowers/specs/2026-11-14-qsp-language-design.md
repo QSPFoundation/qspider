@@ -51,6 +51,9 @@ location, find where a variable is set). Each gets its own design. Step 3 will r
   - strings verbatim, including `<<…>>` inside them: `'to <<$p.name>>'`
   - `{…}` contents verbatim: `{ pl 'in <<x>>' & k = 1 }`
   - comments upper-cased except their quoted parts: `! A COMMENT WITH 'quote' AND {brace}`
+  - a comment whose string or `{…}` block spans lines is one entry, and the comment continues after the string or
+    block closes: source lines 2–4 `! note 'spans⏎lines' {and⏎a block} end` come back as one entry at line 2
+    (`! NOTE 'spans\r\nlines' {and\r\na block} END`), and the next line is 5
   - two-word statements with one space; `ELSE IF` kept as two words
 - **Each code entry carries a source line number.** A line continuation (` _` at line end) is joined into one
   entry; a string spanning lines stays one entry containing `\r\n`. Example entries: lines 1, 2, 4, 6 for a
@@ -187,13 +190,14 @@ Everything #214 does keeps working. New:
 - How hover extracts the path from tokens; how the watch-path reader is split into pure and engine parts.
 - Exact fixture content. It needs at least: a Cyrillic name, a field path with index and quoted field, a record
   literal, a prefixed function, the two-word statements, `!` as not-equal and as a mid-line comment after `&`,
-  `<<…>>` in a string and in a string inside `{…}`, a line continuation and a multi-line string followed by a line
+  `<<…>>` in a string and in a string inside `{…}`, a comment whose string and `{…}` block span lines (followed by
+  a line with a breakpoint), a line continuation and a multi-line string followed by a line
   with a breakpoint, a description with `<<…>>`, and named base actions.
 
 ## Testing
 
 - **Unit (Vitest browser mode):** the Monarch tokenizer through `monaco.editor.tokenize` (every rule above, the
-  normalized engine spelling, broken-code recovery, state across lines).
+  normalized engine spelling, broken-code recovery, state across lines, including a comment whose string or block spans lines and whose text continues as comment after it closes).
 - **Unit (pure):** path extraction for hover, field walking, line placement of code entries, action labels.
 - **E2E (debugger scenarios, both web and desktop as today):** hover on a Cyrillic name, on each segment of a field
   path, inside `<<…>>` in code and in the Description tab, on a prefixed function (no variable hover); pin and watch
