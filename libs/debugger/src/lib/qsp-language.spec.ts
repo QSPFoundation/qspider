@@ -254,6 +254,23 @@ describe('qsp tokenizer', () => {
     });
   });
 
+  describe('statement starts', () => {
+    it('reads prefixed names at a statement start', () => {
+      expect(line('$X')).toEqual([{ text: '$X', type: 'variable' }]);
+      expect(line('#MAX(1, 2)')[0]).toEqual({ text: '#MAX', type: 'predefined' });
+      expect(line("$MID('a', 1)")[0]).toEqual({ text: '$MID', type: 'predefined' });
+      expect(line("$S + 'a'")[0]).toEqual({ text: '$S', type: 'variable' });
+      expect(line('LOCAL $X')).toContainEqual({ text: '$X', type: 'variable' });
+      const set = line('SET $X, $Y = 1, 2');
+      expect(set).toContainEqual({ text: '$X', type: 'variable' });
+      expect(set).toContainEqual({ text: '$Y', type: 'variable' });
+    });
+
+    it('reads a label at any statement start', () => {
+      expect(line('X = 1 & :LBL')).toContainEqual({ text: 'LBL', type: 'label' });
+    });
+  });
+
   describe('qsp-expr', () => {
     it('starts in an expression and leaves >> to the embedding language', () => {
       const code = line("MID($A, 1) + 'x' >>", 'qsp-expr');

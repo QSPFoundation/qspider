@@ -142,7 +142,8 @@ export function isQspKeyword(word: string): boolean {
 }
 
 // The words that open a statement even when an assignment follows (`END = 1` is not a variable, `MID = 1` is).
-const STATEMENT_WORDS = [...QSP_STATEMENTS, 'if', 'elseif', 'else', 'end', 'loop', 'set', 'let', 'local'];
+// `while` and `step` only mean something inside a `loop` header.
+const STATEMENT_WORDS = [...QSP_STATEMENTS, ...QSP_CONTROL_WORDS.filter((word) => word !== 'while' && word !== 'step')];
 
 type Rule = languages.IMonarchLanguageRule;
 
@@ -185,8 +186,8 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
   const toExpression = { switchTo: `@${expression}` };
   return {
     [start]: [
-      [/^(\s*)(:)(\s*)([^&]*[^&\s])/, ['', 'delimiter', '', 'label']],
       [/\s+/, ''],
+      [/(:)(\s*)([^&]*[^&\s])/, ['delimiter', '', 'label']],
       [/!/, { token: 'comment', next: '@comment' }],
       [/&/, 'operator'],
       [/:/, 'delimiter'],
@@ -211,6 +212,15 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
         },
       ],
       [
+        /([$#%])((?!\d)@nameChar+)/,
+        {
+          cases: {
+            '$2@functions': { token: 'predefined', ...toExpression },
+            '@default': { token: 'variable', ...toExpression },
+          },
+        },
+      ],
+      [
         new RegExp(NAME),
         {
           cases: {
@@ -221,6 +231,7 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
           },
         },
       ],
+      // Whatever the rules above leave is read as an expression; LINE_STARTS_STATEMENT must never match it.
       [/./, { token: '@rematch', ...toExpression }],
     ],
     [expression]: [
