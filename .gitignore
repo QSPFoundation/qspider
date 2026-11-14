@@ -68,3 +68,4 @@ standalone.tauri.json
 
 # Python bytecode (AT-SPI helpers)
 __pycache__/
+.superpowers/
