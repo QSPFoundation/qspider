@@ -52,5 +52,9 @@ AFTER_STRING = 1
 lines' {with
 a block} end
 AFTER_COMMENT = 1
+$REC['k'].TITLE = 'Sir'
+$FULL = R.'full name'
+P.ROLE = 'cook'
+$JOB = $P.ROLE
 *pl 'SYNTAX END <<ПЕРЕМЕННАЯ>>'
 ---

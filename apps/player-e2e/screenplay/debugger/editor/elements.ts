@@ -1,4 +1,4 @@
-import { equals, includes, startsWith } from '@serenity-js/assertions';
+import { equals, includes, matches } from '@serenity-js/assertions';
 import { By, PageElement, PageElements, Text } from '@serenity-js/web';
 
 // The debugger's code editor (Monaco, inside `data-qa="debug-editor"`). The editor is third-party and has no markers:
@@ -22,9 +22,13 @@ export const EditorViewLines = PageElements.located(By.css('[data-qa="debug-edit
 /** The editor's leaf token spans. Neighbouring tokens Monaco colours alike share a span (`A.`, ` = $MID`). */
 const EditorTokens = PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span'));
 
-/** The first (or last) token span of the editor whose text starts with `text`. */
+/** A pattern for text that starts with `text`, where a space may be Monaco's no-break space. */
+const startingWith = (text: string) =>
+  new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '[ \u00a0]')}`, 'u');
+
+/** The first (or last) token span of the editor whose text starts with `text` (spaces as Monaco spells them). */
 export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') => {
-  const tokens = EditorTokens.where(Text, startsWith(text));
+  const tokens = EditorTokens.where(Text, matches(startingWith(text)));
   return (occurrence === 'last' ? tokens.last() : tokens.first()).describedAs(`${occurrence} editor token "${text}"`);
 };
 

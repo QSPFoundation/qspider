@@ -467,6 +467,27 @@ scenario('pinning a field or an item watches its path, and an indexed name is re
   );
 });
 
+scenario(
+  'hovering a field of a keyed item, a quoted field and a field of a prefixed base shows their values, and pins the first',
+  async (player) => {
+    const { paths } = SYNTAX;
+    await player.attemptsTo(
+      ...OpenDebuggerGame(),
+      ...RunSyntax(),
+      RevealEditorLine(paths.line), // the field path lines sit below the first screen
+      // Top line first: a hover opens above its line, so it never covers the next token clicked.
+      HoverToken(paths.token.itemField),
+      SeeHoverText(paths.hover.itemField),
+      PinFromHover(),
+      SeeWatchValue(paths.watch.itemField, paths.watch.itemFieldValue),
+      HoverToken(paths.token.quoted, 'last'),
+      SeeHoverText(paths.hover.quoted),
+      HoverToken(paths.token.prefixed, 'last'),
+      SeeHoverText(paths.hover.prefixed),
+    );
+  },
+);
+
 scenario('break on change of a field path pauses and names the path', async (player) => {
   await player.attemptsTo(
     ...OpenDebuggerGame(),

@@ -50,10 +50,11 @@ export const DEBUGGER_GAME = {
   /**
    * The `syntax` location: one statement of each kind the engine reads (a Cyrillic name, fields `A.B.C`, a keyed
    * item, a record, `$MID`, two-word statements, `!` as an operator and as a mid-line comment, a `{…}` block with
-   * `<<…>>` in a string, a ` _` continuation, a multi-line string and a multi-line comment), then `*pl` of `end`.
-   * Its description is `description`. The editor shows the engine's spelling (upper-cased outside strings and
-   * blocks), at the engine's line numbers: the joined continuation leaves line 16 blank, the string ends on 19, the
-   * comment on 23. Hover lines read `label = value`.
+   * `<<…>>` in a string, a ` _` continuation, a multi-line string and a multi-line comment), then field paths (lines
+   * 25–28: a field of a keyed item of a prefixed base, a quoted field read, a field set and read through a prefixed
+   * base), then `*pl` of `end`. Its description is `description`. The editor shows the engine's spelling
+   * (upper-cased outside strings and blocks), at the engine's line numbers: the joined continuation leaves line 16
+   * blank, the string ends on 19, the comment on 23. Hover lines read `label = value`.
    */
   syntax: {
     end: 'SYNTAX END 5',
@@ -74,6 +75,17 @@ export const DEBUGGER_GAME = {
     },
     /** Watch entries by their canonical text (as a pin adds them), their values, and an entry the watch rejects. */
     watch: { leaf: 'A.B.C', leafValue: '42', item: "$INV2['K']", itemValue: "'brass'", invalid: 'a[i]' },
+    /**
+     * The field paths: `$REC['k'].TITLE = 'Sir'` (line 25, `itemField`), `$FULL = R.'full name'` (26, `quoted`; the
+     * record `R` holds `'full name'` too, on line 4, so the hover takes the last one in view) and
+     * `$JOB = $P.ROLE` (28, `prefixed`, the last `ROLE`: line 27 sets `P.ROLE`). `line` is brought into view first.
+     */
+    paths: {
+      line: 26,
+      token: { itemField: 'TITLE', quoted: "'full name'", prefixed: 'ROLE' },
+      hover: { itemField: "$REC['K'].TITLE = 'Sir'", quoted: "R.'FULL NAME' = 'B B'", prefixed: "$P.ROLE = 'cook'" },
+      watch: { itemField: "$REC['K'].TITLE", itemFieldValue: "'Sir'" },
+    },
     change: 'A.B.C changed',
     changeAt: 'syntax, line 2',
     /** The first line after each multi-line construct: its engine line number and its code as the editor shows it. */
