@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { monaco } from './monaco-setup';
 import { isQspKeyword, QSP_CONTROL_WORDS, QSP_FUNCTIONS, QSP_OPERATOR_WORDS, QSP_STATEMENTS } from './qsp-language';
+import { hoverTargetAt, qspLineTokens } from './qsp-tokens';
 
 /** Tokens per line; the language postfix (`.qsp`) is stripped from the type. */
 export function tokens(code: string, lang = 'qsp'): Array<Array<{ text: string; type: string }>> {
@@ -293,6 +294,60 @@ describe('qsp tokenizer', () => {
       expect(code).toContainEqual({ text: '$A', type: 'variable' });
       expect(code[code.length - 1]).toEqual({ text: '>>', type: 'delimiter.interpolation' });
       expect(line('A ! 1', 'qsp-expr')).toContainEqual({ text: '!', type: 'operator' });
+    });
+  });
+
+  describe('qsp-description', () => {
+    /** Tokens of a one-line description, with any language postfix (`.html`, `.qsp-expr`) stripped. */
+    const description = (code: string) =>
+      monaco.editor.tokenize(code, 'qsp-description')[0].map((token, i, all) => ({
+        text: code.slice(token.offset, all[i + 1]?.offset ?? code.length),
+        type: token.type.replace(/\.(html|qsp-expr|qsp-description)$/, ''),
+      }));
+
+    it('reads HTML tags and the expression in <<…>>', () => {
+      const code = description('<b>Gold: <<GOLD>></b>');
+      expect(code.slice(0, 2)).toEqual([
+        { text: '<', type: 'delimiter' },
+        { text: 'b', type: 'tag' },
+      ]);
+      expect(code).toContainEqual({ text: '<<', type: 'delimiter.interpolation' });
+      expect(code).toContainEqual({ text: 'GOLD', type: 'identifier' });
+      expect(code).toContainEqual({ text: '>>', type: 'delimiter.interpolation' });
+      expect(code.slice(-3)).toEqual([
+        { text: '</', type: 'delimiter' },
+        { text: 'b', type: 'tag' },
+        { text: '>', type: 'delimiter' },
+      ]);
+    });
+
+    it('reads <<…>> inside an attribute value', () => {
+      const code = description('<a href="<<$LINK>>">go</a>');
+      expect(code).toContainEqual({ text: '$LINK', type: 'variable' });
+      expect(code).toContainEqual({ text: 'a', type: 'tag' });
+      expect(code).toContainEqual({ text: 'href', type: 'attribute.name' });
+      const end = code.findIndex((token) => token.text === '>>');
+      expect(code.slice(end + 1, end + 4)).toEqual([
+        { text: '"', type: 'attribute.value' },
+        { text: '>', type: 'delimiter' },
+        { text: 'go', type: '' },
+      ]);
+    });
+
+    it('reads text without <<…>> as plain HTML', () => {
+      const code = description('<p>Gold and silver</p>');
+      expect(code.some((token) => token.type.startsWith('identifier'))).toBe(false);
+    });
+
+    it('hovers a name inside <<…>>', () => {
+      const text = '<b>Gold: <<GOLD>></b>';
+      const model = monaco.editor.createModel(text, 'qsp-description');
+      try {
+        const found = hoverTargetAt(text, qspLineTokens(model, 1, 'qsp-description'), text.indexOf('GOLD'));
+        expect(found?.target).toEqual({ name: 'GOLD', indexText: undefined, fields: [] });
+      } finally {
+        model.dispose();
+      }
     });
   });
 });

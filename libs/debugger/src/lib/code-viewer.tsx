@@ -227,7 +227,7 @@ export const CodeViewer: React.FC = () => {
       <div className="qsp-debugger-monaco-container">
         <MonacoCodeViewer
           code={getCodeToDisplay()}
-          language={selectedCodeType === 'description' ? 'html' : 'qsp'} // HTML for description, QSP for QSP code
+          language={selectedCodeType === 'description' ? 'qsp-description' : 'qsp'} // HTML with <<…>> for description
           theme="vs" // Use light theme to match qSpider
           height="100%"
           currentLine={getCurrentLine()}

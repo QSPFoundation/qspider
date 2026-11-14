@@ -7,7 +7,8 @@ const PIN_COMMAND = 'qsp.debugger.pinVariable';
 
 /**
  * Hover values of QSP variables: the token under the cursor (by the model's tokenization: `variable` tokens, and
- * identifiers that are not keywords) is read with the engine's `readVariable*`, which never runs engine code.
+ * identifiers that are not keywords; in a description, those inside `<<…>>`) is read with the engine's
+ * `readVariable*`, which never runs engine code.
  * A Pin link adds the variable to the watch list.
  */
 export function registerQspHover(monaco: typeof Monaco): void {
@@ -15,23 +16,25 @@ export function registerQspHover(monaco: typeof Monaco): void {
     if (typeof name === 'string') watchActions.add(name);
   });
 
-  monaco.languages.registerHoverProvider('qsp', {
-    provideHover(model, position) {
-      const line = model.getLineContent(position.lineNumber);
-      const found = hoverTargetAt(line, qspLineTokens(model, position.lineNumber, 'qsp'), position.column - 1);
-      if (!found) return null;
-      const { target, start, end } = found;
-      const plan = hoverReadPlan(target.name, target.indexText, isQspKeyword, target.fields);
-      const { lines, pinName } = readHover(plan);
-      if (lines.length === 0) return null;
-      const body = hoverCodeBlock(lines);
-      const pin = pinName
-        ? `\n\n[Pin](command:${PIN_COMMAND}?${encodeURIComponent(JSON.stringify([pinName]))} "Add to the watch list")`
-        : '';
-      return {
-        range: new monaco.Range(position.lineNumber, start + 1, position.lineNumber, end + 1),
-        contents: [{ value: body + pin, isTrusted: { enabledCommands: [PIN_COMMAND] } }],
-      };
-    },
-  });
+  for (const languageId of ['qsp', 'qsp-description']) {
+    monaco.languages.registerHoverProvider(languageId, {
+      provideHover(model, position) {
+        const line = model.getLineContent(position.lineNumber);
+        const found = hoverTargetAt(line, qspLineTokens(model, position.lineNumber, languageId), position.column - 1);
+        if (!found) return null;
+        const { target, start, end } = found;
+        const plan = hoverReadPlan(target.name, target.indexText, isQspKeyword, target.fields);
+        const { lines, pinName } = readHover(plan);
+        if (lines.length === 0) return null;
+        const body = hoverCodeBlock(lines);
+        const pin = pinName
+          ? `\n\n[Pin](command:${PIN_COMMAND}?${encodeURIComponent(JSON.stringify([pinName]))} "Add to the watch list")`
+          : '';
+        return {
+          range: new monaco.Range(position.lineNumber, start + 1, position.lineNumber, end + 1),
+          contents: [{ value: body + pin, isTrusted: { enabledCommands: [PIN_COMMAND] } }],
+        };
+      },
+    });
+  }
 }
