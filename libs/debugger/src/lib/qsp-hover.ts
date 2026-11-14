@@ -1,11 +1,8 @@
 import type * as Monaco from 'monaco-editor';
 import { hoverCodeBlock, hoverReadPlan, readHover, watchActions } from '@qspider/game-state';
-import { qspLanguageDefinition } from './qsp-language';
+import { isQspKeyword } from './qsp-language';
 
 const PIN_COMMAND = 'qsp.debugger.pinVariable';
-
-const KEYWORDS = new Set((qspLanguageDefinition.keywords as string[]).map((word) => word.toLowerCase()));
-const isKeyword = (word: string): boolean => KEYWORDS.has(word.toLowerCase());
 
 /** The text inside the `[...]` that follows `from` in `line` (to the end of the line when it is not closed). */
 function bracketText(line: string, from: number): string | undefined {
@@ -60,7 +57,7 @@ export function registerQspHover(monaco: typeof Monaco): void {
       if (!found) return null;
       const { start, end } = found;
       const word = line.slice(start, end);
-      const plan = hoverReadPlan(word, bracketText(line, end), isKeyword);
+      const plan = hoverReadPlan(word, bracketText(line, end), isQspKeyword);
       const { lines, pinName } = readHover(plan);
       if (lines.length === 0) return null;
       const body = hoverCodeBlock(lines);
