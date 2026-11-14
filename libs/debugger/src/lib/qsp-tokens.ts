@@ -95,7 +95,15 @@ export function hoverTargetAt(
     while (isStringAt(n + 1)) n++;
     return n;
   };
-  const isFieldAt = (n: number) => isDot(n - 1) && (isName(n) || isStringAt(n));
+  // `$` / `#` / `%` right before a quoted text (`.$'SOME FIELD'`): the prefix token starts the field.
+  const isQuotedPrefixAt = (n: number) => n >= 0 && /^[$#%]$/.test(textOf(n)) && !isStringAt(n) && isStringAt(n + 1);
+  // The first token of the field unit that holds token `n` (a prefix joins the quoted text after it).
+  const fieldStart = (n: number) => {
+    const u = unitStart(n);
+    return isStringAt(u) && isQuotedPrefixAt(u - 1) ? u - 1 : isQuotedPrefixAt(n) ? n : u;
+  };
+  const fieldEnd = (n: number) => unitEnd(isQuotedPrefixAt(n) ? n + 1 : n);
+  const isFieldAt = (n: number) => isDot(n - 1) && (isName(n) || isStringAt(n) || isQuotedPrefixAt(n));
 
   for (const at of [column, column - 1]) {
     let i = -1;
@@ -103,14 +111,14 @@ export function hoverTargetAt(
       if (token.offset <= at) i = n;
     });
     if (i < 0 || at < 0 || at >= endOf(i)) continue;
-    const first = unitStart(i);
+    const first = fieldStart(i);
     if (!isName(i) && !isFieldAt(first)) continue;
     const fields: string[] = [];
     let indexText: string | undefined;
     let cur = first;
     while (isFieldAt(cur)) {
-      fields.unshift(line.slice(tokens[cur].offset, endOf(unitEnd(cur))));
-      cur = cur >= 2 ? unitStart(cur - 2) : -1;
+      fields.unshift(line.slice(tokens[cur].offset, endOf(fieldEnd(cur))));
+      cur = cur >= 2 ? fieldStart(cur - 2) : -1;
       if (cur >= 0 && textOf(cur) === ']' && kind(tokens[cur]) === 'delimiter.bracket') {
         let depth = 0;
         let open = cur;
@@ -127,7 +135,11 @@ export function hoverTargetAt(
     }
     if (cur < 0 || !isName(cur)) return null;
     if (fields.length === 0) indexText = bracketText(line, endOf(cur));
-    return { target: { name: textOf(cur), indexText, fields }, start: tokens[first].offset, end: endOf(unitEnd(i)) };
+    return {
+      target: { name: textOf(cur), indexText, fields },
+      start: tokens[first].offset,
+      end: endOf(fieldEnd(first)),
+    };
   }
   return null;
 }

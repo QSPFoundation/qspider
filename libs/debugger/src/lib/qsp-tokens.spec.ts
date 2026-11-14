@@ -32,6 +32,16 @@ describe('hoverTargetAt', () => {
     expect(found?.end).toBe(14);
   });
 
+  it('reads a quoted field with a type prefix', () => {
+    expect(hover("A.$'SOME FIELD' = 1", "'SOME FIELD'")?.target).toEqual({
+      name: 'A',
+      indexText: undefined,
+      fields: ["$'SOME FIELD'"],
+    });
+    expect(hover("A.$'SOME FIELD' = 1", '$')?.target.fields).toEqual(["$'SOME FIELD'"]);
+    expect(hover("A.$'X Y'.B = 1", 'B')?.target).toEqual({ name: 'A', indexText: undefined, fields: ["$'X Y'", 'B'] });
+  });
+
   it('joins a quoted field split by an escaped quote', () => {
     for (const word of ["'IT", "S'"]) {
       expect(hover("A.'IT''S' = 1", word)?.target.fields).toEqual(["'IT''S'"]);
