@@ -67,8 +67,10 @@ which also runs `$ONACTSEL`) never marks an action as running, and counter or `$
 action. Saving up front means `cla`, `gt` or a changed list mid-run don't lose it.
 
 **Where the action's code came from is decided once per action, not per step.** When the action is saved, its
-code is compared with the location's code (the location of the action's first step, i.e. the current location)
-at the same line numbers. If every line of the action is contained in the location's line with the same number,
+code is compared, at its first step, with the code of that step's location (`record.loc`, which is the location
+that ran the `act` or `dynamic`; it is not always the current location, e.g. after a `gs`) at the same line numbers.
+Both sides are split into lines the same way (`placeCodeLines`), so a statement spanning several lines (a `{…}`
+block, a multi-line string) is compared line by line. If every line of the action is contained in the location's line with the same number,
 the action was written in the location with `act` ("placed"); otherwise it came from `dynamic` ("detached").
 "Contained" because an inline `act 'x': …` keeps only the part after the colon. Deciding per action avoids a
 coincidental per-step match: with `$d = 'act "go": gt "room"'` on line 1 and `dynamic $d` on line 2, the
@@ -78,8 +80,8 @@ For each debug record during an action run:
 
 1. **Steps of a placed action, and steps in other locations** (a `gs` from the action), stay in the location view,
    as today. This keeps `act` blocks written in a location in the view that also shows their breakpoints.
-2. **Steps of a detached action** — `record.loc` is the action's location and `record.line`/`record.code` match a
-   line of its saved code — show that action in the current-action view with that line highlighted.
+2. **Steps of a detached action** — `record.loc` is the action's location and `record.code`, split into lines,
+   matches the saved code from `record.line` on (a multi-line statement arrives whole, line breaks included) — show that action in the current-action view with that line highlighted.
 3. **Location-line breakpoints don't fire for steps of a detached action.** This removes the false hits from
    `dynamic` actions. Base-action breakpoints (`actIndex` ≥ 0) are unchanged.
 4. **A step the debugger can't place** (in the action's location, but matching neither that location's line nor the
