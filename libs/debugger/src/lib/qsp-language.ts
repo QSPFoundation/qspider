@@ -184,10 +184,12 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
   const closeBlock: Rule[] = inBlock ? [[/\}/, { token: 'delimiter.bracket', next: '@pop' }]] : [];
   const toStart = { switchTo: `@${start}` };
   const toExpression = { switchTo: `@${expression}` };
+  // A label runs to the `&` (in a block, also to the `}` that closes it).
+  const label = inBlock ? /(:)(\s*)([^&}]*[^&}\s])/ : /(:)(\s*)([^&]*[^&\s])/;
   return {
     [start]: [
       [/\s+/, ''],
-      [/(:)(\s*)([^&]*[^&\s])/, ['delimiter', '', 'label']],
+      [label, ['delimiter', '', 'label']],
       [/!/, { token: 'comment', next: '@comment' }],
       [/&/, 'operator'],
       [/:/, 'delimiter'],

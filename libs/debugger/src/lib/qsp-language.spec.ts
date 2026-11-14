@@ -285,6 +285,13 @@ describe('qsp tokenizer', () => {
     it('reads a label at any statement start', () => {
       expect(line('X = 1 & :LBL')).toContainEqual({ text: 'LBL', type: 'label' });
     });
+
+    it('ends a label in a one-line block at the closing brace', () => {
+      const code = line('{ X = 1 & :L } & Y = 2');
+      expect(code).toContainEqual({ text: 'L', type: 'label' });
+      expect(code).toContainEqual({ text: '}', type: 'delimiter.bracket' });
+      expect(code).toContainEqual({ text: 'Y', type: 'identifier' });
+    });
   });
 
   describe('qsp-expr', () => {
