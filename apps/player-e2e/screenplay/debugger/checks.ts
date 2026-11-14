@@ -69,6 +69,24 @@ export const SeeExecutionLine = (location: string, line: number): Task =>
     ),
   );
 
+/** The execution is at line `line` of the current action `name` (a step the debugger placed in that action). */
+export const SeeExecutionInCurrentAction = (name: string, line: number): Task =>
+  Task.where(
+    `#actor sees the execution at line ${line} of the current action "${name}"`,
+    seeEventually(
+      DebugCurrentExecution,
+      (e) => Attribute.called('data-action').of(e),
+      equals(name),
+      `#actor sees the execution in "${name}"`,
+    ),
+    seeEventually(
+      DebugCurrentExecution,
+      (e) => Attribute.called('data-line').of(e),
+      equals(String(line)),
+      `#actor sees the current line be ${line}`,
+    ),
+  );
+
 /** The event count (on the events tab) is above `n`. */
 export const SeeEventsAbove = (n: number): Task =>
   seeEventually(

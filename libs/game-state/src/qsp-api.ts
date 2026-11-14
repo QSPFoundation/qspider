@@ -147,6 +147,12 @@ export function getActionCode(location: string, index: number): string[] {
   return api ? placeCodeLines(api.getLocationActionCode(location, index)) : [];
 }
 
+/** The code of a current action, one the player sees now, by its index in the current actions list. */
+export function getCurrentActionCode(index: number): string[] {
+  const api = qspApi$.value;
+  return api ? placeCodeLines(api.getActionCode(index)) : [];
+}
+
 export function getLocationActions(name: string): QspListItem[] {
   return qspApi$.value?.getLocationActions(name) || [];
 }

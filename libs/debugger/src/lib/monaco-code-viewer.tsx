@@ -54,8 +54,8 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
   const handleToggleBreakpoint = React.useCallback(
     (line: number) => {
-      if (onBreakpointToggle) {
-        onBreakpointToggle(line, locationName || '', actionIndex);
+      if (onBreakpointToggle && locationName) {
+        onBreakpointToggle(line, locationName, actionIndex);
       }
     },
     [onBreakpointToggle, locationName, actionIndex],
@@ -80,18 +80,17 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
       glyphMargin: true, // Enable glyph margin for breakpoints
     });
 
-    // Add click handler for breakpoint toggles
-    if (onBreakpointToggle && locationName) {
-      editorInstance.onMouseDown((e) => {
-        // Check if click was in the glyph margin (where breakpoints are shown)
-        if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
-          const lineNumber = e.target.position?.lineNumber;
-          if (lineNumber) {
-            handleToggleBreakpointRef.current?.(lineNumber);
-          }
+    // Add click handler for breakpoint toggles. Registered whatever the first view: the editor stays mounted across
+    // views, and a view without breakpoints (a current action) passes no onBreakpointToggle, so a click does nothing.
+    editorInstance.onMouseDown((e) => {
+      // Check if click was in the glyph margin (where breakpoints are shown)
+      if (e.target.type === monaco.editor.MouseTargetType.GUTTER_GLYPH_MARGIN) {
+        const lineNumber = e.target.position?.lineNumber;
+        if (lineNumber) {
+          handleToggleBreakpointRef.current?.(lineNumber);
         }
-      });
-    }
+      }
+    });
 
     setEditorMounted(true);
   };
@@ -219,7 +218,11 @@ export const MonacoCodeViewer: React.FC<MonacoCodeViewerProps> = ({
 
   return (
     <div className="qsp-monaco-code-viewer">
-      {title && <div className="qsp-monaco-code-title">{title}</div>}
+      {title && (
+        <div className="qsp-monaco-code-title" data-qa="debug-editor-title">
+          {title}
+        </div>
+      )}
       <div className="qsp-monaco-editor-container" data-qa="debug-editor">
         <Editor
           height={height}

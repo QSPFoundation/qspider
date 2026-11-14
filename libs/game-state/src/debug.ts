@@ -181,6 +181,9 @@ export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord, plac
 /** Whether debug mode was on when the panel last closed: reopening turns it back on. */
 let debugModeWasOn = false;
 
+/** The run as `beginActionRun` returned it: the state holds a settled copy once its first step comes. */
+let startedRun: ActionRun | null = null;
+
 function setEngineDebugMode(on: boolean): void {
   const api = qspApi$.value;
   if (on) api?.enableDebugMode();
@@ -339,13 +342,15 @@ export const debugActions = {
     const state = debugState$.value;
     if (!isDebugPanelOpen$.value || !state.isEnabled || state.actionRun) return null;
     const run: ActionRun = { index, name, lines, loc: null, origin: null, locationLines: null };
+    startedRun = run;
     debugState$.update((s) => ({ ...s, actionRun: run }));
     return run;
   },
 
-  /** Ends the given run; a run that is no longer the current one leaves the state alone. */
+  /** Ends the run `beginActionRun` returned; a run that is no longer the current one leaves the state alone. */
   endActionRun: (run: ActionRun): void => {
-    if (debugState$.value.actionRun !== run) return;
+    if (startedRun !== run) return;
+    startedRun = null;
     debugState$.update((state) => ({ ...state, actionRun: null, stepPlace: 'location' }));
   },
 

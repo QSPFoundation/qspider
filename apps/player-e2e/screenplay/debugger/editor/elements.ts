@@ -9,6 +9,11 @@ export const DebugEditorLines = PageElement.located(By.css('[data-qa="debug-edit
   'debugger editor text',
 );
 
+/** The title above the editor: what it shows (`Location: start`, `Current action: go`). */
+export const DebugEditorTitle = PageElement.located(By.css('[data-qa="debug-editor-title"]')).describedAs(
+  'debugger editor title',
+);
+
 /** The editor's visible text area (Monaco's overflow guard): its centre is in view whatever the editor scrolled to. */
 export const EditorViewport = PageElement.located(By.css('[data-qa="debug-editor"] .overflow-guard')).describedAs(
   'editor viewport',

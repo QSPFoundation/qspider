@@ -2,7 +2,14 @@ import { Question, type Answerable, Task } from '@serenity-js/core';
 import { equals, includes } from '@serenity-js/assertions';
 import { Attribute, type PageElement, Text } from '@serenity-js/web';
 import { seeEventually } from '../../support/see-eventually';
-import { CurrentLineOverlay, DebugEditorLines, EditorViewLines, HoverContent, HoverContents } from './elements';
+import {
+  CurrentLineOverlay,
+  DebugEditorLines,
+  DebugEditorTitle,
+  EditorViewLines,
+  HoverContent,
+  HoverContents,
+} from './elements';
 
 /** The `top` of a Monaco line from its inline style (`top:350px;…`), the one link between a line and its overlay. */
 const topOf = (style: string | null): string | undefined => /top:\s*(-?[\d.]+)px/.exec(style ?? '')?.[1];
@@ -52,3 +59,7 @@ export const SeeCurrentLineText = (text: string): Task =>
     equals(text),
     `#actor sees the current line read ${text}`,
   );
+
+/** The title above the editor reads `text`. */
+export const SeeEditorTitle = (text: string): Task =>
+  seeEventually(DebugEditorTitle, (e) => Text.of(e).trim(), equals(text), `#actor sees the editor titled ${text}`);

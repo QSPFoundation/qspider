@@ -11,6 +11,8 @@ export const LocationRightPanel: React.FC = () => {
   const { t } = useTranslation();
   const debugState = useAtom(debugState$);
   const canStep = useAtom(canStep$);
+  // The current action whose own code the step runs (its line counts in that code, not in the location's).
+  const actionStep = debugState.stepPlace === 'action' ? debugState.actionRun : null;
 
   const handleToggleDebug = (): void => {
     if (debugState.isEnabled) {
@@ -152,6 +154,7 @@ export const LocationRightPanel: React.FC = () => {
                 data-qa="debug-current-execution"
                 data-location={debugState.currentRecord.loc}
                 data-line={debugState.currentRecord.line}
+                data-action={actionStep?.name}
               >
                 <div>
                   {t('Location')}: {debugState.currentRecord.loc}
@@ -159,9 +162,15 @@ export const LocationRightPanel: React.FC = () => {
                 <div>
                   {t('Line')}: {debugState.currentRecord.line}
                 </div>
-                <div>
-                  {t('Action')}: {debugState.currentRecord.actIndex}
-                </div>
+                {actionStep ? (
+                  <div>
+                    {t('Current action')}: {actionStep.name}
+                  </div>
+                ) : (
+                  <div>
+                    {t('Action')}: {debugState.currentRecord.actIndex}
+                  </div>
+                )}
               </div>
             ) : (
               <div className="qsp-debugger-no-data">{t('No execution data')}</div>

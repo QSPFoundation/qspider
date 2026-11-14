@@ -1,14 +1,22 @@
 import { useAtom } from '@xoid/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as RadixSelect from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
-import { debugState$, debugActions, codeInspectorActions, type LocationInfo } from '@qspider/game-state';
+import {
+  actions$,
+  debugState$,
+  debugActions,
+  codeInspectorActions,
+  getCurrentActionCode,
+  type LocationInfo,
+} from '@qspider/game-state';
 import { MonacoCodeViewer } from './monaco-code-viewer';
 
 export const CodeViewer: React.FC = () => {
   const { t } = useTranslation();
   const debugState = useAtom(debugState$);
+  const actions = useAtom(actions$);
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null);
   const [loading, setLoading] = useState(false);
   const [selectedCodeType, setSelectedCodeType] = useState<'location' | 'description' | 'action'>('location');
@@ -32,6 +40,8 @@ export const CodeViewer: React.FC = () => {
 
       if (recordChanged) {
         setLastCurrentRecord(debugState.currentRecord);
+        // A step placed outside the location code keeps the view its step set: a current action, or its code alone.
+        if (debugState.stepPlace !== 'location') return;
         debugActions.selectLocation(debugState.currentRecord.loc);
 
         // Auto-switch to the correct code type (location vs action)
@@ -43,7 +53,7 @@ export const CodeViewer: React.FC = () => {
         }
       }
     }
-  }, [debugState.currentRecord, debugState.isEnabled, lastCurrentRecord]);
+  }, [debugState.currentRecord, debugState.isEnabled, debugState.stepPlace, lastCurrentRecord]);
 
   useEffect(() => {
     if (debugState.selectedLocation) {
@@ -72,6 +82,52 @@ export const CodeViewer: React.FC = () => {
     }
   }, [debugState.selectedLocation, debugState.currentRecord]);
 
+  const { codeView, actionRun, currentRecord, stepPlace } = debugState;
+  const viewedActionIndex = codeView.kind === 'current-action' ? codeView.index : null;
+  // The run that the viewed action is: its saved code survives a `cla` or a changed list.
+  const viewedRun = viewedActionIndex !== null && actionRun?.index === viewedActionIndex ? actionRun : null;
+  // Read only when no run saved it; an index past the list (it changed since) has no code.
+  const liveActionLines = useMemo(
+    () =>
+      viewedActionIndex === null || viewedRun || viewedActionIndex >= actions.length
+        ? []
+        : getCurrentActionCode(viewedActionIndex),
+    [viewedActionIndex, viewedRun, actions],
+  );
+
+  // A plain-text placeholder for missing code: as QSP it would be highlighted and its words hovered as variables.
+  const placeholder = (text: string) => ({ code: text, language: 'plaintext' });
+  const qspCode = (code: string, empty: string) => (code ? { code, language: 'qsp' } : placeholder(empty));
+
+  if (viewedActionIndex !== null) {
+    const name =
+      viewedRun?.name.trim() ||
+      actions[viewedActionIndex]?.name.trim() ||
+      t('Action {{number}}', { number: viewedActionIndex + 1 });
+    const display = qspCode((viewedRun?.lines ?? liveActionLines).join('\n'), t('// Empty action'));
+    return (
+      <CodeEditor
+        code={display.code}
+        language={display.language}
+        title={t('Current action: {{name}}', { name })}
+        currentLine={viewedRun && stepPlace === 'action' ? currentRecord?.line : undefined}
+      />
+    );
+  }
+
+  if (codeView.kind === 'step-code') {
+    // A step the debugger can't place: its code alone, as the step runs it.
+    const display = qspCode(currentRecord?.code ?? '', t('// No running code'));
+    return (
+      <CodeEditor
+        code={display.code}
+        language={display.language}
+        title={t('Running code')}
+        currentLine={currentRecord ? 1 : undefined}
+      />
+    );
+  }
+
   if (!debugState.selectedLocation) {
     return <div className="qsp-debugger-empty-state">{t('Select a location to view its code')}</div>;
   }
@@ -86,7 +142,12 @@ export const CodeViewer: React.FC = () => {
 
   // Determine if we should highlight current execution line
   const getCurrentLine = (): number | undefined => {
-    if (!debugState.currentRecord || debugState.currentRecord.loc !== debugState.selectedLocation) {
+    // A step placed elsewhere (a current action's code) is not on a line of this location, whatever its number.
+    if (
+      !debugState.currentRecord ||
+      debugState.currentRecord.loc !== debugState.selectedLocation ||
+      stepPlace !== 'location'
+    ) {
       return undefined;
     }
 
@@ -109,11 +170,9 @@ export const CodeViewer: React.FC = () => {
     return debugState.targetLine ?? undefined;
   };
 
-  // The text in the editor and its language. A placeholder for missing code is plain text: as QSP it would be
-  // highlighted and its words hovered as game variables.
+  // The text in the editor and its language (a placeholder for missing code is plain text, see above).
   const getCodeToDisplay = (): { code: string; language: string } => {
     const language = selectedCodeType === 'description' ? 'qsp-description' : 'qsp'; // HTML with <<…>> for description
-    const placeholder = (text: string) => ({ code: text, language: 'plaintext' });
     if (selectedCodeType === 'location') {
       const code = locationInfo.code.join('\n');
       return code ? { code, language } : placeholder(t('// No location code'));
@@ -251,3 +310,24 @@ export const CodeViewer: React.FC = () => {
     </div>
   );
 };
+
+/** The editor alone, for code that has no tabs and no breakpoints (a current action, a step's code). */
+const CodeEditor: React.FC<{ code: string; language: string; title: string; currentLine?: number }> = ({
+  code,
+  language,
+  title,
+  currentLine,
+}) => (
+  <div className="qsp-debugger-code-viewer">
+    <div className="qsp-debugger-monaco-container">
+      <MonacoCodeViewer
+        code={code}
+        language={language}
+        theme="vs"
+        height="100%"
+        currentLine={currentLine}
+        title={title}
+      />
+    </div>
+  </div>
+);

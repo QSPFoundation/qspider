@@ -246,8 +246,48 @@
 
 .qsp-debugger-locations-content {
   flex: 1;
+  min-height: 0;
   overflow: auto;
   padding: var(--spacer--xs);
+}
+
+/* Current actions: a collapsible section above the locations; its entries reuse the location item styles. */
+.qsp-debugger-current-actions {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  max-height: 50%;
+  min-height: 0;
+  border-bottom: 1px solid var(--subtle-border);
+}
+
+.qsp-debugger-current-actions-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacer--xs);
+  width: 100%;
+  padding: var(--spacer--xs) var(--spacer--sm);
+  background: transparent;
+  border: none;
+  color: var(--text-lc);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.qsp-debugger-current-actions-header:hover {
+  background-color: var(--ui-element-hover-background);
+}
+
+.qsp-debugger-current-actions-chevron {
+  width: 1em;
+}
+
+.qsp-debugger-current-actions-list {
+  overflow: auto;
+  padding: 0 var(--spacer--xs) var(--spacer--xs);
 }
 
 .qsp-debugger-tabs {
