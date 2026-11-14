@@ -34,9 +34,26 @@ describe('watchKey', () => {
     expect(watchKey('$who')).toBe('$WHO');
     expect(watchKey('$who')).not.toBe(watchKey('who'));
   });
+
+  it('gives equivalent paths one canonical key', () => {
+    const key = watchKey("a[ 'k' ].b");
+    expect(key).toBe("A['K'].B");
+    expect(watchKey('A["K"].B')).toBe(key);
+    expect(watchKey("a['K'].B")).toBe(key);
+  });
+
+  it('is empty for text that is not a variable, item or field', () => {
+    expect(watchKey('a[i]')).toBe('');
+    expect(watchKey('')).toBe('');
+  });
 });
 
 describe('addWatch and removeWatch', () => {
+  it('ignores an entry that is not a path', () => {
+    const list = ['A'];
+    expect(addWatch(list, 'a[i]')).toBe(list);
+  });
+
   it('keeps the name upper-cased and deduplicates case-insensitively, the prefix counting', () => {
     expect(addWatch([], 'gold')).toEqual(['GOLD']);
     expect(addWatch(['GOLD'], 'gold')).toEqual(['GOLD']);
@@ -67,6 +84,10 @@ describe('parseWatchList and serializeWatchList', () => {
     expect(parseWatchList('{not json')).toEqual([]);
     expect(parseWatchList('{"a":1}')).toEqual([]);
     expect(parseWatchList('[1, "x"]')).toEqual([]);
+  });
+
+  it('drops stored entries that are not paths and keeps bare names', () => {
+    expect(parseWatchList('["gold","a[i]"]')).toEqual(['GOLD']);
   });
 
   it('deduplicates what it reads', () => {
@@ -151,6 +172,10 @@ describe('afterRunMode', () => {
 });
 
 describe('describeChange', () => {
+  it('names a path entry by its path', () => {
+    expect(describeChange("A['K'].B", scalar(1), scalar(2))).toEqual({ name: "A['K'].B", from: '1', to: '2' });
+  });
+
   it('formats the old and new values', () => {
     expect(describeChange('GOLD', scalar(100), scalar(70))).toEqual({ name: 'GOLD', from: '100', to: '70' });
   });

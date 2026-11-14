@@ -3,6 +3,7 @@ import { isRetiredEngine, qspApi$ } from './qsp-engine';
 import { describeHover, describeSummary, isArrayHover, HOVER_SUMMARY_ITEMS, type HoverPlan } from './debug-hover-logic';
 import { itemWindow } from './debug-watch-logic';
 import { effectivePrefix, formatQspPath, walkFields, type QspField, type QspPath } from './qsp-path';
+import { readFieldsBase, readItem, readRaw } from './qsp-path-read';
 import { applyTypePrefix } from './variable-logic';
 
 export interface HoverReading {
@@ -13,22 +14,12 @@ export interface HoverReading {
 
 const PREFIX = /^[$#%]/;
 
-/** The name's stored value: read without a prefix, so no type conversion hides it. */
-function readRaw(api: QspAPI, name: string): QspVariableValue {
-  return api.readVariable(name.replace(PREFIX, ''));
-}
-
 function readValueLines(api: QspAPI, name: string): string[] {
   const size = api.readVariableSize(name);
   if (size > 0 && isArrayHover(size, api.readVariableItem(name, 0).key)) {
     return describeSummary(name, ...summaryItems(api, name));
   }
   return describeHover(name, api.readVariable(name), PREFIX.test(name) ? readRaw(api, name) : undefined, size);
-}
-
-/** The item of `name` at `key`, as the engine reads it with the name's prefix. */
-function readItem(api: QspAPI, name: string, key: QspVariableKey): QspVariableValue {
-  return typeof key === 'number' ? api.readVariableByIndex(name, key) : api.readVariableByKey(name, key);
 }
 
 /** The value at the end of `fields` from the base read without its prefix; the path's effective prefix types it, described under the path's label. */
@@ -45,7 +36,7 @@ function readFieldLines(path: QspPath, base: QspVariableValue): string[] {
 
 function readItemLines(api: QspAPI, path: QspPath): string[] {
   const key = path.index as QspVariableKey;
-  if (path.fields.length > 0) return readFieldLines(path, readItem(api, path.name.replace(PREFIX, ''), key));
+  if (path.fields.length > 0) return readFieldLines(path, readFieldsBase(api, path));
   const typed = readItem(api, path.name, key);
   return describeHover(formatQspPath(path), typed, undefined, typed === undefined ? 0 : 1);
 }
@@ -71,7 +62,7 @@ export function readHover(plan: HoverPlan): HoverReading {
     case 'value': {
       if (fields.length === 0) return { lines: readValueLines(api, name), pinName: name };
       const found = path();
-      return { lines: readFieldLines(found, readRaw(api, name)), pinName: formatQspPath(found) };
+      return { lines: readFieldLines(found, readFieldsBase(api, found)), pinName: formatQspPath(found) };
     }
     case 'item': {
       const found = path(plan.key);

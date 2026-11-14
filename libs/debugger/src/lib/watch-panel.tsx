@@ -109,12 +109,17 @@ export const WatchPanel: React.FC = () => {
   const notice = useAtom(changeNotice$);
   const debugOn = useAtom(debugState$).isEnabled;
   const [draft, setDraft] = useState('');
+  const [invalid, setInvalid] = useState(false);
   const [open, setOpen] = useState<Record<string, boolean>>({});
 
   const add = (): void => {
     if (!draft.trim()) return;
-    watchActions.add(draft);
-    setDraft('');
+    if (watchActions.add(draft)) {
+      setDraft('');
+      setInvalid(false);
+    } else {
+      setInvalid(true);
+    }
   };
 
   return (
@@ -138,13 +143,21 @@ export const WatchPanel: React.FC = () => {
           className="qsp-debugger-watch-input"
           data-qa="debug-watch-input"
           value={draft}
-          placeholder={t('Variable name')}
-          onChange={(e) => setDraft(e.target.value)}
+          placeholder={t('Variable, item or field')}
+          onChange={(e) => {
+            setDraft(e.target.value);
+            setInvalid(false);
+          }}
         />
         <button type="submit" className="q-button qsp-debugger-control-button" data-qa="debug-watch-add">
           {t('Add')}
         </button>
       </form>
+      {invalid && (
+        <div className="qsp-debugger-no-data" data-qa="debug-watch-invalid">
+          {t('Not a variable, item or field')}
+        </div>
+      )}
       {!debugOn && list.length > 0 && (
         <div className="qsp-debugger-no-data" data-qa="debug-watch-hint">
           {t('Turn debug mode on to break on change')}
