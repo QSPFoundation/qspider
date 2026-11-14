@@ -9,24 +9,37 @@ export function readRaw(api: QspAPI, name: string): QspVariableValue {
   return api.readVariable(name.replace(PREFIX, ''));
 }
 
+/** What a type prefix on `name` may hide: the stored value for a prefixed name, undefined for a plain one. */
+export function readHiddenValue(api: QspAPI, name: string): QspVariableValue {
+  return PREFIX.test(name) ? readRaw(api, name) : undefined;
+}
+
 /** The item of `name` at `key`, as the engine reads it with the name's prefix. */
 export function readItem(api: QspAPI, name: string, key: QspVariableKey): QspVariableValue {
   return typeof key === 'number' ? api.readVariableByIndex(name, key) : api.readVariableByKey(name, key);
 }
 
 /** What a path's fields are walked from: the base (or its item) read without its prefix. */
-export function readFieldsBase(api: QspAPI, path: QspPath): QspVariableValue {
+function readFieldsBase(api: QspAPI, path: QspPath): QspVariableValue {
   const name = path.name.replace(PREFIX, '');
   return path.index === undefined ? readRaw(api, name) : readItem(api, name, path.index);
 }
 
+/** A path's value, and for a path with fields, what is stored at its end before its prefix types it. */
+export interface PathReading {
+  value: QspVariableValue;
+  /** Only for a path with fields: the value walked from the unprefixed base. */
+  stored?: QspVariableValue;
+}
+
 /**
- * The value a path with an index or fields stands for: the item read with the base prefix, or, with fields, the
- * unprefixed base walked down its fields and typed by the path's effective prefix.
+ * Reads a path with an index or fields: the item read with the base prefix, or, with fields, the unprefixed base
+ * walked down its fields (`stored`) and typed by the path's effective prefix (`value`).
  */
-export function readPathValue(api: QspAPI, path: QspPath): QspVariableValue {
+export function readPath(api: QspAPI, path: QspPath): PathReading {
   if (path.fields.length > 0) {
-    return applyTypePrefix(effectivePrefix(path), walkFields(readFieldsBase(api, path), path.fields));
+    const stored = walkFields(readFieldsBase(api, path), path.fields);
+    return { value: applyTypePrefix(effectivePrefix(path), stored), stored };
   }
-  return path.index === undefined ? api.readVariable(path.name) : readItem(api, path.name, path.index);
+  return { value: path.index === undefined ? api.readVariable(path.name) : readItem(api, path.name, path.index) };
 }

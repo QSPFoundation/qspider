@@ -2,7 +2,7 @@ import type { QspAPI } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { gameOpenEpoch$, isRetiredEngine, qspApi$ } from './qsp-engine';
 import { parseQspPath } from './qsp-path';
-import { readPathValue } from './qsp-path-read';
+import { readPath } from './qsp-path-read';
 import { msg$ } from './msg';
 import { menu$ } from './menu';
 import { input$ } from './input';
@@ -102,7 +102,7 @@ let stopHeld = false;
 function readWatchValue(api: QspAPI, key: string): WatchValue {
   const path = parseQspPath(key);
   if (path && (path.index !== undefined || path.fields.length > 0)) {
-    const value = readPathValue(api, path);
+    const { value } = readPath(api, path);
     return { value, size: value === undefined ? 0 : 1, items: [] };
   }
   return readVariableValue(api, key);
