@@ -58,3 +58,21 @@ P.ROLE = 'cook'
 $JOB = $P.ROLE
 *pl 'SYNTAX END <<ПЕРЕМЕННАЯ>>'
 ---
+
+# acts
+*pl 'ACTS START'
+act 'placed':
+  placed = 1
+  *pl 'PLACED DONE'
+end
+dynamic {
+act 'detached':
+  detached = 1
+  cla
+  $note = 'two
+lines'
+  *pl 'DETACHED DONE'
+end
+act 'back': gt 'acts'
+}
+---
