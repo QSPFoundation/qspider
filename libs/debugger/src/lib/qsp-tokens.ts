@@ -80,7 +80,19 @@ export function hoverTargetAt(
   const textOf = (n: number) => line.slice(tokens[n].offset, endOf(n));
   const isDot = (n: number) => n >= 0 && kind(tokens[n]) === 'delimiter' && textOf(n) === '.';
   const isName = (n: number) => /^(variable|identifier)/.test(kind(tokens[n]));
-  const isFieldAt = (n: number) => isDot(n - 1) && (isName(n) || kind(tokens[n]) === 'string');
+  const isStringAt = (n: number) => /^string/.test(kind(tokens[n]));
+  // A quoted text split by escaped quotes (`'it`, `''`, `s'`) is one unit.
+  const unitStart = (n: number) => {
+    if (!isStringAt(n)) return n;
+    while (isStringAt(n - 1)) n--;
+    return n;
+  };
+  const unitEnd = (n: number) => {
+    if (!isStringAt(n)) return n;
+    while (isStringAt(n + 1)) n++;
+    return n;
+  };
+  const isFieldAt = (n: number) => isDot(n - 1) && (isName(n) || isStringAt(n));
 
   for (const at of [column, column - 1]) {
     let i = -1;
@@ -88,13 +100,14 @@ export function hoverTargetAt(
       if (token.offset <= at) i = n;
     });
     if (i < 0 || at < 0 || at >= endOf(i)) continue;
-    if (!isName(i) && !isFieldAt(i)) continue;
+    const first = unitStart(i);
+    if (!isName(i) && !isFieldAt(first)) continue;
     const fields: string[] = [];
     let indexText: string | undefined;
-    let cur = i;
+    let cur = first;
     while (isFieldAt(cur)) {
-      fields.unshift(textOf(cur));
-      cur -= 2;
+      fields.unshift(line.slice(tokens[cur].offset, endOf(unitEnd(cur))));
+      cur = cur >= 2 ? unitStart(cur - 2) : -1;
       if (cur >= 0 && textOf(cur) === ']' && kind(tokens[cur]) === 'delimiter.bracket') {
         let depth = 0;
         let open = cur;
@@ -111,7 +124,7 @@ export function hoverTargetAt(
     }
     if (cur < 0 || !isName(cur)) return null;
     if (fields.length === 0) indexText = bracketText(line, endOf(cur));
-    return { target: { name: textOf(cur), indexText, fields }, start: tokens[i].offset, end: endOf(i) };
+    return { target: { name: textOf(cur), indexText, fields }, start: tokens[first].offset, end: endOf(unitEnd(i)) };
   }
   return null;
 }

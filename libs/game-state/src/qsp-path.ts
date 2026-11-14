@@ -1,6 +1,46 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
-import { NAME_STOP, parseLiteral, QSP_NAME, splitParts } from './debug-hover-logic';
 import { isTuple, type QspTypePrefix } from './variable-logic';
+
+/** Splits `text` at commas outside quotes; null when a quote is left open. */
+export function splitParts(text: string): string[] | null {
+  const parts: string[] = [];
+  let current = '';
+  let quote: string | null = null;
+  for (const ch of text) {
+    if (quote) {
+      if (ch === quote) quote = null; // a doubled quote closes and reopens: both stay in the part
+      current += ch;
+    } else if (ch === ',') {
+      parts.push(current);
+      current = '';
+    } else {
+      if (ch === "'" || ch === '"') quote = ch;
+      current += ch;
+    }
+  }
+  if (quote) return null;
+  parts.push(current);
+  return parts;
+}
+
+/** A number or a quoted string literal (QSP doubles the quote to escape it); undefined for anything else. */
+export function parseLiteral(text: string): string | number | undefined {
+  const part = text.trim();
+  if (/^-?\d+$/.test(part)) return Number(part);
+  const quote = part[0];
+  if ((quote === "'" || quote === '"') && part.length >= 2 && part.endsWith(quote)) {
+    const body = part.slice(1, -1);
+    // every quote inside must be doubled, or the literal is something else (`'a' + 'b'`)
+    if (body.replaceAll(quote + quote, '').includes(quote)) return undefined;
+    return body.replaceAll(quote + quote, quote);
+  }
+  return undefined;
+}
+
+/** Characters that end a name; a name also cannot start with a digit. */
+export const NAME_STOP = String.raw` \t\r\n&'"()\[\]{}=!<>+\-/*\\,:;^@?.`;
+/** A QSP variable name as the engine reads it: optional `$`/`#`/`%` prefix, then any run of non-operator chars. */
+export const QSP_NAME = new RegExp(`^[$#%]?[^${NAME_STOP}\\d][^${NAME_STOP}]*$`, 'u');
 
 export interface QspField {
   /** Upper-cased, quotes removed. */
@@ -137,4 +177,15 @@ export function walkFields(value: QspVariableValue, fields: QspField[]): QspVari
     current = current[at];
   }
   return current;
+}
+
+/**
+ * The type prefix that types the value a path reads: the last field's prefix, else the base name's
+ * (the engine requires them to match, so either one decides).
+ */
+export function effectivePrefix(path: QspPath): QspTypePrefix | undefined {
+  const last = path.fields[path.fields.length - 1]?.prefix;
+  if (last) return last;
+  const first = path.name[0];
+  return PREFIXES.includes(first) ? (first as QspTypePrefix) : undefined;
 }

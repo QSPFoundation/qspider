@@ -42,6 +42,16 @@ export {
   type QspTypePrefix,
 } from './variable-logic';
 export { readHover, type HoverReading } from './debug-hover';
-export { QSP_NAME, hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
-export { formatQspPath, parseQspPath, walkFields, type QspField, type QspPath } from './qsp-path';
+export { hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+export {
+  QSP_NAME,
+  effectivePrefix,
+  formatQspPath,
+  parseLiteral,
+  parseQspPath,
+  splitParts,
+  walkFields,
+  type QspField,
+  type QspPath,
+} from './qsp-path';
 export * from './variables';

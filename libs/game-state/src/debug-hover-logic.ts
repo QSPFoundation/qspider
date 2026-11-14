@@ -1,6 +1,6 @@
 import type { QspTuple, QspVariableKey, QspVariableValue } from '@qsp/wasm-engine';
 import { indexText, showValue } from './debug-watch-logic';
-import { parseQspPath, type QspField } from './qsp-path';
+import { parseQspPath, QSP_NAME, splitParts, parseLiteral, type QspField } from './qsp-path';
 import { formatQspValueTruncated, isTuple, sameValue } from './variable-logic';
 
 /** Most items of an array a hover summary lists. */
@@ -13,47 +13,6 @@ export type HoverPlan =
   | { kind: 'itemByVar'; name: string; indexName: string; fields?: QspField[] }
   | { kind: 'summary'; name: string }
   | { kind: 'none' };
-
-/** Splits `text` at commas outside quotes; null when a quote is left open. */
-export function splitParts(text: string): string[] | null {
-  const parts: string[] = [];
-  let current = '';
-  let quote: string | null = null;
-  for (const ch of text) {
-    if (quote) {
-      if (ch === quote) quote = null; // a doubled quote closes and reopens: both stay in the part
-      current += ch;
-    } else if (ch === ',') {
-      parts.push(current);
-      current = '';
-    } else {
-      if (ch === "'" || ch === '"') quote = ch;
-      current += ch;
-    }
-  }
-  if (quote) return null;
-  parts.push(current);
-  return parts;
-}
-
-/** A number or a quoted string literal (QSP doubles the quote to escape it); undefined for anything else. */
-export function parseLiteral(text: string): string | number | undefined {
-  const part = text.trim();
-  if (/^-?\d+$/.test(part)) return Number(part);
-  const quote = part[0];
-  if ((quote === "'" || quote === '"') && part.length >= 2 && part.endsWith(quote)) {
-    const body = part.slice(1, -1);
-    // every quote inside must be doubled, or the literal is something else (`'a' + 'b'`)
-    if (body.replaceAll(quote + quote, '').includes(quote)) return undefined;
-    return body.replaceAll(quote + quote, quote);
-  }
-  return undefined;
-}
-
-/** Characters that end a name; a name also cannot start with a digit. */
-export const NAME_STOP = String.raw` \t\r\n&'"()\[\]{}=!<>+\-/*\\,:;^@?.`;
-/** A QSP variable name as the engine reads it: optional `$`/`#`/`%` prefix, then any run of non-operator chars. */
-export const QSP_NAME = new RegExp(`^[$#%]?[^${NAME_STOP}\\d][^${NAME_STOP}]*$`, 'u');
 
 /**
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).

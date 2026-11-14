@@ -1,7 +1,6 @@
 import type { QspTuple } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
-import { QSP_NAME } from './debug-hover-logic';
-import { formatQspPath, parseQspPath, walkFields } from './qsp-path';
+import { effectivePrefix, formatQspPath, parseQspPath, QSP_NAME, walkFields } from './qsp-path';
 import { applyTypePrefix } from './variable-logic';
 
 function record(entries: Array<[string, unknown]>): QspTuple {
@@ -110,5 +109,16 @@ describe('QSP_NAME', () => {
 
   it('rejects a leading digit, a dot and a space', () => {
     for (const name of ['1A', 'A.B', 'A B']) expect(QSP_NAME.test(name)).toBe(false);
+  });
+});
+
+describe('effectivePrefix', () => {
+  it('takes the last field prefix, else the base prefix', () => {
+    const prefix = (text: string) => effectivePrefix(parseQspPath(text)!);
+    expect(prefix('$P.NAME')).toBe('$');
+    expect(prefix('P.$NAME')).toBe('$');
+    expect(prefix('$P.$NAME')).toBe('$');
+    expect(prefix('P.NAME')).toBeUndefined();
+    expect(prefix("#P['K'].X")).toBe('#');
   });
 });

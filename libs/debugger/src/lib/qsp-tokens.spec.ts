@@ -32,6 +32,13 @@ describe('hoverTargetAt', () => {
     expect(found?.end).toBe(14);
   });
 
+  it('joins a quoted field split by an escaped quote', () => {
+    for (const word of ["'IT", "S'"]) {
+      expect(hover("A.'IT''S' = 1", word)?.target.fields).toEqual(["'IT''S'"]);
+    }
+    expect(hover("A.'IT''S' = 1", "S'")).toMatchObject({ start: 2, end: 9 });
+  });
+
   it('gives null for tokens that are not variables', () => {
     expect(hover('[NAME: 1]', 'NAME')).toBeNull();
     expect(hover(':LABEL1', 'LABEL1')).toBeNull();
