@@ -37,11 +37,16 @@ export function settleRun(run: ActionRun, record: DebugRecord, locationLines: st
   return { ...run, loc: record.loc, origin: actionOrigin(run.lines, locationLines) };
 }
 
+/** Whether a step runs lines of the saved action code: its lines equal the saved ones from its line number on. */
+export function isActionStep(record: DebugRecord, actionLines: string[]): boolean {
+  if (record.line < 1) return false;
+  const lines = codeLinesOf(record.code).map((line) => line.trim());
+  const saved = actionLines.slice(record.line - 1, record.line - 1 + lines.length).map((line) => line.trim());
+  return saved.length === lines.length && lines.every((line, i) => line === saved[i]);
+}
+
 /** Where a step of the run belongs: only a detached run's own code is the action; its other steps are code. */
 export function placeStep(record: DebugRecord, run: ActionRun | null): StepPlace {
   if (!run || run.origin !== 'detached' || record.actIndex >= 0 || record.loc !== run.loc) return 'location';
-  const lines = codeLinesOf(record.code).map((line) => line.trim());
-  const saved = run.lines.slice(record.line - 1, record.line - 1 + lines.length).map((line) => line.trim());
-  const same = saved.length === lines.length && lines.every((line, i) => line === saved[i]);
-  return same ? 'action' : 'code';
+  return isActionStep(record, run.lines) ? 'action' : 'code';
 }

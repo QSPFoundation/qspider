@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { actionOrigin, codeLinesOf, placeStep, settleRun } from './action-run';
+import { actionOrigin, codeLinesOf, isActionStep, placeStep, settleRun } from './action-run';
 import type { DebugRecord } from './debug';
 
 const record = (over: Partial<DebugRecord> = {}): DebugRecord => ({
@@ -38,6 +38,25 @@ describe('actionOrigin', () => {
   });
   it('is placed for an action with no code', () => {
     expect(actionOrigin([], ['X = 1'])).toBe('placed');
+  });
+});
+
+describe('isActionStep', () => {
+  const lines = ['', 'A = 1', '  B = 2', 'C = 3'];
+  it('matches a line of the saved action at its number', () => {
+    expect(isActionStep(record({ code: 'A = 1', line: 2 }), lines)).toBe(true);
+  });
+  it('matches several lines, trimmed', () => {
+    expect(isActionStep(record({ code: 'B = 2\r\n  C = 3', line: 3 }), lines)).toBe(true);
+  });
+  it('does not match other code at that number', () => {
+    expect(isActionStep(record({ code: 'A = 2', line: 2 }), lines)).toBe(false);
+  });
+  it('does not match past the saved lines', () => {
+    expect(isActionStep(record({ code: 'C = 3\nD = 4', line: 4 }), lines)).toBe(false);
+  });
+  it('is false for line 0', () => {
+    expect(isActionStep(record({ code: '', line: 0 }), [''])).toBe(false);
   });
 });
 

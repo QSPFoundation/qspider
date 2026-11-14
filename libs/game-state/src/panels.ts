@@ -35,13 +35,14 @@ export function execSelectedAction(): Promise<void> | undefined {
   const selected = selectedAction$.value;
   selectedAction$.set(NO_ACTION);
   if (!api) return undefined;
-  const index = selected !== NO_ACTION ? selected : api.getSelectedActionIndex();
-  const following = index >= 0 && isDebugPanelOpen$.value && isDebugEnabled$.value;
-  if (following) {
-    debugActions.beginActionRun(index, actions$.value[index]?.name ?? '', placeCodeLines(api.getActionCode(index)));
-  }
-  const run = api.execSelectedAction();
-  return following ? run.finally(() => debugActions.endActionRun()) : run;
+  const debugging = isDebugPanelOpen$.value && isDebugEnabled$.value;
+  const index = !debugging ? NO_ACTION : selected !== NO_ACTION ? selected : api.getSelectedActionIndex();
+  const run =
+    index >= 0
+      ? debugActions.beginActionRun(index, actions$.value[index]?.name ?? '', placeCodeLines(api.getActionCode(index)))
+      : null;
+  const done = api.execSelectedAction();
+  return run ? done.finally(() => debugActions.endActionRun(run)) : done;
 }
 /** Picks the action and runs it, as a key for it does; the game's `$ONACTSEL` code finishes first. */
 export async function runAction(index: number): Promise<void> {

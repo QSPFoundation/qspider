@@ -1,7 +1,7 @@
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-engine';
 import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
-import { placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
+import { isActionStep, placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
 import { placeCodeLines } from './code-search';
 
 export interface DebugRecord {
@@ -256,8 +256,9 @@ export const debugActions = {
       executeResume();
       return;
     }
+    // A run settles on its own first step: steps before it (`$ONACTSEL` of an unawaited select) are not its code.
     const run = debugState$.value.actionRun;
-    if (run && !run.origin) {
+    if (run && !run.origin && isActionStep(record, run.lines)) {
       const settled = settleRun(run, record, locationLines(record.loc));
       debugState$.update((s) => ({ ...s, actionRun: settled }));
     }
@@ -330,13 +331,21 @@ export const debugActions = {
     debugState$.update((state) => ({ ...state, codeView: { kind: 'current-action', index } }));
   },
 
-  /** Starts following a current action; only while the panel is open and debug mode is on. */
-  beginActionRun: (index: number, name: string, lines: string[]): void => {
-    if (!isDebugPanelOpen$.value || !debugState$.value.isEnabled) return;
-    debugState$.update((state) => ({ ...state, actionRun: { index, name, lines, loc: null, origin: null } }));
+  /**
+   * Starts following a current action; only while the panel is open, debug mode is on and no run is in flight
+   * (one started during a pause of another keeps the outer run). Returns the stored run, or null when none started.
+   */
+  beginActionRun: (index: number, name: string, lines: string[]): ActionRun | null => {
+    const state = debugState$.value;
+    if (!isDebugPanelOpen$.value || !state.isEnabled || state.actionRun) return null;
+    const run: ActionRun = { index, name, lines, loc: null, origin: null };
+    debugState$.update((s) => ({ ...s, actionRun: run }));
+    return run;
   },
 
-  endActionRun: (): void => {
+  /** Ends the given run; a run that is no longer the current one leaves the state alone. */
+  endActionRun: (run: ActionRun): void => {
+    if (debugState$.value.actionRun !== run) return;
     debugState$.update((state) => ({ ...state, actionRun: null, stepPlace: 'location' }));
   },
 
