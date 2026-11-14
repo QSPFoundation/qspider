@@ -1,6 +1,7 @@
 import { Question, type Answerable, Task } from '@serenity-js/core';
 import { equals, includes } from '@serenity-js/assertions';
 import { Attribute, type PageElement, Text } from '@serenity-js/web';
+import { waitUntilAbsent } from '../../support/presence';
 import { seeEventually } from '../../support/see-eventually';
 import {
   CurrentLineOverlay,
@@ -59,6 +60,13 @@ export const SeeCurrentLineText = (text: string): Task =>
     equals(text),
     `#actor sees the current line read ${text}`,
   );
+
+/**
+ * No line carries the current-line decoration. An absence check: it passes as soon as none shows, so anchor it after
+ * a check that the editor shows the code in question.
+ */
+export const SeeNoCurrentLine = (): Task =>
+  Task.where('#actor sees no current line in the editor', waitUntilAbsent(CurrentLineOverlay));
 
 /** The title above the editor reads `text`. */
 export const SeeEditorTitle = (text: string): Task =>

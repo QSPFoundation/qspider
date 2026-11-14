@@ -84,8 +84,14 @@ export const CodeViewer: React.FC = () => {
 
   const { codeView, actionRun, currentRecord, stepPlace } = debugState;
   const viewedActionIndex = codeView.kind === 'current-action' ? codeView.index : null;
-  // The run that the viewed action is: its saved code survives a `cla` or a changed list.
-  const viewedRun = viewedActionIndex !== null && actionRun?.index === viewedActionIndex ? actionRun : null;
+  // The run that the viewed action is: its saved code survives a `cla`. A list changed under it shows its entry by
+  // name: another action at the run's index is not the run.
+  const viewedRun =
+    viewedActionIndex !== null &&
+    actionRun?.index === viewedActionIndex &&
+    (viewedActionIndex >= actions.length || actions[viewedActionIndex]?.name === actionRun.name)
+      ? actionRun
+      : null;
   // Read only when no run saved it; an index past the list (it changed since) has no code.
   const liveActionLines = useMemo(
     () =>

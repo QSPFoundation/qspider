@@ -197,6 +197,7 @@ export function stopCurrentGame(): void {
   debugActions.clearEventLog();
   debugActions.clearAllBreakpoints();
   debugActions.selectLocation(null);
+  debugActions.resetActionRun();
 
   windowManager.setTitle('qSpider');
   windowManager.setIcon(initialBaseUrl$.value, 'favicon.ico');

@@ -28,8 +28,17 @@ describe('actionOrigin', () => {
   it('is placed for an inline act (code after the colon, leading space)', () => {
     expect(actionOrigin(['', " PL 'x'"], ['X = 1', "ACT 'x': PL 'x'"])).toBe('placed');
   });
-  it('is detached when one line differs even if another coincides', () => {
-    expect(actionOrigin([` GT "room"`, 'Y = 2'], [`$D = 'act "go": GT "room"'`, 'DYNAMIC $D'])).toBe('detached');
+  it('is placed for a multi-line act', () => {
+    expect(actionOrigin(['', '', 'X = 1', 'Y = 2'], ['ACT1', "ACT 'x':", '  X = 1', '  Y = 2'])).toBe('placed');
+  });
+  it('is detached for a one-line dynamic action whose text a location line holds', () => {
+    expect(actionOrigin([' GT "ROOM"'], [`$E = 'ACT "UP": GT "ROOM"'`, 'DYNAMIC $E'])).toBe('detached');
+  });
+  it('is detached for a bare string one-liner a location line holds', () => {
+    expect(actionOrigin([" 'You see a room.'"], [`$d = "act 'look': 'You see a room.'"`])).toBe('detached');
+  });
+  it('is detached for a dynamic block on the same line', () => {
+    expect(actionOrigin([' PL 1'], ["DYNAMIC { act 'x': pl 1 }"])).toBe('detached');
   });
   it('compares a multi-line statement line by line', () => {
     const lines = ['', "$NOTE = 'two", "lines'"];
@@ -84,6 +93,15 @@ describe('settleRun', () => {
       loc: 'other',
       origin: 'placed',
       locationLines: ['GS 1', 'Z = 3'],
+    });
+  });
+  it('settles a base action as placed, whatever its lines', () => {
+    const run = { index: 0, name: 'a', lines: ['X = 1'], loc: null, origin: null, locationLines: null };
+    expect(settleRun(run, record({ loc: 'start', line: 1, code: 'X = 1', actIndex: 0 }), ['OTHER'])).toEqual({
+      ...run,
+      loc: 'start',
+      origin: 'placed',
+      locationLines: ['OTHER'],
     });
   });
   it('keeps a settled run', () => {

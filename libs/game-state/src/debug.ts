@@ -243,31 +243,38 @@ export const debugActions = {
   },
 
   setCurrentRecord: (record: DebugRecord, resume: () => void): void => {
-    debugState$.update((state) => ({
-      ...state,
-      currentRecord: record,
-      executionHistory: [...state.executionHistory.slice(-99), record],
-    }));
-
     debugResumeFunction$.set(() => {
       releaseWatchStop();
       resume();
     });
 
+    // `stepPlace` describes `currentRecord`: both are set in one update, so a view never pairs a record with the
+    // place of another.
+    const showRecord = (place: StepPlace, update: (state: DebugState) => Partial<DebugState> = () => ({})): void =>
+      debugState$.update((state) => ({
+        ...state,
+        currentRecord: record,
+        executionHistory: [...state.executionHistory.slice(-99), record],
+        stepPlace: place,
+        ...update(state),
+      }));
+
     // While the panel is closed nothing pauses and nothing is read.
     if (!isDebugPanelOpen$.value) {
+      showRecord(placeStep(record, debugState$.value.actionRun));
       executeResume();
       return;
     }
     // A run settles on its own first step: steps before it (`$ONACTSEL` of an unawaited select) are not its code.
+    // A base action's steps (with an action index) are its own.
     const run = debugState$.value.actionRun;
-    if (run && !run.origin && isActionStep(record, run.lines)) {
+    if (run && !run.origin && (record.actIndex >= 0 || isActionStep(record, run.lines))) {
       const settled = settleRun(run, record, locationLines(record.loc));
       debugState$.update((s) => ({ ...s, actionRun: settled }));
     }
     const actionRun = debugState$.value.actionRun;
     const place = placeStep(record, actionRun);
-    debugState$.update((s) => ({ ...s, stepPlace: place, codeView: codeViewOf(place, actionRun, s.codeView) }));
+    showRecord(place, (s) => ({ codeView: codeViewOf(place, actionRun, s.codeView) }));
 
     const pauseOnChange = snapshotAtStop(record);
     const state = debugState$.value;
@@ -296,6 +303,7 @@ export const debugActions = {
       ...state,
       currentRecord: linkRecord,
       executionHistory: [...state.executionHistory.slice(-99), linkRecord],
+      stepPlace: 'location',
       isPaused: true,
     }));
 
@@ -351,7 +359,19 @@ export const debugActions = {
   endActionRun: (run: ActionRun): void => {
     if (startedRun !== run) return;
     startedRun = null;
-    debugState$.update((state) => ({ ...state, actionRun: null, stepPlace: 'location' }));
+    // `stepPlace` stays: it describes `currentRecord`, which the run's end leaves as it is.
+    debugState$.update((state) => ({ ...state, actionRun: null }));
+  },
+
+  /** Forgets any run: a closed game never ends the run its retired engine left waiting (a msg, a menu, a pause). */
+  resetActionRun: (): void => {
+    startedRun = null;
+    debugState$.update((state) => ({
+      ...state,
+      actionRun: null,
+      stepPlace: 'location',
+      codeView: { kind: 'location' },
+    }));
   },
 
   addBreakpoint: (breakpoint: Omit<DebugBreakpoint, 'id'>): void => {

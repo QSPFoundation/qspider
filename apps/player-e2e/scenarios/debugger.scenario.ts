@@ -18,6 +18,7 @@ import {
 } from '../screenplay/debugger/checks';
 import {
   SeeCurrentLineText,
+  SeeNoCurrentLine,
   SeeEditorCode,
   SeeEditorTitle,
   SeeHoverText,
@@ -588,6 +589,25 @@ scenario('stepping in a dynamic action follows into its code past a cla and a mu
     SeeCurrentLineText(ACTS.detached.last.code),
     ResumeDebugger(),
     SeeMainTextContaining(ACTS.detached.done),
+  );
+});
+
+scenario('after a dynamic action ends its last line is not shown as a line of the location', async (player) => {
+  await player.attemptsTo(
+    ...InActs(),
+    OpenDebugger(),
+    EnableDebugging(),
+    ToggleLocationBreakpoint(LOCATION.acts),
+    ClickAction(ACTS.detached.name),
+    SeeDebugStatus('paused'),
+    SeeExecutionInCurrentAction(ACTS.detached.name, ACTS.detached.first.line),
+    ToggleLocationBreakpoint(LOCATION.acts), // off: it would pause on every step left
+    ResumeDebugger(),
+    SeeMainTextContaining(ACTS.detached.done),
+    SelectLocation(LOCATION.acts),
+    SeeEditorTitle(`Location: ${LOCATION.acts}`),
+    SeeEditorCode(ACTS.startLine.code),
+    SeeNoCurrentLine(),
   );
 });
 

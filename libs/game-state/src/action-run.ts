@@ -24,19 +24,31 @@ export function codeLinesOf(code: string): string[] {
   return code.split(/\r?\n/);
 }
 
-/** Placed when every non-empty action line is contained in the location line of the same number. */
+/**
+ * Whether an action line is the location line of the same number: the same text, or the code of an inline act
+ * (`ACT 'x': PL 1` gives the action line ` PL 1`, as is). Containment alone would let a dynamic action's text that
+ * a location line happens to hold (a string literal) pass for placed.
+ */
+function isPlacedLine(actionLine: string, locationLine: string): boolean {
+  const text = actionLine.trim();
+  if (text === '') return true;
+  return locationLine.trim() === text || locationLine.trimEnd().endsWith(':' + actionLine);
+}
+
+/** Placed when every non-empty action line is the location line of the same number (see `isPlacedLine`). */
 export function actionOrigin(actionLines: string[], locationLines: string[]): ActionOrigin {
-  const placed = actionLines.every((line, i) => {
-    const text = line.trim();
-    return text === '' || (locationLines[i] ?? '').includes(text);
-  });
+  const placed = actionLines.every((line, i) => isPlacedLine(line, locationLines[i] ?? ''));
   return placed ? 'placed' : 'detached';
 }
 
-/** Fixes the location, its lines and the origin of a run at its first step; a settled run is returned as is. */
+/**
+ * Fixes the location, its lines and the origin of a run at its first step; a settled run is returned as is. A base
+ * action (a step with an action index) is placed: its steps are numbered in its own code, not in a location's.
+ */
 export function settleRun(run: ActionRun, record: DebugRecord, locationLines: string[]): ActionRun {
   if (run.origin) return run;
-  return { ...run, loc: record.loc, origin: actionOrigin(run.lines, locationLines), locationLines };
+  const origin = record.actIndex >= 0 ? 'placed' : actionOrigin(run.lines, locationLines);
+  return { ...run, loc: record.loc, origin, locationLines };
 }
 
 /** Whether a step runs lines of the saved action code: its lines equal the saved ones from its line number on. */
@@ -49,7 +61,7 @@ export function isActionStep(record: DebugRecord, actionLines: string[]): boolea
 
 /**
  * Whether a step runs lines of the location: the entry step (line 0), or each of its lines is contained in the
- * location line of the same number, as `actionOrigin` compares.
+ * location line of the same number (a statement after an inline act's colon is part of its line).
  */
 export function isLocationStep(record: DebugRecord, locationLines: string[]): boolean {
   if (record.line === 0) return true;
