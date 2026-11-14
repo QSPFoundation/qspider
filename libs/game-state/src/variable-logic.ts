@@ -67,3 +67,13 @@ function formatTupleItem(v: QspVariableValue, maxItems: number): string {
 export function nextRefCount(count: number, delta: 1 | -1): number {
   return Math.max(0, count + delta);
 }
+
+export type QspTypePrefix = '$' | '#' | '%';
+
+/** What the engine wrapper does with a type prefix: a value of another type reads as `''` / `0` / `[]`. */
+export function applyTypePrefix(prefix: QspTypePrefix | undefined, value: QspVariableValue): QspVariableValue {
+  if (!prefix) return value;
+  const own = typeof value === 'string' ? '$' : typeof value === 'number' ? '#' : isTuple(value) ? '%' : undefined;
+  if (prefix === own) return value;
+  return prefix === '$' ? '' : prefix === '#' ? 0 : [];
+}

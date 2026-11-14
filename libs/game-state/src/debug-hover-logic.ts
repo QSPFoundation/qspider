@@ -14,7 +14,7 @@ export type HoverPlan =
   | { kind: 'none' };
 
 /** Splits `text` at commas outside quotes; null when a quote is left open. */
-function splitParts(text: string): string[] | null {
+export function splitParts(text: string): string[] | null {
   const parts: string[] = [];
   let current = '';
   let quote: string | null = null;
@@ -36,7 +36,7 @@ function splitParts(text: string): string[] | null {
 }
 
 /** A number or a quoted string literal (QSP doubles the quote to escape it); undefined for anything else. */
-function parseLiteral(text: string): string | number | undefined {
+export function parseLiteral(text: string): string | number | undefined {
   const part = text.trim();
   if (/^-?\d+$/.test(part)) return Number(part);
   const quote = part[0];
@@ -49,7 +49,10 @@ function parseLiteral(text: string): string | number | undefined {
   return undefined;
 }
 
-const PLAIN_NAME = /^[$#%]?[A-Za-z_]\w*$/;
+/** Characters that end a name; a name also cannot start with a digit. */
+export const NAME_STOP = String.raw` \t\r\n&'"()\[\]{}=!<>+\-/*\\,:;^@?.`;
+/** A QSP variable name as the engine reads it: optional `$`/`#`/`%` prefix, then any run of non-operator chars. */
+export const QSP_NAME = new RegExp(`^[$#%]?[^${NAME_STOP}\\d][^${NAME_STOP}]*$`, 'u');
 
 /**
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).
@@ -74,7 +77,7 @@ export function hoverReadPlan(
     return { kind: 'item', name, key };
   }
   const single = parts.length === 1 ? parts[0].trim() : '';
-  if (PLAIN_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single };
+  if (QSP_NAME.test(single) && !isKeyword(single)) return { kind: 'itemByVar', name, indexName: single };
   return summary;
 }
 

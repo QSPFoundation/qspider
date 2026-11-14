@@ -34,7 +34,14 @@ export {
   type LocationMatches,
   type LocationReader,
 } from './code-search';
-export { formatQspValue, formatQspValueTruncated, scalarOrUnset } from './variable-logic';
+export {
+  applyTypePrefix,
+  formatQspValue,
+  formatQspValueTruncated,
+  scalarOrUnset,
+  type QspTypePrefix,
+} from './variable-logic';
 export { readHover, type HoverReading } from './debug-hover';
-export { hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+export { QSP_NAME, hoverCodeBlock, hoverReadPlan, type HoverPlan } from './debug-hover-logic';
+export { formatQspPath, parseQspPath, walkFields, type QspField, type QspPath } from './qsp-path';
 export * from './variables';
