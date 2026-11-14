@@ -16,12 +16,12 @@ wrong in places and knows nothing about the 5.9 additions (fields, records, `?`,
 its tokens, so hover inherits every mistake.
 
 This is step 1 of three. Step 2 is current (runtime) actions in the Actions tab; step 3 is navigation (go to a
-location, find where a variable is set). Each gets its own design. Step 3 will reuse this step's lexer.
+location, find where a variable is set). Each gets its own design. Step 3 will reuse this step's tokenizer.
 
 ## Decisions (maintainer's)
 
 1. **Approach A:** a rewritten token-based highlighter. No parser, no vendored grammar.
-2. **Hover inside `<<…>>` is in** (it was deferred in #214; the lexer change makes it cheap). That covers `<<…>>` in
+2. **Hover inside `<<…>>` is in** (it was deferred in #214; the tokenizer change makes it cheap). That covers `<<…>>` in
    strings anywhere, including strings inside `{…}` code blocks.
 3. **The Description tab gets `<<…>>` highlighting and hover.**
 4. **The Actions tab picker shows each base action's name** instead of "Action N".
@@ -29,6 +29,9 @@ location, find where a variable is set). Each gets its own design. Step 3 will r
 6. **Watch entries can be items and field paths with literal indices,** string keys included: `A[1]`, `A['k']`,
    `A[1, 'x']`, `A.B.C`, `A['k'].B`. Pin on an item hover pins that item (a change from #214, where it pinned the
    whole array).
+7. **Monarch stays the tokenizer** (Monaco's own engine, already in use): no hand-written lexer, no new dependency.
+   The `debugger` unit tests move to Vitest browser mode so they can run the real Monarch tokenizer through
+   `monaco.editor.tokenize`.
 
 ## Approaches considered
 
@@ -65,7 +68,7 @@ location, find where a variable is set). Each gets its own design. Step 3 will r
   `ELSE IF`, `ADD OBJ` / `DEL OBJ` / `DEL ACT` / `MOD OBJ` / `CLOSE ALL`, `ALIAS y = 'x'`, `INSVAR`, `MOVEARR`,
   `ARRKEY`, `EXEC`, `@@loc`, Cyrillic names, multi-line strings with doubled-quote escapes.
 - **Upstream master and the bundled engine agree** on every name checked, including MOVEARR (the newest statement,
-  2026-11-09). The lexer takes its lists from master; tests check them against the bundled engine.
+  2026-11-09). The tokenizer takes its lists from master; tests check them against the bundled engine.
 - **Case:** string keys and quoted field names are case-insensitive (`$a['k']` reads as `$a['K']`); field names are
   stored upper-cased, quoted ones too (`r.'some Field'` → `SOME FIELD`). Upper-casing watch entries stays correct.
 - **Function and operator names can be variables.** `mid = 1`, `and = 1`, `while = 1`, `obj = 1` each create a
@@ -73,7 +76,7 @@ location, find where a variable is set). Each gets its own design. Step 3 will r
 
 ## Goals
 
-### Lexer and highlighting
+### Tokenizer and highlighting
 
 Rules follow the engine (upstream source is the reference):
 
@@ -120,7 +123,7 @@ Everything #214 does keeps working. New:
 - **Pin** pins exactly what the hover shows when every index on the way is a literal: a field path (`A.B.C`), an
   item (`A[1]`, `A['k']`, `A[1, 'x']`) or both (`A['k'].B`). When an index is a variable or an expression
   (`$a[i]`, `a[i].b`), Pin pins the whole base variable, as today.
-- **Indices named by a variable** (`$a[i]`) accept any name the lexer accepts (today only ASCII).
+- **Indices named by a variable** (`$a[i]`) accept any name the tokenizer accepts (today only ASCII).
 
 ### Watch list
 
@@ -163,25 +166,24 @@ Everything #214 does keeps working. New:
 
 ## Calls made (Claude's, for the maintainer to check)
 
-- **Own lexer instead of Monarch.** A pure TypeScript lexer with a line-to-line state, wired into Monaco through
-  `setTokensProvider`. Reason: Monarch definitions run only inside Monaco, which the node-environment unit tests
-  of `libs/debugger` can't load, so the rules would be testable only through E2E. A pure lexer gets full unit
-  tests, and hover (and later step 3) uses the same tokens. Still approach A: tokens, no parse tree.
-  Monaco supports this directly (0.55.1): `languages.setTokensProvider(id, { getInitialState, tokenize(line,
-state) })`, with an `IState` (`clone`, `equals`) carried from line to line. Hover stops calling
-  `monaco.editor.tokenize` on a single line and runs the lexer from the start of the model, so it knows when the
-  cursor is inside a multi-line string or a `<<…>>`.
+- **Hover tokenizes from the top.** It stops calling `monaco.editor.tokenize` on the hovered line alone and
+  tokenizes the model's text up to that line (`monaco.editor.tokenize(text, 'qsp')` carries Monarch state across
+  lines), so it knows when the cursor is inside a multi-line string or a `<<…>>`. One shared helper does this, for
+  hover now and search in step 3.
+- **Browser-mode tests for `libs/debugger`,** like `html-renderer`, `renderer` and `desktop`: Chromium is needed
+  for `pnpm nx test debugger` from then on (CLAUDE.md's test note gets updated).
 - **The bundled engine defines the language,** not the QSP version a game was written for. Old games run on the
   same engine.
 - **A variable index pins the base.** Watching `A[I].B` with `I` re-read at each stop was considered and left out.
 - **`&` inside brackets:** a statement start is tracked by bracket depth on the current line, like the engine.
-- **Description `<<…>>`** reuses the expression lexer inside an HTML tokenizer; the builder picks how (extending
-  Monaco's HTML Monarch definition with an embedded language, or a wrapper provider).
+- **Description `<<…>>`** reuses the QSP expression rules inside HTML: Monaco's HTML Monarch definition extended
+  so `<<` enters QSP expression states until `>>` (Monarch's `nextEmbedded`, or the HTML rules copied into a
+  `qsp-description` language); the builder picks which.
 
 ## Left to the builder
 
 - Token type names and theme colours (keep the current look where a token kind exists today).
-- Where the lexer lives (`libs/debugger` or a shared lib, so step 3 can reuse it) and the shape of its API.
+- The shape of the shared tokenize helper and how the Monarch states are organized.
 - How hover extracts the path from tokens; how the watch-path reader is split into pure and engine parts.
 - Exact fixture content. It needs at least: a Cyrillic name, a field path with index and quoted field, a record
   literal, a prefixed function, the two-word statements, `!` as not-equal and as a mid-line comment after `&`,
@@ -190,8 +192,9 @@ state) })`, with an `IState` (`clone`, `equals`) carried from line to line. Hove
 
 ## Testing
 
-- **Unit (pure):** the lexer (every rule above, the normalized engine spelling, broken-code recovery, line-to-line
-  state), path extraction for hover, field walking, line placement of code entries, action labels.
+- **Unit (Vitest browser mode):** the Monarch tokenizer through `monaco.editor.tokenize` (every rule above, the
+  normalized engine spelling, broken-code recovery, state across lines).
+- **Unit (pure):** path extraction for hover, field walking, line placement of code entries, action labels.
 - **E2E (debugger scenarios, both web and desktop as today):** hover on a Cyrillic name, on each segment of a field
   path, inside `<<…>>` in code and in the Description tab, on a prefixed function (no variable hover); pin and watch
   a field path and an item with a string key, including a change notice; type a path into the watch input; current-line highlight and a breakpoint on the line after a continuation
