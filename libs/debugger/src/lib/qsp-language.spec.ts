@@ -346,6 +346,27 @@ describe('qsp tokenizer', () => {
       expect(code.some((token) => token.type.startsWith('identifier'))).toBe(false);
     });
 
+    it('does not hover a name in a script', () => {
+      const text = '<script>var gold = 1;</script>';
+      const model = monaco.editor.createModel(text, 'qsp-description');
+      try {
+        expect(hoverTargetAt(text, qspLineTokens(model, 1, 'qsp-description'), text.indexOf('gold'))).toBeNull();
+      } finally {
+        model.dispose();
+      }
+      // The bundle has no JavaScript tokenizer; with one, a script's names are tagged `identifier.js`.
+      const scriptTokens = [
+        { offset: 0, type: 'delimiter.html' },
+        { offset: 1, type: 'tag.html' },
+        { offset: 7, type: 'delimiter.html' },
+        { offset: 8, type: 'keyword.js' },
+        { offset: 11, type: '' },
+        { offset: 12, type: 'identifier.js' },
+        { offset: 16, type: '' },
+      ];
+      expect(hoverTargetAt(text, scriptTokens, text.indexOf('gold'))).toBeNull();
+    });
+
     it('hovers a name inside <<…>>', () => {
       const text = '<b>Gold: <<GOLD>></b>';
       const model = monaco.editor.createModel(text, 'qsp-description');

@@ -63,8 +63,11 @@ function bracketText(line: string, from: number): string | undefined {
   return line.slice(from + 1);
 }
 
-/** Monaco appends the language id to a token type (`identifier.qsp`). */
-const kind = (token: LineToken | undefined): string => token?.type.replace(/\.[a-z-]+$/, '') ?? '';
+/**
+ * A QSP token's type without the language id Monaco appends (`identifier.qsp` → `identifier`). A token of another
+ * language (HTML around a description's `<<…>>`, a script inside it) has no QSP kind: ''.
+ */
+const kind = (token: LineToken | undefined): string => /^(.*)\.qsp(?:-expr)?$/.exec(token?.type ?? '')?.[1] ?? '';
 
 /**
  * The path segment under `column` (0-based; the caret just after a word counts) and what lies left of it: the
