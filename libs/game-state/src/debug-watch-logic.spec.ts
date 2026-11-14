@@ -8,6 +8,7 @@ import {
   indexText,
   itemWindow,
   parseWatchList,
+  pathWatchSize,
   removeWatch,
   serializeWatchList,
   showValue,
@@ -240,5 +241,22 @@ describe('showValue', () => {
 describe('indexText', () => {
   it('prints a long tuple key in full', () => {
     expect(indexText(tuple([1, 2, 3, 4, 5, 6, 7]), 0)).toBe('1, 2, 3, 4, 5, 6, 7');
+  });
+});
+
+describe('pathWatchSize', () => {
+  it('is 0 for a missing prefixed field, whose typed value is empty', () => {
+    expect(pathWatchSize(true, '', undefined)).toBe(0);
+  });
+
+  it('is 1 for a field that is set, empty or not', () => {
+    expect(pathWatchSize(true, '', '')).toBe(1);
+    expect(pathWatchSize(true, 'x', 'x')).toBe(1);
+  });
+
+  it('follows the value for an item without fields', () => {
+    expect(pathWatchSize(false, undefined, undefined)).toBe(0);
+    expect(pathWatchSize(false, '', undefined)).toBe(1);
+    expect(pathWatchSize(false, 5, undefined)).toBe(1);
   });
 });

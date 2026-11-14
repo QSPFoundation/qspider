@@ -19,6 +19,7 @@ import {
   WATCH_ITEM_CAP,
   watchKey,
   type WatchValue,
+  pathWatchSize,
 } from './debug-watch-logic';
 
 /** Where a debug stop is: the part of a debug record the change notice names. */
@@ -102,8 +103,8 @@ let stopHeld = false;
 function readWatchValue(api: QspAPI, key: string): WatchValue {
   const path = parseQspPath(key);
   if (path && (path.index !== undefined || path.fields.length > 0)) {
-    const { value } = readPath(api, path);
-    return { value, size: value === undefined ? 0 : 1, items: [] };
+    const { value, stored } = readPath(api, path);
+    return { value, size: pathWatchSize(path.fields.length > 0, value, stored), items: [] };
   }
   return readVariableValue(api, key);
 }

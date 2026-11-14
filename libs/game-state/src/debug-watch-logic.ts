@@ -52,6 +52,14 @@ export interface WatchValue {
   items: Array<{ key: string | QspTuple | undefined; value: QspVariableValue }>;
 }
 
+/**
+ * The item count a path watch reads. With fields the path's end exists only when something is stored there (`stored`):
+ * the prefixed `value` of a missing field is '' and would pass for a set one. Without fields it is the value itself.
+ */
+export function pathWatchSize(hasFields: boolean, value: QspVariableValue, stored: QspVariableValue): number {
+  return (hasFields ? stored : value) === undefined ? 0 : 1;
+}
+
 /** How many items of an array of `size` items to read. */
 export function itemWindow(size: number, max: number): number {
   return Math.max(0, Math.min(size, max));
