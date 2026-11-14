@@ -16,10 +16,11 @@ export type HoverPlan =
 
 /**
  * What to read for the hovered `token`, given the raw text between the brackets after it (undefined: none).
- * A literal index or key reads that item, a single plain name is read first and then used as the index, and any
- * other expression falls back to the array summary: evaluating it would run code. Keywords read nothing.
- * `fieldTexts` are the `.field` parts as written; a field that cannot be read statically (a quoted name with `<<`)
- * reads nothing, and fields after an index that is an expression are ignored (the summary of the base).
+ * The token is a variable: the caller's tokenizer decides that (`MID = 1` assigns a variable named like a function).
+ * A literal index or key reads that item, a single plain name that is not a keyword is read first and then used as
+ * the index, and any other expression falls back to the array summary: evaluating it would run code. `fieldTexts` are the `.field` parts as written; a field that cannot be read
+ * statically (a quoted name with `<<`) reads nothing, and fields after an index that is an expression are ignored
+ * (the summary of the base).
  */
 export function hoverReadPlan(
   token: string,
@@ -27,7 +28,6 @@ export function hoverReadPlan(
   isKeyword: (word: string) => boolean,
   fieldTexts: string[] = [],
 ): HoverPlan {
-  if (isKeyword(token)) return { kind: 'none' };
   const name = token;
   let fields: QspField[] | undefined;
   if (fieldTexts.length > 0) {

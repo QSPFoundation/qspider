@@ -51,9 +51,14 @@ describe('hoverReadPlan', () => {
     for (const name of ['GOLD', '$WHO', '#U', '%REC']) expect(plan(name)).toEqual({ kind: 'value', name });
   });
 
-  it('gives none for a keyword', () => {
-    expect(plan('IF')).toEqual({ kind: 'none' });
-    expect(plan('pl', '1')).toEqual({ kind: 'none' });
+  it('reads a name that is also a keyword: the token kind decides, not the word', () => {
+    // `MID = 1`, `SET = 1`: the tokenizer marks an assigned name a variable; only those reach the plan
+    expect(plan('IF')).toEqual({ kind: 'value', name: 'IF' });
+    expect(plan('pl', '1')).toEqual({ kind: 'item', name: 'pl', key: 1 });
+  });
+
+  it('does not read a keyword index as a variable', () => {
+    expect(plan('$A', 'set')).toEqual({ kind: 'summary', name: '$A' });
   });
 
   it('keeps a prefixed word that looks like a keyword', () => {
