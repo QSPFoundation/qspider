@@ -266,6 +266,21 @@ describe('qsp tokenizer', () => {
       expect(set).toContainEqual({ text: '$Y', type: 'variable' });
     });
 
+    it('reads an optional colon after ELSE, not a label', () => {
+      const single = line('IF A: X = 1 ELSE: X = 2');
+      expect(typeOf(single, 'X', 1)).toBe('identifier');
+      expect(typeOf(single, '=', 1)).toBe('operator');
+      expect(single.some((token) => token.type === 'label')).toBe(false);
+      expect(typeOf(line('IF A: X = 1 ELSE : X = 2'), 'X', 1)).toBe('identifier');
+      const multi = tokens('IF A:\r\nX = 1\r\nELSE:\r\n! note\r\nEND');
+      expect(multi[2]).toEqual([
+        { text: 'ELSE', type: 'keyword' },
+        { text: ':', type: 'delimiter' },
+      ]);
+      expect(multi[3]).toEqual([{ text: '! note', type: 'comment' }]);
+      expect(line('ELSE: ! note')).toContainEqual({ text: '! note', type: 'comment' });
+    });
+
     it('reads a label at any statement start', () => {
       expect(line('X = 1 & :LBL')).toContainEqual({ text: 'LBL', type: 'label' });
     });

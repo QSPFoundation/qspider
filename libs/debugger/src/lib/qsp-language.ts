@@ -200,6 +200,8 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
         },
       ],
       [new RegExp(STARRED), { token: 'keyword', ...toExpression }],
+      // `ELSE` may take a `:` (`ELSE: X = 2`); the statement after it is not a label.
+      [/(else)(\s*)(:)/, ['keyword', '', 'delimiter']],
       [new RegExp(`(?:else|set|let|local)${WORD_END}`), 'keyword'],
       [new RegExp(`[$#%]${NAME}${ASSIGNED}`), { token: 'variable', ...toExpression }],
       [
@@ -241,6 +243,7 @@ function statementStates(start: string, expression: string, inBlock: boolean): R
       [/:/, { token: 'delimiter', ...toStart }],
       ...closeBlock,
       [new RegExp(`else\\s+if${WORD_END}`), 'keyword'],
+      [/(else)(\s*)(:)/, ['keyword', '', { token: 'delimiter', ...toStart }]],
       [new RegExp(`else${WORD_END}`), { token: 'keyword', ...toStart }],
       ...expressionRules,
     ],
