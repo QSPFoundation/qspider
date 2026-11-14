@@ -1,7 +1,8 @@
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-engine';
 import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
-import type { StepPlace } from './action-run';
+import { placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
+import { placeCodeLines } from './code-search';
 
 export interface DebugRecord {
   code: string;
@@ -33,6 +34,9 @@ export interface DebugBreakpoint {
   enabled: boolean;
 }
 
+/** What the code viewer shows: a location, a current action, or the code a step runs outside both. */
+export type CodeView = { kind: 'location' } | { kind: 'current-action'; index: number } | { kind: 'step-code' };
+
 export interface DebugState {
   isEnabled: boolean;
   isPaused: boolean;
@@ -45,6 +49,11 @@ export interface DebugState {
   executionHistory: DebugRecord[];
   eventLog: EventLogEntry[];
   autoPauseOnLinks: boolean;
+  /** The current action running now; null outside a run. */
+  actionRun: ActionRun | null;
+  /** Where the current step belongs. */
+  stepPlace: StepPlace;
+  codeView: CodeView;
 }
 
 export const debugState$ = atom<DebugState>({
@@ -59,6 +68,9 @@ export const debugState$ = atom<DebugState>({
   executionHistory: [],
   eventLog: [],
   autoPauseOnLinks: false,
+  actionRun: null,
+  stepPlace: 'location',
+  codeView: { kind: 'location' },
 });
 
 export const isDebugEnabled$ = debugState$.focus('isEnabled');
@@ -72,6 +84,8 @@ export const debugBreakpoints$ = debugState$.focus('breakpoints');
 export const debugExecutionHistory$ = debugState$.focus('executionHistory');
 export const eventLog$ = debugState$.focus('eventLog');
 export const autoPauseOnLinks$ = debugState$.focus('autoPauseOnLinks');
+export const debugActionRun$ = debugState$.focus('actionRun');
+export const debugCodeView$ = debugState$.focus('codeView');
 
 // Debugger UI state
 export interface DebuggerUIState {
@@ -173,6 +187,17 @@ function setEngineDebugMode(on: boolean): void {
   else api?.disableDebugMode();
 }
 
+function locationLines(name: string): string[] {
+  const api = qspApi$.value;
+  return api ? placeCodeLines(api.getLocationCode(name)) : [];
+}
+
+function codeViewOf(place: StepPlace, run: ActionRun | null, current: CodeView): CodeView {
+  if (place === 'action' && run) return { kind: 'current-action', index: run.index };
+  if (place === 'code') return { kind: 'step-code' };
+  return current;
+}
+
 function executeResume(): void {
   const resume = debugResumeFunction$.value;
   debugResumeFunction$.set(null);
@@ -231,9 +256,18 @@ export const debugActions = {
       executeResume();
       return;
     }
+    const run = debugState$.value.actionRun;
+    if (run && !run.origin) {
+      const settled = settleRun(run, record, locationLines(record.loc));
+      debugState$.update((s) => ({ ...s, actionRun: settled }));
+    }
+    const actionRun = debugState$.value.actionRun;
+    const place = placeStep(record, actionRun);
+    debugState$.update((s) => ({ ...s, stepPlace: place, codeView: codeViewOf(place, actionRun, s.codeView) }));
+
     const pauseOnChange = snapshotAtStop(record);
     const state = debugState$.value;
-    const shouldPause = pauseOnChange || state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
+    const shouldPause = pauseOnChange || state.breakpoints.some((bp) => matchesBreakpoint(bp, record, place));
 
     if (shouldPause || state.isPaused) {
       debugState$.update((s) => ({ ...s, isPaused: true }));
@@ -274,11 +308,36 @@ export const debugActions = {
   },
 
   selectLocation: (location: string | null): void => {
-    debugState$.update((state) => ({ ...state, selectedLocation: location, targetLine: null }));
+    debugState$.update((state) => ({
+      ...state,
+      selectedLocation: location,
+      targetLine: null,
+      codeView: { kind: 'location' },
+    }));
   },
 
   selectLocationWithLine: (location: string, line: number | null): void => {
-    debugState$.update((state) => ({ ...state, selectedLocation: location, targetLine: line }));
+    debugState$.update((state) => ({
+      ...state,
+      selectedLocation: location,
+      targetLine: line,
+      codeView: { kind: 'location' },
+    }));
+  },
+
+  /** Shows a current action's code in the code viewer. */
+  selectCurrentAction: (index: number): void => {
+    debugState$.update((state) => ({ ...state, codeView: { kind: 'current-action', index } }));
+  },
+
+  /** Starts following a current action; only while the panel is open and debug mode is on. */
+  beginActionRun: (index: number, name: string, lines: string[]): void => {
+    if (!isDebugPanelOpen$.value || !debugState$.value.isEnabled) return;
+    debugState$.update((state) => ({ ...state, actionRun: { index, name, lines, loc: null, origin: null } }));
+  },
+
+  endActionRun: (): void => {
+    debugState$.update((state) => ({ ...state, actionRun: null, stepPlace: 'location' }));
   },
 
   addBreakpoint: (breakpoint: Omit<DebugBreakpoint, 'id'>): void => {
