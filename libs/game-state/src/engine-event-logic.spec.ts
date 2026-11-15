@@ -2,6 +2,7 @@ import { QspPanel } from '@qsp/wasm-engine';
 import { describe, expect, it } from 'vitest';
 import {
   directoryOf,
+  engineLineBreaks,
   gameFileUrl,
   isExecHref,
   isNewLoc,
@@ -38,6 +39,18 @@ describe('exec links', () => {
   it('leaves other hrefs to the browser', () => {
     expect(isExecHref('https://example.com/exec:x')).toBe(false);
     expect(isExecHref('#top')).toBe(false);
+  });
+});
+
+describe('engineLineBreaks', () => {
+  it('turns LF and CR into CRLF, the only line end the engine knows', () => {
+    expect(engineLineBreaks("\n  *clr\n  *pl 'x'\n")).toBe("\r\n  *clr\r\n  *pl 'x'\r\n");
+    expect(engineLineBreaks('a\rb')).toBe('a\r\nb');
+  });
+
+  it('keeps CRLF as it is and one-line code unchanged', () => {
+    expect(engineLineBreaks('a\r\nb')).toBe('a\r\nb');
+    expect(engineLineBreaks("gt 'room'")).toBe("gt 'room'");
   });
 });
 

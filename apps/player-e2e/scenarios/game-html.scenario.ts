@@ -7,6 +7,7 @@ import {
   AreaLink,
   BindField,
   ExecLink,
+  MultilineExecLink,
   FormField,
   NumLink,
   OnClick,
@@ -56,6 +57,18 @@ scenario('an exec link runs its code', async (player) => {
     ClickAction(ACTION.links),
     ClickContent(ExecLink),
     SeeMainText(TEXT.execResult),
+  );
+});
+
+scenario('an exec link runs code that spans several lines', async (player) => {
+  await player.attemptsTo(
+    StartPlayer(),
+    SeeStartupFinished(),
+    LoadGame(GAME_HTML.path),
+    SeeGameStarted(TEXT.start),
+    ClickAction(ACTION.links),
+    ClickContent(MultilineExecLink),
+    SeeMainText(TEXT.multilineExecResult),
   );
 });
 
