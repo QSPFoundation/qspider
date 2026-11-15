@@ -42,6 +42,7 @@ import { qspiderCommands } from './qspider-commands';
 import { parseSystemCmd } from './qspider-command-parsers';
 import {
   gameFileUrl,
+  engineLineBreaks,
   isExecHref,
   isNewLoc,
   isQspsFile,
@@ -107,9 +108,10 @@ export function whenQspEngineReady(): Promise<void> {
   return engineReady;
 }
 
-export function execCode(code: string): void {
+export function execCode(pageCode: string): void {
   const api = qspApi$.value;
   if (!api) return;
+  const code = engineLineBreaks(pageCode);
 
   // Check if debug mode is enabled and should pause on link execution
   if (shouldPauseOnLink(debugActions.getDebugState(), isDebugPanelOpen$.value)) {

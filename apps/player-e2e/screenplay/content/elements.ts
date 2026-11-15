@@ -7,6 +7,7 @@ export const ContentMark = (mark: string) =>
   visible(PageElements.located(By.css(`[data-qa="${mark}"]`)), `content element "${mark}"`);
 
 export const ExecLink = ContentMark(GAME_HTML.marks.execLink);
+export const MultilineExecLink = ContentMark(GAME_HTML.marks.multilineExecLink);
 export const NumLink = ContentMark(GAME_HTML.marks.numLink);
 export const MarkupBold = ContentMark(GAME_HTML.marks.bold);
 

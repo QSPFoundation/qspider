@@ -47,6 +47,8 @@ export const GAME_HTML = {
     /** The markup location's div with a data: PNG as its style background-image (the dataImage URL). */
     styleDataBg: 'style-data-bg',
     execLink: 'exec-link',
+    /** An exec link whose code spans several lines (a multi-line string spliced into the href). */
+    multilineExecLink: 'multiline-exec-link',
     numLink: 'num-link',
     areaLink: 'area-link',
     /** The <img> the area is mapped onto: what web and Linux desktop click (see ClickMapArea). */
@@ -113,6 +115,7 @@ export const GAME_HTML = {
     start: 'GAME HTML START',
     bold: 'MARKUP BOLD',
     execResult: 'EXEC LINK RESULT',
+    multilineExecResult: 'MULTILINE LINK RESULT',
     numResult: 'NUM LINK RESULT',
     areaResult: 'AREA LINK RESULT',
     clickResult: 'ON CLICK RESULT',

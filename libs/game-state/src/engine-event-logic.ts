@@ -28,6 +28,14 @@ export function stripExec(href: string): string {
 }
 
 /**
+ * Code from the page in the engine's line breaks. The engine ends a line only at CRLF, and the HTML parser turns
+ * every CRLF and CR in an attribute into LF, so code spanning lines in an `exec:` href would run as one line.
+ */
+export function engineLineBreaks(code: string): string {
+  return code.replace(/\r\n|\r|\n/g, '\r\n');
+}
+
+/**
  * The answer to the engine's `version` question for `type`: `player` and `platform` are the player's; any
  * other type gets undefined, which means "the engine's own version".
  */
