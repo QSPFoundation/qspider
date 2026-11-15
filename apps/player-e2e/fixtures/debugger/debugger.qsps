@@ -76,3 +76,23 @@ end
 act 'back': gt 'acts'
 }
 ---
+
+# loop
+rounds += 1
+*pl 'LOOP <<rounds>>'
+steps += 1
+dynamic {
+act 'again':
+  steps += 1
+  gt 'loop'
+end
+act 'swap':
+  cla
+  act 'one': *pl 'ONE'
+  act 'other': *pl 'OTHER'
+  wait 1
+  swapped = 1
+  *pl 'SWAP DONE'
+end
+}
+---

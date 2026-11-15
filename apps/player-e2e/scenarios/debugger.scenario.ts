@@ -79,6 +79,7 @@ const {
   hold: HOLD,
   syntax: SYNTAX,
   acts: ACTS,
+  loop: LOOP,
 } = DEBUGGER_GAME;
 const EDITOR_CDN = 'cdn.jsdelivr.net';
 /** Past several runs of qspider's 500 ms counter, each of which refreshes the watch with nothing to report. */
@@ -94,6 +95,9 @@ const OpenDebuggerGame = () => [
 
 /** From a clean app: the debugger fixture game in its `acts` location, which lists the `placed`, `detached` and `back` acts. */
 const InActs = () => [...OpenDebuggerGame(), ClickAction(ACTION.acts), SeeMainTextContaining(ACTS.start)];
+
+/** From a clean app: the debugger fixture game in its `loop` location, which lists the `again` and `swap` acts. */
+const InLoop = () => [...OpenDebuggerGame(), ClickAction(ACTION.loop), SeeMainTextContaining(LOOP.start)];
 
 /** Steps the paused game `n` times, one `vars` line each. */
 const StepTimes = (n: number) => Array.from({ length: n }, () => StepDebugger());
@@ -656,5 +660,43 @@ scenario('a dynamic action that jumps back into its location still hits its line
     SeeEditorTitle(`Location: ${LOCATION.acts}`),
     ResumeDebugger(),
     SeeMainTextContaining(ACTS.start),
+  );
+});
+
+scenario('a dynamic action that jumps back into its location stops at a location line it shares', async (player) => {
+  await player.attemptsTo(
+    ...InLoop(),
+    OpenDebugger(),
+    EnableDebugging(),
+    SelectLocation(LOCATION.loop),
+    ToggleLineBreakpoint(LOOP.again.line),
+    ClickAction(LOOP.again.name),
+    SeeDebugStatus('paused'),
+    SeeExecutionLine(LOCATION.loop, LOOP.again.line),
+    SeeCurrentLineText(LOOP.again.code),
+    SeeEditorTitle(`Location: ${LOCATION.loop}`),
+    ResumeDebugger(),
+    SeeMainTextContaining(LOOP.again.after),
+  );
+});
+
+scenario('a running dynamic action keeps its code when another action takes its place in the list', async (player) => {
+  await player.attemptsTo(
+    ...InLoop(),
+    OpenDebugger(),
+    EnableDebugging(),
+    ToggleLocationBreakpoint(LOCATION.loop),
+    ClickAction(LOOP.swap.name),
+    SeeDebugStatus('paused'),
+    SeeExecutionInCurrentAction(LOOP.swap.name, LOOP.swap.cla.line),
+    SeeCurrentLineText(LOOP.swap.cla.code),
+    ...StepTimes(LOOP.swap.swapped.line - LOOP.swap.cla.line), // past `act one`, `act other` and the `wait`
+    SeeCurrentActions([...LOOP.swap.replaced]),
+    SeeExecutionInCurrentAction(LOOP.swap.name, LOOP.swap.swapped.line),
+    SeeEditorTitle(`Current action: ${LOOP.swap.name}`),
+    SeeCurrentLineText(LOOP.swap.swapped.code),
+    ToggleLocationBreakpoint(LOCATION.loop), // off: it would pause on every step left
+    ResumeDebugger(),
+    SeeMainTextContaining(LOOP.swap.done),
   );
 });

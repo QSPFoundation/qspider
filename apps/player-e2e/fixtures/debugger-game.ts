@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 export const DEBUGGER_GAME = {
   path: fileURLToPath(new URL('../artifacts/fixtures/debugger.zip', import.meta.url)),
   title: 'Debugger game',
-  location: { start: 'start', second: 'second', vars: 'vars', syntax: 'syntax', acts: 'acts' },
-  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold', syntax: 'syntax', acts: 'acts' },
+  location: { start: 'start', second: 'second', vars: 'vars', syntax: 'syntax', acts: 'acts', loop: 'loop' },
+  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold', syntax: 'syntax', acts: 'acts', loop: 'loop' },
   /** The link in `start`: it runs `gt 'second'`. */
   link: { text: 'to second', qa: 'debug-link' },
   text: { start: 'DEBUG START', second: 'DEBUG SECOND', varsEnd: 'VARS END 70' },
@@ -115,5 +115,24 @@ export const DEBUGGER_GAME = {
       done: 'DETACHED DONE',
     },
     back: { name: 'back' },
+  },
+  /**
+   * The `loop` location (`rounds += 1`, `*pl 'LOOP <<rounds>>'`, `steps += 1`, then a `dynamic` block). `again` is
+   * made by the block: its first line, `steps += 1`, has the number and text of the location's line 3 (`line`), and
+   * it jumps back to `loop`, so the location's line 3 runs again inside the action. `swap` (also from the block) does
+   * a `cla`, adds `one` and `other` and waits (a `wait` shows the new list mid-run): `other` takes `swap`'s place in
+   * the list while `swap` still runs `swapped`.
+   * Block lines are numbered from the block's opening line.
+   */
+  loop: {
+    start: 'LOOP 1',
+    again: { name: 'again', line: 3, code: 'STEPS += 1', after: 'LOOP 2' },
+    swap: {
+      name: 'swap',
+      cla: { line: 7, code: 'CLA' },
+      swapped: { line: 11, code: 'SWAPPED = 1' },
+      replaced: ['one', 'other'],
+      done: 'SWAP DONE',
+    },
   },
 } as const;
