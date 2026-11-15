@@ -290,6 +290,16 @@
   padding: 0 var(--spacer--xs) var(--spacer--xs);
 }
 
+/* A current action entry is a button: drop the button look, keep the list item's. */
+.qsp-debugger-current-action {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+}
+
 .qsp-debugger-tabs {
   display: flex;
   border-bottom: 1px solid var(--subtle-border);

@@ -1,7 +1,7 @@
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-engine';
 import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
-import { isActionStep, placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
+import { followRun, isActionStep, placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
 import { placeCodeLines } from './code-search';
 
 export interface DebugRecord {
@@ -34,8 +34,13 @@ export interface DebugBreakpoint {
   enabled: boolean;
 }
 
-/** What the code viewer shows: a location, a current action, or the code a step runs outside both. */
-export type CodeView = { kind: 'location' } | { kind: 'current-action'; index: number } | { kind: 'step-code' };
+/**
+ * What the code viewer shows: a location, a current action, or the code a step runs outside both. A current action
+ * is one picked from the list (by its index there), or, with `follow`, the running action a step went into: that one
+ * shows the run's saved code whatever the list now holds at its index.
+ */
+export type CodeView =
+  { kind: 'location' } | { kind: 'current-action'; index: number; follow?: boolean } | { kind: 'step-code' };
 
 export interface DebugState {
   isEnabled: boolean;
@@ -196,7 +201,7 @@ function locationLines(name: string): string[] {
 }
 
 function codeViewOf(place: StepPlace, run: ActionRun | null, current: CodeView): CodeView {
-  if (place === 'action' && run) return { kind: 'current-action', index: run.index };
+  if (place === 'action' && run) return { kind: 'current-action', index: run.index, follow: true };
   if (place === 'code') return { kind: 'step-code' };
   return current;
 }
@@ -272,7 +277,9 @@ export const debugActions = {
       const settled = settleRun(run, record, locationLines(record.loc));
       debugState$.update((s) => ({ ...s, actionRun: settled }));
     }
-    const actionRun = debugState$.value.actionRun;
+    const settledRun = debugState$.value.actionRun;
+    const actionRun = settledRun && followRun(settledRun, record);
+    if (actionRun !== settledRun) debugState$.update((s) => ({ ...s, actionRun }));
     const place = placeStep(record, actionRun);
     showRecord(place, (s) => ({ codeView: codeViewOf(place, actionRun, s.codeView) }));
 
@@ -349,7 +356,7 @@ export const debugActions = {
   beginActionRun: (index: number, name: string, lines: string[]): ActionRun | null => {
     const state = debugState$.value;
     if (!isDebugPanelOpen$.value || !state.isEnabled || state.actionRun) return null;
-    const run: ActionRun = { index, name, lines, loc: null, origin: null, locationLines: null };
+    const run: ActionRun = { index, name, lines, loc: null, origin: null, locationLines: null, reentered: false };
     startedRun = run;
     debugState$.update((s) => ({ ...s, actionRun: run }));
     return run;

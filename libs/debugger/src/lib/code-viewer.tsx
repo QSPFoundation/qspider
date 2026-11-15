@@ -84,12 +84,14 @@ export const CodeViewer: React.FC = () => {
 
   const { codeView, actionRun, currentRecord, stepPlace } = debugState;
   const viewedActionIndex = codeView.kind === 'current-action' ? codeView.index : null;
-  // The run that the viewed action is: its saved code survives a `cla`. A list changed under it shows its entry by
-  // name: another action at the run's index is not the run.
+  // The run that the viewed action is: its saved code survives a `cla`. A step followed into the run shows it whatever
+  // the list holds now; an entry picked from a list changed under the run is the run only by name: another action at
+  // the run's index is not the run.
+  const followsRun = codeView.kind === 'current-action' && codeView.follow === true;
   const viewedRun =
     viewedActionIndex !== null &&
     actionRun?.index === viewedActionIndex &&
-    (viewedActionIndex >= actions.length || actions[viewedActionIndex]?.name === actionRun.name)
+    (followsRun || viewedActionIndex >= actions.length || actions[viewedActionIndex]?.name === actionRun.name)
       ? actionRun
       : null;
   // Read only when no run saved it; an index past the list (it changed since) has no code.

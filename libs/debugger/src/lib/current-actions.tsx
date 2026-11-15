@@ -28,14 +28,18 @@ export const CurrentActions: React.FC = () => {
           {actions.length === 0 && <div className="qsp-debugger-no-data">{t('No current actions')}</div>}
           {actions.map((action, index) => {
             const isRunning = actionRun?.index === index && actionRun.name === action.name;
-            const isSelected = codeView.kind === 'current-action' && codeView.index === index;
+            // A step followed into the run selects the run's entry only, not another action now at its index.
+            const isSelected =
+              codeView.kind === 'current-action' && codeView.index === index && (!codeView.follow || isRunning);
             return (
-              <div
+              <button
+                type="button"
                 key={index}
                 data-qa="debug-current-action"
                 data-action={action.name}
                 data-running={isRunning}
-                className={`qsp-debugger-location-item ${isSelected ? 'selected' : ''} ${
+                aria-pressed={isSelected}
+                className={`qsp-debugger-location-item qsp-debugger-current-action ${isSelected ? 'selected' : ''} ${
                   isRunning ? 'current-execution' : ''
                 }`}
                 onClick={() => debugActions.selectCurrentAction(index)}
@@ -44,7 +48,7 @@ export const CurrentActions: React.FC = () => {
                   {isRunning && <span className="execution-indicator">▶ </span>}
                   {action.name}
                 </span>
-              </div>
+              </button>
             );
           })}
         </div>

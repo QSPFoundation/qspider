@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { actionOrigin, codeLinesOf, isActionStep, isLocationStep, placeStep, settleRun } from './action-run';
+import { actionOrigin, codeLinesOf, followRun, isActionStep, isLocationStep, placeStep, settleRun } from './action-run';
 import type { DebugRecord } from './debug';
 
 const record = (over: Partial<DebugRecord> = {}): DebugRecord => ({
@@ -87,7 +87,15 @@ describe('isLocationStep', () => {
 
 describe('settleRun', () => {
   it('takes the location from the first step, not the current location', () => {
-    const run = { index: 0, name: 'a', lines: ['', 'Z = 3'], loc: null, origin: null, locationLines: null };
+    const run = {
+      index: 0,
+      name: 'a',
+      lines: ['', 'Z = 3'],
+      loc: null,
+      origin: null,
+      locationLines: null,
+      reentered: false,
+    };
     expect(settleRun(run, record({ loc: 'other', line: 2, code: 'Z = 3' }), ['GS 1', 'Z = 3'])).toEqual({
       ...run,
       loc: 'other',
@@ -96,7 +104,15 @@ describe('settleRun', () => {
     });
   });
   it('settles a base action as placed, whatever its lines', () => {
-    const run = { index: 0, name: 'a', lines: ['X = 1'], loc: null, origin: null, locationLines: null };
+    const run = {
+      index: 0,
+      name: 'a',
+      lines: ['X = 1'],
+      loc: null,
+      origin: null,
+      locationLines: null,
+      reentered: false,
+    };
     expect(settleRun(run, record({ loc: 'start', line: 1, code: 'X = 1', actIndex: 0 }), ['OTHER'])).toEqual({
       ...run,
       loc: 'start',
@@ -105,7 +121,15 @@ describe('settleRun', () => {
     });
   });
   it('keeps a settled run', () => {
-    const run = { index: 0, name: 'a', lines: ['X'], loc: 'start', origin: 'detached' as const, locationLines: [] };
+    const run = {
+      index: 0,
+      name: 'a',
+      lines: ['X'],
+      loc: 'start',
+      origin: 'detached' as const,
+      locationLines: [],
+      reentered: false,
+    };
     expect(settleRun(run, record({ loc: 'other' }), [])).toBe(run);
   });
 });
@@ -118,6 +142,7 @@ describe('placeStep', () => {
     loc: 'acts',
     origin: 'detached' as const,
     locationLines: ['ACT1', 'X = 1', 'Y = 2'],
+    reentered: false,
   };
   it('is location without a run', () => expect(placeStep(record({ loc: 'acts', line: 3 }), null)).toBe('location'));
   it('is location for a placed run', () =>
@@ -140,4 +165,62 @@ describe('placeStep', () => {
     ));
   it('is location for the entry step at line 0', () =>
     expect(placeStep(record({ loc: 'acts', line: 0, code: '' }), detached)).toBe('location'));
+  it('is location for a step that is both once the run entered its location again', () =>
+    expect(
+      placeStep(record({ loc: 'acts', line: 3, code: 'Y = 2' }), {
+        ...detached,
+        lines: ['', '', 'Y = 2'],
+        reentered: true,
+      }),
+    ).toBe('location'));
+  it('is still action for a saved line no location line holds once the run entered its location again', () =>
+    expect(placeStep(record({ loc: 'acts', line: 3, code: 'DETACHED = 1' }), { ...detached, reentered: true })).toBe(
+      'action',
+    ));
+});
+
+describe('followRun', () => {
+  const detached = {
+    index: 0,
+    name: 'again',
+    lines: ['', '', 'Y = 2', "GT 'acts'"],
+    loc: 'acts',
+    origin: 'detached' as const,
+    locationLines: ['X = 1', 'Z = 0', 'Y = 2', 'DYNAMIC {'],
+    reentered: false,
+  };
+  it('marks a detached run at a step of its location that is no action line (after a gt there)', () =>
+    expect(followRun(detached, record({ loc: 'acts', line: 1, code: 'X = 1' }))).toEqual({
+      ...detached,
+      reentered: true,
+    }));
+  it('marks it at an entry step', () =>
+    expect(followRun(detached, record({ loc: 'acts', line: 0, code: '' }))).toEqual({ ...detached, reentered: true }));
+  it('keeps the run at a step that is both an action line and a location line', () => {
+    expect(followRun(detached, record({ loc: 'acts', line: 3, code: 'Y = 2' }))).toBe(detached);
+  });
+  it('keeps the run at a step of its own code only', () => {
+    expect(followRun(detached, record({ loc: 'acts', line: 4, code: "GT 'acts'" }))).toBe(detached);
+  });
+  it('keeps the run at code of neither', () => {
+    expect(followRun(detached, record({ loc: 'acts', line: 2, code: 'OTHER' }))).toBe(detached);
+  });
+  it('keeps the run in another location (a gs elsewhere)', () => {
+    expect(followRun(detached, record({ loc: 'helper', line: 1, code: 'X = 1' }))).toBe(detached);
+  });
+  it('keeps the run at a base action step', () => {
+    expect(followRun(detached, record({ loc: 'acts', line: 1, code: 'X = 1', actIndex: 0 }))).toBe(detached);
+  });
+  it('keeps a placed run', () => {
+    const placed = { ...detached, origin: 'placed' as const };
+    expect(followRun(placed, record({ loc: 'acts', line: 1, code: 'X = 1' }))).toBe(placed);
+  });
+  it('keeps an unsettled run', () => {
+    const unsettled = { ...detached, loc: null, origin: null, locationLines: null };
+    expect(followRun(unsettled, record({ loc: 'acts', line: 1, code: 'X = 1' }))).toBe(unsettled);
+  });
+  it('keeps a run that already entered again', () => {
+    const reentered = { ...detached, reentered: true };
+    expect(followRun(reentered, record({ loc: 'acts', line: 1, code: 'X = 1' }))).toBe(reentered);
+  });
 });

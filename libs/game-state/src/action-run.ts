@@ -18,6 +18,14 @@ export interface ActionRun {
   origin: ActionOrigin | null;
   /** The code lines of its location, read at the first step; null until then. */
   locationLines: string[] | null;
+  /**
+   * Whether a detached run entered its own location again (a `gt`/`xgt` there): from then on a step that is both a
+   * location line and a saved action line is the location's. The engine reports no entry step for such a jump, so
+   * the sign is the first step in the location that is a location line and no saved action line. Steps before it
+   * stay the action's (a location whose first line runs is both); a `gs` there enters it too, and steps of the action
+   * after the `gs` returns can't be told from the location's when their text and number match.
+   */
+  reentered: boolean;
 }
 
 export function codeLinesOf(code: string): string[] {
@@ -72,11 +80,21 @@ export function isLocationStep(record: DebugRecord, locationLines: string[]): bo
 }
 
 /**
- * Where a step of the run belongs: in a detached run's location, its own code is the action (checked first), the
- * location's lines are the location, and anything else is code alone.
+ * Where a step of the run belongs: in a detached run's location, its own code is the action, the location's lines
+ * are the location, and anything else is code alone. A step that is both is the action's until the run enters the
+ * location again, and the location's after.
  */
 export function placeStep(record: DebugRecord, run: ActionRun | null): StepPlace {
   if (!run || run.origin !== 'detached' || record.actIndex >= 0 || record.loc !== run.loc) return 'location';
+  const inLocation = isLocationStep(record, run.locationLines ?? []);
+  if (run.reentered && inLocation) return 'location';
   if (isActionStep(record, run.lines)) return 'action';
-  return isLocationStep(record, run.locationLines ?? []) ? 'location' : 'code';
+  return inLocation ? 'location' : 'code';
+}
+
+/** Marks a settled detached run whose step shows it entered its own location again (see `ActionRun.reentered`). */
+export function followRun(run: ActionRun, record: DebugRecord): ActionRun {
+  if (run.origin !== 'detached' || run.reentered || record.actIndex >= 0 || record.loc !== run.loc) return run;
+  const locationOnly = isLocationStep(record, run.locationLines ?? []) && !isActionStep(record, run.lines);
+  return locationOnly ? { ...run, reentered: true } : run;
 }
