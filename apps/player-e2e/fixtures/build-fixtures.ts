@@ -29,7 +29,7 @@ function packFiles(configPath: string, extraFiles: string[] = []): Record<string
 }
 
 /**
- * The debugger game, compiled: debugger.qsps plus the base actions `go`, `vars`, `bump` and `hold` on `start`. The debugger's Actions tab lists
+ * The debugger game, compiled: debugger.qsps plus the base actions `go`, `vars`, `bump`, `hold`, `syntax`, `acts` and `loop` on `start`. The debugger's Actions tab lists
  * a location's base actions, which only a compiled .qsp has (the QSPS reader reads none: its `act` is a statement).
  */
 function debuggerZip(): Uint8Array {
@@ -45,6 +45,8 @@ function debuggerZip(): Uint8Array {
       code: [`hits += 1 & msg '${DEBUGGER_GAME.hold.msg}'`, `*pl '${DEBUGGER_GAME.hold.after}'`],
     },
     { name: DEBUGGER_GAME.action.syntax, code: [`gt '${DEBUGGER_GAME.location.syntax}'`] },
+    { name: DEBUGGER_GAME.action.acts, code: [`gt '${DEBUGGER_GAME.location.acts}'`] },
+    { name: DEBUGGER_GAME.action.loop, code: [`gt '${DEBUGGER_GAME.location.loop}'`] },
   ];
   const syntax = locations.find((location) => location.name === DEBUGGER_GAME.location.syntax);
   if (!syntax) throw new Error('debugger.qsps has no syntax location');

@@ -1,6 +1,8 @@
 import { QspListItem, QspObjectItem } from '@qsp/wasm-engine';
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-api';
+import { placeCodeLines } from './code-search';
+import { debugActions, isDebugEnabled$, isDebugPanelOpen$ } from './debug';
 import { isActionIndex, NO_ACTION, selectedAction$, view$ } from './panel-logic';
 
 export const mainContent$ = atom('');
@@ -28,8 +30,19 @@ export function selectAction(index: number): Promise<void> | undefined {
   return qspApi$.value?.selectAction(index);
 }
 export function execSelectedAction(): Promise<void> | undefined {
+  const api = qspApi$.value;
+  // The renderer selects without awaiting, so the engine's index may lag behind `selectedAction$`.
+  const selected = selectedAction$.value;
   selectedAction$.set(NO_ACTION);
-  return qspApi$.value?.execSelectedAction();
+  if (!api) return undefined;
+  const debugging = isDebugPanelOpen$.value && isDebugEnabled$.value;
+  const index = !debugging ? NO_ACTION : selected !== NO_ACTION ? selected : api.getSelectedActionIndex();
+  const run =
+    index >= 0
+      ? debugActions.beginActionRun(index, actions$.value[index]?.name ?? '', placeCodeLines(api.getActionCode(index)))
+      : null;
+  const done = api.execSelectedAction();
+  return run ? done.finally(() => debugActions.endActionRun(run)) : done;
 }
 /** Picks the action and runs it, as a key for it does; the game's `$ONACTSEL` code finishes first. */
 export async function runAction(index: number): Promise<void> {

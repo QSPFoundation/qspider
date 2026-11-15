@@ -1,6 +1,8 @@
 import { atom } from 'xoid';
 import { qspApi$ } from './qsp-engine';
 import { releaseWatchStop, resetWatchBaseline, setWatchActive, snapshotAfterRun, snapshotAtStop } from './debug-watch';
+import { followRun, isActionStep, placeStep, settleRun, type ActionRun, type StepPlace } from './action-run';
+import { placeCodeLines } from './code-search';
 
 export interface DebugRecord {
   code: string;
@@ -32,6 +34,14 @@ export interface DebugBreakpoint {
   enabled: boolean;
 }
 
+/**
+ * What the code viewer shows: a location, a current action, or the code a step runs outside both. A current action
+ * is one picked from the list (by its index there), or, with `follow`, the running action a step went into: that one
+ * shows the run's saved code whatever the list now holds at its index.
+ */
+export type CodeView =
+  { kind: 'location' } | { kind: 'current-action'; index: number; follow?: boolean } | { kind: 'step-code' };
+
 export interface DebugState {
   isEnabled: boolean;
   isPaused: boolean;
@@ -44,6 +54,11 @@ export interface DebugState {
   executionHistory: DebugRecord[];
   eventLog: EventLogEntry[];
   autoPauseOnLinks: boolean;
+  /** The current action running now; null outside a run. */
+  actionRun: ActionRun | null;
+  /** Where the current step belongs. */
+  stepPlace: StepPlace;
+  codeView: CodeView;
 }
 
 export const debugState$ = atom<DebugState>({
@@ -58,6 +73,9 @@ export const debugState$ = atom<DebugState>({
   executionHistory: [],
   eventLog: [],
   autoPauseOnLinks: false,
+  actionRun: null,
+  stepPlace: 'location',
+  codeView: { kind: 'location' },
 });
 
 export const isDebugEnabled$ = debugState$.focus('isEnabled');
@@ -71,6 +89,8 @@ export const debugBreakpoints$ = debugState$.focus('breakpoints');
 export const debugExecutionHistory$ = debugState$.focus('executionHistory');
 export const eventLog$ = debugState$.focus('eventLog');
 export const autoPauseOnLinks$ = debugState$.focus('autoPauseOnLinks');
+export const debugActionRun$ = debugState$.focus('actionRun');
+export const debugCodeView$ = debugState$.focus('codeView');
 
 // Debugger UI state
 export interface DebuggerUIState {
@@ -152,9 +172,12 @@ debugPanelSize$.subscribe((size) => persistPanelSize(getLocalStorage(), size));
  * With a line it stops at that line of its code: the action's code (`actionIndex`, a base action of the location,
  * as the step's `actIndex` counts) or else the location code (`actIndex` -1): action lines are numbered from 1
  * within the action, so the same number in the location code is another line.
+ * A line without an action index is a line of the location code: it never matches a step placed elsewhere
+ * (`place` other than 'location', the default).
  */
-export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boolean {
+export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord, place: StepPlace = 'location'): boolean {
   if (!bp.enabled || bp.location !== record.loc) return false;
+  if (bp.line !== undefined && bp.actionIndex === undefined && place !== 'location') return false;
   if (bp.line !== undefined && bp.line !== record.line) return false;
   if (bp.actionIndex !== undefined) return bp.actionIndex === record.actIndex;
   return bp.line === undefined || record.actIndex < 0;
@@ -163,10 +186,24 @@ export function matchesBreakpoint(bp: DebugBreakpoint, record: DebugRecord): boo
 /** Whether debug mode was on when the panel last closed: reopening turns it back on. */
 let debugModeWasOn = false;
 
+/** The run as `beginActionRun` returned it: the state holds a settled copy once its first step comes. */
+let startedRun: ActionRun | null = null;
+
 function setEngineDebugMode(on: boolean): void {
   const api = qspApi$.value;
   if (on) api?.enableDebugMode();
   else api?.disableDebugMode();
+}
+
+function locationLines(name: string): string[] {
+  const api = qspApi$.value;
+  return api ? placeCodeLines(api.getLocationCode(name)) : [];
+}
+
+function codeViewOf(place: StepPlace, run: ActionRun | null, current: CodeView): CodeView {
+  if (place === 'action' && run) return { kind: 'current-action', index: run.index, follow: true };
+  if (place === 'code') return { kind: 'step-code' };
+  return current;
 }
 
 function executeResume(): void {
@@ -211,25 +248,44 @@ export const debugActions = {
   },
 
   setCurrentRecord: (record: DebugRecord, resume: () => void): void => {
-    debugState$.update((state) => ({
-      ...state,
-      currentRecord: record,
-      executionHistory: [...state.executionHistory.slice(-99), record],
-    }));
-
     debugResumeFunction$.set(() => {
       releaseWatchStop();
       resume();
     });
 
+    // `stepPlace` describes `currentRecord`: both are set in one update, so a view never pairs a record with the
+    // place of another.
+    const showRecord = (place: StepPlace, update: (state: DebugState) => Partial<DebugState> = () => ({})): void =>
+      debugState$.update((state) => ({
+        ...state,
+        currentRecord: record,
+        executionHistory: [...state.executionHistory.slice(-99), record],
+        stepPlace: place,
+        ...update(state),
+      }));
+
     // While the panel is closed nothing pauses and nothing is read.
     if (!isDebugPanelOpen$.value) {
+      showRecord(placeStep(record, debugState$.value.actionRun));
       executeResume();
       return;
     }
+    // A run settles on its own first step: steps before it (`$ONACTSEL` of an unawaited select) are not its code.
+    // A base action's steps (with an action index) are its own.
+    const run = debugState$.value.actionRun;
+    if (run && !run.origin && (record.actIndex >= 0 || isActionStep(record, run.lines))) {
+      const settled = settleRun(run, record, locationLines(record.loc));
+      debugState$.update((s) => ({ ...s, actionRun: settled }));
+    }
+    const settledRun = debugState$.value.actionRun;
+    const actionRun = settledRun && followRun(settledRun, record);
+    if (actionRun !== settledRun) debugState$.update((s) => ({ ...s, actionRun }));
+    const place = placeStep(record, actionRun);
+    showRecord(place, (s) => ({ codeView: codeViewOf(place, actionRun, s.codeView) }));
+
     const pauseOnChange = snapshotAtStop(record);
     const state = debugState$.value;
-    const shouldPause = pauseOnChange || state.breakpoints.some((bp) => matchesBreakpoint(bp, record));
+    const shouldPause = pauseOnChange || state.breakpoints.some((bp) => matchesBreakpoint(bp, record, place));
 
     if (shouldPause || state.isPaused) {
       debugState$.update((s) => ({ ...s, isPaused: true }));
@@ -254,6 +310,7 @@ export const debugActions = {
       ...state,
       currentRecord: linkRecord,
       executionHistory: [...state.executionHistory.slice(-99), linkRecord],
+      stepPlace: 'location',
       isPaused: true,
     }));
 
@@ -270,11 +327,58 @@ export const debugActions = {
   },
 
   selectLocation: (location: string | null): void => {
-    debugState$.update((state) => ({ ...state, selectedLocation: location, targetLine: null }));
+    debugState$.update((state) => ({
+      ...state,
+      selectedLocation: location,
+      targetLine: null,
+      codeView: { kind: 'location' },
+    }));
   },
 
   selectLocationWithLine: (location: string, line: number | null): void => {
-    debugState$.update((state) => ({ ...state, selectedLocation: location, targetLine: line }));
+    debugState$.update((state) => ({
+      ...state,
+      selectedLocation: location,
+      targetLine: line,
+      codeView: { kind: 'location' },
+    }));
+  },
+
+  /** Shows a current action's code in the code viewer. */
+  selectCurrentAction: (index: number): void => {
+    debugState$.update((state) => ({ ...state, codeView: { kind: 'current-action', index } }));
+  },
+
+  /**
+   * Starts following a current action; only while the panel is open, debug mode is on and no run is in flight
+   * (one started during a pause of another keeps the outer run). Returns the stored run, or null when none started.
+   */
+  beginActionRun: (index: number, name: string, lines: string[]): ActionRun | null => {
+    const state = debugState$.value;
+    if (!isDebugPanelOpen$.value || !state.isEnabled || state.actionRun) return null;
+    const run: ActionRun = { index, name, lines, loc: null, origin: null, locationLines: null, reentered: false };
+    startedRun = run;
+    debugState$.update((s) => ({ ...s, actionRun: run }));
+    return run;
+  },
+
+  /** Ends the run `beginActionRun` returned; a run that is no longer the current one leaves the state alone. */
+  endActionRun: (run: ActionRun): void => {
+    if (startedRun !== run) return;
+    startedRun = null;
+    // `stepPlace` stays: it describes `currentRecord`, which the run's end leaves as it is.
+    debugState$.update((state) => ({ ...state, actionRun: null }));
+  },
+
+  /** Forgets any run: a closed game never ends the run its retired engine left waiting (a msg, a menu, a pause). */
+  resetActionRun: (): void => {
+    startedRun = null;
+    debugState$.update((state) => ({
+      ...state,
+      actionRun: null,
+      stepPlace: 'location',
+      codeView: { kind: 'location' },
+    }));
   },
 
   addBreakpoint: (breakpoint: Omit<DebugBreakpoint, 'id'>): void => {

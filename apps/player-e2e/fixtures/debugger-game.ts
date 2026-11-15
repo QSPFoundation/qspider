@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url';
 export const DEBUGGER_GAME = {
   path: fileURLToPath(new URL('../artifacts/fixtures/debugger.zip', import.meta.url)),
   title: 'Debugger game',
-  location: { start: 'start', second: 'second', vars: 'vars', syntax: 'syntax' },
-  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold', syntax: 'syntax' },
+  location: { start: 'start', second: 'second', vars: 'vars', syntax: 'syntax', acts: 'acts', loop: 'loop' },
+  action: { go: 'go', vars: 'vars', bump: 'bump', hold: 'hold', syntax: 'syntax', acts: 'acts', loop: 'loop' },
   /** The link in `start`: it runs `gt 'second'`. */
   link: { text: 'to second', qa: 'debug-link' },
   text: { start: 'DEBUG START', second: 'DEBUG SECOND', varsEnd: 'VARS END 70' },
@@ -93,6 +93,46 @@ export const DEBUGGER_GAME = {
       continuation: { line: 17, code: 'AFTER_JOIN = 1' },
       string: { line: 20, code: 'AFTER_STRING = 1' },
       comment: { line: 24, code: 'AFTER_COMMENT = 1' },
+    },
+  },
+  /**
+   * The `acts` location: `placed` is written with `act`; `detached` and `back` are made by a `dynamic` block (so their
+   * lines are numbered from the block's opening line; `detached` has a `cla` and a multi-line string), and `back` jumps
+   * to `acts` again. `placed`'s line 3 and `detached`'s first line share a number: a line breakpoint there is the
+   * false-hit case. `startLine` is line 1 of `acts`, as the editor shows it.
+   */
+  acts: {
+    start: 'ACTS START',
+    startLine: { line: 1, code: "*PL 'ACTS START'" },
+    placed: { name: 'placed', line: 3, code: 'PLACED = 1', done: 'PLACED DONE' },
+    detached: {
+      name: 'detached',
+      /** Engine lines inside the dynamic block: first line, the `cla` line, the multi-line string's first line, the last. */
+      first: { line: 3, code: 'DETACHED = 1' },
+      cla: { line: 4, code: 'CLA' },
+      note: { line: 5, code: "$NOTE = 'two" },
+      last: { line: 7, code: "*PL 'DETACHED DONE'" },
+      done: 'DETACHED DONE',
+    },
+    back: { name: 'back' },
+  },
+  /**
+   * The `loop` location (`rounds += 1`, `*pl 'LOOP <<rounds>>'`, `steps += 1`, then a `dynamic` block). `again` is
+   * made by the block: its first line, `steps += 1`, has the number and text of the location's line 3 (`line`), and
+   * it jumps back to `loop`, so the location's line 3 runs again inside the action. `swap` (also from the block) does
+   * a `cla`, adds `one` and `other` and waits (a `wait` shows the new list mid-run): `other` takes `swap`'s place in
+   * the list while `swap` still runs `swapped`.
+   * Block lines are numbered from the block's opening line.
+   */
+  loop: {
+    start: 'LOOP 1',
+    again: { name: 'again', line: 3, code: 'STEPS += 1', after: 'LOOP 2' },
+    swap: {
+      name: 'swap',
+      cla: { line: 7, code: 'CLA' },
+      swapped: { line: 11, code: 'SWAPPED = 1' },
+      replaced: ['one', 'other'],
+      done: 'SWAP DONE',
     },
   },
 } as const;
