@@ -1,8 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":semanticCommitTypeAll(chore)", "schedule:weekly"],
+  "extends": ["config:recommended", ":semanticCommitTypeAll(chore)"],
+  "schedule": ["on monday"],
   "prConcurrentLimit": 5,
-  "prHourlyLimit": 2,
+  "prHourlyLimit": 0,
   "minimumReleaseAge": "3 days",
   "vulnerabilityAlerts": {
     "labels": ["security"]
@@ -10,7 +11,7 @@
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true,
-    "schedule": ["before 4am on monday"]
+    "schedule": ["on monday"]
   },
   "packageRules": [
     {
@@ -20,6 +21,15 @@
       "matchUpdateTypes": ["patch", "minor"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
+    },
+    {
+      "description": "Patch/minor devDependencies (0.x excluded, they stay separate) come as one weekly PR: fewer PRs, fewer CI runs. The groups below (tauri, nx, playwright) still win for their packages",
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "matchCurrentVersion": "!/^0/",
+      "groupName": "dev dependencies (non-major)",
+      "groupSlug": "dev-non-major"
     },
     {
       "description": "Tauri JS packages and Rust crates must stay on matching versions",
