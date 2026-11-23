@@ -62,6 +62,11 @@
       "description": "Hold WebdriverIO at 9 until @serenity-js/webdriverio supports 10 (its peer range is ^9; v10's default strictSelectors makes Serenity's isPresent() throw on a missing element)",
       "matchPackageNames": ["webdriverio", "@wdio/**"],
       "allowedVersions": "<10"
+    },
+    {
+      "description": "expect-webdriverio 8 needs webdriverio ^10 (held above); 7.x is the last line for webdriverio 9. Lift together with the WebdriverIO hold",
+      "matchPackageNames": ["expect-webdriverio"],
+      "allowedVersions": "<8"
     }
   ]
 }
