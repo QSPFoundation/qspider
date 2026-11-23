@@ -33,7 +33,10 @@
       "@qspider/importers": ["libs/importers/src/index.ts"],
       "@qspider/renderer": ["libs/renderer/src/index.ts"],
       "@qspider/utils": ["libs/utils/src/index.ts"],
-      "@qspider/debugger": ["libs/debugger/src/index.ts"]
+      "@qspider/debugger": ["libs/debugger/src/index.ts"],
+      // monaco-editor maps its subpath entries (`monaco-editor/editor`, `.../features/register.all`) to esm/vs/*
+      // only through package.json "exports", which "moduleResolution": "node" ignores.
+      "monaco-editor/*": ["node_modules/monaco-editor/esm/vs/*"]
     },
     "noUncheckedSideEffectImports": false,
     "types": ["*"],

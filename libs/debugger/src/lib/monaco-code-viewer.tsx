@@ -1,6 +1,6 @@
 import { Editor } from '@monaco-editor/react';
 import React, { useEffect, useRef, useState } from 'react';
-import type { editor } from 'monaco-editor';
+import type { editor } from 'monaco-editor/editor';
 import { useTranslation } from 'react-i18next';
 import { monaco } from './monaco-setup';
 

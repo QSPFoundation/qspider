@@ -1,8 +1,4 @@
-// @ts-expect-error The editor core ships no typings; it is cast to the public API below.
-import * as editorCore from 'monaco-editor/esm/vs/editor/edcore.main';
-import type * as Monaco from 'monaco-editor';
-
-const monaco = editorCore as unknown as typeof Monaco;
+import * as monaco from 'monaco-editor/editor';
 
 export interface LineToken {
   offset: number;

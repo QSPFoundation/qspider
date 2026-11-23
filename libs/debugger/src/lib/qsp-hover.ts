@@ -1,4 +1,4 @@
-import type * as Monaco from 'monaco-editor';
+import type * as Monaco from 'monaco-editor/editor';
 import { hoverCodeBlock, hoverReadPlan, readHover, watchActions, type HoverPlan } from '@qspider/game-state';
 import { isQspKeyword } from './qsp-language';
 import { hoverTargetAt, qspLineTokens, type LineToken } from './qsp-tokens';

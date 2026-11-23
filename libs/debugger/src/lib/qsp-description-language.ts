@@ -1,6 +1,6 @@
-// @ts-expect-error Monaco's basic languages ship no typings; `conf` and `language` are typed below.
-import { conf, language } from 'monaco-editor/esm/vs/basic-languages/html/html.js';
-import type * as Monaco from 'monaco-editor';
+// @ts-expect-error Monaco's language definitions ship no typings; `conf` and `language` are typed below.
+import { conf, language } from 'monaco-editor/languages/definitions/html/html.js';
+import type * as Monaco from 'monaco-editor/editor';
 
 type Rule = Monaco.languages.IMonarchLanguageRule;
 
