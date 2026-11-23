@@ -17,8 +17,11 @@ import process from 'node:process';
 
 // What wry passes when the app sets none (wry src/webview2/mod.rs; Tauri enables autoplay), plus the
 // DevTools port: 0 lets the browser pick a free one and write it to DevToolsActivePort.
+// EXPERIMENT (#252): `--no-proxy-server`. On Windows CI WebView2 holds the app's first request 1 s (median)
+// to 16 s before handing it to the app; a proxy auto-discovery (WPAD) lookup is the suspect
+// (WebView2Feedback #1828). Kept only if the start-up timeline shows the wait gone.
 const WEBDRIVER_BROWSER_ARGS =
-  '--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port=0';
+  '--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port=0 --no-proxy-server';
 
 const [from, out] = process.argv.slice(2);
 if (!from || !out) {
