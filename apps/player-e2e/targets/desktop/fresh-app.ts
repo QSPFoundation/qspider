@@ -4,6 +4,7 @@ import { browser } from '@wdio/globals';
 import { desktopPlatform, type Proc } from './platform';
 import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 import { restartStep } from './restart-step';
+import { launchReady, launchRequested, reportStartupTimeline } from './startup-timeline';
 
 /** How long a closed app gets to exit on its own before its session is ended, which kills it. */
 const CLOSE_TIMEOUT = 5_000;
@@ -126,6 +127,7 @@ async function killLeftovers(platform: ReturnType<typeof desktopPlatform>, procs
 
 async function restartAppNow(wipeData: boolean, args: string[] | undefined): Promise<void> {
   assertDriverStarted();
+  const restartBegin = Date.now();
   const capabilities = launchCapabilities(args);
   const platform = desktopPlatform();
   const driver = driverPid();
@@ -136,6 +138,8 @@ async function restartAppNow(wipeData: boolean, args: string[] | undefined): Pro
   const running = platform.appProcesses(driver);
   const step = restartStep(running.length > 0, exitExpected, sessionEnded);
   if (step === 'end-session') {
+    // A restart inside a scenario: the app about to close has not had its timeline printed yet.
+    await reportStartupTimeline(scenarioTest?.title ?? '(no scenario)');
     await closeApp(platform, driver);
     sessionEnded = true;
     // After a close the app has usually exited already; the driver may answer the delete with an error about that.
@@ -162,7 +166,9 @@ async function restartAppNow(wipeData: boolean, args: string[] | undefined): Pro
   if (wipeData) {
     dataDirs.forEach((dir) => platform.emptyDir(dir));
   }
+  launchRequested(restartBegin);
   await browser.reloadSession(capabilities);
+  launchReady();
   sessionEnded = false;
 }
 
