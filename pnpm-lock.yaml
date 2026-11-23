@@ -197,8 +197,8 @@ importers:
         specifier: 24.0.1
         version: 24.0.1(nx@24.0.1(@swc-node/register@1.12.1(@swc/core@1.16.22(@swc/helpers@0.5.24))(@swc/types@0.1.28)(supports-color@8.1.1)(typescript@6.0.3))(@swc/core@1.16.22(@swc/helpers@0.5.24)))
       '@qsp/converters':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^2.0.0
+        version: 2.0.0
       '@qsp/wasm-engine':
         specifier: ^2.0.0
         version: 2.0.0
@@ -3443,8 +3443,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@qsp/converters@1.0.1':
-    resolution: {integrity: sha512-FrKDJ3ofOpJjQU6JtS35ohYaURVh3j3RozP52+ctLoFClXqY5/91pyGZvmsNkIicpEHvTvyIwl3x8yxQeBD2eg==}
+  '@qsp/converters@2.0.0':
+    resolution: {integrity: sha512-TSgJl0zenqyQUefqazdGItvHlbWS1meDzncRAzMQSF9Aq0Aqg9pJTda6/0hPjhrVgEDV0hFKBYBPP37MHcD38Q==}
     engines: {node: '>=14'}
 
   '@qsp/wasm-engine@2.0.0':
@@ -16714,7 +16714,7 @@ snapshots:
       - react-native-b4a
       - supports-color
 
-  '@qsp/converters@1.0.1': {}
+  '@qsp/converters@2.0.0': {}
 
   '@qsp/wasm-engine@2.0.0': {}
 

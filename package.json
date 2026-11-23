@@ -53,7 +53,7 @@
     "@mdx-js/react": "^3.1.1",
     "@monaco-editor/react": "^4.7.0",
     "@nx/devkit": "24.0.1",
-    "@qsp/converters": "^1.0.1",
+    "@qsp/converters": "^2.0.0",
     "@qsp/wasm-engine": "^2.0.0",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-alert-dialog": "^1.2.1",
