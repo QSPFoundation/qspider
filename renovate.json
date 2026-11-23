@@ -67,6 +67,16 @@
       "description": "expect-webdriverio 8 needs webdriverio ^10 (held above); 7.x is the last line for webdriverio 9. Lift together with the WebdriverIO hold",
       "matchPackageNames": ["expect-webdriverio"],
       "allowedVersions": "<8"
+    },
+    {
+      "description": "Hold TypeScript at 6 until typescript-eslint (peer typescript <6.1.0 in 8.73) and Nx support 7: TypeScript 7 (native) lacks the JS API they call (Nx's @nx/js/typescript plugin fails with 'tsModule.readConfigFile is not a function', #243)",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
+    {
+      "description": "Hold ESLint at 9 until eslint-plugin-react (loaded by Nx's flat/react config; peer eslint up to ^9.7) supports 10: ESLint 10 removed context.getFilename() and the plugin's rules fail to load (#244). Moving to 10 also turns on preserve-caught-error, which flags our code",
+      "matchPackageNames": ["eslint", "@eslint/js"],
+      "allowedVersions": "<10"
     }
   ]
 }
