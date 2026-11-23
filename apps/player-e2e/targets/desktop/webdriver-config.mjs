@@ -17,11 +17,8 @@ import process from 'node:process';
 
 // What wry passes when the app sets none (wry src/webview2/mod.rs; Tauri enables autoplay), plus the
 // DevTools port: 0 lets the browser pick a free one and write it to DevToolsActivePort.
-// EXPERIMENT (#252): `--no-proxy-server`. On Windows CI WebView2 holds the app's first request 1 s (median)
-// to 16 s before handing it to the app; a proxy auto-discovery (WPAD) lookup is the suspect
-// (WebView2Feedback #1828). Kept only if the start-up timeline shows the wait gone.
 const WEBDRIVER_BROWSER_ARGS =
-  '--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port=0 --no-proxy-server';
+  '--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port=0';
 
 const [from, out] = process.argv.slice(2);
 if (!from || !out) {
@@ -33,8 +30,14 @@ if (!Array.isArray(windows) || windows.length === 0) {
   process.stderr.write(`${from} has no app.windows to add the WebDriver browser arguments to\n`);
   process.exit(1);
 }
+// EXPERIMENT (#252): windows created visible. On Windows CI WebView2 holds the app's first request 1 s (median)
+// to 16 s before handing it to the app (no proxy lookup involved: `--no-proxy-server` changed nothing). The
+// window is created hidden, and WebView2 runs a hidden webview at lower priority (WebView2Feedback #3707, #4697).
+// Kept only if the start-up timeline shows the wait gone.
 const overlay = {
-  app: { windows: windows.map((window) => ({ ...window, additionalBrowserArgs: WEBDRIVER_BROWSER_ARGS })) },
+  app: {
+    windows: windows.map((window) => ({ ...window, visible: true, additionalBrowserArgs: WEBDRIVER_BROWSER_ARGS })),
+  },
 };
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, `${JSON.stringify(overlay, null, 2)}\n`);
