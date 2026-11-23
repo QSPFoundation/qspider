@@ -26,6 +26,9 @@ function readPage(): Promise<PageTimes> {
     const marks = (window as unknown as { __qspiderStartup?: { step: string; at: number }[] }).__qspiderStartup;
     return {
       timeOrigin: performance.timeOrigin,
+      fetch: nav?.fetchStart ?? 0,
+      sent: nav?.requestStart ?? 0,
+      firstByte: nav?.responseStart ?? 0,
       html: nav?.responseEnd ?? 0,
       domContentLoaded: nav?.domContentLoadedEventEnd ?? 0,
       load: nav?.loadEventEnd ?? 0,

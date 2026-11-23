@@ -12,7 +12,13 @@ export interface LaunchTimes {
 export interface PageTimes {
   /** performance.timeOrigin: when the webview started navigating to the app. */
   timeOrigin: number;
-  /** Navigation timing, ms after timeOrigin; 0 while not reached. `html`: the page's HTML fully served. */
+  /**
+   * Navigation timing of the HTML request, ms after timeOrigin; 0 while not reached (or not reported). `fetch`: the
+   * webview is ready to fetch it; `sent`: the request goes out; `firstByte`: the app's answer begins; `html`: it ends.
+   */
+  fetch: number;
+  sent: number;
+  firstByte: number;
   html: number;
   domContentLoaded: number;
   load: number;
@@ -45,7 +51,8 @@ function describeFiles(t0: number, page: PageTimes, firstMark: number | undefine
 }
 
 /**
- * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s html +1.12s dom +1.95s load +2.02s
+ * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s fetch +1.10s sent +1.11s first-byte +1.11s
+ * html +1.12s dom +1.95s load +2.02s
  * | files 3 served +1.70s, slowest index.js +1.15s→+1.70s | script +1.98s … | longest: files→script 0.28s`.
  * Times after `exit` are relative to the moment the new session was requested;
  * `exit` is how long the previous app took to go before that. Without page times, `problem` says why.
@@ -68,7 +75,13 @@ export function formatStartupTimeline(
     ['request', t0],
     ['page', page.timeOrigin],
   ];
-  if (page.html > 0) events.push(['html', page.timeOrigin + page.html]);
+  const request: [string, number][] = [
+    ['fetch', page.fetch],
+    ['sent', page.sent],
+    ['first-byte', page.firstByte],
+    ['html', page.html],
+  ];
+  for (const [name, ms] of request) if (ms > 0) events.push([name, page.timeOrigin + ms]);
   if (page.domContentLoaded > 0) events.push(['dom', page.timeOrigin + page.domContentLoaded]);
   if (page.load > 0) events.push(['load', page.timeOrigin + page.load]);
   parts.push(
