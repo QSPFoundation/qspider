@@ -45,8 +45,8 @@
       "automerge": false
     },
     {
-      "description": "playwright and @playwright/test must resolve to one version: they share the downloaded browsers",
-      "matchPackageNames": ["playwright", "@playwright/test"],
+      "description": "playwright and @playwright/test must resolve to one version: they share the downloaded browsers. Serenity/JS rides along: @serenity-js/playwright pins its playwright-core peer to one minor (~1.x), so a Playwright minor needs the matching Serenity/JS release in the same PR",
+      "matchPackageNames": ["playwright", "@playwright/test", "@serenity-js/**"],
       "groupName": "playwright"
     },
     {
