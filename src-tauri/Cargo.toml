@@ -30,6 +30,11 @@ urlencoding = "2.1.0"
 tauri-plugin-cli = "2"
 tauri-plugin-updater = "2"
 
+# The E2E start-up trace's WebView2 request hook (src/e2e_startup.rs, debug builds); the versions wry uses.
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.39"
+windows = "0.62"
+
 [features]
 default = [ "custom-protocol" ]
 custom-protocol = [ "tauri/custom-protocol" ]

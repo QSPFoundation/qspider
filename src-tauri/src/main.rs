@@ -155,6 +155,10 @@ fn main() {
     {
       e2e_startup::step("setup");
       e2e_startup::start_heartbeat(app.handle().clone());
+      #[cfg(windows)]
+      if let Some(window) = app.get_webview_window("main") {
+        e2e_startup::watch_requests(&window);
+      }
     }
     // Standalone games may ship without updater config.
     if app.config().plugins.0.contains_key("updater") {
