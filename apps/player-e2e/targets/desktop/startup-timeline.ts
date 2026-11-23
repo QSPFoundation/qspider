@@ -1,5 +1,5 @@
 // Prints where each app launch spent its time (formatStartupTimeline), to root-cause slow and hung
-// start-ups on Windows CI: the runner's restart times plus the page's navigation timing and the app's
+// start-ups on Windows CI: the runner's restart times plus the page's navigation and resource timing and the app's
 // own start-up steps (libs/desktop markStartup, E2E builds only), read over WebDriver.
 import { browser } from '@wdio/globals';
 import { formatStartupTimeline, type LaunchTimes, type PageTimes } from './startup-timeline-format';
@@ -26,9 +26,15 @@ function readPage(): Promise<PageTimes> {
     const marks = (window as unknown as { __qspiderStartup?: { step: string; at: number }[] }).__qspiderStartup;
     return {
       timeOrigin: performance.timeOrigin,
+      html: nav?.responseEnd ?? 0,
       domContentLoaded: nav?.domContentLoadedEventEnd ?? 0,
       load: nav?.loadEventEnd ?? 0,
       marks: marks ?? null,
+      files: (performance.getEntriesByType('resource') as PerformanceResourceTiming[]).map((entry) => ({
+        name: entry.name,
+        start: entry.fetchStart,
+        end: entry.responseEnd,
+      })),
     };
   });
 }

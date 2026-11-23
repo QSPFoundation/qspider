@@ -12,19 +12,42 @@ export interface LaunchTimes {
 export interface PageTimes {
   /** performance.timeOrigin: when the webview started navigating to the app. */
   timeOrigin: number;
-  /** Navigation timing, ms after timeOrigin; 0 while not reached. */
+  /** Navigation timing, ms after timeOrigin; 0 while not reached. `html`: the page's HTML fully served. */
+  html: number;
   domContentLoaded: number;
   load: number;
   /** The app's own start-up steps (libs/desktop markStartup); null when the build records none. */
   marks: { step: string; at: number }[] | null;
+  /** Resource timing of every file the page fetched: `start`/`end` are fetchStart/responseEnd, ms after timeOrigin. */
+  files: { name: string; start: number; end: number }[];
 }
 
 const seconds = (ms: number): string => `${(ms / 1000).toFixed(2)}s`;
 const since = (from: number, at: number): string => `+${seconds(at - from)}`;
+const baseName = (url: string): string => url.split(/[?#]/)[0].split('/').pop() || url;
 
 /**
- * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s dom +1.95s load +2.02s | script +1.98s …
- * | longest: page→dom 0.85s`. Times after `exit` are relative to the moment the new session was requested;
+ * The files fetched before the app's code first ran (all of them while it never ran): how many, when the last
+ * one was served (`files` event) and the one that took longest to serve. Tells serving the app from running it.
+ */
+function describeFiles(t0: number, page: PageTimes, firstMark: number | undefined): { text: string; served?: number } {
+  const files = page.files.filter((file) => firstMark === undefined || page.timeOrigin + file.start <= firstMark);
+  if (!files.length) return { text: 'no files timed' };
+  const at = (ms: number): number => page.timeOrigin + ms;
+  const served = at(Math.max(...files.map((file) => file.end)));
+  const slowest = files.reduce((a, b) => (b.end - b.start > a.end - a.start ? b : a));
+  return {
+    text:
+      `files ${files.length} served ${since(t0, served)},` +
+      ` slowest ${baseName(slowest.name)} ${since(t0, at(slowest.start))}→${since(t0, at(slowest.end))}`,
+    served,
+  };
+}
+
+/**
+ * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s html +1.12s dom +1.95s load +2.02s
+ * | files 3 served +1.70s, slowest index.js +1.15s→+1.70s | script +1.98s … | longest: files→script 0.28s`.
+ * Times after `exit` are relative to the moment the new session was requested;
  * `exit` is how long the previous app took to go before that. Without page times, `problem` says why.
  */
 export function formatStartupTimeline(
@@ -45,6 +68,7 @@ export function formatStartupTimeline(
     ['request', t0],
     ['page', page.timeOrigin],
   ];
+  if (page.html > 0) events.push(['html', page.timeOrigin + page.html]);
   if (page.domContentLoaded > 0) events.push(['dom', page.timeOrigin + page.domContentLoaded]);
   if (page.load > 0) events.push(['load', page.timeOrigin + page.load]);
   parts.push(
@@ -53,6 +77,10 @@ export function formatStartupTimeline(
       .map(([name, at]) => `${name} ${since(t0, at)}`)
       .join(' '),
   );
+
+  const files = describeFiles(t0, page, page.marks?.[0]?.at);
+  parts.push(files.text);
+  if (files.served !== undefined) events.push(['files', files.served]);
 
   if (page.marks === null) {
     parts.push('no start-up steps recorded');
