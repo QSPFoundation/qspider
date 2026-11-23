@@ -22,6 +22,7 @@ import { ENV_APP_DATA_DIRS, ENV_DRIVER_PID, ENV_DRIVER_START_ERROR } from './pla
 import { windowsWebviewOptions } from './platform/windows';
 import { MAIN_EXCLUDE, MAIN_SPECS } from './shards';
 import { atspiProbes, findMissingPrereqs, INSTALL_HINT, which } from './prereqs';
+import { reportStartupTimeline } from './startup-timeline';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 
@@ -288,6 +289,8 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
   },
 
   async afterTest(test, _context, { passed, error }) {
+    // Every scenario's last launch, failed or not (startup-timeline.ts); bounded, never throws.
+    await reportStartupTimeline(test.title);
     // A skipped scenario (this.skip()) reports passed: false without an error.
     if (passed || !error) return;
     mkdirSync(artifactsDir, { recursive: true });
