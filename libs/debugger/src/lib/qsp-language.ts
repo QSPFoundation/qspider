@@ -1,4 +1,4 @@
-import type { languages } from 'monaco-editor';
+import type { languages } from 'monaco-editor/editor';
 
 // The names the engine knows (upstream statement, function and operator tables), lower case.
 
@@ -373,7 +373,7 @@ export const qspLanguageConfiguration: languages.LanguageConfiguration = {
 };
 
 /** Registers `qsp` (code) and `qsp-expr` (one expression, for embedding) with Monaco. */
-export function registerQspLanguage(monaco: typeof import('monaco-editor')) {
+export function registerQspLanguage(monaco: typeof import('monaco-editor/editor')) {
   monaco.languages.register({
     id: 'qsp',
     extensions: ['.qsp', '.qsps'],

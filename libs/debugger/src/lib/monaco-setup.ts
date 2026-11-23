@@ -1,14 +1,14 @@
 import { loader } from '@monaco-editor/react';
-// The editor core with its contributions but without the TS/JSON/CSS/HTML language services (and their workers).
-// @ts-expect-error The editor core ships no typings; it is cast to the public API below.
-import * as editorCore from 'monaco-editor/esm/vs/editor/edcore.main';
-import EditorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
-import type * as Monaco from 'monaco-editor';
+// The editor API with all editor features, but without the bundled languages and the TS/JSON/CSS/HTML
+// language services (and their workers): the custom-bundle entry points monaco-editor documents since 0.56.
+import * as monaco from 'monaco-editor/editor';
+import 'monaco-editor/features/register.all';
+import EditorWorker from 'monaco-editor/editor/editor.worker?worker';
 import { registerQspLanguage } from './qsp-language';
 import { registerQspHover } from './qsp-hover';
 import { registerQspDescriptionLanguage } from './qsp-description-language';
 
-export const monaco = editorCore as unknown as typeof Monaco;
+export { monaco };
 
 // Only the base editor worker is bundled: QSP has no language service of its own.
 globalThis.MonacoEnvironment = {
