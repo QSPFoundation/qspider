@@ -1,6 +1,7 @@
 // Prints where each app launch spent its time (formatStartupTimeline), to root-cause slow and hung
 // start-ups on Windows CI: the runner's restart times plus the page's navigation and resource timing and the app's
-// own start-up steps (libs/desktop markStartup, E2E builds only), read over WebDriver.
+// own start-up steps (libs/desktop markStartup, E2E builds only) and the Rust side's record (e2e_startup_trace:
+// start-up steps and main-thread stalls, debug builds only), read over WebDriver.
 import { browser } from '@wdio/globals';
 import { formatStartupTimeline, type LaunchTimes, type PageTimes } from './startup-timeline-format';
 
@@ -20,11 +21,18 @@ export function launchReady(): void {
   if (pending) pending.ready = Date.now();
 }
 
-function readPage(): Promise<PageTimes> {
-  return browser.execute(() => {
+async function readPage(): Promise<PageTimes> {
+  // WebDriver waits for the promise the script returns; WebdriverIO types that as a promise in a promise.
+  return await browser.execute(async () => {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
     const marks = (window as unknown as { __qspiderStartup?: { step: string; at: number }[] }).__qspiderStartup;
+    const internals = (window as unknown as { __TAURI_INTERNALS__?: { invoke(cmd: string): Promise<unknown> } })
+      .__TAURI_INTERNALS__;
+    const native = internals
+      ? ((await internals.invoke('e2e_startup_trace').catch(() => null)) as PageTimes['native'])
+      : null;
     return {
+      native,
       timeOrigin: performance.timeOrigin,
       fetch: nav?.fetchStart ?? 0,
       sent: nav?.requestStart ?? 0,
