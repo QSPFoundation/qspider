@@ -51,7 +51,7 @@
         "style": "css",
         "linter": "eslint",
         "bundler": "vite",
-        "babel": true
+        "babel": false
       },
       "component": {
         "style": "css"
@@ -142,7 +142,7 @@
       "!{projectRoot}/eslint.config.js",
       "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": ["{workspaceRoot}/babel.config.json", "{workspaceRoot}/tsconfig.base.json"]
+    "sharedGlobals": ["{workspaceRoot}/tsconfig.base.json"]
   },
   "useInferencePlugins": false,
   "defaultBase": "main",

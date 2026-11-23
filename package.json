@@ -105,8 +105,6 @@
     "xoid": "^1.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.0",
-    "@babel/preset-react": "^8.0.0",
     "@docusaurus/module-type-aliases": "^3.10.2",
     "@docusaurus/tsconfig": "^3.10.2",
     "@docusaurus/types": "^3.10.2",
