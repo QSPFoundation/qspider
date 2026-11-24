@@ -5,9 +5,10 @@
 // the Known Folders API, so no env var can redirect them. Hence the host-session guard: these dirs are
 // emptied only on a throwaway CI machine or when the developer opts in.
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { win32 } from 'node:path';
 import { which } from '../prereqs';
+import { keptEntry } from '../webview-data';
 import { driverPid } from './env';
 import type { DesktopPlatform, Proc } from './index';
 import { pollUntilExited } from './wait-for-exit';
@@ -244,9 +245,19 @@ export const windowsPlatform: DesktopPlatform = {
     );
   },
   // WebView2 can release EBWebView files a moment after its processes are gone; still fails after the retries.
-  emptyDir: (dir) => {
-    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
-    mkdirSync(dir);
+  emptyDir: (dir, keep) => {
+    const kept = keptEntry(dir, keep);
+    const remove = (path: string): void =>
+      rmSync(path, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+    if (kept === null) {
+      remove(dir);
+      mkdirSync(dir);
+      return;
+    }
+    mkdirSync(dir, { recursive: true });
+    for (const entry of readdirSync(dir)) {
+      if (entry.toLowerCase() !== kept.toLowerCase()) remove(win32.join(dir, entry));
+    }
   },
   checkRunAllowed: () => assertHostSessionAllowed(process.env),
   mapAreaClick: 'area',

@@ -40,8 +40,12 @@ export interface DesktopPlatform {
   kill(procs: Proc[]): void;
   /** Resolves once every one of `procs` has exited; fails after `timeoutMs`. */
   waitForExit(procs: Proc[], timeoutMs: number): Promise<void>;
-  /** Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. */
-  emptyDir(dir: string): void;
+  /**
+   * Deletes `dir` (one of appDataDirs) and creates it again, empty; throws when it cannot be deleted. With `keep`
+   * (Windows: the WebView2 profile folder whose browsing data was just cleared, webview-data.ts), an entry of
+   * `dir` that is `keep` stays and everything else in `dir` is deleted.
+   */
+  emptyDir(dir: string, keep?: string): void;
   /** Throws when the run must not start here (onPrepare): Linux outside the private session, Windows off CI. */
   checkRunAllowed(): void;
   /** The dirs that hold the app's data, emptied before the driver starts and between scenarios. */
