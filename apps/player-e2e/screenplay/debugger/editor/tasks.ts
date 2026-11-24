@@ -1,7 +1,17 @@
-import { Task } from '@serenity-js/core';
-import { Key, Press } from '@serenity-js/web';
+import { equals } from '@serenity-js/assertions';
+import { Interaction, Question, Task } from '@serenity-js/core';
+import { Key, Press, Text } from '@serenity-js/web';
 import { ClickAt } from '../../support/click-at';
-import { EditorLineMargin, EditorToken, EditorTokenWithin, EditorViewport, HoverPinLink } from './elements';
+import { seeEventually } from '../../support/see-eventually';
+import {
+  BreakpointLineNumbers,
+  EditorLineMargin,
+  EditorToken,
+  EditorTokenWithin,
+  EditorViewport,
+  HoverPinLink,
+} from './elements';
+import { breakpointsAfterToggle, describeBreakpoints, type LineBreakpoints } from './line-breakpoints';
 
 // Clicks in the editor go through ClickAt, never Serenity's Click: see support/click-at.ts.
 
@@ -40,13 +50,34 @@ export const RevealEditorLine = (line: number): Task =>
     Press.the(Key.Enter),
   );
 
+/** The breakpoints the editor shows on the lines in view, by line number. */
+const ShownBreakpoints = Question.about<LineBreakpoints>('the breakpoints the editor shows', async (actor) => {
+  const lines = async (state: 'enabled' | 'disabled') =>
+    (await actor.answer(BreakpointLineNumbers(state).eachMappedTo(Text))).map(Number);
+  return { enabled: await lines('enabled'), disabled: await lines('disabled') };
+});
+
 /**
- * Toggles the breakpoint on editor line `line`: brings the line into view, then clicks its glyph margin (the left
- * 18 px of its margin, which Monaco reads from the click's position).
+ * Toggles the breakpoint on editor line `line`: brings the line into view, clicks its glyph margin (the left 18 px of
+ * its margin, which Monaco reads from the click's position), and waits until the editor shows exactly that change:
+ * line `line` gets a breakpoint, or its breakpoint switches between enabled and disabled, and no other line changes.
+ * A click that lands on another line fails here, naming what changed, instead of a later step of the scenario.
  */
-export const ToggleLineBreakpoint = (line: number): Task =>
-  Task.where(
+export const ToggleLineBreakpoint = (line: number): Task => {
+  let expected = '';
+  const Expected = Question.about(`the breakpoints after toggling line ${line}`, () => expected);
+  return Task.where(
     `#actor toggles the breakpoint on line ${line}`,
     RevealEditorLine(line),
+    Interaction.where(`#actor notes the breakpoints the editor shows`, async (actor) => {
+      expected = describeBreakpoints(breakpointsAfterToggle(await actor.answer(ShownBreakpoints), line));
+    }),
     ClickAt(EditorLineMargin(line), { x: 8, y: 8 }),
+    seeEventually(
+      EditorViewport,
+      () => ShownBreakpoints.as(describeBreakpoints),
+      equals(Expected),
+      `#actor sees only line ${line} change its breakpoint`,
+    ),
   );
+};
