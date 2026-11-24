@@ -3175,6 +3175,8 @@ dependencies = [
  "tauri-plugin-window-state",
  "urlencoding",
  "uuid",
+ "webview2-com",
+ "windows",
 ]
 
 [[package]]

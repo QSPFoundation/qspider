@@ -6,6 +6,8 @@
 mod app_asset;
 #[cfg(debug_assertions)]
 mod e2e;
+#[cfg(debug_assertions)]
+mod e2e_startup;
 mod game_uri;
 
 use game_uri::{parse_game_uri, read_game_file};
@@ -92,6 +94,8 @@ fn respond(status: u16, mime: &str, body: Vec<u8>) -> tauri::http::Response<Vec<
 }
 
 fn main() {
+  #[cfg(debug_assertions)]
+  e2e_startup::step("process");
   std::env::set_var("WEBKIT_DISABLE_COMPOSITING_MODE", "1");
   let builder = tauri::Builder::default()
     .manage(GamesPath(Default::default()))
@@ -122,14 +126,21 @@ fn main() {
     .plugin(tauri_plugin_process::init())
     .plugin(tauri_plugin_window_state::Builder::default().build());
 
-  // `e2e_mark` exists only in debug builds, which is what the E2E builds are (`tauri build --debug`).
-  // Keep both handler lists identical apart from `e2e::e2e_mark`.
+  #[cfg(debug_assertions)]
+  let builder = builder.on_page_load(|_, payload| match payload.event() {
+    tauri::webview::PageLoadEvent::Started => e2e_startup::step("page-load-started"),
+    tauri::webview::PageLoadEvent::Finished => e2e_startup::step("page-load-finished"),
+  });
+
+  // `e2e_mark` and `e2e_startup_trace` exist only in debug builds, which is what the E2E builds are
+  // (`tauri build --debug`). Keep both handler lists identical apart from those two.
   #[cfg(debug_assertions)]
   let builder = builder.invoke_handler(tauri::generate_handler![
     prepare_game_start,
     read_resource,
     read_app_asset,
-    e2e::e2e_mark
+    e2e::e2e_mark,
+    e2e_startup::e2e_startup_trace
   ]);
   #[cfg(not(debug_assertions))]
   let builder = builder.invoke_handler(tauri::generate_handler![
@@ -140,6 +151,15 @@ fn main() {
 
   #[cfg(desktop)]
   let builder = builder.plugin(tauri_plugin_cli::init()).setup(|app| {
+    #[cfg(debug_assertions)]
+    {
+      e2e_startup::step("setup");
+      e2e_startup::start_heartbeat(app.handle().clone());
+      #[cfg(windows)]
+      if let Some(window) = app.get_webview_window("main") {
+        e2e_startup::watch_requests(&window);
+      }
+    }
     // Standalone games may ship without updater config.
     if app.config().plugins.0.contains_key("updater") {
       app
@@ -150,6 +170,12 @@ fn main() {
   });
 
   builder
-    .run(tauri::generate_context!())
-    .expect("error while running tauri application");
+    .build(tauri::generate_context!())
+    .expect("error while building tauri application")
+    .run(|_app, _event| {
+      #[cfg(debug_assertions)]
+      if let tauri::RunEvent::Ready = _event {
+        e2e_startup::step("ready");
+      }
+    });
 }

@@ -12,7 +12,13 @@ export interface LaunchTimes {
 export interface PageTimes {
   /** performance.timeOrigin: when the webview started navigating to the app. */
   timeOrigin: number;
-  /** Navigation timing, ms after timeOrigin; 0 while not reached. `html`: the page's HTML fully served. */
+  /**
+   * Navigation timing of the HTML request, ms after timeOrigin; 0 while not reached (or not reported). `fetch`: the
+   * webview is ready to fetch it; `sent`: the request goes out; `firstByte`: the app's answer begins; `html`: it ends.
+   */
+  fetch: number;
+  sent: number;
+  firstByte: number;
   html: number;
   domContentLoaded: number;
   load: number;
@@ -20,7 +26,20 @@ export interface PageTimes {
   marks: { step: string; at: number }[] | null;
   /** Resource timing of every file the page fetched: `start`/`end` are fetchStart/responseEnd, ms after timeOrigin. */
   files: { name: string; start: number; end: number }[];
+  /**
+   * The Rust side's own record (src-tauri/src/e2e_startup.rs): start-up steps and main-thread stalls, wall-clock ms;
+   * null when the app could not be asked.
+   */
+  native: NativeTrace | null;
 }
+
+export interface NativeTrace {
+  steps: { step: string; at: number }[];
+  stalls: { from: number; to: number }[];
+}
+
+/** How many main-thread stalls a line lists, the longest ones, in time order. */
+const MAX_STALLS = 3;
 
 const seconds = (ms: number): string => `${(ms / 1000).toFixed(2)}s`;
 const since = (from: number, at: number): string => `+${seconds(at - from)}`;
@@ -45,7 +64,8 @@ function describeFiles(t0: number, page: PageTimes, firstMark: number | undefine
 }
 
 /**
- * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s html +1.12s dom +1.95s load +2.02s
+ * `Startup timeline [title]: exit 0.42s | session +2.31s | page +1.10s fetch +1.10s sent +1.11s first-byte +1.11s
+ * html +1.12s dom +1.95s load +2.02s
  * | files 3 served +1.70s, slowest index.js +1.15s→+1.70s | script +1.98s … | longest: files→script 0.28s`.
  * Times after `exit` are relative to the moment the new session was requested;
  * `exit` is how long the previous app took to go before that. Without page times, `problem` says why.
@@ -68,7 +88,13 @@ export function formatStartupTimeline(
     ['request', t0],
     ['page', page.timeOrigin],
   ];
-  if (page.html > 0) events.push(['html', page.timeOrigin + page.html]);
+  const request: [string, number][] = [
+    ['fetch', page.fetch],
+    ['sent', page.sent],
+    ['first-byte', page.firstByte],
+    ['html', page.html],
+  ];
+  for (const [name, ms] of request) if (ms > 0) events.push([name, page.timeOrigin + ms]);
   if (page.domContentLoaded > 0) events.push(['dom', page.timeOrigin + page.domContentLoaded]);
   if (page.load > 0) events.push(['load', page.timeOrigin + page.load]);
   parts.push(
@@ -77,6 +103,25 @@ export function formatStartupTimeline(
       .map(([name, at]) => `${name} ${since(t0, at)}`)
       .join(' '),
   );
+
+  if (page.native === null) {
+    parts.push('no rust trace');
+  } else {
+    const steps = page.native.steps.map(({ step, at }): [string, number] => [step, at]);
+    parts.push(`rust ${steps.map(([step, at]) => `${step} ${since(t0, at)}`).join(' ')}`.trimEnd());
+    events.push(...steps);
+    const stalls = [...page.native.stalls]
+      .sort((a, b) => b.to - b.from - (a.to - a.from))
+      .slice(0, MAX_STALLS)
+      .sort((a, b) => a.from - b.from);
+    parts.push(
+      stalls.length
+        ? `main thread stalled ${page.native.stalls.length}x: ` +
+            stalls.map(({ from, to }) => `${since(t0, from)}→${since(t0, to)} (${seconds(to - from)})`).join(' ')
+        : 'main thread never stalled',
+    );
+    for (const { from, to } of stalls) events.push(['stall', from], ['stall-end', to]);
+  }
 
   const files = describeFiles(t0, page, page.marks?.[0]?.at);
   parts.push(files.text);
