@@ -1,8 +1,32 @@
-import { equals, includes, matches } from '@serenity-js/assertions';
-import { By, PageElement, PageElements, Text } from '@serenity-js/web';
+import { By, PageElement, PageElements } from '@serenity-js/web';
 
 // The debugger's code editor (Monaco, inside `data-qa="debug-editor"`). The editor is third-party and has no markers:
 // its own DOM is located here by Monaco's classes, and by the decoration classes libs/debugger gives it.
+//
+// Elements picked by their text are located with one XPath query, never with `.where(Text, …)`: that reads the text
+// of every candidate over its own WebDriver call (a screenful of tokens took 1.4 s per lookup on CI), and Monaco
+// re-renders and reuses its line elements meanwhile, so the element found can be showing another line by the click.
+
+/** An XPath string literal for `text`, whatever quotes it holds. */
+const xpathLiteral = (text: string): string => {
+  if (!text.includes('"')) return `"${text}"`;
+  if (!text.includes("'")) return `'${text}'`;
+  return `concat(${text
+    .split('"')
+    .map((part) => `"${part}"`)
+    .join(`, '"', `)})`;
+};
+
+/** An XPath test for an element having the CSS class `name`. */
+const hasClass = (name: string): string => `contains(concat(" ", normalize-space(@class), " "), " ${name} ")`;
+
+/** The text of the context node with Monaco's no-break spaces as plain spaces, as WebDriver's element text reads it. */
+const SPACED_TEXT = 'translate(., "\u00a0", " ")';
+
+const EDITOR = '//*[@data-qa="debug-editor"]';
+
+/** Monaco's per-line margin elements (line number, glyph and margin decorations), for the lines in view. */
+const MARGIN_LINES = `${EDITOR}//div[${hasClass('margin-view-overlays')}]/div`;
 
 /** The editor's rendered lines (Monaco's view lines). */
 export const DebugEditorLines = PageElement.located(By.css('[data-qa="debug-editor"] .view-lines')).describedAs(
@@ -25,31 +49,39 @@ export const EditorViewLines = PageElements.located(By.css('[data-qa="debug-edit
 );
 
 /** The editor's leaf token spans. Neighbouring tokens Monaco colours alike share a span (`A.`, ` = $MID`). */
-const EditorTokens = PageElements.located(By.css('[data-qa="debug-editor"] .view-line > span > span'));
-
-/** A pattern for text that starts with `text`, where a space may be Monaco's no-break space. */
-const startingWith = (text: string) =>
-  new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/ /g, '[ \u00a0]')}`, 'u');
+const EDITOR_TOKENS = `${EDITOR}//div[${hasClass('view-line')}]/span/span`;
 
 /** The first (or last) token span of the editor whose text starts with `text` (spaces as Monaco spells them). */
-export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') => {
-  const tokens = EditorTokens.where(Text, matches(startingWith(text)));
-  return (occurrence === 'last' ? tokens.last() : tokens.first()).describedAs(`${occurrence} editor token "${text}"`);
-};
+export const EditorToken = (text: string, occurrence: 'first' | 'last' = 'first') =>
+  PageElement.located(
+    By.xpath(
+      `(${EDITOR_TOKENS}[starts-with(${SPACED_TEXT}, ${xpathLiteral(text)})])[${occurrence === 'last' ? 'last()' : '1'}]`,
+    ),
+  ).describedAs(`${occurrence} editor token "${text}"`);
 
 /** The first token span of the editor whose text contains `text`: for a token that shares its span (` = $MID`). */
 export const EditorTokenWithin = (text: string) =>
-  EditorTokens.where(Text, includes(text)).first().describedAs(`editor span holding "${text}"`);
+  PageElement.located(By.xpath(`(${EDITOR_TOKENS}[contains(${SPACED_TEXT}, ${xpathLiteral(text)})])[1]`)).describedAs(
+    `editor span holding "${text}"`,
+  );
 
 /**
  * The margin of editor line `line` (Monaco's margin overlay line, which holds the line number). Its left 18 px are
  * the glyph margin, where a click toggles a breakpoint. Rendered only while the line is in view.
  */
 export const EditorLineMargin = (line: number) =>
-  PageElements.located(By.css('[data-qa="debug-editor"] .margin-view-overlays > div'))
-    .where(Text, equals(String(line)))
-    .first()
-    .describedAs(`margin of editor line ${line}`);
+  PageElement.located(
+    By.xpath(`(${MARGIN_LINES}[div[${hasClass('line-numbers')}][normalize-space(.) = "${line}"]])[1]`),
+  ).describedAs(`margin of editor line ${line}`);
+
+/**
+ * The line-number cell of every line in view that has a breakpoint, enabled or disabled (libs/debugger's margin
+ * decorations `qsp-breakpoint-margin-enabled` / `-disabled`).
+ */
+export const BreakpointLineNumbers = (state: 'enabled' | 'disabled') =>
+  PageElements.located(
+    By.xpath(`${MARGIN_LINES}[div[${hasClass(`qsp-breakpoint-margin-${state}`)}]]/div[${hasClass('line-numbers')}]`),
+  ).describedAs(`line numbers of ${state} breakpoints`);
 
 /** The overlay line that carries the current-line decoration (libs/debugger's `qsp-current-line-decoration`). */
 export const CurrentLineOverlay = PageElement.located(

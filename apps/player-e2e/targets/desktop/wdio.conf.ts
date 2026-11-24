@@ -215,13 +215,11 @@ export const desktopConfig = ({ application, args, identifier, artifactsDir }: D
   logLevel: process.platform === 'win32' ? 'info' : 'warn',
   outputDir: join(artifactsDir, 'wdio-logs'),
   waitforTimeout: 10_000,
-  // The per-scenario app relaunch (deleteSession+reloadSession) intermittently hangs (~5-10%/run) in
-  // wry/WebKitWebDriver's session handling — independent of our code. A failed spec is retried in a
-  // brand-new worker with its own fresh tauri-driver (beforeSession), so no orphaned state carries over;
-  // 2 retries (3 attempts) drive a ~10%/attempt flake to ~0.1%/spec. That hang (#167) is Linux-only
-  // (WebKitWebDriver); Windows needed no retry (run 40105883229), so it gets none: a Windows retry needs its
-  // own documented cause, and a Windows flake stays visible instead of absorbed.
-  specFileRetries: process.platform === 'win32' ? 0 : 2,
+  // No retries on either OS: a failure shows on its first attempt. Linux had 2 for the WebKitWebDriver session hang
+  // (#167), but from 2026-11-22 to 11-24 (50 runs, 154 Linux jobs) every retry went to one recurring debugger bug
+  // (a breakpoint click landing on the wrong line; now caught where it happens, ToggleLineBreakpoint) and hid it
+  // 4 times, at 6-8 min per retry of the whole spec file. A failure is a bug to root-cause, not to rerun.
+  specFileRetries: 0,
   framework: '@serenity-js/webdriverio',
   // console-reporter: without it, desktop failures show only as "Unknown error".
   serenity: { runner: 'mocha', crew: ['@serenity-js/console-reporter'], interactionTimeout: INTERACTION_TIMEOUT },
