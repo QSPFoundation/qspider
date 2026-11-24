@@ -34,15 +34,55 @@ pub fn e2e_mark(marker: String, detail: String) {
   let _ = out.flush();
 }
 
-/// Clears all of the webview's browsing data (IndexedDB, local and session storage, caches, cookies,
-/// service workers…) and resolves once WebView2 reports it done. Tauri's `clear_all_browsing_data`
-/// returns before that (wry ignores the completion), and the runner closes the app right after.
+/// The URL the webview shows once `e2e_clear_webview_data` is done: `about:blank#cleared` or `#failed`.
+#[cfg_attr(not(windows), allow(dead_code))]
+fn clear_outcome_url(outcome: &Result<(), String>) -> &'static str {
+  match outcome {
+    Ok(()) => "about:blank#cleared",
+    Err(_) => "about:blank#failed",
+  }
+}
+
+/// Starts clearing all of the webview's browsing data (IndexedDB, local and session storage, caches,
+/// cookies, service workers…) and returns. First the webview goes to `about:blank`, so no app code is
+/// left to write anything after the clear; then WebView2's `ClearBrowsingDataAll` runs and is awaited
+/// (Tauri's `clear_all_browsing_data` returns before it is done: wry ignores its completion); then the
+/// webview goes to `about:blank#cleared` (or `#failed`), which the runner waits for over WebDriver.
 #[cfg(windows)]
 #[command]
-pub async fn e2e_clear_webview_data(webview: tauri::Webview) -> Result<(), String> {
+pub fn e2e_clear_webview_data(webview: tauri::Webview) {
+  std::thread::spawn(move || {
+    // Lets this command's answer reach the page before the page goes away.
+    std::thread::sleep(std::time::Duration::from_millis(100));
+    let outcome = clear_on_blank(&webview);
+    if let Err(e) = &outcome {
+      eprintln!("e2e_clear_webview_data: {e}");
+    }
+    if let Ok(url) = clear_outcome_url(&outcome).parse() {
+      let _ = webview.navigate(url);
+    }
+  });
+}
+
+#[cfg(windows)]
+fn clear_on_blank(webview: &tauri::Webview) -> Result<(), String> {
   use webview2_com::ClearBrowsingDataCompletedHandler;
   use webview2_com::Microsoft::Web::WebView2::Win32::{ICoreWebView2Profile2, ICoreWebView2_13};
   use windows::core::Interface;
+
+  let blank: tauri::Url = "about:blank".parse().map_err(|e| format!("{e}"))?;
+  webview.navigate(blank).map_err(|e| e.to_string())?;
+  let deadline = std::time::Instant::now() + CLEAR_TIMEOUT;
+  while webview
+    .url()
+    .map(|url| url.as_str() != "about:blank")
+    .unwrap_or(true)
+  {
+    if std::time::Instant::now() > deadline {
+      return Err("the webview did not reach about:blank".to_string());
+    }
+    std::thread::sleep(std::time::Duration::from_millis(50));
+  }
 
   let (tx, rx) = std::sync::mpsc::channel::<Result<(), String>>();
   webview
@@ -70,24 +110,29 @@ pub async fn e2e_clear_webview_data(webview: tauri::Webview) -> Result<(), Strin
       }
     })
     .map_err(|e| e.to_string())?;
-  tauri::async_runtime::spawn_blocking(move || {
-    rx.recv_timeout(CLEAR_TIMEOUT)
-      .map_err(|_| format!("WebView2 did not finish clearing within {CLEAR_TIMEOUT:?}"))?
-  })
-  .await
-  .map_err(|e| e.to_string())?
+  rx.recv_timeout(CLEAR_TIMEOUT)
+    .map_err(|_| format!("WebView2 did not finish clearing within {CLEAR_TIMEOUT:?}"))?
 }
 
-/// Only Windows needs it (`fresh-app.ts` keeps the WebView2 profile there alone); elsewhere it says so.
+/// Only Windows needs it (`fresh-app.ts` keeps the WebView2 profile there alone); elsewhere it fails.
 #[cfg(not(windows))]
 #[command]
-pub async fn e2e_clear_webview_data() -> Result<(), String> {
+pub fn e2e_clear_webview_data() -> Result<(), String> {
   Err("e2e_clear_webview_data is Windows only".to_string())
 }
 
 #[cfg(test)]
 mod tests {
   use super::*;
+
+  #[test]
+  fn the_outcome_url_tells_cleared_from_failed() {
+    assert_eq!(clear_outcome_url(&Ok(())), "about:blank#cleared");
+    assert_eq!(
+      clear_outcome_url(&Err("x".to_string())),
+      "about:blank#failed"
+    );
+  }
 
   #[test]
   fn marker_without_detail_has_no_trailing_space() {

@@ -5,7 +5,7 @@ import { desktopPlatform, type Proc } from './platform';
 import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 import { restartStep } from './restart-step';
 import { launchReady, launchRequested, reportStartupTimeline } from './startup-timeline';
-import { webviewDataLeft, webviewProfileDir, type WebviewDataLeft } from './webview-data';
+import { clearOutcome, webviewProfileDir } from './webview-data';
 
 /** How long a closed app gets to exit on its own before its session is ended, which kills it. */
 const CLOSE_TIMEOUT = 5_000;
@@ -19,8 +19,11 @@ const EXIT_TIMEOUT = 40_000;
 const RESTART_TIMEOUT = CLOSE_TIMEOUT + EXIT_TIMEOUT + 30_000;
 /** How long the killed leftovers of a failed exit wait get to be gone. */
 const KILL_TIMEOUT = 5_000;
-/** How long clearing the webview data may take (the app gives up after 10 s) before the profile is deleted instead. */
-const CLEAR_TIMEOUT = 15_000;
+/**
+ * How long clearing the webview data may take before the profile is deleted instead: the app gives up after 10 s
+ * reaching about:blank and 10 s more on the clear itself (src-tauri/src/e2e.rs CLEAR_TIMEOUT).
+ */
+const CLEAR_TIMEOUT = 25_000;
 
 /** The running scenario's test (scenario.ts), whose timeout a restart sets aside. */
 let scenarioTest: Mocha.Runnable | undefined;
@@ -90,39 +93,31 @@ function webviewUserDataFolder(capabilities: WebdriverIO.Capabilities): string |
 }
 
 /**
- * Windows: clears the running app's browsing data (e2e_clear_webview_data) and checks from the page that nothing
- * is left, so the next scenario can keep the WebView2 profile (webview-data.ts). Returns the profile folder to
- * keep, or undefined, with a warning, when the profile must be deleted as before: the clear failed or left data.
+ * Windows: has the running app clear its browsing data (e2e_clear_webview_data: the webview goes to about:blank,
+ * so no app code can write after the clear, and then to about:blank#cleared), so the next scenario can keep the
+ * WebView2 profile (webview-data.ts). Returns the profile folder to keep, or undefined, with a warning, when the
+ * profile must be deleted as before: the command could not start or the clear failed or did not finish in time.
  */
 async function clearWebviewData(capabilities: WebdriverIO.Capabilities): Promise<string | undefined> {
   const userDataFolder = webviewUserDataFolder(capabilities);
   if (!userDataFolder) return undefined;
-  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    const left = await Promise.race([
-      browser.execute(async (): Promise<WebviewDataLeft> => {
-        const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke(cmd: string): Promise<unknown> } })
-          .__TAURI_INTERNALS__;
-        await internals.invoke('e2e_clear_webview_data');
-        return {
-          indexedDb: (await indexedDB.databases()).map((db) => db.name ?? '(unnamed)'),
-          localStorage: localStorage.length,
-          sessionStorage: sessionStorage.length,
-          caches: 'caches' in window ? (await caches.keys()).length : null,
-        };
-      }),
-      new Promise<never>((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`no answer within ${CLEAR_TIMEOUT}ms`)), CLEAR_TIMEOUT);
-      }),
-    ]);
-    const problems = webviewDataLeft(left);
-    if (problems.length === 0) return webviewProfileDir(userDataFolder);
-    console.warn(`Webview data left after clearing it (${problems.join('; ')}); deleting the WebView2 profile`);
+    await browser.execute(async () => {
+      const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke(cmd: string): Promise<unknown> } })
+        .__TAURI_INTERNALS__;
+      await internals.invoke('e2e_clear_webview_data');
+    });
+    await browser.waitUntil(async () => clearOutcome(await browser.getUrl()) !== 'pending', {
+      timeout: CLEAR_TIMEOUT,
+      interval: 100,
+      timeoutMsg: `not done within ${CLEAR_TIMEOUT}ms`,
+    });
+    const outcome = clearOutcome(await browser.getUrl());
+    if (outcome === 'cleared') return webviewProfileDir(userDataFolder);
+    console.warn('The app could not clear the webview data (about:blank#failed); deleting the WebView2 profile');
   } catch (error) {
     const reason = error instanceof Error ? error.message.split('\n')[0] : String(error);
     console.warn(`Could not clear the webview data (${reason}); deleting the WebView2 profile`);
-  } finally {
-    clearTimeout(timer);
   }
   return undefined;
 }

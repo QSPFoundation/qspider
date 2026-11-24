@@ -1,19 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { keptEntry, webviewDataLeft, webviewProfileDir } from './webview-data';
+import { clearOutcome, keptEntry, webviewProfileDir } from './webview-data';
 
-describe('webviewDataLeft', () => {
-  it('finds nothing in a cleared page', () => {
-    expect(webviewDataLeft({ indexedDb: [], localStorage: 0, sessionStorage: 0, caches: 0 })).toEqual([]);
+describe('clearOutcome', () => {
+  it('reads the URL the app goes to when the clear is done', () => {
+    expect(clearOutcome('about:blank#cleared')).toBe('cleared');
+    expect(clearOutcome('about:blank#failed')).toBe('failed');
   });
 
-  it('treats a page without Cache Storage as cleared', () => {
-    expect(webviewDataLeft({ indexedDb: [], localStorage: 0, sessionStorage: 0, caches: null })).toEqual([]);
-  });
-
-  it('names every kind of data left', () => {
-    expect(webviewDataLeft({ indexedDb: ['qspider', 'saves'], localStorage: 2, sessionStorage: 1, caches: 3 })).toEqual(
-      ['IndexedDB qspider, saves', '2 local storage item(s)', '1 session storage item(s)', '3 Cache Storage cache(s)'],
-    );
+  it('is pending on the app page and on the bare about:blank the clear runs on', () => {
+    expect(clearOutcome('https://tauri.localhost/')).toBe('pending');
+    expect(clearOutcome('about:blank')).toBe('pending');
   });
 });
 
