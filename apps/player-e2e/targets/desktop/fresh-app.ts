@@ -5,6 +5,7 @@ import { desktopPlatform, type Proc } from './platform';
 import { assertDriverStarted, driverPid, ENV_APP_DATA_DIRS, requireEnv } from './platform/env';
 import { restartStep } from './restart-step';
 import { launchReady, launchRequested, reportStartupTimeline } from './startup-timeline';
+import { webviewDataLeft, webviewProfileDir, type WebviewDataLeft } from './webview-data';
 
 /** How long a closed app gets to exit on its own before its session is ended, which kills it. */
 const CLOSE_TIMEOUT = 5_000;
@@ -18,6 +19,8 @@ const EXIT_TIMEOUT = 40_000;
 const RESTART_TIMEOUT = CLOSE_TIMEOUT + EXIT_TIMEOUT + 30_000;
 /** How long the killed leftovers of a failed exit wait get to be gone. */
 const KILL_TIMEOUT = 5_000;
+/** How long clearing the webview data may take (the app gives up after 10 s) before the profile is deleted instead. */
+const CLEAR_TIMEOUT = 15_000;
 
 /** The running scenario's test (scenario.ts), whose timeout a restart sets aside. */
 let scenarioTest: Mocha.Runnable | undefined;
@@ -77,6 +80,53 @@ export function appExitedAsExpected(): boolean {
 let defaultCapabilities: WebdriverIO.Capabilities | undefined;
 
 /** The default capabilities, with `args` (when given) as the app's command line instead of the config's. */
+/** The WebView2 user data folder the sessions get (Windows only, wdio.conf.ts); undefined elsewhere. */
+function webviewUserDataFolder(capabilities: WebdriverIO.Capabilities): string | undefined {
+  const options = (capabilities as Record<string, { webviewOptions?: { userDataFolder?: unknown } } | undefined>)[
+    'tauri:options'
+  ];
+  const folder = options?.webviewOptions?.userDataFolder;
+  return typeof folder === 'string' ? folder : undefined;
+}
+
+/**
+ * Windows: clears the running app's browsing data (e2e_clear_webview_data) and checks from the page that nothing
+ * is left, so the next scenario can keep the WebView2 profile (webview-data.ts). Returns the profile folder to
+ * keep, or undefined, with a warning, when the profile must be deleted as before: the clear failed or left data.
+ */
+async function clearWebviewData(capabilities: WebdriverIO.Capabilities): Promise<string | undefined> {
+  const userDataFolder = webviewUserDataFolder(capabilities);
+  if (!userDataFolder) return undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const left = await Promise.race([
+      browser.execute(async (): Promise<WebviewDataLeft> => {
+        const internals = (window as unknown as { __TAURI_INTERNALS__: { invoke(cmd: string): Promise<unknown> } })
+          .__TAURI_INTERNALS__;
+        await internals.invoke('e2e_clear_webview_data');
+        return {
+          indexedDb: (await indexedDB.databases()).map((db) => db.name ?? '(unnamed)'),
+          localStorage: localStorage.length,
+          sessionStorage: sessionStorage.length,
+          caches: 'caches' in window ? (await caches.keys()).length : null,
+        };
+      }),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`no answer within ${CLEAR_TIMEOUT}ms`)), CLEAR_TIMEOUT);
+      }),
+    ]);
+    const problems = webviewDataLeft(left);
+    if (problems.length === 0) return webviewProfileDir(userDataFolder);
+    console.warn(`Webview data left after clearing it (${problems.join('; ')}); deleting the WebView2 profile`);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message.split('\n')[0] : String(error);
+    console.warn(`Could not clear the webview data (${reason}); deleting the WebView2 profile`);
+  } finally {
+    clearTimeout(timer);
+  }
+  return undefined;
+}
+
 function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilities {
   defaultCapabilities ??= structuredClone(browser.requestedCapabilities as WebdriverIO.Capabilities);
   const capabilities = structuredClone(defaultCapabilities);
@@ -89,12 +139,14 @@ function launchCapabilities(args: string[] | undefined): WebdriverIO.Capabilitie
 
 /**
  * Closes the running app as a user would (where the platform supports it), ends its session and waits until
- * it and its webview processes have exited (so nothing still writes app data). After a restart that failed
+ * it and its webview processes have exited (so nothing still writes app data). Before the close, when `wipeData`
+ * on Windows, it clears the app's browsing data so the WebView2 profile can be kept (clearWebviewData; a brand-new
+ * profile holds the first request 0.3 s to 16 s). After a restart that failed
  * in that wait (which kills what it left), only the new app is started, so the failure stays with that one
  * scenario. An app that already exited after expectAppExit (a game that quit) only has its
  * dead session ended; with no exit expected, a missing app fails. Then, when `wipeData`, empties
- * the app data dirs the platform named (ENV_APP_DATA_DIRS, never anything else;
- * a delete that fails, e.g. on a file still held open, fails the restart). Then starts a new
+ * the app data dirs the platform named (ENV_APP_DATA_DIRS, never anything else), all but a cleared WebView2
+ * profile (a delete that fails, e.g. on a file still held open, fails the restart). Then starts a new
  * session: tauri-driver launches a new app process, which opens the test pack from its CLI argument,
  * or, with `args`, gets `args` as its command line instead.
  */
@@ -137,9 +189,12 @@ async function restartAppNow(wipeData: boolean, args: string[] | undefined): Pro
   appExitExpected = false;
   const running = platform.appProcesses(driver);
   const step = restartStep(running.length > 0, exitExpected, sessionEnded);
+  /** The WebView2 profile folder emptying the app data dirs keeps (Windows, once its data is cleared). */
+  let keepProfile: string | undefined;
   if (step === 'end-session') {
     // A restart inside a scenario: the app about to close has not had its timeline printed yet.
     await reportStartupTimeline(scenarioTest?.title ?? '(no scenario)');
+    if (wipeData) keepProfile = await clearWebviewData(capabilities);
     await closeApp(platform, driver);
     sessionEnded = true;
     // After a close the app has usually exited already; the driver may answer the delete with an error about that.
@@ -164,7 +219,7 @@ async function restartAppNow(wipeData: boolean, args: string[] | undefined): Pro
   }
 
   if (wipeData) {
-    dataDirs.forEach((dir) => platform.emptyDir(dir));
+    dataDirs.forEach((dir) => platform.emptyDir(dir, keepProfile));
   }
   launchRequested(restartBegin);
   await browser.reloadSession(capabilities);

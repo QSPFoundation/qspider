@@ -28,6 +28,8 @@
     "targets/desktop/restart-step.spec.ts",
     "targets/desktop/startup-timeline-format.ts",
     "targets/desktop/startup-timeline-format.spec.ts",
+    "targets/desktop/webview-data.ts",
+    "targets/desktop/webview-data.spec.ts",
     "targets/desktop/platform/**/*.ts",
     "*.config.mts"
   ]

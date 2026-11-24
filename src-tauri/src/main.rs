@@ -132,14 +132,15 @@ fn main() {
     tauri::webview::PageLoadEvent::Finished => e2e_startup::step("page-load-finished"),
   });
 
-  // `e2e_mark` and `e2e_startup_trace` exist only in debug builds, which is what the E2E builds are
-  // (`tauri build --debug`). Keep both handler lists identical apart from those two.
+  // `e2e_mark`, `e2e_clear_webview_data` and `e2e_startup_trace` exist only in debug builds, which is
+  // what the E2E builds are (`tauri build --debug`). Keep both handler lists identical apart from those.
   #[cfg(debug_assertions)]
   let builder = builder.invoke_handler(tauri::generate_handler![
     prepare_game_start,
     read_resource,
     read_app_asset,
     e2e::e2e_mark,
+    e2e::e2e_clear_webview_data,
     e2e_startup::e2e_startup_trace
   ]);
   #[cfg(not(debug_assertions))]
